@@ -1,3 +1,15 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 
 #include <stdio.h>
 #include <iostream>
@@ -78,7 +90,7 @@ void MatF::to_vec(VecF &outvec) {
 }
 
 void MatF::set(int m, int n, std::vector<float> arr) {
-    _dat.set(m*n,arr);
+    _dat.set(m*n,std::move(arr));
     _m = m;
     _n = n;
 }
@@ -94,7 +106,7 @@ void MatF::set(MatF &A) {
 
 
 void MatF::take(int m, int n, std::vector<float> arr) {
-    _dat.take(m*n,arr);
+    _dat.take(m*n,std::move(arr));
     _m = m;
     _n = n;
 }
@@ -379,7 +391,7 @@ void MatD::to_vec(VecD &outvec) {
 }
 
 void MatD::set(int m, int n, std::vector<double> arr) {
-    _dat.set(m*n,arr);
+    _dat.set(m*n,std::move(arr));
     _m = m;
     _n = n;
 }
@@ -395,7 +407,7 @@ void MatD::set(MatD &A) {
 
 
 void MatD::take(int m, int n, std::vector<double> arr) {
-    _dat.take(m*n,arr);
+    _dat.take(m*n,std::move(arr));
     _m = m;
     _n = n;
 }
@@ -680,7 +692,7 @@ void MatI::to_vec(VecI &outvec) {
 }
 
 void MatI::set(int m, int n, std::vector<int> arr) {
-    _dat.set(m*n,arr);
+    _dat.set(m*n,std::move(arr));
     _m = m;
     _n = n;
 }
@@ -696,7 +708,7 @@ void MatI::set(MatI &A) {
 
 
 void MatI::take(int m, int n, std::vector<int> arr) {
-    _dat.take(m*n,arr);
+    _dat.take(m*n,std::move(arr));
     _m = m;
     _n = n;
 }

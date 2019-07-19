@@ -83,12 +83,12 @@ void VecF::to_i(VecI &out) {
 
 
 void VecF::set(int n, std::vector<float> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
 void VecF::take(int n, std::vector<float> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
@@ -991,12 +991,12 @@ void VecD::to_i(VecI &out) {
 
 
 void VecD::set(int n, std::vector<double> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
 void VecD::take(int n, std::vector<double> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
@@ -1899,12 +1899,12 @@ void VecI::to_d(VecD &out) {
 
 
 void VecI::set(int n, std::vector<int> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
 void VecI::take(int n, std::vector<int> arr) {
-    _dat = arr;
+    _dat = std::move(arr);
     _n = n;
 }
 
