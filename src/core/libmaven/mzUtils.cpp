@@ -1113,9 +1113,9 @@ Series:  Prentice-Hall Series in Automatic Computation
         return firDesignKaiser(numTaps, fc, beta, interpRate);
     }
 
-    int approximateResamplingFactor(const size_t dataSize)
+    int approximateResamplingFactor(const size_t dataSize, int lowerSizeLimit)
     {
-        int resamplingFactor = static_cast<int>(dataSize / 100) - 1;
+        int resamplingFactor = static_cast<int>(dataSize / lowerSizeLimit) - 1;
         if (resamplingFactor < 1)
             resamplingFactor = 1;
 
@@ -1137,6 +1137,21 @@ Series:  Prentice-Hall Series in Automatic Computation
         NimbleDSP::RealVector<double> buf(inputData);
         buf = filter.resample(buf, interpRate, decimRate);
         return buf.vec;
+    }
+
+    chrono::time_point<chrono::high_resolution_clock> startTimer()
+    {
+        return chrono::high_resolution_clock::now();
+    }
+
+    void stopTimer(chrono::time_point<chrono::high_resolution_clock>& clock,
+                   string name)
+    {
+        auto now = chrono::high_resolution_clock::now();
+        auto diff = now - clock;
+        cerr << "RUNTIME OF " << name << ": "
+             << chrono::duration_cast<chrono::milliseconds>(diff).count()
+             << " ms\n";
     }
 
 } //namespace end

@@ -15,7 +15,9 @@ QMAKE_CXXFLAGS += -DOMP_PARALLEL
 
 TARGET = obiwarp
 
-
+linux: QMAKE_CXXFLAGS += -Ofast -ffast-math
+win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
+macx: QMAKE_CXXFLAGS += -O3
 
 macx{
     INCLUDEPATH += /usr/local/include/

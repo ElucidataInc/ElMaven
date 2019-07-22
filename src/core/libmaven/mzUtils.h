@@ -5,6 +5,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <iostream>
+#include <chrono>
 
 #include "standardincludes.h"
 #include "statistics.h"
@@ -640,9 +642,12 @@ namespace mzUtils {
          * estimate an optimal resampling factor, without losing information, it
          * would have to consider the nature of the signal itself.
          * @param dataSize Length of the digital signal.
+         * @param lowerSizeLimit Length which the returned resampling factor is
+         * guaranteed to not cross if used to resize data of given size.
          * @return A integer resampling factor (always ≥ 1).
          */
-        int approximateResamplingFactor(size_t dataSize);
+        int approximateResamplingFactor(size_t dataSize,
+                                        int lowerSizeLimit=100);
 
         /**
          * @brief Resample an input signal according to the given interpolation
@@ -659,6 +664,28 @@ namespace mzUtils {
         std::vector<double> resample(const std::vector<double>& inputData,
                                      int interpRate,
                                      int decimRate);
+
+        /**
+         * @brief Create a clock that can be used to indicate the start of an
+         * operation which needs to be timed.
+         * @return A high resolution `time_point` value representing the current
+         * point in time.
+         */
+        chrono::time_point<chrono::high_resolution_clock> startTimer();
+
+        /**
+         * @brief Given a high resolution time point, prints the difference
+         * between the given time point and the current point in time.
+         * @details Despite its name, this function does not really stop
+         * anything but exists only to print a difference between given and
+         * current time points. Wrapping an operation with `startTimer` and
+         * `stopTimer` to record its runtime makes idiomatic sense.
+         * @param clock A high resolution time point object.
+         * @param name The name of the operation, which elapsed time will be
+         * attributed to.
+         */
+        void stopTimer(chrono::time_point<chrono::high_resolution_clock>& clock,
+                       string name);
 }
 
 template <typename T>

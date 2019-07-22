@@ -332,20 +332,33 @@ bool Aligner::alignSampleRts(mzSample* sample,
                              bool setAsReference,
                              const MavenParameters* mp)
 {
+    // we set the rt interval using the reference sample
+    int rtBinSize = 1;
+    if (setAsReference && sample != nullptr) {
+        rtBinSize = mzUtils::approximateResamplingFactor(sample->ms1ScanCount(),
+                                                         500);
+    } else if (refSample != nullptr) {
+        rtBinSize = mzUtils::approximateResamplingFactor(refSample->ms1ScanCount(),
+                                                         500);
+    }
+
     vector<float> rtPoints;
     vector<vector<float> > mxn;
 
-    int mxnCount = 0;
+    int intervalCounter = 0;
     for(auto scan: sample->scans) {
-        if(mp->stop) return (true);
-        if(scan->mslevel == 1 ) {
+        if (mp->stop) return (true);
+        if (scan->mslevel == 1 && (intervalCounter % rtBinSize == 0 || scan == sample->scans.back())) {
             rtPoints.push_back(scan->originalRt);
             mxn.push_back(vector<float> (mzPoints.size()));
         }
+        ++intervalCounter;
     }
 
+    intervalCounter = 0;
+    int mxnCount = 0;
     for(auto scan: sample->scans) {
-        if(scan->mslevel == 1) {
+        if (scan->mslevel == 1 && (intervalCounter % rtBinSize == 0 || scan == sample->scans.back())) {
             mxnCount++;
             for(int i = 0; i <  scan->mz.size(); i++) {
                 if (mp->stop) return (true);
@@ -355,22 +368,37 @@ bool Aligner::alignSampleRts(mzSample* sample,
                 mxn[mxnCount - 1][index] = max(mxn[mxnCount -1][index], scan->intensity.at(i));
             }
         }
+        ++intervalCounter;
     }
 
-    
     if (setAsReference) {
         if (mp->stop) return (true);
         obiWarp.setReferenceData(rtPoints, mzPoints, mxn);
     }
     else {
+        vector<float> updatedRtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
+        if (updatedRtPoints.empty())
+            return(true);
 
-        rtPoints = obiWarp.align(rtPoints, mzPoints, mxn);
-        if (rtPoints.empty()) return(true);
-        for(int j = 0, i=0 ; j < rtPoints.size(); i++) {
-            if(sample->scans.at(i)->mslevel ==1) {
-                sample->scans.at(i)->rt = rtPoints.at(j);
-                j++;
+        // perform segmented alignment
+        AlignmentSegment* lastSegment = nullptr;
+        for (int i = 0; i < rtPoints.size(); ++i) {
+            auto originalRt = rtPoints.at(i);
+            auto updatedRt = updatedRtPoints.at(i);
+            AlignmentSegment* seg = new AlignmentSegment();
+            seg->sampleName = sample->sampleName;
+            seg->segStart = 0;
+            seg->segEnd = originalRt;
+            seg->newStart = 0;
+            seg->newEnd = updatedRt;
+
+            if (lastSegment and lastSegment->sampleName == seg->sampleName) {
+                seg->segStart = lastSegment->segEnd;
+                seg->newStart = lastSegment->newEnd;
             }
+
+            addSegment(sample->sampleName, seg);
+            lastSegment = seg;
         }
     }
     return (false);
@@ -431,6 +459,8 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
         return (true);
     }
 
+    _alignmentSegments.clear();
+    setSamples(samples);
     int samplesAligned = 0;
     #pragma omp parallel for shared(samplesAligned)
     for (int i = 0; i < samples.size(); ++i) {
@@ -448,6 +478,8 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
             setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
         }
     }
+    setAlignmentProgress("Performing post-alignment interpolation…", 1, 1);
+    performSegmentedAlignment();
 
     cerr << "Samples modified: " << samplesAligned << endl;
     delete obiWarp;

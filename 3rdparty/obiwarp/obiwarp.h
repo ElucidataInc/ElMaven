@@ -41,8 +41,8 @@ private:
     MatF _mat;
     int _tm_vals;
     int _mz_vals;
-    float* tmPoint;
-    float* mzPoint;
+    std::vector<float> tmPoint;
+    std::vector<float> mzPoint;
     DynProg dyn;
 
     char* score;
