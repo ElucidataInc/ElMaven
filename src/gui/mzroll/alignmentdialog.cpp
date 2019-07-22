@@ -22,7 +22,7 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
 
         connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
-        connect(cancelButton, SIGNAL(toggled(bool)), SLOT(cancel()));
+        connect(cancelButton, &QPushButton::clicked, this, &AlignmentDialog::cancel);
         connect(alignWrtExpectedRt,SIGNAL(toggled(bool)),SLOT(setAlignWrtExpectedRt(bool)));
         connect(local, SIGNAL(toggled(bool)),this, SLOT(setInitPenalty(bool)));
         connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
