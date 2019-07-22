@@ -30,8 +30,8 @@ BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         _stopped = true;
         setTerminationEnabled(true);
         runFunction = "computeKnowsPeaks";
-        peakDetector = new PeakDetector();
-        peakDetector->boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot, this, _1, _2, _3));
+        peakDetector = nullptr;
+        setPeakDetector(new PeakDetector());
 }
 
 QString BackgroundPeakUpdate::printSettings() {
@@ -384,6 +384,19 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
                 csvreports = NULL;
         }
         Q_EMIT(updateProgressBar("Done", 1, 1));
+}
+
+void BackgroundPeakUpdate::setPeakDetector(PeakDetector *pd)
+{
+    if (peakDetector != nullptr)
+        delete peakDetector;
+
+    peakDetector = pd;
+    peakDetector->boostSignal.connect(boost::bind(&BackgroundPeakUpdate::qtSlot,
+                                                  this,
+                                                  _1,
+                                                  _2,
+                                                  _3));
 }
 
 void BackgroundPeakUpdate::processSlices() {
