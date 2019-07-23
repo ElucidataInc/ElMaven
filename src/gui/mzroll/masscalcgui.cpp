@@ -181,6 +181,7 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
         return;
 
     _mz = grp->meanMz;
+    precursorMz->setText(QString(to_string(_mz).c_str()));
     getMatches();
 
     if(grp->ms2EventCount == 0)
