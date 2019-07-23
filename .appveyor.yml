@@ -116,7 +116,7 @@ after_build:
           if ( -Not (Test-Path $BIN -PathType Container) ) { mkdir $BIN }
           cd $BIN ; rm -Recurse -Force *
 
-          $excludes = "linux","node","node_bin","node_modules","node.exe","MavenTests.exe"
+          $excludes = "linux","node","node_bin","node.exe","MavenTests.exe"
           Get-ChildItem $ELMAVEN_BIN |
               Where-Object{$_.Name -notin $excludes} |
               Copy-Item -Destination $BIN -Recurse -Force
@@ -186,7 +186,7 @@ after_build:
 
           # copy node
           echo "Copying node requirements ..."
-          Get-ChildItem -Path $NODE_WIN | Move-Item -Destination $BIN
+          robocopy $NODE_WIN $BIN /e /copyall > $null
 
           # expose pre-installed Qt Installer Framework binaries
           $env:PATH="C:\Qt\QtIFW-3.0.1\bin;$env:PATH"
