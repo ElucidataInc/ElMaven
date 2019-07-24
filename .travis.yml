@@ -106,9 +106,12 @@ after_success:
       bash <(curl -s https://codecov.io/bash)
     fi
 
-
-before_deploy:
   - |
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      echo "This build is for a PR. Not proceeding with installer creation."
+      exit 0
+    fi
+
     export ELMAVEN_TAG=`git describe --tags`
     SUBSTRING=$(echo $ELMAVEN_TAG| cut -d'-' -f 1)
     export ELMAVEN_VERSION=${SUBSTRING[@]:1}
