@@ -16,6 +16,8 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);
   _mw = mw;
   _mz = 0;
+  _currentGroup = nullptr;
+  _currentScan = nullptr;
   setCharge(-1);
   setMassCutoff(mw->getUserMassCutoff());
 
@@ -27,6 +29,16 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   connect(ionization,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(precursorPpm,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(mTable, SIGNAL(itemSelectionChanged()), SLOT(_showInfo()));
+  connect(fragPpm, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&] {
+              if (_currentGroup) {
+                  auto newGroup = new PeakGroup(*_currentGroup);
+                  setPeakGroup(newGroup);
+              } else if (_currentScan) {
+                  auto newScan = new Scan(nullptr, -1, 1, 0.0f, 0.0f, -1);
+                  newScan->deepcopy(_currentScan);
+                  setFragmentationScan(newScan);
+              }
+          });
 }
 
 void MassCalcWidget::setMass(float mz) {
@@ -180,6 +192,10 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
     if(!grp)
         return;
 
+    if (_currentGroup)
+        delete _currentGroup;
+    _currentGroup = new PeakGroup(*grp);
+
     _mz = grp->meanMz;
     precursorMz->setText(QString(to_string(_mz).c_str()));
     getMatches();
@@ -204,6 +220,11 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
 void MassCalcWidget::setFragmentationScan(Scan* scan) {
     if(!scan)
         return;
+
+    if (_currentScan)
+        delete _currentScan;
+    _currentScan = new Scan(nullptr, -1, 1, 0.0f, 0.0f, -1);
+    _currentScan->deepcopy(scan);
 
     Fragment f(scan, 0, 0, 1024);
     _mz = scan->precursorMz;

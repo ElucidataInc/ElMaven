@@ -44,9 +44,11 @@ private:
 	  std::vector< MassCalculator::Match* > matches;
       std::vector<Compound*> sortedcompounds;
 
-	  double _mz;
-	  double _charge;
-	  MassCutoff* _massCutoff;
+    double _mz;
+    double _charge;
+    MassCutoff* _massCutoff;
+    PeakGroup* _currentGroup;
+    Scan* _currentScan;
 
       void pubChemLink(QString formula);
       void keggLink(QString formula);
