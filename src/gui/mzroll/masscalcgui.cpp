@@ -16,7 +16,8 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   setupUi(this);
   _mw = mw;
   _mz = 0;
-  setCharge(-1);
+  _currentGroup = nullptr;
+  _currentScan = nullptr;
   setMassCutoff(mw->getUserMassCutoff());
 
   database->addItem("All");
@@ -24,9 +25,18 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   connect(computeButton, SIGNAL(clicked(bool)), SLOT(compute()));
   connect(database, SIGNAL(currentIndexChanged(int)), SLOT(showTable()));
   connect(precursorMz,SIGNAL(returnPressed()),SLOT(compute()));
-  connect(ionization,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(precursorPpm,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(mTable, SIGNAL(itemSelectionChanged()), SLOT(_showInfo()));
+  connect(fragPpm, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&] {
+              if (_currentGroup) {
+                  auto newGroup = new PeakGroup(*_currentGroup);
+                  setPeakGroup(newGroup);
+              } else if (_currentScan) {
+                  auto newScan = new Scan(nullptr, -1, 1, 0.0f, 0.0f, -1);
+                  newScan->deepcopy(_currentScan);
+                  setFragmentationScan(newScan);
+              }
+          });
 }
 
 void MassCalcWidget::setMass(float mz) {
@@ -38,11 +48,6 @@ void MassCalcWidget::setMass(float mz) {
     showTable();
 }
 
-void MassCalcWidget::setCharge(float charge) {
-
-                ionization->setValue(charge);
-                _charge=charge;
-}
 void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { precursorPpm->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff;
     precursorPpm->setValue(massCutoff->getMassCutoff());
     string massCutoffType=massCutoff->getMassCutoffType();
@@ -54,10 +59,8 @@ void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { precursorPpm->setVa
 void MassCalcWidget::compute() {
 	 bool isDouble =false;
          _mz = 		precursorMz->text().toDouble(&isDouble);
-  	 _charge =  ionization->value();
        _massCutoff->setMassCutoff(precursorPpm->value());
 	 if (!isDouble) return;
-	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
 	_mw->setStatusText("Searching for formulas..");
 	 getMatches();
@@ -180,7 +183,12 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
     if(!grp)
         return;
 
+    if (_currentGroup)
+        delete _currentGroup;
+    _currentGroup = new PeakGroup(*grp);
+
     _mz = grp->meanMz;
+    precursorMz->setText(QString(to_string(_mz).c_str()));
     getMatches();
 
     if(grp->ms2EventCount == 0)
@@ -203,6 +211,11 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
 void MassCalcWidget::setFragmentationScan(Scan* scan) {
     if(!scan)
         return;
+
+    if (_currentScan)
+        delete _currentScan;
+    _currentScan = new Scan(nullptr, -1, 1, 0.0f, 0.0f, -1);
+    _currentScan->deepcopy(scan);
 
     Fragment f(scan, 0, 0, 1024);
     _mz = scan->precursorMz;

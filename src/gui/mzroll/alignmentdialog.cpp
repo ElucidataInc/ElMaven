@@ -60,7 +60,6 @@ void AlignmentDialog::setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThrea
 void AlignmentDialog::samplesAligned(bool status)
 {
 	_mw->samplesAlignedFlag = status;
-	UndoAlignment->setEnabled(status);
 }
 
 void AlignmentDialog::updateRestoreStatus()

@@ -333,9 +333,12 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
         MassCutoff* productMassCutoff = new MassCutoff();
         productMassCutoff->setMassCutoffAndType(hit.productPPM, "ppm");
         int pos = _currentScan->findHighestIntensityPos(hit.precursorMz, productMassCutoff);
-        if(pos >= 0) {
+        if (pos >= 0) {
             _focusCoord.setX(hit.precursorMz);
             _focusCoord.setY(_currentScan->intensity[pos]);
+        } else {
+            _focusCoord.setX(0.0f);
+            _focusCoord.setY(0.0f);
         }
         delete productMassCutoff;
 }
@@ -563,7 +566,8 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
                 sline->addPoint(x, y);
         }
 
-        if (abs(scan->mz[j] - _focusedMz) < 0.005) {
+        if (!mzUtils::almostEqual(_focusedMz, 0.0f)
+            && abs(scan->mz[j] - _focusedMz) < 0.005) {
             QPen redpen(Qt::red, 3);
             QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, yzero, 0);
             scene()->addItem(line);
@@ -929,14 +933,12 @@ void SpectraWidget::setMzFocus(float mz)
 		if(pos >= 0) { 
 			float bestMz = _currentScan->mz[pos];
 			mainwindow->setMzValue(bestMz);
-			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 		}
 
 	} else if (_currentScan->mslevel == 2 && _currentScan->precursorMz > 0) {
 			float bestMz = _currentScan->precursorMz;
 			mainwindow->setMzValue(bestMz);
-			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 
 	} else if (!_currentScan->filterLine.empty()) {
@@ -965,7 +967,6 @@ void SpectraWidget::setMzFocus(float mz)
 		float bestMz = _currentScan->mz[bestMatch];
 
         mainwindow->setMzValue(bestMz);
-        mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
         mainwindow->massCalcWidget->setMass(bestMz);
         //mainwindow->massCalc->compute();
     }
@@ -1034,6 +1035,9 @@ int SpectraWidget::findNearestMz(QPointF pos)
 
 void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float intensity2)
 {
+    if (mzUtils::almostEqual(static_cast<float>(_focusCoord.x()), 0.0f))
+        return;
+
     float SCALE = 1.0;
     float OFFSET = 0;
     if (_showOverlay) {
