@@ -26,7 +26,6 @@ protected:
 
 public Q_SLOTS: 
  	  void setMass(float mz);
-	  void setCharge(float charge);
 	  void setMassCutoff(MassCutoff *massCutoff);
       void compute();
 	  QSet<Compound*> findMathchingCompounds(float mz, MassCutoff *massCutoff, float charge);
@@ -45,7 +44,6 @@ private:
       std::vector<Compound*> sortedcompounds;
 
     double _mz;
-    double _charge;
     MassCutoff* _massCutoff;
     PeakGroup* _currentGroup;
     Scan* _currentScan;

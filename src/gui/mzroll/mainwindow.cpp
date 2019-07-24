@@ -1312,7 +1312,6 @@ void MainWindow::setIonizationModeLabel() {
 	
 	ionizationModeLabel->setText(ionMode);
 
-	massCalcWidget->setCharge(mode);
 	isotopeWidget->setCharge(mode);
 	setTotalCharge();
 }

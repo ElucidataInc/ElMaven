@@ -933,14 +933,12 @@ void SpectraWidget::setMzFocus(float mz)
 		if(pos >= 0) { 
 			float bestMz = _currentScan->mz[pos];
 			mainwindow->setMzValue(bestMz);
-			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 		}
 
 	} else if (_currentScan->mslevel == 2 && _currentScan->precursorMz > 0) {
 			float bestMz = _currentScan->precursorMz;
 			mainwindow->setMzValue(bestMz);
-			mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
 			mainwindow->massCalcWidget->setMass(bestMz);
 
 	} else if (!_currentScan->filterLine.empty()) {
@@ -969,7 +967,6 @@ void SpectraWidget::setMzFocus(float mz)
 		float bestMz = _currentScan->mz[bestMatch];
 
         mainwindow->setMzValue(bestMz);
-        mainwindow->massCalcWidget->setCharge(_currentScan->getPolarity());
         mainwindow->massCalcWidget->setMass(bestMz);
         //mainwindow->massCalc->compute();
     }

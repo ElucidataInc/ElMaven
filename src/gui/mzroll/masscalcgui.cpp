@@ -18,7 +18,6 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   _mz = 0;
   _currentGroup = nullptr;
   _currentScan = nullptr;
-  setCharge(-1);
   setMassCutoff(mw->getUserMassCutoff());
 
   database->addItem("All");
@@ -26,7 +25,6 @@ MassCalcWidget::MassCalcWidget(MainWindow* mw) {
   connect(computeButton, SIGNAL(clicked(bool)), SLOT(compute()));
   connect(database, SIGNAL(currentIndexChanged(int)), SLOT(showTable()));
   connect(precursorMz,SIGNAL(returnPressed()),SLOT(compute()));
-  connect(ionization,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(precursorPpm,SIGNAL(valueChanged(double)),SLOT(compute()));
   connect(mTable, SIGNAL(itemSelectionChanged()), SLOT(_showInfo()));
   connect(fragPpm, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&] {
@@ -50,11 +48,6 @@ void MassCalcWidget::setMass(float mz) {
     showTable();
 }
 
-void MassCalcWidget::setCharge(float charge) {
-
-                ionization->setValue(charge);
-                _charge=charge;
-}
 void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { precursorPpm->setValue(massCutoff->getMassCutoff()); _massCutoff=massCutoff;
     precursorPpm->setValue(massCutoff->getMassCutoff());
     string massCutoffType=massCutoff->getMassCutoffType();
@@ -66,10 +59,8 @@ void MassCalcWidget::setMassCutoff(MassCutoff *massCutoff) { precursorPpm->setVa
 void MassCalcWidget::compute() {
 	 bool isDouble =false;
          _mz = 		precursorMz->text().toDouble(&isDouble);
-  	 _charge =  ionization->value();
        _massCutoff->setMassCutoff(precursorPpm->value());
 	 if (!isDouble) return;
-	 cerr << "massCalcGui:: compute() " << _charge << " " << _mz << endl;
 
 	_mw->setStatusText("Searching for formulas..");
 	 getMatches();
