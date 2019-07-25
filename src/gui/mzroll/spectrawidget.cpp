@@ -877,12 +877,18 @@ float SpectraWidget::invY(float y)
 
 void SpectraWidget::mousePressEvent(QMouseEvent *event)
 {
+    if (_currentScan == nullptr)
+        return;
+
     QGraphicsView::mousePressEvent(event);
     _mouseStartPos = event->pos();
 }
 
 void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (_currentScan == nullptr)
+        return;
+
     QGraphicsView::mouseReleaseEvent(event);
 
     _mouseEndPos = event->pos();
