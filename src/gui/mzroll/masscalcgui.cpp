@@ -219,6 +219,7 @@ void MassCalcWidget::setFragmentationScan(Scan* scan) {
 
     Fragment f(scan, 0, 0, 1024);
     _mz = scan->precursorMz;
+    precursorMz->setText(QString(to_string(_mz).c_str()));
     getMatches();
 
     for(auto& m : matches ) {
