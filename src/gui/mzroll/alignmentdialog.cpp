@@ -23,7 +23,6 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
         connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
         connect(cancelButton, &QPushButton::clicked, this, &AlignmentDialog::cancel);
-        connect(alignWrtExpectedRt,SIGNAL(toggled(bool)),SLOT(setAlignWrtExpectedRt(bool)));
         connect(local, SIGNAL(toggled(bool)),this, SLOT(setInitPenalty(bool)));
         connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
         connect(showAdvanceParams, SIGNAL(toggled(bool)), this, SLOT(showAdvanceParameters(bool)));
@@ -71,11 +70,6 @@ void AlignmentDialog::refSampleChanged()
 {
     mzSample* sample = static_cast<mzSample*>(samplesBox->currentData().value<void*>());
     emit changeRefSample(sample);
-}
-
-void AlignmentDialog::setAlignWrtExpectedRt(bool checked)
-{
-	_mw->mavenParameters->alignWrtExpectedRt = checked;
 }
 
 void AlignmentDialog::setInitPenalty(bool checked)

@@ -105,7 +105,6 @@ class MavenParameters
         bool pullIsotopesFlag;
         bool showProgressFlag;
         bool matchRtFlag;
-        bool alignWrtExpectedRt;
 
         /**
         * default ionization mode used by mass spec

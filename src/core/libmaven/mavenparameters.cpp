@@ -13,8 +13,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 {
 
     clsf = NULL;
-    alignWrtExpectedRt=false;
-	alignSamplesFlag = false;
+    alignSamplesFlag = false;
         processAllSlices = false;
         pullIsotopesFlag = false;
         matchRtFlag = false;
