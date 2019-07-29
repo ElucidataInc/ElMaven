@@ -169,6 +169,38 @@ std::map<string, string>& MavenParameters::getSettings()
     return mavenSettings;
 }
 
+void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* value)
+{
+    if(key[0] == '\0' || value[0] == '\0')
+        return;
+
+    mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
+
+    if(strcmp(key, "C13LabelBPE") == 0)
+        C13Labeled_BPE = atof(value);
+
+    if(strcmp(key, "D2LabelBPE") == 0)
+        D2Labeled_BPE = atof(value);
+
+    if(strcmp(key, "N15LabelBPE") == 0)
+        N15Labeled_BPE = atof(value);
+
+    if(strcmp(key, "S34LabelBPE") == 0)
+        S34Labeled_BPE = atof(value);
+
+    if(strcmp(key, "correctC13IsotopeAbundance") == 0)
+        isotopeC13Correction = atof(value);
+
+    if(strcmp(key, "minIsotopeParentCorrelation") == 0)
+        minIsotopicCorrelation = atof(value);
+
+    if(strcmp(key, "maxIsotopeScanDiff") == 0)
+        maxIsotopeScanDiff = atof(value);
+
+    if(strcmp(key, "maxNaturalAbundanceError") == 0)
+        maxNaturalAbundanceErr = atof(value);
+}
+
 void  MavenParameters::setPeakDetectionSettings(const char* key, const char* value)
 {
     if(key[0] == '\0' || value[0] == '\0')
@@ -386,30 +418,6 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
     if(strcmp(key, "minIsotopePeakQuality") == 0)
         minIsotopicPeakQuality = atof(value);
 
-    if(strcmp(key, "D2LabelBPE") == 0)
-        D2Labeled_BPE = atof(value);
-
-    if(strcmp(key, "C13LabelBPE") == 0)
-        C13Labeled_BPE = atof(value);
-
-    if(strcmp(key, "N15LabelBPE") == 0)
-        N15Labeled_BPE = atof(value);
-
-    if(strcmp(key, "S34LabelBPE") == 0)
-        S34Labeled_BPE = atof(value);
-
-    if(strcmp(key, "correctC13IsotopeAbundance") == 0)
-        isotopeC13Correction = atof(value);
-
-    if(strcmp(key, "minIsotopeParentCorrelation") == 0)
-        minIsotopicCorrelation = atof(value);
-
-    if(strcmp(key, "maxIsotopeScanDiff") == 0)
-        maxIsotopeScanDiff = atof(value);
-
-    if(strcmp(key, "maxNaturalAbundanceError") == 0)
-        maxNaturalAbundanceErr = atof(value);
-
     if(strcmp(key, "eicType") == 0)
         eicType = atof(value);
 
@@ -478,6 +486,7 @@ bool MavenParameters::loadSettings(const char* data)
 
     for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
 
+                setIsotopeDialogSettings(it->name(), it->text().get());
                 setPeakDetectionSettings(it->name(), it->text().get());
                 setOptionsDialogSettings(it->name(), it->text().get());
     }
@@ -502,6 +511,7 @@ void MavenParameters::reset(const std::list<string>& keys)
         if( std::find(keys.begin(), keys.end(), it->name()) != keys.end() ) {
             setOptionsDialogSettings(it->name(), it->text().get());
             setPeakDetectionSettings(it->name(), it->text().get());
+            setIsotopeDialogSettings(it->name(), it->text().get());
         }
     }
 }

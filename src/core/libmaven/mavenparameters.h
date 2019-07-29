@@ -263,6 +263,11 @@ class MavenParameters
         bool saveSettings(const char* path);
 
         /*
+         * @brief update mavenSettings(map) and settings related to isotopes
+         */
+        void setIsotopeDialogSettings(const char* key, const char* value);
+        
+        /*
          * @brief update maveSettings(map) and settings related to peak detection
          */
         void setPeakDetectionSettings(const char* key, const char* value);
