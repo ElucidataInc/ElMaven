@@ -1,22 +1,24 @@
 #ifndef ISOTOPEDIALOG_H
 #define ISOTOPEDIALOG_H
 
-#include <QDialog>
+#include "stable.h"
+#include "ui_isotopedialog.h"
 
-namespace Ui {
-class IsotopeDialog;
-}
+class MainWindow;
 
-class IsotopeDialog : public QDialog
+class IsotopeDialog : public QDialog, public Ui_IsotopeDialog
 {
     Q_OBJECT
 
-public:
-    explicit IsotopeDialog(QWidget *parent = 0);
-    ~IsotopeDialog();
+    public:
+        explicit IsotopeDialog(MainWindow* parent = 0);
+        ~IsotopeDialog();
+    
+    public Q_SLOTS:
+        void show();
 
-private:
-    Ui::IsotopeDialog *ui;
+    private:
+        MainWindow* _mw;
 };
 
 #endif // ISOTOPEDIALOG_H

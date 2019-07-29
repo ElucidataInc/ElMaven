@@ -1,14 +1,24 @@
+#include "analytics.h"
 #include "isotopedialog.h"
-#include "ui_isotopedialog.h"
+#include "mainwindow.h"
 
-IsotopeDialog::IsotopeDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::IsotopeDialog)
-{
-    ui->setupUi(this);
+IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
+    setupUi(this);
+    setModal(false);
+    setWindowTitle("Isotope Settings");
+
+    _mw = parent;
 }
 
 IsotopeDialog::~IsotopeDialog()
 {
-    delete ui;
+
+}
+
+void IsotopeDialog::show()
+{
+    if (_mw == NULL) return;
+
+    _mw->getAnalytics()->hitScreenView("IsotopeDialog");
+    QDialog::exec();
 }

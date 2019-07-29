@@ -22,6 +22,7 @@
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "heatmap.h"
+#include "isotopedialog.h"
 #include "isotopeplot.h"
 #include "isotopeplotdockwidget.h"
 #include "isotopeswidget.h"
@@ -434,6 +435,9 @@ using namespace mzUtils;
 	//
 	//DIALOGS
 	//
+
+    isotopeDialog = new IsotopeDialog(this);
+
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setSettings(settings);
 	
@@ -2836,6 +2840,13 @@ void MainWindow::createToolBars() {
 	btnAlign->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnAlign->setToolTip(tr("Peak Alignment settings"));
 
+    QToolButton *btnIsotope = new QToolButton(toolBar);
+    btnIsotope->setText("Isotopes");
+    btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
+    btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnIsotope->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solic black; padding: 1px;}");
+    btnIsotope->setToolTip(tr("Isotope settings"));
+
 	//TODO: Sahil-Kiran, Removed while merging mainwindow
 	//QToolButton *btnDbSearch = new QToolButton(toolBar);
 	//btnDbSearch->setText("Databases");
@@ -2874,7 +2885,7 @@ void MainWindow::createToolBars() {
 
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
-	// connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
+    connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
@@ -2883,7 +2894,7 @@ void MainWindow::createToolBars() {
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
-	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
+    toolBar->addWidget(btnIsotope);
 	toolBar->addWidget(btnFeatureDetect);
 	toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
