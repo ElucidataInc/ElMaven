@@ -22,7 +22,6 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void getFormValues();
             void setMavenParameters();
             void recomputeEIC();
-            void recomputeIsotopes();
             void selectFolder(QString key);
             void selectFile(QString key);
             void  setNumericValue(QString key, double value);

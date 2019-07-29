@@ -42,17 +42,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("minPeakQuality", QVariant::fromValue(sf->minPeakQuality));
     settings.insert("isotopeMinPeakQuality", QVariant::fromValue(sf->minIsotopicPeakQuality));
 
-    settings.insert("D2LabelBPE", QVariant::fromValue(sf->D2Labeled_BPE));
-    settings.insert("C13LabelBPE", QVariant::fromValue(sf->C13Labeled_BPE));
-    settings.insert("N15LabelBPE", QVariant::fromValue(sf->N15Labeled_BPE));
-    settings.insert("S34LabelBPE", QVariant::fromValue(sf->S34Labeled_BPE));
-
-    settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
-    settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->maxIsotopeScanDiff));
-    settings.insert("abundanceThreshold", QVariant::fromValue(sf->doubleSpinBoxAbThresh));
-    settings.insert("maxNaturalAbundanceError", QVariant::fromValue(sf->maxNaturalAbundanceErr));
-    settings.insert("correctC13IsotopeAbundance", QVariant::fromValue(sf->isotopeC13Correction));
-
     settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
 
     settings.insert("useOverlap", QVariant::fromValue(sf->useOverlap));
@@ -142,21 +131,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(minPeakQuality, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
     connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(setIsotopicPeakFiltering()));
     connect(minIsotopicPeakQuality, SIGNAL(valueChanged(double)), SLOT(recomputeEIC()));
-
-    connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(getFormValues()));
-
-    //isotope detection setting
-    connect(C13Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(N15Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(S34Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(D2Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(doubleSpinBoxAbThresh, SIGNAL(valueChanged(double)),SLOT(recomputeIsotopes()));
-
-    connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(recomputeIsotopes()));
-
-    connect(maxNaturalAbundanceErr, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
-    connect(minIsotopicCorrelation, SIGNAL(valueChanged(double)), SLOT(recomputeIsotopes()));
-    connect(maxIsotopeScanDiff, SIGNAL(valueChanged(int)), SLOT(recomputeIsotopes()));
 
     connect(eicTypeComboBox, SIGNAL(currentIndexChanged(int)), SLOT(recomputeEIC()));
 
@@ -324,28 +298,6 @@ void SettingsForm::toggleOverlap() {
     overlapStatus->setEnabled(statusOverlap);
 }
 
-void SettingsForm::recomputeIsotopes() { 
-    getFormValues();
-    if (!mainwindow) return;
-
-    //update isotope plot in EICview
-    if (mainwindow->getEicWidget()->isVisible()) {
-        PeakGroup* group = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
-        if (group)
-        {
-            mainwindow->isotopeWidget->updateIsotopicBarplot(group);
-            mainwindow->isotopeWidget->setPeakGroupAndMore(group, false);
-        }
-    }
-
-    //update isotopes in pathwayview
-    if (mainwindow->pathwayWidget ) {
-        if ( mainwindow->pathwayWidget->isVisible()) {
-            mainwindow->pathwayWidget->recalculateConcentrations();
-        }
-    }
-}
-
 void SettingsForm::updateMultiprocessing() { 
     settings->setValue("uploadMultiprocessing", checkBoxMultiprocessing->checkState());
 }
@@ -384,9 +336,6 @@ void SettingsForm::updateSettingFormGUI() {
     //Upload Multiprocessing
     checkBoxMultiprocessing->setCheckState( (Qt::CheckState) settings->value("uploadMultiprocessing").toInt() );
 
-
-    doubleSpinBoxAbThresh->setValue(settings->value("abundanceThreshold").toDouble());
-
     centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroidScans").toInt());
     scan_filter_min_intensity->setValue( settings->value("scanFilterMinIntensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scanFilterMinQuantile").toInt());
@@ -418,9 +367,6 @@ void SettingsForm::getFormValues()
 {
     if (settings == NULL) return;
     //qDebug() << "SettingsForm::getFormValues() ";
-
-    /*Isotopic settings for barplot*/
-    settings->setValue("abundanceThreshold",  doubleSpinBoxAbThresh->value());
 
     settings->setValue("filterline", filterlineComboBox->currentText());
 
