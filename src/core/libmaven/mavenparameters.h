@@ -216,12 +216,6 @@ class MavenParameters
         bool S34Labeled_Barplot;
         bool D2Labeled_Barplot;
 
-        bool C13Labeled_IsoWidget;
-        bool N15Labeled_IsoWidget;
-        bool S34Labeled_IsoWidget;
-        bool D2Labeled_IsoWidget;
-
-
         float minRt;
         float maxRt;
         float minMz;

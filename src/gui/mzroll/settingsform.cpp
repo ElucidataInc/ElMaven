@@ -47,11 +47,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("N15LabelBPE", QVariant::fromValue(sf->N15Labeled_BPE));
     settings.insert("S34LabelBPE", QVariant::fromValue(sf->S34Labeled_BPE));
 
-    settings.insert("D2LabelIsoWidget", QVariant::fromValue(sf->D2Labeled_IsoWidget));
-    settings.insert("C13LabelIsoWidget", QVariant::fromValue(sf->C13Labeled_IsoWidget));
-    settings.insert("N15LabelIsoWidget", QVariant::fromValue(sf->N15Labeled_IsoWidget));
-    settings.insert("S34LabelIsoWidget", QVariant::fromValue(sf->S34Labeled_IsoWidget));
-
     settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(sf->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(sf->maxIsotopeScanDiff));
     settings.insert("abundanceThreshold", QVariant::fromValue(sf->doubleSpinBoxAbThresh));
@@ -156,11 +151,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(S34Labeled_BPE,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(D2Labeled_BPE, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
     connect(doubleSpinBoxAbThresh, SIGNAL(valueChanged(double)),SLOT(recomputeIsotopes()));
-        //isotope detection setting
-    connect(C13Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(N15Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(S34Labeled_IsoWidget,SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
-    connect(D2Labeled_IsoWidget, SIGNAL(toggled(bool)),SLOT(recomputeIsotopes()));
 
     connect(isotopeC13Correction, SIGNAL(toggled(bool)), SLOT(recomputeIsotopes()));
 

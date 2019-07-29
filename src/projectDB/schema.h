@@ -167,10 +167,6 @@
                                               , c13_label_bpe                    INTEGER \
                                               , n15_label_bpe                    INTEGER \
                                               , s34_label_bpe                    INTEGER \
-                                              , d2_label_iso_widget              INTEGER \
-                                              , c13_label_iso_widget             INTEGER \
-                                              , n15_label_iso_widget             INTEGER \
-                                              , s34_label_iso_widget             INTEGER \
                                               , min_isotope_parent_correlation   REAL    \
                                               , max_isotope_scan_diff            INTEGER \
                                               , abundance_threshold              REAL    \

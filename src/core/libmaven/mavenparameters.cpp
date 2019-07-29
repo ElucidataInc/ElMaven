@@ -108,11 +108,6 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	N15Labeled_Barplot = false;
 	S34Labeled_Barplot = false;
 	D2Labeled_Barplot = false;
-    
-	C13Labeled_IsoWidget = false;
-	N15Labeled_IsoWidget = false;
-	S34Labeled_IsoWidget = false;
-	D2Labeled_IsoWidget = false;
 
         alignMaxIterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
         alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow
@@ -402,18 +397,6 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
     if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
-
-    if(strcmp(key, "D2LabelIsoWidget") == 0)
-        D2Labeled_IsoWidget = atof(value);
-
-    if(strcmp(key, "C13LabelIsoWidget") == 0)
-        C13Labeled_IsoWidget = atof(value);
-
-    if(strcmp(key, "N15LabelIsoWidget") == 0)
-        N15Labeled_IsoWidget = atof(value);
-
-    if(strcmp(key, "S34LabelIsoWidget") == 0)
-        S34Labeled_IsoWidget = atof(value);
 
     if(strcmp(key, "correctC13IsotopeAbundance") == 0)
         isotopeC13Correction = atof(value);

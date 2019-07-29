@@ -601,10 +601,6 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :c13_label_bpe                    \
                       , :n15_label_bpe                    \
                       , :s34_label_bpe                    \
-                      , :d2_label_iso_widget              \
-                      , :c13_label_iso_widget             \
-                      , :n15_label_iso_widget             \
-                      , :s34_label_iso_widget             \
                       , :min_isotope_parent_correlation   \
                       , :max_isotope_scan_diff            \
                       , :abundance_threshold              \
@@ -712,10 +708,6 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":c13_label_bpe", BINT(settingsMap.at("C13LabelBPE")));
     settingsQuery->bind(":n15_label_bpe", BINT(settingsMap.at("N15LabelBPE")));
     settingsQuery->bind(":s34_label_bpe", BINT(settingsMap.at("S34LabelBPE")));
-    settingsQuery->bind(":d2_label_iso_widget", BINT(settingsMap.at("D2LabelIsoWidget")));
-    settingsQuery->bind(":c13_label_iso_widget", BINT(settingsMap.at("C13LabelIsoWidget")));
-    settingsQuery->bind(":n15_label_iso_widget", BINT(settingsMap.at("N15LabelIsoWidget")));
-    settingsQuery->bind(":s34_label_iso_widget", BINT(settingsMap.at("S34LabelIsoWidget")));
 
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
     settingsQuery->bind(":max_isotope_scan_diff", BINT(settingsMap.at("maxIsotopeScanDiff")));
@@ -1293,10 +1285,6 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["C13LabelBPE"] = variant(settingsQuery->integerValue("c13_label_bpe"));
         settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
         settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
-        settingsMap["D2LabelIsoWidget"] = variant(settingsQuery->integerValue("d2_label_iso_widget"));
-        settingsMap["C13LabelIsoWidget"] = variant(settingsQuery->integerValue("c13_label_iso_widget"));
-        settingsMap["N15LabelIsoWidget"] = variant(settingsQuery->integerValue("n15_label_iso_widget"));
-        settingsMap["S34LabelIsoWidget"] = variant(settingsQuery->integerValue("s34_label_iso_widget"));
 
         settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
         settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
