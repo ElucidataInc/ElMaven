@@ -440,6 +440,8 @@ using namespace mzUtils;
 
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setSettings(settings);
+    connect(peakDetectionDialog, SIGNAL(findPeaksClicked()),
+            this, SLOT(sendPeaksGA()));
 	
 	// pollyelmavengui dialog
 	pollyElmavenInterfaceDialog = new PollyElmavenInterfaceDialog(this);
@@ -734,6 +736,15 @@ MainWindow::~MainWindow()
 {
 	analytics->sessionEnd();
     delete mavenParameters;
+}
+
+void MainWindow::sendPeaksGA()
+{
+    if (isotopeDialog->getReportIsotopes() && peakDetectionDialog->getDbOptions()) {
+        analytics->hitEvent("Peak Detection", "Find Peaks With Isotopes");
+    } else {
+        analytics->hitEvent("Peak Detection", "Find Peaks");
+    }
 }
 
 void MainWindow::saveSettingsToLog() {

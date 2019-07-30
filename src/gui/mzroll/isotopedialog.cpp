@@ -4,6 +4,7 @@
 
 IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
 {
+    settings.insert("reportIsotopes", QVariant::fromValue(id->reportIsotopesOptions));
     settings.insert("D2LabelBPE", QVariant::fromValue(id->D2Labeled_BPE));
     settings.insert("C13LabelBPE", QVariant::fromValue(id->C13Labeled_BPE));
     settings.insert("N15LabelBPE", QVariant::fromValue(id->N15Labeled_BPE));
@@ -51,6 +52,17 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
     connect(this, &IsotopeDialog::settingsChanged,
             isotopeSettings, &IsotopeDialogSettings::updateIsotopeDialogSettings);
     connect(this, &QDialog::rejected, this, &IsotopeDialog::triggerSettingsUpdate);
+    connect(reportIsotopesOptions,
+            &QGroupBox::toggled,
+            [this](const bool checked)
+            {
+                QString state = checked? "On" : "Off";
+                this->_mw
+                    ->getAnalytics()
+                    ->hitEvent("Peak Detection",
+                               "Isotope Detection Switched",
+                               state);
+            });
 }
 
 IsotopeDialog::~IsotopeDialog()
@@ -75,4 +87,9 @@ void IsotopeDialog::triggerSettingsUpdate()
 void IsotopeDialog::onReset()
 {
     emit resetSettings(isotopeSettings->getSettings().keys());
+}
+
+bool IsotopeDialog::getReportIsotopes()
+{
+    return reportIsotopesOptions->isChecked();
 }

@@ -14,6 +14,7 @@ class IsotopeDialog : public QDialog, public Ui_IsotopeDialog
     public:
         explicit IsotopeDialog(MainWindow* parent = 0);
         ~IsotopeDialog();
+        bool getReportIsotopes();
     
     Q_SIGNALS:
         void resetSettings(QList<QString> keys);

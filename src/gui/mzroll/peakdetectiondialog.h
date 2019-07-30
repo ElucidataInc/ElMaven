@@ -22,6 +22,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  MainWindow* getMainWindow() {return mainwindow;}
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void setMavenParameters(QSettings *settings);
+                 bool getDbOptions();
 
 		public Q_SLOTS:
 				 void findPeaks();
@@ -41,7 +42,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void loadMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
                  void updatePeakTableList(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
-				 void showSettingsForm();
 				 void showIntensityQuantileStatus(int);
 				 void showQualityQuantileStatus(int);
 				 void showBaselineQuantileStatus(int);
@@ -56,6 +56,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                     void settingsUpdated(QString key, QVariant value);
                     void settingsChanged(string key, string value);
                     void resetSettings(QList<QString> keys);
+                    void findPeaksClicked();
         public:
                 QString massCutoffType;
 

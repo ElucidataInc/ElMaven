@@ -15,9 +15,12 @@
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="reportIsotopesOptions">
      <property name="title">
-      <string>Isotopic tracer</string>
+      <string>Report Isotopes</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">

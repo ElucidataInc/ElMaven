@@ -417,6 +417,7 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void toggleIsotopicBarPlot(bool show);
+	void sendPeaksGA();
 	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

@@ -176,6 +176,9 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
 
     mavenSettings[const_cast<char*>(key)] = const_cast<char*>(value);
 
+    if(strcmp(key, "reportIsotopes") == 0 )
+        pullIsotopesFlag = atof(value);
+    
     if(strcmp(key, "C13LabelBPE") == 0)
         C13Labeled_BPE = atof(value);
 
@@ -279,9 +282,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);
-
-    if(strcmp(key, "reportIsotopes") == 0 )
-        pullIsotopesFlag = atof(value);
 
     if(strcmp(key, "minGroupIntensity") == 0 )
         minGroupIntensity = atof(value);

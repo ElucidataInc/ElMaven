@@ -445,31 +445,6 @@
          <zorder>label_scoringAlgo</zorder>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QGroupBox" name="reportIsotopesOptions">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="title">
-          <string>Report Isotopic Peaks</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QPushButton" name="changeIsotopeOptions">
-            <property name="text">
-             <string>Isotope Detection Options</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="groupFilteringTab">
@@ -1080,8 +1055,6 @@
   <tabstop>fragmentTolerance</tabstop>
   <tabstop>minFragMatch</tabstop>
   <tabstop>minFragMatchScore</tabstop>
-  <tabstop>reportIsotopesOptions</tabstop>
-  <tabstop>changeIsotopeOptions</tabstop>
   <tabstop>minGroupIntensity</tabstop>
   <tabstop>peakQuantitation</tabstop>
   <tabstop>quantileIntensity</tabstop>
