@@ -492,10 +492,12 @@ void PeakDetectionDialog::findPeaks()
 
     mainwindow->setTotalCharge();
 
+    QString dbName = "";
     if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
+        dbName = compoundDatabase->currentText();
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
@@ -509,6 +511,8 @@ void PeakDetectionDialog::findPeaks()
                                                  "Untargeted"
                                                  "No filter");
         }
+        if (annotationDatabase->currentIndex() != 0)
+            dbName = annotationDatabase->currentText();
     } else {
         _featureDetectionType = FullSpectrum;
     }
@@ -517,7 +521,7 @@ void PeakDetectionDialog::findPeaks()
     int peakTableIdx = outputTableComboBox->currentIndex();
 
     if (peakTableIdx == 0) {
-        peaksTable = mainwindow->addPeaksTable(mainwindow->lastPeakTableId);
+        peaksTable = mainwindow->addPeaksTable(dbName);
     } else if (peakTableIdx == 1) {
         peaksTable = mainwindow->getBookmarkedPeaks();
     } else if (peakTableIdx >= 2) {

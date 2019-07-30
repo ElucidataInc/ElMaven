@@ -106,6 +106,35 @@ public:
    */
   int getLabeledGroupCount();
 
+  /**
+   * @brief Obtain the title of a TableDockWidget, identified by its unique ID.
+   * @details Two IDs are reserved: the IDs -1 and 0 will always return
+   * "Scatterplot Peak Table" and "Bookmark Table", respectively.
+   * @param tableId An integer representing the unique ID of a peak table.
+   * @return A QString set to the title of the peak table if found, empty
+   * otherwise.
+   */
+  static QString getTitleForId(int tableId);
+
+  /**
+   * @brief Store the title of a peak table corresponding to its ID, for future
+   * queries using `getTitleForId`.
+   * @details The IDs -1 and 0 will always be saved with a constant title,
+   * regardless of the title being passed.
+   * @param tableId A unique ID (that has not already been used for a previous
+   * table).
+   * @param title The title that needs to be saved for the given table ID.
+   * @return A boolean value which, if storage operation was successful is set
+   * to true, otherwise false.
+   */
+  static bool setTitleForId(int tableId, const QString& tableTitle="");
+
+  /**
+   * @brief Get the table ID of the last registered peak table.
+   * @return An integer representing a table ID.
+   */
+  static int lastTableId();
+
 public Q_SLOTS:
   void updateCompoundWidget();
   PeakGroup *addPeakGroup(PeakGroup *group);
@@ -209,6 +238,12 @@ protected:
   tableViewType viewType;
   int _labeledGroups;
   int _targetedGroups;
+
+  /**
+   * @brief A map storing the unique ID of all tables mapping to their titles.
+   */
+  static QMap<int, QString> _idTitleMap;
+
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   void focusInEvent(QFocusEvent *event);
@@ -244,7 +279,7 @@ class PeakTableDockWidget : public TableDockWidget {
   Q_OBJECT
 
 public:
-  PeakTableDockWidget (MainWindow *mw, const int tableId=-1);
+  PeakTableDockWidget (MainWindow *mw, const QString& tableTitle="");
   ~PeakTableDockWidget();
 
 public Q_SLOTS:

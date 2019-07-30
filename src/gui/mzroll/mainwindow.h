@@ -84,7 +84,6 @@ public:
 	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
 	int peaksMarked = 0;
-    int lastPeakTableId = 0;
 	int totalCharge = 0;
 	bool allPeaksMarked = false;
 	bool samplesAlignedFlag = false;
@@ -376,7 +375,7 @@ public Q_SLOTS:
 	}
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
-    TableDockWidget* addPeaksTable(int tableId=0);
+    TableDockWidget* addPeaksTable(const QString& tableTitle="");
 	//SpectralHitsDockWidget* addSpectralHitsTable(QString title); //TODO: Sahil - Kiran, Added while merging mainwindow
 
 	//Added when merging with Maven776 - Kiran

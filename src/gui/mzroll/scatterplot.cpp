@@ -44,8 +44,6 @@ void ScatterPlot::setPeakTable(QWidget* w) {
 
     _peakTable = new ScatterplotTableDockWidget((MainWindow*) w);
     _peakTable->setVisible(false);
-    _peakTable->tableId = -1;
-    _peakTable->titlePeakTable->setText(" Scatter Plot Peak Table ");
     connect(_peakTable, SIGNAL(visibilityChanged(bool)),
             btnPeakTable, SLOT(setChecked(bool)));
     ((MainWindow*) w)->addDockWidget(Qt::BottomDockWidgetArea, _peakTable, Qt::Horizontal);
