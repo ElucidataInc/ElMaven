@@ -32,6 +32,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
     settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
+    settings.insert("annotationDatabase", QVariant::fromValue(pd->annotationDatabase));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
@@ -409,9 +410,14 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         // Clearing so that old value is not appended with the new values
         compoundDatabase->clear();
+        annotationDatabase->clear();
+        annotationDatabase->addItem("None");
         for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
             string db = (*itr).first;
-            if (!db.empty()) compoundDatabase->addItem(QString(db.c_str()));
+            if (!db.empty()) {
+                compoundDatabase->addItem(QString(db.c_str()));
+                annotationDatabase->addItem(QString(db.c_str()));
+            }
         }
 
         // selecting the compound database that is selected by the user in the
@@ -637,8 +643,16 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
 
-        mavenParameters->setCompounds(DB.getCompoundsSubset(
-            compoundDatabase->currentText().toStdString()));
+        if (dbOptions->isChecked()) {
+            mavenParameters->setCompounds(DB.getCompoundsSubset(
+                compoundDatabase->currentText().toStdString()));
+        } else if (featureOptions->isChecked()
+                   && annotationDatabase->currentIndex() != 0) {
+            mavenParameters->setCompounds(DB.getCompoundsSubset(
+                annotationDatabase->currentText().toStdString()));
+        } else {
+            mavenParameters->setCompounds({});
+        }
 
         mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
 
