@@ -378,9 +378,10 @@ void SpectralHitsDockWidget::showSelectedGroup() {
             _mainwindow->getEicWidget()->setMzSlice(hit->precursorMz);
         }
 
-        if(hit->scan)
+        if(hit->scan) {
             _mainwindow->getSpectraWidget()->setScan(hit->scan);
-
+            _mainwindow->fragSpectraWidget->overlayScan(hit->scan);
+        }
 }
 
 QList<SpectralHit*> SpectralHitsDockWidget::getSelectedHits() {

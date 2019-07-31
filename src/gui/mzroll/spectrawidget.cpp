@@ -23,6 +23,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
    _spectralHit = SpectralHit();
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
+   _overlayMode = OverlayMode::None;
 
     initPlot();
 
@@ -278,6 +279,7 @@ void SpectraWidget::overlayPeakGroup(PeakGroup* group)
         //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
     }
     delete(avgScan);
+    _overlayMode = OverlayMode::Consensus;
 }
 
 void SpectraWidget::overlayCompoundFragmentation(Compound* c)
@@ -341,6 +343,18 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
             _focusCoord.setY(0.0f);
         }
         delete productMassCutoff;
+}
+
+void SpectraWidget::overlayScan(Scan *scan)
+{
+    if (_overlayMode == OverlayMode::None || scan->mslevel != 2)
+        return;
+
+    setScan(scan);
+    if (_currentGroup.compound)
+        overlayCompoundFragmentation(_currentGroup.compound);
+
+    _overlayMode = OverlayMode::Individual;
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
@@ -432,6 +446,7 @@ void SpectraWidget::clearGraph() {
     }
     _items.clear();
     scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
+    _overlayMode = OverlayMode::None;
 }
 
 void SpectraWidget::clearOverlay()

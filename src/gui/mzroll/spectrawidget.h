@@ -18,6 +18,12 @@ class SpectraWidget : public QGraphicsView
 {
     Q_OBJECT
 public:
+    enum class OverlayMode {
+        None,
+        Consensus,
+        Individual
+    };
+
     SpectraWidget(MainWindow* mw);
     static vector<mzLink> findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode);
 
@@ -41,6 +47,18 @@ public:
                     void overlayPeakGroup(PeakGroup* group);
                     void overlayPeptideFragmentation(QString proteinSeq,MassCutoff *productMassCutoff); //TODO: Sahil, Added while merging point
                     void overlayCompoundFragmentation(Compound* c);
+
+                    /**
+                     * @brief Draw an individual scan and compare it with the
+                     * current reference spectra.
+                     * @details This method should be called once a group's MS2
+                     * spectra has been set (using `overlayPeakGroup`) and there
+                     * exists a reference MS2 spectra to compare against.
+                     * @param scan The MS2 level scan that will be compared with
+                     * current reference spectra.
+                     */
+                    void overlayScan(Scan* scan);
+
                     void showConsensusSpectra(PeakGroup* group);
                     void overlaySpectralHit(SpectralHit& hit);
                     void drawSpectralHit(SpectralHit& hit); //TODO: Sahil, Added while merging spectrawidget
@@ -105,6 +123,7 @@ public:
                     vector<int> chargeStates;
                     vector<int> peakClusters;
 
+                    OverlayMode _overlayMode;
 
                     void initPlot();
                     void addAxes();
