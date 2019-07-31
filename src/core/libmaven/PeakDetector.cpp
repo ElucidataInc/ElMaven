@@ -156,7 +156,7 @@ void PeakDetector::pullAllIsotopes() {
     }
 }
 
-void PeakDetector::processMassSlices(const vector<Compound*>& annotationSet) {
+void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet) {
     // init
     // TODO: what is this doing?
     // TODO: cant this be in background_peaks_update parameter setting function
@@ -198,8 +198,8 @@ void PeakDetector::processMassSlices(const vector<Compound*>& annotationSet) {
     // process goodslices
     processSlices(massSlices.slices, "allslices");
 
-    // annotate features with known targets
-    annotateFeatures(annotationSet);
+    // identify features with known targets
+    identifyFeatures(identificationSet);
 
     // cleanup
     delete_all(massSlices.slices);
@@ -431,9 +431,9 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
     }
 }
 
-void PeakDetector::annotateFeatures(const vector<Compound*>& annotationSet)
+void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
 {
-    if (annotationSet.empty())
+    if (identificationSet.empty())
         return;
 
     vector<PeakGroup> toBeMerged;
@@ -442,7 +442,7 @@ void PeakDetector::annotateFeatures(const vector<Compound*>& annotationSet)
     while(iter != mavenParameters->allgroups.end()) {
         auto& group = *iter;
         bool matchFound = false;
-        for (auto compound : annotationSet) {
+        for (auto compound : identificationSet) {
             float mz = 0.0f;
             if (compound->formula.length()) {
                 int charge = mavenParameters->getCharge(compound);

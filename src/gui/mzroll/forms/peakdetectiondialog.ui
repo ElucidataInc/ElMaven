@@ -231,7 +231,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QComboBox" name="annotationDatabase"/>
+           <widget class="QComboBox" name="identificationDatabase"/>
           </item>
          </layout>
         </widget>

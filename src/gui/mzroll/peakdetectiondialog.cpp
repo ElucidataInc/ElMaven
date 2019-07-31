@@ -31,7 +31,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
-    settings.insert("annotationDatabase", QVariant::fromValue(pd->annotationDatabase));
+    settings.insert("identificationDatabase", QVariant::fromValue(pd->identificationDatabase));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
@@ -153,7 +153,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                             ->hitEvent("PRM", "PRM Analysis");
                     }
 
-                    // if checked, the annotation databases should change
+                    // if checked, the identification databases should change
                     if (featureOptions->isChecked())
                         refreshCompoundDatabases();
                 });
@@ -423,8 +423,8 @@ void PeakDetectionDialog::refreshCompoundDatabases()
 
     // Clearing so that old value is not appended with the new values
     compoundDatabase->clear();
-    annotationDatabase->clear();
-    annotationDatabase->addItem("None");
+    identificationDatabase->clear();
+    identificationDatabase->addItem("None");
     for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
         string db = (*itr).first;
         if (!db.empty()) {
@@ -433,7 +433,7 @@ void PeakDetectionDialog::refreshCompoundDatabases()
             if (matchFragmentationOptions->isChecked() && !DB.isNISTLibrary(db))
                 continue;
 
-            annotationDatabase->addItem(QString(db.c_str()));
+            identificationDatabase->addItem(QString(db.c_str()));
         }
     }
 }
@@ -519,8 +519,8 @@ void PeakDetectionDialog::findPeaks()
                                                  "Untargeted"
                                                  "No filter");
         }
-        if (annotationDatabase->currentIndex() != 0)
-            dbName = annotationDatabase->currentText();
+        if (identificationDatabase->currentIndex() != 0)
+            dbName = identificationDatabase->currentText();
     } else {
         _featureDetectionType = FullSpectrum;
     }
@@ -659,9 +659,9 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
             mavenParameters->setCompounds(DB.getCompoundsSubset(
                 compoundDatabase->currentText().toStdString()));
         } else if (featureOptions->isChecked()
-                   && annotationDatabase->currentIndex() != 0) {
+                   && identificationDatabase->currentIndex() != 0) {
             mavenParameters->setCompounds(DB.getCompoundsSubset(
-                annotationDatabase->currentText().toStdString()));
+                identificationDatabase->currentText().toStdString()));
         } else {
             mavenParameters->setCompounds({});
         }
