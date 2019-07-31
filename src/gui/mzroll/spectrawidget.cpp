@@ -110,18 +110,25 @@ void SpectraWidget::replot() {
 
 void SpectraWidget::_placeLabels()
 {
-    if (_currentScan && _currentScan->nobs() == 0)
+    if (!_currentScan || _currentScan->nobs() == 0)
         return;
 
     QString upperLabelText = tr("<b>Group Spectra</b>");
     QString lowerLabelText = tr("<b>Reference Spectra</b>");
-    QFont font = QApplication::font();
+    if (_overlayMode == OverlayMode::Individual)
+        upperLabelText = tr("<b>MS2 Spectra (Rt: %1)</b>")
+                             .arg(QString::number(_currentScan->rt, 'f', 2));
 
+    QFont font = QApplication::font();
     if (!_upperLabel) {
         _upperLabel = scene()->addText("", font);
         _upperLabel->setHtml(upperLabelText);
         _upperLabel->setDefaultTextColor(Qt::black);
         _upperLabel->update();
+    } else if (_upperLabel->toHtml() != upperLabelText) {
+        _upperLabel->setHtml(upperLabelText);
+        _upperLabel->update();
+        _upperLabel->setVisible(true);
     } else {
         _upperLabel->setVisible(true);
     }
@@ -270,6 +277,7 @@ void SpectraWidget::overlayPeakGroup(PeakGroup* group)
     _currentGroup = PeakGroup();
     if (!group) return;
     
+    _overlayMode = OverlayMode::Consensus;
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
     setScan(avgScan);
@@ -279,7 +287,6 @@ void SpectraWidget::overlayPeakGroup(PeakGroup* group)
         //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
     }
     delete(avgScan);
-    _overlayMode = OverlayMode::Consensus;
 }
 
 void SpectraWidget::overlayCompoundFragmentation(Compound* c)
@@ -350,11 +357,10 @@ void SpectraWidget::overlayScan(Scan *scan)
     if (_overlayMode == OverlayMode::None || scan->mslevel != 2)
         return;
 
+    _overlayMode = OverlayMode::Individual;
     setScan(scan);
     if (_currentGroup.compound)
         overlayCompoundFragmentation(_currentGroup.compound);
-
-    _overlayMode = OverlayMode::Individual;
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
@@ -446,7 +452,6 @@ void SpectraWidget::clearGraph() {
     }
     _items.clear();
     scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
-    _overlayMode = OverlayMode::None;
 }
 
 void SpectraWidget::clearOverlay()
