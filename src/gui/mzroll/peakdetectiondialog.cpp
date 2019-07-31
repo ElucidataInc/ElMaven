@@ -131,7 +131,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
-        connect(annotationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -153,6 +152,10 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                             ->getAnalytics()
                             ->hitEvent("PRM", "PRM Analysis");
                     }
+
+                    // if checked, the annotation databases should change
+                    if (featureOptions->isChecked())
+                        refreshCompoundDatabases();
                 });
         connect(fragmentTolerance,
                 SIGNAL(valueChanged(double)),
@@ -214,13 +217,12 @@ void PeakDetectionDialog::dbSearchClicked()
     if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
+        QString dbName = compoundDatabase->currentText();
+        toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
     }
-    
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
 }
 
 bool PeakDetectionDialog::databaseSearchEnabled()
@@ -239,13 +241,10 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbSearch->setChecked(false);
+        toggleFragmentation();
     } else {
-        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbSearch->setChecked(true);
     }
-
-    QString dbName = annotationDatabase->currentText();
-    toggleFragmentation(dbName);
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -401,24 +400,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             classificationModelFilename->setText(settings->value("peakClassifierFile").toString());
         }
-        /**
-         * Getting the database present and updating in the dropdown of the
-         * peak detection windows
-         */
-        map<string, int>::iterator itr;
-        map<string, int> dbnames = DB.getDatabaseNames();
 
-        // Clearing so that old value is not appended with the new values
-        compoundDatabase->clear();
-        annotationDatabase->clear();
-        annotationDatabase->addItem("None");
-        for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
-            string db = (*itr).first;
-            if (!db.empty()) {
-                compoundDatabase->addItem(QString(db.c_str()));
-                annotationDatabase->addItem(QString(db.c_str()));
-            }
-        }
+        refreshCompoundDatabases();
 
         // selecting the compound database that is selected by the user in the
         // ligand widget
@@ -430,6 +413,28 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         toggleFragmentation(selectedDB);
 
         QDialog::exec();
+    }
+}
+
+void PeakDetectionDialog::refreshCompoundDatabases()
+{
+    map<string, int>::iterator itr;
+    map<string, int> dbnames = DB.getDatabaseNames();
+
+    // Clearing so that old value is not appended with the new values
+    compoundDatabase->clear();
+    annotationDatabase->clear();
+    annotationDatabase->addItem("None");
+    for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
+        string db = (*itr).first;
+        if (!db.empty()) {
+            compoundDatabase->addItem(QString(db.c_str()));
+
+            if (matchFragmentationOptions->isChecked() && !DB.isNISTLibrary(db))
+                continue;
+
+            annotationDatabase->addItem(QString(db.c_str()));
+        }
     }
 }
 
@@ -451,7 +456,9 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
                         });
     bool foundDda = iter != end(samples);
 
-    if (foundDda && DB.isNISTLibrary(selectedDbName.toStdString())) {
+    if ((featureOptions->isChecked() && foundDda)
+        || (dbSearch->isChecked()
+            && DB.isNISTLibrary(selectedDbName.toStdString()))) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
@@ -648,7 +655,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
 
-        if (dbOptions->isChecked()) {
+        if (dbSearch->isChecked()) {
             mavenParameters->setCompounds(DB.getCompoundsSubset(
                 compoundDatabase->currentText().toStdString()));
         } else if (featureOptions->isChecked()
