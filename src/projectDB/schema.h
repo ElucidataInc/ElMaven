@@ -237,8 +237,7 @@
                                               , main_window_selected_db_name     TEXT    \
                                               , main_window_charge               INTEGER \
                                               , main_window_peak_quantitation    INTEGER \
-                                              , main_window_mass_resolution      REAL    \
-                                              , must_have_fragmentation          INTEGER );"
+                                              , main_window_mass_resolution      REAL    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

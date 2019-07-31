@@ -31,7 +31,6 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
-    settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
     settings.insert("annotationDatabase", QVariant::fromValue(pd->annotationDatabase));
 
     // db search settings
@@ -132,6 +131,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
+        connect(annotationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -244,7 +244,7 @@ void PeakDetectionDialog::featureOptionsClicked()
         dbSearch->setChecked(true);
     }
 
-    QString dbName = compoundDatabase->currentText();
+    QString dbName = annotationDatabase->currentText();
     toggleFragmentation(dbName);
 }
 
@@ -450,11 +450,12 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
                                    && (s->ms2ScanCount() > 0));
                         });
     bool foundDda = iter != end(samples);
-    if (foundDda && featureOptions->isChecked()) {
-        mustHaveMs2->setEnabled(true);
+
+    if (foundDda && DB.isNISTLibrary(selectedDbName.toStdString())) {
+        matchFragmentationOptions->setEnabled(true);
     } else {
-        mustHaveMs2->setEnabled(false);
-        mustHaveMs2->setChecked(false);
+        matchFragmentationOptions->setChecked(false);
+        matchFragmentationOptions->setEnabled(false);
     }
 }
 
@@ -501,7 +502,7 @@ void PeakDetectionDialog::findPeaks()
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
-        if (mustHaveMs2->isChecked()) {
+        if (matchFragmentationOptions->isChecked()) {
             peakupdater->setUntargetedMustHaveMs2(true);
             mainwindow->getAnalytics()->hitEvent("Peak Detection",
                                                  "Untargeted",

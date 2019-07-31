@@ -120,7 +120,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "COMMIT;"
     },
     {
-        3,
+        2,
         "BEGIN TRANSACTION;"
         "ALTER TABLE user_settings RENAME TO user_settings_old;"
         "CREATE TABLE user_settings ( ionization_mode                  INTEGER "
