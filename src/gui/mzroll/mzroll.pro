@@ -132,6 +132,7 @@ win32 {
 INSTALLS += sources target
 
 FORMS = forms/settingsform.ui  \
+        forms/librarymanager.ui \
         forms/masscalcwidget.ui \
 #	forms/ligandwidget.ui \
         forms/adductwidget.ui \
@@ -159,6 +160,7 @@ FORMS = forms/settingsform.ui  \
 
 HEADERS +=  stable.h \
             globals.h \
+            librarymanager.h \
             mainwindow.h \
             tinyplot.h \
             node.h \
@@ -237,6 +239,7 @@ HEADERS +=  stable.h \
 
 SOURCES += mainwindow.cpp  \
 database.cpp \
+           librarymanager.cpp \
  plotdock.cpp \
  spectralhit.cpp \
  treedockwidget.cpp \
