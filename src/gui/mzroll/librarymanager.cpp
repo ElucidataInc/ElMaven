@@ -1,11 +1,158 @@
 #include "librarymanager.h"
 #include "mainwindow.h"
+#include "mzUtils.h"
+#include "stable.h"
 
 LibraryManager::LibraryManager(MainWindow* parent)
     : QDialog(parent), _mw(parent)
 {
     setupUi(this);
+
+    connect(importButton,
+            &QPushButton::clicked,
+            this,
+            &LibraryManager::importNewDatabase);
+    connect(loadButton,
+            &QPushButton::clicked,
+            this,
+            &LibraryManager::loadSelectedDatabase);
+    connect(deleteButton,
+            &QPushButton::clicked,
+            this,
+            &LibraryManager::deleteSelectedDatabase);
+
+    _refreshDatabases();
 }
+
+LibraryManager::~LibraryManager() {
+    _workerThread.quit();
+    _workerThread.wait();
+}
+
+void LibraryManager::show()
+{
+    _refreshDatabases();
+}
+
+void LibraryManager::addDatabase(const QString &filepath)
+{
+    auto databaseRecord = _recordForFile(filepath);
+    _addDatabaseToList(databaseRecord);
+
+    auto worker = _newWorker();
+    worker->saveRecord(databaseRecord);
+
+    _mw->setFocus();
+}
+
+void LibraryManager::importNewDatabase()
+{
+    _mw->loadCompoundsFile();
+}
+
+void LibraryManager::loadSelectedDatabase()
+{
+    auto item = libraryTable->currentItem();
+    auto var = item->data(0, Qt::UserRole);
+    auto selectedDatabase = var.value<LibraryRecord>();
+    auto filepath = selectedDatabase.absolutePath;
+
+    if (QFile::exists(filepath))
+        _mw->loadCompoundsFile(filepath);
+}
+
+void LibraryManager::deleteSelectedDatabase()
+{
+    auto item = libraryTable->currentItem();
+    auto var = item->data(0, Qt::UserRole);
+    auto selectedDatabase = var.value<LibraryRecord>();
+    auto filepath = selectedDatabase.absolutePath;
+
+    auto databaseRecord = _recordForFile(filepath);
+
+    delete item;
+
+    auto worker = _newWorker();
+    worker->deleteRecord(databaseRecord);
+}
+
+void LibraryManager::_refreshDatabases()
+{
+    libraryTable->clear();
+    libraryTable->setHeaderLabels(QStringList() << "Status"
+                                                << "Database Name"
+                                                << "#Records");
+
+    auto workerCallback = [=](const QList<LibraryRecord> databases) {
+        for (auto& db : databases) {
+            _addDatabaseToList(db);
+        }
+        libraryTable->header()
+                    ->setSectionResizeMode(QHeaderView::ResizeToContents);
+    };
+
+    auto worker = _newWorker();
+    connect(worker, &LibraryWorker::loadFinished, workerCallback);
+    worker->loadRecords();
+}
+
+void LibraryManager::_addDatabaseToList(const LibraryRecord& database)
+{
+    auto dbName = database.databaseName;
+    auto status = DB.getCompoundsSubset(dbName.toStdString()).empty()
+                      ? QString()
+                      : QString("Loaded");
+    if (!QFile::exists(database.absolutePath))
+        status = "Missing";
+    auto numRecords = QString::number(database.numberOfCompounds);
+
+    // check whether an entry with the same absolute path exits, and if so, only
+    // update the existing entry
+    bool entryExists = false;
+    QTreeWidgetItemIterator iter(libraryTable);
+    while (*iter) {
+        auto item = *iter;
+        auto var = item->data(0, Qt::UserRole);
+        auto existingDatabase = var.value<LibraryRecord>();
+        if (existingDatabase.absolutePath == database.absolutePath) {
+            item->setText(0, status);
+            item->setText(1, dbName);
+            item->setText(2, numRecords);
+            entryExists = true;
+        }
+        ++iter;
+    }
+
+    if (!entryExists) {
+        QStringList rowItems = QStringList() << status
+                                             << dbName
+                                             << numRecords;
+        QTreeWidgetItem *item = new QTreeWidgetItem(rowItems);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(database));
+        libraryTable->addTopLevelItem(item);
+    }
+}
+
+LibraryRecord LibraryManager::_recordForFile(const QString& filepath)
+{
+    auto dbName = mzUtils::cleanFilename(filepath.toStdString());
+    auto dbCompounds = DB.getCompoundsSubset(dbName);
+    LibraryRecord databaseRecord(filepath,
+                                 QString::fromStdString(dbName),
+                                 static_cast<int>(dbCompounds.size()));
+    return databaseRecord;
+}
+
+LibraryWorker* LibraryManager::_newWorker()
+{
+    LibraryWorker *worker = new LibraryWorker;
+    worker->moveToThread(&_workerThread);
+    connect(&_workerThread, &QThread::finished, worker, &QObject::deleteLater);
+    _workerThread.start();
+    return worker;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 LibraryRecord::LibraryRecord(const QJsonObject& json)
 {
@@ -31,6 +178,8 @@ QJsonObject LibraryRecord::toJson() const
     json["numberOfCompounds"] = numberOfCompounds;
     return json;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void LibraryWorker::saveRecord(const LibraryRecord& record)
 {
@@ -66,8 +215,10 @@ void LibraryWorker::deleteRecord(const LibraryRecord& record)
             recordsIndicesToBeDeleted.append(i);
     }
 
-    if (recordsIndicesToBeDeleted.isEmpty())
+    if (recordsIndicesToBeDeleted.isEmpty()) {
         emit deleteFinished(false);
+        return;
+    }
 
     for (auto index : recordsIndicesToBeDeleted)
         entries.removeAt(index);

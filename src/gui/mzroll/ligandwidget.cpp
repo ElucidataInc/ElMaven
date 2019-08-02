@@ -3,6 +3,7 @@
 #include "alignmentdialog.h"
 #include "analytics.h"
 #include "globals.h"
+#include "librarymanager.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mavenparameters.h"
@@ -61,17 +62,17 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
 
-  saveButton = new QToolButton(toolBar);
-  saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
-  saveButton->setToolTip("Save Compound List");
-  connect(saveButton,SIGNAL(clicked()), SLOT(saveCompoundList()));
-
-
-  saveButton->setEnabled(false);
+  libraryButton = new QToolButton(toolBar);
+  libraryButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
+  libraryButton->setToolTip("Open Library Manager");
+  connect(libraryButton,
+          &QPushButton::clicked,
+          _mw->getLibraryManager(),
+          &LibraryManager::exec);
 
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(loadButton);
-  toolBar->addWidget(saveButton);
+  toolBar->addWidget(libraryButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);
@@ -258,20 +259,6 @@ void LigandWidget::setDatabase(QString dbname) {
 void LigandWidget::databaseChanged(int index) {
     QString dbname = databaseSelect->currentText();
     setDatabase(dbname);
-    setDatabaseAltered(dbname, alteredDatabases[dbname]);
-}
-
-void LigandWidget::setDatabaseAltered(QString name, bool altered) {
-    alteredDatabases[name]=altered;
-    QString dbname = databaseSelect->currentText();
-
-    if (dbname == name && altered == true) {
-        saveButton->setEnabled(true);
-    }
-
-    if (dbname == name && altered == false) {
-        saveButton->setEnabled(false);
-    }
 }
 
 void LigandWidget::setCompoundFocus(Compound* c) {
@@ -564,7 +551,6 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
             out << category.join(";") << SEP;
             out << "\n";
         }
-        setDatabaseAltered(databaseSelect->currentText(),false);
     }
 }
 

@@ -4,6 +4,8 @@
 #include <ui_librarymanager.h>
 
 class MainWindow;
+class LibraryWorker;
+struct LibraryRecord;
 
 class LibraryManager : public QDialog,
                        public Ui_LibraryManager
@@ -12,12 +14,27 @@ class LibraryManager : public QDialog,
 
 public:
     explicit LibraryManager(MainWindow *parent = nullptr);
+    ~LibraryManager();
+
+public slots:
+    void show();
+    void addDatabase(const QString& filepath);
+    void importNewDatabase();
+    void loadSelectedDatabase();
+    void deleteSelectedDatabase();
 
 private:
     /**
      * @brief A pointer to the parent main window of this dialog.
      */
     MainWindow* _mw;
+    QThread _workerThread;
+
+private slots:
+    void _refreshDatabases();
+    void _addDatabaseToList(const LibraryRecord& database);
+    LibraryRecord _recordForFile(const QString& filepath);
+    LibraryWorker* _newWorker();
 };
 
 /**
@@ -42,7 +59,12 @@ struct LibraryRecord {
     int numberOfCompounds;
 
     /**
-     * @brief Basic constructor.
+     * @brief Default constructor.
+     */
+    LibraryRecord() = default;
+
+    /**
+     * @brief Basic constructor with all the arguments.
      * @param absolutePath Path to be set for this compound database.
      * @param databaseName Name to be set for this compound database.
      * @param numberOfCompounds Number of compounds in this compound database.
@@ -67,6 +89,8 @@ struct LibraryRecord {
      */
     QJsonObject toJson() const;
 };
+
+Q_DECLARE_METATYPE(LibraryRecord)
 
 /**
  * @brief The LibraryWorker class is meant to be used as a worker that runs in

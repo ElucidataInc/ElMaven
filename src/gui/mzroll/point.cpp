@@ -291,7 +291,6 @@ void EicPoint::linkCompound() {
 
             //upadte ligand widget
             QString dbname(_group->compound->db.c_str());
-            _mw->ligandWidget->setDatabaseAltered(dbname,true);
             //_mw->ligandWidget->updateTable();
             _mw->ligandWidget->updateCurrentItemData();
 

@@ -49,7 +49,6 @@ public:
     void clear() { treeWidget->clear(); }
     void showNext();
     void showLast();
-    void setDatabaseAltered(QString dbame,bool altered);
 	Compound* getSelectedCompound();
     void loadCompoundDBMzroll(QString fileName);
     void setHash();
@@ -103,7 +102,7 @@ private:
 
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
-    QToolButton *saveButton;
+    QToolButton *libraryButton;
     QToolButton *loadButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
