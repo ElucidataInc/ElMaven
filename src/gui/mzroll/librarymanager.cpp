@@ -57,8 +57,25 @@ void LibraryManager::loadSelectedDatabase()
     auto selectedDatabase = var.value<LibraryRecord>();
     auto filepath = selectedDatabase.absolutePath;
 
-    if (QFile::exists(filepath))
+    if (QFile::exists(filepath)) {
         _mw->loadCompoundsFile(filepath);
+    } else {
+        QMessageBox msgBox;
+        msgBox.setText("This database no longer exists at its last known "
+                       "location. You can choose to either relocate it, or "
+                       "delete it.");
+        QPushButton* deleteButton = msgBox.addButton(tr("Delete"),
+                                                     QMessageBox::AcceptRole);
+        QPushButton* relocateButton = msgBox.addButton(tr("Relocate"),
+                                                       QMessageBox::AcceptRole);
+        msgBox.exec();
+        if (msgBox.clickedButton() == deleteButton) {
+            deleteSelectedDatabase();
+        } else if (msgBox.clickedButton() == relocateButton) {
+            deleteSelectedDatabase();
+            importNewDatabase();
+        }
+    }
 }
 
 void LibraryManager::deleteSelectedDatabase()
