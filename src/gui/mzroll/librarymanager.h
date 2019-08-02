@@ -13,16 +13,49 @@ class LibraryManager : public QDialog,
     Q_OBJECT
 
 public:
+    /**
+     * @brief Default constructor.
+     * @param parent The parent window which owns the library manager widget.
+     */
     explicit LibraryManager(MainWindow *parent = nullptr);
+
+    /**
+     * @brief Destructor. Quits and waits for internal thread to finish.
+     */
     ~LibraryManager();
 
 public slots:
+    /**
+     * @brief Add a database entry to the list as well as save it to the
+     * library.
+     * @param filepath A `QString` set to path of the database file that needs
+     * to be added. The name and other details of the database can be derived
+     * from the file itself.
+     */
     void addDatabase(const QString& filepath);
+
+    /**
+     * @brief Call ligand widget to select and load a new database file.
+     */
     void importNewDatabase();
+
+    /**
+     * @brief Load (or reload, if already loaded) the currently selected entry
+     * in the DB list.
+     */
     void loadSelectedDatabase();
+
+    /**
+     * @brief Delete an entry from the DB list and remove it from the library
+     * as well (its details will no longer be preserved over sessions).
+     */
     void deleteSelectedDatabase();
 
 protected:
+    /**
+     * @brief Overriding this method so that its contents are called everytime
+     * the widget is shown.
+     */
     void showEvent(QShowEvent *event);
 
 private:
@@ -30,12 +63,46 @@ private:
      * @brief A pointer to the parent main window of this dialog.
      */
     MainWindow* _mw;
+
+    /**
+     * @brief A thread object that is reserved for workers meant for performing
+     * all I/O operations.
+     */
     QThread _workerThread;
 
 private slots:
+    /**
+     * @brief Repopulate the DB list to include all existing databases as well
+     * as update their details.
+     */
     void _refreshDatabases();
+
+    /**
+     * @brief Add a record to the DB list.
+     * @details This method also ensures that if there exists an entry for this
+     * record (i.e., there exists an entry which represents the same file) then
+     * that record is only updated with the details of the incoming record, and
+     * no additional row is added.
+     * @param database The `LibraryRecord` object, for which an item needs to be
+     * added (or updated) to the list.
+     */
     void _addDatabaseToList(const LibraryRecord& database);
+
+    /**
+     * @brief Create a `LibraryRecord` for a database file path.
+     * @param filepath A `QString` set to the path for which the record has to
+     * be created.
+     * @return A `LibraryRecord` object containing basic details of the given
+     * database.
+     */
     LibraryRecord _recordForFile(const QString& filepath);
+
+    /**
+     * @brief Utility that creates a worker object and moves it to the thread
+     * reserved for tasks involving I/O.
+     * @return A `LibraryWorker` ready to perform read/write methods in a
+     * non-blocking fashion.
+     */
     LibraryWorker* _newWorker();
 };
 
