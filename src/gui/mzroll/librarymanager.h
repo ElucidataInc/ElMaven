@@ -17,11 +17,13 @@ public:
     ~LibraryManager();
 
 public slots:
-    void show();
     void addDatabase(const QString& filepath);
     void importNewDatabase();
     void loadSelectedDatabase();
     void deleteSelectedDatabase();
+
+protected:
+    void showEvent(QShowEvent *event);
 
 private:
     /**

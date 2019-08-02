@@ -29,7 +29,7 @@ LibraryManager::~LibraryManager() {
     _workerThread.wait();
 }
 
-void LibraryManager::show()
+void LibraryManager::showEvent(QShowEvent *event)
 {
     _refreshDatabases();
 }
@@ -99,11 +99,10 @@ void LibraryManager::_refreshDatabases()
 void LibraryManager::_addDatabaseToList(const LibraryRecord& database)
 {
     auto dbName = database.databaseName;
-    auto status = DB.getCompoundsSubset(dbName.toStdString()).empty()
-                      ? QString()
-                      : QString("Loaded");
-    if (!QFile::exists(database.absolutePath))
-        status = "Missing";
+    auto status = QFile::exists(database.absolutePath) ? QString("Found")
+                                                       : QString("Missing");
+    if (!DB.getCompoundsSubset(dbName.toStdString()).empty())
+        status = "Loaded";
     auto numRecords = QString::number(database.numberOfCompounds);
 
     // check whether an entry with the same absolute path exits, and if so, only
