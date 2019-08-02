@@ -63,7 +63,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
 
   libraryButton = new QToolButton(toolBar);
-  libraryButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
+  libraryButton->setIcon(QIcon(rsrcPath + "/librarymanager.png"));
   libraryButton->setToolTip("Open Library Manager");
   connect(libraryButton,
           &QPushButton::clicked,

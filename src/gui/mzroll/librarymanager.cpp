@@ -7,6 +7,7 @@ LibraryManager::LibraryManager(MainWindow* parent)
     : QDialog(parent), _mw(parent)
 {
     setupUi(this);
+    libraryTable->setSortingEnabled(true);
 
     connect(importButton,
             &QPushButton::clicked,
