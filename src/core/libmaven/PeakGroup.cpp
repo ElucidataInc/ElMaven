@@ -737,7 +737,8 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
-map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff)
+map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff,
+                                              float intensityThreshold)
 {
     map<float, float> mzIntensityMap;
     auto scans = getRepresentativeFullScans();
@@ -780,6 +781,7 @@ map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff)
     }
 
     // normalize to range [0, 1000]
+    auto normalizedMax = 1000.0f;
     auto maxIt = max_element(begin(binMzIntensityMap),
                              end(binMzIntensityMap),
                              [](const pair<float, float> l,
@@ -790,13 +792,13 @@ map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff)
     for_each(begin(binMzIntensityMap),
              end(binMzIntensityMap),
              [&](pair<const float, float>& p) {
-                p.second = (p.second / maxIntensity) * 1000.0f;
+                p.second = (p.second / maxIntensity) * normalizedMax;
              });
 
     // erase all intensities below 50 (less than 5% of maximum) as noise
     for (auto it = begin(binMzIntensityMap);
          it != end(binMzIntensityMap);) {
-        if(it->second < 50) {
+        if(it->second < intensityThreshold * normalizedMax) {
             it = binMzIntensityMap.erase(it);
         } else {
             ++it;

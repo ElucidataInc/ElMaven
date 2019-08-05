@@ -586,6 +586,7 @@ int Database::loadNISTLibrary(QString filepath,
 
 int Database::saveNISTLibrary(vector<PeakGroup*> groups,
                               MassCutoff* massCutoff,
+                              float intensityThreshold,
                               string filepath,
                               bsignal::signal<void (string, int, int)>* signal)
 {
@@ -630,7 +631,8 @@ int Database::saveNISTLibrary(vector<PeakGroup*> groups,
             fstream << "IONMODE: " << ionMode << "\n";
         }
 
-        auto mzIntensityMap = group->createAvgSpectra(massCutoff);
+        auto mzIntensityMap = group->createAvgSpectra(massCutoff,
+                                                      intensityThreshold);
         fstream << "NUMPEAKS: " << mzIntensityMap.size() << "\n" ;
         for (auto elem : mzIntensityMap)
             fstream << elem.first << "\t" << elem.second << "\n" ;

@@ -240,9 +240,13 @@ class PeakGroup{
          * significant spectra for this group averaged over samples.
          * @param cutoff This cutoff will be used to bin m/z values. This is
          * basically the window over which m/z sorted values are averaged.
+         * @param intensityThreshold Threshold value using which, all peaks
+         * having intensity below this fraction of the highest intensity will
+         * be discarded.
          * @return A mapping of m/z value to its corresponging intensity.
          */
-        map<float, float> createAvgSpectra(MassCutoff* cutoff);
+        map<float, float> createAvgSpectra(MassCutoff* cutoff,
+                                           float intensityThreshold = 0.05);
 
         /**
          * @brief find all MS2 scans for this group

@@ -76,6 +76,8 @@ class Database {
          * library file format.
          * @param groups A vector of peak groups whose spectra has to be saved.
          * @param cutoff Mass tolerance used for binning spectra.
+         * @param intensityThreshold Fractional cut-off value using which all
+         * peaks having relative intensity below this will be discarded.
          * @param filepath Absolute path of file, where data needs to be saved.
          * @param signal Pointer to a boost signal object that can be called
          * with a string for update message, an integer for current steps of
@@ -84,6 +86,7 @@ class Database {
          */
         int saveNISTLibrary(vector<PeakGroup*> groups,
                             MassCutoff *massCutoff,
+                            float intensityThreshold,
                             string filepath,
                             bsignal::signal<void (string, int, int)>* signal=nullptr);
 

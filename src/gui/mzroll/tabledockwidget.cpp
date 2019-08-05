@@ -2109,8 +2109,20 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
                                                  tr("NIST library (*.msp)"));
                 if (!fileName.endsWith(".msp"))
                     fileName += ".msp";
+                double threshold = QInputDialog::getDouble(td,
+                                                           "Filter threshold",
+                                                           "Please specify a"
+                                                           "lower cutoff "
+                                                           "percentage for "
+                                                           "filtering spectral"
+                                                           "peaks:",
+                                                           5.00,
+                                                           0.00,
+                                                           100.00,
+                                                           2);
                 DB.saveNISTLibrary(td->getGroups().toVector().toStdVector(),
                                    td->getMainWindow()->getUserMassCutoff(),
+                                   threshold / 100.0,
                                    fileName.toStdString());
             });
     return btnMSP;
