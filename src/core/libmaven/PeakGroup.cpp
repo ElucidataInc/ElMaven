@@ -265,16 +265,21 @@ bool PeakGroup::deleteChild(unsigned int index) {
 }
 
 bool PeakGroup::deleteChild(PeakGroup* child ) {
-    if (!child) return false;
+    if (!child)
+        return false;
 
-    vector<PeakGroup>::iterator it;
-    it = find(children.begin(),children.end(),child);
-    if ( *it == child ) {
-        cerr << "deleteChild: setting child to empty";
+    auto preDeletionChildCount = children.size();
+    children.erase(remove_if(begin(children),
+                             end(children),
+                             [&](PeakGroup& group) {
+                                 return child == &group;
+                             }),
+                   children.end());
+
+    // child was found and removed
+    if (children.size() != preDeletionChildCount) {
         child->clear();
         return true;
-        //sort(children.begin(), children.end(),PeakGroup::compIntensity);
-        //for(int i=0; i < children.size(); i++ ) { cerr << &children[i] << endl; }
     }
 
     return false;
