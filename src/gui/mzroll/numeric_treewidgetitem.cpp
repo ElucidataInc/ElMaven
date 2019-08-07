@@ -8,18 +8,18 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const{
     QCollator collator;
     collator.setNumericMode(true);
 
-    QRegExp exp1("^[-+]?([0-9]*\\.?[0-9]+)[eE][-+]?([0-9]+)$");
-    QRegExp exp2("^[-+]?([0-9]*\\.?[0-9]+)[eE][-+]?([0-9]+)$");
-    if (thisText.contains(exp1) && otherText.contains(exp2)) {
-        QString thisMantissa = exp1.cap(1);
-        QString thisExponent = exp1.cap(2);
-        QString otherMantissa = exp2.cap(1);
-        QString otherExponent = exp2.cap(2);
-
-        if (collator.compare(thisExponent, otherExponent) == 0) {
-            return collator.compare(thisMantissa, otherMantissa) < 0;
-        }
-        return collator.compare(thisExponent, otherExponent) < 0;
+    QRegExp exp("^[-+]?([0-9]*\\.?[0-9]+)[eE][-+]?([0-9]+)$");
+    if (thisText.contains(exp)) {
+        double mantissa = exp.cap(1).toDouble();
+        double exponent = exp.cap(2).toDouble();
+        double trueValue = mantissa * (pow(10, exponent));
+        thisText = QString::fromStdString(to_string(trueValue).c_str());
+    }
+    if (otherText.contains(exp)) {
+        double mantissa = exp.cap(1).toDouble();
+        double exponent = exp.cap(2).toDouble();
+        double trueValue = mantissa * (pow(10, exponent));
+        otherText = QString::fromStdString(to_string(trueValue).c_str());
     }
 
     return collator.compare(thisText , otherText) < 0;
