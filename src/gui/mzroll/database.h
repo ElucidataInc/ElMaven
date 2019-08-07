@@ -92,6 +92,7 @@ class Database {
 	deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
 	set<Compound*> findSpeciesByMass(float mz, MassCutoff *massCutoff);
 	vector<Compound*> findSpeciesByName(string name, string dbname);
+	vector<Compound*> findSpeciesById(string id, string dbName);
 
 	void loadRetentionTimes(QString method);
 	void saveRetentionTime(Compound* c, float rt, QString method);
