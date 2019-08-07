@@ -761,9 +761,14 @@ map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff,
         auto intensity = elem.second;
         if (!mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)
             || mz == lastMz) {
-            if (mz == lastMz) {
+            bool lastMzIncluded = false;
+
+            // only add last mz for averaging if its within cutoff
+            if (mz == lastMz
+                && mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)) {
                 mzBuffer.push_back(mz);
                 intensityBuffer.push_back(intensity);
+                lastMzIncluded = true;
             }
             float avgMz = accumulate(begin(mzBuffer),
                                      end(mzBuffer),
@@ -775,6 +780,10 @@ map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff,
             mzBuffer.clear();
             intensityBuffer.clear();
             currentMinMz = mz;
+
+            // if last mz has not been accounted for, add to its own bucket
+            if (mz == lastMz && !lastMzIncluded)
+                binMzIntensityMap[mz] = intensity;
         }
         mzBuffer.push_back(mz);
         intensityBuffer.push_back(intensity);
