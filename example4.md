@@ -18,9 +18,9 @@ permalink: /Downloads/
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
-     <div id="win0.6" class="modal" style="width: 100% !important; max-height:100% !important">
+     <div id="win0.8" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal2" onLoad="download('myModal2','win0.6')" style="width:100%; height:100%" src="https://goo.gl/forms/PITThWHXV5OcCygn1"
+            <iframe id="myModal2" onLoad="download('myModal2','win0.8')" style="width:100%; height:100%" src="https://forms.gle/N5xUZdzb91ExraqD8"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -36,9 +36,9 @@ permalink: /Downloads/
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
-    <div id="mac0.6" class="modal" style="width: 100% !important; max-height:100% !important">
+    <div id="mac0.8" class="modal" style="width: 100% !important; max-height:100% !important">
         <div class="modal-content" style="height: 100%; padding: 0px; overflow: hidden">
-            <iframe id="myModal5" onLoad="download('myModal5','mac0.6')" style="width:100%; height:100%" src="https://goo.gl/forms/dsAULMZLnziZY0bJ3"
+            <iframe id="myModal5" onLoad="download('myModal5','mac0.8')" style="width:100%; height:100%" src="https://forms.gle/D43aTUVX6o8iTtaQA"
                 frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
         </div>
     </div>
@@ -60,6 +60,18 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
+                            <font color="#8985db">v0.8.0</font>
+                        </td>
+                        <td style="padding-top: 2%; padding-bottom: 2%">
+                            <button style="background-color:#8985db;" data-target="win0.8" class="btn modal-trigger">
+                                <font color="white">
+                                    <i class="zmdi zmdi-download"></i>
+                                </font>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 2%; padding-bottom: 2%">
                             <font color="#8985db">v0.7.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
@@ -76,18 +88,6 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <button style="background-color:#8985db;" data-target="win0.7" class="btn modal-trigger">
-                                <font color="white">
-                                    <i class="zmdi zmdi-download"></i>
-                                </font>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.6.1</font>
-                        </td>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <button style="background-color:#8985db;" data-target="win0.6" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
@@ -114,6 +114,18 @@ permalink: /Downloads/
                 <tbody>
                     <tr>
                         <td style="padding-top: 2%; padding-bottom: 2%">
+                            <font color="#8985db">v0.8.0</font>
+                        </td>
+                        <td style="padding-top: 2%; padding-bottom: 2%">
+                            <button style="background-color:#8985db;" data-target="mac0.8" class="btn modal-trigger">
+                                <font color="white">
+                                    <i class="zmdi zmdi-download"></i>
+                                </font>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 2%; padding-bottom: 2%">
                             <font color="#8985db">v0.7.1</font>
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
@@ -130,18 +142,6 @@ permalink: /Downloads/
                         </td>
                         <td style="padding-top: 2%; padding-bottom: 2%">
                             <button style="background-color:#8985db;" data-target="mac0.7" class="btn modal-trigger">
-                                <font color="white">
-                                    <i class="zmdi zmdi-download"></i>
-                                </font>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <font color="#8985db">v0.6.1</font>
-                        </td>
-                        <td style="padding-top: 2%; padding-bottom: 2%">
-                            <button style="background-color:#8985db;" data-target="mac0.6" class="btn modal-trigger">
                                 <font color="white">
                                     <i class="zmdi zmdi-download"></i>
                                 </font>
