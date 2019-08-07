@@ -226,6 +226,17 @@ vector<Compound*> Database::findSpeciesByName(string name, string dbname) {
 		return set;
 }
 
+vector<Compound*> Database::findSpeciesById(string id, string dbName) {
+    vector<Compound*> matches;
+    for (auto compound : compoundsDB) {
+        if (compound->id == id && compound->db == dbName) {
+            matches.push_back(compound);
+        }
+    }
+
+    return matches;
+}
+
 void Database::loadReactions(string db) {
 
 		map<string, Reaction*> seenReactions;

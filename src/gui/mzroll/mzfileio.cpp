@@ -1175,9 +1175,18 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         if (matches.size() > 0)
             group->compound = matches[0];
     } else if (!compoundId.empty()) {
-        Compound* c = DB.findSpeciesByIdAndName(compoundId,
-                                                group->compound->name,
-                                                DB.ANYDATABASE);
+        Compound* c = nullptr;
+
+        if (group->compound && !group->compound->name.empty()) {
+            c = DB.findSpeciesByIdAndName(compoundId,
+                                          group->compound->name,
+                                          DB.ANYDATABASE);
+        } else if (!compoundDB.empty()) {
+            vector<Compound*> matches = DB.findSpeciesById(compoundId, compoundDB);
+            if (matches.size())
+                c = matches[0];
+        }
+        
         if (c)
             group->compound = c;
     }
