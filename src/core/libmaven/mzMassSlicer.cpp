@@ -339,6 +339,118 @@ mzSlice* MassSlices::sliceExists(float mzMinBound,
 void MassSlices::mergeOverlappingSlices(float rtTolerance,
                                         float intensityRatioCutoff)
 {
+    auto slicesOverlap = [&](mzSample* sample,
+                             mzSlice* slice,
+                             mzSlice* comparisonSlice) {
+        auto mz = slice->mz;
+        auto rt = slice->rt;
+        auto mzMin = slice->mzmin;
+        auto mzMax = slice->mzmax;
+        auto rtMin = slice->rtmin;
+        auto rtMax = slice->rtmax;
+        auto comparisonMz = comparisonSlice->mz;
+        auto comparisonRt = comparisonSlice->rt;
+        auto comparisonMzMin = comparisonSlice->mzmin;
+        auto comparisonMzMax = comparisonSlice->mzmax;
+        auto comparisonRtMin = comparisonSlice->rtmin;
+        auto comparisonRtMax = comparisonSlice->rtmax;
+
+        // check if center of either slice lies within the bounds of the
+        // other slice, and if not, move on to the next slice
+        if (!(mz > comparisonMzMin
+              && mz < comparisonMzMax
+              && rt > comparisonRtMin
+              && rt < comparisonRtMax)
+            &&
+            !(comparisonMz > mzMin
+              && comparisonMz < mzMax
+              && comparisonRt > rtMin
+              && comparisonRt < rtMax)) {
+            return false;
+        }
+
+        // find common boundaries between the two slices being compared
+        auto commonLowerBound = 0.0f;
+        auto commonUpperBound = 0.0f;
+        if (mzMin <= comparisonMzMin
+            && mzMax >= comparisonMzMax) {
+            commonLowerBound = comparisonMzMin;
+            commonUpperBound = comparisonMzMax;
+        } else if (mzMin >= comparisonMzMin
+                   && mzMax <= comparisonMzMax) {
+            commonLowerBound = mzMin;
+            commonUpperBound = mzMax;
+        } else if (mzMin >= comparisonMzMin
+                   && mzMin <= comparisonMzMax) {
+            commonLowerBound = mzMin;
+            commonUpperBound = min(mzMax, comparisonMzMax);
+        } else if (mzMax >= comparisonMzMin
+                   && mzMax <= comparisonMzMax) {
+            commonLowerBound = max(mzMin, comparisonMzMin);
+            commonUpperBound = mzMax;
+        }
+
+        if (commonLowerBound == 0.0f && commonUpperBound == 0.0f)
+            return false;
+
+        // obtain EICs for the two slices
+        auto eic = sample->getEIC(commonLowerBound,
+                                  commonUpperBound,
+                                  rtMin,
+                                  rtMax,
+                                  1,
+                                  1,
+                                  "");
+        auto comparisonEic = sample->getEIC(commonLowerBound,
+                                            commonUpperBound,
+                                            comparisonRtMin,
+                                            comparisonRtMax,
+                                            1,
+                                            1,
+                                            "");
+
+        // find out the highest intensity (and its rt) in the EICs
+        auto highestIntensity = 0.0f;
+        auto rtAtHighestIntensity = 0.0f;
+        for (size_t i = 0; i < eic->size(); ++i) {
+            auto rtAtIdx = eic->rt[i];
+            auto intensityAtIdx = eic->intensity[i];
+            if (intensityAtIdx > highestIntensity) {
+                highestIntensity = intensityAtIdx;
+                rtAtHighestIntensity = rtAtIdx;
+            }
+        }
+        auto highestCompIntensity = 0.0f;
+        auto rtAtHighestCompIntensity = 0.0f;
+        for (size_t i = 0; i < comparisonEic->size(); ++i) {
+            auto rtAtIdx = comparisonEic->rt[i];
+            auto intensityAtIdx = comparisonEic->intensity[i];
+            if (intensityAtIdx > highestCompIntensity) {
+                highestCompIntensity = intensityAtIdx;
+                rtAtHighestCompIntensity = rtAtIdx;
+            }
+        }
+
+        // calculate and check for rt difference and intensity ratio,
+        // if conditions are satisfied, mark the comparison slice to be
+        // merged
+        auto rtDelta = abs(rtAtHighestIntensity
+                           - rtAtHighestCompIntensity);
+        auto inRatio = highestCompIntensity < highestIntensity
+                           ? (highestCompIntensity / highestIntensity)
+                           : (highestIntensity / highestCompIntensity);
+        if (rtDelta <= rtTolerance && inRatio >= intensityRatioCutoff)
+            return true;
+
+        return false;
+    };
+    _mergeSlices(slicesOverlap);
+}
+
+void MassSlices::_mergeSlices(const function<bool(mzSample*,
+                                                  mzSlice*,
+                                                  mzSlice*)>& compareSlices)
+{
     // lambda to help expand a given slice by merging a vector of slices into it
     auto expandSlice = [](mzSlice* mergeInto, vector<mzSlice*> slices) {
         if (slices.empty())
@@ -374,113 +486,14 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
             sendSignal("Filtering slices from samples…", progress, total);
 
             auto slice = *it;
-            auto mz = slice->mz;
-            auto rt = slice->rt;
-            auto mzMin = slice->mzmin;
-            auto mzMax = slice->mzmax;
-            auto rtMin = slice->rtmin;
-            auto rtMax = slice->rtmax;
-
             vector<mzSlice*> slicesToMerge;
             for (auto other = begin(slices); other != end(slices); ++other) {
                 auto comparisonSlice = *other;
                 if (slice == comparisonSlice)
                     continue;
 
-                auto comparisonMz = comparisonSlice->mz;
-                auto comparisonRt = comparisonSlice->rt;
-                auto comparisonMzMin = comparisonSlice->mzmin;
-                auto comparisonMzMax = comparisonSlice->mzmax;
-                auto comparisonRtMin = comparisonSlice->rtmin;
-                auto comparisonRtMax = comparisonSlice->rtmax;
-
-                // check if center of either slice lies within the bounds of the
-                // other slice, and if not, move on to the next slice
-                if (!(mz > comparisonMzMin
-                      && mz < comparisonMzMax
-                      && rt > comparisonRtMin
-                      && rt < comparisonRtMax)
-                    &&
-                    !(comparisonMz > mzMin
-                      && comparisonMz < mzMax
-                      && comparisonRt > rtMin
-                      && comparisonRt < rtMax)) {
-                    continue;
-                }
-
-                // find common boundaries between the two slices being compared
-                auto commonLowerBound = 0.0f;
-                auto commonUpperBound = 0.0f;
-                if (mzMin <= comparisonMzMin
-                    && mzMax >= comparisonMzMax) {
-                    commonLowerBound = comparisonMzMin;
-                    commonUpperBound = comparisonMzMax;
-                } else if (mzMin >= comparisonMzMin
-                           && mzMax <= comparisonMzMax) {
-                    commonLowerBound = mzMin;
-                    commonUpperBound = mzMax;
-                } else if (mzMin >= comparisonMzMin
-                           && mzMin <= comparisonMzMax) {
-                    commonLowerBound = mzMin;
-                    commonUpperBound = min(mzMax, comparisonMzMax);
-                } else if (mzMax >= comparisonMzMin
-                           && mzMax <= comparisonMzMax) {
-                    commonLowerBound = max(mzMin, comparisonMzMin);
-                    commonUpperBound = mzMax;
-                }
-
-                if (commonLowerBound == 0.0f && commonUpperBound == 0.0f)
-                    continue;
-
-                // obtain EICs for the two slices
-                auto eic = sample->getEIC(commonLowerBound,
-                                          commonUpperBound,
-                                          rtMin,
-                                          rtMax,
-                                          1,
-                                          1,
-                                          "");
-                auto comparisonEic = sample->getEIC(commonLowerBound,
-                                                    commonUpperBound,
-                                                    comparisonRtMin,
-                                                    comparisonRtMax,
-                                                    1,
-                                                    1,
-                                                    "");
-
-                // find out the highest intensity (and its rt) in the EICs
-                auto highestIntensity = 0.0f;
-                auto rtAtHighestIntensity = 0.0f;
-                for (size_t i = 0; i < eic->size(); ++i) {
-                    auto rtAtIdx = eic->rt[i];
-                    auto intensityAtIdx = eic->intensity[i];
-                    if (intensityAtIdx > highestIntensity) {
-                        highestIntensity = intensityAtIdx;
-                        rtAtHighestIntensity = rtAtIdx;
-                    }
-                }
-                auto highestCompIntensity = 0.0f;
-                auto rtAtHighestCompIntensity = 0.0f;
-                for (size_t i = 0; i < comparisonEic->size(); ++i) {
-                    auto rtAtIdx = comparisonEic->rt[i];
-                    auto intensityAtIdx = comparisonEic->intensity[i];
-                    if (intensityAtIdx > highestCompIntensity) {
-                        highestCompIntensity = intensityAtIdx;
-                        rtAtHighestCompIntensity = rtAtIdx;
-                    }
-                }
-
-                // calculate and check for rt difference and intensity ratio,
-                // if conditions are satisfied, mark the comparison slice to be
-                // merged
-                auto rtDelta = abs(rtAtHighestIntensity
-                                   - rtAtHighestCompIntensity);
-                auto inRatio = highestCompIntensity < highestIntensity
-                                   ? (highestCompIntensity / highestIntensity)
-                                   : (highestIntensity / highestCompIntensity);
-                if (rtDelta <= rtTolerance && inRatio >= intensityRatioCutoff) {
+                if (compareSlices(sample, slice, comparisonSlice))
                     slicesToMerge.push_back(comparisonSlice);
-                }
             }
 
             // expand the current slice by merging all slices classified to be
