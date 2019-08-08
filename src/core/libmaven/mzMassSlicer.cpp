@@ -382,8 +382,8 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
             auto rtMax = slice->rtmax;
 
             vector<mzSlice*> slicesToMerge;
-            for (auto rest = it; rest != end(slices); ++rest) {
-                auto comparisonSlice = *rest;
+            for (auto other = begin(slices); other != end(slices); ++other) {
+                auto comparisonSlice = *other;
                 if (slice == comparisonSlice)
                     continue;
 
@@ -488,7 +488,7 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
             // merged
             expandSlice(slice, slicesToMerge);
             for (auto merged : slicesToMerge) {
-                slices.erase(remove_if(it,
+                slices.erase(remove_if(begin(slices),
                                        end(slices),
                                        [&](mzSlice* s) { return s == merged; }),
                              slices.end());
