@@ -71,6 +71,9 @@ class MassSlices {
         void mergeOverlappingSlices(float rtTolerance=0.005f,
                                     float intensityRatioCutoff=0.99f);
 
+        void mergeNeighbouringSlices(MassCutoff* massCutoff,
+                                     float rtTolerance=0.005f);
+
         void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
         /**
@@ -150,6 +153,7 @@ class MassSlices {
          */
         void _mergeSlices(const function<bool(mzSample*,
                                               mzSlice*,
-                                              mzSlice*)>& compareSlices);
+                                              mzSlice*)>& compareSlices,
+                          const string& updateMessage);
 };
 #endif
