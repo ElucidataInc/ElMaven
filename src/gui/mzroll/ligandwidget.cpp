@@ -61,17 +61,8 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
 
-  saveButton = new QToolButton(toolBar);
-  saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
-  saveButton->setToolTip("Save Compound List");
-  connect(saveButton,SIGNAL(clicked()), SLOT(saveCompoundList()));
-
-
-  saveButton->setEnabled(false);
-
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(loadButton);
-  toolBar->addWidget(saveButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);
@@ -258,20 +249,6 @@ void LigandWidget::setDatabase(QString dbname) {
 void LigandWidget::databaseChanged(int index) {
     QString dbname = databaseSelect->currentText();
     setDatabase(dbname);
-    setDatabaseAltered(dbname, alteredDatabases[dbname]);
-}
-
-void LigandWidget::setDatabaseAltered(QString name, bool altered) {
-    alteredDatabases[name]=altered;
-    QString dbname = databaseSelect->currentText();
-
-    if (dbname == name && altered == true) {
-        saveButton->setEnabled(true);
-    }
-
-    if (dbname == name && altered == false) {
-        saveButton->setEnabled(false);
-    }
 }
 
 void LigandWidget::setCompoundFocus(Compound* c) {
@@ -490,22 +467,6 @@ void LigandWidget::resetColor()
     }
 }
 
-
-void LigandWidget::saveCompoundList(){
-
-    QSettings *settings = _mw->getSettings();
-    QString dbname = databaseSelect->currentText();
-    QString dbfilename = databaseSelect->currentText() + ".tab";
-    QString dataDir = settings->value("dataDir").value<QString>();
-    QString methodsFolder =     dataDir +  "/"  + settings->value("methodsFolder").value<QString>();
-
-    QString fileName = QFileDialog::getSaveFileName(
-                this, "Export Compounds to Filename", methodsFolder, "TAB (*.tab)");
-
-    saveCompoundList(fileName, dbname);
-
-}
-
 void LigandWidget::saveCompoundList(QString fileName,QString dbname){
 
    if (fileName.isEmpty()) return;
@@ -564,7 +525,6 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
             out << category.join(";") << SEP;
             out << "\n";
         }
-        setDatabaseAltered(databaseSelect->currentText(),false);
     }
 }
 
