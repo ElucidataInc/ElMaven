@@ -131,7 +131,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
 
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
-        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
+        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
+        connect(identificationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -153,10 +154,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                             ->getAnalytics()
                             ->hitEvent("PRM", "PRM Analysis");
                     }
-
-                    // if checked, the identification databases should change
-                    if (featureOptions->isChecked())
-                        refreshCompoundDatabases();
                 });
         connect(fragmentTolerance,
                 SIGNAL(valueChanged(double)),
@@ -222,8 +219,8 @@ void PeakDetectionDialog::dbSearchClicked()
         toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
-        featureOptions->setChecked(true);
     }
+    toggleFragmentation();
 }
 
 bool PeakDetectionDialog::databaseSearchEnabled()
@@ -246,9 +243,7 @@ void PeakDetectionDialog::featureOptionsClicked()
     } else {
         dbSearch->setChecked(true);
     }
-
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
+    toggleFragmentation();
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -304,10 +299,7 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
-
-	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
+    mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);
@@ -320,7 +312,7 @@ void PeakDetectionDialog::show() {
     // peakupdater->useMainWindowLabelOptions = false;
 
     inputInitialValuesPeakDetectionDialog();
-
+    toggleFragmentation();
 }
 
 /**
@@ -414,7 +406,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             compoundDatabase->findText(selectedDB));
         
         //match fragmentation only enabled during targeted detection with NIST library
-        toggleFragmentation(selectedDB);
+        toggleFragmentation();
 
         QDialog::exec();
     }
@@ -433,24 +425,13 @@ void PeakDetectionDialog::refreshCompoundDatabases()
         string db = (*itr).first;
         if (!db.empty()) {
             compoundDatabase->addItem(QString(db.c_str()));
-
-            if (matchFragmentationOptions->isChecked() && !DB.isNISTLibrary(db))
-                continue;
-
             identificationDatabase->addItem(QString(db.c_str()));
         }
     }
 }
 
-void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
+void PeakDetectionDialog::toggleFragmentation()
 {
-    if (dbSearch->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
-        matchFragmentationOptions->setEnabled(true);
-    } else {
-        matchFragmentationOptions->setChecked(false);
-        matchFragmentationOptions->setEnabled(false);
-    }
-
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples),
                         end(samples),
@@ -464,6 +445,20 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
     } else {
         mustHaveMs2->setEnabled(false);
         mustHaveMs2->setChecked(false);
+    }
+
+    QString selectedDbName = "";
+    if (dbSearch->isChecked()) {
+        selectedDbName = compoundDatabase->currentText();
+    } else if (featureOptions->isChecked()) {
+        selectedDbName = identificationDatabase->currentText();
+    }
+
+    if (foundDda && DB.isNISTLibrary(selectedDbName.toStdString())) {
+        matchFragmentationOptions->setEnabled(true);
+    } else {
+        matchFragmentationOptions->setChecked(false);
+        matchFragmentationOptions->setEnabled(false);
     }
 }
 

@@ -42,7 +42,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                   */
                  void refreshCompoundDatabases();
 
-                 void toggleFragmentation(QString);
+                 void toggleFragmentation();
 				 void showMethodSummary(); //TODO: Sahil - Kiran, Added while merging mainwindow
                  void saveMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
                  void loadMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
