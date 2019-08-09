@@ -31,6 +31,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("maxIntensity", QVariant::fromValue(pd->maxIntensity));
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
+    settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
     settings.insert("identificationDatabase", QVariant::fromValue(pd->identificationDatabase));
 
     // db search settings
@@ -245,6 +246,9 @@ void PeakDetectionDialog::featureOptionsClicked()
     } else {
         dbSearch->setChecked(true);
     }
+
+    QString dbName = compoundDatabase->currentText();
+    toggleFragmentation(dbName);
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -455,14 +459,11 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
                                    && (s->ms2ScanCount() > 0));
                         });
     bool foundDda = iter != end(samples);
-
-    if ((featureOptions->isChecked() && foundDda)
-        || (dbSearch->isChecked()
-            && DB.isNISTLibrary(selectedDbName.toStdString()))) {
-        matchFragmentationOptions->setEnabled(true);
+    if (foundDda && featureOptions->isChecked()) {
+        mustHaveMs2->setEnabled(true);
     } else {
-        matchFragmentationOptions->setChecked(false);
-        matchFragmentationOptions->setEnabled(false);
+        mustHaveMs2->setEnabled(false);
+        mustHaveMs2->setChecked(false);
     }
 }
 
@@ -509,7 +510,7 @@ void PeakDetectionDialog::findPeaks()
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
-        if (matchFragmentationOptions->isChecked()) {
+        if (mustHaveMs2->isChecked()) {
             peakupdater->setUntargetedMustHaveMs2(true);
             mainwindow->getAnalytics()->hitEvent("Peak Detection",
                                                  "Untargeted",

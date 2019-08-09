@@ -437,7 +437,6 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
         return;
 
     vector<PeakGroup> toBeMerged;
-    GroupFiltering groupFiltering(mavenParameters);
     auto iter = mavenParameters->allgroups.begin();
     while(iter != mavenParameters->allgroups.end()) {
         auto& group = *iter;
@@ -453,17 +452,9 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             if (mzUtils::withinXMassCutoff(group.meanMz,
                                            mz,
                                            mavenParameters->massCutoffMerge)) {
+                matchFound = true;
                 PeakGroup groupWithTarget(group);
                 groupWithTarget.compound = compound;
-
-                // since we are creating targeted groups, we should ensure they
-                // pass MS2 filtering criteria, if enabled
-                if (mavenParameters->matchFragmentationFlag
-                    && groupFiltering.filterByMS2(groupWithTarget)) {
-                    continue;
-                }
-
-                matchFound = true;
                 toBeMerged.push_back(groupWithTarget);
             }
         }

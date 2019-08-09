@@ -223,7 +223,14 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="mustHaveMs2">
+            <property name="text">
+             <string>Exclude unfragmented groups</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Annotate using database</string>
@@ -1043,6 +1050,7 @@
   <tabstop>rtStep</tabstop>
   <tabstop>rtMin</tabstop>
   <tabstop>rtMax</tabstop>
+  <tabstop>mustHaveMs2</tabstop>
   <tabstop>minIntensity</tabstop>
   <tabstop>maxIntensity</tabstop>
   <tabstop>chargeMin</tabstop>
