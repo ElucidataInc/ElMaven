@@ -1,4 +1,3 @@
-#include "adductwidget.h"
 #include "common/analytics.h"
 #include "Compound.h"
 #include "eiclogic.h"
@@ -233,8 +232,6 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
         mw->isotopeWidget->peakSelected(peak, group);
     if (peak && mw->covariantsPanel->isVisible())
         mw->getLinks(peak);
-    if (peak && mw->adductWidget->isVisible())
-        mw->adductWidget->setPeak(peak);
     if (peak == nullptr)
         //ms2 markers have no peaks
         mw->getAnalytics()->hitEvent("DDA", "ClickedOnMarker");
