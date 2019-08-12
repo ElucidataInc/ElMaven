@@ -142,7 +142,7 @@ INSTALLS += sources target
 FORMS = forms/settingsform.ui  \
         forms/librarymanager.ui \
         forms/masscalcwidget.ui \
-#	forms/ligandwidget.ui \
+    #	forms/ligandwidget.ui \
         forms/isotopeswidget.ui \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
@@ -221,7 +221,7 @@ HEADERS +=  stable.h \
                     spectralhit.h \
                     grouprtwidget.h \
                     alignmentvizallgroupswidget.h \
-                   spectralhitstable.h\
+                    spectralhitstable.h\
                     clusterdialog.h \
                     loginform.h \
                     aboutpolly.h \
