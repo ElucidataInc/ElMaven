@@ -17,6 +17,7 @@ class QCustomPlot;
 class QDoubleSpinBox;
 class QSpinBox;
 
+class AdductWidget;
 class SRMList;
 class Controller;
 class VideoPlayer;
@@ -113,7 +114,8 @@ public:
 	SRMList *srmList;
     map<string, Compound*> annotation;
 	
-    VideoPlayer* vidPlayer;
+    AdductWidget* adductWidget;
+	VideoPlayer* vidPlayer;
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
@@ -289,6 +291,7 @@ public Q_SLOTS:
     void togglePerGroupAlignmentWidget();
     void toggleAllGroupAlignmentWidget();
     void toggleSampleRtWidget();
+	void showAdductDialog();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
     void autosaveGroup(QList<PeakGroup*> groups = {});

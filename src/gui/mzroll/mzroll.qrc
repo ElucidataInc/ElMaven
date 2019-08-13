@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>images/adducts.png</file>
         <file>images/copyCSV.png</file>
         <file>images/zoomOutNode.png</file>
         <file>images/compound.png</file>

@@ -3,6 +3,7 @@
 #include <QRegExp>
 #include <qcustomplot.h>
 
+#include "adductwidget.h"
 #include "SRMList.h"
 #include "alignmentdialog.h"
 #include "alignmentvizallgroupswidget.h"
@@ -335,6 +336,7 @@ using namespace mzUtils;
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
+	adductWidget = new AdductWidget(this);
 	heatmap = new HeatMap(this);
 	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
