@@ -145,15 +145,22 @@ class MassSlices {
          * @brief Merge slices that satisfy some given condition.
          * @details This uses a lambda function as a criterion to decide whether
          * two slices should be merged. Iteration happens for each slice in the
-         * `slices` vector and for each sample.
+         * `slices` vector and for each sample. For each slice, the neighbouring
+         * slices (positive and negative look-ahead) are checked until the
+         * second value returned from a lambda call is found to be `false`,
+         * signalling that further neighbours are not qualified for merging, by
+         * definition.
          * @param compareSlices A lambda function that takes in a pointer to
          * and mzSample, and two pointers to the mzSlices that need to be
-         * compared. The function must return a boolean which can be used to
-         * determine whether the slices should be merged.
+         * compared. The function must return a pair of boolean values, the
+         * first of which can be used to determine whether the slices should be
+         * merged or not. The second returned boolean can be used to decide
+         * whether iteration needs to proceed in the current direction (proceed
+         * if `true`, stop if `false`).
          */
-        void _mergeSlices(const function<bool(mzSample*,
-                                              mzSlice*,
-                                              mzSlice*)>& compareSlices,
+        void _mergeSlices(const function<pair<bool, bool>(mzSample*,
+                                                          mzSlice*,
+                                                          mzSlice*)>& compareSlices,
                           const string& updateMessage);
 };
 #endif
