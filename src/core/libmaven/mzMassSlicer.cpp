@@ -227,10 +227,11 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
     float threshold = 100;
     removeDuplicateSlices(massCutoff, threshold);
-    sort(slices.begin(), slices.end(), mzSlice::compIntensity);
+    sort(slices.begin(), slices.end(), mzSlice::compMz);
 
     mergeOverlappingSlices(0.05f, 0.90f);
     mergeNeighbouringSlices(massCutoff, 0.05f);
+    sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
     ofstream fs("slices.csv");
     fs << "mz,rt,mzMin,mzMax,rtMin,rtMax,ionCount,srmId\n";
@@ -367,7 +368,7 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
               && comparisonMz < mzMax
               && comparisonRt > rtMin
               && comparisonRt < rtMax)) {
-            return false;
+            return make_pair(false, false);
         }
 
         // find common boundaries between the two slices being compared
@@ -392,7 +393,7 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
         }
 
         if (commonLowerBound == 0.0f && commonUpperBound == 0.0f)
-            return false;
+            return make_pair(false, false);
 
         // obtain EICs for the two slices
         auto eic = sample->getEIC(commonLowerBound,
@@ -441,9 +442,9 @@ void MassSlices::mergeOverlappingSlices(float rtTolerance,
                            ? (highestCompIntensity / highestIntensity)
                            : (highestIntensity / highestCompIntensity);
         if (rtDelta <= rtTolerance && inRatio >= intensityRatioCutoff)
-            return true;
+            return make_pair(true, true);
 
-        return false;
+        return make_pair(false, true);
     };
     _mergeSlices(slicesOverlap, "Merging overlapping slices in samples…");
 }
@@ -471,7 +472,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
               && comparisonMzMax >= mzMin)
             && !(mzMin - comparisonMzMax <= massTolerance
                  && mzMax >= comparisonMzMin)) {
-            return false;
+            return make_pair(false, false);
         }
 
         // find common RT boundaries between the two slices being compared
@@ -492,7 +493,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         }
 
         if (commonLowerRt == 0.0f && commonUpperRt == 0.0f)
-            return false;
+            return make_pair(false, true);
 
         // obtain EICs for the two slices
         auto eic = sample->getEIC(mzMin,
@@ -540,16 +541,16 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
         auto mzDelta = abs(mzAtHighestIntensity - mzAtHighestCompIntensity);
         if (rtDelta <= rtTolerance && mzDelta <= 2.0f * massTolerance)
-            return true;
+            return make_pair(true, true);
 
-        return false;
+        return make_pair(false, true);
     };
     _mergeSlices(slicesInProximity, "Merging related slices in samples…");
 }
 
-void MassSlices::_mergeSlices(const function<bool(mzSample*,
-                                                  mzSlice*,
-                                                  mzSlice*)>& compareSlices,
+void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
+                                                              mzSlice *,
+                                                              mzSlice *)> &compareSlices,
                               const string &updateMessage)
 {
     // lambda to help expand a given slice by merging a vector of slices into it
@@ -588,13 +589,33 @@ void MassSlices::_mergeSlices(const function<bool(mzSample*,
 
             auto slice = *it;
             vector<mzSlice*> slicesToMerge;
-            for (auto other = begin(slices); other != end(slices); ++other) {
-                auto comparisonSlice = *other;
-                if (slice == comparisonSlice)
-                    continue;
 
-                if (compareSlices(sample, slice, comparisonSlice))
+            // search ahead
+            for (auto ahead = next(it);
+                 ahead != end(slices) && it != end(slices);
+                 ++ahead) {
+                auto comparisonSlice = *ahead;
+                auto comparison = compareSlices(sample, slice, comparisonSlice);
+                auto shouldMerge = comparison.first;
+                auto continueIteration = comparison.second;
+                if (shouldMerge)
                     slicesToMerge.push_back(comparisonSlice);
+                if (!continueIteration)
+                    break;
+            }
+
+            // search behind
+            for (auto behind = prev(it);
+                 behind != begin(slices) && it != begin(slices);
+                 --behind) {
+                auto comparisonSlice = *behind;
+                auto comparison = compareSlices(sample, slice, comparisonSlice);
+                auto shouldMerge = comparison.first;
+                auto continueIteration = comparison.second;
+                if (shouldMerge)
+                    slicesToMerge.push_back(comparisonSlice);
+                if (!continueIteration)
+                    break;
             }
 
             // expand the current slice by merging all slices classified to be
