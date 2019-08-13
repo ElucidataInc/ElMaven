@@ -474,7 +474,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             ++iter;
         }
 
-       sendBoostSignal("Annotating features…",
+       sendBoostSignal("Identifying features using the given compound set…",
                        iter - mavenParameters->allgroups.begin(),
                        mavenParameters->allgroups.size());
     }
