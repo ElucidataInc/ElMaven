@@ -583,6 +583,9 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     connect(_treeWidget,
             SIGNAL(itemDropped(QTreeWidgetItem*)),
             SLOT(changeSampleOrder()));
+    connect(_treeWidget,
+            SIGNAL(itemsSorted()),
+            SLOT(changeSampleOrder()));
     changeSampleOrder();
 }
 
@@ -966,6 +969,18 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
 ProjectTreeWidget::ProjectTreeWidget(QWidget* parent) : QTreeWidget(parent)
 {
     _draggedItem = nullptr;
+
+    auto currentHeader = header();
+    auto newHeader = new ProjectHeaderView(currentHeader->orientation(),
+                                           currentHeader->parentWidget());
+    setHeader(newHeader);
+    connect(newHeader,
+            &QHeaderView::sortIndicatorChanged,
+            this,
+            [=](int column, Qt::SortOrder sortOrder) {
+                sortByColumn(column, sortOrder);
+                emit itemsSorted();
+            });
 }
 
 void ProjectTreeWidget::dragEnterEvent(QDragEnterEvent* event)
@@ -992,4 +1007,31 @@ void ProjectTreeWidget::dropEvent(QDropEvent* event)
     QTreeWidget::dropEvent(event);
     QTreeWidgetItem* item = currentItem();
     emit itemDropped(item);
+    header()->setSortIndicatorShown(false);
+}
+
+ProjectHeaderView::ProjectHeaderView(Qt::Orientation orientation,
+                                     QWidget* parent)
+    : QHeaderView(orientation, parent)
+{
+    setSectionsMovable(true);
+    setSectionsClickable(true);
+    setSectionResizeMode(QHeaderView::ResizeToContents);
+    setDefaultAlignment(Qt::AlignLeft);
+}
+
+void ProjectHeaderView::mouseReleaseEvent(QMouseEvent* event)
+{
+    auto column = logicalIndexAt(event->pos());
+    if (column > -1) {
+        if (isSortIndicatorShown()
+            && sortIndicatorSection() == column
+            && sortIndicatorOrder() == Qt::AscendingOrder) {
+            setSortIndicator(column, Qt::DescendingOrder);
+        } else {
+            setSortIndicatorShown(true);
+            setSortIndicator(column, Qt::AscendingOrder);
+        }
+    }
+    QHeaderView::mouseReleaseEvent(event);
 }

@@ -147,6 +147,7 @@ public:
 
 Q_SIGNALS:
     void itemDropped(QTreeWidgetItem* item);
+    void itemsSorted();
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event);
@@ -154,6 +155,22 @@ protected:
 
 private:
     QTreeWidgetItem* _draggedItem;
+};
+
+
+/**
+ * @brief The ProjectHeaderView class has been created to provide an added
+ * sorting facility, even if the widget as been turned to enable drag-n-drop.
+ */
+class ProjectHeaderView : public QHeaderView
+{
+    Q_OBJECT
+
+public:
+    ProjectHeaderView(Qt::Orientation orientation, QWidget* parent);
+
+protected:
+    void mouseReleaseEvent(QMouseEvent* event);
 };
 
 #endif // PROJECTDOCKWIDGET_H
