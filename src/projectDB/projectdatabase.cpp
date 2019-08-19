@@ -5,6 +5,7 @@
 #include "Compound.h"
 #include "connection.h"
 #include "cursor.h"
+#include "datastructures/adduct.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
