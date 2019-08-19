@@ -169,6 +169,16 @@ class ProjectHeaderView : public QHeaderView
 public:
     ProjectHeaderView(Qt::Orientation orientation, QWidget* parent);
 
+signals:
+    /**
+     * @brief Emitted whenever the column header is clicked, and should be
+     * considered as a request to sort items based on the contents of this
+     * column.
+     * @param column An integer denoting the column that should be sorted for.
+     * @param sortOrder The sort order for contents of the clicked column.
+     */
+    void sortRequested(int column, Qt::SortOrder sortOrder);
+
 protected:
     void mouseReleaseEvent(QMouseEvent* event);
 };

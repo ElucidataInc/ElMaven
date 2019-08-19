@@ -975,7 +975,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget* parent) : QTreeWidget(parent)
                                            currentHeader->parentWidget());
     setHeader(newHeader);
     connect(newHeader,
-            &QHeaderView::sortIndicatorChanged,
+            &ProjectHeaderView::sortRequested,
             this,
             [=](int column, Qt::SortOrder sortOrder) {
                 sortByColumn(column, sortOrder);
@@ -1028,9 +1028,11 @@ void ProjectHeaderView::mouseReleaseEvent(QMouseEvent* event)
             && sortIndicatorSection() == column
             && sortIndicatorOrder() == Qt::AscendingOrder) {
             setSortIndicator(column, Qt::DescendingOrder);
+            emit sortRequested(column, Qt::DescendingOrder);
         } else {
             setSortIndicatorShown(true);
             setSortIndicator(column, Qt::AscendingOrder);
+            emit sortRequested(column, Qt::AscendingOrder);
         }
     }
     QHeaderView::mouseReleaseEvent(event);
