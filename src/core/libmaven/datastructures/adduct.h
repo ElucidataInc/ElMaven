@@ -16,6 +16,9 @@ class Adduct {
     public:
         Adduct(string name, int nmol, int charge, float mass);
         ~Adduct();
+
+        string getName();
+        int getCharge();
 };
 
 #endif

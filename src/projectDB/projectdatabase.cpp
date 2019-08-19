@@ -229,7 +229,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":fragmentation_num_matches",
                       group->fragMatchScore.numMatches);
 
-    groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
+    groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->getName() : "");
 
     groupsQuery->bind(":compound_id",
                       group->getCompound() ? group->getCompound()->id : "");
@@ -938,8 +938,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         if (!srmId.empty())
             group->setSrmId(srmId);
 
-        if (!adductName.empty())
-            group->adduct = _findAdductByName(adductName);
+        //TODO Shubhra: Update the function and uncomment
+        //if (!adductName.empty())
+        //    group->adduct = _findAdductByName(adductName);
 
         if (!compoundId.empty()) {
             Compound* compound = _findSpeciesByIdAndName(compoundId,
@@ -1613,12 +1614,6 @@ void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
 
 Adduct* ProjectDatabase::_findAdductByName(string id)
 {
-    if (id == "[M+H]+")
-        return MassCalculator::PlusHAdduct;
-    else if (id == "[M-H]-")
-        return MassCalculator::MinusHAdduct;
-    else if (id == "[M]")
-        return MassCalculator::ZeroMassAdduct;
     return nullptr;
 }
 

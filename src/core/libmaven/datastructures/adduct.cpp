@@ -13,3 +13,13 @@ Adduct::~Adduct()
 {
 
 }
+
+string Adduct::getName()
+{
+    return this->name;
+}
+
+int Adduct::getCharge()
+{
+    return this->charge;
+}
