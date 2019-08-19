@@ -147,6 +147,7 @@ public:
 
 Q_SIGNALS:
     void itemDropped(QTreeWidgetItem* item);
+    void itemsSorted();
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event);
@@ -154,6 +155,32 @@ protected:
 
 private:
     QTreeWidgetItem* _draggedItem;
+};
+
+
+/**
+ * @brief The ProjectHeaderView class has been created to provide an added
+ * sorting facility, even if the widget as been turned to enable drag-n-drop.
+ */
+class ProjectHeaderView : public QHeaderView
+{
+    Q_OBJECT
+
+public:
+    ProjectHeaderView(Qt::Orientation orientation, QWidget* parent);
+
+signals:
+    /**
+     * @brief Emitted whenever the column header is clicked, and should be
+     * considered as a request to sort items based on the contents of this
+     * column.
+     * @param column An integer denoting the column that should be sorted for.
+     * @param sortOrder The sort order for contents of the clicked column.
+     */
+    void sortRequested(int column, Qt::SortOrder sortOrder);
+
+protected:
+    void mouseReleaseEvent(QMouseEvent* event);
 };
 
 #endif // PROJECTDOCKWIDGET_H
