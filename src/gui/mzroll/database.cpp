@@ -1,5 +1,6 @@
 #include <QFile>
 
+#include "datastructures/adduct.h"
 #include "Compound.h"
 #include "constants.h"
 #include "database.h"
@@ -673,36 +674,40 @@ bool Database::isSpectralLibrary(string dbName) {
     return false;
 }
 
-void Database::loadAdducts(string filename) {
-    ifstream myfile(filename.c_str());
-    if (! myfile.is_open()) return;
+void Database::loadAdducts(string filename)
+{
+    QFile myFile(QString(filename.c_str()));
+    if (!myFile.open(QFile::ReadOnly)) return;
 
-    string line;
-    while ( getline(myfile,line) ) {
-		if (!line.empty() && line[0] == '#') continue;
-      	vector<string>fields;
-        mzUtils::split(line,',', fields);
+    int loadCount = 0;
+    while (!myFile.atEnd()) {
+        QString tempLine = myFile.readLine().trimmed();
+        if (tempLine.isEmpty()) continue;
 
-		if(fields.size() < 2 ) continue;
-		string name=fields[0];
-		int nmol=string2float(fields[1]);
-		int charge=string2float(fields[2]);
-		float mass=string2float(fields[3]);
+        string line = tempLine.toStdString();
+        if (!line.empty() && line[0] == '#')
+            continue;
 
-		if ( name.empty() || nmol < 0 ) continue;
-		Adduct* a = new Adduct();
-		a->name = name;
-		a->mass = mass;
-		a->nmol = nmol;
-		a->charge = charge;
-		a->isParent = false;
-        if (abs(abs(a->mass) - H_MASS)< 0.01) a->isParent=true;
-		adductsDB.push_back(a);
-	}
-	myfile.close();
+        vector<string> fields;
+        mzUtils::split(line, ',', fields);
+
+        if(fields.size() < 2 )
+            continue;
+
+        string name = fields[0];
+        int nmol = string2float(fields[1]);
+        int charge = string2float(fields[2]);
+        float mass = string2float(fields[3]);
+
+        if (name.empty() || nmol < 0)
+            continue;
+        Adduct* a = new Adduct(name, nmol, charge, mass);
+        adductsDB.push_back(a);
+        loadCount++;
+    }
+    cerr << "LOADCOUNT: " << loadCount;
+    myFile.close();
 }
-
-
 
 void Database::loadFragments(string filename) {
     ifstream myfile(filename.c_str());
@@ -719,22 +724,16 @@ void Database::loadFragments(string filename) {
 		float mass=string2float(fields[1]);
 		float charge=string2float(fields[2]);
 		if ( mass < 0 || name.empty() ) continue;
-		Adduct* a = new Adduct();
-		a->name = name;
-		a->mass = mass;
-		a->nmol = 1;
-		a->charge = charge;
-		a->isParent = false;
+		Adduct* a = new Adduct(name, 1, charge, mass);
+		//TODO Shubhra: Figure out the purpose of isParent
+        //a->isParent = false;
 		fragmentsDB.push_back(a);
 	}
 	myfile.close();
 }
 
-
-
-int Database::loadCompoundCSVFile(string filename){
-
-
+int Database::loadCompoundCSVFile(string filename)
+{
     QFile myFile (QString(filename.c_str()));
     if(!myFile.open(QFile::ReadOnly))
         return 0;
@@ -744,7 +743,6 @@ int Database::loadCompoundCSVFile(string filename){
     int loadCount=0;
     int lineCount=0;
     map<string, int>header;
-    vector<string> headers;
     static const string allHeadersarr[] = {"mz", "mass", "rt", "expectedrt", "charge", "formula", "id", "name",
         "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity", "note"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
@@ -778,7 +776,6 @@ int Database::loadCompoundCSVFile(string filename){
         }
 
         if (lineCount==1) {
-            headers = fields;
             for(unsigned int i=0; i < fields.size(); i++ ) {
                 fields[i] = makeLowerCase(fields[i]);
                 if (find(allHeaders.begin(), allHeaders.end(), fields[i]) != allHeaders.end()) {
@@ -825,9 +822,6 @@ int Database::loadCompoundCSVFile(string filename){
         if (header.count("note") && header["note"] < N)
             note = fields[header["note"]];
 
-        //cerr << lineCount << " " << endl;
-        //for(int i=0; i<headers.size(); i++) cerr << headers[i] << ", ";
-        //cerr << "   -> category=" << header.count("category") << endl;
         if ( header.count("category") && header["category"]<N) {
             string catstring = fields[header["category"]];
             if (!catstring.empty()) {

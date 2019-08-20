@@ -1,3 +1,4 @@
+#include "adductwidget.h"
 #include "Compound.h"
 #include "ligandwidget.h"
 #include "alignmentdialog.h"
@@ -16,7 +17,8 @@
 
 using namespace std;
 
-LigandWidget::LigandWidget(MainWindow* mw) {
+LigandWidget::LigandWidget(MainWindow* mw)
+{
   _mw = mw;
  
   setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -39,6 +41,8 @@ LigandWidget::LigandWidget(MainWindow* mw) {
           SIGNAL(itemClicked(QTreeWidgetItem*, int)),
           SLOT(showLigand()));
 
+  adductWidget = new AdductWidget(_mw);
+  
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
@@ -62,7 +66,7 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   btnAdducts = new QToolButton(toolBar);
   btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
   btnAdducts->setToolTip("Open Adducts widget");
-  connect(btnAdducts, &QToolButton::clicked, _mw, &MainWindow::showAdductDialog);
+  connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
 
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(libraryButton);
@@ -111,6 +115,13 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   QSetIterator<QString> i(set);
   while (i.hasNext())
       databaseSelect->addItem(icon,i.next());
+
+  QDirIterator adductItr(":/databases/Adducts/");
+
+    while (adductItr.hasNext()) {
+        auto filename = adductItr.next().toStdString();
+        DB.loadAdducts(filename);
+    }
 
   connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
   connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
