@@ -636,6 +636,9 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
                              slices.end());
                 delete merged;
             }
+            it = find_if(begin(slices),
+                         end(slices),
+                         [&](mzSlice* s) { return s == slice; });
         }
     }
 }
