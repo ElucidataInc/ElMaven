@@ -460,18 +460,18 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         auto mzMax = slice->mzmax;
         auto rtMin = slice->rtmin;
         auto rtMax = slice->rtmax;
+        auto comparisonMz = comparisonSlice->mz;
         auto comparisonMzMin = comparisonSlice->mzmin;
         auto comparisonMzMax = comparisonSlice->mzmax;
         auto comparisonRtMin = comparisonSlice->rtmin;
         auto comparisonRtMax = comparisonSlice->rtmax;
+        auto mzCenter = (mz + comparisonMz) / 2.0f;
 
         // check to make sure slices are close to each other (or have some
         // overlap in mz domain).
-        float massTolerance = massCutoff->massCutoffValue(mz);
-        if (!(comparisonMzMin - mzMax <= massTolerance
-              && comparisonMzMax >= mzMin)
-            && !(mzMin - comparisonMzMax <= massTolerance
-                 && mzMax >= comparisonMzMin)) {
+        float massTolerance = massCutoff->massCutoffValue(mzCenter);
+        if (!(abs(mzCenter - mz) <= massTolerance
+              && abs(mzCenter - comparisonMz) <= massTolerance)) {
             return make_pair(false, false);
         }
 
@@ -535,13 +535,20 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
             }
         }
 
-        // calculate and check for rt difference and mz difference,
-        // if conditions are satisfied, mark the comparison slice to be
-        // merged
+        // calculate and check for rt difference and mz difference, if
+        // conditions are satisfied, mark the comparison slice to be merged
         auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
-        auto mzDelta = abs(mzAtHighestIntensity - mzAtHighestCompIntensity);
-        if (rtDelta <= rtTolerance && mzDelta <= 2.0f * massTolerance)
+        auto mzCenterForIntensity = (mzAtHighestIntensity
+                                  + mzAtHighestCompIntensity) / 2.0f;
+        auto massToleranceForIntensity =
+            massCutoff->massCutoffValue(mzCenterForIntensity);
+        auto mzDeltaNeg = abs(mzCenterForIntensity - mzAtHighestIntensity );
+        auto mzDeltaPos = abs(mzAtHighestCompIntensity - mzCenterForIntensity );
+        if (rtDelta <= rtTolerance
+            && mzDeltaNeg <= massToleranceForIntensity
+            && mzDeltaPos <= massToleranceForIntensity) {
             return make_pair(true, true);
+        }
 
         return make_pair(false, true);
     };
