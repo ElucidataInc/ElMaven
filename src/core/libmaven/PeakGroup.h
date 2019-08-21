@@ -1,12 +1,12 @@
 #ifndef PEAKGROUP_H
 #define PEAKGROUP_H
 
+#include "datastructures/mzSlice.h"
 #include "Fragment.h"
 #include "Peak.h"
 #include "standardincludes.h"
 
 class mzSample;
-class mzSlice;
 class Isotope;
 class MassCalculator;
 class Compound;
@@ -20,7 +20,8 @@ using namespace std;
 class PeakGroup{
 
     private:
-        mzSlice* _slice;
+        mzSlice _slice;
+        bool _sliceSet;
 
     public:
         enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
@@ -212,9 +213,15 @@ class PeakGroup{
 
         void setCompound(Compound* compound);
 
-        void setSlice(mzSlice* slice);
+        void setSlice(const mzSlice& slice);
 
-        mzSlice* getSlice();
+        const mzSlice& getSlice() const;
+
+        /**
+         * @brief Check whether a slice has previosuly been set for this group.
+         * @return true if a slice has been set, false otherwise.
+         */
+        bool hasSlice() const;
 
         /**
          * [getParent ]

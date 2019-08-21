@@ -65,7 +65,7 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
-                          Compound* compound,
+                          mzSlice* slice,
                           float grouping_maxRtWindow,
                           double minQuality,
                           double distXWeight,
@@ -77,7 +77,7 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
                           string scoringAlgo)
 {
     peakgroups = EIC::groupPeaks(eics,
-                                compound,
+                                slice,
                                 eic_smoothingWindow,
                                 grouping_maxRtWindow,
                                 minQuality,

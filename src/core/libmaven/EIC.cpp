@@ -875,7 +875,7 @@ void EIC::removeLowRankGroups(vector<PeakGroup> &groups, unsigned int rankLimit)
 
 //TODO: Lots of parameters. Refactor this code - Sahil
 vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
-                                  Compound* compound,
+                                  mzSlice* slice,
                                   int smoothingWindow,
                                   float maxRtDiff,
                                   double minQuality,
@@ -925,7 +925,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     {
         PeakGroup grp;
         grp.groupId = i;
-        grp.setCompound(compound);
+        grp.setSlice(*slice);
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }

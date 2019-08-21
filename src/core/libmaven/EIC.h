@@ -17,6 +17,7 @@ class mzSample;
 class mzPoint;
 class Scan;
 class Compound;
+class mzSlice;
 
 using namespace std;
 
@@ -252,7 +253,7 @@ class EIC
      * @return vector of peak groups found
     **/
     static vector<PeakGroup> groupPeaks(vector<EIC *> &eics,
-                                        Compound* compound,
+                                        mzSlice* slice,
                                         int smoothingWindow,
                                         float maxRtDiff,
                                         double minQuality,

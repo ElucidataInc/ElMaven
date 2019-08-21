@@ -1,6 +1,5 @@
 #include "PeakGroup.h"
 #include "Compound.h"
-#include "datastructures/mzSlice.h"
 #include "mzSample.h"
 #include "EIC.h"
 #include "Scan.h"
@@ -69,14 +68,12 @@ PeakGroup::PeakGroup()  {
     // TODO: MAVEN (upstream) strikes again. Why was it commented out?
     adduct = NULL;
 
-    //adduct = NULL;
-    _slice = NULL;
-
     isFocused=false;
     label=0;    //classification label
 
     goodPeakCount=0;
     _type = None;
+    _sliceSet = false;
 
     changePValue=0;
     changeFoldRatio=0;
@@ -143,7 +140,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxMz=o.maxMz;
 
     parent = o.parent;
-    _slice = o._slice;
+    setSlice(o.getSlice());
 
     srmId=o.srmId;
     isFocused=o.isFocused;
@@ -151,6 +148,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
 
     goodPeakCount=o.goodPeakCount;
     _type = o._type;
+    _sliceSet = o.hasSlice();
     tagString = o.tagString;
 
     changeFoldRatio = o.changeFoldRatio;
@@ -201,7 +199,7 @@ bool PeakGroup::isMS1()
 
 bool PeakGroup::hasCompoundLink() const
 {
-    if(_slice != NULL && _slice->compound != NULL)
+    if(hasSlice() && _slice.compound != NULL)
         return true;
 
     return false;
@@ -209,19 +207,15 @@ bool PeakGroup::hasCompoundLink() const
 
 Compound* PeakGroup::getCompound()
 {
-    if (_slice != NULL) {
-        return _slice->compound;
+    if (hasSlice()) {
+        return _slice.compound;
     }
     return NULL;
 }
 
 void PeakGroup::setCompound(Compound* compound)
 {
-    if (_slice == NULL) {
-        _slice = new mzSlice;
-    }
-
-    _slice->compound = compound;
+    _slice.compound = compound;
 }
 
 void PeakGroup::addPeak(const Peak &peak)
@@ -230,12 +224,20 @@ void PeakGroup::addPeak(const Peak &peak)
 	peaks.back().groupNum = groupId;
 }
 
-void PeakGroup::setSlice(mzSlice* slice) {
-    this->_slice = slice;
+void PeakGroup::setSlice(const mzSlice& slice)
+{
+    _slice = slice;
+    _sliceSet = true;
 }
 
-mzSlice* PeakGroup::getSlice() {
-    return this->_slice;
+const mzSlice& PeakGroup::getSlice() const
+{
+    return _slice;
+}
+
+bool PeakGroup::hasSlice() const
+{
+    return _sliceSet;
 }
 
 //TODO: a duplicate function getPeak exists. Delete this function
@@ -515,25 +517,25 @@ double PeakGroup::getExpectedMz(int charge) {
     float mz = 0;
 
     if (isIsotope() 
-        && childCount() == 0 
-        && _slice != NULL 
-        && _slice->compound != NULL 
-        && !_slice->compound->formula.empty() 
-        && _slice->compound->mass > 0
+        && childCount() == 0
+        && hasSlice()
+        && _slice.compound != NULL
+        && !_slice.compound->formula.empty()
+        && _slice.compound->mass > 0
     ) { 
         return expectedMz;
     }
-    else if (!isIsotope() && _slice != NULL && _slice->compound != NULL && _slice->compound->mass > 0) {
-        if (!_slice->compound->formula.empty()) {
-            mz = _slice->compound->adjustedMass(charge);
+    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
+        if (!_slice.compound->formula.empty()) {
+            mz = _slice.compound->adjustedMass(charge);
         } else {
-            mz = _slice->compound->mass;
+            mz = _slice.compound->mass;
         }
 
         return mz;
     }
-    else if (_slice != NULL && _slice->compound != NULL && _slice->compound->mass == 0 && _slice->compound->productMz > 0) {
-        mz = _slice->compound->productMz;
+    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mass == 0 && _slice.compound->productMz > 0) {
+        mz = _slice.compound->productMz;
         return mz;
     }
 
@@ -743,7 +745,7 @@ void PeakGroup::reorderSamples() {
 string PeakGroup::getName() {
     string tag;
     //compound is assigned in case of targeted search
-    if (_slice != NULL && _slice->compound != NULL) tag = _slice->compound->name;
+    if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name;
     //add isotopic label
     if (!tagString.empty()) tag += " | " + tagString;
     //add SRM ID for MS/MS data 
@@ -779,7 +781,7 @@ vector<Scan*> PeakGroup::getFragmentationEvents()
     for(auto peak : peaks) {
         mzSample* sample = peak.getSample();
         if (sample == NULL) continue;
-        vector<Scan*> scans = sample->getFragmentationEvents(_slice);
+        vector<Scan*> scans = sample->getFragmentationEvents(&_slice);
 
         matchedScans.insert(matchedScans.end(), scans.begin(), scans.end());
     }
@@ -846,9 +848,9 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
 
     float rtDiff = -1;
 
-    if (_slice != NULL && _slice->compound != NULL && _slice->compound->expectedRt > 0)
+    if (hasSlice() && _slice.compound != NULL && _slice.compound->expectedRt > 0)
     {
-        rtDiff = abs(_slice->compound->expectedRt - (meanRt));
+        rtDiff = abs(_slice.compound->expectedRt - (meanRt));
         expectedRtDiff = rtDiff;
     }
 
@@ -857,7 +859,7 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
     double B = (double) intensityWeight/10;
     double C = (double) deltaRTWeight/10;
 
-    if (deltaRtCheckFlag && _slice != NULL && _slice->compound != NULL && _slice->compound->expectedRt > 0) {
+    if (deltaRtCheckFlag && hasSlice() && _slice.compound != NULL && _slice.compound->expectedRt > 0) {
         groupRank = pow(rtDiff, 2*C) * pow((1.1 - maxQuality), A)
                                 * (1 /( pow(log(maxIntensity + 1), B))); //TODO Formula to rank groups
     } else {

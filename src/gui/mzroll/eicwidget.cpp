@@ -1571,7 +1571,7 @@ void EicWidget::groupPeaks() {
     float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
 
     eicParameters->groupPeaks(eic_smoothingWindow,
-                              eicParameters->_slice.compound,
+                              &(eicParameters->_slice),
                               grouping_maxRtWindow,
                               getMainWindow()->mavenParameters->minQuality,
                               getMainWindow()->mavenParameters->distXWeight,

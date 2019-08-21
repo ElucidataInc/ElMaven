@@ -37,7 +37,7 @@ public:
 								int deltaRTWeight);
 
     void groupPeaks(float eic_smoothingWindow,
-                    Compound* compound,
+                    mzSlice* slice,
                     float grouping_maxRtWindow,
                     double minQuality,
                     double distXWeight,

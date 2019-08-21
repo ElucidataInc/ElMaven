@@ -379,7 +379,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 
         vector<PeakGroup> peakgroups =
             EIC::groupPeaks(eics,
-                            compound,
+                            slice,
                             mavenParameters->eic_smoothingWindow,
                             mavenParameters->grouping_maxRtWindow,
                             mavenParameters->minQuality,
