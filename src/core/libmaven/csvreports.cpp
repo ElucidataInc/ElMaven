@@ -283,8 +283,8 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
                 groupReport << ",";
 
                 string compoundName = "";
-                if(child.compound != NULL)
-                    compoundName = sanitizeString(child.compound->name.c_str()).toStdString();
+                if(child.getCompound() != NULL)
+                    compoundName = sanitizeString(child.getCompound()->name.c_str()).toStdString();
                 else
                     compoundName = std::to_string(child.meanMz) + "@" + std::to_string(child.meanRt);
                 groupReport << compoundName;
@@ -394,7 +394,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         groupReport << SEP << group->meanMz;
     }
 
-    if (group->compound && group->compound->type() == Compound::Type::PRM && !_pollyExport) {
+    if (group->getCompound() && group->getCompound()->type() == Compound::Type::PRM && !_pollyExport) {
         auto groupToWrite = group;
 
         // if this is a C12 PARENT, then all PRM attributes should be taken from
@@ -439,7 +439,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    if (group->compound != NULL) {
+    if (group->getCompound() != NULL) {
         compoundName = sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->getCompound()->id.c_str()).toStdString();
         formula = sanitizeString(group->getCompound()->formula.c_str()).toStdString();

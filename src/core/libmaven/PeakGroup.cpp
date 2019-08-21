@@ -199,6 +199,31 @@ bool PeakGroup::isMS1()
     return false;
 }
 
+bool PeakGroup::hasCompoundLink() const
+{
+    if(_slice != NULL && _slice->compound != NULL)
+        return true;
+
+    return false;
+}
+
+Compound* PeakGroup::getCompound()
+{
+    if (_slice != NULL) {
+        return _slice->compound;
+    }
+    return NULL;
+}
+
+void PeakGroup::setCompound(Compound* compound)
+{
+    if (_slice == NULL) {
+        _slice = new mzSlice;
+    }
+
+    _slice->compound = compound;
+}
+
 void PeakGroup::addPeak(const Peak &peak)
 {
 	peaks.push_back(peak);
@@ -807,9 +832,10 @@ Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
 
 void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
 {
-    if (this->compound == NULL || ms2EventCount == 0) return;
+    if (this->getCompound() == NULL || ms2EventCount == 0) return;
 
-    fragMatchScore = compound->scoreCompoundHit(&fragmentationPattern, ppmTolerance);
+    fragMatchScore = getCompound()->scoreCompoundHit(&fragmentationPattern,
+                                                     ppmTolerance);
     fragMatchScore.mergedScore = fragMatchScore.getScoreByName(scoringAlgo);
 }
 

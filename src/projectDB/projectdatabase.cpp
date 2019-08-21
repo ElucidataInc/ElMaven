@@ -224,11 +224,11 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
 
     groupsQuery->bind(":compound_id",
-                      group->compound ? group->compound->id : "");
+                      group->getCompound() ? group->getCompound()->id : "");
     groupsQuery->bind(":compound_name",
-                      group->compound ? group->compound->name : "");
+                      group->getCompound() ? group->getCompound()->name : "");
     groupsQuery->bind(":compound_db",
-                      group->compound ? group->compound->db : "");
+                      group->getCompound() ? group->getCompound()->db : "");
 
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
@@ -358,8 +358,8 @@ void ProjectDatabase::saveCompounds(const vector<PeakGroup>& groups)
 
     //find linked compounds (store only unique ones)
     for(auto group: groups) {
-        if (group.compound)
-            seenCompounds.insert(group.compound);
+        if (group.getCompound())
+            seenCompounds.insert(group.getCompound());
     }
 
     saveCompounds(seenCompounds);
@@ -927,7 +927,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                                                          compoundName,
                                                          compoundDB);
             if (compound) {
-                group->compound = compound;
+                group->setCompound(compound);
             } else {
                 group->tagString = compoundName
                                   + " | "
@@ -939,7 +939,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             vector<Compound*> matches = _findSpeciesByName(compoundName,
                                                            compoundDB);
             if (matches.size() > 0)
-                group->compound = matches[0];
+                group->setCompound(matches[0]);
         }
 
         vector<string> sample_ids;

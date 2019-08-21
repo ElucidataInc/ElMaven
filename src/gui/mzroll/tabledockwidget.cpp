@@ -446,7 +446,7 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
     allgroups.push_back(*group);
     if (group->childCount() > 0)
       _labeledGroups++;
-    if (group->compound)
+    if (group->getCompound())
       _targetedGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups[allgroups.size() - 1];
@@ -641,8 +641,8 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   auto prmGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
-                              if (group.compound == nullptr) return false;
-                              return group.compound->type() == Compound::Type::PRM;
+                              if (group.getCompound() == nullptr) return false;
+                              return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
@@ -740,9 +740,9 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
   auto ddaGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
-                              if (!group.compound)
+                              if (!group.getCompound())
                                 return false;
-                              return group.compound->type() == Compound::Type::PRM;
+                              return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool ddaGroupExists = ddaGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
@@ -769,7 +769,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   for (auto& group : allgroups) {
     // we do not set untargeted groups to Polly yet, remove this when we can.
-    if (selectedGroups.contains(&group) && group.compound != nullptr) {
+    if (selectedGroups.contains(&group) && group.getCompound() != nullptr) {
       csvreports->addGroup(&group);
     }
   }
@@ -1051,7 +1051,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
       if (group->children.size() > 0)
         _labeledGroups--;
-      if (group->compound)
+      if (group->getCompound())
         _targetedGroups--;
 
       // Deleting
@@ -2575,7 +2575,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
     if (group->children.size() > 0)
       _labeledGroups--;
-    if (group->compound)
+    if (group->getCompound())
       _targetedGroups--;
 
       	// Deleting

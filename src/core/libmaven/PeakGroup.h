@@ -181,7 +181,7 @@ class PeakGroup{
          * @method hasCompoundLink
          * @return []
          */
-        inline bool hasCompoundLink() const  { if(_slice != NULL && _slice->compound != NULL) return true ; return false; }
+        bool hasCompoundLink() const;
 
         /**
          * [isEmpty ]
@@ -208,27 +208,9 @@ class PeakGroup{
 
         inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
 
-        /**
-         * [getCompound ]
-         * @method getCompound
-         * @return []
-         */
-        inline Compound* getCompound()
-        {
-            if (_slice != NULL) {
-                return _slice->compound;
-            }
-            return NULL;
-        }
+        Compound* getCompound();
 
-        void setCompound(Compound* compound)
-        {
-            if (_slice == NULL) {
-                _slice = new mzSlice();
-            }
-
-            _slice->compound = compound;
-        }
+        void setCompound(Compound* compound);
 
         void setSlice(mzSlice* slice);
 

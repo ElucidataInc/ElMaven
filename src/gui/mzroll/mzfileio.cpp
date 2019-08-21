@@ -730,8 +730,8 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
         for (auto group : groups) {
             // assuming all groups are parent groups.
             groupVector.push_back(group);
-            if (group->compound)
-                compoundSet.insert(group->compound);
+            if (group->getCompound())
+                compoundSet.insert(group->getCompound());
         }
         _currentProject->saveGroups(groupVector, tableName.toStdString());
         _currentProject->saveCompounds(compoundSet);
@@ -794,8 +794,8 @@ bool mzFileIO::writeSQLiteProject(QString filename)
             for (PeakGroup* group : peakTable->getGroups()) {
                 topLevelGroupCount++;
                 groupVector.push_back(group);
-                if (group->compound)
-                    compoundSet.insert(group->compound);
+                if (group->getCompound())
+                    compoundSet.insert(group->getCompound());
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
@@ -966,17 +966,17 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     auto groupCount = 0;
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
-        if (group->compound && !group->compound->db.empty()) {
-            auto matches = DB.findSpeciesByName(group->compound->name,
-                                                group->compound->db);
+        if (group->getCompound() && !group->getCompound()->db.empty()) {
+            auto matches = DB.findSpeciesByName(group->getCompound()->name,
+                                                group->getCompound()->db);
             if (matches.size()) {
-                group->compound = matches.at(0);
+                group->setCompound(matches.at(0));
             } else {
-                group->compound = DB.findSpeciesByIdAndName(group->compound->id,
-                                                            group->compound->name,
-                                                            group->compound->db);
+                group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id,
+                                                             group->getCompound()->name,
+                                                             group->getCompound()->db));
             }
-            dbNames.push_back(QString::fromStdString(group->compound->db));
+            dbNames.push_back(QString::fromStdString(group->getCompound()->db));
         }
 
         // assign group to bookmark table if none exists
@@ -1164,13 +1164,13 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         vector<Compound*> matches =
             DB.findSpeciesByName(compoundName, compoundDB);
         if (matches.size() > 0)
-            group->compound = matches[0];
+            group->setCompound(matches[0]);
     } else if (!compoundId.empty()) {
         Compound* c = nullptr;
 
-        if (group->compound && !group->compound->name.empty()) {
+        if (group->getCompound() && !group->getCompound()->name.empty()) {
             c = DB.findSpeciesByIdAndName(compoundId,
-                                          group->compound->name,
+                                          group->getCompound()->name,
                                           DB.ANYDATABASE);
         } else if (!compoundDB.empty()) {
             vector<Compound*> matches = DB.findSpeciesById(compoundId, compoundDB);
@@ -1179,10 +1179,10 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         }
         
         if (c)
-            group->compound = c;
+            group->setCompound(c);
     }
 
-    if (!group->compound) {
+    if (!group->getCompound()) {
         if (!compoundId.empty())
             group->tagString = compoundId;
         else if (!compoundName.empty())

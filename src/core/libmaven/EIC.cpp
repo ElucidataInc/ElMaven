@@ -925,7 +925,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     {
         PeakGroup grp;
         grp.groupId = i;
-        grp.compound = compound;
+        grp.setCompound(compound);
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }

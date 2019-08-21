@@ -1188,9 +1188,9 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
         find_if(begin(mavenParameters->allgroups),
                 end(mavenParameters->allgroups),
                 [](PeakGroup& group) {
-                    if (!group.compound)
+                    if (!group.getCompound())
                         return false;
-                    return group.compound->type() == Compound::Type::PRM;
+                    return group.getCompound()->type() == Compound::Type::PRM;
                 });
     bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
 

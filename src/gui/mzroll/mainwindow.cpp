@@ -3306,7 +3306,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		}
         QString compoundName(group->getCompound()->name.c_str());
         if (! setPeptideSequence(compoundName)) {
-            setUrl(group->compound);
+            setUrl(group->getCompound());
         }
         if (massCalcWidget)
             massCalcWidget->setPeakGroup(group);
