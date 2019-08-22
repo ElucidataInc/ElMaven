@@ -30,4 +30,5 @@ void AdductWidget::loadAdducts()
         item->setText(2, QString::number(adduct->getCharge()));
         item->setText(3, QString::number(adduct->getMass()));
     }
+    adductList->resizeColumnToContents(0);
 }
