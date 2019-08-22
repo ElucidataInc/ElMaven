@@ -123,6 +123,8 @@ LigandWidget::LigandWidget(MainWindow* mw)
         DB.loadAdducts(filename);
     }
 
+    adductWidget->loadAdducts();
+
   connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
   connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
 

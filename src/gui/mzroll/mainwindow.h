@@ -17,6 +17,7 @@ class QCustomPlot;
 class QDoubleSpinBox;
 class QSpinBox;
 
+class Adduct;
 class SRMList;
 class Controller;
 class VideoPlayer;

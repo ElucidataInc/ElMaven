@@ -24,13 +24,16 @@
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QTableWidget" name="tableWidget">
+     <widget class="QTreeWidget" name="adductList">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <column>
        <property name="text">
-        <string>New Column</string>
+        <string>Name</string>
        </property>
       </column>
       <column>

@@ -674,18 +674,25 @@ bool Database::isSpectralLibrary(string dbName) {
     return false;
 }
 
+//TODO Shubhra: column order should not affect loading
+//not high priority since this is not a user generated file yet
 void Database::loadAdducts(string filename)
 {
     QFile myFile(QString(filename.c_str()));
     if (!myFile.open(QFile::ReadOnly)) return;
 
     int loadCount = 0;
+    int lineCount = 0;
     while (!myFile.atEnd()) {
         QString tempLine = myFile.readLine().trimmed();
         if (tempLine.isEmpty()) continue;
 
         string line = tempLine.toStdString();
         if (!line.empty() && line[0] == '#')
+            continue;
+        lineCount++;
+
+        if (lineCount == 1) 
             continue;
 
         vector<string> fields;

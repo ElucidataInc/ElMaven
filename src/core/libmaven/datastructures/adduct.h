@@ -14,11 +14,15 @@ class Adduct {
         float mz;
     
     public:
+        Adduct();
         Adduct(string name, int nmol, int charge, float mass);
+        Adduct(const Adduct& a);
         ~Adduct();
 
         string getName();
         int getCharge();
+        int getNmol();
+        float getMass();
 };
 
 #endif

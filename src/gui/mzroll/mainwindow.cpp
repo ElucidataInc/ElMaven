@@ -14,6 +14,7 @@
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "gallerywidget.h"
@@ -167,7 +168,7 @@ using namespace mzUtils;
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
-	
+
 
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
