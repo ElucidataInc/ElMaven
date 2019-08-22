@@ -1,30 +1,30 @@
-#include "analytics.h"
-#include "Compound.h"
-#include "classifierNeuralNet.h"
-#include "datastructures/mzSlice.h"
-#include "EIC.h"
 #include "eicwidget.h"
+#include "Compound.h"
+#include "EIC.h"
+#include "Peak.h"
+#include "Scan.h"
+#include "analytics.h"
 #include "barplot.h"
 #include "boxplot.h"
+#include "classifierNeuralNet.h"
+#include "datastructures/mzSlice.h"
 #include "eiclogic.h"
 #include "gallerywidget.h"
 #include "globals.h"
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "line.h"
-#include "masscutofftype.h"
 #include "mainwindow.h"
+#include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "note.h"
 #include "noteswidget.h"
-#include "Peak.h"
 #include "peakFiltering.h"
 #include "plot_axes.h"
 #include "point.h"
 #include "settingsform.h"
-#include "Scan.h"
 #include "spectrawidget.h"
 #include "treedockwidget.h"
 
@@ -1499,41 +1499,28 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 	eicParameters->_slice.compound = group->getCompound();
 	eicParameters->_slice.srmId = group->srmId;
 
-	if (!group->srmId.empty()) {
-		setSrmId(group->srmId);
-	} else if (group->getCompound()) {
-		setCompound(group->getCompound());
-	}
+    if (!group->srmId.empty()) {
+        setSrmId(group->srmId);
+    } else if (group->getCompound()) {
+        setMzSlice(group->getSlice());
+    }
 
-	if (_autoZoom && group->parent != NULL) {
-		eicParameters->_slice.rtmin = group->parent->minRt - 2 * _zoomFactor;
-		eicParameters->_slice.rtmax = group->parent->maxRt + 2 * _zoomFactor;
-	} else if (_autoZoom) {
-		eicParameters->_slice.rtmin = group->minRt - 2 * _zoomFactor;
-		eicParameters->_slice.rtmax = group->maxRt + 2 * _zoomFactor;
-	}
+    if (_autoZoom && group->parent != NULL) {
+        eicParameters->_slice.rtmin = group->parent->minRt - 2 * _zoomFactor;
+        eicParameters->_slice.rtmax = group->parent->maxRt + 2 * _zoomFactor;
+    } else if (_autoZoom) {
+        eicParameters->_slice.rtmin = group->minRt - 2 * _zoomFactor;
+        eicParameters->_slice.rtmax = group->maxRt + 2 * _zoomFactor;
+    }
 
-	//make sure that plot region is within visible samPle bounds;
-	mzSlice bounds = eicParameters->visibleEICBounds();
+    //make sure that plot region is within visible samPle bounds;
+    mzSlice bounds = eicParameters->visibleEICBounds();
 	if (eicParameters->_slice.rtmin < bounds.rtmin)
 		eicParameters->_slice.rtmin = bounds.rtmin;
 	if (eicParameters->_slice.rtmax > bounds.rtmax)
 		eicParameters->_slice.rtmax = bounds.rtmax;
-	charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
-
-	if (group->getExpectedMz(charge) != -1) {
-		eicParameters->_slice.mz = group->getExpectedMz(charge);
-	} else {
-		eicParameters->_slice.mz = group->meanMz;
-	}
-
-	// if (group->minMz != eicParameters->_slice.mzmin
-	// 		|| group->maxMz != eicParameters->_slice.mzmax) {
-	MassCutoff* massCutoff=getMainWindow()->getUserMassCutoff();
-	eicParameters->_slice.mzmin = eicParameters->_slice.mz - massCutoff->massCutoffValue(eicParameters->_slice.mz);
-	eicParameters->_slice.mzmax = eicParameters->_slice.mz + massCutoff->massCutoffValue(eicParameters->_slice.mz);
-	recompute();
-	// }
+    recompute();
+    // }
 
 	if (group->getCompound())
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
