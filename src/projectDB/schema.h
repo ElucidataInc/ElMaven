@@ -106,7 +106,12 @@
                                            , fragmentation_spearman_rank_corr   REAL                              \
                                            , fragmentation_tic_matched          REAL                              \
                                            , fragmentation_num_matches          REAL                              \
-                                           , sample_ids                         TEXT                              );"
+                                           , sample_ids                         TEXT                              \
+                                           , slice_mz_min                       REAL                              \
+                                           , slice_mz_max                       REAL                              \
+                                           , slice_rt_min                       REAL                              \
+                                           , slice_rt_max                       REAL                              \
+                                           , slice_ion_count                    REAL                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \

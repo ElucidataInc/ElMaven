@@ -186,7 +186,12 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :fragmentation_spearman_rank_corr   \
                      , :fragmentation_tic_matched          \
                      , :fragmentation_num_matches          \
-                     , :sample_ids                         )");
+                     , :sample_ids                         \
+                     , :slice_mz_min                       \
+                     , :slice_mz_max                       \
+                     , :slice_rt_min                       \
+                     , :slice_rt_max                       \
+                     , :slice_ion_count                    )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
@@ -232,6 +237,12 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
+
+    groupsQuery->bind(":slice_mz_min", group->getSlice().mzmin);
+    groupsQuery->bind(":slice_mz_max", group->getSlice().mzmax);
+    groupsQuery->bind(":slice_rt_min", group->getSlice().rtmin);
+    groupsQuery->bind(":slice_rt_max", group->getSlice().rtmax);
+    groupsQuery->bind(":slice_ion_count", group->getSlice().ionCount);
 
     string sample_ids = "";
     if (group->samples.size() > 0) {
@@ -958,6 +969,17 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                 group->samples.push_back(*sampleIter);
             }
         }
+
+        float sliceMzMin = groupsQuery->doubleValue("slice_mz_min");
+        float sliceMzMax = groupsQuery->doubleValue("slice_mz_max");
+        float sliceRtMin = groupsQuery->doubleValue("slice_rt_min");
+        float sliceRtMax = groupsQuery->doubleValue("slice_rt_max");
+        float sliceIonCount = groupsQuery->doubleValue("slice_ion_count");
+        mzSlice slice(sliceMzMin, sliceMzMax, sliceRtMin, sliceRtMax);
+        slice.ionCount = sliceIonCount;
+        slice.srmId = group->srmId;
+        slice.compound = group->getCompound();
+        group->setSlice(slice);
 
         loadGroupPeaks(group, loaded);
         group->groupStatistics();
