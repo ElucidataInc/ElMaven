@@ -22,9 +22,40 @@ public:
 	vector<PeakGroup>& getPeakGroups() {
 		return peakgroups;
 	}
-	PeakGroup* getSelectedGroup() {
-		return selectedGroup;
-	}
+
+    /**
+     * @brief Get the last selected group for EIC.
+     * @details This group can have different origins depending on which UI
+     * entity last interacted with the associated EIC widget. It can be used to
+     * access the original peak group, which is still selected in whatever
+     * widget it came from, while the visualization might have been modified to
+     * show different slices related to this group.
+     * @return Pointer to a `PeakGroup` object.
+     */
+    inline PeakGroup* selectedGroup() { return _selectedGroup; }
+
+    /**
+     * @brief Get the currently displayed peak group in EIC.
+     * @details This will point to nothing, in case the EIC is only showing a
+     * slice and not an actual materialized group. Use `selectedGroup` instead
+     * to access a group that was originally shown but has now been modified.
+     * @return Pointer to a `PeakGroup` object.
+     */
+    inline PeakGroup* displayedGroup() { return _displayedGroup; }
+
+    /**
+     * @brief Set the currently selected group in whichever widget that last
+     * commanded EIC widget to diplay a peak group.
+     * @param group Pointer to a `PeakGroup` object.
+     */
+    inline void setSelectedGroup(PeakGroup* group) { _selectedGroup = group; }
+
+    /**
+     * @brief Set the peak group currently visible in the associated EIC widget.
+     * @param group Pointer to a `PeakGroup` object.
+     */
+    inline void setDisplayedGroup(PeakGroup* group) { _displayedGroup = group; }
+
 	mzSlice& getMzSlice() {
 		return _slice;
 	}
@@ -65,11 +96,12 @@ public:
 	vector<EIC*> eics;				// vectors mass slices one from each sample
 	deque<EIC*> tics;				// vectors total chromatogram intensities
 	vector<PeakGroup> peakgroups;	    //peaks grouped across samples
-	PeakGroup* selectedGroup;			//currently selected peak group
 	PeakGroup _integratedGroup;		//manually integrated peak group
 
 private:
 	void addPeakGroup(PeakGroup& group);
+    PeakGroup* _selectedGroup;
+    PeakGroup* _displayedGroup;
 };
 
 #endif // EICLOGIC_H

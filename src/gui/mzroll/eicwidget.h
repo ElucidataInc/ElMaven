@@ -151,6 +151,15 @@ public Q_SLOTS:
 	void selectionChangedAction();
 	void freezeView(bool freeze);
     void unSetPeakTableGroup(PeakGroup*);
+
+    /**
+     * @brief Set whether the EIC widget should respond to requests for
+     * readjustments to its slice as the global mass tolerance changes.
+     * @param sensitive A boolean value indicating whether EIC widget should be
+     * sensitive to tolerance or not.
+     */
+    void setSensitiveToTolerance(bool sensitive);
+
 protected:
 	void moved(QMouseEvent *event);
 	void selected(const QRect&);
@@ -225,6 +234,12 @@ private:
 	bool _frozen;
 	int _freezeTime;
 	int _timerId;
+
+    /**
+     * @brief If set to true, any request to recompute the currently displayed
+     * slice using a mass tolerance, will be ignored.
+     */
+    bool _ignoreTolerance;
 
 	//gui related
 	QWidget *parent;

@@ -229,7 +229,7 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     //if (maxRadius > 30) maxRadius = 30;
     //if (maxRadius < 5) maxRadius=5;
 
-    PeakGroup* selGroup = _mw->getEicWidget()->getParameters()->getSelectedGroup();
+    PeakGroup* selGroup = _mw->getEicWidget()->getParameters()->displayedGroup();
 
     if (_group != NULL && selGroup == _group ) {
         brush.setStyle(Qt::SolidPattern);

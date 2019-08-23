@@ -127,7 +127,7 @@ void IsotopePlotDockWidget::setPoolThreshold(double poolThreshold)
 void IsotopePlotDockWidget::recompute()
 {
     if (_mw->getEicWidget()->isVisible()) {
-        PeakGroup* group = _mw->getEicWidget()->getParameters()->getSelectedGroup();
+        PeakGroup* group = _mw->getEicWidget()->getParameters()->displayedGroup();
         if (group)
         {
             group->childrenBarPlot.clear();

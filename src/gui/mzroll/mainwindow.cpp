@@ -1396,8 +1396,8 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 
 PeakGroup* MainWindow::bookmarkPeakGroup()
 {
-    if (eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL)) {
-       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
+    if (eicWidget && (eicWidget->getParameters()->displayedGroup() != NULL)) {
+       return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
     }
 }
 
@@ -3700,6 +3700,12 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
+    QWidgetAction *spacer = new MainWindowWidgetAction(toolBar,
+                                                       this,
+                                                       "spacer");
+    QWidgetAction *toleranceSyncSwitch = new MainWindowWidgetAction(toolBar,
+                                                                    this,
+                                                                    "toleranceSyncSwitch");
 
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
@@ -3723,9 +3729,10 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
-	toolBar->addSeparator();
-	
-	QWidget *window = new QWidget(this);
+    toolBar->addAction(spacer);
+    toolBar->addAction(toleranceSyncSwitch);
+
+    QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setMargin(0);
 	layout->setSpacing(0);
@@ -3900,7 +3907,28 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 		return btnShowBoxplot;
 	}
-	
+    else if (btnName == "spacer") {
+        QWidget* spacer = new QWidget(parent);
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        return spacer;
+    }
+    else if (btnName == "toleranceSyncSwitch") {
+        QToolButton *toleranceSyncSwitch = new QToolButton(parent);
+        toleranceSyncSwitch->setIcon(QIcon(rsrcPath
+                                           + "/toleranceSyncUnlock.png"));
+        toleranceSyncSwitch->setToolTip(tr("Sync EIC with current global mass "
+                                           "tolerance"));
+        toleranceSyncSwitch->setCheckable(true);
+        toleranceSyncSwitch->setChecked(false);
+        connect(toleranceSyncSwitch, &QToolButton::toggled, this, [=](bool on) {
+            if (on) {
+                QIcon locked(rsrcPath + "/toleranceSyncLock.png");
+                toleranceSyncSwitch->setIcon(locked);
+            }
+            mw->getEicWidget()->setSensitiveToTolerance(!on);
+        });
+        return toleranceSyncSwitch;
+    }
 	else {
 		return NULL;
 	}

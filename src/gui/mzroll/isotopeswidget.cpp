@@ -420,7 +420,7 @@ void IsotopeWidget::setClipboard()
 
 void IsotopeWidget::updateIsotopicBarplot()
 {
-	isotopeParametersBarPlot->_group = _mw->getEicWidget()->getParameters()->getSelectedGroup();
+    isotopeParametersBarPlot->_group = _mw->getEicWidget()->getParameters()->displayedGroup();
 	if (isotopeParametersBarPlot->_group)
 	{
 		_mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group);
