@@ -216,6 +216,7 @@ Compound* PeakGroup::getCompound()
 void PeakGroup::setCompound(Compound* compound)
 {
     _slice.compound = compound;
+    _sliceSet = true;
 }
 
 void PeakGroup::addPeak(const Peak &peak)
