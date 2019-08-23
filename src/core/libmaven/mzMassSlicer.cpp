@@ -492,11 +492,12 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         auto mzCenter = (mz + comparisonMz) / 2.0f;
 
         // check to make sure slices are close to each other (or have some
-        // overlap in mz domain).
-        float massTolerance = massCutoff->massCutoffValue(mzCenter);
+        // overlap in mz domain); the tolerance is multiplied 10x so as to
+        // include slices that may be further apart but should be merged
+        float massTolerance = 10.0f * massCutoff->massCutoffValue(mzCenter);
         if (!(abs(mzCenter - mz) <= massTolerance
               && abs(mzCenter - comparisonMz) <= massTolerance)) {
-            return make_pair(false, false);
+            return make_pair(false, true);
         }
 
         // find common RT boundaries between the two slices being compared
