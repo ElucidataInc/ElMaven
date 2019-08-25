@@ -22,9 +22,11 @@ INCLUDEPATH += $$top_srcdir/src
 SOURCES += downloadmanager.cpp \
            logger.cpp          \
            analytics.cpp       \
-           mixpanel.cpp
+           mixpanel.cpp        \
+           autoupdate.cpp
 
 HEADERS += downloadmanager.h \
            logger.h          \
            analytics.h       \
-           mixpanel.h
+           mixpanel.h        \
+           autoupdate.h

@@ -31,6 +31,7 @@
 #include "isotopeswidget.h"
 #include "librarymanager.h"
 #include "ligandwidget.h"
+#include "common/autoupdate.h"
 #include "common/logger.h"
 #include "logwidget.h"
 #include "mainwindow.h"
@@ -751,6 +752,19 @@ MainWindow::~MainWindow()
 	analytics->sessionEnd();
     delete mavenParameters;
     delete _usageTracker;
+}
+
+void MainWindow::showEvent(QShowEvent* event)
+{
+    // things that need to be done after the mainwidow gets displayed
+    qDebug() << "show event";
+    std::cerr << "show event";
+    gettingstarted->showDialog();
+    // check if new update is available, if yes show the update ui
+    if(getController()->getUpdater()->updateAvailable) {
+        qDebug() << "Update available";
+        std::cerr << "Update available";
+    }
 }
 
 void MainWindow::sendPeaksGA()

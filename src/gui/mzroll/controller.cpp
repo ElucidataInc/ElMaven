@@ -7,6 +7,7 @@
 #include <QSpinBox>
 
 #include <common/downloadmanager.h>
+#include <common/autoupdate.h>
 #include "controller.h"
 #include "isotopedialog.h"
 #include "ligandwidget.h"
@@ -22,8 +23,11 @@ Controller::Controller()
 
     _dlManager = new DownloadManager;
     iPolly = new PollyIntegration(_dlManager);
-
+    _updater = new AutoUpdate(_dlManager);
     _mw = new MainWindow(this);
+
+
+
     updateUi();
     connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
     connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
@@ -36,6 +40,8 @@ Controller::Controller()
     connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
     connect(_mw->isotopeDialog, &IsotopeDialog::resetSettings, this, &Controller::resetMP);
+//    connect(updater, &AutoUpdate::success, this, &MainWindow::updateInstalled);
+//    connect(updater, &AutoUpdate::failure, this, &MainWindow::updateFailed);
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();

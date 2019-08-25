@@ -76,6 +76,14 @@ extern Database DB;
 class MainWindow: public QMainWindow {
 Q_OBJECT
 
+protected:
+    virtual void showEvent(QShowEvent* event);
+
+
+private slots:
+    void updateInstalled();
+    void updateFailed();
+
 public:
 	int value() const { return m_value; }
     MainWindow(Controller* controller,QWidget *parent = 0);

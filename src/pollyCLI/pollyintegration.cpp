@@ -9,6 +9,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     jsPath(""),
     _fPtr(nullptr)
 {
+    setObjectName("PollyIntegration");
     QString parentFolder = "ElMaven";
     QString logFile = QString::fromStdString(Logger::constant_time()
                                              + "_polly_integration.log");

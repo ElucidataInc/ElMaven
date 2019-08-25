@@ -8,7 +8,7 @@ DESTDIR = $$top_srcdir/bin/
 
 QT += multimedia multimediawidgets network
 
-CONFIG += qt thread warn_off sql svg console precompile_header resources_big
+CONFIG += qt thread sql svg console precompile_header resources_big
 
 #Faster build + C++11 ++ OpenMP
 
