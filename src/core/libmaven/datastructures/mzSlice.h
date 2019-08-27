@@ -3,9 +3,11 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 class Compound;
 class MassCutoff;
+class Adduct;
 
 using namespace std;
 
@@ -37,6 +39,7 @@ class mzSlice
         float rtmax;
         float ionCount;
         Compound *compound;
+        vector<Compound*> compoundVector;
         string srmId;
 
         /**
@@ -107,6 +110,7 @@ class mzSlice
             rtmax = b.rtmax;
             ionCount = b.ionCount;
             compound = b.compound;
+            compoundVector = b.compoundVector;
             srmId = b.srmId;
             mz = b.mz;
             rt = b.rt;

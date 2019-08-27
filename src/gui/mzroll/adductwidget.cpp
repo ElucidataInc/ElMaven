@@ -11,15 +11,9 @@ AdductWidget::AdductWidget(QWidget *parent) :
     qRegisterMetaType<Adduct*>("Adduct*");
 }
 
-AdductWidget::~AdductWidget()
-{
-
-}
-
 void AdductWidget::loadAdducts()
 {
     adductList->clear();
-    int counter = 0;
     for (auto adduct : DB.adductsDB) {
         QTreeWidgetItem* item = new QTreeWidgetItem(adductList);
         item->setCheckState(0, Qt::Unchecked);

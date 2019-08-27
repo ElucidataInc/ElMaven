@@ -3,52 +3,57 @@
 
 Adduct::Adduct()
 {
-    this->name = "";
-    this->nmol = 0;
-    this->charge = 0;
-    this->mass = 0;
-    this->mz = 0;
+    this->_name = "";
+    this->_nmol = 0;
+    this->_charge = 0;
+    this->_mass = 0;
+    this->_mz = 0;
 }
 
 Adduct::Adduct(string name, int nmol, int charge, float mass)
 {
-    this->name = name;
-    this->nmol = nmol;
-    this->charge = charge;
-    this->mass = mass;
-    this->mz = 0;
+    this->_name = name;
+    this->_nmol = nmol;
+    this->_charge = charge;
+    this->_mass = mass;
+    this->_mz = 0;
 }
 
 Adduct::Adduct(const Adduct& a)
 {
-    this->name = a.name;
-    this->nmol = a.nmol;
-    this->charge = a.charge;
-    this->mass =  a.mass;
-    this->mz = a.mz;
-}
-
-Adduct::~Adduct()
-{
-
+    this->_name = a._name;
+    this->_nmol = a._nmol;
+    this->_charge = a._charge;
+    this->_mass =  a._mass;
+    this->_mz = a._mz;
 }
 
 string Adduct::getName()
 {
-    return this->name;
+    return this->_name;
 }
 
 int Adduct::getCharge()
 {
-    return this->charge;
+    return this->_charge;
 }
 
 int Adduct::getNmol()
 {
-    return this->nmol;
+    return this->_nmol;
 }
 
 float Adduct::getMass()
 {
-    return this->mass;
+    return this->_mass;
+}
+
+float Adduct::computeParentMass(float mz)
+{
+    return (mz * abs(_charge) - _mass) / _nmol;
+}
+
+float Adduct::computeAdductMass(float parentMz)
+{
+    return (parentMz * _nmol + _mass) / abs(_charge);
 }

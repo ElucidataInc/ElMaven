@@ -1,3 +1,4 @@
+#include "datastructures/adduct.h"
 #include "mzMassCalculator.h"
 #include "constants.h"
 #include "Compound.h"
@@ -13,6 +14,10 @@ using namespace std;
 MassCalculator::IonizationType MassCalculator::ionizationType = MassCalculator::ESI;
 
 ElementMass MassCalculator::elementMass;
+
+Adduct* MassCalculator::PlusHAdduct = new Adduct("[M+H]+", 1, 1, PROTON_MASS);
+Adduct* MassCalculator::MinusHAdduct = new Adduct("[M-H]-", 1, -1, -PROTON_MASS);
+Adduct* MassCalculator::ZeroMassAdduct = new Adduct("[M]", 1, 1, 0.0f);
 
 double MassCalculator::getElementMass(string elmnt) {
     double val_atome(0);

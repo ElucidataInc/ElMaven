@@ -129,7 +129,9 @@ vector<PeakGroup> TestUtils::getGroupsFromProcessCompounds()
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
     vector<mzSlice*> slices =
-        peakDetector.processCompounds(compounds, "compounds");
+        peakDetector.processCompounds(compounds,
+                                      mavenparameters->getDefaultAdductList(),
+                                      "compounds");
     peakDetector.processSlices(slices, "compounds");
 
     return mavenparameters->allgroups;

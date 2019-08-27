@@ -163,6 +163,9 @@ class MavenParameters
         float minFragMatch;
         string scoringAlgo;
 
+        // to allow adduct matching
+        bool searchAdducts;
+
         // Peak Group Rank
         int qualityWeight;
         int intensityWeight;
@@ -292,6 +295,8 @@ class MavenParameters
         void reset(const std::list<std::string>& keys);
 
         std::map<string, string>& getSettings();
+
+        std::vector<Adduct*> getDefaultAdductList();
 
     private:
         char* defaultSettingsData;

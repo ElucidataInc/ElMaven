@@ -14,13 +14,8 @@ class AdductWidget : public QDialog, public Ui_AdductWidget {
     Q_OBJECT
 
     public:
-        explicit AdductWidget(QWidget *parent = 0);
-        ~AdductWidget();
-
+        explicit AdductWidget(QWidget *parent = nullptr);
         void loadAdducts();
-
-    private:
-
 };
 
 #endif // ADDUCTWIDGET_H

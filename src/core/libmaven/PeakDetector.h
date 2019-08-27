@@ -9,6 +9,7 @@
 
 #include <omp.h>
 
+class Adduct;
 class Compound;
 class EIC;
 class MavenParameters;
@@ -114,14 +115,18 @@ public:
 	 */
         void computeFragmentationPattern(std::vector<PeakGroup> &peakgroups);
 
-	/**
-	 * [process Compounds]
-	 * @method processCompounds
-	 * @param  set        [vector of pointer to Compound]
-	 * @param  setName       [name of set]
-	 * @return [vector of pointer to mzSlice]
-	 */
-        std::vector<mzSlice*> processCompounds(std::vector<Compound*> set, std::string setName);
+    /**
+     * @brief Get the collection of slices for a given set of compounds.
+     * @param set A vector of compounds for which slices should be found.
+     * @param adductList A vector of adducts that will be used to adjust masses
+     * of the given compounds.
+     * @param setName Name of the compound set. Not being used currently.
+     * @return A vector of pointers to `mzSlice` objects that can be used to
+     * query EIC for the given compounds.
+     */
+    std::vector<mzSlice*> processCompounds(std::vector<Compound*> set,
+                                           std::vector<Adduct*> adductList,
+                                           std::string setName);
 
     static std::vector<EIC*> pullEICs(mzSlice* slice,
                                  std::vector<mzSample*>& samples,

@@ -48,7 +48,9 @@ void TestPeakDetection::testProcessCompound() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
+                                                            mavenparameters->getDefaultAdductList(),
+                                                            "compounds");
 
     QVERIFY(true);
 

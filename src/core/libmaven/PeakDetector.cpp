@@ -1,3 +1,4 @@
+#include "datastructures/adduct.h"
 #include "classifierNeuralNet.h"
 #include "datastructures/mzSlice.h"
 #include "obiwarp.h"
@@ -15,6 +16,7 @@
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
 #include "isotopeDetection.h"
+#include "Scan.h"
 
 PeakDetector::PeakDetector() {
     mavenParameters = NULL;
@@ -214,52 +216,139 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
  * maximum RT and its SRM ID TODO: i dont know what is the use of SRM ID.
  */
 vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
-                                                string setName) {
+                                                vector<Adduct*> adductList,
+                                                string setName)
+{
+    vector<mzSlice*>slices;
+    if (set.size() == 0 )
+        return slices;
 
-        //While doing a compound database search limitGroupCount is set to
-        //INT_MAX because we want all the peaks in the group
-        //When doing the peakdetection without database then the amount of
-        //peaks that will be there will be huge then its better to take the
-        //first n relevent peaks rather than all the peaks
-        //mavenParameters->limitGroupCount = INT_MAX;
-
-        //iterating over all compounds in the set
-        vector<mzSlice*> slices;
-
-        //Looping over the compounds in the compound database
-        for (unsigned int i = 0; i < set.size(); i++) {
-                if (mavenParameters->stop) {
-                    delete_all(slices);
-                    break;
-                }
-
-                Compound* c = set[i];
-                if (c == NULL)
-                        continue;
-
-                mzSlice* slice = new mzSlice();
-
-                //setting the compound information into the slices
-                slice->compound = c;
-
-                slice->setSRMId();
-
-                if (c->precursorMz == 0 || c->productMz == 0) {
-
-                    //Calculating the mzmin and mzmax
-                    int charge = mavenParameters->getCharge(c);
-                    bool success  = \
-                    slice->calculateMzMinMax(mavenParameters->compoundMassCutoffWindow, charge);
-                    if (!success) continue;
-                }
-
-                //calculating the min and max RT
-                slice->calculateRTMinMax(mavenParameters->matchRtFlag, \
-                                        mavenParameters->compoundRTWindow);
-                slices.push_back(slice);
+    MassCalculator massCalc;
+    multimap<string, Compound*> stringToCompoundMap = {};
+    std::set<string> formulae;
+    int compoundCounter = 0;
+    int numCompounds = static_cast<int>(set.size());
+    for(auto compound : set) {
+        if (mavenParameters->stop) {
+            delete_all(slices);
+            break;
         }
 
-        return slices;
+        compoundCounter++;
+        sendBoostSignal("Preparing libraries for search…",
+                        compoundCounter,
+                        numCompounds);
+
+        if (!compound){
+            continue;
+        }
+
+        if (compound->formula.empty()) {
+            cerr << "Skipping compound \""
+                 << compound->name
+                 << "\", because it is missing chemical formula."
+                 << endl;
+            continue;
+        }
+
+        string key = compound->formula;
+        formulae.insert(key);
+        pair<string, Compound*> keyValuePair = make_pair(key, compound);
+        stringToCompoundMap.insert(keyValuePair);
+    }
+
+    // TODO: instead of separating by sample, just organize all samples together
+    // into a single vector
+    map<mzSample*, vector<Scan*>> allMs2Scans = {};
+    if (mavenParameters->matchFragmentationFlag) {
+        for (mzSample* sample : mavenParameters->samples) {
+            vector<Scan*> scanVector;
+            for (auto scan : sample->scans) {
+                if (scan->mslevel == 2)
+                    scanVector.push_back(scan);
+            }
+            sort(scanVector.begin(), scanVector.end(),
+                 [](const Scan* lhs, const Scan* rhs) {
+                     return lhs->precursorMz < rhs->precursorMz;
+                 });
+            allMs2Scans.insert(make_pair(sample, scanVector));
+        }
+    }
+
+    int counter = 0;
+    int allFormulaeCount = static_cast<int>(formulae.size());
+    for (const auto& formula : formulae) {
+        counter++;
+        sendBoostSignal("Computing Mass Slices", counter, allFormulaeCount);
+        auto compounds = stringToCompoundMap.equal_range(formula);
+        Compound *compound = nullptr;
+        vector<Compound*> compoundVector;
+        for (auto it = compounds.first; it != compounds.second; it++) {
+            compound = it->second;
+            compoundVector.push_back(compound);
+        }
+
+        float neutralMass = massCalc.computeNeutralMass(compound->formula);
+        if (neutralMass <= 0) continue;
+
+        for(auto adduct : adductList) {
+            if (SIGN(adduct->getCharge()) != SIGN(mavenParameters->ionizationMode))
+                continue;
+
+            mzSlice* slice = new mzSlice();
+            slice->mz = adduct->computeAdductMass(neutralMass);
+            slice->compound = compound; // TODO: this assignment is meaningless.
+            slice->compoundVector = compoundVector;
+            slice->adduct = adduct;
+            bool success =
+                slice->calculateMzMinMax(mavenParameters->compoundMassCutoffWindow,
+                                         adduct->getCharge());
+            if (!success)
+                continue;
+            slice->calculateRTMinMax(mavenParameters->matchRtFlag,
+                                     mavenParameters->compoundRTWindow);
+            slice->setSRMId();
+
+            if (mavenParameters->matchFragmentationFlag) {
+                bool isKeepSlice = false;
+                for (mzSample* sample : mavenParameters->samples) {
+                    auto it = allMs2Scans.find(sample);
+                    if (it != allMs2Scans.end()) {
+                        auto scanVector = it->second;
+                        auto low = lower_bound(scanVector.begin(),
+                                               scanVector.end(),
+                                               slice->mzmin,
+                                               [](const Scan* scan,
+                                                   const double &val) {
+                                                   return scan->precursorMz < val;
+                                               });
+                        for (auto scanIter = low;
+                             scanIter != scanVector.end();
+                             scanIter++) {
+                            Scan* scan = *scanIter;
+                            if (scan->precursorMz >= slice->mzmin
+                                && scan->precursorMz <= slice->mzmax) {
+                                isKeepSlice = true;
+                                break;
+                            } else if (scan->precursorMz > slice->mzmax) {
+                                break;
+                            }
+                        }
+                    }
+                    if (isKeepSlice)
+                        break;
+                }
+                if (!isKeepSlice) {
+                    delete (slice);
+                    continue;
+                }
+            }
+
+            slices.push_back(slice);
+        }
+    }
+
+    return slices;
 }
 
 void PeakDetector::alignSamples(const int& method) {
@@ -361,35 +450,47 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
             continue;
         }
 
-        PeakFiltering peakFiltering(mavenParameters, false);
+        bool isIsotope = false;
+        PeakFiltering peakFiltering(mavenParameters, isIsotope);
         peakFiltering.filter(eics);
 
-        vector<PeakGroup> peakgroups =
-            EIC::groupPeaks(eics,
-                            slice,
-                            mavenParameters->eic_smoothingWindow,
-                            mavenParameters->grouping_maxRtWindow,
-                            mavenParameters->minQuality,
-                            mavenParameters->distXWeight,
-                            mavenParameters->distYWeight,
-                            mavenParameters->overlapWeight,
-                            mavenParameters->useOverlap,
-                            mavenParameters->minSignalBaselineDifference,
-                            mavenParameters->fragmentTolerance,
-                            mavenParameters->scoringAlgo);
-        
-        GroupFiltering groupFiltering(mavenParameters, slice);
-        groupFiltering.filter(peakgroups);
+        for (Compound* compound : slice->compoundVector) {
+            if (!compound)
+                continue;
 
-        // sort groups according to their rank
-        sort(peakgroups.begin(), peakgroups.end(), PeakGroup::compRank);
+            if (compound->hasGroup())
+                compound->unlinkGroup();
 
-        for (unsigned int j = 0; j < peakgroups.size(); j++) {
-            // check for duplicates	and append group
-            if (j >= mavenParameters->eicMaxGroups)
-                break;
+            // assign each compound at least once to the slice, find groups and
+            // filter/keep them based on existing mechanisms
+            slice->compound = compound;
+            vector<PeakGroup> peakgroups =
+                EIC::groupPeaks(eics,
+                                slice,
+                                mavenParameters->eic_smoothingWindow,
+                                mavenParameters->grouping_maxRtWindow,
+                                mavenParameters->minQuality,
+                                mavenParameters->distXWeight,
+                                mavenParameters->distYWeight,
+                                mavenParameters->overlapWeight,
+                                mavenParameters->useOverlap,
+                                mavenParameters->minSignalBaselineDifference,
+                                mavenParameters->fragmentTolerance,
+                                mavenParameters->scoringAlgo);
 
-            mavenParameters->allgroups.push_back(peakgroups[j]);
+            GroupFiltering groupFiltering(mavenParameters, slice);
+            groupFiltering.filter(peakgroups);
+
+            // sort groups according to their rank
+            std::sort(peakgroups.begin(), peakgroups.end(),
+                      PeakGroup::compRank);
+
+            for (unsigned int j = 0; j < peakgroups.size(); j++) {
+                // check for duplicates	and append group
+                if (j >= mavenParameters->eicMaxGroups)
+                    break;
+                mavenParameters->allgroups.push_back(peakgroups[j]);
+            }
         }
 
         // cleanup
