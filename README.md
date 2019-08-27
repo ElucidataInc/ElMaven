@@ -30,7 +30,7 @@
 ## Download
 
 El-MAVEN installers are available for Windows (7, 8, 10) and Mac.
-Download [El-MAVEN](https://elucidatainc.github.io/ElMaven/) latest version or daily build for your preferred environment.
+Download [El-MAVEN](https://resources.elucidata.io/elmaven/) latest version or daily build for your preferred environment.
 
 ## Build from source
 
