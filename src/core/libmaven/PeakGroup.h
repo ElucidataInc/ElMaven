@@ -56,12 +56,19 @@ class PeakGroup{
 
         PeakGroup* parent;
 
+        /**
+         * @brief This parent group represents a group for the parent (primary)
+         * ion, from which this adduct group would have formed.
+         */
+        PeakGroup* parentIon;
+
         // have to do this since `GroupType` enum also has an Adduct.
         // In future use "enum class" instead. Also from MAVEN (upstream).
         class Adduct* adduct;
 
         vector<Peak> peaks;
         vector<PeakGroup> children;
+        vector<PeakGroup> childAdducts;
         vector<PeakGroup> childrenBarPlot;
         vector<PeakGroup> childrenIsoWidget;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been

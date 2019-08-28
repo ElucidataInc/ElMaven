@@ -203,6 +203,9 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                 it = groups.erase(it);
                 continue;
             }
+
+            parentIon.childAdducts.push_back(group);
+            group.parentIon = &parentIon;
         }
         ++it;
     }
