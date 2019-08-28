@@ -278,6 +278,32 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="2">
+           <widget class="QDoubleSpinBox" name="compoundPPMWindow">
+            <property name="suffix">
+             <string> ppm</string>
+            </property>
+            <property name="maximum">
+             <double>1000000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="compoundDatabase"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="searchAdducts">
+            <property name="text">
+             <string>Detect adducts</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -299,36 +325,6 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Select Database</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Limit Number of Reported Groups per Compound</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QDoubleSpinBox" name="compoundPPMWindow">
-            <property name="suffix">
-             <string> ppm</string>
-            </property>
-            <property name="maximum">
-             <double>1000000.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="2">
            <widget class="QSpinBox" name="eicMaxGroups">
             <property name="suffix">
@@ -345,10 +341,24 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Select Database</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
              <string>EIC Extraction Window (+/-)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Limit Number of Reported Groups per Compound</string>
             </property>
            </widget>
           </item>
@@ -370,9 +380,6 @@
              <double>1.000000000000000</double>
             </property>
            </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="compoundDatabase"/>
           </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="matchRt">

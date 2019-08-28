@@ -42,6 +42,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
+    settings.insert("searchAdducts", QVariant::fromValue(pd->searchAdducts));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -225,10 +226,13 @@ void PeakDetectionDialog::dbSearchClicked()
     if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        QString dbName = compoundDatabase->currentText();
+        searchAdducts->setEnabled(true);
         toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
+        featureOptions->setChecked(true);
+        searchAdducts->setChecked(false);
+        searchAdducts->setEnabled(false);
     }
     toggleFragmentation();
 }
@@ -249,9 +253,12 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbSearch->setChecked(false);
+        searchAdducts->setChecked(false);
+        searchAdducts->setEnabled(false);
         toggleFragmentation();
     } else {
         dbSearch->setChecked(true);
+        searchAdducts->setEnabled(true);
     }
     toggleFragmentation();
 }

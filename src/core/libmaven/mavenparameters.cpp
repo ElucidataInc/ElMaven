@@ -302,6 +302,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "limitGroupsPerCompound") == 0 )
         eicMaxGroups = atof(value);
 
+    if(strcmp(key, "searchAdducts") == 0 )
+        searchAdducts = atof(value);
+
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);
 
