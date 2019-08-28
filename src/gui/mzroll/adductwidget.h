@@ -7,6 +7,7 @@
 
 class Adduct;
 class Database;
+class MainWindow;
 
 Q_DECLARE_METATYPE(Adduct*)
 
@@ -14,8 +15,15 @@ class AdductWidget : public QDialog, public Ui_AdductWidget {
     Q_OBJECT
 
     public:
-        explicit AdductWidget(QWidget *parent = nullptr);
+        explicit AdductWidget(MainWindow* parent = nullptr);
         void loadAdducts();
+        vector<Adduct*> getSelectedAdducts();
+
+    protected:
+        void hideEvent(QHideEvent* event);
+
+    private:
+        MainWindow*_mw;
 };
 
 #endif // ADDUCTWIDGET_H

@@ -195,8 +195,10 @@ private:
 	 * @method processSlices
 	 * @param  set        [vector of pointer to Compound]
 	 * @param  setName       [name of set]
-	 */
-	void processCompounds(vector<Compound*> set, string setName);
+     */
+    void processCompounds(vector<Compound*> set,
+                          vector<Adduct*> adducts,
+                          string setName);
 
 	/**
 	 * [compute Peaks]
