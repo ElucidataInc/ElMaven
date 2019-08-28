@@ -519,7 +519,7 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
     // finally, we would like to remove adducts for which no parent ions were
     // detected or if parent ion's RT is too different from adduct's.
-    sendBoostSignal("Filtering out false adducts…", 1, 1);
+    sendBoostSignal("Filtering out false adducts…", 0, 0);
     GroupFiltering groupFilter(mavenParameters);
     groupFilter.filterAdducts(mavenParameters->allgroups);
 }
