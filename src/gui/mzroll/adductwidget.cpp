@@ -1,7 +1,10 @@
 #include "adductwidget.h"
 #include "database.h"
+#include "datastructures/adduct.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
+#include "mzfileio.h"
+#include "mzUtils.h"
 
 AdductWidget::AdductWidget(MainWindow* parent) :
     QDialog(parent)
@@ -42,6 +45,32 @@ vector<Adduct*> AdductWidget::getSelectedAdducts()
         ++it;
     }
     return selectedAdducts;
+}
+
+void AdductWidget::selectAdductsForCurrentPolarity()
+{
+    QTreeWidgetItemIterator it(adductList);
+    while (*it) {
+        auto variant = (*it)->data(0, Qt::UserRole);
+        auto adduct = variant.value<Adduct*>();
+        if (SIGN(adduct->getCharge()) == SIGN(_mw->getIonizationMode())
+            && adduct->isParent()
+            && !_mw->getVisibleSamples().empty()) {
+            // the primary adduct for current polarity should not be allowed
+            // to be unselected
+            (*it)->setCheckState(0, Qt::Checked);
+            (*it)->setDisabled(true);
+        } else {
+            (*it)->setDisabled(false);
+        }
+        ++it;
+    }
+}
+
+void AdductWidget::showEvent(QShowEvent* event)
+{
+    QDialog::showEvent(event);
+    selectAdductsForCurrentPolarity();
 }
 
 void AdductWidget::hideEvent(QHideEvent* event)

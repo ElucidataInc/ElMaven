@@ -19,7 +19,11 @@ class AdductWidget : public QDialog, public Ui_AdductWidget {
         void loadAdducts();
         vector<Adduct*> getSelectedAdducts();
 
+    public slots:
+        void selectAdductsForCurrentPolarity();
+
     protected:
+        void showEvent(QShowEvent* event);
         void hideEvent(QHideEvent* event);
 
     private:

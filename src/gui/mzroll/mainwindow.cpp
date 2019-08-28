@@ -4,6 +4,7 @@
 #include <qcustomplot.h>
 
 #include "SRMList.h"
+#include "adductwidget.h"
 #include "alignmentdialog.h"
 #include "alignmentvizallgroupswidget.h"
 #include "common/analytics.h"
@@ -1269,7 +1270,8 @@ void MainWindow::setIonizationModeLabel() {
 	
 	ionizationModeLabel->setText(ionMode);
 
-	isotopeWidget->setCharge(mode);
+    isotopeWidget->setCharge(mode);
+    ligandWidget->getAdductWidget()->selectAdductsForCurrentPolarity();
 	setTotalCharge();
 }
 
