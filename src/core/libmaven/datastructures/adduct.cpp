@@ -76,7 +76,8 @@ bool Adduct::isParent() const
     ss.str(std::string());
     ss << setprecision(7) << static_cast<float>(PROTON_MASS);
     auto protonMass = stof(ss.str());
-    if (adductMass - protonMass <= numeric_limits<float>::epsilon()) {
+    if (mzUtils::almostEqual(abs(adductMass), protonMass)
+        || mzUtils::almostEqual(abs(adductMass), 0.0f)) {
         return true;
     }
 

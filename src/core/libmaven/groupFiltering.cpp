@@ -165,47 +165,54 @@ bool GroupFiltering::quantileFilters(PeakGroup *group) {
 void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
 {
     for (auto it = begin(groups); it != end(groups); ) {
-        auto group = *it;
+        auto& group = *it;
         if (group.adduct && !group.adduct->isParent()) {
-            auto parentIter = find_if(begin(groups),
-                                      end(groups),
-                                      [&](PeakGroup& g) {
-                                          if (g.getCompound() == group.getCompound()
-                                              && g.adduct->isParent()) {
-                                              return true;
-                                          }
-                                          return false;
-                                      });
-            // if parent ion's adduct was not found, eliminate
-            if (parentIter == end(groups)) {
+            // there can be multiple parent groups at different RT values
+            vector<PeakGroup*> parentIons;
+            for_each(begin(groups),
+                     end(groups),
+                     [&](PeakGroup& candidate) {
+                         if (candidate.getCompound() == group.getCompound()
+                             && candidate.adduct->isParent()) {
+                             parentIons.push_back(&candidate);
+                         }
+                     });
+
+            // if no parent ion's were found, eliminate
+            if (parentIons.empty()) {
                 it = groups.erase(it);
                 continue;
             }
 
-            cerr << "reached here" << endl;
-            auto parentIon = *parentIter;
-            bool tooFarFromParent = false;
-            for (auto sample : _mavenParameters->samples) {
-                auto groupPeak = group.getPeak(sample);
-                auto parentPeak = parentIon.getPeak(sample);
-                if (parentPeak && groupPeak) {
+            PeakGroup* identifiedParent = nullptr;
+            for (auto parentIon : parentIons) {
+                bool tooFarFromParent = false;
+                for (auto sample : _mavenParameters->samples) {
+                    auto groupPeak = group.getPeak(sample);
+                    auto parentPeak = parentIon->getPeak(sample);
+                    if (!parentPeak || !groupPeak)
+                        continue;
                     auto groupScanNum = groupPeak->scan;
                     auto parentScanNum = parentPeak->scan;
                     if (groupScanNum < parentScanNum - 2
                         || groupScanNum > parentScanNum + 2) {
-                        // the rt of candidate peak is too far from the parent
                         tooFarFromParent = true;
                         break;
                     }
                 }
+                if (!tooFarFromParent) {
+                    identifiedParent = parentIon;
+                    break;
+                }
             }
-            if (tooFarFromParent) {
+            // no parent ion is close enough in the RT domain, eliminate
+            if (identifiedParent == nullptr) {
                 it = groups.erase(it);
                 continue;
             }
 
-            parentIon.childAdducts.push_back(group);
-            group.parentIon = &parentIon;
+            identifiedParent->childAdducts.push_back(group);
+            group.parentIon = identifiedParent;
         }
         ++it;
     }
