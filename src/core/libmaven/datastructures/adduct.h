@@ -11,10 +11,19 @@ class Adduct {
         Adduct(string name, int nmol, int charge, float mass);
         Adduct(const Adduct& a);
 
+        bool operator ==(const Adduct& other);
         string getName();
         int getCharge();
         int getNmol();
         float getMass();
+
+        /**
+         * @brief Predicate function which allows querying whether this adduct
+         * represents a parent ion (i.e., a molecule associated to a singly-
+         * charged hydrogen ion).
+         * @return true if the molecule is a parent ion, false otherwise.
+         */
+        bool isParent() const;
 
         /**
          * @brief Given adduct's mass, compute parent ion's mass.

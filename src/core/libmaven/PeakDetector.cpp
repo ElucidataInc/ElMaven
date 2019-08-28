@@ -516,6 +516,11 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                                      mavenParameters->limitGroupCount));
         }
     }
+
+    // finally, we would like to remove adducts for which no parent ions were
+    // detected or if parent ion's RT is too different from adduct's.
+    GroupFiltering groupFilter(mavenParameters);
+    groupFilter.filterAdducts(mavenParameters->allgroups);
 }
 
 void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)

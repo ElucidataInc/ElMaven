@@ -1,4 +1,5 @@
 #include "Compound.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "groupFiltering.h"
 #include "mavenparameters.h"
@@ -159,4 +160,50 @@ bool GroupFiltering::quantileFilters(PeakGroup *group) {
         return true;
     }
     return false;
+}
+
+void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
+{
+    for (auto it = begin(groups); it != end(groups); ) {
+        auto group = *it;
+        if (group.adduct && !group.adduct->isParent()) {
+            auto parentIter = find_if(begin(groups),
+                                      end(groups),
+                                      [&](PeakGroup& g) {
+                                          if (g.getCompound() == group.getCompound()
+                                              && g.adduct->isParent()) {
+                                              return true;
+                                          }
+                                          return false;
+                                      });
+            // if parent ion's adduct was not found, eliminate
+            if (parentIter == end(groups)) {
+                it = groups.erase(it);
+                continue;
+            }
+
+            cerr << "reached here" << endl;
+            auto parentIon = *parentIter;
+            bool tooFarFromParent = false;
+            for (auto sample : _mavenParameters->samples) {
+                auto groupPeak = group.getPeak(sample);
+                auto parentPeak = parentIon.getPeak(sample);
+                if (parentPeak && groupPeak) {
+                    auto groupScanNum = groupPeak->scan;
+                    auto parentScanNum = parentPeak->scan;
+                    if (groupScanNum < parentScanNum - 2
+                        || groupScanNum > parentScanNum + 2) {
+                        // the rt of candidate peak is too far from the parent
+                        tooFarFromParent = true;
+                        break;
+                    }
+                }
+            }
+            if (tooFarFromParent) {
+                it = groups.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
 }

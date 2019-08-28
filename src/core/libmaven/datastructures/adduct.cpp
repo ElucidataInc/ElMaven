@@ -1,5 +1,7 @@
+#include "constants.h"
 #include "datastructures/adduct.h"
 #include "mzMassCalculator.h"
+#include "mzUtils.h"
 
 Adduct::Adduct()
 {
@@ -28,6 +30,16 @@ Adduct::Adduct(const Adduct& a)
     this->_mz = a._mz;
 }
 
+bool Adduct::operator ==(const Adduct& other)
+{
+    return (_name == other._name
+            && _nmol == other._nmol
+            && _charge == other._charge
+            && mzUtils::almostEqual(_mass, other._mass)
+            && _mz == other._mz
+            && isParent() == other.isParent());
+}
+
 string Adduct::getName()
 {
     return this->_name;
@@ -46,6 +58,29 @@ int Adduct::getNmol()
 float Adduct::getMass()
 {
     return this->_mass;
+}
+
+bool Adduct::isParent() const
+{
+    if (abs(_charge) > 1)
+        return false;
+
+    if (_nmol > 1)
+        return false;
+
+    // limit decimal precision to 7, in order to prevent hydrogen-level masses
+    // from being compared at much higher precision
+    stringstream ss;
+    ss << setprecision(7) << _mass;
+    auto adductMass = stof(ss.str());
+    ss.str(std::string());
+    ss << setprecision(7) << static_cast<float>(PROTON_MASS);
+    auto protonMass = stof(ss.str());
+    if (adductMass - protonMass <= numeric_limits<float>::epsilon()) {
+        return true;
+    }
+
+    return false;
 }
 
 float Adduct::computeParentMass(float mz)

@@ -38,6 +38,13 @@ class GroupFiltering
 
 		bool filterByMS2(PeakGroup& peakgroup);
 
+        /**
+         * @brief Filter peak groups containing adducts that do not match some
+         * necessary criteria for adducts.
+         * @param groups A vector of `PeakGroup` objects to be filtered.
+         */
+        void filterAdducts(vector<PeakGroup>& groups);
+
 	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]
 	 * @method quantileFilters
