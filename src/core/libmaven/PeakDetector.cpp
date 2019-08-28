@@ -310,7 +310,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             slice->setSRMId();
 
             if (mavenParameters->matchFragmentationFlag) {
-                bool isKeepSlice = false;
+                bool keepSlice = false;
                 for (mzSample* sample : mavenParameters->samples) {
                     auto it = allMs2Scans.find(sample);
                     if (it != allMs2Scans.end()) {
@@ -328,17 +328,17 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                             Scan* scan = *scanIter;
                             if (scan->precursorMz >= slice->mzmin
                                 && scan->precursorMz <= slice->mzmax) {
-                                isKeepSlice = true;
+                                keepSlice = true;
                                 break;
                             } else if (scan->precursorMz > slice->mzmax) {
                                 break;
                             }
                         }
                     }
-                    if (isKeepSlice)
+                    if (keepSlice)
                         break;
                 }
-                if (!isKeepSlice) {
+                if (!keepSlice) {
                     delete (slice);
                     continue;
                 }
@@ -519,6 +519,7 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
     // finally, we would like to remove adducts for which no parent ions were
     // detected or if parent ion's RT is too different from adduct's.
+    sendBoostSignal("Filtering out false adducts…", 1, 1);
     GroupFiltering groupFilter(mavenParameters);
     groupFilter.filterAdducts(mavenParameters->allgroups);
 }
