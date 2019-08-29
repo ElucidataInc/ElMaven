@@ -226,20 +226,21 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
     MassCalculator massCalc;
     multimap<string, Compound*> stringToCompoundMap = {};
     std::set<string> formulae;
-    int compoundCounter = 0;
-    int numCompounds = static_cast<int>(set.size());
+    vector<Compound*> mrmSet;
     for(auto compound : set) {
         if (mavenParameters->stop) {
             delete_all(slices);
             break;
         }
 
-        compoundCounter++;
-        sendBoostSignal("Preparing libraries for search…",
-                        compoundCounter,
-                        numCompounds);
+        sendBoostSignal("Preparing libraries for search…", 0, 0);
 
         if (!compound){
+            continue;
+        }
+
+        if (compound->type() == Compound::Type::MRM) {
+            mrmSet.push_back(compound);
             continue;
         }
 
@@ -257,11 +258,35 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         stringToCompoundMap.insert(keyValuePair);
     }
 
+    // create slices for MRM compounds separately
+    for (auto compound : mrmSet) {
+        if (mavenParameters->stop) {
+            delete_all(slices);
+            break;
+        }
+
+        if (compound == nullptr)
+            continue;
+
+        mzSlice* slice = new mzSlice();
+        slice->compound = compound;
+        slice->compoundVector.push_back(compound);
+        slice->setSRMId();
+        slice->calculateRTMinMax(mavenParameters->matchRtFlag,
+                                 mavenParameters->compoundRTWindow);
+        slices.push_back(slice);
+    }
+
     // TODO: instead of separating by sample, just organize all samples together
     // into a single vector
     map<mzSample*, vector<Scan*>> allMs2Scans = {};
     if (mavenParameters->matchFragmentationFlag) {
         for (mzSample* sample : mavenParameters->samples) {
+            if (mavenParameters->stop) {
+                delete_all(slices);
+                break;
+            }
+
             vector<Scan*> scanVector;
             for (auto scan : sample->scans) {
                 if (scan->mslevel == 2)
@@ -278,6 +303,11 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
     int counter = 0;
     int allFormulaeCount = static_cast<int>(formulae.size());
     for (const auto& formula : formulae) {
+        if (mavenParameters->stop) {
+            delete_all(slices);
+            break;
+        }
+
         counter++;
         sendBoostSignal("Computing Mass Slices", counter, allFormulaeCount);
         auto compounds = stringToCompoundMap.equal_range(formula);
@@ -289,7 +319,9 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         }
 
         float neutralMass = massCalc.computeNeutralMass(compound->formula);
-        if (neutralMass <= 0) continue;
+        if (neutralMass <= 0) {
+            continue;
+        }
 
         for(auto adduct : adductList) {
             if (SIGN(adduct->getCharge()) != SIGN(mavenParameters->ionizationMode))
