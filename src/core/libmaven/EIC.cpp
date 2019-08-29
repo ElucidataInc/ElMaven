@@ -936,8 +936,6 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         if (slice) {
             grp.setSlice(*slice);
             grp.adduct = slice->adduct;
-            if (slice->adduct)
-                grp.tagString = slice->adduct->getName();
         }
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);

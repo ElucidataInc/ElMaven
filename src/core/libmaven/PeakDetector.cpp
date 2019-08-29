@@ -521,6 +521,8 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                 // check for duplicates	and append group
                 if (j >= mavenParameters->eicMaxGroups)
                     break;
+                if (mavenParameters->searchAdducts && slice->adduct)
+                    peakgroups[j].tagString = slice->adduct->getName();
                 mavenParameters->allgroups.push_back(peakgroups[j]);
             }
         }
