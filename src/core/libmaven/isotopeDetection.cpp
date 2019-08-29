@@ -1,6 +1,7 @@
 #include "Compound.h"
 #include "classifierNeuralNet.h"
 #include "constants.h"
+#include "datastructures/adduct.h"
 #include "EIC.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
@@ -37,6 +38,10 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
         return;
     if (parentgroup->getCompound()->formula().empty() == true)
         return;
+    if (parentgroup->getAdduct() != nullptr
+        && !parentgroup->getAdduct()->isParent()) {
+        return;
+    }
     if (_mavenParameters->samples.size() == 0)
         return;
 
