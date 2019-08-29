@@ -65,6 +65,7 @@ void AdductWidget::selectAdductsForCurrentPolarity()
         }
         ++it;
     }
+    _mw->mavenParameters->setChosenAdductList(getSelectedAdducts());
 }
 
 void AdductWidget::showEvent(QShowEvent* event)
