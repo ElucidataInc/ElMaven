@@ -400,11 +400,13 @@ private:
     void _assignSampleIds(const vector<mzSample*>& samples);
 
     /**
-     * @brief Tries to find an Adduct object for the given ID.
-     * @param id An adduct ID for positive H, negative H or zero H adduct.
-     * @return An adduct object.
+     * @brief Returns a filler adduct object whose name can later be used to
+     * find and assign an adduct with correct values.
+     * @param name Name of the adduct that will be used to match adducts from
+     * DB.
+     * @return Pointer to an `Adduct` object.
      */
-    Adduct* _findAdductByName(string id);
+    Adduct* _findAdductByName(string name);
 
     /**
      * @brief Find compound with the given ID and name from the given database.

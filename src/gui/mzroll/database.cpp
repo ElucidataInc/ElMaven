@@ -255,6 +255,23 @@ vector<Compound*> Database::findSpeciesById(string id, string dbName) {
     return matches;
 }
 
+Adduct* Database::findAdductByName(string name)
+{
+    if(name == "[M+H]+") {
+        return MassCalculator::PlusHAdduct;
+    } else if(name == "[M-H]-") {
+        return MassCalculator::MinusHAdduct;
+    } else if(name == "[M]") {
+        return MassCalculator::ZeroMassAdduct;
+    }
+
+    for(auto adduct : adductsDB) {
+        if (adduct->getName() == name)
+            return adduct;
+    }
+    return nullptr;
+}
+
 void Database::loadReactions(string db) {
 
 		map<string, Reaction*> seenReactions;

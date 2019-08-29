@@ -938,23 +938,19 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         if (!srmId.empty())
             group->setSrmId(srmId);
 
-        //TODO Shubhra: Update the function and uncomment
-        //if (!adductName.empty())
-        //    group->adduct = _findAdductByName(adductName);
+        if (!adductName.empty()) {
+            group->adduct = _findAdductByName(adductName);
+        } else {
+            group->adduct = nullptr;
+        }
 
         if (!compoundId.empty()) {
             Compound* compound = _findSpeciesByIdAndName(compoundId,
                                                          compoundName,
                                                          compoundDB);
-            if (compound) {
+            if (compound)
                 group->setCompound(compound);
-            } else {
-                group->tagString = compoundName
-                                  + " | "
-                                  + adductName
-                                  + " | id="
-                                  + compoundId;
-            }
+
         } else if (!compoundName.empty() && !compoundDB.empty()) {
             vector<Compound*> matches = _findSpeciesByName(compoundName,
                                                            compoundDB);
@@ -1612,9 +1608,9 @@ void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
     }
 }
 
-Adduct* ProjectDatabase::_findAdductByName(string id)
+Adduct* ProjectDatabase::_findAdductByName(string name)
 {
-    return nullptr;
+    return new Adduct(name, 0, 0, 0.0f);
 }
 
 Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,
