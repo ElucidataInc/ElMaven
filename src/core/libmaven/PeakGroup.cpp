@@ -807,7 +807,8 @@ map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff,
     // erase all intensities below 50 (less than 5% of maximum) as noise
     for (auto it = begin(binMzIntensityMap);
          it != end(binMzIntensityMap);) {
-        if(it->second < intensityThreshold * normalizedMax) {
+        if (it->second < intensityThreshold * normalizedMax
+            || it->second < 1.0f) {
             it = binMzIntensityMap.erase(it);
         } else {
             ++it;
