@@ -635,7 +635,8 @@ int Database::saveNISTLibrary(vector<PeakGroup*> groups,
                                                       intensityThreshold);
         fstream << "NUMPEAKS: " << mzIntensityMap.size() << "\n" ;
         for (auto elem : mzIntensityMap)
-            fstream << elem.first << "\t" << elem.second << "\n" ;
+            fstream << static_cast<int>(roundf(elem.first)) << "\t"
+                    << elem.second << "\n" ;
 
         fstream << endl;
     }
