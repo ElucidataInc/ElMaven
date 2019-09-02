@@ -59,18 +59,16 @@ class MassSlices {
                              float rtMaxBound);
 
         /**
-         * @brief Merge slices that still contain overlapping portions of a peak
-         * group's intensities.
+         * @brief Merge neighbouring slices that are related to each other,
+         * i.e., the highest intensities of these slices fall in a small window.
+         * @param massCutoff A `MassCutoff` object that can be used to compare
+         * and quantify the distance between two m/z values. This value will,
+         * therefore, be used to tell whether two slices or their highest
+         * intensities are too far in the m/z domain.
          * @param rtTolerance The tolerance for retention time axis. If the
          * highest intensity of two slices differ by more than this value on
          * rt axis, then they will not be merged.
-         * @param intensityRatioCutoff The ratio of the highest intensities of
-         * two slices (being considered for merge) should at least be greater
-         * than this value, otherwise they will not be merged.
          */
-        void mergeOverlappingSlices(float rtTolerance=0.005f,
-                                    float intensityRatioCutoff=0.99f);
-
         void mergeNeighbouringSlices(MassCutoff* massCutoff,
                                      float rtTolerance=0.005f);
 
