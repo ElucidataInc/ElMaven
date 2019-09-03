@@ -48,17 +48,6 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   databaseSelect->setDuplicatesEnabled(false);
   databaseSelect->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
 
-
-  loadButton = new QToolButton(toolBar);
-  loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-  loadButton->setToolTip("Load Custom Compound List");
-
-  connect(loadButton, &QToolButton::clicked, [this]()
-  {
-    _mw->getAnalytics()->hitEvent("Load Compound DB",
-                                  "Custom Compound DB");
-  });
-  connect(loadButton,SIGNAL(clicked()), mw, SLOT(loadCompoundsFile()));
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
 
@@ -71,7 +60,6 @@ LigandWidget::LigandWidget(MainWindow* mw) {
           &LibraryManager::exec);
 
   toolBar->addWidget(databaseSelect);
-  toolBar->addWidget(loadButton);
   toolBar->addWidget(libraryButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.

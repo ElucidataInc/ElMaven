@@ -103,7 +103,6 @@ private:
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
     QToolButton *libraryButton;
-    QToolButton *loadButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
     QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
