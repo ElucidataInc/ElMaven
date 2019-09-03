@@ -361,6 +361,7 @@ void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
 {
     _resetUiElements();
     _showErrorMessage("Polly Error", errorMessage, QMessageBox::NoIcon);
+    _performPostUploadTasks(false);
     _populateProjects();
     _populateTables();
     _hideFormIfNotLicensed();
@@ -986,7 +987,11 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     projectOptions->setEnabled(true);
     workflowMenu->setEnabled(true);
     statusUpdate->setEnabled(true);
-    statusUpdate->setStyleSheet("QLabel { color : green;}");
+    if (uploadSuccessful) {
+        statusUpdate->setStyleSheet("QLabel { color : green; }");
+    } else {
+        statusUpdate->setStyleSheet("QLabel { color : red; }");
+    }
     statusUpdate->clear();
 }
 
