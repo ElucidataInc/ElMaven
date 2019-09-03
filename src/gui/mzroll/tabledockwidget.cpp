@@ -1105,10 +1105,33 @@ void TableDockWidget::deleteGroups() {
             if (parentGroup->deleteChild(group)) {
                 QTreeWidgetItem *parentItem = item->parent();
                 if (parentItem) {
-                	parentItem->removeChild(item);
-              		delete (item);
-            	}
-          	}
+                    parentItem->removeChild(item);
+                    delete (item);
+
+                    // once a child is deleted, the pointers storing the
+                    // location of memory blocks of child `PeakGroup` objects,
+                    // may no longer be valid, therefore we update them.
+                    for (int i = 0; i < parentItem->childCount(); ++i) {
+                        QTreeWidgetItem* child = parentItem->child(i);
+                        if (!child)
+                            continue;
+
+                        auto name = child->text(1).toStdString();
+                        auto childGroupIter =
+                            find_if(begin(parentGroup->children),
+                                    end(parentGroup->children),
+                                    [&](PeakGroup& g) {
+                                        return g.getName() == name;
+                                    });
+                        if (childGroupIter != end(parentGroup->children)) {
+                            auto& childGroup = *childGroupIter;
+                            child->setData(0,
+                                           Qt::UserRole,
+                                           QVariant::fromValue(&childGroup));
+                        }
+                    }
+                }
+            }
         }
         if (parentGroup != NULL) {
         	if (childrenNum == parentGroup->childCount()) {
