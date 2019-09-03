@@ -740,82 +740,128 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
 map<float, float> PeakGroup::createAvgSpectra(MassCutoff* cutoff,
                                               float intensityThreshold)
 {
-    map<float, float> mzIntensityMap;
     auto scans = getRepresentativeFullScans();
+    map<mzSample*, map<float, float>> sampleMzIntensityMap;
+    auto normalizedMax = 1000.0f;
 
-    // map all m/z to intensity from all scans in ascending order
+    // lambda that creates an mz-intensity map by aggregating values for mz that
+    // fall within the `cutoff` range
+    auto createAggregateMap = [&](map<float, float> mzIntensityMap,
+                                  bool averageIntensity) {
+        map<float, float> binMzIntensityMap;
+        float currentMinMz = mzIntensityMap.begin()->first;
+        float lastMz = mzIntensityMap.rbegin()->first;
+        vector<float> mzBuffer;
+        vector<float> intensityBuffer;
+        for (auto& elem : mzIntensityMap) {
+            auto mz = elem.first;
+            auto intensity = elem.second;
+            if (!mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)
+                || mz == lastMz) {
+                bool lastMzIncluded = false;
+
+                // only add last mz for averaging if its within cutoff
+                if (mz == lastMz
+                    && mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)) {
+                    mzBuffer.push_back(mz);
+                    intensityBuffer.push_back(intensity);
+                    lastMzIncluded = true;
+                }
+                float aggMz = accumulate(begin(mzBuffer),
+                                         end(mzBuffer),
+                                         0.0f)
+                              / static_cast<float>(mzBuffer.size());
+                float aggIntensity = accumulate(begin(intensityBuffer),
+                                                end(intensityBuffer),
+                                                0.0f);
+                if (averageIntensity) {
+                    aggIntensity = aggIntensity
+                                   / static_cast<float>(intensityBuffer.size());
+                }
+                binMzIntensityMap[aggMz] = aggIntensity;
+                mzBuffer.clear();
+                intensityBuffer.clear();
+                currentMinMz = mz;
+
+                // if last mz has not been accounted for, add to its own bucket
+                if (mz == lastMz && !lastMzIncluded)
+                    binMzIntensityMap[mz] = intensity;
+            }
+            mzBuffer.push_back(mz);
+            intensityBuffer.push_back(intensity);
+        }
+        return binMzIntensityMap;
+    };
+
+    auto normalizeMap = [&](map<float, float> mzIntensityMap) {
+        auto maxIt = max_element(begin(mzIntensityMap),
+                                 end(mzIntensityMap),
+                                 [](const pair<float, float> l,
+                                     const pair<float, float> r) -> bool {
+                                     return l.second < r.second;
+                                 });
+        float maxIntensity = maxIt->second;
+        for_each(begin(mzIntensityMap),
+                 end(mzIntensityMap),
+                 [&](pair<const float, float>& p) {
+                    p.second = (p.second / maxIntensity) * normalizedMax;
+                 });
+        return mzIntensityMap;
+    };
+
+    // for each sample, map m/z to intensity from all scans in ascending order
     for (auto scan : scans) {
+        auto sample = scan->getSample();
+        if (sampleMzIntensityMap.count(sample) == 0)
+            sampleMzIntensityMap[sample] = map<float, float>();
+
+        auto& mzIntensityMap = sampleMzIntensityMap.at(sample);
         for (size_t i = 0; i < scan->mz.size(); ++i)
             mzIntensityMap[scan->mz.at(i)] = scan->intensity.at(i);
     }
 
-    // bucket based on mass cutoff and only keep average m/z and intensity
-    // values for each bucket
-    map<float, float> binMzIntensityMap;
-    float currentMinMz = mzIntensityMap.begin()->first;
-    float lastMz = mzIntensityMap.rbegin()->first;
-    vector<float> mzBuffer;
-    vector<float> intensityBuffer;
-    for (auto elem : mzIntensityMap) {
-        auto mz = elem.first;
-        auto intensity = elem.second;
-        if (!mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)
-            || mz == lastMz) {
-            bool lastMzIncluded = false;
+    for (auto& sampleMaps : sampleMzIntensityMap) {
+        auto sample = sampleMaps.first;
+        auto& mzIntensityMap = sampleMaps.second;
 
-            // only add last mz for averaging if its within cutoff
-            if (mz == lastMz
-                && mzUtils::withinXMassCutoff(currentMinMz, mz, cutoff)) {
-                mzBuffer.push_back(mz);
-                intensityBuffer.push_back(intensity);
-                lastMzIncluded = true;
-            }
-            float avgMz = accumulate(begin(mzBuffer),
-                                     end(mzBuffer),
-                                     0.0f) / mzBuffer.size();
-            float avgIntensity = accumulate(begin(intensityBuffer),
-                                            end(intensityBuffer),
-                                            0.0f) / intensityBuffer.size();
-            binMzIntensityMap[avgMz] = avgIntensity;
-            mzBuffer.clear();
-            intensityBuffer.clear();
-            currentMinMz = mz;
+        // bucket based on mass cutoff and only keep average m/z and intensity
+        // values for each bucket
+        auto binMzIntensityMap = createAggregateMap(mzIntensityMap, true);
 
-            // if last mz has not been accounted for, add to its own bucket
-            if (mz == lastMz && !lastMzIncluded)
-                binMzIntensityMap[mz] = intensity;
-        }
-        mzBuffer.push_back(mz);
-        intensityBuffer.push_back(intensity);
+        // normalize to range [0, `normalizedMax`]
+        binMzIntensityMap = normalizeMap(binMzIntensityMap);
+
+        // finally we replace original map with the binned map
+        sampleMzIntensityMap[sample] = binMzIntensityMap;
     }
 
-    // normalize to range [0, 1000]
-    auto normalizedMax = 1000.0f;
-    auto maxIt = max_element(begin(binMzIntensityMap),
-                             end(binMzIntensityMap),
-                             [](const pair<float, float> l,
-                                 const pair<float, float> r) -> bool {
-                                 return l.second < r.second;
-                             });
-    float maxIntensity = maxIt->second;
-    for_each(begin(binMzIntensityMap),
-             end(binMzIntensityMap),
-             [&](pair<const float, float>& p) {
-                p.second = (p.second / maxIntensity) * normalizedMax;
-             });
+    map<float, float> finalMzIntensityMap;
+    for (auto& sampleMaps : sampleMzIntensityMap) {
+        for (auto& elem : sampleMaps.second) {
+            auto mz = elem.first;
+            auto intensity = elem.second;
+            if (finalMzIntensityMap.count(mz) != 0) {
+                finalMzIntensityMap[mz] = finalMzIntensityMap[mz] + intensity;
+            } else {
+                finalMzIntensityMap[mz] = intensity;
+            }
+        }
+    }
+    finalMzIntensityMap = createAggregateMap(finalMzIntensityMap, false);
+    finalMzIntensityMap = normalizeMap(finalMzIntensityMap);
 
-    // erase all intensities below 50 (less than 5% of maximum) as noise
-    for (auto it = begin(binMzIntensityMap);
-         it != end(binMzIntensityMap);) {
+    // erase all intensities below a certain threshold
+    for (auto it = begin(finalMzIntensityMap);
+         it != end(finalMzIntensityMap);) {
         if (it->second < intensityThreshold * normalizedMax
             || it->second < 1.0f) {
-            it = binMzIntensityMap.erase(it);
+            it = finalMzIntensityMap.erase(it);
         } else {
             ++it;
         }
     }
 
-    return binMzIntensityMap;
+    return finalMzIntensityMap;
 }
 
 
