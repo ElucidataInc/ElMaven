@@ -633,10 +633,21 @@ int Database::saveNISTLibrary(vector<PeakGroup*> groups,
 
         auto mzIntensityMap = group->createAvgSpectra(massCutoff,
                                                       intensityThreshold);
-        fstream << "NUMPEAKS: " << mzIntensityMap.size() << "\n" ;
-        for (auto elem : mzIntensityMap)
-            fstream << static_cast<int>(roundf(elem.first)) << "\t"
-                    << elem.second << "\n" ;
+        // export m/z values rounded to nearest integer and with highest values
+        map<int, float> mzIntensityMapRounded;
+        for (auto elem : mzIntensityMap) {
+            int mz = static_cast<int>(roundf(elem.first));
+            auto intensity = elem.second;
+            if (mzIntensityMapRounded.count(mz) != 0) {
+                auto existingIntensity = mzIntensityMapRounded[mz];
+                intensity = existingIntensity > intensity ? existingIntensity
+                                                          : intensity;
+            }
+            mzIntensityMapRounded[mz] = intensity;
+        }
+        fstream << "NUMPEAKS: " << mzIntensityMapRounded.size() << "\n" ;
+        for (auto elem : mzIntensityMapRounded)
+            fstream << elem.first << "\t" << elem.second << "\n";
 
         fstream << endl;
     }
