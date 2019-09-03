@@ -277,10 +277,8 @@ bool PeakGroup::deleteChild(PeakGroup* child ) {
                    children.end());
 
     // child was found and removed
-    if (children.size() != preDeletionChildCount) {
-        child->clear();
+    if (children.size() != preDeletionChildCount)
         return true;
-    }
 
     return false;
 }
