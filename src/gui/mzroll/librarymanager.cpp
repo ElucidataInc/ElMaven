@@ -21,6 +21,10 @@ LibraryManager::LibraryManager(MainWindow* parent)
             &QPushButton::clicked,
             this,
             &LibraryManager::deleteSelectedDatabase);
+    connect(libraryTable,
+            &QTreeWidget::itemSelectionChanged,
+            this,
+            &LibraryManager::_setButtonStateForSelection);
 
     _refreshDatabases();
 }
@@ -114,6 +118,30 @@ void LibraryManager::_refreshDatabases()
     worker->loadRecords();
 }
 
+void LibraryManager::_setButtonStateForSelection()
+{
+    if (libraryTable->selectedItems().empty()) {
+        // no items are selected
+        loadButton->setDisabled(true);
+        deleteButton->setDisabled(true);
+        return;
+    }
+
+    auto item = libraryTable->currentItem();
+    auto var = item->data(0, Qt::UserRole);
+    auto selectedDatabase = var.value<LibraryRecord>();
+    auto dbName = selectedDatabase.databaseName;
+    if (!DB.getCompoundsSubset(dbName.toStdString()).empty()) {
+        // this DB has already been loaded
+        loadButton->setDisabled(true);
+        deleteButton->setDisabled(false);
+        return;
+    }
+
+    loadButton->setDisabled(false);
+    deleteButton->setDisabled(false);
+}
+
 void LibraryManager::_addDatabaseToList(const LibraryRecord& database)
 {
     auto dbName = database.databaseName;
@@ -121,6 +149,8 @@ void LibraryManager::_addDatabaseToList(const LibraryRecord& database)
                                                        : QString("Missing");
     if (!DB.getCompoundsSubset(dbName.toStdString()).empty())
         status = "Loaded";
+
+    _setButtonStateForSelection();
     auto numRecords = QString::number(database.numberOfCompounds);
 
     // check whether an entry with the same absolute path exits, and if so, only

@@ -78,6 +78,12 @@ private slots:
     void _refreshDatabases();
 
     /**
+     * @brief Enables or disables the "Delete" and "Load" buttons depending on
+     * which rows are selected in the table.
+     */
+    void _setButtonStateForSelection();
+
+    /**
      * @brief Add a record to the DB list.
      * @details This method also ensures that if there exists an entry for this
      * record (i.e., there exists an entry which represents the same file) then
