@@ -99,14 +99,13 @@ double MassCalculator::computeMass(string formula, int charge) {
     return adjustMass(mass, charge);
 }
 
-vector<Isotope> MassCalculator::computeIsotopes(
-    string formula,
-    int charge,
-    bool C13Flag,
-    bool N15Flag,
-    bool S34Flag,
-    bool D2Flag
-)
+vector<Isotope> MassCalculator::computeIsotopes(string formula,
+                                                int charge,
+                                                bool C13Flag,
+                                                bool N15Flag,
+                                                bool S34Flag,
+                                                bool D2Flag,
+                                                Adduct* adduct)
 {
     map<string, int> atoms = getComposition(formula);
     int CatomCount = atoms[C_STRING_ID];
@@ -192,7 +191,11 @@ vector<Isotope> MassCalculator::computeIsotopes(
         int s = x.S34;
         int d = x.H2;
 
-        isotopes[i].mass = adjustMass(isotopes[i].mass,charge);
+        if (adduct != nullptr) {
+            isotopes[i].mass = adduct->computeAdductMz(isotopes[i].mass);
+        } else {
+            isotopes[i].mass = adjustMass(isotopes[i].mass,charge);
+        }
 
         isotopes[i].abundance =
             mzUtils::nchoosek(CatomCount, c) *

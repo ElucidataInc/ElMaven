@@ -204,7 +204,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":expected_abundance", group->expectedAbundance);
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
-    groupsQuery->bind(":type", group->type());
+    groupsQuery->bind(":type", static_cast<int>(group->type()));
     groupsQuery->bind(":srm_id", group->srmId);
 
     groupsQuery->bind(":ms2_event_count", group->ms2EventCount);
@@ -229,7 +229,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":fragmentation_num_matches",
                       group->fragMatchScore.numMatches);
 
-    groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->getName() : "");
+    groupsQuery->bind(":adduct_name", group->getAdduct()
+                                          ? group->getAdduct()->getName() : "");
 
     groupsQuery->bind(":compound_id",
                       group->getCompound() ? group->getCompound()->id : "");
@@ -925,7 +926,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         group->fragMatchScore.numMatches =
             groupsQuery->doubleValue("fragmentation_num_matches");
 
-        group->setType(PeakGroup::GroupType(groupsQuery->integerValue("type")));
+        group->setType(static_cast<PeakGroup::GroupType>(groupsQuery->integerValue("type")));
         group->searchTableName = groupsQuery->stringValue("table_name");
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
@@ -939,9 +940,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             group->setSrmId(srmId);
 
         if (!adductName.empty()) {
-            group->adduct = _findAdductByName(adductName);
+            group->setAdduct(_findAdductByName(adductName));
         } else {
-            group->adduct = nullptr;
+            group->setAdduct(nullptr);
         }
 
         if (!compoundId.empty()) {

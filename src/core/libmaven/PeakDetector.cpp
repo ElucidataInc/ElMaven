@@ -226,7 +226,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
     MassCalculator massCalc;
     multimap<string, Compound*> stringToCompoundMap = {};
     std::set<string> formulae;
-    vector<Compound*> mrmSet;
+    vector<Compound*> compoundsWithMissingFormulae;
     for(auto compound : set) {
         if (mavenParameters->stop) {
             delete_all(slices);
@@ -239,16 +239,9 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             continue;
         }
 
-        if (compound->type() == Compound::Type::MRM) {
-            mrmSet.push_back(compound);
-            continue;
-        }
-
-        if (compound->formula().empty()) {
-            cerr << "Skipping compound \""
-                 << compound->name
-                 << "\", because it is missing chemical formula."
-                 << endl;
+        if (compound->type() == Compound::Type::MRM
+            || compound->formula().empty()) {
+            compoundsWithMissingFormulae.push_back(compound);
             continue;
         }
 
@@ -256,25 +249,6 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         formulae.insert(key);
         pair<string, Compound*> keyValuePair = make_pair(key, compound);
         stringToCompoundMap.insert(keyValuePair);
-    }
-
-    // create slices for MRM compounds separately
-    for (auto compound : mrmSet) {
-        if (mavenParameters->stop) {
-            delete_all(slices);
-            break;
-        }
-
-        if (compound == nullptr)
-            continue;
-
-        mzSlice* slice = new mzSlice();
-        slice->compound = compound;
-        slice->compoundVector.push_back(compound);
-        slice->setSRMId();
-        slice->calculateRTMinMax(mavenParameters->matchRtFlag,
-                                 mavenParameters->compoundRTWindow);
-        slices.push_back(slice);
     }
 
     // TODO: instead of separating by sample, just organize all samples together
@@ -300,35 +274,15 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         }
     }
 
-    int counter = 0;
-    int allFormulaeCount = static_cast<int>(formulae.size());
-    for (const auto& formula : formulae) {
-        if (mavenParameters->stop) {
-            delete_all(slices);
-            break;
-        }
-
-        counter++;
-        sendBoostSignal("Computing Mass Slices", counter, allFormulaeCount);
-        auto compounds = stringToCompoundMap.equal_range(formula);
-        Compound *compound = nullptr;
-        vector<Compound*> compoundVector;
-        for (auto it = compounds.first; it != compounds.second; it++) {
-            compound = it->second;
-            compoundVector.push_back(compound);
-        }
-
-        float neutralMass = massCalc.computeNeutralMass(compound->formula());
-        if (neutralMass <= 0) {
-            continue;
-        }
-
+    auto addSlicesWithAdducts = [&](float compoundMass,
+                                    Compound* compound,
+                                    vector<Compound*> compoundVector) {
         for(auto adduct : adductList) {
             if (SIGN(adduct->getCharge()) != SIGN(mavenParameters->ionizationMode))
                 continue;
 
             mzSlice* slice = new mzSlice();
-            slice->mz = adduct->computeAdductMz(neutralMass);
+            slice->mz = adduct->computeAdductMz(compoundMass);
             slice->compound = compound; // TODO: this assignment is meaningless.
             slice->compoundVector = compoundVector;
             slice->adduct = adduct;
@@ -378,6 +332,55 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
 
             slices.push_back(slice);
         }
+    };
+
+    // create slices for these separately
+    for (auto compound : compoundsWithMissingFormulae) {
+        if (mavenParameters->stop) {
+            delete_all(slices);
+            break;
+        }
+
+        if (compound == nullptr)
+            continue;
+
+        if (compound->type() == Compound::Type::MRM) {
+            mzSlice* slice = new mzSlice();
+            slice->compound = compound;
+            slice->compoundVector.push_back(compound);
+            slice->setSRMId();
+            slice->calculateRTMinMax(mavenParameters->matchRtFlag,
+                                     mavenParameters->compoundRTWindow);
+            slices.push_back(slice);
+        } else if (compound->mass > 0) {
+            addSlicesWithAdducts(compound->mass, compound, {compound});
+        }
+    }
+
+    int counter = 0;
+    int allFormulaeCount = static_cast<int>(formulae.size());
+    for (const auto& formula : formulae) {
+        if (mavenParameters->stop) {
+            delete_all(slices);
+            break;
+        }
+
+        counter++;
+        sendBoostSignal("Computing mass slices…", counter, allFormulaeCount);
+        auto compounds = stringToCompoundMap.equal_range(formula);
+        Compound *compound = nullptr;
+        vector<Compound*> compoundVector;
+        for (auto it = compounds.first; it != compounds.second; it++) {
+            compound = it->second;
+            compoundVector.push_back(compound);
+        }
+
+        float neutralMass = massCalc.computeNeutralMass(compound->formula);
+        if (neutralMass <= 0) {
+            continue;
+        }
+
+        addSlicesWithAdducts(neutralMass, compound, compoundVector);
     }
 
     return slices;
@@ -521,8 +524,6 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                 // check for duplicates	and append group
                 if (j >= mavenParameters->eicMaxGroups)
                     break;
-                if (mavenParameters->searchAdducts && slice->adduct)
-                    peakgroups[j].tagString = slice->adduct->getName();
                 mavenParameters->allgroups.push_back(peakgroups[j]);
             }
         }

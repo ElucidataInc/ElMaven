@@ -134,8 +134,8 @@ void IsotopeWidget::updateIsotopicBarplot(PeakGroup *grp)
 {
 	if (!grp)
 		return;
-	isotopeParametersBarPlot->_group = grp;
-	if (grp && grp->type() != PeakGroup::Isotope)
+    isotopeParametersBarPlot->_group = grp;
+    if (grp && grp->type() != PeakGroup::GroupType::Isotope)
 		pullIsotopesForBarplot(grp);
 }
 

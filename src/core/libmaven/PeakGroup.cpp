@@ -68,13 +68,13 @@ PeakGroup::PeakGroup()  {
     parentIon = nullptr;
 
     // TODO: MAVEN (upstream) strikes again. Why was it commented out?
-    adduct = NULL;
+    _adduct = NULL;
 
     isFocused=false;
     label=0;    //classification label
 
     goodPeakCount=0;
-    _type = None;
+    _type = GroupType::None;
     _sliceSet = false;
 
     changePValue=0;
@@ -105,7 +105,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
-    adduct = o.adduct;
+    _adduct = o.getAdduct();
 
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
@@ -568,10 +568,10 @@ double PeakGroup::getExpectedMz(int charge) {
         return expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
-        if (!_slice.compound->formula().empty() && adduct != nullptr) {
+        if (!_slice.compound->formula().empty() && _adduct != nullptr) {
             auto mass =
                 MassCalculator::computeNeutralMass(_slice.compound->formula());
-            mz = adduct->computeAdductMz(mass);
+            mz = _adduct->computeAdductMz(mass);
         } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
@@ -791,6 +791,8 @@ string PeakGroup::getName() {
     string tag;
     //compound is assigned in case of targeted search
     if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name;
+    // add name of external charged species fused with adduct
+    if (_adduct != nullptr) tag +=  " | " + _adduct->getName();
     //add isotopic label
     if (!tagString.empty()) tag += " | " + tagString;
     //add SRM ID for MS/MS data 

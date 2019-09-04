@@ -14,17 +14,20 @@ class Peak;
 class Scan;
 class EIC;
 class MassCutoff;
+class Adduct;
 
 using namespace std;
 
 class PeakGroup{
+    private:
+        Adduct* _adduct;
 
     private:
         mzSlice _slice;
         bool _sliceSet;
 
     public:
-        enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
+        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
         enum QType	   {AreaTop=0,
                         Area=1,
                         Height=2,
@@ -61,10 +64,6 @@ class PeakGroup{
          * ion, from which this adduct group would have formed.
          */
         PeakGroup* parentIon;
-
-        // have to do this since `GroupType` enum also has an Adduct.
-        // In future use "enum class" instead. Also from MAVEN (upstream).
-        class Adduct* adduct;
 
         vector<Peak> peaks;
         vector<PeakGroup> children;
@@ -276,7 +275,12 @@ class PeakGroup{
          * @method setParent
          * @param  p         []
          */
-        inline void setParent(PeakGroup* p) {parent=p;}
+        inline void setParent(PeakGroup* p)
+        {
+            parent = p;
+            if (parent != nullptr)
+                _type = GroupType::Isotope;
+        }
 
         /**
          * [setLabel ]
@@ -284,6 +288,20 @@ class PeakGroup{
          * @param  label    []
          */
         void setLabel(char label);
+
+        inline void setAdduct(Adduct* adduct)
+        {
+            _adduct = adduct;
+            if (_adduct != nullptr)
+                _type = GroupType::Adduct;
+        }
+
+        inline Adduct* getAdduct() const
+        {
+            if (isIsotope())
+                return parent->getAdduct();
+            return _adduct;
+        }
 
         /**
          * [ppmDist ]
@@ -344,14 +362,14 @@ class PeakGroup{
          * @method isIsotope
          * @return []
          */
-        inline bool isIsotope() const { return _type == Isotope; }
+        inline bool isIsotope() const { return _type == GroupType::Isotope; }
 
         /**
          * [isAdduct ]
          * @method isAdduct
          * @return []
          */
-        inline bool isAdduct() const {  return _type == Adduct; }
+        inline bool isAdduct() const {  return _type == GroupType::Adduct; }
 
         /**
          * [summary ]

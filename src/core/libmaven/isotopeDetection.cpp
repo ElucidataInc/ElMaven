@@ -43,14 +43,14 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
     string formula = parentgroup->getCompound()->formula(); //parent formula
     int charge = _mavenParameters->getCharge(parentgroup->getCompound());//generate isotope list for parent mass
 
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-        formula,
-        charge,
-        _C13Flag,
-        _N15Flag,
-        _S34Flag,
-        _D2Flag
-    );
+    vector<Isotope> masslist =
+        MassCalculator::computeIsotopes(formula,
+                                        charge,
+                                        _C13Flag,
+                                        _N15Flag,
+                                        _S34Flag,
+                                        _D2Flag,
+                                        parentgroup->getAdduct());
 
     map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 
@@ -328,7 +328,7 @@ void IsotopeDetection::childStatistics(
     child.tagString = isotopeName;
     child.groupId = parentgroup->groupId;
     child.parent = parentgroup;
-    child.setType(PeakGroup::Isotope);
+    child.setType(PeakGroup::GroupType::Isotope);
     child.groupStatistics();
 
     // we now have the RT limits for the isotopic group

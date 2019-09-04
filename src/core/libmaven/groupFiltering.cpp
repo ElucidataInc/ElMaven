@@ -166,14 +166,14 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
 {
     for (auto it = begin(groups); it != end(groups); ) {
         auto& group = *it;
-        if (group.adduct && !group.adduct->isParent()) {
+        if (group.getAdduct() != nullptr && !group.getAdduct()->isParent()) {
             // there can be multiple parent groups at different RT values
             vector<PeakGroup*> parentIons;
             for_each(begin(groups),
                      end(groups),
                      [&](PeakGroup& candidate) {
                          if (candidate.getCompound() == group.getCompound()
-                             && candidate.adduct->isParent()) {
+                             && candidate.getAdduct()->isParent()) {
                              parentIons.push_back(&candidate);
                          }
                      });

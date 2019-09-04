@@ -101,14 +101,13 @@ class MassCalculator {
         void enumerateMasses(double inputMass, double charge, MassCutoff *massCutoff, vector<Match*>& matches);
 
 
-        static vector<Isotope> computeIsotopes(
-            string formula,
-            int charge,
-            bool C13Flag,
-            bool N15Flag,
-            bool S34Flag,
-            bool D2Flag 
-        );
+        static vector<Isotope> computeIsotopes(string formula,
+                                               int charge,
+                                               bool C13Flag,
+                                               bool N15Flag,
+                                               bool S34Flag,
+                                               bool D2Flag,
+                                               Adduct *adduct = nullptr);
 
         /**
          * [adjustMass ]
