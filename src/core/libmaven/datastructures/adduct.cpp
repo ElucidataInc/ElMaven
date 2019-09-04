@@ -89,7 +89,7 @@ float Adduct::computeParentMass(float mz)
     return (mz * abs(_charge) - _mass) / _nmol;
 }
 
-float Adduct::computeAdductMass(float parentMz)
+float Adduct::computeAdductMz(float parentMass)
 {
-    return (parentMz * _nmol + _mass) / abs(_charge);
+    return (parentMass * _nmol + _mass) / abs(_charge);
 }

@@ -28,16 +28,16 @@ class Adduct {
         /**
          * @brief Given adduct's mass, compute parent ion's mass.
          * @param mz The m/z value of the adduct molecule.
-         * @return The calculated mass of parent ion.
+         * @return The calculated neutral mass of parent ion.
          */
         float computeParentMass(float mz);
 
         /**
-         * @brief Given parent ion's mass, compute adduct's mass.
-         * @param mz The m/z value of the parent ion.
-         * @return The calculated mass of adduct molecule.
+         * @brief Given parent ion's mass, compute adduct's m/z value.
+         * @param mz The neutral mass of the parent ion.
+         * @return The calculated m/z of adduct molecule.
          */
-        float computeAdductMass(float parentMz);
+        float computeAdductMz(float parentMz);
 
     private:
         /**

@@ -571,7 +571,7 @@ double PeakGroup::getExpectedMz(int charge) {
         if (!_slice.compound->formula().empty() && adduct != nullptr) {
             auto mass =
                 MassCalculator::computeNeutralMass(_slice.compound->formula());
-            mz = adduct->computeAdductMass(mass);
+            mz = adduct->computeAdductMz(mass);
         } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {

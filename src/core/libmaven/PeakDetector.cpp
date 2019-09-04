@@ -244,7 +244,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             continue;
         }
 
-        if (compound->formula.empty()) {
+        if (compound->formula().empty()) {
             cerr << "Skipping compound \""
                  << compound->name
                  << "\", because it is missing chemical formula."
@@ -252,7 +252,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             continue;
         }
 
-        string key = compound->formula;
+        string key = compound->formula();
         formulae.insert(key);
         pair<string, Compound*> keyValuePair = make_pair(key, compound);
         stringToCompoundMap.insert(keyValuePair);
@@ -318,7 +318,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             compoundVector.push_back(compound);
         }
 
-        float neutralMass = massCalc.computeNeutralMass(compound->formula);
+        float neutralMass = massCalc.computeNeutralMass(compound->formula());
         if (neutralMass <= 0) {
             continue;
         }
@@ -328,7 +328,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                 continue;
 
             mzSlice* slice = new mzSlice();
-            slice->mz = adduct->computeAdductMass(neutralMass);
+            slice->mz = adduct->computeAdductMz(neutralMass);
             slice->compound = compound; // TODO: this assignment is meaningless.
             slice->compoundVector = compoundVector;
             slice->adduct = adduct;
