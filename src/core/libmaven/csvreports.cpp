@@ -91,7 +91,7 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                             << "goodPeakCount"
                             << "medMz"
                             << "medRt"
-                            << "maxQuality"
+                            << "maxQuality"                            << "adductName"
                             << "isotopeLabel"
                             << "compound"
                             << "compoundId"
@@ -265,12 +265,15 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     char label[2];
     sprintf(label, "%c", group->label);
 
+    string adductName = "";
+    if (group->getAdduct() != nullptr)
+        adductName = group->getAdduct()->getName();
+
     _reportStream << label << SEP << parentGroup->groupId << SEP << _groupId
                   << SEP << group->goodPeakCount << fixed << SEP
                   << setprecision(6) << group->meanMz << SEP << setprecision(3)
                   << group->meanRt << SEP << setprecision(6)
-                  << group->maxQuality << SEP << tagString;
-
+                  << group->maxQuality << SEP << adductName << SEP << tagString;
     string compoundName = "";
     string compoundID = "";
     string formula = "";
