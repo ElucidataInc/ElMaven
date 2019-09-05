@@ -465,22 +465,6 @@ void LigandWidget::resetColor()
     }
 }
 
-
-void LigandWidget::saveCompoundList(){
-
-    QSettings *settings = _mw->getSettings();
-    QString dbname = databaseSelect->currentText();
-    QString dbfilename = databaseSelect->currentText() + ".tab";
-    QString dataDir = settings->value("dataDir").value<QString>();
-    QString methodsFolder =     dataDir +  "/"  + settings->value("methodsFolder").value<QString>();
-
-    QString fileName = QFileDialog::getSaveFileName(
-                this, "Export Compounds to Filename", methodsFolder, "TAB (*.tab)");
-
-    saveCompoundList(fileName, dbname);
-
-}
-
 void LigandWidget::saveCompoundList(QString fileName,QString dbname){
 
    if (fileName.isEmpty()) return;

@@ -289,8 +289,6 @@ void EicPoint::linkCompound() {
            // _mw->getEicWidget()->addNote(_peak->peakMz,_peak->peakIntensity, "Compound Link");
             _mw->getEicWidget()->saveRetentionTime();
 
-            //upadte ligand widget
-            QString dbname(_group->compound->db.c_str());
             //_mw->ligandWidget->updateTable();
             _mw->ligandWidget->updateCurrentItemData();
 

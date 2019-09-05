@@ -71,7 +71,6 @@ public Q_SLOTS:
      */
     void resetColor();
 
-    void saveCompoundList();
     void saveCompoundList(QString fileName,QString dbname);
     void updateTable() { showTable(); }
     void updateCurrentItemData();
@@ -106,8 +105,6 @@ private:
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
     QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
-
-    QHash<QString,bool>alteredDatabases;
 
     MainWindow* _mw;
     QString filterString;
