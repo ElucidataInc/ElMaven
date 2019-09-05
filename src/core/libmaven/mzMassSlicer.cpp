@@ -94,6 +94,15 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     if (samples.size() > 0 and rtStep > 0)
         rtWindow = (samples.at(0)->getAverageFullScanTime() * rtStep);
 
+    // TODO: Remove this, added only for help with validation
+    for (auto sample : samples) {
+        auto avgScanTime = sample->getAverageFullScanTime();
+        cerr << sample->getSampleName() << ": "
+             << mavenParameters->minNoNoiseObs << " ✕ "
+             << avgScanTime << " = "
+             << mavenParameters->minNoNoiseObs * avgScanTime << endl;
+    }
+
     sendSignal("Status", 0 , 1);
 
     // #pragma omp parallel for ordered
