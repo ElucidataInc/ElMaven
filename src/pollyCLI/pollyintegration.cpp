@@ -68,7 +68,6 @@ PollyIntegration::~PollyIntegration()
         }
         delete _fPtr;
     }
-    qDebug()<<"exiting PollyIntegration now....";
 }
 
 QString PollyIntegration::getCredFile(){

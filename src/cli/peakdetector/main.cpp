@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
 	else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
-		qDebug()<<"no peaks found..Please try again with different parameters";
+        qDebug()<<"No peaks found. Please try again with different parameters.";
 	}
 
 	//cleanup

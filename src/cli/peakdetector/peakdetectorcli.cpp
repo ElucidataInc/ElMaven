@@ -227,12 +227,12 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         }
     }
 
-    cout << "\n\nCommand:  ";
+    cout << "Running with arguments: ";
 
     for (int i = 0; i < argc; i++)
         cout << argv[i] << " ";
 
-    cout << "\n\n\n";
+    cout << "\n" << endl;
 
     if (iter.index() < argc) {
         for (int i = iter.index(); i < argc; i++)
@@ -255,8 +255,7 @@ void PeakDetectorCLI::processXML(const char* fileName)
     }
 
     if (xmlFile) {
-        cout << endl << "Found " << fileName << endl;
-        cout << endl << "Processing…" << endl;
+        cout << "\nFound config file " << fileName << ". Processing…" << endl;
 
         xml_document doc;
         doc.load_file(fileName, pugi::parse_minimal);
@@ -320,7 +319,7 @@ void PeakDetectorCLI::_processOptionsArgsXML(xml_node& optionsArgs)
             mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(
                 atof(node.attribute("value").value()), "ppm");
         } else {
-            cout << endl << "Unknown node : " << node.name() << endl;
+            cerr << "Unknown config node: " << node.name() << endl;
         }
     }
 }
@@ -466,7 +465,7 @@ void PeakDetectorCLI::_processPeaksArgsXML(xml_node& peaksArgs)
                 atof(node.attribute("value").value());
 
         } else {
-            cout << endl << "Unknown node : " << node.name() << endl;
+            cerr << "Unknown config node: " << node.name() << endl;
         }
     }
 }
@@ -508,32 +507,33 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             filenames.push_back(sampleStr);
 
         } else {
-            cout << endl << "Unknown node : " << node.name() << endl;
+            cerr << "Unknown config node: " << node.name() << endl;
         }
     }
 }
 
 void PeakDetectorCLI::loadClassificationModel(string clsfModelFilename)
 {
-    cout << "Loading classifiation model" << endl;
-    cout << "clsfModelFilename " << clsfModelFilename << endl;
+    cout << "Loading classifiation model…" << endl;
     mavenParameters->clsf = new ClassifierNeuralNet();
     mavenParameters->clsf->loadModel(clsfModelFilename);
+    cout << endl;
 }
 
 void PeakDetectorCLI::loadCompoundsFile()
 {
     // exit if no db file has been provided
     if (mavenParameters->ligandDbFilename.empty()) {
-        cerr << "\nPlease provide a compound database file to proceed with "
-                "targeted analysis."
-             << "Use the '-h' argument to see all available options." << endl;
+        cerr << "Please provide a compound database file to proceed with "
+                "targeted analysis. Use the '-h' argument to see all available "
+                "options."
+             << endl;
         exit(0);
     }
 
     // load compound list
     mavenParameters->processAllSlices = false;
-    cout << "\nLoading ligand database" << endl;
+    cout << "Loading compound database…" << endl;
     int loadCount = _db.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
     mavenParameters->compounds = _db.compoundsDB;
 
@@ -553,7 +553,7 @@ void PeakDetectorCLI::loadCompoundsFile()
         }
     }
 
-    cout << "Total Compounds Loaded : " << loadCount << endl;
+    cout << "Loaded " << loadCount << " compounds\n" << endl;
 }
 
 void PeakDetectorCLI::loadSamples(vector<string>& filenames)
@@ -561,7 +561,7 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
 #ifndef __APPLE__
     double startLoadingTime = getTime();
 #endif
-    cout << "\nLoading samples" << endl;
+    cout << "Loading samples…" << endl;
 
     for (unsigned int i = 0; i < filenames.size(); i++) {
         mzSample* sample = new mzSample();
@@ -570,8 +570,7 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
         sample->isSelected = true;
         if (sample->scans.size() >= 1) {
             mavenParameters->samples.push_back(sample);
-            cout << endl
-                 << "Loaded Sample : " << sample->getSampleName() << endl;
+            cout << "Loaded Sample: " << sample->getSampleName() << endl;
         } else {
             if (sample != NULL) {
                 delete sample;
@@ -589,12 +588,13 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
          mavenParameters->samples.end(),
          mzSample::compSampleSort);
 
-    cout << "LoadSamples done: loaded " << mavenParameters->samples.size()
-         << " samples";
+    cout << "Loaded " << mavenParameters->samples.size()
+         << " samples\n" << endl;
 
 #ifndef __APPLE__
-    cout << "\nExecution time (Sample loading) : "
-         << getTime() - startLoadingTime << " seconds \n";
+    cout << "Execution time (sample loading): "
+         << getTime() - startLoadingTime
+         << " seconds.\n";
 #endif
 }
 
@@ -746,7 +746,7 @@ void PeakDetectorCLI::writeReport(string setName,
 {
     // TODO kailash, this function should not have jsPath and nodePath as its
     // arguments…
-    cout << "\nwriteReport " << mavenParameters->allgroups.size() << " groups ";
+    cout << "Writing report for groups…" << endl;
 
     // reduce groups
     _groupReduction();
@@ -768,7 +768,7 @@ void PeakDetectorCLI::writeReport(string setName,
 
         // try uploading to Polly
         QMap<QString, QString> creds = _readCredentialsFromXml(pollyArgs);
-        cout << "uploading to Polly now…" << endl;
+        cout << "Uploading to Polly now…" << endl;
         QDateTime currentTime;
         const QString format = "dd-MM-yyyy_hh_mm_ss";
         QString datetimestamp = currentTime.currentDateTime().toString(format);
@@ -798,12 +798,11 @@ void PeakDetectorCLI::writeReport(string setName,
         QString sampleCohortFilename =
             writableTempDir + QDir::separator() + datetimestamp
             + "_Cohort_Mapping_Elmaven";  //  uploading the sample cohort file
-        qDebug() << "CSV filename:" << csvFilename;
         int compoundDbStatus =
             prepareCompoundDbForPolly(compoundDbFilename + ".csv");
         QString readyStatus = _isReadyForPolly();
         if (!(readyStatus == "ready") || compoundDbStatus == 0) {
-            qDebug() << "Error while preparing files for Polly:"
+            qDebug() << "Error while preparing files for Polly: "
                      << readyStatus;
             return;
         }
@@ -835,7 +834,7 @@ void PeakDetectorCLI::writeReport(string setName,
                 if (validSampleCohort) {
                     bool statusSampleCopy = QFile::copy(
                         _sampleCohortFile, sampleCohortFilename + ".csv");
-                    qDebug() << "Sample cohort copy status:"
+                    qDebug() << "Sample cohort copy status: "
                              << statusSampleCopy;
                     _redirectTo = "relative_lcms_elmaven";
                 } else {
@@ -973,8 +972,8 @@ void PeakDetectorCLI::_groupReduction()
         reduceGroups();
 
 #ifndef __APPLE__
-        cout << "\tExecution time (Group reduction) : "
-             << getTime() - startGroupReduction << " seconds \n";
+        cout << "Execution time (group reduction): "
+             << getTime() - startGroupReduction << " seconds.\n";
 #endif
     }
 }
@@ -990,9 +989,10 @@ void PeakDetectorCLI::saveJson(string setName)
         string fileName = setName + ".json";
         _jsonReports->saveMzEICJson(
             fileName, mavenParameters->allgroups, mavenParameters->samples);
+        cout << "Saved JSON output file: " << fileName << endl;
 #ifndef __APPLE__
-        cout << "\tExecution time (Saving Eic Json) : "
-             << getTime() - startSavingJson << " seconds \n";
+        cout << "Execution time (saving EIC in JSON) : "
+             << getTime() - startSavingJson << " seconds.\n";
 #endif
     }
 }
@@ -1156,7 +1156,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     csvreports->setMavenParameters(mavenParameters);
 
     if (mavenParameters->allgroups.size() == 0) {
-        cout << "Writing to CSV Failed: No Groups found" << endl;
+        cout << "Writing to CSV failed: no groups found." << endl;
         return;
     }
 
@@ -1250,14 +1250,17 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     }
 
     if (csvreports->getErrorReport() != "") {
-        cout << endl
-             << "Writing to CSV Failed : "
-             << csvreports->getErrorReport().toStdString() << endl;
+        cout << "Writing to CSV failed with error - "
+             << csvreports->getErrorReport().toStdString()
+             << "." << endl;
+        return;
     }
 
+    cout << "Saved CSV output file: " << fileName << endl;
+
 #ifndef __APPLE__
-    cout << "\tExecution time (Saving CSV)      : "
-         << getTime() - startSavingCSV << " seconds \n";
+    cout << "\tExecution time (Saving CSV): "
+         << getTime() - startSavingCSV << " seconds.\n";
 #endif
 }
 
@@ -1266,7 +1269,9 @@ void PeakDetectorCLI::reduceGroups()
     sort(mavenParameters->allgroups.begin(),
          mavenParameters->allgroups.end(),
          PeakGroup::compMz);
-    cout << "\nreduceGroups(): " << mavenParameters->allgroups.size();
+    cout << "Reducing " << mavenParameters->allgroups.size()
+         << " groups…" << endl;
+
     // init deleteFlag
     for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
         mavenParameters->allgroups[i].deletedFlag = false;
@@ -1316,10 +1321,9 @@ void PeakDetectorCLI::reduceGroups()
             reducedGroupCount++;
         }
     }
-    cout << "\nReduced count of groups : " << reducedGroupCount << " \n";
     mavenParameters->allgroups = allgroups_;
-    cout << "Done final group count(): " << mavenParameters->allgroups.size()
-         << endl;
+    cout << "Done. Final group count: " << mavenParameters->allgroups.size()
+         << "\n" << endl;
 }
 
 double get_wall_time()
