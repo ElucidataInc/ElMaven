@@ -173,6 +173,18 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SIGNAL(valueChanged(double)),
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
+        connect(searchAdducts,
+                &QCheckBox::toggled,
+                [this](const bool checked)
+                {
+                    QString state = checked? "On" : "Off";
+                    this->mainwindow
+                        ->getAnalytics()
+                        ->hitEvent("Peak Detection",
+                                   "Adduct Detection Swtiched",
+                                   state);
+                    _setAdductWindowState();
+                });
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
@@ -410,6 +422,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         //match fragmentation only enabled during targeted detection with NIST library
         toggleFragmentation();
 
+        _setAdductWindowState();
+
         QDialog::exec();
     }
 }
@@ -461,6 +475,15 @@ void PeakDetectionDialog::toggleFragmentation()
     } else {
         matchFragmentationOptions->setChecked(false);
         matchFragmentationOptions->setEnabled(false);
+    }
+}
+
+void PeakDetectionDialog::_setAdductWindowState()
+{
+    if (searchAdducts->isChecked()) {
+        adductSearchWindow->setEnabled(true);
+    } else {
+        adductSearchWindow->setEnabled(false);
     }
 }
 
