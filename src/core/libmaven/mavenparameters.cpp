@@ -48,6 +48,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 
         // to allow adduct matching
         searchAdducts = false;
+        adductSearchWindow = 0.1f;
 
         // peak detection
         eic_smoothingWindow = 10;
@@ -304,6 +305,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if(strcmp(key, "searchAdducts") == 0 )
         searchAdducts = atof(value);
+
+    if(strcmp(key, "adductSearchWindow") == 0 )
+        adductSearchWindow = atof(value);
 
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);

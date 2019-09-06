@@ -43,6 +43,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
     settings.insert("searchAdducts", QVariant::fromValue(pd->searchAdducts));
+    settings.insert("adductSearchWindow", QVariant::fromValue(pd->adductSearchWindow));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));

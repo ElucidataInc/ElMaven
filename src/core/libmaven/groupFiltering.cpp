@@ -3,6 +3,7 @@
 #include "datastructures/mzSlice.h"
 #include "groupFiltering.h"
 #include "mavenparameters.h"
+#include "mzSample.h"
 #include "PeakGroup.h"
 
 GroupFiltering::GroupFiltering(MavenParameters *mavenParameters)
@@ -192,10 +193,10 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                     auto parentPeak = parentIon->getPeak(sample);
                     if (!parentPeak || !groupPeak)
                         continue;
-                    auto groupScanNum = groupPeak->scan;
-                    auto parentScanNum = parentPeak->scan;
-                    if (groupScanNum < parentScanNum - 2
-                        || groupScanNum > parentScanNum + 2) {
+                    auto groupScanRt = groupPeak->rt;
+                    auto parentScanRt = parentPeak->rt;
+                    auto deviation = abs(groupScanRt - parentScanRt) * 60.0f;
+                    if (deviation > _mavenParameters->adductSearchWindow) {
                         tooFarFromParent = true;
                         break;
                     }

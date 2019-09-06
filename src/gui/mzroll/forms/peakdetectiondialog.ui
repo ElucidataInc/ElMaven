@@ -300,7 +300,23 @@
           <item row="5" column="0">
            <widget class="QCheckBox" name="searchAdducts">
             <property name="text">
-             <string>Detect adducts</string>
+             <string>Detect adducts within</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QDoubleSpinBox" name="adductSearchWindow">
+            <property name="suffix">
+             <string notr="true"> seconds from parent ion</string>
+            </property>
+            <property name="minimum">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>2.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
             </property>
            </widget>
           </item>

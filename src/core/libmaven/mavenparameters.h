@@ -165,6 +165,7 @@ class MavenParameters
 
         // to allow adduct matching
         bool searchAdducts;
+        float adductSearchWindow;
 
         // Peak Group Rank
         int qualityWeight;
