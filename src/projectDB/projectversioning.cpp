@@ -438,6 +438,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "                       FROM user_settings_old               ;"
         "DROP TABLE user_settings_old;"
 
+        "ALTER TABLE user_settings ADD COLUMN search_adducts INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN adduct_search_window REAL;"
         "COMMIT;"
     },
     {

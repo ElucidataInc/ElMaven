@@ -246,7 +246,9 @@
                                               , main_window_mass_resolution      REAL    \
                                               , must_have_fragmentation          INTEGER \
                                               , identification_match_rt          INTEGER \
-                                              , identification_rt_window         REAL    );"
+                                              , identification_rt_window         REAL    \
+                                              , search_adducts                   INTEGER \
+                                              , adduct_search_window             REAL    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \
