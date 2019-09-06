@@ -382,12 +382,31 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         refreshCompoundDatabases();
 
+        /**
+         * Getting the database present and updating in the dropdown of the
+         * peak detection windows
+         */
+        map<string, int>::iterator itr;
+        map<string, int> dbnames = DB.getDatabaseNames();
+
+        // Storing this value so that we can set it back after multiple DB name
+        // changes. The enabled/disabled state will still be managed later once.
+        bool fragmentationWasEnabled = matchFragmentationOptions->isChecked();
+
+        // Clearing so that old value is not appended with the new values
+        compoundDatabase->clear();
+        for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
+            string db = (*itr).first;
+            if (!db.empty()) compoundDatabase->addItem(QString(db.c_str()));
+        }
+        matchFragmentationOptions->setChecked(fragmentationWasEnabled);
+
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
         compoundDatabase->setCurrentIndex(
             compoundDatabase->findText(selectedDB));
-        
+
         //match fragmentation only enabled during targeted detection with NIST library
         toggleFragmentation();
 
