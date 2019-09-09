@@ -1,4 +1,5 @@
 include($$mac_compiler)
+include($$mzroll_pri)
 MOC_DIR=$$top_builddir/tmp/common/
 OBJECTS_DIR=$$top_builddir/tmp/common/
 
@@ -16,6 +17,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 INCLUDEPATH += $$top_srcdir/src
 
-SOURCES += downloadmanager.cpp
+SOURCES += downloadmanager.cpp \
+           logger.cpp
 
-HEADERS += downloadmanager.h
+HEADERS += downloadmanager.h \
+           logger.h
