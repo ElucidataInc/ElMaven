@@ -4,6 +4,8 @@
 #include <QtCore>
 #include <QObject>
 
+class Logger;
+
 enum class PollyApp: int
 {
     FirstView = 0,
@@ -188,6 +190,7 @@ private:
     QTemporaryFile* _fPtr;
     unsigned int _retries;
     QString indexFileURL;
+    Logger *_log;
 
     QPair<ErrorStatus, QMap<QString, QStringList>> _fetchAppLicense();
     bool _checkForIndexFile();
