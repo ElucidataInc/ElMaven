@@ -48,6 +48,7 @@ using namespace std;
 class PollyIntegration;
 class ParseOptions;
 class DownloadManager;
+class Logger;
 
 class PeakDetectorCLI
 {
@@ -195,6 +196,7 @@ private:
     bool _reduceGroupsFlag;
     PollyApp _currentPollyApp;
     QString _pollyExtraInfo;
+    Logger *_log;
 
     /**
      * [Load Arguments for Options Dialog]
