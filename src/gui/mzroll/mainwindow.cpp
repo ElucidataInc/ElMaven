@@ -2879,13 +2879,13 @@ void MainWindow::createToolBars() {
 	btnPollyBridge->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnPollyBridge->setToolTip(tr("Send Peaks to Polly to store, collaborate, analyse and visualise your data"));
 
-	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
-	btnSpectraMatching->setText("Match");
-	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
-	btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnSpectraMatching->setToolTip(
-			tr("Matching Spectra for Fragmentation Patterns"));
+	// QToolButton *btnSpectraMatching = new QToolButton(toolBar);
+	// btnSpectraMatching->setText("Match");
+	// btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
+	// btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	// btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
+	// btnSpectraMatching->setToolTip(
+	// 		tr("Matching Spectra for Fragmentation Patterns"));
 
 	QToolButton *btnSettings = new QToolButton(toolBar);
 	btnSettings->setText("Options");
@@ -2901,13 +2901,13 @@ void MainWindow::createToolBars() {
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
-	connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
+	//connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
     toolBar->addWidget(btnIsotope);
 	toolBar->addWidget(btnFeatureDetect);
-	toolBar->addWidget(btnSpectraMatching);
+	//toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
 
