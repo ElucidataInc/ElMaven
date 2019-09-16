@@ -474,16 +474,19 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
 
         return make_pair(false, true);
     };
-    _mergeSlices(slicesInProximity, "Merging related slices in samples…");
+    _mergeSlices(slicesInProximity,
+                 massCutoff,
+                 "Merging related slices in samples…");
 }
 
 void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
                                                               mzSlice *,
                                                               mzSlice *)> &compareSlices,
+                              MassCutoff* massCutoff,
                               const string &updateMessage)
 {
     // lambda to help expand a given slice by merging a vector of slices into it
-    auto expandSlice = [](mzSlice* mergeInto, vector<mzSlice*> slices) {
+    auto expandSlice = [&](mzSlice* mergeInto, vector<mzSlice*> slices) {
         if (slices.empty())
             return;
 
@@ -495,8 +498,18 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
             mergeInto->mzmin = std::min(mergeInto->mzmin, slice->mzmin);
         }
 
+        // calculate the new midpoints
         mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
         mergeInto->rt = (mergeInto->rtmin + mergeInto->rtmax) / 2.0f;
+
+        // make sure that mz window does not get out of control
+        auto cutoff = massCutoff->massCutoffValue(mergeInto->mz);
+        if (mergeInto->mzmin < mergeInto->mz - cutoff)
+            mergeInto->mzmin =  mergeInto->mz - cutoff;
+        if (mergeInto->mzmax > mergeInto->mz + cutoff)
+            mergeInto->mzmax =  mergeInto->mz + cutoff;
+
+        mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
     };
 
     for (size_t n = 0; n < samples.size(); ++n) {
