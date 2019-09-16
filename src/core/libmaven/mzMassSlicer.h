@@ -155,10 +155,17 @@ class MassSlices {
          * merged or not. The second returned boolean can be used to decide
          * whether iteration needs to proceed in the current direction (proceed
          * if `true`, stop if `false`).
+         * @param massCutoff A `MassCutoff` object that decides the maximum
+         * width of a slice in the m/z domain. Any merged slice that expands to
+         * a size more than what this cutoff dictates, will be resized around
+         * its mean m/z value.
+         * @param updateMessage A string message that will be emitted along with
+         * progress updates on the completion of the merge operation.
          */
         void _mergeSlices(const function<pair<bool, bool>(mzSample*,
                                                           mzSlice*,
                                                           mzSlice*)>& compareSlices,
+                          MassCutoff* massCutoff,
                           const string& updateMessage);
 };
 #endif
