@@ -34,7 +34,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
 
     // db search settings
-    settings.insert("databaseSearch", QVariant::fromValue(pd->dbOptions));
+    settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
     settings.insert("compoundExtractionWindow", QVariant::fromValue(pd->compoundPPMWindow));
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
@@ -172,7 +172,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
         
-        connect(dbOptions, SIGNAL(toggled(bool)), SLOT(dbOptionsClicked()));
+        connect(dbSearch, SIGNAL(toggled(bool)), SLOT(dbSearchClicked()));
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
@@ -208,9 +208,9 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
     emit updateSettings(peakSettings);
 }
 
-void PeakDetectionDialog::dbOptionsClicked()
+void PeakDetectionDialog::dbSearchClicked()
 {   
-    if (dbOptions->isChecked()) {
+    if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
     } else {
@@ -222,9 +222,9 @@ void PeakDetectionDialog::dbOptionsClicked()
     toggleFragmentation(dbName);
 }
 
-bool PeakDetectionDialog::getDbOptions()
+bool PeakDetectionDialog::databaseSearchEnabled()
 {
-    return dbOptions->isChecked();
+    return dbSearch->isChecked();
 }
 
 void PeakDetectionDialog::triggerSettingsUpdate()
@@ -237,10 +237,10 @@ void PeakDetectionDialog::featureOptionsClicked()
 {
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
-        dbOptions->setChecked(false);
+        dbSearch->setChecked(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
-        dbOptions->setChecked(true);
+        dbSearch->setChecked(true);
     }
 
     QString dbName = compoundDatabase->currentText();
@@ -281,13 +281,13 @@ void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(
     _featureDetectionType = type;
 
     if (_featureDetectionType == QQQ) {
-        dbOptions->hide();
+        dbSearch->hide();
         featureOptions->hide();
     } else if (_featureDetectionType == FullSpectrum) {
-        dbOptions->hide();
+        dbSearch->hide();
         featureOptions->show();
     } else if (_featureDetectionType == CompoundDB) {
-        dbOptions->show();
+        dbSearch->show();
         featureOptions->hide();
     }
 
@@ -429,7 +429,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
 void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
 {
-    if (dbOptions->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
+    if (dbSearch->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
@@ -486,11 +486,11 @@ void PeakDetectionDialog::findPeaks()
 
     mainwindow->setTotalCharge();
 
-    if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
+    if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
-    } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
+    } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
         if (mustHaveMs2->isChecked()) {

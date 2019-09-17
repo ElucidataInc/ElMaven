@@ -740,7 +740,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::sendPeaksGA()
 {
-    if (isotopeDialog->getReportIsotopes() && peakDetectionDialog->getDbOptions()) {
+    if (isotopeDialog->isotopeDetectionEnabled() && peakDetectionDialog->databaseSearchEnabled()) {
         analytics->hitEvent("Peak Detection", "Find Peaks With Isotopes");
     } else {
         analytics->hitEvent("Peak Detection", "Find Peaks");

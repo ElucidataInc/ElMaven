@@ -89,7 +89,7 @@ void IsotopeDialog::onReset()
     emit resetSettings(isotopeSettings->getSettings().keys());
 }
 
-bool IsotopeDialog::getReportIsotopes()
+bool IsotopeDialog::isotopeDetectionEnabled()
 {
     return reportIsotopesOptions->isChecked();
 }

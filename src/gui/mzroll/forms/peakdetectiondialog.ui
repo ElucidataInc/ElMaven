@@ -234,7 +234,7 @@
         </widget>
        </item>
        <item row="1" column="0" rowspan="2" colspan="2">
-        <widget class="QGroupBox" name="dbOptions">
+        <widget class="QGroupBox" name="dbSearch">
          <property name="title">
           <string>Compound Database Search:  Limit slices to set of known m/z and retention time values</string>
          </property>
@@ -1045,7 +1045,7 @@
   <tabstop>maxIntensity</tabstop>
   <tabstop>chargeMin</tabstop>
   <tabstop>chargeMax</tabstop>
-  <tabstop>dbOptions</tabstop>
+  <tabstop>dbSearch</tabstop>
   <tabstop>compoundDatabase</tabstop>
   <tabstop>compoundPPMWindow</tabstop>
   <tabstop>matchRt</tabstop>

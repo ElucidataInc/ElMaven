@@ -22,7 +22,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  MainWindow* getMainWindow() {return mainwindow;}
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void setMavenParameters(QSettings *settings);
-                 bool getDbOptions();
+                 bool databaseSearchEnabled();
 
 		public Q_SLOTS:
 				 void findPeaks();
@@ -31,7 +31,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                                  void setOutputDir();
 				 void setProgressBar(QString text, int progress, int totalSteps);
 				 void runBackgroupJob(QString func);
-                 void dbOptionsClicked();
+                 void dbSearchClicked();
                  void featureOptionsClicked();
 				 void showInfo(QString text);
 				 void cancel();
