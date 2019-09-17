@@ -72,6 +72,12 @@ class MassSlices {
         void mergeNeighbouringSlices(MassCutoff* massCutoff,
                                      float rtTolerance=0.005f);
 
+        /**
+         * @brief Adjust all slices in m/z domain such that they are centered
+         * around its current highest intensity.
+         */
+        void adjustSlices();
+
         void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
         
         /**

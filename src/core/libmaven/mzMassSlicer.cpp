@@ -6,6 +6,7 @@
 #include "masscutofftype.h"
 #include "mzUtils.h"
 #include "Matrix.h"
+#include "PeakDetector.h"
 #include "Scan.h"
 
 using namespace mzUtils;
@@ -239,6 +240,7 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
     mergeNeighbouringSlices(massCutoff, 0.05f);
+    adjustSlices();
 
     // TODO: remove this, added only for debugging purposes
     ofstream fs("slices.csv");
@@ -455,6 +457,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
                 rtAtHighestCompIntensity = comparisonEic->rt[i];
             }
         }
+        delete eic;
 
         // calculate and check for rt difference and mz difference, if
         // conditions are satisfied, mark the comparison slice to be merged
@@ -574,6 +577,42 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
                          end(slices),
                          [&](mzSlice* s) { return s == slice; });
         }
+    }
+}
+
+void MassSlices::adjustSlices()
+{
+    size_t progressCount = 0;
+    for (auto slice : slices) {
+        if (mavenParameters->stop) {
+            stopSlicing();
+            break;
+        }
+
+        auto eics = PeakDetector::pullEICs(slice,
+                                           mavenParameters->samples,
+                                           mavenParameters);
+        float highestIntensity = 0.0f;
+        float mzAtHighestIntensity = 0.0f;
+        for (auto eic : eics) {
+            for (size_t i = 0; i < eic->size(); ++i) {
+                auto intensityAtIndex = eic->intensity[i];
+                if (intensityAtIndex > highestIntensity) {
+                    highestIntensity = intensityAtIndex;
+                    mzAtHighestIntensity = eic->mz[i];
+                }
+            }
+        }
+        float cutoff = mavenParameters->massCutoffMerge
+                                      ->massCutoffValue(mzAtHighestIntensity);
+        slice->mzmin =  mzAtHighestIntensity - cutoff;
+        slice->mzmax =  mzAtHighestIntensity + cutoff;
+        slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
+
+        delete_all(eics);
+
+        ++progressCount;
+        sendSignal("Adjusting slices…", progressCount, slices.size());
     }
 }
 
