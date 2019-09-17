@@ -236,10 +236,9 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
     float threshold = 100;
     removeDuplicateSlices(massCutoff, threshold);
-    sort(slices.begin(), slices.end(), mzSlice::compMz);
 
+    sort(slices.begin(), slices.end(), mzSlice::compMz);
     mergeNeighbouringSlices(massCutoff, 0.05f);
-    sort(slices.begin(), slices.end(), mzSlice::compIntensity);
 
     // TODO: remove this, added only for debugging purposes
     ofstream fs("slices.csv");

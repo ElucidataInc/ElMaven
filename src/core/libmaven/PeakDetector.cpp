@@ -304,77 +304,64 @@ void PeakDetector::alignSamples(const int& method) {
     }
 }
 
-void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
+void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 {
-
-    if (slices.size() == 0)
+    if (slices.empty())
         return;
+
     mavenParameters->allgroups.clear();
-
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
-
-    int eicCount = 0;
-    for (unsigned int s = 0; s < slices.size(); s++)
-    {
-
+    for (unsigned int s = 0; s < slices.size(); s++) {
         if (mavenParameters->stop)
             break;
-        mzSlice *slice = slices[s];
 
-        Compound *compound = slice->compound;
-
-        if (compound != NULL && compound->hasGroup())
+        mzSlice* slice = slices[s];
+        Compound* compound = slice->compound;
+        if (compound != nullptr && compound->hasGroup())
             compound->unlinkGroup();
 
-        vector<EIC *> eics = pullEICs(slice,
-                                      mavenParameters->samples,
-                                      mavenParameters);
+        vector<EIC*> eics = pullEICs(slice,
+                                     mavenParameters->samples,
+                                     mavenParameters);
 
         if (mavenParameters->clsf->hasModel())
-        {
             mavenParameters->clsf->scoreEICs(eics);
-        }
 
         float eicMaxIntensity = 0;
-        for (unsigned int j = 0; j < eics.size(); j++)
-        {
-            eicCount++;
+        for (auto eic : eics) {
             float max = 0;
-
-            switch ((PeakGroup::QType)mavenParameters->peakQuantitation)
+            switch (static_cast<PeakGroup::QType>(mavenParameters->peakQuantitation))
             {
             case PeakGroup::AreaTop:
-                max = eics[j]->maxAreaTopIntensity;
+                max = eic->maxAreaTopIntensity;
                 break;
             case PeakGroup::Area:
-                max = eics[j]->maxAreaIntensity;
+                max = eic->maxAreaIntensity;
                 break;
             case PeakGroup::Height:
-                max = eics[j]->maxIntensity;
+                max = eic->maxIntensity;
                 break;
             case PeakGroup::AreaNotCorrected:
-                max = eics[j]->maxAreaNotCorrectedIntensity;
+                max = eic->maxAreaNotCorrectedIntensity;
                 break;
             case PeakGroup::AreaTopNotCorrected:
-                max = eics[j]->maxAreaTopNotCorrectedIntensity;
+                max = eic->maxAreaTopNotCorrectedIntensity;
                 break;
             default:
-                max = eics[j]->maxIntensity;
+                max = eic->maxIntensity;
                 break;
             }
 
             if (max > eicMaxIntensity)
                 eicMaxIntensity = max;
         }
-        if (eicMaxIntensity < mavenParameters->minGroupIntensity)
-        {
+
+        if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
             delete_all(eics);
             continue;
         }
 
-        bool isIsotope = false;
-
-        PeakFiltering peakFiltering(mavenParameters, isIsotope);
+        PeakFiltering peakFiltering(mavenParameters, false);
         peakFiltering.filter(eics);
 
         vector<PeakGroup> peakgroups =
@@ -394,39 +381,38 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
         GroupFiltering groupFiltering(mavenParameters, slice);
         groupFiltering.filter(peakgroups);
 
-        //sort groups according to their rank
-        std::sort(peakgroups.begin(), peakgroups.end(),
-                  PeakGroup::compRank);
+        // sort groups according to their rank
+        sort(peakgroups.begin(), peakgroups.end(), PeakGroup::compRank);
 
-        for (unsigned int j = 0; j < peakgroups.size(); j++)
-        {
-            //check for duplicates	and append group
+        for (unsigned int j = 0; j < peakgroups.size(); j++) {
+            // check for duplicates	and append group
             if (j >= mavenParameters->eicMaxGroups)
                 break;
 
             mavenParameters->allgroups.push_back(peakgroups[j]);
         }
 
-        //cleanup
+        // cleanup
         delete_all(eics);
 
-        if (mavenParameters->allgroups.size() > mavenParameters->limitGroupCount)
-        {
+        if (mavenParameters->allgroups.size() > mavenParameters->limitGroupCount) {
             cerr << "Group limit exceeded!" << endl;
             break;
         }
 
-        if (zeroStatus)
-        {
+        if (zeroStatus) {
             sendBoostSignal("Status", 0, 1);
             zeroStatus = false;
         }
 
-        if (mavenParameters->showProgressFlag && s % 10 == 0)
-        {
-
-            string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
-            sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
+        if (mavenParameters->showProgressFlag && s % 10 == 0) {
+            string progressText = "Found "
+                                  + to_string(mavenParameters->allgroups.size())
+                                  + " groups";
+            sendBoostSignal(progressText,
+                            s + 1,
+                            std::min((int)slices.size(),
+                                     mavenParameters->limitGroupCount));
         }
     }
 }
