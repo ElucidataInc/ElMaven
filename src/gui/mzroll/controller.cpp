@@ -8,6 +8,7 @@
 
 #include <common/downloadmanager.h>
 #include "controller.h"
+#include "isotopedialog.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
@@ -24,6 +25,8 @@ Controller::Controller()
 
     _mw = new MainWindow(this);
     updateUi();
+    connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
+    connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->settingsForm, &SettingsForm::updateSettings, this, &Controller::updateOptionsDialogSettings);
@@ -32,8 +35,10 @@ Controller::Controller()
     connect(_mw, &MainWindow::loadedSettings, this, &Controller::updateUi);
     connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
+    connect(_mw->isotopeDialog, &IsotopeDialog::resetSettings, this, &Controller::resetMP);
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
+    _mw->isotopeDialog->triggerSettingsUpdate();
 }
 
 Controller::~Controller()
@@ -133,6 +138,17 @@ void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
     }
 }
 
+void Controller::updateIsotopeDialogSettings(IsotopeDialogSettings* id)
+{
+    _syncMpWithUi(id);
+
+    auto settings = id->getSettings();
+    for (const auto& k : settings.keys()) {
+        const QVariant& v = settings.value(k);
+        _updateSettingsForSave(k, v);
+    }
+}
+
 void Controller::updateUi()
 {
     std::map<std::string, std::string>& mavenSettings = _mw->mavenParameters->getSettings();
@@ -140,6 +156,7 @@ void Controller::updateUi()
     for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
         emit _mw->peakDetectionDialog->settingsChanged(it->first, it->second);
         emit _mw->settingsForm->settingsChanged(it->first, it->second);
+        emit _mw->isotopeDialog->settingsChanged(it->first, it->second);
     }
 }
 
@@ -156,6 +173,7 @@ void Controller::_updateMavenParameters(const QString& key,  const QVariant& val
     if(value.type() == QVariant::Bool)
         data = std::to_string(value.toBool());
 
+    _mw->mavenParameters->setIsotopeDialogSettings(key.toLocal8Bit().data(), data.c_str());
     _mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),data.c_str());
     _mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),data.c_str());
 }
@@ -204,6 +222,8 @@ void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap
         _mw->mavenParameters->setOptionsDialogSettings(key.c_str(),
                                                        value.c_str());
         _mw->mavenParameters->setPeakDetectionSettings(key.c_str(),
+                                                       value.c_str());
+        _mw->mavenParameters->setIsotopeDialogSettings(key.c_str(),
                                                        value.c_str());
 
         // handle settings that need to be explicitly updated

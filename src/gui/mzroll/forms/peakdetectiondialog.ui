@@ -234,7 +234,7 @@
         </widget>
        </item>
        <item row="1" column="0" rowspan="2" colspan="2">
-        <widget class="QGroupBox" name="dbOptions">
+        <widget class="QGroupBox" name="dbSearch">
          <property name="title">
           <string>Compound Database Search:  Limit slices to set of known m/z and retention time values</string>
          </property>
@@ -333,7 +333,7 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="4" column="0" colspan="2">
         <widget class="QGroupBox" name="matchFragmentationOptions">
          <property name="enabled">
           <bool>true</bool>
@@ -443,31 +443,6 @@
          <zorder>fragmentTolerance</zorder>
          <zorder>label_fragmentTolerance</zorder>
          <zorder>label_scoringAlgo</zorder>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QGroupBox" name="reportIsotopesOptions">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="title">
-          <string>Report Isotopic Peaks</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QPushButton" name="changeIsotopeOptions">
-            <property name="text">
-             <string>Isotope Detection Options</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
       </layout>
@@ -1070,7 +1045,7 @@
   <tabstop>maxIntensity</tabstop>
   <tabstop>chargeMin</tabstop>
   <tabstop>chargeMax</tabstop>
-  <tabstop>dbOptions</tabstop>
+  <tabstop>dbSearch</tabstop>
   <tabstop>compoundDatabase</tabstop>
   <tabstop>compoundPPMWindow</tabstop>
   <tabstop>matchRt</tabstop>
@@ -1080,8 +1055,6 @@
   <tabstop>fragmentTolerance</tabstop>
   <tabstop>minFragMatch</tabstop>
   <tabstop>minFragMatchScore</tabstop>
-  <tabstop>reportIsotopesOptions</tabstop>
-  <tabstop>changeIsotopeOptions</tabstop>
   <tabstop>minGroupIntensity</tabstop>
   <tabstop>peakQuantitation</tabstop>
   <tabstop>quantileIntensity</tabstop>

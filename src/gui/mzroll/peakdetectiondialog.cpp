@@ -14,7 +14,6 @@
 #include "mzSample.h"
 #include "peakdetectiondialog.h"
 #include "PeakDetector.h"
-#include "settingsform.h"
 #include "tabledockwidget.h"
 #include "videoplayer.h"
 
@@ -35,7 +34,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
 
     // db search settings
-    settings.insert("databaseSearch", QVariant::fromValue(pd->dbOptions));
+    settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
     settings.insert("compoundExtractionWindow", QVariant::fromValue(pd->compoundPPMWindow));
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
@@ -46,9 +45,6 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
     settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
-
-    // isotope detection
-    settings.insert("reportIsotopes", QVariant::fromValue(pd->reportIsotopesOptions));
 
     // group filtering settings
     settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
@@ -141,18 +137,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
-        connect(reportIsotopesOptions,SIGNAL(clicked(bool)),this,SLOT(showMethodSummary()));
-        connect(reportIsotopesOptions,
-                &QGroupBox::toggled,
-                [this](const bool checked)
-                {
-                    QString state = checked? "On" : "Off";
-                    this->mainwindow
-                        ->getAnalytics()
-                        ->hitEvent("Peak Detection",
-                                   "Isotope Detection Switched",
-                                   state);
-                });
         connect(matchFragmentationOptions,
                 &QGroupBox::toggled,
                 [this](const bool checked)
@@ -188,14 +172,11 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
         
-        connect(dbOptions, SIGNAL(toggled(bool)), SLOT(dbOptionsClicked()));
+        connect(dbSearch, SIGNAL(toggled(bool)), SLOT(dbSearchClicked()));
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
         compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
-        reportIsotopesOptions->setEnabled(true); //TODO: Sahil - Kiran, Added while merging mainwindow
-        //_featureDetectionType = CompoundDB; //TODO: Sahil - Kiran, removed while merging mainwindow
-        connect(changeIsotopeOptions,SIGNAL(clicked()),this, SLOT(showSettingsForm()));
 
         connect(classificationModelFilename,
                 SIGNAL(textChanged(QString)),
@@ -227,27 +208,23 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
     emit updateSettings(peakSettings);
 }
 
-void PeakDetectionDialog::showSettingsForm() {
-
-    mainwindow->getAnalytics()->hitScreenView("OptionsDialog");    
-    mainwindow->settingsForm->exec();
-    mainwindow->settingsForm->setIsotopeDetectionTab();
-}
-
-void PeakDetectionDialog::dbOptionsClicked()
+void PeakDetectionDialog::dbSearchClicked()
 {   
-    if (dbOptions->isChecked()) {
+    if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        reportIsotopesOptions->setEnabled(true);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
-        reportIsotopesOptions->setEnabled(false);
     }
     
     QString dbName = compoundDatabase->currentText();
     toggleFragmentation(dbName);
+}
+
+bool PeakDetectionDialog::databaseSearchEnabled()
+{
+    return dbSearch->isChecked();
 }
 
 void PeakDetectionDialog::triggerSettingsUpdate()
@@ -260,12 +237,10 @@ void PeakDetectionDialog::featureOptionsClicked()
 {
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
-        dbOptions->setChecked(false);
-        reportIsotopesOptions->setEnabled(false);
+        dbSearch->setChecked(false);
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
-        dbOptions->setChecked(true);
-        reportIsotopesOptions->setEnabled(true);
+        dbSearch->setChecked(true);
     }
 
     QString dbName = compoundDatabase->currentText();
@@ -306,13 +281,13 @@ void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(
     _featureDetectionType = type;
 
     if (_featureDetectionType == QQQ) {
-        dbOptions->hide();
+        dbSearch->hide();
         featureOptions->hide();
     } else if (_featureDetectionType == FullSpectrum) {
-        dbOptions->hide();
+        dbSearch->hide();
         featureOptions->show();
     } else if (_featureDetectionType == CompoundDB) {
-        dbOptions->show();
+        dbSearch->show();
         featureOptions->hide();
     }
 
@@ -424,16 +399,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             showIntensityQuantileStatus(quantileIntensity->value());
 
             classificationModelFilename->setText(settings->value("peakClassifierFile").toString());
-
-            // Isotope detection in peakdetection dialogue box
-            // checkBox->setChecked(settings->value("checkBox").toBool());  // C13
-            // checkBox_2->setChecked(
-            //     settings->value("checkBox_2").toBool());  // N15
-            // checkBox_3->setChecked(
-            //     settings->value("checkBox_3").toBool());  // D2
-            // checkBox_4->setChecked(
-            //     settings->value("checkBox_4").toBool());  // S34
-
         }
         /**
          * Getting the database present and updating in the dropdown of the
@@ -464,7 +429,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
 void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
 {
-    if (dbOptions->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
+    if (dbSearch->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
@@ -504,13 +469,7 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
 // RECHECK IT AGAIN. IMPORTANT
 void PeakDetectionDialog::findPeaks()
 {
-    if (reportIsotopesOptions->isChecked()) {
-        mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                             "Find Peaks With Isotopes");
-    } else {
-        mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                             "Find Peaks");
-    }
+    emit findPeaksClicked();
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
@@ -527,11 +486,11 @@ void PeakDetectionDialog::findPeaks()
 
     mainwindow->setTotalCharge();
 
-    if (dbOptions->isChecked() && !(featureOptions->isChecked())) {
+    if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
-    } else if (!(dbOptions->isChecked()) && (featureOptions->isChecked())) {
+    } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
         if (mustHaveMs2->isChecked()) {
@@ -650,11 +609,6 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     // Peak Scoring and Filtering
     // Compound DB search
     // Automated Peak Detection
-    // Isotope detection in peakdetection dialogue box
-    // settings->setValue("checkBox", checkBox->isChecked());      // C13
-    // settings->setValue("checkBox_2", checkBox_2->isChecked());  // N15
-    // settings->setValue("checkBox_3", checkBox_3->isChecked());  // D2
-    // settings->setValue("checkBox_4", checkBox_4->isChecked());  // S34
 
     // Enabling feature detection or compound search
     ////////////////////////////////////////////////////////////
@@ -752,8 +706,7 @@ void PeakDetectionDialog::showMethodSummary() {
         methodSummary->clear();
         methodSummary->setPlainText(peakupdater->printSettings());
     }
-    //TODO: why does settings need to be updated right after reportIsotopes is checked/unchecked?
-    //updateSettings after dialog close does not affect isotope detection but this does
+    
     emit updateSettings(peakSettings);
 }
 

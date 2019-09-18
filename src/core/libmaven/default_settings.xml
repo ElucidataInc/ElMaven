@@ -54,10 +54,6 @@
         <C13LabelBPE>1</C13LabelBPE>
         <N15LabelBPE>0</N15LabelBPE>
         <S34LabelBPE>0</S34LabelBPE>
-        <D2LabelIsoWidget>0</D2LabelIsoWidget>
-        <C13LabelIsoWidget>1</C13LabelIsoWidget>
-        <N15LabelIsoWidget>0</N15LabelIsoWidget>
-        <S34LabelIsoWidget>0</S34LabelIsoWidget>
         <correctC13IsotopeAbundance>0</correctC13IsotopeAbundance>
         <minIsotopeParentCorrelation>0.20</minIsotopeParentCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>

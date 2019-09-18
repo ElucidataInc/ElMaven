@@ -38,10 +38,10 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 	bookmarkflag = true;
 
 	MavenParameters *mavenParameters = mw->mavenParameters;
-	bool C13Flag = mavenParameters->C13Labeled_IsoWidget;
-	bool N15Flag = mavenParameters->N15Labeled_IsoWidget;
-	bool S34Flag = mavenParameters->S34Labeled_IsoWidget;
-	bool D2Flag = mavenParameters->D2Labeled_IsoWidget;
+	bool C13Flag = mavenParameters->C13Labeled_BPE;
+	bool N15Flag = mavenParameters->N15Labeled_BPE;
+	bool S34Flag = mavenParameters->S34Labeled_BPE;
+	bool D2Flag = mavenParameters->D2Labeled_BPE;
 	IsotopeDetection::IsotopeDetectionType isoType;
 	isoType = IsotopeDetection::IsoWidget;
 	isotopeDetector = new IsotopeDetection(mavenParameters, 
@@ -239,10 +239,10 @@ void IsotopeWidget::computeIsotopes(string f)
 	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 
 	double maxNaturalAbundanceErr = _mw->mavenParameters->maxNaturalAbundanceErr;
-	bool C13Labeled = _mw->mavenParameters->C13Labeled_IsoWidget;
-	bool N15Labeled = _mw->mavenParameters->N15Labeled_IsoWidget;
-	bool S34Labeled = _mw->mavenParameters->S34Labeled_IsoWidget;
-	bool D2Labeled = _mw->mavenParameters->D2Labeled_IsoWidget;
+	bool C13Labeled = _mw->mavenParameters->C13Labeled_BPE;
+	bool N15Labeled = _mw->mavenParameters->N15Labeled_BPE;
+	bool S34Labeled = _mw->mavenParameters->S34Labeled_BPE;
+	bool D2Labeled = _mw->mavenParameters->D2Labeled_BPE;
 	vector<Isotope> isotopes = MassCalculator::computeIsotopes(
 		f,
 		isotopeParameters->_charge,

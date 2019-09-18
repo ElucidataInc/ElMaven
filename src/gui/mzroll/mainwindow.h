@@ -43,6 +43,7 @@ class TableDockWidget;
 class BookmarkTableDockWidget;
 class PeakTableDockWidget;
 class SampleRtWidget;
+class IsotopeDialog;
 class IsotopePlotDockWidget;
 class IsotopePlot;
 class Classifier;
@@ -157,6 +158,7 @@ public:
 	TreeMap *treemap;
 	SpectralHitsDockWidget *spectralHitsDockWidget;
 
+	IsotopeDialog *isotopeDialog;
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
 	PollyElmavenInterfaceDialog *pollyElmavenInterfaceDialog;
@@ -415,6 +417,7 @@ private Q_SLOTS:
 	void readSettings();
 	void writeSettings();
 	void toggleIsotopicBarPlot(bool show);
+	void sendPeaksGA();
 	inline void slotReboot() {
  		qDebug() << "Performing application reboot...";
 		QString rep = QDir::cleanPath(QCoreApplication::applicationFilePath());

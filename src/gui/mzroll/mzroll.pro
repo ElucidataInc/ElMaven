@@ -154,7 +154,8 @@ FORMS = forms/settingsform.ui  \
     forms/isotopeplotdockwidget.ui \
     forms/gettingstarted.ui \
     forms/pollywaitdialog.ui \
-    forms/peaktabledeletiondialog.ui
+    forms/peaktabledeletiondialog.ui \
+    forms/isotopedialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
@@ -231,6 +232,7 @@ HEADERS +=  stable.h \
                     notificator_p.h \
                     $$top_srcdir/crashhandler/elmavexceptionhandler.h \
                     videoplayer.h \
+                    isotopedialog.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -303,7 +305,8 @@ database.cpp \
     pollywaitdialog.cpp \
     peaktabledeletiondialog.cpp \
     notificator.cpp \
-    videoplayer.cpp
+    videoplayer.cpp \
+    isotopedialog.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {

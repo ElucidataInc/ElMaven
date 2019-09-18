@@ -4,6 +4,7 @@
 #include "projectdatabase.h"
 
 class DownloadManager;
+class IsotopeDialogSettings;
 class PollyIntegration;
 class MainWindow;
 class PeakDetectionSettings;
@@ -17,7 +18,9 @@ public:
     ~Controller();
     MainWindow* getMainWindow() { return _mw; }
     PollyIntegration* iPolly;
+
 public Q_SLOTS:
+    void updateIsotopeDialogSettings(IsotopeDialogSettings* id);
     void updatePeakDetectionSettings(PeakDetectionSettings* pd);
     void updateOptionsDialogSettings(OptionsDialogSettings* od);
     void updateUi();

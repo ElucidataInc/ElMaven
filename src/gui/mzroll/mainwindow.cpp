@@ -22,6 +22,7 @@
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "heatmap.h"
+#include "isotopedialog.h"
 #include "isotopeplot.h"
 #include "isotopeplotdockwidget.h"
 #include "isotopeswidget.h"
@@ -434,8 +435,13 @@ using namespace mzUtils;
 	//
 	//DIALOGS
 	//
+
+    isotopeDialog = new IsotopeDialog(this);
+
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setSettings(settings);
+    connect(peakDetectionDialog, SIGNAL(findPeaksClicked()),
+            this, SLOT(sendPeaksGA()));
 	
 	// pollyelmavengui dialog
 	pollyElmavenInterfaceDialog = new PollyElmavenInterfaceDialog(this);
@@ -730,6 +736,15 @@ MainWindow::~MainWindow()
 {
 	analytics->sessionEnd();
     delete mavenParameters;
+}
+
+void MainWindow::sendPeaksGA()
+{
+    if (isotopeDialog->isotopeDetectionEnabled() && peakDetectionDialog->databaseSearchEnabled()) {
+        analytics->hitEvent("Peak Detection", "Find Peaks With Isotopes");
+    } else {
+        analytics->hitEvent("Peak Detection", "Find Peaks");
+    }
 }
 
 void MainWindow::saveSettingsToLog() {
@@ -2836,6 +2851,13 @@ void MainWindow::createToolBars() {
 	btnAlign->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnAlign->setToolTip(tr("Peak Alignment settings"));
 
+    QToolButton *btnIsotope = new QToolButton(toolBar);
+    btnIsotope->setText("Isotopes");
+    btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
+    btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnIsotope->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solic black; padding: 1px;}");
+    btnIsotope->setToolTip(tr("Isotope settings"));
+
 	//TODO: Sahil-Kiran, Removed while merging mainwindow
 	//QToolButton *btnDbSearch = new QToolButton(toolBar);
 	//btnDbSearch->setText("Databases");
@@ -2857,13 +2879,13 @@ void MainWindow::createToolBars() {
 	btnPollyBridge->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnPollyBridge->setToolTip(tr("Send Peaks to Polly to store, collaborate, analyse and visualise your data"));
 
-	QToolButton *btnSpectraMatching = new QToolButton(toolBar);
-	btnSpectraMatching->setText("Match");
-	btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
-	btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnSpectraMatching->setToolTip(
-			tr("Matching Spectra for Fragmentation Patterns"));
+	// QToolButton *btnSpectraMatching = new QToolButton(toolBar);
+	// btnSpectraMatching->setText("Match");
+	// btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
+	// btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	// btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
+	// btnSpectraMatching->setToolTip(
+	// 		tr("Matching Spectra for Fragmentation Patterns"));
 
 	QToolButton *btnSettings = new QToolButton(toolBar);
 	btnSettings->setText("Options");
@@ -2874,18 +2896,18 @@ void MainWindow::createToolBars() {
 
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
-	// connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(intialSetup()));
+    connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
 	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
-	connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
+	//connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
-	//toolBar->addWidget(btnDbSearch); //TODO: Sahil-Kiran, Removed while merging mainwindow
+    toolBar->addWidget(btnIsotope);
 	toolBar->addWidget(btnFeatureDetect);
-	toolBar->addWidget(btnSpectraMatching);
+	//toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
 
