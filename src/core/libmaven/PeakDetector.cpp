@@ -311,6 +311,8 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
     mavenParameters->allgroups.clear();
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
+    ofstream fs("slices.csv");
+    fs << "mz,rt,mzMin,mzMax,rtMin,rtMax,ionCount,highestIntensity,mzAtHighestIntensity,rtAtHighestIntensity,groups\n";
     for (unsigned int s = 0; s < slices.size(); s++) {
         if (mavenParameters->stop)
             break;
@@ -326,6 +328,31 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
         if (mavenParameters->clsf->hasModel())
             mavenParameters->clsf->scoreEICs(eics);
+        auto highestIntensity = 0.0f;
+        auto mzAtHighestIntensity = 0.0f;
+        auto rtAtHighestIntensity = 0.0f;
+
+        for (auto eic: eics) {
+            for (size_t i = 0; i < eic->size(); ++i) {
+                auto intensityAtIdx = eic->intensity[i];
+                if (intensityAtIdx > highestIntensity) {
+                    highestIntensity = intensityAtIdx;
+                    mzAtHighestIntensity = eic->mz[i];;
+                    rtAtHighestIntensity = eic->rt[i];;
+                }
+            }
+        }
+        fs << fixed << setprecision(6)
+           << slice->mz << ","
+           << slice->rt << ","
+           << slice->mzmin << ","
+           << slice->mzmax << ","
+           << slice->rtmin << ","
+           << slice->rtmax << ","
+           << slice->ionCount << ","
+           << highestIntensity << ","
+           << mzAtHighestIntensity << ","
+           << rtAtHighestIntensity << ",";
 
         float eicMaxIntensity = 0;
         for (auto eic : eics) {
@@ -358,6 +385,7 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
         if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
             delete_all(eics);
+            fs << "\n";
             continue;
         }
 
@@ -389,8 +417,10 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
             if (j >= mavenParameters->eicMaxGroups)
                 break;
 
+            fs << "<" << peakgroups[j].meanMz << "@" << peakgroups[j].meanRt << ">";
             mavenParameters->allgroups.push_back(peakgroups[j]);
         }
+        fs << "\n";
 
         // cleanup
         delete_all(eics);
@@ -415,6 +445,7 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                                      mavenParameters->limitGroupCount));
         }
     }
+    fs.close();
 }
 
 void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)

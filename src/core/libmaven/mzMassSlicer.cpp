@@ -242,44 +242,6 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     mergeNeighbouringSlices(massCutoff, 0.05f);
     adjustSlices();
 
-    // TODO: remove this, added only for debugging purposes
-    ofstream fs("slices.csv");
-    fs << "mz,rt,mzMin,mzMax,rtMin,rtMax,ionCount,highestIntensity,mzAtHighestIntensity,rtAtHighestIntensity\n";
-    for (auto s : slices) {
-        auto highestIntensity = 0.0f;
-        auto mzAtHighestIntensity = 0.0f;
-        auto rtAtHighestIntensity = 0.0f;
-        for (auto sample: samples) {
-            auto eic = sample->getEIC(s->mzmin,
-                                      s->mzmax,
-                                      s->rtmin,
-                                      s->rtmax,
-                                      1,
-                                      1,
-                                      "");
-            for (size_t i = 0; i < eic->size(); ++i) {
-                auto intensityAtIdx = eic->intensity[i];
-                if (intensityAtIdx > highestIntensity) {
-                    highestIntensity = intensityAtIdx;
-                    mzAtHighestIntensity = eic->mz[i];;
-                    rtAtHighestIntensity = eic->rt[i];;
-                }
-            }
-        }
-        fs << fixed << setprecision(6)
-           << s->mz << ","
-           << s->rt << ","
-           << s->mzmin << ","
-           << s->mzmax << ","
-           << s->rtmin << ","
-           << s->rtmax << ","
-           << s->ionCount << ","
-           << highestIntensity << ","
-           << mzAtHighestIntensity << ","
-           << rtAtHighestIntensity << "\n";
-    }
-    fs.close();
-
     cerr << "After removing duplicate slices, with threshold "
          << threshold
          << ", found "
