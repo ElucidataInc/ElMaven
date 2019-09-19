@@ -459,6 +459,9 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         }
         delete eic;
 
+        if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
+            return make_pair(false, true);
+
         // calculate and check for rt difference and mz difference, if
         // conditions are satisfied, mark the comparison slice to be merged
         auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
