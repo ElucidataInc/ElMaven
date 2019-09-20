@@ -450,8 +450,8 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             } else {
                 mz = compound->mass;
             }
-            if (mzUtils::withinXMassCutoff(group.meanMz,
-                                           mz,
+            if (mzUtils::withinXMassCutoff(mz,
+                                           group.meanMz,
                                            mavenParameters->massCutoffMerge)) {
                 PeakGroup groupWithTarget(group);
                 groupWithTarget.compound = compound;
