@@ -433,6 +433,38 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
     if (slices.empty())
         return;
 
+    // lambda that adds detected groups to mavenparameters
+    auto detectGroupsForSlice = [&](vector<EIC*>& eics, mzSlice* slice) {
+        vector<PeakGroup> peakgroups =
+        EIC::groupPeaks(eics,
+                        slice,
+                        mavenParameters->eic_smoothingWindow,
+                        mavenParameters->grouping_maxRtWindow,
+                        mavenParameters->minQuality,
+                        mavenParameters->distXWeight,
+                        mavenParameters->distYWeight,
+                        mavenParameters->overlapWeight,
+                        mavenParameters->useOverlap,
+                        mavenParameters->minSignalBaselineDifference,
+                        mavenParameters->fragmentTolerance,
+                        mavenParameters->scoringAlgo);
+
+        GroupFiltering groupFiltering(mavenParameters, slice);
+        groupFiltering.filter(peakgroups);
+
+        // sort groups according to their rank
+        std::sort(peakgroups.begin(), peakgroups.end(),
+                  PeakGroup::compRank);
+
+        for (unsigned int j = 0; j < peakgroups.size(); j++) {
+            // check for duplicates	and append group
+            if (j >= mavenParameters->eicMaxGroups)
+                break;
+            mavenParameters->allgroups.push_back(peakgroups[j]);
+        }
+    };
+
+
     mavenParameters->allgroups.clear();
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
     for (unsigned int s = 0; s < slices.size(); s++) {
@@ -489,43 +521,22 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
         PeakFiltering peakFiltering(mavenParameters, isIsotope);
         peakFiltering.filter(eics);
 
-        for (Compound* compound : slice->compoundVector) {
-            if (!compound)
-                continue;
+        if (!slice->compoundVector.empty()) {
+            for (Compound* compound : slice->compoundVector) {
+                if (!compound)
+                    continue;
 
-            if (compound->hasGroup())
-                compound->unlinkGroup();
+                if (compound->hasGroup())
+                    compound->unlinkGroup();
 
-            // assign each compound at least once to the slice, find groups and
-            // filter/keep them based on existing mechanisms
-            slice->compound = compound;
-            vector<PeakGroup> peakgroups =
-                EIC::groupPeaks(eics,
-                                slice,
-                                mavenParameters->eic_smoothingWindow,
-                                mavenParameters->grouping_maxRtWindow,
-                                mavenParameters->minQuality,
-                                mavenParameters->distXWeight,
-                                mavenParameters->distYWeight,
-                                mavenParameters->overlapWeight,
-                                mavenParameters->useOverlap,
-                                mavenParameters->minSignalBaselineDifference,
-                                mavenParameters->fragmentTolerance,
-                                mavenParameters->scoringAlgo);
-
-            GroupFiltering groupFiltering(mavenParameters, slice);
-            groupFiltering.filter(peakgroups);
-
-            // sort groups according to their rank
-            std::sort(peakgroups.begin(), peakgroups.end(),
-                      PeakGroup::compRank);
-
-            for (unsigned int j = 0; j < peakgroups.size(); j++) {
-                // check for duplicates	and append group
-                if (j >= mavenParameters->eicMaxGroups)
-                    break;
-                mavenParameters->allgroups.push_back(peakgroups[j]);
+                // assign each compound at least once to the slice, find groups and
+                // filter/keep them based on existing mechanisms
+                slice->compound = compound;
+                detectGroupsForSlice(eics, slice);
             }
+        } else {
+            // this is a slice from mass slicer
+            detectGroupsForSlice(eics, slice);
         }
 
         // cleanup
