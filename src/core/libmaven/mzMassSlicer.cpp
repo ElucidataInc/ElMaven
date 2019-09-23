@@ -336,7 +336,7 @@ mzSlice* MassSlices::sliceExists(float mzMinBound,
 void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
                                          float rtTolerance)
 {
-    auto slicesInProximity = [&](mzSample* sample,
+    auto slicesInProximity = [&](vector<mzSample*>& samples,
                                  mzSlice* slice,
                                  mzSlice* comparisonSlice) {
         auto mz = slice->mz;
@@ -360,7 +360,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
             return make_pair(false, true);
         }
 
-        // find common RT boundaries between the two slices being compared
+        // check if common RT regions exist between the slices being compared
         auto commonLowerRt = 0.0f;
         auto commonUpperRt = 0.0f;
         if (rtMin <= comparisonRtMin && rtMax >= comparisonRtMax) {
@@ -376,50 +376,51 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
             commonLowerRt = max(rtMin, comparisonRtMin);
             commonUpperRt = rtMax;
         }
-
         if (commonLowerRt == 0.0f && commonUpperRt == 0.0f)
             return make_pair(false, true);
 
-        // obtain EICs for the two slices
-        auto eic = sample->getEIC(mzMin,
-                                  mzMax,
-                                  commonLowerRt,
-                                  commonUpperRt,
-                                  1,
-                                  1,
-                                  "");
-        auto comparisonEic = sample->getEIC(comparisonMzMin,
-                                            comparisonMzMax,
-                                            commonLowerRt,
-                                            commonUpperRt,
-                                            1,
-                                            1,
-                                            "");
-
-        // find out the highest intensity's mz and rt in the EICs
         auto highestIntensity = 0.0f;
         auto mzAtHighestIntensity = 0.0f;
         auto rtAtHighestIntensity = 0.0f;
-        for (size_t i = 0; i < eic->size(); ++i) {
-            auto intensityAtIdx = eic->intensity[i];
-            if (intensityAtIdx > highestIntensity) {
-                highestIntensity = intensityAtIdx;
-                mzAtHighestIntensity = eic->mz[i];;
-                rtAtHighestIntensity = eic->rt[i];
-            }
-        }
         auto highestCompIntensity = 0.0f;
         auto mzAtHighestCompIntensity = 0.0f;
         auto rtAtHighestCompIntensity = 0.0f;
-        for (size_t i = 0; i < comparisonEic->size(); ++i) {
-            auto intensityAtIdx = comparisonEic->intensity[i];
-            if (intensityAtIdx > highestCompIntensity) {
-                highestCompIntensity = intensityAtIdx;
-                mzAtHighestCompIntensity = comparisonEic->mz[i];
-                rtAtHighestCompIntensity = comparisonEic->rt[i];
+        for (auto sample : samples) {
+            // obtain EICs for the two slices
+            auto eic = sample->getEIC(mzMin,
+                                      mzMax,
+                                      rtMin,
+                                      rtMax,
+                                      1,
+                                      1,
+                                      "");
+            auto comparisonEic = sample->getEIC(comparisonMzMin,
+                                                comparisonMzMax,
+                                                comparisonRtMin,
+                                                comparisonRtMax,
+                                                1,
+                                                1,
+                                                "");
+
+            // find out the highest intensity's mz and rt in the EICs
+            for (size_t i = 0; i < eic->size(); ++i) {
+                auto intensityAtIdx = eic->intensity[i];
+                if (intensityAtIdx > highestIntensity) {
+                    highestIntensity = intensityAtIdx;
+                    mzAtHighestIntensity = eic->mz[i];;
+                    rtAtHighestIntensity = eic->rt[i];
+                }
             }
+            for (size_t i = 0; i < comparisonEic->size(); ++i) {
+                auto intensityAtIdx = comparisonEic->intensity[i];
+                if (intensityAtIdx > highestCompIntensity) {
+                    highestCompIntensity = intensityAtIdx;
+                    mzAtHighestCompIntensity = comparisonEic->mz[i];
+                    rtAtHighestCompIntensity = comparisonEic->rt[i];
+                }
+            }
+            delete eic;
         }
-        delete eic;
 
         if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
             return make_pair(false, true);
@@ -446,7 +447,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
                  "Merging related slices in samples…");
 }
 
-void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
+void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&,
                                                               mzSlice *,
                                                               mzSlice *)> &compareSlices,
                               MassCutoff* massCutoff,
@@ -479,69 +480,59 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(mzSample *,
         mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
     };
 
-    for (size_t n = 0; n < samples.size(); ++n) {
+    for(auto it = begin(slices); it != end(slices); ++it) {
         if (mavenParameters->stop) {
             stopSlicing();
             break;
         }
 
-        auto sample = samples.at(n);
-        for(auto it = begin(slices); it != end(slices); ++it) {
-            if (mavenParameters->stop) {
-                stopSlicing();
+        sendSignal(updateMessage, it - begin(slices), slices.size());
+
+        auto slice = *it;
+        vector<mzSlice*> slicesToMerge;
+
+        // search ahead
+        for (auto ahead = next(it);
+             ahead != end(slices) && it != end(slices);
+             ++ahead) {
+            auto comparisonSlice = *ahead;
+            auto comparison = compareSlices(samples, slice, comparisonSlice);
+            auto shouldMerge = comparison.first;
+            auto continueIteration = comparison.second;
+            if (shouldMerge)
+                slicesToMerge.push_back(comparisonSlice);
+            if (!continueIteration)
                 break;
-            }
-
-            int progress = (n * slices.size()) + (it - begin(slices));
-            int total = samples.size() * slices.size();
-            sendSignal(updateMessage, progress, total);
-
-            auto slice = *it;
-            vector<mzSlice*> slicesToMerge;
-
-            // search ahead
-            for (auto ahead = next(it);
-                 ahead != end(slices) && it != end(slices);
-                 ++ahead) {
-                auto comparisonSlice = *ahead;
-                auto comparison = compareSlices(sample, slice, comparisonSlice);
-                auto shouldMerge = comparison.first;
-                auto continueIteration = comparison.second;
-                if (shouldMerge)
-                    slicesToMerge.push_back(comparisonSlice);
-                if (!continueIteration)
-                    break;
-            }
-
-            // search behind
-            for (auto behind = prev(it);
-                 behind != begin(slices) && it != begin(slices);
-                 --behind) {
-                auto comparisonSlice = *behind;
-                auto comparison = compareSlices(sample, slice, comparisonSlice);
-                auto shouldMerge = comparison.first;
-                auto continueIteration = comparison.second;
-                if (shouldMerge)
-                    slicesToMerge.push_back(comparisonSlice);
-                if (!continueIteration)
-                    break;
-            }
-
-            // expand the current slice by merging all slices classified to be
-            // part of the same, and then remove (and free) the slices already
-            // merged
-            expandSlice(slice, slicesToMerge);
-            for (auto merged : slicesToMerge) {
-                slices.erase(remove_if(begin(slices),
-                                       end(slices),
-                                       [&](mzSlice* s) { return s == merged; }),
-                             slices.end());
-                delete merged;
-            }
-            it = find_if(begin(slices),
-                         end(slices),
-                         [&](mzSlice* s) { return s == slice; });
         }
+
+        // search behind
+        for (auto behind = prev(it);
+             behind != begin(slices) && it != begin(slices);
+             --behind) {
+            auto comparisonSlice = *behind;
+            auto comparison = compareSlices(samples, slice, comparisonSlice);
+            auto shouldMerge = comparison.first;
+            auto continueIteration = comparison.second;
+            if (shouldMerge)
+                slicesToMerge.push_back(comparisonSlice);
+            if (!continueIteration)
+                break;
+        }
+
+        // expand the current slice by merging all slices classified to be
+        // part of the same, and then remove (and free) the slices already
+        // merged
+        expandSlice(slice, slicesToMerge);
+        for (auto merged : slicesToMerge) {
+            slices.erase(remove_if(begin(slices),
+                                   end(slices),
+                                   [&](mzSlice* s) { return s == merged; }),
+                         slices.end());
+            delete merged;
+        }
+        it = find_if(begin(slices),
+                     end(slices),
+                     [&](mzSlice* s) { return s == slice; });
     }
 }
 
