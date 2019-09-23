@@ -154,8 +154,8 @@ class MassSlices {
          * second value returned from a lambda call is found to be `false`,
          * signalling that further neighbours are not qualified for merging, by
          * definition.
-         * @param compareSlices A lambda function that takes in a pointer to
-         * and mzSample, and two pointers to the mzSlices that need to be
+         * @param compareSlices A lambda function that takes in a vector of
+         * `mzSample` objects, and two pointers to the mzSlices that need to be
          * compared. The function must return a pair of boolean values, the
          * first of which can be used to determine whether the slices should be
          * merged or not. The second returned boolean can be used to decide
@@ -168,7 +168,7 @@ class MassSlices {
          * @param updateMessage A string message that will be emitted along with
          * progress updates on the completion of the merge operation.
          */
-        void _mergeSlices(const function<pair<bool, bool>(mzSample*,
+        void _mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&,
                                                           mzSlice*,
                                                           mzSlice*)>& compareSlices,
                           MassCutoff* massCutoff,
