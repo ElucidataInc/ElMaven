@@ -120,14 +120,16 @@ public:
    * @brief Store the title of a peak table corresponding to its ID, for future
    * queries using `getTitleForId`.
    * @details The IDs -1 and 0 will always be saved with a constant title,
-   * regardless of the title being passed.
+   * regardless of the title being passed. If a table title already exists, then
+   * a counter is added to the title to differentiate it from all the other
+   * tables in the registry.
    * @param tableId A unique ID (that has not already been used for a previous
    * table).
-   * @param title The title that needs to be saved for the given table ID.
-   * @return A boolean value which, if storage operation was successful is set
-   * to true, otherwise false.
+   * @param title The title that needs to be saved for the given table ID. This
+   * title, however, will be modified if a table with this name has already been
+   * registered.
    */
-  static bool setTitleForId(int tableId, const QString& tableTitle="");
+  static void setTitleForId(int tableId, const QString& tableTitle="");
 
   /**
    * @brief Get the table ID of the last registered peak table.
