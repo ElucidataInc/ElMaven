@@ -1,5 +1,6 @@
 #include "Compound.h"
 #include "eicwidget.h"
+#include "eiclogic.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
@@ -264,8 +265,24 @@ void MassCalcWidget::_showInfo()
 
     MassCalculator::Match* match = matches[matchNum];
     if (match->compoundLink) {
-        _mw->getEicWidget()->setCompound(match->compoundLink);
-        _mw->fragSpectraWidget->overlayCompoundFragmentation(match->compoundLink);
+        auto selectedCompound = match->compoundLink;
+        MassCutoff* massCutoff = _mw->getUserMassCutoff();
+        auto eicSlice = _mw->getEicWidget()->getParameters()->getMzSlice();
+
+        // we create a slice with match's m/z but with the rt bounds of the EIC
+        // widget's current slice, which should hopefully be that of the last
+        // query group itself.
+        float minmz = match->mass - massCutoff->massCutoffValue(match->mass);
+        float maxmz = match->mass + massCutoff->massCutoffValue(match->mass);
+        float rtmin = eicSlice.rtmin;
+        float rtmax = eicSlice.rtmax;
+        mzSlice slice(minmz, maxmz, rtmin, rtmax);
+        slice.compound = selectedCompound;
+        if (!selectedCompound->srmId.empty())
+            slice.srmId = selectedCompound->srmId;
+
+        _mw->getEicWidget()->setMzSlice(slice);
+        _mw->fragSpectraWidget->overlayCompoundFragmentation(selectedCompound);
     }
 }
 
