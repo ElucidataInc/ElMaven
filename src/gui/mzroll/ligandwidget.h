@@ -49,7 +49,6 @@ public:
     void clear() { treeWidget->clear(); }
     void showNext();
     void showLast();
-    void setDatabaseAltered(QString dbame,bool altered);
 	Compound* getSelectedCompound();
     void loadCompoundDBMzroll(QString fileName);
     void setHash();
@@ -72,7 +71,6 @@ public Q_SLOTS:
      */
     void resetColor();
 
-    void saveCompoundList();
     void saveCompoundList(QString fileName,QString dbname);
     void updateTable() { showTable(); }
     void updateCurrentItemData();
@@ -103,13 +101,10 @@ private:
 
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
-    QToolButton *saveButton;
-    QToolButton *loadButton;
+    QToolButton *libraryButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
     QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
-
-    QHash<QString,bool>alteredDatabases;
 
     MainWindow* _mw;
     QString filterString;

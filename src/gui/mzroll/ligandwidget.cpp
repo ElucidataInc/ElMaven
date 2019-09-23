@@ -3,6 +3,7 @@
 #include "alignmentdialog.h"
 #include "analytics.h"
 #include "globals.h"
+#include "librarymanager.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mavenparameters.h"
@@ -47,31 +48,19 @@ LigandWidget::LigandWidget(MainWindow* mw) {
   databaseSelect->setDuplicatesEnabled(false);
   databaseSelect->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
 
-
-  loadButton = new QToolButton(toolBar);
-  loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-  loadButton->setToolTip("Load Custom Compound List");
-
-  connect(loadButton, &QToolButton::clicked, [this]()
-  {
-    _mw->getAnalytics()->hitEvent("Load Compound DB",
-                                  "Custom Compound DB");
-  });
-  connect(loadButton,SIGNAL(clicked()), mw, SLOT(loadCompoundsFile()));
   connect(this, SIGNAL(compoundFocused(Compound*)), mw, SLOT(setCompoundFocus(Compound*)));
   connect(this, SIGNAL(urlChanged(QString)), mw, SLOT(setUrl(QString)));
 
-  saveButton = new QToolButton(toolBar);
-  saveButton->setIcon(QIcon(rsrcPath + "/filesave.png"));
-  saveButton->setToolTip("Save Compound List");
-  connect(saveButton,SIGNAL(clicked()), SLOT(saveCompoundList()));
-
-
-  saveButton->setEnabled(false);
+  libraryButton = new QToolButton(toolBar);
+  libraryButton->setIcon(QIcon(rsrcPath + "/librarymanager.png"));
+  libraryButton->setToolTip("Open Library Manager");
+  connect(libraryButton,
+          &QPushButton::clicked,
+          _mw->getLibraryManager(),
+          &LibraryManager::exec);
 
   toolBar->addWidget(databaseSelect);
-  toolBar->addWidget(loadButton);
-  toolBar->addWidget(saveButton);
+  toolBar->addWidget(libraryButton);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);
@@ -258,20 +247,6 @@ void LigandWidget::setDatabase(QString dbname) {
 void LigandWidget::databaseChanged(int index) {
     QString dbname = databaseSelect->currentText();
     setDatabase(dbname);
-    setDatabaseAltered(dbname, alteredDatabases[dbname]);
-}
-
-void LigandWidget::setDatabaseAltered(QString name, bool altered) {
-    alteredDatabases[name]=altered;
-    QString dbname = databaseSelect->currentText();
-
-    if (dbname == name && altered == true) {
-        saveButton->setEnabled(true);
-    }
-
-    if (dbname == name && altered == false) {
-        saveButton->setEnabled(false);
-    }
 }
 
 void LigandWidget::setCompoundFocus(Compound* c) {
@@ -490,22 +465,6 @@ void LigandWidget::resetColor()
     }
 }
 
-
-void LigandWidget::saveCompoundList(){
-
-    QSettings *settings = _mw->getSettings();
-    QString dbname = databaseSelect->currentText();
-    QString dbfilename = databaseSelect->currentText() + ".tab";
-    QString dataDir = settings->value("dataDir").value<QString>();
-    QString methodsFolder =     dataDir +  "/"  + settings->value("methodsFolder").value<QString>();
-
-    QString fileName = QFileDialog::getSaveFileName(
-                this, "Export Compounds to Filename", methodsFolder, "TAB (*.tab)");
-
-    saveCompoundList(fileName, dbname);
-
-}
-
 void LigandWidget::saveCompoundList(QString fileName,QString dbname){
 
    if (fileName.isEmpty()) return;
@@ -564,7 +523,6 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
             out << category.join(";") << SEP;
             out << "\n";
         }
-        setDatabaseAltered(databaseSelect->currentText(),false);
     }
 }
 

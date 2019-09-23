@@ -67,6 +67,7 @@ class PeptideFragmentationWidget;
 class Analytics;
 class AutoSave;
 class MavenParameters;
+class LibraryManager;
 
 extern Database DB;
 
@@ -208,6 +209,8 @@ public:
   	svmPredictor * getSVMPredictor() {
  		return groupPred;
  	}
+
+        LibraryManager* getLibraryManager() { return _libraryManager; }
 
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
@@ -483,6 +486,13 @@ private:
     vector<string> unloadableFiles;
 
     QProgressDialog* _loadProgressDialog;
+
+    /**
+     * @brief A small tool that allows the user to manage their compound
+     * databases. It can be used to import, load and remember the location of
+     * their libraries over different sessions.
+     */
+    LibraryManager* _libraryManager;
 
         QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 

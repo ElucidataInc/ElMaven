@@ -26,6 +26,7 @@
 #include "isotopeplot.h"
 #include "isotopeplotdockwidget.h"
 #include "isotopeswidget.h"
+#include "librarymanager.h"
 #include "ligandwidget.h"
 #include "logwidget.h"
 #include "mainwindow.h"
@@ -326,8 +327,8 @@ using namespace mzUtils;
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
 
-
-	massCalcWidget = new MassCalcWidget(this);
+    _libraryManager = new LibraryManager(this);
+    massCalcWidget = new MassCalcWidget(this);
 	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
 	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
 	fragPanel->setupScanListHeader();
@@ -1844,7 +1845,13 @@ void MainWindow::loadModel() {
 
 void MainWindow::loadCompoundsFile(QString filename, bool threaded)
 {
-    // added while merging with Maven776 - Kiran
+    // Saving the file location into QSettings class so that it can be
+    // used the next time user wants to load a compounds DB
+    QFileInfo fileInfo(filename);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastCompoundsDir", tmp.absolutePath());
+
     if (threaded) {
         fileLoader->addFileToQueue(filename);
         fileLoader->start();
@@ -1859,7 +1866,6 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
                                              int compoundCount)
 {
     string dbName = mzUtils::cleanFilename(filename.toStdString());
-    massCalcWidget->database->addItem(QString::fromStdString(dbName));
 
     bool reloading = false;
     deque<Compound*> compoundsDB = DB.getCompoundsDB();
@@ -1874,6 +1880,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
     // check status in case the same file had been uploaded earlier
     // without modifications
     if ((compoundCount > 0 || reloading) && ligandWidget) {
+        massCalcWidget->database->addItem(QString::fromStdString(dbName));
         ligandWidget->setDatabaseNames();
         if (ligandWidget->isVisible())
             ligandWidget->setDatabase(QString(dbName.c_str()));
@@ -1909,6 +1916,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         setStatusText(tr("Loaded %1 compounds successfully")
                         .arg(QString::number(compoundCount)));
         _notifyIfBadCompoundsDB(filename, false);
+        _libraryManager->addDatabase(filename);
     } else {
         setStatusText(tr("Failed to load compound database")
                         .arg(filename));
@@ -2182,14 +2190,6 @@ void MainWindow::loadCompoundsFile()
         return;
 
     loadCompoundsFile(filename);
-
-    // Saving the file location into QSettings class so that it can be
-    // used the next time user wants to load a compounds DB
-    QString absoluteFilePath(filename);
-    QFileInfo fileInfo(absoluteFilePath);
-    QDir tmp = fileInfo.absoluteDir();
-    if (tmp.exists())
-        settings->setValue("lastCompoundsDir", tmp.absolutePath());
 }
 
 // open function for set csv
