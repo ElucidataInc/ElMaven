@@ -31,7 +31,16 @@ int main(int argc, char *argv[]) {
     #endif
 	// Polly CLI part over..
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+    QString parentFolder = "ElMaven";
+    QString logFile = "peakdetector_cli.log";
+    QString fpath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + parentFolder
+                    + QDir::separator()
+                    + logFile;
+    Logger log(fpath.toStdString(), true);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log);
 
      #ifndef __APPLE__
      double programStartTime = getTime();
@@ -90,15 +99,6 @@ int main(int argc, char *argv[]) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
     else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
-        QString parentFolder = "ElMaven";
-        QString logFile = "peakdetector_cli.log";
-        QString fpath = QStandardPaths::writableLocation(
-                            QStandardPaths::GenericConfigLocation)
-                        + QDir::separator()
-                        + parentFolder
-                        + QDir::separator()
-                        + logFile;
-        Logger log(fpath.toStdString(), true, false);
         log.info() << "No peaks found. Please try again with different "
                       "parameters."
                    << flush;

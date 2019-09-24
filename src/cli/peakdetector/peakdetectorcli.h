@@ -70,7 +70,7 @@ public:
     QString pollyArgs;
     AlignmentMode alignMode;
 
-    PeakDetectorCLI();
+    PeakDetectorCLI(Logger* log);
     ~PeakDetectorCLI();
 
     /**

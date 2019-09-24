@@ -7,18 +7,9 @@
 #include "mzUtils.h"
 #include "peakdetectorcli.h"
 
-PeakDetectorCLI::PeakDetectorCLI()
+PeakDetectorCLI::PeakDetectorCLI(Logger* log)
 {
-    QString parentFolder = "ElMaven";
-    QString logFile = "peakdetector_cli.log";
-    QString fpath = QStandardPaths::writableLocation(
-                        QStandardPaths::GenericConfigLocation)
-                    + QDir::separator()
-                    + parentFolder
-                    + QDir::separator()
-                    + logFile;
-    _log = new Logger(fpath.toStdString(), true);
-
+    _log = log;
     status = true;
     textStatus = "";
     mavenParameters = new MavenParameters();
@@ -39,7 +30,6 @@ PeakDetectorCLI::~PeakDetectorCLI()
 {
     delete _dlManager;
     delete _pollyIntegration;
-    delete _log;
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[])

@@ -8,6 +8,7 @@
 #include <QtTest>
 
 class PeakDetectorCLI;
+class Logger;
 
 using namespace std;
 
@@ -25,6 +26,7 @@ class TestCLI : public QObject {
         const char* blankSample;
         const char* xmlPath;
         const char* createXmlPath;
+        Logger* _log;
 
     private Q_SLOTS:
         void testLoadClassificationModel();
