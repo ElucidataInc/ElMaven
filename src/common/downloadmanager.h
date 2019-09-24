@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <QNetworkReply>
 
+class Logger;
 class QNetworkAccessManager;
 class QNetworkRequest;
 class QUrl;
@@ -40,6 +41,7 @@ private:
     QNetworkReply* _reply;
     QUrl _url;
     QByteArray _data;
+    Logger* _log;
 };
 
 #endif // DOWNLOADMANAGER_H

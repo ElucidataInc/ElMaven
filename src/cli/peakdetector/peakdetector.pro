@@ -41,6 +41,8 @@ LIBS +=  -lmaven         \
          -lpollyCLI      \
          -lcommon
 
+unix: LIBS += -lboost_system -lboost_filesystem
+
 !macx: LIBS += -fopenmp
 
 macx {

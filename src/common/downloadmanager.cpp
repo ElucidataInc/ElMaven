@@ -1,16 +1,26 @@
-#include "downloadmanager.h"
-#include <pollyCLI/pollyintegration.h>
-
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
-#include  <QNetworkReply>
+#include <QNetworkReply>
 #include <QDebug>
+
+#include "downloadmanager.h"
+#include "logger.h"
+#include "pollyCLI/pollyintegration.h"
 
 DownloadManager::DownloadManager():
     _manager(new QNetworkAccessManager),
     _reply(nullptr),
     err(false)
 {
+    QString parentFolder = "ElMaven";
+    QString logFile = "download_manager.log";
+    QString fpath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + parentFolder
+                    + QDir::separator()
+                    + logFile;
+    _log = new Logger(fpath.toStdString());
 }
 
 void DownloadManager::setRequest(const QString &url, void *requester, bool async)
@@ -39,10 +49,14 @@ void DownloadManager::download(bool async)
         if(_reply->error() == QNetworkReply::NoError) {
             _data += _reply->readAll();
             err = false;
-            qDebug() << "sync request complete";
         } else {
-            qDebug() << "error code : " << _reply->error();
-            qDebug() << "error : " << _reply->errorString();
+            _log->error() << "Failed to download requested file\n"
+                          << "\tError code: "
+                          << QString(_reply->error()).toStdString()
+                          << "\n"
+                          << "\tError: "
+                          << _reply->errorString().toStdString()
+                          << std::flush;
             err = true;
 
         }
@@ -62,7 +76,7 @@ QByteArray DownloadManager::getData()
 
 void DownloadManager::dataAvailable()
 {
-    qDebug() << "data available";
+    _log->debug() << "Data available" << std::flush;
     while(_reply->bytesAvailable()) {
         _data += _reply->readLine();
     }
@@ -71,12 +85,15 @@ void DownloadManager::dataAvailable()
 void DownloadManager::finished()
 {
     if(err) {
-        qDebug() << _reply->errorString();
+        _log->debug() << "Failed to download requested file" << std::flush;
+        _log->error() << QString(_reply->errorString()).toStdString()
+                      << std::flush;
          emit failed();
     } else {
         // read any data that might be in buffer
         _data += _reply->readAll();
-        qDebug() << "success";
+        _log->debug() << "File download successful"
+                      << std::flush;
         emit downloaded();
     }
 }
@@ -84,7 +101,12 @@ void DownloadManager::finished()
 
 void DownloadManager::error(QNetworkReply::NetworkError error)
 {
-    qDebug() << "error code :" << error;
-    qDebug() << "error string: "<< _reply->errorString();
+    _log->debug() << "Failed to download requested file" << std::flush;
+    _log->debug() << "\tError code: "
+                  << QString(error).toStdString()
+                  << std::flush;
+    _log->debug() << "\tError string: "
+                  << _reply->errorString().toStdString()
+                  << std::flush;
     err = true;
 }

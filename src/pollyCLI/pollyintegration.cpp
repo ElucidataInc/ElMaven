@@ -1,5 +1,6 @@
 #include "pollyintegration.h"
 #include <common/downloadmanager.h>
+#include <common/logger.h>
 #include <QTemporaryFile>
 
 PollyIntegration::PollyIntegration(DownloadManager* dlManager):
@@ -8,6 +9,16 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     jsPath(""),
     _fPtr(nullptr)
 {
+    QString parentFolder = "ElMaven";
+    QString logFile = "polly_integration.log";
+    QString fpath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + parentFolder
+                    + QDir::separator()
+                    + logFile;
+    _log = new Logger(fpath.toStdString());
+
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
 
     // It's important to look for node in the system first, as it might not always be present in the bin dir.
@@ -42,11 +53,15 @@ void PollyIntegration::requestSuccess()
     _fPtr->setFileTemplate(QDir::tempPath() + QDir::separator() + "index.js");
     if(_fPtr->open()) {
         _fPtr->write(_dlManager->getData());
-        qDebug() << "data written to file: " << _fPtr->fileName();
+        _log->debug() << "Data written to file: "
+                      << _fPtr->fileName().toStdString()
+                      << std::flush;
         jsPath = _fPtr->fileName();
     } else {
         jsPath = "";
-        qDebug() << "unable to open temp file: " << _fPtr->errorString();
+        _log->error() << "Unable to open temp file: "
+                      << _fPtr->errorString().toStdString()
+                      << std::flush;
     }
     _fPtr->close();
 }
@@ -54,21 +69,24 @@ void PollyIntegration::requestSuccess()
 void PollyIntegration::requestFailed()
 {
     jsPath = "";
-    qDebug() << "failed to download file";
+    _log->error() << "Failed to download file" << std::flush;
 }
 
 PollyIntegration::~PollyIntegration()
 {
     if(_fPtr != nullptr) {
         if(_fPtr->remove())
-            qDebug() << "removed file";
+            _log->debug() << "Removed file" << std::flush;
         else {
-            qDebug() << "error: " << _fPtr->error();
-            qDebug() << _fPtr->errorString();
+            _log->error() << "Error: "
+                          << _fPtr->error()
+                          << "\n"
+                          << _fPtr->errorString().toStdString()
+                          << std::flush;
         }
         delete _fPtr;
     }
-    qDebug()<<"exiting PollyIntegration now....";
+    delete _log;
 }
 
 QString PollyIntegration::getCredFile(){
@@ -78,7 +96,8 @@ QString PollyIntegration::getCredFile(){
 bool PollyIntegration::_checkForIndexFile()
 {
     if(!_fPtr || !_fPtr->exists()) {
-        qDebug() << "Index file not found, trying to download index file ";
+        _log->debug() << "Index file not found, trying to download index file…"
+                      << std::flush;
         // synchronous request;
         _dlManager->setRequest(indexFileURL, this, false);
         if(!_dlManager->err) {
@@ -110,12 +129,12 @@ QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList ar
 
     QProcess process;
     QStringList arg;
-    qDebug() << "js file being used: " << jsPath;
+    _log->debug() << "JS file being used: "
+                  << jsPath.toStdString()
+                  << std::flush;
     arg << jsPath; // where index.js files is placed
     arg << command; // what command to pass to index.js. eg. authenticate
     arg << args; // required params by that command . eg username, password
-    // qDebug()<<"nodePath"<<nodePath;
-    // qDebug()<<"args -"<<arg;
 
     // nodePath = "PATH_OF_MAVEN/bin/node.exe"
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -128,11 +147,15 @@ QList<QByteArray> PollyIntegration::runQtProcess(QString command, QStringList ar
     process.start();
     //TODO kailash, use threading for this, it should not just run indefinitely 
     process.waitForFinished(-1);
-    QByteArray result = process.readAllStandardOutput();
-    QByteArray result2 = process.readAllStandardError();
-    qDebug()<<"StandardOutput  - "<<result;
-    qDebug()<<"StandardError, if any  - "<<result2;
-    return QList<QByteArray>()<<result<<result2;
+    QByteArray stdOutput = process.readAllStandardOutput();
+    QByteArray stdError = process.readAllStandardError();
+    _log->debug() << "StandardOutput - "
+                  << stdOutput.toStdString()
+                  << std::flush;
+    _log->debug() << "StandardError - "
+                  << stdError.toStdString()
+                  << std::flush;
+    return QList<QByteArray>() << stdOutput << stdError;
 }
 
 QString PollyIntegration::parseId(QByteArray result){
@@ -475,14 +498,18 @@ int PollyIntegration::checkNodeExecutable() {
 }
 
 int PollyIntegration::askForLogin() {
-    qDebug() << "credFile  -\n" << credFile;
+    _log->debug() << "Credentials File -\n"
+                  << credFile.toStdString()
+                  << std::flush;
     QFile file (credFile);
     QFile refreshTokenFile (credFile + "_refreshToken");
     if (file.exists() && refreshTokenFile.exists()) {
-        qDebug() << "both tokens exist.. moving on to refresh now..";
+        _log->debug() << "Both tokens exist, moving on to refresh now…"
+                      << std::flush;
         return 0;
     }
-    qDebug() <<"both tokens do not exist.. moving on to login now..";
+    _log->debug() <<"Both tokens do not exist, moving on to login now…"
+                  << std::flush;
     return 1;
 }
 
@@ -701,7 +728,6 @@ ErrorStatus PollyIntegration::sendEmail(QString userEmail,
                                  QString appName)
 {
     QString command2 = "send_email";
-    qDebug() << userEmail << emailMessage << emailContent << appName;
     QList<QByteArray> resultAndError = runQtProcess(command2,
                                                     QStringList() << userEmail
                                                                   << emailMessage
@@ -733,7 +759,9 @@ ErrorStatus PollyIntegration::sendEmail(QString userEmail,
 
 
 QPair<ErrorStatus, QStringList> PollyIntegration::exportData(QStringList filenames, QString projectId) {
-    qDebug() << "files to be uploaded " << filenames;
+    _log->debug() << "Files to be uploaded: "
+                  << filenames.join(", ").toStdString()
+                  << std::flush;
     QStringList patchId;
 
     QElapsedTimer timer;
@@ -745,7 +773,9 @@ QPair<ErrorStatus, QStringList> PollyIntegration::exportData(QStringList filenam
 
     QString url_with_wildcard = getFileUploadURLs(resultAndError.at(0));
     patchId = get_project_upload_url_commands(url_with_wildcard, filenames);
-    qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
+    _log->debug() << "Time spent uploading JSON file, through Polly CLI: "
+                  << timer.elapsed()
+                  << std::flush;
     
     return qMakePair(ErrorStatus::Success, patchId);
 }
@@ -783,16 +813,18 @@ ErrorStatus PollyIntegration::UploadPeaksToCloud(QString session_indentifier, QS
 
     QString uploadUrl = getFileUploadURLs(resultAndError.at(0));
     ErrorStatus status = UploadToCloud(uploadUrl, filePath);
-    qDebug() << "time taken in uploading json file, by polly cli is - " << timer.elapsed();
+    _log->debug() << "Time spent uploading JSON file, through Polly CLI: "
+                  << timer.elapsed()
+                  << std::flush;
     return status;
 }
 
 bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList loadedSamples) {
-	qDebug() << "Validating sample cohort file now";
+    _log->debug() << "Validating sample cohort file…" << std::flush;
 	
     QFile file(sampleCohortFile);
     if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << file.errorString();
+        _log->debug() << file.errorString().toStdString() << std::flush;
 		return false;
     }
 
@@ -802,7 +834,7 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
         QByteArray line = file.readLine();
 		QList<QByteArray> splitRow = line.split(',');
 		if (splitRow.size() != 2) {
-            qDebug() << "Missing column(s)";
+            _log->debug() << "Missing column(s)" << std::flush;
 			return false;
         }
 		
@@ -814,7 +846,7 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
 		QString cohortName = splitRow.at(1);
         
         if (cohortName.trimmed().isEmpty()) {
-            qDebug() << "Cohort missing for some samples";
+            _log->debug() << "Cohort missing for some samples" << std::flush;
             return false;
         }
 
@@ -828,13 +860,19 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
 	    qSort(loadedSamples);
 	
 	    if (!(samples == loadedSamples)) {
-		    qDebug() << "The sample cohort file contains different sample names than the samples loaded in Elmaven...Please try again with the correct file" << endl;
+            _log->debug() << "The sample cohort file contains different sample "
+                             "names than the samples loaded in Elmaven… Please "
+                             "try again with the correct file"
+                          << std::flush;
 		    return false;
 	    }                               
     }
 	
 	if (!validCohorts(cohorts)) {
-		qDebug() << "The sample cohort file contains more than 9 cohorts. As of now, Polly supports only 9 or less cohorts..please try again with the correct file";
+        _log->debug() << "The sample cohort file contains more than 9 cohorts. "
+                         "As of now, Polly supports only 9 or less cohorts. "
+                         "Please try reducing the number of cohorts."
+                      << std::flush;
 		return false;
 	}
 

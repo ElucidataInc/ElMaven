@@ -1,6 +1,6 @@
-#include "peakdetectorcli.h"
 #include <QCoreApplication>
 
+#include "common/logger.h"
 #include "mavenparameters.h"
 #include "peakdetectorcli.h"
 
@@ -31,7 +31,16 @@ int main(int argc, char *argv[]) {
     #endif
 	// Polly CLI part over..
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI();
+    QString parentFolder = "ElMaven";
+    QString logFile = "peakdetector_cli.log";
+    QString fpath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + parentFolder
+                    + QDir::separator()
+                    + logFile;
+    Logger log(fpath.toStdString(), true);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log);
 
      #ifndef __APPLE__
      double programStartTime = getTime();
@@ -89,8 +98,10 @@ int main(int argc, char *argv[]) {
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
 	}
-	else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
-		qDebug()<<"no peaks found..Please try again with different parameters";
+    else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
+        log.info() << "No peaks found. Please try again with different "
+                      "parameters."
+                   << flush;
 	}
 
 	//cleanup
