@@ -37,6 +37,8 @@
 #include "tabledockwidget.h";
 #include "traindialog.h"
 
+QMap<int, QString> TableDockWidget::_idTitleMap;
+
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   QDateTime current_time;
   const QString format = "dd-MM-yyyy_hh_mm_ss";
@@ -44,13 +46,13 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   datetimestamp.replace(" ","_");
   datetimestamp.replace(":","-");
   
-  uploadId = datetimestamp+"_Peak_table_"+QString::number(mw->lastPeakTableId);
+  uploadId = datetimestamp+"_Peak_table_"+QString::number(lastTableId());
 
   writableTempS3Dir = QStandardPaths::writableLocation(
                                                 QStandardPaths::QStandardPaths::GenericConfigLocation)
                                                 + QDir::separator()
                                                 + "tmp_Elmaven_s3_files_"
-                                                + QString::number(mw->lastPeakTableId);
+                                                + QString::number(lastTableId());
   if (!QDir(writableTempS3Dir).exists())
     QDir().mkdir(writableTempS3Dir);
 
@@ -1963,6 +1965,52 @@ int TableDockWidget::getLabeledGroupCount()
   return _labeledGroups;
 }
 
+QString TableDockWidget::getTitleForId(int tableId)
+{
+  return _idTitleMap.value(tableId, QString(""));
+}
+
+void TableDockWidget::setTitleForId(int tableId, const QString& tableTitle)
+{
+  if (_idTitleMap.contains(tableId))
+      return;
+
+  QString title = tableTitle;
+  if (tableId == -1) {
+      title = "Scatterplot Peak Table";
+  } else if (tableId == 0) {
+      title = "Bookmark Table";
+  } else if (title.isEmpty()) {
+      title = QString("Peak Table ") + QString::number(tableId);
+  } else {
+    QString expression("(%1)(\\((\\d+)\\)$)");
+    QRegularExpression re(expression.arg(tableTitle));
+    bool titleExists = false;
+    int highestCounter = 0;
+    for (auto &existingTitle : _idTitleMap.values()) {
+      QRegularExpressionMatch match = re.match(existingTitle);
+      if (match.hasMatch()) {
+        titleExists = true;
+        int currentCounter = match.captured(3).toInt();
+        highestCounter = currentCounter > highestCounter ? currentCounter
+                                                         : highestCounter;
+      } else if (existingTitle == tableTitle) {
+        titleExists = true;
+      }
+    }
+    if (titleExists)
+      title = QString("%1 (%2)").arg(tableTitle).arg(highestCounter + 1);
+  }
+  _idTitleMap.insert(tableId, title);
+}
+
+int TableDockWidget::lastTableId()
+{
+  if (!_idTitleMap.isEmpty())
+      return _idTitleMap.lastKey();
+  return -1;
+}
+
 QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   if (btnName == "titlePeakTable") {
 
@@ -1972,11 +2020,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     td->titlePeakTable->setFont(font);
     td->setStyleSheet("QLabel { margin: 0px 6px; }");
 
-    if (td->tableId == 0)
-      td->titlePeakTable->setText("Bookmark Table");
-    else
-      td->titlePeakTable->setText("Peak Table "
-                                  + QString::number(td->tableId));
+    td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
 
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
     td->setWindowTitle(td->titlePeakTable->text());
@@ -2110,15 +2154,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   }
 }
 
-PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw, const int peakTableId)
+PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
+                                         const QString& tableTitle)
   : TableDockWidget(mw) {
 
   _mainwindow = mw;
-
-  if (peakTableId > mw->lastPeakTableId)
-    tableId = mw->lastPeakTableId = peakTableId;
-  else
-    tableId = ++(mw->lastPeakTableId);
+  auto lastId = lastTableId();
+  tableId = ++lastId;
+  setTitleForId(tableId, tableTitle);
 
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -2202,6 +2245,7 @@ void PeakTableDockWidget::showDeletionDialog() {
 BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   _mainwindow = mw;
   tableId = 0;
+  setTitleForId(0);
 
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -2571,6 +2615,8 @@ void BookmarkTableDockWidget::markGroupBad() {
 ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
     TableDockWidget(mw) {
   _mainwindow = mw;
+  tableId = -1;
+  setTitleForId(tableId);
 
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);

@@ -1257,11 +1257,9 @@ void MainWindow::setUrl(Reaction* r) {
 	setUrl(url, link);
 }
 
-TableDockWidget* MainWindow::addPeaksTable(int tableId) {
-    int customTableId = -1;
-
-    TableDockWidget* panel = new PeakTableDockWidget(this, tableId);
-	analytics->hitEvent("New Table", "Peak Table");
+TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
+    TableDockWidget* panel = new PeakTableDockWidget(this, tableTitle);
+    analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
 
@@ -1293,7 +1291,6 @@ void MainWindow::removeAllPeakTables()
         auto peakTable = static_cast<PeakTableDockWidget*>(table.data());
         peakTable->destroy();
     }
-    lastPeakTableId = 0;
 }
 
 void MainWindow::setUserMassCutoff(double x)

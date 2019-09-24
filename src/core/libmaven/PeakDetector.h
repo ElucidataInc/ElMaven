@@ -85,11 +85,12 @@ public:
 	 */
 	void processSlice(mzSlice& slice);
 
-	/**
-	 * [process Mass Slices]
-	 * @method processMassSlices
-	 */
-	void processMassSlices();
+    /**
+     * @brief This method detects features using data slicing techniques.
+     * @param identificationSet A collection of target compounds that can be
+     * used to identify the untargeted features, once detected.
+     */
+    void processMassSlices(const std::vector<Compound*>& identificationSet={});
 
 	/**
 	 * [process Slices]
@@ -125,6 +126,18 @@ public:
     static std::vector<EIC*> pullEICs(mzSlice* slice,
                                  std::vector<mzSample*>& samples,
                                  MavenParameters* mp);
+
+    /**
+     * @brief This method can be used to identify features found by performing
+     * untargeted detection.
+     * @details Untargeted groups, once curated, may have to be identified
+     * downstream. If the users suspects that certain compounds already exist
+     * within their samples, they can simply replace the corresponding features
+     * with targeted groups for these compounds.
+     * @param identificationSet A vector of compounds which will be used as known
+     * targets for identification.
+     */
+    void identifyFeatures(const std::vector<Compound*>& identificationSet);
 
         private:
 

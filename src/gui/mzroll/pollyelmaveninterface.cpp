@@ -500,9 +500,8 @@ void PollyElmavenInterfaceDialog::_populateTables()
     QList<QPointer<TableDockWidget>> peaksTableList =
         _mainwindow->getPeakTableList();
     for (auto peakTable : peaksTableList) {
-        QString peakTableName = QString("Peak Table "
-                                        + QString::number(peakTable->tableId)
-                                        + " ");
+        QString peakTableName =
+                TableDockWidget::getTitleForId(peakTable->tableId);
         _addTableIfPossible(peakTable, peakTableName);
     }
 

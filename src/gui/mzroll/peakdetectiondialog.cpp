@@ -32,6 +32,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("chargeMax", QVariant::fromValue(pd->chargeMax));
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
     settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
+    settings.insert("identificationDatabase", QVariant::fromValue(pd->identificationDatabase));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
@@ -130,7 +131,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
 
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
-        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation(QString)));
+        connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
+        connect(identificationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
@@ -213,13 +215,12 @@ void PeakDetectionDialog::dbSearchClicked()
     if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
+        QString dbName = compoundDatabase->currentText();
+        toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
-        featureOptions->setChecked(true);
     }
-    
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
+    toggleFragmentation();
 }
 
 bool PeakDetectionDialog::databaseSearchEnabled()
@@ -238,13 +239,11 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbSearch->setChecked(false);
+        toggleFragmentation();
     } else {
-        mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         dbSearch->setChecked(true);
     }
-
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
+    toggleFragmentation();
 }
 
 PeakDetectionDialog::~PeakDetectionDialog() {
@@ -300,10 +299,7 @@ void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
 
-    QString dbName = compoundDatabase->currentText();
-    toggleFragmentation(dbName);
-
-	mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
+    mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
     peakupdater = new BackgroundPeakUpdate(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);
@@ -316,7 +312,7 @@ void PeakDetectionDialog::show() {
     // peakupdater->useMainWindowLabelOptions = false;
 
     inputInitialValuesPeakDetectionDialog();
-
+    toggleFragmentation();
 }
 
 /**
@@ -400,19 +396,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
             classificationModelFilename->setText(settings->value("peakClassifierFile").toString());
         }
-        /**
-         * Getting the database present and updating in the dropdown of the
-         * peak detection windows
-         */
-        map<string, int>::iterator itr;
-        map<string, int> dbnames = DB.getDatabaseNames();
 
-        // Clearing so that old value is not appended with the new values
-        compoundDatabase->clear();
-        for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
-            string db = (*itr).first;
-            if (!db.empty()) compoundDatabase->addItem(QString(db.c_str()));
-        }
+        refreshCompoundDatabases();
 
         // selecting the compound database that is selected by the user in the
         // ligand widget
@@ -421,21 +406,32 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             compoundDatabase->findText(selectedDB));
         
         //match fragmentation only enabled during targeted detection with NIST library
-        toggleFragmentation(selectedDB);
+        toggleFragmentation();
 
         QDialog::exec();
     }
 }
 
-void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
+void PeakDetectionDialog::refreshCompoundDatabases()
 {
-    if (dbSearch->isChecked() && DB.isNISTLibrary(selectedDbName.toStdString())) {
-        matchFragmentationOptions->setEnabled(true);
-    } else {
-        matchFragmentationOptions->setChecked(false);
-        matchFragmentationOptions->setEnabled(false);
-    }
+    map<string, int>::iterator itr;
+    map<string, int> dbnames = DB.getDatabaseNames();
 
+    // Clearing so that old value is not appended with the new values
+    compoundDatabase->clear();
+    identificationDatabase->clear();
+    identificationDatabase->addItem("None");
+    for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
+        string db = (*itr).first;
+        if (!db.empty()) {
+            compoundDatabase->addItem(QString(db.c_str()));
+            identificationDatabase->addItem(QString(db.c_str()));
+        }
+    }
+}
+
+void PeakDetectionDialog::toggleFragmentation()
+{
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples),
                         end(samples),
@@ -449,6 +445,20 @@ void PeakDetectionDialog::toggleFragmentation(QString selectedDbName)
     } else {
         mustHaveMs2->setEnabled(false);
         mustHaveMs2->setChecked(false);
+    }
+
+    QString selectedDbName = "";
+    if (dbSearch->isChecked()) {
+        selectedDbName = compoundDatabase->currentText();
+    } else if (featureOptions->isChecked()) {
+        selectedDbName = identificationDatabase->currentText();
+    }
+
+    if (foundDda && DB.isNISTLibrary(selectedDbName.toStdString())) {
+        matchFragmentationOptions->setEnabled(true);
+    } else {
+        matchFragmentationOptions->setChecked(false);
+        matchFragmentationOptions->setEnabled(false);
     }
 }
 
@@ -486,10 +496,12 @@ void PeakDetectionDialog::findPeaks()
 
     mainwindow->setTotalCharge();
 
+    QString dbName = "";
     if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
         mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
+        dbName = compoundDatabase->currentText();
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
@@ -503,6 +515,8 @@ void PeakDetectionDialog::findPeaks()
                                                  "Untargeted"
                                                  "No filter");
         }
+        if (identificationDatabase->currentIndex() != 0)
+            dbName = identificationDatabase->currentText();
     } else {
         _featureDetectionType = FullSpectrum;
     }
@@ -511,7 +525,7 @@ void PeakDetectionDialog::findPeaks()
     int peakTableIdx = outputTableComboBox->currentIndex();
 
     if (peakTableIdx == 0) {
-        peaksTable = mainwindow->addPeaksTable(mainwindow->lastPeakTableId);
+        peaksTable = mainwindow->addPeaksTable(dbName);
     } else if (peakTableIdx == 1) {
         peaksTable = mainwindow->getBookmarkedPeaks();
     } else if (peakTableIdx >= 2) {
@@ -637,8 +651,16 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
 
-        mavenParameters->setCompounds(DB.getCompoundsSubset(
-            compoundDatabase->currentText().toStdString()));
+        if (dbSearch->isChecked()) {
+            mavenParameters->setCompounds(DB.getCompoundsSubset(
+                compoundDatabase->currentText().toStdString()));
+        } else if (featureOptions->isChecked()
+                   && identificationDatabase->currentIndex() != 0) {
+            mavenParameters->setCompounds(DB.getCompoundsSubset(
+                identificationDatabase->currentText().toStdString()));
+        } else {
+            mavenParameters->setCompounds({});
+        }
 
         mavenParameters->avgScanTime = settings->value("avgScanTime").toDouble();
 

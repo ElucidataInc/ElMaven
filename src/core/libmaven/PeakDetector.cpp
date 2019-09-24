@@ -156,7 +156,7 @@ void PeakDetector::pullAllIsotopes() {
     }
 }
 
-void PeakDetector::processMassSlices() {
+void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet) {
     // init
     // TODO: what is this doing?
     // TODO: cant this be in background_peaks_update parameter setting function
@@ -197,6 +197,9 @@ void PeakDetector::processMassSlices() {
 
     // process goodslices
     processSlices(massSlices.slices, "allslices");
+
+    // identify features with known targets
+    identifyFeatures(identificationSet);
 
     // cleanup
     delete_all(massSlices.slices);
@@ -425,5 +428,60 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
             string progressText = "Found " + to_string(mavenParameters->allgroups.size()) + " groups";
             sendBoostSignal(progressText, s + 1, std::min((int)slices.size(), mavenParameters->limitGroupCount));
         }
+    }
+}
+
+void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
+{
+    if (identificationSet.empty())
+        return;
+
+    GroupFiltering groupFiltering(mavenParameters);
+    vector<PeakGroup> toBeMerged;
+    auto iter = mavenParameters->allgroups.begin();
+    while(iter != mavenParameters->allgroups.end()) {
+        auto& group = *iter;
+        bool matchFound = false;
+        for (auto compound : identificationSet) {
+            float mz = 0.0f;
+            if (compound->formula.length()) {
+                int charge = mavenParameters->getCharge(compound);
+                mz = compound->adjustedMass(charge);
+            } else {
+                mz = compound->mass;
+            }
+            if (mzUtils::withinXMassCutoff(mz,
+                                           group.meanMz,
+                                           mavenParameters->massCutoffMerge)) {
+                PeakGroup groupWithTarget(group);
+                groupWithTarget.compound = compound;
+
+                // since we are creating targeted groups, we should ensure they
+                // pass MS2 filtering criteria, if enabled
+                if (mavenParameters->matchFragmentationFlag
+                    && groupFiltering.filterByMS2(groupWithTarget)) {
+                    continue;
+                }
+
+                matchFound = true;
+                toBeMerged.push_back(groupWithTarget);
+            }
+        }
+
+        if (matchFound) {
+            iter = mavenParameters->allgroups.erase(iter);
+        } else {
+            ++iter;
+        }
+
+       sendBoostSignal("Identifying features using the given compound set…",
+                       iter - mavenParameters->allgroups.begin(),
+                       mavenParameters->allgroups.size());
+    }
+
+    if (!toBeMerged.empty()) {
+        mavenParameters->allgroups.insert(mavenParameters->allgroups.begin(),
+                                          make_move_iterator(toBeMerged.begin()),
+                                          make_move_iterator(toBeMerged.end()));
     }
 }
