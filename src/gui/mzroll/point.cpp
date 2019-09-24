@@ -203,10 +203,6 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
 {
     if(scan) {
-        if (mw->spectraDockWidget) {
-            mw->spectraDockWidget->setVisible(true);
-            mw->spectraDockWidget->raise();
-        }
         if (mw->spectraWidget->isVisible())
             mw->spectraWidget->setScan(scan);
         if (mw->fragSpectraWidget->isVisible())
