@@ -239,7 +239,7 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     removeDuplicateSlices(massCutoff, threshold);
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
-    mergeNeighbouringSlices(massCutoff, 0.05f);
+    mergeNeighbouringSlices(massCutoff, rtWindow);
     adjustSlices();
 
     cerr << "After removing duplicate slices, with threshold "
