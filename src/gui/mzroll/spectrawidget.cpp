@@ -115,7 +115,7 @@ void SpectraWidget::_placeLabels()
 
     QString upperLabelText = tr("<b>Group Spectra</b>");
     QString lowerLabelText = tr("<b>Reference Spectra</b>");
-    if (_overlayMode == OverlayMode::Individual)
+    if (_overlayMode == OverlayMode::Raw)
         upperLabelText = tr("<b>MS2 Spectra (Rt: %1)</b>")
                              .arg(QString::number(_currentScan->rt, 'f', 2));
 
@@ -357,7 +357,7 @@ void SpectraWidget::overlayScan(Scan *scan)
     if (_overlayMode == OverlayMode::None || scan->mslevel != 2)
         return;
 
-    _overlayMode = OverlayMode::Individual;
+    _overlayMode = OverlayMode::Raw;
     setScan(scan);
     if (_currentGroup.compound)
         overlayCompoundFragmentation(_currentGroup.compound);

@@ -21,7 +21,7 @@ public:
     enum class OverlayMode {
         None,
         Consensus,
-        Individual
+        Raw
     };
 
     SpectraWidget(MainWindow* mw);
