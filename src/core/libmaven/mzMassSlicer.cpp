@@ -184,14 +184,14 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                 // whether a slice exists at that location or not
                 mzSlice* Z = sliceExists(mzmin,
                                          mzmax,
-                                         rt - (2.0f * rtWindow),
-                                         rt + (2.0f * rtWindow));
+                                         rt - rtWindow,
+                                         rt + rtWindow);
                 if (Z) {
                     // If slice exists take the max of the intensity, rt and mz
                     // (max and min)
                     Z->ionCount = std::max(Z->ionCount, intensity);
-                    Z->rtmax = std::max(Z->rtmax, rt + (2.0f * rtWindow));
-                    Z->rtmin = std::min(Z->rtmin, rt - (2.0f * rtWindow));
+                    Z->rtmax = std::max(Z->rtmax, rt + rtWindow);
+                    Z->rtmin = std::min(Z->rtmin, rt - rtWindow);
                     Z->mzmax = std::max(Z->mzmax, mzmax);
                     Z->mzmin = std::min(Z->mzmin, mzmin);
 
@@ -208,8 +208,8 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                     // push it into cache
                     mzSlice* s = new mzSlice(mzmin,
                                              mzmax,
-                                             rt - (2.0f * rtWindow),
-                                             rt + (2.0f * rtWindow));
+                                             rt - rtWindow,
+                                             rt + rtWindow);
                     s->ionCount = intensity;
                     s->rt = scan->rt;
                     s->mz = mz;
