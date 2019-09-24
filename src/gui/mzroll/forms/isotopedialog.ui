@@ -22,7 +22,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="reportIsotopesOptions">
      <property name="title">
       <string>Report Isotopes</string>
      </property>
@@ -31,7 +31,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="reportIsotopesOptions">
+       <widget class="QGroupBox" name="tracers">
         <property name="title">
          <string>Isotopic tracer</string>
         </property>
