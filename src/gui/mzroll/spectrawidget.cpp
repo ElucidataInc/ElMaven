@@ -14,7 +14,7 @@
 #include "spectramatching.h"
 #include "spectrawidget.h"
 
-SpectraWidget::SpectraWidget(MainWindow* mw) { 
+SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra) {
     this->mainwindow = mw;
     eicparameters = new EICLogic();
    _currentScan = nullptr;
@@ -23,7 +23,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
    _spectralHit = SpectralHit();
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
-   _overlayMode = OverlayMode::Raw;
+   _overlayMode = isFragSpectra ? OverlayMode::Raw : OverlayMode::None;
 
     initPlot();
 
@@ -826,7 +826,12 @@ void SpectraWidget::showLastFullScan() { incrementScan(-1, 1); }
 
 void SpectraWidget::incrementScan(int increment, int msLevel=0 )
 {
-	if (_currentScan == NULL || _currentScan->sample == NULL) return;
+    // increment only for non-overlay spectra having a scan for a sample
+    if (_currentScan == NULL
+        || _currentScan->sample == NULL
+        || _overlayMode != OverlayMode::None) {
+        return;
+    }
 
 	mzSample* sample = _currentScan->getSample();
     if (sample == NULL) return;

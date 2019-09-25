@@ -24,7 +24,7 @@ public:
         Raw
     };
 
-    SpectraWidget(MainWindow* mw);
+    SpectraWidget(MainWindow* mw, bool isFragSpectra = false);
     static vector<mzLink> findLinks(float centerMz, Scan* scan, MassCutoff *massCutoff, int ionizationMode);
 
         public Q_SLOTS:

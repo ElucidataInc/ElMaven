@@ -316,7 +316,7 @@ using namespace mzUtils;
 	//set main dock widget
 	eicWidget = new EicWidget(this);
 	spectraWidget = new SpectraWidget(this);
-	fragSpectraWidget = new SpectraWidget(this);
+    fragSpectraWidget = new SpectraWidget(this, true);
 	customPlot = new QCustomPlot(this);
     groupRtVizPlot = new QCustomPlot(this);
     sampleRtVizPlot = new QCustomPlot(this);
