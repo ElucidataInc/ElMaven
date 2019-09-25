@@ -23,7 +23,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
    _spectralHit = SpectralHit();
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
-   _overlayMode = OverlayMode::None;
+   _overlayMode = OverlayMode::Raw;
 
     initPlot();
 
@@ -116,7 +116,7 @@ void SpectraWidget::_placeLabels()
     QString upperLabelText = tr("<b>Group Spectra</b>");
     QString lowerLabelText = tr("<b>Reference Spectra</b>");
     if (_overlayMode == OverlayMode::Raw)
-        upperLabelText = tr("<b>MS2 Spectra (Rt: %1)</b>")
+        upperLabelText = tr("<b>Raw Spectra (Rt: %1)</b>")
                              .arg(QString::number(_currentScan->rt, 'f', 2));
 
     QFont font = QApplication::font();
