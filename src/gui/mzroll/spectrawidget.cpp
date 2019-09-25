@@ -14,7 +14,7 @@
 #include "spectramatching.h"
 #include "spectrawidget.h"
 
-SpectraWidget::SpectraWidget(MainWindow* mw) { 
+SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra) {
     this->mainwindow = mw;
     eicparameters = new EICLogic();
    _currentScan = nullptr;
@@ -23,6 +23,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw) {
    _spectralHit = SpectralHit();
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
+   _overlayMode = isFragSpectra ? OverlayMode::Raw : OverlayMode::None;
 
     initPlot();
 
@@ -109,18 +110,25 @@ void SpectraWidget::replot() {
 
 void SpectraWidget::_placeLabels()
 {
-    if (_currentScan && _currentScan->nobs() == 0)
+    if (!_currentScan || _currentScan->nobs() == 0)
         return;
 
     QString upperLabelText = tr("<b>Group Spectra</b>");
     QString lowerLabelText = tr("<b>Reference Spectra</b>");
-    QFont font = QApplication::font();
+    if (_overlayMode == OverlayMode::Raw)
+        upperLabelText = tr("<b>Raw Spectra (Rt: %1)</b>")
+                             .arg(QString::number(_currentScan->rt, 'f', 2));
 
+    QFont font = QApplication::font();
     if (!_upperLabel) {
         _upperLabel = scene()->addText("", font);
         _upperLabel->setHtml(upperLabelText);
         _upperLabel->setDefaultTextColor(Qt::black);
         _upperLabel->update();
+    } else if (_upperLabel->toHtml() != upperLabelText) {
+        _upperLabel->setHtml(upperLabelText);
+        _upperLabel->update();
+        _upperLabel->setVisible(true);
     } else {
         _upperLabel->setVisible(true);
     }
@@ -269,6 +277,7 @@ void SpectraWidget::overlayPeakGroup(PeakGroup* group)
     _currentGroup = PeakGroup();
     if (!group) return;
     
+    _overlayMode = OverlayMode::Consensus;
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
     setScan(avgScan);
@@ -341,6 +350,17 @@ void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
             _focusCoord.setY(0.0f);
         }
         delete productMassCutoff;
+}
+
+void SpectraWidget::overlayScan(Scan *scan)
+{
+    if (_overlayMode == OverlayMode::None || scan->mslevel != 2)
+        return;
+
+    _overlayMode = OverlayMode::Raw;
+    setScan(scan);
+    if (_currentGroup.compound)
+        overlayCompoundFragmentation(_currentGroup.compound);
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
@@ -806,7 +826,12 @@ void SpectraWidget::showLastFullScan() { incrementScan(-1, 1); }
 
 void SpectraWidget::incrementScan(int increment, int msLevel=0 )
 {
-	if (_currentScan == NULL || _currentScan->sample == NULL) return;
+    // increment only for non-overlay spectra having a scan for a sample
+    if (_currentScan == NULL
+        || _currentScan->sample == NULL
+        || _overlayMode != OverlayMode::None) {
+        return;
+    }
 
 	mzSample* sample = _currentScan->getSample();
     if (sample == NULL) return;

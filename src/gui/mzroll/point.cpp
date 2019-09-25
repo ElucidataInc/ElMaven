@@ -203,12 +203,14 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
 {
     if(scan) {
-        if (mw->spectraDockWidget) {
-            mw->spectraDockWidget->setVisible(true);
-            mw->spectraDockWidget->raise();
-        }
-        if (mw->spectraWidget->isVisible())
+        if (mw->spectraWidget)
             mw->spectraWidget->setScan(scan);
+        if (mw->fragSpectraWidget) {
+            mw->fragSpectraDockWidget->setVisible(true);
+            mw->fragSpectraDockWidget->raise();
+            mw->fragSpectraWidget->overlayScan(scan);
+            mw->fragSpectraWidget->overlayCompoundFragmentation(mw->ligandWidget->getSelectedCompound());
+        }
         if(scan->mslevel == 2)
             mw->spectralHitsDockWidget->limitPrecursorMz(scan->precursorMz);
     }

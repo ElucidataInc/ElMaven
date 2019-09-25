@@ -699,8 +699,12 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
 
 Compound* LigandWidget::getSelectedCompound() { 
     //Merged with Maven776
-	//get current compound
-    QTreeWidgetItem* item = treeWidget->selectedItems().first();
+    //get current compound
+    auto selectedItems = treeWidget->selectedItems();
+    if (selectedItems.isEmpty())
+        return nullptr;
+
+    QTreeWidgetItem* item = selectedItems.first();
     if (!item) return NULL;
 
     QVariant v = item->data(0,Qt::UserRole);
