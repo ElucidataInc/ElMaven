@@ -188,11 +188,13 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
             PeakGroup* identifiedParent = nullptr;
             for (auto parentIon : parentIons) {
                 bool tooFarFromParent = false;
+                int numSamplesShared = 0;
                 for (auto sample : _mavenParameters->samples) {
                     auto groupPeak = group.getPeak(sample);
                     auto parentPeak = parentIon->getPeak(sample);
                     if (!parentPeak || !groupPeak)
                         continue;
+                    ++numSamplesShared;
                     auto groupScanRt = groupPeak->rt;
                     auto parentScanRt = parentPeak->rt;
                     auto deviation = abs(groupScanRt - parentScanRt) * 60.0f;
@@ -201,11 +203,12 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                         break;
                     }
                 }
-                if (!tooFarFromParent) {
+                if (!tooFarFromParent && numSamplesShared > 0) {
                     identifiedParent = parentIon;
                     break;
                 }
             }
+
             // no parent ion is close enough in the RT domain, eliminate
             if (identifiedParent == nullptr) {
                 it = groups.erase(it);
