@@ -30,7 +30,7 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
 
         // only filter for MS2 for groups having targets
         if (_mavenParameters->matchFragmentationFlag
-            && peakgroups[i].compound != nullptr
+            && peakgroups[i].getCompound() != nullptr
             && filterByMS2(peakgroups[i])) {
             peakgroups.erase(peakgroups.begin() + i);
             continue;

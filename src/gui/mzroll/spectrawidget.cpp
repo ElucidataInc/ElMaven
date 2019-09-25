@@ -359,8 +359,8 @@ void SpectraWidget::overlayScan(Scan *scan)
 
     _overlayMode = OverlayMode::Raw;
     setScan(scan);
-    if (_currentGroup.compound)
-        overlayCompoundFragmentation(_currentGroup.compound);
+    if (_currentGroup.getCompound())
+        overlayCompoundFragmentation(_currentGroup.getCompound());
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)

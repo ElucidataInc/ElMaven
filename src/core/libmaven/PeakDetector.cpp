@@ -454,7 +454,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                                            group.meanMz,
                                            mavenParameters->massCutoffMerge)) {
                 PeakGroup groupWithTarget(group);
-                groupWithTarget.compound = compound;
+                groupWithTarget.setCompound(compound);
 
                 // since we are creating targeted groups, we should ensure they
                 // pass MS2 filtering criteria, if enabled
