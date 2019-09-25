@@ -172,7 +172,7 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
 	eicParameters->_integratedGroup.clear();
 	QSettings *settings = getMainWindow()->getSettings();
     eicParameters->_integratedGroup.minQuality = getMainWindow()->mavenParameters->minQuality;
-	eicParameters->_integratedGroup.setCompound(eicParameters->_slice.compound);
+    eicParameters->_integratedGroup.setSlice(eicParameters->_slice);
 	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
 	eicParameters->_integratedGroup.setSelectedSamples(getMainWindow()->samples);
 	for (int i = 0; i < eicParameters->eics.size(); i++) {
