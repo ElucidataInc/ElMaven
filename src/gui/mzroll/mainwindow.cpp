@@ -1897,16 +1897,11 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
             analytics->hitEvent("PRM", "LoadedSpectralLibrary");
         }
 
-        // do not save NIST library files for automatic load when starting next
-        // session, unless they are less than 2Mb in size
-        QFileInfo fileInfo(filename);
+        setLastLoadedDatabase(filename);
+
         bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
         bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
         bool nistFile = isMSPFile || isSPTXTFile;
-        bool smallerThan2Mb = fileInfo.size() < 2000000;
-        if (!nistFile || smallerThan2Mb)
-            settings->setValue("lastDatabaseFile", filename);
-
         if (nistFile)
             _warnIfNISTPolarityMismatch();
 
@@ -2028,6 +2023,17 @@ void MainWindow::_warnIfNISTPolarityMismatch()
             analytics->hitEvent("PRM", "Closed", "Polarity Mismatch prompt");
         }
     }
+}
+
+void MainWindow::setLastLoadedDatabase(QString filename)
+{
+    QFileInfo fileInfo(filename);
+    bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
+    bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
+    bool nistFile = isMSPFile || isSPTXTFile;
+    bool smallerThan2Mb = fileInfo.size() < 2000000;
+    if (!nistFile || smallerThan2Mb)
+        settings->setValue("lastDatabaseFile", filename);
 }
 
 void MainWindow::checkCorruptedSampleInjectionOrder()
