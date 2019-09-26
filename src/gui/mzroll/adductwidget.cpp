@@ -1,10 +1,15 @@
 #include "adductwidget.h"
+#include "Compound.h"
 #include "database.h"
 #include "datastructures/adduct.h"
+#include "globals.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
 #include "mzfileio.h"
 #include "mzUtils.h"
+#include "mzSample.h"
+#include "numeric_treewidgetitem.h"
+#include "Scan.h"
 
 AdductWidget::AdductWidget(MainWindow* parent) :
     QDialog(parent)
@@ -21,7 +26,7 @@ void AdductWidget::loadAdducts()
 {
     adductList->clear();
     for (auto adduct : DB.adductsDB) {
-        QTreeWidgetItem* item = new QTreeWidgetItem(adductList);
+        auto * item = new NumericTreeWidgetItem(adductList, AdductType);
         item->setCheckState(0, Qt::Unchecked);
         item->setData(0, Qt::UserRole, QVariant::fromValue(adduct));
 
