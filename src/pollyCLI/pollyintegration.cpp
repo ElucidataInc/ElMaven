@@ -35,7 +35,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
       nodeModulesPath = binDir + "node_modules" + QDir::separator();
     #endif
 
-    indexFileURL = "https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js";
+    indexFileURL = "https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/dev/index.js";
     _dlManager->setRequest(indexFileURL, this);
 }
 
