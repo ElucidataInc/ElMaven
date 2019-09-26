@@ -2006,15 +2006,15 @@ void TableDockWidget::setTitleForId(int tableId, const QString& tableTitle)
   } else if (title.isEmpty()) {
       title = QString("Peak Table ") + QString::number(tableId);
   } else {
-    QString expression("(%1)(\\((\\d+)\\)$)");
+    QString expression("^(%1) (?:\\((\\d+)\\)$)");
     QRegularExpression re(expression.arg(tableTitle));
     bool titleExists = false;
     int highestCounter = 0;
-    for (auto &existingTitle : _idTitleMap.values()) {
+    for (auto& existingTitle : _idTitleMap.values()) {
       QRegularExpressionMatch match = re.match(existingTitle);
       if (match.hasMatch()) {
         titleExists = true;
-        int currentCounter = match.captured(3).toInt();
+        int currentCounter = match.captured(2).toInt();
         highestCounter = currentCounter > highestCounter ? currentCounter
                                                          : highestCounter;
       } else if (existingTitle == tableTitle) {
