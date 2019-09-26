@@ -239,8 +239,11 @@ void LigandWidget::setDatabase(QString dbname) {
                                               variant(dbname.toStdString()));
     }
 
-    _mw->getSettings()->setValue("lastCompoundDatabase", getDatabaseName());
-    Q_EMIT databaseChanged(getDatabaseName());
+    auto dbName = getDatabaseName();
+    auto dbPath = _mw->getLibraryManager()->filePathForDatabase(dbName);
+    _mw->setLastLoadedDatabase(dbPath);
+    _mw->getSettings()->setValue("lastCompoundDatabase", dbName);
+    Q_EMIT databaseChanged(dbName);
     showTable();
 }
 

@@ -51,6 +51,16 @@ public slots:
      */
     void deleteSelectedDatabase();
 
+    /**
+     * @brief Obtain the file path for a given database name, if it exists in
+     * the library records.
+     * @param databaseName A `QString` containing the name of the stored
+     * database.
+     * @return A `QString` containing the absolute path of the database file. If
+     * the database is not found in library, then an empty string is returned.
+     */
+    QString filePathForDatabase(const QString& databaseName);
+
 protected:
     /**
      * @brief Overriding this method so that its contents are called everytime
