@@ -142,7 +142,6 @@ void nnwork::train (float data [], float desired [], float max_MSE, float eta)
 	assert (hidden_weight_delta);
 
 	// Keep going while the Mean Square Error is too high.
-
 	while (1) {
 		run (data, output);
 		
@@ -206,44 +205,69 @@ void nnwork::train (float data [], float desired [], float max_MSE, float eta)
 	delete [] hidden_weight_delta;
 }
 
-// Should only be applied after the network has been suitably trained. When
-// it is ready, data are applied at the input, and the output (basically a
-// boolean output but could be different) goes into result. Naturally, data
-// and result are the same size as the input and output vectors respectively.
-
-void nnwork::run (float data [], float result [])
+vector<float> nnwork::run(vector<float>& data)
 {
-	int i, j, k;
-	float sum;
+    float sum;
+    vector<float> result = vector<float>(output_size, 0);
 
-	if (input_size == 0 || hidden_size == 0 || output_size == 0) {
-		cerr << "nnwork::run() Warning: stupid dimensions. No action taken." << endl;
-        cerr << "input_size=" << input_size << endl;
-        cerr << "output_size=" << output_size << endl;
-        cerr << "hidden_size=" << hidden_size << endl;
-		return;
-	}
+    vector<float> dataSpecificOutputNodes = vector<float>(hidden_size, 0);
+    for (int j = 0; j < hidden_size; j++) {
+        sum = 0;
 
-	for (j = 0; j < hidden_size; j++) {
-		sum = 0;
-// Calculate the output value
+        // Calculate the output value
+        for (int i = 0; i < input_size; ++i)
+            sum += hidden_nodes->nodes[j].weights[i] * data.at(i);
 
-		for (i = 0; i < input_size; i++)
-			sum += hidden_nodes -> nodes [j].weights [i] * data [i];
-		hidden_nodes -> nodes [j].output = sigmoid (sum);
-	}
+        dataSpecificOutputNodes.at(j) = sigmoid(sum);
+    }
 
-	for (k = 0; k < output_size; k++) {
-		sum = 0;
-// Calculate the output value
-		for (j = 0; j < hidden_size; j++)
-			sum += output_nodes -> nodes [k].weights [j] *
-				hidden_nodes -> nodes [j].output;
+    for (int k = 0; k < output_size; ++k) {
+        sum = 0;
 
-		result [k] = sigmoid (sum);
-	}
+        // Calculate the output value
+        for (int j = 0; j < hidden_size; ++j){
+            sum += output_nodes->nodes[k].weights[j]
+                   * dataSpecificOutputNodes.at(j);
+        }
 
-	//for (i = 0; i < input_size; i++) cerr << data[i] << " "; cerr << sigmoid(sum) << endl;
+        result.at(k) = sigmoid(sum);
+    }
+    return result;
+}
+
+void nnwork::run(float data [], float result [])
+{
+    int i, j, k;
+    float sum;
+
+    if (input_size <= 0 || hidden_size <= 0 || output_size <= 0) {
+        cerr << "nnwork::warning: incorrect dimensions. No action taken."
+             << endl;
+        cerr << "input_size = " << input_size << endl;
+        cerr << "output_size = " << output_size << endl;
+        cerr << "hidden_size = " << hidden_size << endl;
+        return;
+    }
+
+    for (j = 0; j < hidden_size; j++) {
+        sum = 0;
+
+        // Calculate the output value
+        for (i = 0; i < input_size; i++)
+            sum += hidden_nodes -> nodes [j].weights [i] * data [i];
+        hidden_nodes -> nodes [j].output = sigmoid (sum);
+    }
+
+    for (k = 0; k < output_size; k++) {
+        sum = 0;
+
+        // Calculate the output value
+        for (j = 0; j < hidden_size; j++)
+            sum += output_nodes -> nodes [k].weights [j] *
+                   hidden_nodes -> nodes [j].output;
+
+        result [k] = sigmoid (sum);
+    }
 }
 
 /* 
