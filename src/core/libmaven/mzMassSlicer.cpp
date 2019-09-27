@@ -174,49 +174,16 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                     continue;
                 }
 
-                // Define max mz and min mz for this slice
+                // create new slice with the given bounds
                 float cutoff = massCutoff->massCutoffValue(mz);
-                float mzmax = mz + cutoff;
-                float mzmin = mz - cutoff;
-
-                // #pragma omp ordered
-                // sliceExists() returns a the best slice or a null based on
-                // whether a slice exists at that location or not
-                mzSlice* Z = sliceExists(mzmin,
-                                         mzmax,
+                mzSlice* s = new mzSlice(mz - cutoff,
+                                         mz + cutoff,
                                          rt - rtWindow,
                                          rt + rtWindow);
-                if (Z) {
-                    // If slice exists take the max of the intensity, rt and mz
-                    // (max and min)
-                    Z->ionCount = std::max(Z->ionCount, intensity);
-                    Z->rtmax = std::max(Z->rtmax, rt + rtWindow);
-                    Z->rtmin = std::min(Z->rtmin, rt - rtWindow);
-                    Z->mzmax = std::max(Z->mzmax, mzmax);
-                    Z->mzmin = std::min(Z->mzmin, mzmin);
-
-                    // Make sure that mz window does not get out of control
-                    if (Z->mzmin < mz - cutoff)
-                        Z->mzmin =  mz - cutoff;
-                    if (Z->mzmax > mz + cutoff)
-                        Z->mzmax =  mz + cutoff;
-
-                    Z->mz = (Z->mzmin + Z->mzmax) / 2.0f;
-                    Z->rt = (Z->rtmin + Z->rtmax) / 2.0f;
-                } else {
-                    // Make a new slice if no slice returned by sliceExists and
-                    // push it into cache
-                    mzSlice* s = new mzSlice(mzmin,
-                                             mzmax,
-                                             rt - rtWindow,
-                                             rt + rtWindow);
-                    s->ionCount = intensity;
-                    s->rt = scan->rt;
-                    s->mz = mz;
-                    slices.push_back(s);
-                    int mzRange = mz * 10;
-                    cache.insert(pair<int, mzSlice*>(mzRange, s));
-                }
+                s->ionCount = intensity;
+                s->rt = scan->rt;
+                s->mz = mz;
+                slices.push_back(s);
             }
 
             // progress update 
@@ -235,6 +202,88 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
     cerr << "Found " << slices.size() << " slices" << endl;
 
+    // before reduction sort by mz first then by rt
+    sort(begin(slices),
+         end(slices),
+         [](const mzSlice* slice, const mzSlice* compSlice) {
+             if (slice->mz == compSlice->mz) {
+                 return slice->rt < compSlice->rt;
+             }
+             return slice->mz < compSlice->mz;
+         });
+
+    // reduction: merge slices sharing significant ROI
+    for (auto first = begin(slices); first != end(slices); ++first) {
+        if (mavenParameters->stop) {
+            stopSlicing();
+            break;
+        }
+
+        auto firstSlice = *first;
+        if (mzUtils::almostEqual(firstSlice->ionCount, -1.0f))
+            continue;
+
+        for (auto second = next(first); second != end(slices); ++second) {
+            auto secondSlice = *second;
+
+            // stop iterating if the rest of the slices are too far
+            if (firstSlice->mzmax < secondSlice->mzmin)
+                break;
+
+            if (mzUtils::almostEqual(secondSlice->ionCount, -1.0f))
+                continue;
+
+            // check if center of one of the slices lies in the other
+            if ((firstSlice->mz > secondSlice->mzmin
+                 && firstSlice->mz < secondSlice->mzmax
+                 && firstSlice->rt > secondSlice->rtmin
+                 && firstSlice->rt < secondSlice->rtmax)
+                ||
+                (secondSlice->mz > firstSlice->mzmin
+                 && secondSlice->mz < firstSlice->mzmax
+                 && secondSlice->rt > firstSlice->rtmin
+                 && secondSlice->rt < firstSlice->rtmax)) {
+                firstSlice->ionCount = std::max(firstSlice->ionCount,
+                                                secondSlice->ionCount);
+                firstSlice->rtmax = std::max(firstSlice->rtmax,
+                                             secondSlice->rtmax);
+                firstSlice->rtmin = std::min(firstSlice->rtmin,
+                                             secondSlice->rtmin);
+                firstSlice->mzmax = std::max(firstSlice->mzmax,
+                                             secondSlice->mzmax);
+                firstSlice->mzmin = std::min(firstSlice->mzmin,
+                                             secondSlice->mzmin);
+
+                firstSlice->mz = (firstSlice->mzmin + firstSlice->mzmax) / 2.0f;
+                firstSlice->rt = (firstSlice->rtmin + firstSlice->rtmax) / 2.0f;
+                float cutoff = massCutoff->massCutoffValue(firstSlice->mz);
+
+                // make sure that mz window does not get out of control
+                if (firstSlice->mzmin < firstSlice->mz - cutoff)
+                    firstSlice->mzmin =  firstSlice->mz - cutoff;
+                if (firstSlice->mzmax > firstSlice->mz + cutoff)
+                    firstSlice->mzmax =  firstSlice->mz + cutoff;
+
+                // recalculate center mz in case bounds changed
+                firstSlice->mz = (firstSlice->mzmin + firstSlice->mzmax) / 2.0f;
+
+                // flag this slice as already merged, and ignore henceforth
+                secondSlice->ionCount = -1.0f;
+            }
+        }
+        sendSignal("Reducing slices…", first - begin(slices), slices.size());
+    }
+
+    // remove merged slices
+    slices.erase(remove_if(slices.begin(),
+                           slices.end(),
+                           [](mzSlice* slice) {
+                               return (slice->ionCount == -1.0f);
+                           }),
+                 slices.end());
+
+    cerr << "Reduced to " << slices.size() << " slices" << endl;
+
     float threshold = 100;
     removeDuplicateSlices(massCutoff, threshold);
 
@@ -242,11 +291,9 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     mergeNeighbouringSlices(massCutoff, rtWindow);
     adjustSlices();
 
-    cerr << "After removing duplicate slices, with threshold "
-         << threshold
-         << ", found "
+    cerr << "After final merging and adjustments, "
          << slices.size()
-         << " slices"
+         << " slices remain"
          << endl;
     sendSignal("Mass slicing done.", 1 , 1);
 }
