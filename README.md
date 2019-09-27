@@ -191,22 +191,28 @@ contributing C++ code, please make sure that it follows the [style guide](https:
 *	[Sahil](https://github.com/sahil21)
 *	[Raghav Sehgal](https://github.com/Raghavdata)
 *	[Shubhra Agrawal](https://github.com/shubhra-agrawal)
-*	[Raghuram Reddy](https://github.com/r-el-maya)
 *	[Rishabh Gupta](https://github.com/rish9511)
+*	[Saiful B. Khan](https://github.com/saifulbkhan)
+*	[Raghuram Reddy](https://github.com/r-el-maya)
 *	[Pankaj Kumar](https://github.com/IpankajI)
 *	[Rahul Kumar](https://github.com/rkdahmiwal)
 *	[Giridhari](https://github.com/Giridhari013)
 *	[Kiran Varghese](https://github.com/kiranvarghese2)
 *	[Naman Gupta](https://github.com/naman)
-*	[Saiful B. Khan](https://github.com/saifulbkhan)
-
 
 ## References
 
-To understand [Maven](http://genomics-pubs.princeton.edu/mzroll/index.php) and [El-MAVEN](https://elucidatainc.github.io/ElMaven/) workflows and features, please refer to following literature on Maven:
+To understand [El-MAVEN](https://elucidatainc.github.io/ElMaven/) workflows and features, please refer to following literature on El-MAVEN and MAVEN:
 
+* [El-MAVEN: A Fast, Robust, and User-Friendly Mass Spectrometry Data Processing Engine for Metabolomics](https://doi.org/10.1007/978-1-4939-9236-2_19), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
 * [Metabolomic Analysis and Visualization Engine for LC-MSData](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
-* [LC-MS Data Processing with MAVEN: A Metabolomic Analysis and Visualization Engine](http://onlinelibrary.wiley.com/doi/10.1002/0471250953.bi1411s37/abstract), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
+
+## How to Cite
+
+Cite the protocol as:
+Agrawal S. et al. (2019) El-MAVEN: A Fast, Robust, and User-Friendly Mass Spectrometry Data Processing Engine for Metabolomics. In: D'Alessandro A. (eds) High-Throughput Metabolomics. Methods in Molecular Biology, vol 1978. Humana, New York, NY
+
+When citing analyses performed using the program, cite the [DOI](#digital-object-identifier-doi) for the relevant version of El-MAVEN used for the analyses. To ensure that a reader is able to reproduce your analysis, please mention the key algorithms and parameters used to obtain the final results in your research.
 
 ## Acknowledgment
 
