@@ -84,25 +84,22 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     int totalScans = 0;
     int currentScans = 0;
 
-    sort(begin(samples), end(samples), mzSample::compSampleSort);
-
     // Calculate the total number of scans
     for (auto s : samples)
         totalScans += s->scans.size();
 
     // Calculating the rt window using average distance between RTs and
     // mutiplying it with rtStep (default 2.0)
-    if (samples.size() > 0 and rtStep > 0)
-        rtWindow = (samples.at(0)->getAverageFullScanTime() * rtStep);
-
-    // TODO: Remove this, added only for help with validation
-    for (auto sample : samples) {
-        auto avgScanTime = sample->getAverageFullScanTime();
-        cerr << sample->getSampleName() << ": "
-             << mavenParameters->minNoNoiseObs << " ✕ "
-             << avgScanTime << " = "
-             << mavenParameters->minNoNoiseObs * avgScanTime << endl;
+    if (samples.size() > 0 and rtStep > 0) {
+        rtWindow = accumulate(begin(samples),
+                              end(samples),
+                              0.0f,
+                              [rtStep](float sum, mzSample* sample) {
+                                  return sum + (sample->getAverageFullScanTime()
+                                                * rtStep);
+                              }) / static_cast<float>(samples.size());
     }
+    cerr << "RT window used: " << rtWindow << endl;
 
     sendSignal("Status", 0 , 1);
 
