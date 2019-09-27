@@ -98,6 +98,21 @@ void LibraryManager::deleteSelectedDatabase()
     worker->deleteRecord(databaseRecord);
 }
 
+QString LibraryManager::filePathForDatabase(const QString& databaseName)
+{
+    QTreeWidgetItemIterator iter(libraryTable);
+    while (*iter) {
+        auto item = *iter;
+        auto var = item->data(0, Qt::UserRole);
+        auto database = var.value<LibraryRecord>();
+        if (databaseName == database.databaseName) {
+            return database.absolutePath;
+        }
+        ++iter;
+    }
+    return "";
+}
+
 void LibraryManager::_refreshDatabases()
 {
     libraryTable->clear();

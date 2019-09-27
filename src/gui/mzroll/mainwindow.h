@@ -412,6 +412,15 @@ public Q_SLOTS:
      */
     QString getLatestUserProject();
 
+    /**
+     * @brief Save the filename of a compound database that should be loaded the
+     * next time El-MAVEN is started.
+     * @details NIST library files having size greater than 2Mb, are not saved
+     * for automatic load when starting the next session.
+     * @param filename Save the name of the file.
+     */
+    void setLastLoadedDatabase(QString filename);
+
 private Q_SLOTS:
 	void createMenus();
 	void openURL(int choice);
