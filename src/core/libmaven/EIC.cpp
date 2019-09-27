@@ -437,6 +437,8 @@ void EIC::getPeakPositions(int smoothWindow)
 
 void EIC::findPeaks()
 {
+    peaks.clear();
+
     unsigned int N = intensity.size();
 
     for (unsigned int i = 1; i < N - 1; i++)
