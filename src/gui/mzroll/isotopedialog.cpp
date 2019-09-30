@@ -63,6 +63,19 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                                "Isotope Detection Switched",
                                state);
             });
+
+    auto checkIsotopeDetectionValid = [this](const bool checked) {
+        if (!D2Labeled_BPE->isChecked()
+            && !C13Labeled_BPE->isChecked()
+            && !N15Labeled_BPE->isChecked()
+            && !S34Labeled_BPE->isChecked()) {
+            reportIsotopesOptions->setChecked(false);
+        }
+    };
+    connect(D2Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
+    connect(C13Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
+    connect(N15Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
+    connect(S34Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
 }
 
 IsotopeDialog::~IsotopeDialog()
