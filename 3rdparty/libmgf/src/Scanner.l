@@ -283,6 +283,16 @@ typedef mgf::Parser::token_type token_type;
     return token::ORGANISM;
 }
 
+"PI" {
+    yylloc->step();
+    return token::PI;
+}
+
+"DATACOLLECTOR" {
+    yylloc->step();
+    return token::DATACOLLECTOR;
+}
+
 "NAME="[^\n]* {
     std::string title(yytext);
     size_t pos = title.find("=");
@@ -309,7 +319,7 @@ typedef mgf::Parser::token_type token_type;
     return token::TITLE;
 }
 
-[A-Za-z*][ :;,()A-Za-z0-9*_.-]* {
+[A-Za-z*][ :;,()A-Za-z0-9*_.!\\/+-]* {
     yylval->stringVal = new std::string(yytext, yyleng);
     return token::STRING;
 }

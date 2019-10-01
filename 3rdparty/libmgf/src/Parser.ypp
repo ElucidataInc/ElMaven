@@ -109,6 +109,8 @@ using namespace mgf::detail;
 %token FILENAME "filename keyword"
 %token IONMODE "ionisation mode keyword"
 %token ORGANISM "organism keyword"
+%token PI "ivestigator keyword"
+%token DATACOLLECTOR "data collector keyword"
 
 %type <doublepairnode>	ion
 %type <doublepairlistnode>	ions
@@ -229,6 +231,8 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | FILENAME '=' STRING EOL { driver.context.currentSpectrum.setFILENAME(*$3); delete $3; }
            | IONMODE '=' STRING EOL { driver.context.currentSpectrum.setIONMODE(*$3); delete $3; }
            | ORGANISM '=' STRING EOL { driver.context.currentSpectrum.setORGANISM(*$3); delete $3; }
+           | PI '=' STRING EOL { /*driver.context.header.setPI(*$3);*/ delete $3; } // Ignoring
+           | DATACOLLECTOR '=' STRING EOL { /*driver.context.header.setDATACOLLECTOR(*$3);*/ delete $3; } // Ignoring
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }

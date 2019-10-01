@@ -156,7 +156,9 @@ namespace mgf {
      MSLEVEL = 302,
      FILENAME = 303,
      IONMODE = 304,
-     ORGANISM = 305
+     ORGANISM = 305,
+     PI = 306,
+     DATACOLLECTOR = 307
    };
 
     };
@@ -338,7 +340,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 342 "Parser.h"
+#line 344 "Parser.h"
 
 
 
