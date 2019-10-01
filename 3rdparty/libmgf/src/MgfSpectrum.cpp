@@ -187,6 +187,14 @@ void MgfSpectrum::setINCHI(const std::string& inchi) {
     inchi_ = inchi;
 }
 
+std::string MgfSpectrum::getPUBMED(void) const {
+    return pubmed_;
+}
+
+void MgfSpectrum::setPUBMED(const std::string& pubmed) {
+    pubmed_ = pubmed;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -257,6 +265,8 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "SMILES=" << mgf.smiles_ << '\n';
     if (!mgf.inchi_.empty())
         os << "INCHI=" << mgf.inchi_ << '\n';
+    if (!mgf.pubmed_.empty())
+        os << "PUBMED=" << mgf.pubmed_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }

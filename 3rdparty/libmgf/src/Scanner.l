@@ -328,6 +328,11 @@ typedef mgf::Parser::token_type token_type;
     return token::INCHIAUX;
 }
 
+"PUBMED" {
+    yylloc->step();
+    return token::SUBMITUSER;
+}
+
 "NAME="[^\n]* {
     std::string title(yytext);
     size_t pos = title.find("=");

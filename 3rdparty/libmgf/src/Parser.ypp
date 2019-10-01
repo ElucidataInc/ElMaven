@@ -115,6 +115,7 @@ using namespace mgf::detail;
 %token <stringVal> SMILES "smile string keyword"
 %token <stringVal> INCHI "international chemical identifier keyword"
 %token <stringVal> INCHIAUX "auxiliary INCHI information keyword"
+%token PUBMED "PubMed study keyword"
 
 %type <doublepairnode>	ion
 %type <doublepairlistnode>	ions
@@ -241,6 +242,7 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | SMILES EOL { driver.context.currentSpectrum.setSMILES(*$1); delete $1; }
            | INCHI EOL { driver.context.currentSpectrum.setINCHI(*$1); delete $1; }
            | INCHIAUX EOL { /*driver.context.header.setINCHIAUX(*$1);*/ delete $1; } // Ignoring
+           | PUBMED '=' STRING EOL { driver.context.currentSpectrum.setPUBMED(*$3); delete $3; }
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }

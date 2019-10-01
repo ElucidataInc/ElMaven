@@ -297,10 +297,20 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     std::string getINCHI(void) const;
 
-    /** Get INCHI string identifier for the entry.
+    /** Set INCHI string identifier for the entry.
      *  @param[in] inchi The INCHI key.
      */
     void setINCHI(const std::string& inchi);
+
+    /** Get identifier to a PubMed study associated with this data.
+     *  @return A string storing the PubMed identifier.
+     */
+    std::string getPUBMED(void) const;
+
+    /** Get identifier to a PubMed study associated with this data.
+     *  @param[in] pubmed The PubMed ID/Link.
+     */
+    void setPUBMED(const std::string& pubmed);
 
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
@@ -320,6 +330,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     std::string organism_;
     std::string smiles_;
     std::string inchi_;
+    std::string pubmed_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes
