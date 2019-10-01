@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "database.h"
 #include "masscutofftype.h"
+#include "mgf/mgf.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "mzUtils.h"
@@ -584,7 +585,24 @@ int Database::loadNISTLibrary(QString filepath,
     return compoundCount;
 }
 
-bool Database::isNISTLibrary(string dbName) {
+int Database::loadMascotLibrary(QString filepath,
+                                bsignal::signal<void (string, int, int)> *signal)
+{
+    mgf::MgfFile mgfFile;
+    mgf::Driver driver(mgfFile);
+    driver.trace_parsing = true;
+    driver.trace_scanning = true;
+
+    ifstream ifs(filepath.toStdString());
+    bool result = driver.parse_stream(ifs);
+    if (!result) {
+        std::cerr << "Error parsing data stream"
+                  << std::endl;
+        return 0;
+    }
+}
+
+bool Database::isSpectralLibrary(string dbName) {
     auto compounds = getCompoundsSubset(dbName);
     if (compounds.size() > 0) {
         return compounds.at(0)->type() == Compound::Type::PRM;
