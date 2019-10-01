@@ -330,7 +330,7 @@ typedef mgf::Parser::token_type token_type;
 
 "PUBMED" {
     yylloc->step();
-    return token::SUBMITUSER;
+    return token::PUBMED;
 }
 
 "TAGS="[^\n]* {
@@ -341,6 +341,11 @@ typedef mgf::Parser::token_type token_type;
         *(yylval->stringVal) = tags.substr(pos+1);
     }
     return token::TAGS;
+}
+
+"LIBRARYQUALITY" {
+    yylloc->step();
+    return token::LIBRARYQUALITY;
 }
 
 "NAME="[^\n]* {

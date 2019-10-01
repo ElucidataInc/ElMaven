@@ -164,7 +164,8 @@ namespace mgf {
      INCHI = 310,
      INCHIAUX = 311,
      PUBMED = 312,
-     TAGS = 313
+     TAGS = 313,
+     LIBRARYQUALITY = 314
    };
 
     };
@@ -346,7 +347,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 350 "Parser.h"
+#line 351 "Parser.h"
 
 
 
