@@ -333,6 +333,16 @@ typedef mgf::Parser::token_type token_type;
     return token::SUBMITUSER;
 }
 
+"TAGS="[^\n]* {
+    std::string tags(yytext);
+    size_t pos = tags.find("=");
+    yylval->stringVal = new std::string();
+    if (pos != std::string::npos && pos < (tags.size()-1)) {
+        *(yylval->stringVal) = tags.substr(pos+1);
+    }
+    return token::TAGS;
+}
+
 "NAME="[^\n]* {
     std::string title(yytext);
     size_t pos = title.find("=");

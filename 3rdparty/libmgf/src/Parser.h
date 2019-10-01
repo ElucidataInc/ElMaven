@@ -163,7 +163,8 @@ namespace mgf {
      SMILES = 309,
      INCHI = 310,
      INCHIAUX = 311,
-     PUBMED = 312
+     PUBMED = 312,
+     TAGS = 313
    };
 
     };
@@ -345,7 +346,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 349 "Parser.h"
+#line 350 "Parser.h"
 
 
 

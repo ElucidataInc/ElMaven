@@ -248,7 +248,7 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     if (!mgf.seq_.empty())
         os << "SEQ=" << mgf.seq_ << '\n';
     if (!mgf.tag_.empty())
-        os << "TAG=" << mgf.tag_ << '\n';
+        os << "TAGS=" << mgf.tag_ << '\n';
     if (mgf.tol_ > 0.0)
         os << "TOL=" << mgf.tol_ << '\n';
     if (!mgf.tolu_.empty())
