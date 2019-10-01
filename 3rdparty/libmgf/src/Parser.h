@@ -154,7 +154,8 @@ namespace mgf {
      SEG = 300,
      FRAMES = 301,
      MSLEVEL = 302,
-     FILENAME = 303
+     FILENAME = 303,
+     IONMODE = 304
    };
 
     };
@@ -260,7 +261,7 @@ namespace mgf {
     /// - if positive, shift that token.
     /// - if negative, reduce the rule which number is the opposite.
     /// - if zero, do what YYDEFACT says.
-    static const unsigned char yytable_[];
+    static const unsigned short int yytable_[];
     static const signed char yytable_ninf_;
 
     static const short int yycheck_[];
@@ -336,7 +337,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 340 "Parser.h"
+#line 341 "Parser.h"
 
 
 

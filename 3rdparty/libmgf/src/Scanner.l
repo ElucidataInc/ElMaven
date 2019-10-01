@@ -270,7 +270,12 @@ typedef mgf::Parser::token_type token_type;
 
 "FILENAME" {
     yylloc->step();
-    return token::INSTRUMENT;
+    return token::FILENAME;
+}
+
+"IONMODE" {
+    yylloc->step();
+    return token::IONMODE;
 }
  /* end custom fields */
 

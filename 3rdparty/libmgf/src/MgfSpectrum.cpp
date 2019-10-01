@@ -1,5 +1,6 @@
 #include "MgfSpectrum.h"
 
+#include <algorithm>
 #include <cstdlib> // for std::abs(int)
 #include <iostream>
 #include <sstream>
@@ -14,7 +15,15 @@ MgfSpectrum::MgfSpectrum() : Collection<MassAbundancePair>() {
 }
 
 std::vector<int> MgfSpectrum::getCHARGE(void) const {
-    return charges_;
+    std::vector<int> trueCharges;
+    std::transform(std::begin(charges_),
+                   std::end(charges_),
+                   std::back_inserter(trueCharges),
+                   [this](const int value) {
+                       int ionization = ionmode_ == "negative" ? -1 : 1;
+                       return (ionization * abs(value));
+                   });
+    return trueCharges;
 }
 void MgfSpectrum::setCHARGE(const std::vector<int>& charges) {
     charges_ = charges;
@@ -146,6 +155,14 @@ void MgfSpectrum::setFILENAME(const std::string& filename) {
     filename_ = filename;
 }
 
+std::string MgfSpectrum::getIONMODE(void) const {
+    return ionmode_;
+}
+
+void MgfSpectrum::setIONMODE(const std::string& ionmode) {
+    ionmode_ = ionmode;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -208,6 +225,8 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "MSLEVEL=" << mgf.mslevel_ << '\n';
     if (!mgf.filename_.empty())
         os << "FILENAME=" << mgf.filename_ << '\n';
+    if (!mgf.ionmode_.empty())
+        os << "IONMODE=" << mgf.ionmode_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }

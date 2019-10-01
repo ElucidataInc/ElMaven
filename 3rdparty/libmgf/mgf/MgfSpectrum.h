@@ -262,6 +262,16 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void setFILENAME(const std::string& filename);
 
+    /** Get ionization mode of the precursor ions, negative or positive.
+     *  @return A string denoting the ionization mode.
+     */
+    std::string getIONMODE(void) const;
+
+    /** Set ionization mode of the precursor ions, negative or positive.
+     *  @param[in] ionmode The ionization mode.
+     */
+    void setIONMODE(const std::string& ionmode);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -276,6 +286,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     ///////////// Custom fields added for compliance with GNPS MGF /////////////
     int mslevel_;
     std::string filename_;
+    std::string ionmode_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes
