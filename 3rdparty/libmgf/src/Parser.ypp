@@ -118,6 +118,7 @@ using namespace mgf::detail;
 %token PUBMED "PubMed study keyword"
 %token <stringVal> TAGS "sequence tags keyword"
 %token LIBRARYQUALITY "library quality keyword"
+%token SPECTRUMID "spectrum identifier keyword"
 
 %type <doublepairnode>	ion
 %type <doublepairlistnode>	ions
@@ -247,6 +248,7 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | PUBMED '=' STRING EOL { driver.context.currentSpectrum.setPUBMED(*$3); delete $3; }
            | TAGS EOL { driver.context.currentSpectrum.setTAG(*$1); delete $1; }
            | LIBRARYQUALITY '=' INTEGER EOL { /*driver.context.currentSpectrum.setLIBRARYQUALITY($3);*/ }
+           | SPECTRUMID '=' STRING EOL { driver.context.currentSpectrum.setSPECTRUMID(*$3); delete $3; }
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }

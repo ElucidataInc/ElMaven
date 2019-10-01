@@ -312,6 +312,16 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void setPUBMED(const std::string& pubmed);
 
+    /** Get a unique identifier for this spectral entry.
+     *  @return A string specifying the spectrum ID.
+     */
+    std::string getSPECTRUMID(void) const;
+
+    /** Set a unique identifier for this spectral entry.
+     *  @param[in] spectrumId The unique spectrum ID.
+     */
+    void setSPECTRUMID(const std::string& spectrumId);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -331,6 +341,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     std::string smiles_;
     std::string inchi_;
     std::string pubmed_;
+    std::string spectrumId_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes

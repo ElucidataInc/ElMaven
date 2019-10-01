@@ -165,7 +165,8 @@ namespace mgf {
      INCHIAUX = 311,
      PUBMED = 312,
      TAGS = 313,
-     LIBRARYQUALITY = 314
+     LIBRARYQUALITY = 314,
+     SPECTRUMID = 315
    };
 
     };
@@ -347,7 +348,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 351 "Parser.h"
+#line 352 "Parser.h"
 
 
 

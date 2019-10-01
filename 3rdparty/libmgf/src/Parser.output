@@ -100,22 +100,23 @@ Grammar
    86           | "PubMed study keyword" '=' "string" "end of line"
    87           | "sequence tags keyword" "end of line"
    88           | "library quality keyword" '=' "integer" "end of line"
-   89           | "precursor mass keyword" '=' "double" "end of line"
-   90           | "precursor mass keyword" '=' "double" "double" "end of line"
-   91           | "precursor mass keyword" '=' "double" "integer" "end of line"
-   92           | "precursor mass keyword" '=' "integer" "end of line"
-   93           | "precursor mass keyword" '=' "integer" "double" "end of line"
-   94           | "precursor mass keyword" '=' "integer" "integer" "end of line"
-   95           | "comment" "end of line"
+   89           | "spectrum identifier keyword" '=' "string" "end of line"
+   90           | "precursor mass keyword" '=' "double" "end of line"
+   91           | "precursor mass keyword" '=' "double" "double" "end of line"
+   92           | "precursor mass keyword" '=' "double" "integer" "end of line"
+   93           | "precursor mass keyword" '=' "integer" "end of line"
+   94           | "precursor mass keyword" '=' "integer" "double" "end of line"
+   95           | "precursor mass keyword" '=' "integer" "integer" "end of line"
+   96           | "comment" "end of line"
 
-   96 contents: globalparams blocks "end of file"
+   97 contents: globalparams blocks "end of file"
 
-   97 start: contents
+   98 start: contents
 
 
 Terminals, with rules where they appear
 
-"end of file" (0) 0 96
+"end of file" (0) 0 97
 '(' (40) 10
 ')' (41) 10
 '+' (43) 7
@@ -124,19 +125,19 @@ Terminals, with rules where they appear
 '=' (61) 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41
     42 43 44 45 46 47 48 49 50 51 52 53 58 59 60 61 62 63 64 65 66
     67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 86 88 89 90 91
-    92 93 94
+    92 93 94 95
 error (256)
 "end of line" (258) 1 2 3 4 18 19 22 23 24 25 26 27 28 29 30 31 32
     33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
     54 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76
-    77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
-"comment" (259) 54 95
+    77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96
+"comment" (259) 54 96
 "and keyword" (260) 12
 "integer" (261) 2 3 4 7 8 9 14 15 40 41 42 44 47 49 51 62 64 65 66
-    67 68 74 76 88 91 92 93 94
-"double" (262) 1 2 3 43 45 46 48 50 61 63 64 65 73 89 90 91 93
+    67 68 74 76 88 92 93 94 95
+"double" (262) 1 2 3 43 45 46 48 50 61 63 64 65 73 90 91 92 94
 "string" (263) 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-    58 59 60 69 70 71 72 77 78 79 80 81 82 86
+    58 59 60 69 70 71 72 77 78 79 80 81 82 86 89
 "begin_ions keyword" (264) 18 19
 "charge set keyword" (265) 52 75
 "amino acid composition keyword" (266) 58
@@ -144,7 +145,7 @@ error (256)
 "error tolerant sequence keyword" (268) 72
 "MS/MS ion series keyword" (269) 26 59
 "variable modifications keyword" (270) 27 60
-"precursor mass keyword" (271) 89 90 91 92 93 94
+"precursor mass keyword" (271) 90 91 92 93 94 95
 "retention time or range keyword" (272) 61 62 63 64 65 66
 "scan number of range keyword" (273) 67 68
 "amino acid sequence keyword" (274) 70
@@ -188,41 +189,42 @@ error (256)
 "PubMed study keyword" (312) 86
 "sequence tags keyword" (313) 87
 "library quality keyword" (314) 88
+"spectrum identifier keyword" (315) 89
 
 
 Nonterminals, with rules where they appear
 
-$accept (66)
+$accept (67)
     on left: 0
-ion (67)
+ion (68)
     on left: 1 2 3 4, on right: 5 6
-ions (68)
+ions (69)
     on left: 5 6, on right: 5 18
-charge (69)
+charge (70)
     on left: 7 8 9, on right: 11 12 13
-charges (70)
+charges (71)
     on left: 10 11 12 13, on right: 10 11 12 52 75
-csintegerlist (71)
+csintegerlist (72)
     on left: 14 15, on right: 14 53
-blocks (72)
-    on left: 16 17, on right: 17 96
-block (73)
+blocks (73)
+    on left: 16 17, on right: 17 97
+block (74)
     on left: 18 19, on right: 17
-globalparams (74)
-    on left: 20 21, on right: 21 96
-globalparam (75)
+globalparams (75)
+    on left: 20 21, on right: 21 97
+globalparam (76)
     on left: 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
     40 41 42 43 44 45 46 47 48 49 50 51 52 53 54, on right: 21
-localparams (76)
+localparams (77)
     on left: 55 56, on right: 18 19 56
-localparam (77)
+localparam (78)
     on left: 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
-    75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95,
-    on right: 56
-contents (78)
-    on left: 96, on right: 97
-start (79)
-    on left: 97, on right: 0
+    75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+    96, on right: 56
+contents (79)
+    on left: 97, on right: 98
+start (80)
+    on left: 98, on right: 0
 
 
 State 0
@@ -239,7 +241,7 @@ State 0
 State 1
 
    21 globalparams: globalparams . globalparam
-   96 contents: globalparams . blocks "end of file"
+   97 contents: globalparams . blocks "end of file"
 
     "comment"                          shift, and go to state 4
     "charge set keyword"               shift, and go to state 5
@@ -279,9 +281,9 @@ State 1
 
 State 2
 
-   97 start: contents .
+   98 start: contents .
 
-    $default  reduce using rule 97 (start)
+    $default  reduce using rule 98 (start)
 
 
 State 3
@@ -501,7 +503,7 @@ State 32
 State 33
 
    17 blocks: blocks . block
-   96 contents: globalparams blocks . "end of file"
+   97 contents: globalparams blocks . "end of file"
 
     "end of file"         shift, and go to state 65
     "begin_ions keyword"  shift, and go to state 66
@@ -742,9 +744,9 @@ State 64
 
 State 65
 
-   96 contents: globalparams blocks "end of file" .
+   97 contents: globalparams blocks "end of file" .
 
-    $default  reduce using rule 96 (contents)
+    $default  reduce using rule 97 (contents)
 
 
 State 66
@@ -1349,10 +1351,11 @@ State 143
     "PubMed study keyword"                       shift, and go to state 175
     "sequence tags keyword"                      shift, and go to state 176
     "library quality keyword"                    shift, and go to state 177
+    "spectrum identifier keyword"                shift, and go to state 178
 
-    ion         go to state 178
-    ions        go to state 179
-    localparam  go to state 180
+    ion         go to state 179
+    ions        go to state 180
+    localparam  go to state 181
 
 
 State 144
@@ -1385,9 +1388,9 @@ State 147
 
 State 148
 
-   95 localparam: "comment" . "end of line"
+   96 localparam: "comment" . "end of line"
 
-    "end of line"  shift, and go to state 181
+    "end of line"  shift, and go to state 182
 
 
 State 149
@@ -1395,8 +1398,8 @@ State 149
     2 ion: "integer" . "double" "end of line"
     4    | "integer" . "integer" "end of line"
 
-    "integer"  shift, and go to state 182
-    "double"   shift, and go to state 183
+    "integer"  shift, and go to state 183
+    "double"   shift, and go to state 184
 
 
 State 150
@@ -1404,62 +1407,62 @@ State 150
     1 ion: "double" . "double" "end of line"
     3    | "double" . "integer" "end of line"
 
-    "integer"  shift, and go to state 184
-    "double"   shift, and go to state 185
+    "integer"  shift, and go to state 185
+    "double"   shift, and go to state 186
 
 
 State 151
 
    75 localparam: "charge set keyword" . '=' charges "end of line"
 
-    '='  shift, and go to state 186
+    '='  shift, and go to state 187
 
 
 State 152
 
    58 localparam: "amino acid composition keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 187
+    '='  shift, and go to state 188
 
 
 State 153
 
    19 block: "begin_ions keyword" "end of line" localparams "end_ions keyword" . "end of line"
 
-    "end of line"  shift, and go to state 188
+    "end of line"  shift, and go to state 189
 
 
 State 154
 
    72 localparam: "error tolerant sequence keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 189
+    '='  shift, and go to state 190
 
 
 State 155
 
    59 localparam: "MS/MS ion series keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 190
+    '='  shift, and go to state 191
 
 
 State 156
 
    60 localparam: "variable modifications keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 191
+    '='  shift, and go to state 192
 
 
 State 157
 
-   89 localparam: "precursor mass keyword" . '=' "double" "end of line"
-   90           | "precursor mass keyword" . '=' "double" "double" "end of line"
-   91           | "precursor mass keyword" . '=' "double" "integer" "end of line"
-   92           | "precursor mass keyword" . '=' "integer" "end of line"
-   93           | "precursor mass keyword" . '=' "integer" "double" "end of line"
-   94           | "precursor mass keyword" . '=' "integer" "integer" "end of line"
+   90 localparam: "precursor mass keyword" . '=' "double" "end of line"
+   91           | "precursor mass keyword" . '=' "double" "double" "end of line"
+   92           | "precursor mass keyword" . '=' "double" "integer" "end of line"
+   93           | "precursor mass keyword" . '=' "integer" "end of line"
+   94           | "precursor mass keyword" . '=' "integer" "double" "end of line"
+   95           | "precursor mass keyword" . '=' "integer" "integer" "end of line"
 
-    '='  shift, and go to state 192
+    '='  shift, and go to state 193
 
 
 State 158
@@ -1471,7 +1474,7 @@ State 158
    65           | "retention time or range keyword" . '=' "integer" '-' "double" "end of line"
    66           | "retention time or range keyword" . '=' "integer" '-' "integer" "end of line"
 
-    '='  shift, and go to state 193
+    '='  shift, and go to state 194
 
 
 State 159
@@ -1479,28 +1482,28 @@ State 159
    67 localparam: "scan number of range keyword" . '=' "integer" "end of line"
    68           | "scan number of range keyword" . '=' "integer" '-' "integer" "end of line"
 
-    '='  shift, and go to state 194
+    '='  shift, and go to state 195
 
 
 State 160
 
    70 localparam: "amino acid sequence keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 195
+    '='  shift, and go to state 196
 
 
 State 161
 
    71 localparam: "sequence tag keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 196
+    '='  shift, and go to state 197
 
 
 State 162
 
    57 localparam: "title keyword and full title string" . "end of line"
 
-    "end of line"  shift, and go to state 197
+    "end of line"  shift, and go to state 198
 
 
 State 163
@@ -1508,169 +1511,176 @@ State 163
    73 localparam: "peptide mass tolerance keyword" . '=' "double" "end of line"
    74           | "peptide mass tolerance keyword" . '=' "integer" "end of line"
 
-    '='  shift, and go to state 198
+    '='  shift, and go to state 199
 
 
 State 164
 
    69 localparam: "tolerance units keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 199
+    '='  shift, and go to state 200
 
 
 State 165
 
    76 localparam: "MS level keyword" . '=' "integer" "end of line"
 
-    '='  shift, and go to state 200
+    '='  shift, and go to state 201
 
 
 State 166
 
    77 localparam: "filename keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 201
+    '='  shift, and go to state 202
 
 
 State 167
 
    78 localparam: "ionisation mode keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 202
+    '='  shift, and go to state 203
 
 
 State 168
 
    79 localparam: "organism keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 203
+    '='  shift, and go to state 204
 
 
 State 169
 
    80 localparam: "ivestigator keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 204
+    '='  shift, and go to state 205
 
 
 State 170
 
    81 localparam: "data collector keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 205
+    '='  shift, and go to state 206
 
 
 State 171
 
    82 localparam: "submit user keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 206
+    '='  shift, and go to state 207
 
 
 State 172
 
    83 localparam: "smile string keyword" . "end of line"
 
-    "end of line"  shift, and go to state 207
+    "end of line"  shift, and go to state 208
 
 
 State 173
 
    84 localparam: "international chemical identifier keyword" . "end of line"
 
-    "end of line"  shift, and go to state 208
+    "end of line"  shift, and go to state 209
 
 
 State 174
 
    85 localparam: "auxiliary INCHI information keyword" . "end of line"
 
-    "end of line"  shift, and go to state 209
+    "end of line"  shift, and go to state 210
 
 
 State 175
 
    86 localparam: "PubMed study keyword" . '=' "string" "end of line"
 
-    '='  shift, and go to state 210
+    '='  shift, and go to state 211
 
 
 State 176
 
    87 localparam: "sequence tags keyword" . "end of line"
 
-    "end of line"  shift, and go to state 211
+    "end of line"  shift, and go to state 212
 
 
 State 177
 
    88 localparam: "library quality keyword" . '=' "integer" "end of line"
 
-    '='  shift, and go to state 212
+    '='  shift, and go to state 213
 
 
 State 178
+
+   89 localparam: "spectrum identifier keyword" . '=' "string" "end of line"
+
+    '='  shift, and go to state 214
+
+
+State 179
 
     6 ions: ion .
 
     $default  reduce using rule 6 (ions)
 
 
-State 179
+State 180
 
     5 ions: ions . ion
    18 block: "begin_ions keyword" "end of line" localparams ions . "end_ions keyword" "end of line"
 
     "integer"           shift, and go to state 149
     "double"            shift, and go to state 150
-    "end_ions keyword"  shift, and go to state 213
+    "end_ions keyword"  shift, and go to state 215
 
-    ion  go to state 214
+    ion  go to state 216
 
 
-State 180
+State 181
 
    56 localparams: localparams localparam .
 
     $default  reduce using rule 56 (localparams)
 
 
-State 181
-
-   95 localparam: "comment" "end of line" .
-
-    $default  reduce using rule 95 (localparam)
-
-
 State 182
 
-    4 ion: "integer" "integer" . "end of line"
+   96 localparam: "comment" "end of line" .
 
-    "end of line"  shift, and go to state 215
+    $default  reduce using rule 96 (localparam)
 
 
 State 183
 
-    2 ion: "integer" "double" . "end of line"
-
-    "end of line"  shift, and go to state 216
-
-
-State 184
-
-    3 ion: "double" "integer" . "end of line"
+    4 ion: "integer" "integer" . "end of line"
 
     "end of line"  shift, and go to state 217
 
 
-State 185
+State 184
 
-    1 ion: "double" "double" . "end of line"
+    2 ion: "integer" "double" . "end of line"
 
     "end of line"  shift, and go to state 218
 
 
+State 185
+
+    3 ion: "double" "integer" . "end of line"
+
+    "end of line"  shift, and go to state 219
+
+
 State 186
+
+    1 ion: "double" "double" . "end of line"
+
+    "end of line"  shift, and go to state 220
+
+
+State 187
 
    75 localparam: "charge set keyword" '=' . charges "end of line"
 
@@ -1678,58 +1688,58 @@ State 186
     '('        shift, and go to state 69
 
     charge   go to state 70
-    charges  go to state 219
-
-
-State 187
-
-   58 localparam: "amino acid composition keyword" '=' . "string" "end of line"
-
-    "string"  shift, and go to state 220
+    charges  go to state 221
 
 
 State 188
+
+   58 localparam: "amino acid composition keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 222
+
+
+State 189
 
    19 block: "begin_ions keyword" "end of line" localparams "end_ions keyword" "end of line" .
 
     $default  reduce using rule 19 (block)
 
 
-State 189
-
-   72 localparam: "error tolerant sequence keyword" '=' . "string" "end of line"
-
-    "string"  shift, and go to state 221
-
-
 State 190
 
-   59 localparam: "MS/MS ion series keyword" '=' . "string" "end of line"
-
-    "string"  shift, and go to state 222
-
-
-State 191
-
-   60 localparam: "variable modifications keyword" '=' . "string" "end of line"
+   72 localparam: "error tolerant sequence keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 223
 
 
+State 191
+
+   59 localparam: "MS/MS ion series keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 224
+
+
 State 192
 
-   89 localparam: "precursor mass keyword" '=' . "double" "end of line"
-   90           | "precursor mass keyword" '=' . "double" "double" "end of line"
-   91           | "precursor mass keyword" '=' . "double" "integer" "end of line"
-   92           | "precursor mass keyword" '=' . "integer" "end of line"
-   93           | "precursor mass keyword" '=' . "integer" "double" "end of line"
-   94           | "precursor mass keyword" '=' . "integer" "integer" "end of line"
+   60 localparam: "variable modifications keyword" '=' . "string" "end of line"
 
-    "integer"  shift, and go to state 224
-    "double"   shift, and go to state 225
+    "string"  shift, and go to state 225
 
 
 State 193
+
+   90 localparam: "precursor mass keyword" '=' . "double" "end of line"
+   91           | "precursor mass keyword" '=' . "double" "double" "end of line"
+   92           | "precursor mass keyword" '=' . "double" "integer" "end of line"
+   93           | "precursor mass keyword" '=' . "integer" "end of line"
+   94           | "precursor mass keyword" '=' . "integer" "double" "end of line"
+   95           | "precursor mass keyword" '=' . "integer" "integer" "end of line"
+
+    "integer"  shift, and go to state 226
+    "double"   shift, and go to state 227
+
+
+State 194
 
    61 localparam: "retention time or range keyword" '=' . "double" "end of line"
    62           | "retention time or range keyword" '=' . "integer" "end of line"
@@ -1738,696 +1748,717 @@ State 193
    65           | "retention time or range keyword" '=' . "integer" '-' "double" "end of line"
    66           | "retention time or range keyword" '=' . "integer" '-' "integer" "end of line"
 
-    "integer"  shift, and go to state 226
-    "double"   shift, and go to state 227
-
-
-State 194
-
-   67 localparam: "scan number of range keyword" '=' . "integer" "end of line"
-   68           | "scan number of range keyword" '=' . "integer" '-' "integer" "end of line"
-
     "integer"  shift, and go to state 228
+    "double"   shift, and go to state 229
 
 
 State 195
 
-   70 localparam: "amino acid sequence keyword" '=' . "string" "end of line"
+   67 localparam: "scan number of range keyword" '=' . "integer" "end of line"
+   68           | "scan number of range keyword" '=' . "integer" '-' "integer" "end of line"
 
-    "string"  shift, and go to state 229
+    "integer"  shift, and go to state 230
 
 
 State 196
 
-   71 localparam: "sequence tag keyword" '=' . "string" "end of line"
+   70 localparam: "amino acid sequence keyword" '=' . "string" "end of line"
 
-    "string"  shift, and go to state 230
+    "string"  shift, and go to state 231
 
 
 State 197
+
+   71 localparam: "sequence tag keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 232
+
+
+State 198
 
    57 localparam: "title keyword and full title string" "end of line" .
 
     $default  reduce using rule 57 (localparam)
 
 
-State 198
+State 199
 
    73 localparam: "peptide mass tolerance keyword" '=' . "double" "end of line"
    74           | "peptide mass tolerance keyword" '=' . "integer" "end of line"
 
-    "integer"  shift, and go to state 231
-    "double"   shift, and go to state 232
-
-
-State 199
-
-   69 localparam: "tolerance units keyword" '=' . "string" "end of line"
-
-    "string"  shift, and go to state 233
+    "integer"  shift, and go to state 233
+    "double"   shift, and go to state 234
 
 
 State 200
 
-   76 localparam: "MS level keyword" '=' . "integer" "end of line"
-
-    "integer"  shift, and go to state 234
-
-
-State 201
-
-   77 localparam: "filename keyword" '=' . "string" "end of line"
+   69 localparam: "tolerance units keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 235
 
 
+State 201
+
+   76 localparam: "MS level keyword" '=' . "integer" "end of line"
+
+    "integer"  shift, and go to state 236
+
+
 State 202
 
-   78 localparam: "ionisation mode keyword" '=' . "string" "end of line"
-
-    "string"  shift, and go to state 236
-
-
-State 203
-
-   79 localparam: "organism keyword" '=' . "string" "end of line"
+   77 localparam: "filename keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 237
 
 
-State 204
+State 203
 
-   80 localparam: "ivestigator keyword" '=' . "string" "end of line"
+   78 localparam: "ionisation mode keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 238
 
 
-State 205
+State 204
 
-   81 localparam: "data collector keyword" '=' . "string" "end of line"
+   79 localparam: "organism keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 239
 
 
-State 206
+State 205
 
-   82 localparam: "submit user keyword" '=' . "string" "end of line"
+   80 localparam: "ivestigator keyword" '=' . "string" "end of line"
 
     "string"  shift, and go to state 240
 
 
+State 206
+
+   81 localparam: "data collector keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 241
+
+
 State 207
+
+   82 localparam: "submit user keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 242
+
+
+State 208
 
    83 localparam: "smile string keyword" "end of line" .
 
     $default  reduce using rule 83 (localparam)
 
 
-State 208
+State 209
 
    84 localparam: "international chemical identifier keyword" "end of line" .
 
     $default  reduce using rule 84 (localparam)
 
 
-State 209
+State 210
 
    85 localparam: "auxiliary INCHI information keyword" "end of line" .
 
     $default  reduce using rule 85 (localparam)
 
 
-State 210
+State 211
 
    86 localparam: "PubMed study keyword" '=' . "string" "end of line"
 
-    "string"  shift, and go to state 241
+    "string"  shift, and go to state 243
 
 
-State 211
+State 212
 
    87 localparam: "sequence tags keyword" "end of line" .
 
     $default  reduce using rule 87 (localparam)
 
 
-State 212
+State 213
 
    88 localparam: "library quality keyword" '=' . "integer" "end of line"
 
-    "integer"  shift, and go to state 242
-
-
-State 213
-
-   18 block: "begin_ions keyword" "end of line" localparams ions "end_ions keyword" . "end of line"
-
-    "end of line"  shift, and go to state 243
+    "integer"  shift, and go to state 244
 
 
 State 214
+
+   89 localparam: "spectrum identifier keyword" '=' . "string" "end of line"
+
+    "string"  shift, and go to state 245
+
+
+State 215
+
+   18 block: "begin_ions keyword" "end of line" localparams ions "end_ions keyword" . "end of line"
+
+    "end of line"  shift, and go to state 246
+
+
+State 216
 
     5 ions: ions ion .
 
     $default  reduce using rule 5 (ions)
 
 
-State 215
+State 217
 
     4 ion: "integer" "integer" "end of line" .
 
     $default  reduce using rule 4 (ion)
 
 
-State 216
+State 218
 
     2 ion: "integer" "double" "end of line" .
 
     $default  reduce using rule 2 (ion)
 
 
-State 217
+State 219
 
     3 ion: "double" "integer" "end of line" .
 
     $default  reduce using rule 3 (ion)
 
 
-State 218
+State 220
 
     1 ion: "double" "double" "end of line" .
 
     $default  reduce using rule 1 (ion)
 
 
-State 219
+State 221
 
    11 charges: charges . ',' charge
    12        | charges . "and keyword" charge
    75 localparam: "charge set keyword" '=' charges . "end of line"
 
-    "end of line"  shift, and go to state 244
+    "end of line"  shift, and go to state 247
     "and keyword"  shift, and go to state 109
     ','            shift, and go to state 110
 
 
-State 220
-
-   58 localparam: "amino acid composition keyword" '=' "string" . "end of line"
-
-    "end of line"  shift, and go to state 245
-
-
-State 221
-
-   72 localparam: "error tolerant sequence keyword" '=' "string" . "end of line"
-
-    "end of line"  shift, and go to state 246
-
-
 State 222
 
-   59 localparam: "MS/MS ion series keyword" '=' "string" . "end of line"
-
-    "end of line"  shift, and go to state 247
-
-
-State 223
-
-   60 localparam: "variable modifications keyword" '=' "string" . "end of line"
+   58 localparam: "amino acid composition keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 248
 
 
-State 224
+State 223
 
-   92 localparam: "precursor mass keyword" '=' "integer" . "end of line"
-   93           | "precursor mass keyword" '=' "integer" . "double" "end of line"
-   94           | "precursor mass keyword" '=' "integer" . "integer" "end of line"
+   72 localparam: "error tolerant sequence keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 249
-    "integer"      shift, and go to state 250
-    "double"       shift, and go to state 251
+
+
+State 224
+
+   59 localparam: "MS/MS ion series keyword" '=' "string" . "end of line"
+
+    "end of line"  shift, and go to state 250
 
 
 State 225
 
-   89 localparam: "precursor mass keyword" '=' "double" . "end of line"
-   90           | "precursor mass keyword" '=' "double" . "double" "end of line"
-   91           | "precursor mass keyword" '=' "double" . "integer" "end of line"
+   60 localparam: "variable modifications keyword" '=' "string" . "end of line"
+
+    "end of line"  shift, and go to state 251
+
+
+State 226
+
+   93 localparam: "precursor mass keyword" '=' "integer" . "end of line"
+   94           | "precursor mass keyword" '=' "integer" . "double" "end of line"
+   95           | "precursor mass keyword" '=' "integer" . "integer" "end of line"
 
     "end of line"  shift, and go to state 252
     "integer"      shift, and go to state 253
     "double"       shift, and go to state 254
 
 
-State 226
+State 227
+
+   90 localparam: "precursor mass keyword" '=' "double" . "end of line"
+   91           | "precursor mass keyword" '=' "double" . "double" "end of line"
+   92           | "precursor mass keyword" '=' "double" . "integer" "end of line"
+
+    "end of line"  shift, and go to state 255
+    "integer"      shift, and go to state 256
+    "double"       shift, and go to state 257
+
+
+State 228
 
    62 localparam: "retention time or range keyword" '=' "integer" . "end of line"
    65           | "retention time or range keyword" '=' "integer" . '-' "double" "end of line"
    66           | "retention time or range keyword" '=' "integer" . '-' "integer" "end of line"
 
-    "end of line"  shift, and go to state 255
-    '-'            shift, and go to state 256
+    "end of line"  shift, and go to state 258
+    '-'            shift, and go to state 259
 
 
-State 227
+State 229
 
    61 localparam: "retention time or range keyword" '=' "double" . "end of line"
    63           | "retention time or range keyword" '=' "double" . '-' "double" "end of line"
    64           | "retention time or range keyword" '=' "double" . '-' "integer" "end of line"
 
-    "end of line"  shift, and go to state 257
-    '-'            shift, and go to state 258
-
-
-State 228
-
-   67 localparam: "scan number of range keyword" '=' "integer" . "end of line"
-   68           | "scan number of range keyword" '=' "integer" . '-' "integer" "end of line"
-
-    "end of line"  shift, and go to state 259
-    '-'            shift, and go to state 260
-
-
-State 229
-
-   70 localparam: "amino acid sequence keyword" '=' "string" . "end of line"
-
-    "end of line"  shift, and go to state 261
+    "end of line"  shift, and go to state 260
+    '-'            shift, and go to state 261
 
 
 State 230
 
-   71 localparam: "sequence tag keyword" '=' "string" . "end of line"
+   67 localparam: "scan number of range keyword" '=' "integer" . "end of line"
+   68           | "scan number of range keyword" '=' "integer" . '-' "integer" "end of line"
 
     "end of line"  shift, and go to state 262
+    '-'            shift, and go to state 263
 
 
 State 231
 
-   74 localparam: "peptide mass tolerance keyword" '=' "integer" . "end of line"
-
-    "end of line"  shift, and go to state 263
-
-
-State 232
-
-   73 localparam: "peptide mass tolerance keyword" '=' "double" . "end of line"
+   70 localparam: "amino acid sequence keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 264
 
 
-State 233
+State 232
 
-   69 localparam: "tolerance units keyword" '=' "string" . "end of line"
+   71 localparam: "sequence tag keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 265
 
 
-State 234
+State 233
 
-   76 localparam: "MS level keyword" '=' "integer" . "end of line"
+   74 localparam: "peptide mass tolerance keyword" '=' "integer" . "end of line"
 
     "end of line"  shift, and go to state 266
 
 
-State 235
+State 234
 
-   77 localparam: "filename keyword" '=' "string" . "end of line"
+   73 localparam: "peptide mass tolerance keyword" '=' "double" . "end of line"
 
     "end of line"  shift, and go to state 267
 
 
-State 236
+State 235
 
-   78 localparam: "ionisation mode keyword" '=' "string" . "end of line"
+   69 localparam: "tolerance units keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 268
 
 
-State 237
+State 236
 
-   79 localparam: "organism keyword" '=' "string" . "end of line"
+   76 localparam: "MS level keyword" '=' "integer" . "end of line"
 
     "end of line"  shift, and go to state 269
 
 
-State 238
+State 237
 
-   80 localparam: "ivestigator keyword" '=' "string" . "end of line"
+   77 localparam: "filename keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 270
 
 
-State 239
+State 238
 
-   81 localparam: "data collector keyword" '=' "string" . "end of line"
+   78 localparam: "ionisation mode keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 271
 
 
-State 240
+State 239
 
-   82 localparam: "submit user keyword" '=' "string" . "end of line"
+   79 localparam: "organism keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 272
 
 
-State 241
+State 240
 
-   86 localparam: "PubMed study keyword" '=' "string" . "end of line"
+   80 localparam: "ivestigator keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 273
 
 
-State 242
+State 241
 
-   88 localparam: "library quality keyword" '=' "integer" . "end of line"
+   81 localparam: "data collector keyword" '=' "string" . "end of line"
 
     "end of line"  shift, and go to state 274
 
 
+State 242
+
+   82 localparam: "submit user keyword" '=' "string" . "end of line"
+
+    "end of line"  shift, and go to state 275
+
+
 State 243
+
+   86 localparam: "PubMed study keyword" '=' "string" . "end of line"
+
+    "end of line"  shift, and go to state 276
+
+
+State 244
+
+   88 localparam: "library quality keyword" '=' "integer" . "end of line"
+
+    "end of line"  shift, and go to state 277
+
+
+State 245
+
+   89 localparam: "spectrum identifier keyword" '=' "string" . "end of line"
+
+    "end of line"  shift, and go to state 278
+
+
+State 246
 
    18 block: "begin_ions keyword" "end of line" localparams ions "end_ions keyword" "end of line" .
 
     $default  reduce using rule 18 (block)
 
 
-State 244
+State 247
 
    75 localparam: "charge set keyword" '=' charges "end of line" .
 
     $default  reduce using rule 75 (localparam)
 
 
-State 245
+State 248
 
    58 localparam: "amino acid composition keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 58 (localparam)
 
 
-State 246
+State 249
 
    72 localparam: "error tolerant sequence keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 72 (localparam)
 
 
-State 247
+State 250
 
    59 localparam: "MS/MS ion series keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 59 (localparam)
 
 
-State 248
+State 251
 
    60 localparam: "variable modifications keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 60 (localparam)
 
 
-State 249
-
-   92 localparam: "precursor mass keyword" '=' "integer" "end of line" .
-
-    $default  reduce using rule 92 (localparam)
-
-
-State 250
-
-   94 localparam: "precursor mass keyword" '=' "integer" "integer" . "end of line"
-
-    "end of line"  shift, and go to state 275
-
-
-State 251
-
-   93 localparam: "precursor mass keyword" '=' "integer" "double" . "end of line"
-
-    "end of line"  shift, and go to state 276
-
-
 State 252
 
-   89 localparam: "precursor mass keyword" '=' "double" "end of line" .
+   93 localparam: "precursor mass keyword" '=' "integer" "end of line" .
 
-    $default  reduce using rule 89 (localparam)
+    $default  reduce using rule 93 (localparam)
 
 
 State 253
 
-   91 localparam: "precursor mass keyword" '=' "double" "integer" . "end of line"
+   95 localparam: "precursor mass keyword" '=' "integer" "integer" . "end of line"
 
-    "end of line"  shift, and go to state 277
+    "end of line"  shift, and go to state 279
 
 
 State 254
 
-   90 localparam: "precursor mass keyword" '=' "double" "double" . "end of line"
+   94 localparam: "precursor mass keyword" '=' "integer" "double" . "end of line"
 
-    "end of line"  shift, and go to state 278
+    "end of line"  shift, and go to state 280
 
 
 State 255
+
+   90 localparam: "precursor mass keyword" '=' "double" "end of line" .
+
+    $default  reduce using rule 90 (localparam)
+
+
+State 256
+
+   92 localparam: "precursor mass keyword" '=' "double" "integer" . "end of line"
+
+    "end of line"  shift, and go to state 281
+
+
+State 257
+
+   91 localparam: "precursor mass keyword" '=' "double" "double" . "end of line"
+
+    "end of line"  shift, and go to state 282
+
+
+State 258
 
    62 localparam: "retention time or range keyword" '=' "integer" "end of line" .
 
     $default  reduce using rule 62 (localparam)
 
 
-State 256
+State 259
 
    65 localparam: "retention time or range keyword" '=' "integer" '-' . "double" "end of line"
    66           | "retention time or range keyword" '=' "integer" '-' . "integer" "end of line"
 
-    "integer"  shift, and go to state 279
-    "double"   shift, and go to state 280
+    "integer"  shift, and go to state 283
+    "double"   shift, and go to state 284
 
 
-State 257
+State 260
 
    61 localparam: "retention time or range keyword" '=' "double" "end of line" .
 
     $default  reduce using rule 61 (localparam)
 
 
-State 258
+State 261
 
    63 localparam: "retention time or range keyword" '=' "double" '-' . "double" "end of line"
    64           | "retention time or range keyword" '=' "double" '-' . "integer" "end of line"
 
-    "integer"  shift, and go to state 281
-    "double"   shift, and go to state 282
+    "integer"  shift, and go to state 285
+    "double"   shift, and go to state 286
 
 
-State 259
+State 262
 
    67 localparam: "scan number of range keyword" '=' "integer" "end of line" .
 
     $default  reduce using rule 67 (localparam)
 
 
-State 260
+State 263
 
    68 localparam: "scan number of range keyword" '=' "integer" '-' . "integer" "end of line"
 
-    "integer"  shift, and go to state 283
+    "integer"  shift, and go to state 287
 
 
-State 261
+State 264
 
    70 localparam: "amino acid sequence keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 70 (localparam)
 
 
-State 262
+State 265
 
    71 localparam: "sequence tag keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 71 (localparam)
 
 
-State 263
+State 266
 
    74 localparam: "peptide mass tolerance keyword" '=' "integer" "end of line" .
 
     $default  reduce using rule 74 (localparam)
 
 
-State 264
+State 267
 
    73 localparam: "peptide mass tolerance keyword" '=' "double" "end of line" .
 
     $default  reduce using rule 73 (localparam)
 
 
-State 265
+State 268
 
    69 localparam: "tolerance units keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 69 (localparam)
 
 
-State 266
+State 269
 
    76 localparam: "MS level keyword" '=' "integer" "end of line" .
 
     $default  reduce using rule 76 (localparam)
 
 
-State 267
+State 270
 
    77 localparam: "filename keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 77 (localparam)
 
 
-State 268
+State 271
 
    78 localparam: "ionisation mode keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 78 (localparam)
 
 
-State 269
+State 272
 
    79 localparam: "organism keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 79 (localparam)
 
 
-State 270
+State 273
 
    80 localparam: "ivestigator keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 80 (localparam)
 
 
-State 271
+State 274
 
    81 localparam: "data collector keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 81 (localparam)
 
 
-State 272
+State 275
 
    82 localparam: "submit user keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 82 (localparam)
 
 
-State 273
+State 276
 
    86 localparam: "PubMed study keyword" '=' "string" "end of line" .
 
     $default  reduce using rule 86 (localparam)
 
 
-State 274
+State 277
 
    88 localparam: "library quality keyword" '=' "integer" "end of line" .
 
     $default  reduce using rule 88 (localparam)
 
 
-State 275
-
-   94 localparam: "precursor mass keyword" '=' "integer" "integer" "end of line" .
-
-    $default  reduce using rule 94 (localparam)
-
-
-State 276
-
-   93 localparam: "precursor mass keyword" '=' "integer" "double" "end of line" .
-
-    $default  reduce using rule 93 (localparam)
-
-
-State 277
-
-   91 localparam: "precursor mass keyword" '=' "double" "integer" "end of line" .
-
-    $default  reduce using rule 91 (localparam)
-
-
 State 278
 
-   90 localparam: "precursor mass keyword" '=' "double" "double" "end of line" .
+   89 localparam: "spectrum identifier keyword" '=' "string" "end of line" .
 
-    $default  reduce using rule 90 (localparam)
+    $default  reduce using rule 89 (localparam)
 
 
 State 279
 
-   66 localparam: "retention time or range keyword" '=' "integer" '-' "integer" . "end of line"
+   95 localparam: "precursor mass keyword" '=' "integer" "integer" "end of line" .
 
-    "end of line"  shift, and go to state 284
+    $default  reduce using rule 95 (localparam)
 
 
 State 280
 
-   65 localparam: "retention time or range keyword" '=' "integer" '-' "double" . "end of line"
+   94 localparam: "precursor mass keyword" '=' "integer" "double" "end of line" .
 
-    "end of line"  shift, and go to state 285
+    $default  reduce using rule 94 (localparam)
 
 
 State 281
 
-   64 localparam: "retention time or range keyword" '=' "double" '-' "integer" . "end of line"
+   92 localparam: "precursor mass keyword" '=' "double" "integer" "end of line" .
 
-    "end of line"  shift, and go to state 286
+    $default  reduce using rule 92 (localparam)
 
 
 State 282
 
-   63 localparam: "retention time or range keyword" '=' "double" '-' "double" . "end of line"
+   91 localparam: "precursor mass keyword" '=' "double" "double" "end of line" .
 
-    "end of line"  shift, and go to state 287
+    $default  reduce using rule 91 (localparam)
 
 
 State 283
 
-   68 localparam: "scan number of range keyword" '=' "integer" '-' "integer" . "end of line"
+   66 localparam: "retention time or range keyword" '=' "integer" '-' "integer" . "end of line"
 
     "end of line"  shift, and go to state 288
 
 
 State 284
 
+   65 localparam: "retention time or range keyword" '=' "integer" '-' "double" . "end of line"
+
+    "end of line"  shift, and go to state 289
+
+
+State 285
+
+   64 localparam: "retention time or range keyword" '=' "double" '-' "integer" . "end of line"
+
+    "end of line"  shift, and go to state 290
+
+
+State 286
+
+   63 localparam: "retention time or range keyword" '=' "double" '-' "double" . "end of line"
+
+    "end of line"  shift, and go to state 291
+
+
+State 287
+
+   68 localparam: "scan number of range keyword" '=' "integer" '-' "integer" . "end of line"
+
+    "end of line"  shift, and go to state 292
+
+
+State 288
+
    66 localparam: "retention time or range keyword" '=' "integer" '-' "integer" "end of line" .
 
     $default  reduce using rule 66 (localparam)
 
 
-State 285
+State 289
 
    65 localparam: "retention time or range keyword" '=' "integer" '-' "double" "end of line" .
 
     $default  reduce using rule 65 (localparam)
 
 
-State 286
+State 290
 
    64 localparam: "retention time or range keyword" '=' "double" '-' "integer" "end of line" .
 
     $default  reduce using rule 64 (localparam)
 
 
-State 287
+State 291
 
    63 localparam: "retention time or range keyword" '=' "double" '-' "double" "end of line" .
 
     $default  reduce using rule 63 (localparam)
 
 
-State 288
+State 292
 
    68 localparam: "scan number of range keyword" '=' "integer" '-' "integer" "end of line" .
 

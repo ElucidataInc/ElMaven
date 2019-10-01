@@ -195,6 +195,14 @@ void MgfSpectrum::setPUBMED(const std::string& pubmed) {
     pubmed_ = pubmed;
 }
 
+std::string MgfSpectrum::getSPECTRUMID(void) const {
+    return spectrumId_;
+}
+
+void MgfSpectrum::setSPECTRUMID(const std::string& spectrumId) {
+    spectrumId_ = spectrumId;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -267,6 +275,8 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "INCHI=" << mgf.inchi_ << '\n';
     if (!mgf.pubmed_.empty())
         os << "PUBMED=" << mgf.pubmed_ << '\n';
+    if (!mgf.spectrumId_.empty())
+        os << "SPECTRUMID=" << mgf.spectrumId_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }
