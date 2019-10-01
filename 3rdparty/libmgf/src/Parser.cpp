@@ -557,14 +557,14 @@ namespace mgf {
 
   case 10:
 /* Line 664 of lalr1.cc  */
-#line 140 "Parser.ypp"
-    { (yyval.integerlistnode) = (yysemantic_stack_[(3) - (2)].integerlistnode); }
+#line 139 "Parser.ypp"
+    { (yyval.integernode) = new IntegerNode((yysemantic_stack_[(1) - (1)].integerVal)); }
     break;
 
   case 11:
 /* Line 664 of lalr1.cc  */
 #line 141 "Parser.ypp"
-    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(3) - (1)].integerlistnode), (yysemantic_stack_[(3) - (3)].integernode)); }
+    { (yyval.integerlistnode) = (yysemantic_stack_[(3) - (2)].integerlistnode); }
     break;
 
   case 12:
@@ -576,384 +576,390 @@ namespace mgf {
   case 13:
 /* Line 664 of lalr1.cc  */
 #line 143 "Parser.ypp"
-    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(1) - (1)].integernode)); }
+    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(3) - (1)].integerlistnode), (yysemantic_stack_[(3) - (3)].integernode)); }
     break;
 
   case 14:
 /* Line 664 of lalr1.cc  */
-#line 145 "Parser.ypp"
-    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(3) - (1)].integerlistnode), (yysemantic_stack_[(3) - (3)].integerVal)); }
+#line 144 "Parser.ypp"
+    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(1) - (1)].integernode)); }
     break;
 
   case 15:
 /* Line 664 of lalr1.cc  */
 #line 146 "Parser.ypp"
+    { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(3) - (1)].integerlistnode), (yysemantic_stack_[(3) - (3)].integerVal)); }
+    break;
+
+  case 16:
+/* Line 664 of lalr1.cc  */
+#line 147 "Parser.ypp"
     { (yyval.integerlistnode) = new IntegerListNode((yysemantic_stack_[(1) - (1)].integerVal)); }
     break;
 
-  case 17:
+  case 18:
 /* Line 664 of lalr1.cc  */
-#line 150 "Parser.ypp"
+#line 151 "Parser.ypp"
     {
             driver.context.mgfFile.push_back(driver.context.currentSpectrum);
             driver.context.currentSpectrum.clear();
         }
     break;
 
-  case 18:
+  case 19:
 /* Line 664 of lalr1.cc  */
-#line 156 "Parser.ypp"
+#line 157 "Parser.ypp"
     {
             driver.context.currentSpectrum.assign(((yysemantic_stack_[(6) - (4)].doublepairlistnode)->pairlist_)->begin(), ((yysemantic_stack_[(6) - (4)].doublepairlistnode)->pairlist_)->end());
             delete (yysemantic_stack_[(6) - (4)].doublepairlistnode); 
         }
     break;
 
-  case 22:
-/* Line 664 of lalr1.cc  */
-#line 165 "Parser.ypp"
-    { driver.context.header.setCLE(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
-    break;
-
   case 23:
 /* Line 664 of lalr1.cc  */
 #line 166 "Parser.ypp"
-    { driver.context.header.setCOM(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setCLE(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 24:
 /* Line 664 of lalr1.cc  */
 #line 167 "Parser.ypp"
-    { driver.context.header.setDB(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setCOM(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 25:
 /* Line 664 of lalr1.cc  */
 #line 168 "Parser.ypp"
-    { driver.context.header.setFORMAT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setDB(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 26:
 /* Line 664 of lalr1.cc  */
 #line 169 "Parser.ypp"
-    { driver.context.header.setINSTRUMENT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setFORMAT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 27:
 /* Line 664 of lalr1.cc  */
 #line 170 "Parser.ypp"
-    { driver.context.header.setIT_MODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setINSTRUMENT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 28:
 /* Line 664 of lalr1.cc  */
 #line 171 "Parser.ypp"
-    { driver.context.header.setITOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setIT_MODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 29:
 /* Line 664 of lalr1.cc  */
 #line 172 "Parser.ypp"
-    { driver.context.header.setMASS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setITOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 30:
 /* Line 664 of lalr1.cc  */
 #line 173 "Parser.ypp"
-    { driver.context.header.setMODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setMASS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 31:
 /* Line 664 of lalr1.cc  */
 #line 174 "Parser.ypp"
-    { driver.context.header.setQUANTITATION(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setMODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 32:
 /* Line 664 of lalr1.cc  */
 #line 175 "Parser.ypp"
-    { driver.context.header.setREPORT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setQUANTITATION(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 33:
 /* Line 664 of lalr1.cc  */
 #line 176 "Parser.ypp"
-    { driver.context.header.setREPTYPE(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setREPORT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 34:
 /* Line 664 of lalr1.cc  */
 #line 177 "Parser.ypp"
-    { driver.context.header.setSEARCH(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setREPTYPE(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 35:
 /* Line 664 of lalr1.cc  */
 #line 178 "Parser.ypp"
-    { driver.context.header.setTAXONOMY(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setSEARCH(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 36:
 /* Line 664 of lalr1.cc  */
 #line 179 "Parser.ypp"
-    { driver.context.header.setTOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setTAXONOMY(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 37:
 /* Line 664 of lalr1.cc  */
 #line 180 "Parser.ypp"
-    { /*driver.context.header.setUSER(*$3);*/ delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setTOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 38:
 /* Line 664 of lalr1.cc  */
 #line 181 "Parser.ypp"
-    { driver.context.header.setUSEREMAIL(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { /*driver.context.header.setUSER(*$3);*/ delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 39:
 /* Line 664 of lalr1.cc  */
 #line 182 "Parser.ypp"
-    { driver.context.header.setUSERNAME(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.header.setUSEREMAIL(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 40:
 /* Line 664 of lalr1.cc  */
 #line 183 "Parser.ypp"
-    { driver.context.header.setDECOY(((yysemantic_stack_[(4) - (3)].integerVal))!=0); }
+    { driver.context.header.setUSERNAME(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 41:
 /* Line 664 of lalr1.cc  */
 #line 184 "Parser.ypp"
-    { driver.context.header.setERRORTOLERANT(((yysemantic_stack_[(4) - (3)].integerVal))!=0); }
+    { driver.context.header.setDECOY(((yysemantic_stack_[(4) - (3)].integerVal))!=0); }
     break;
 
   case 42:
 /* Line 664 of lalr1.cc  */
 #line 185 "Parser.ypp"
-    { driver.context.header.setPFA((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.header.setERRORTOLERANT(((yysemantic_stack_[(4) - (3)].integerVal))!=0); }
     break;
 
   case 43:
 /* Line 664 of lalr1.cc  */
 #line 186 "Parser.ypp"
-    { driver.context.header.setITOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.header.setPFA((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 44:
 /* Line 664 of lalr1.cc  */
 #line 187 "Parser.ypp"
-    { driver.context.header.setITOL((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.header.setITOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 45:
 /* Line 664 of lalr1.cc  */
 #line 188 "Parser.ypp"
-    { driver.context.header.setPEP_ISOTOPE_ERROR((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.header.setITOL((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 46:
 /* Line 664 of lalr1.cc  */
 #line 189 "Parser.ypp"
-    { driver.context.header.setPRECURSOR((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.header.setPEP_ISOTOPE_ERROR((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 47:
 /* Line 664 of lalr1.cc  */
 #line 190 "Parser.ypp"
-    { driver.context.header.setPRECURSOR((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.header.setPRECURSOR((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 48:
 /* Line 664 of lalr1.cc  */
 #line 191 "Parser.ypp"
-    { driver.context.header.setSEG((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.header.setPRECURSOR((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 49:
 /* Line 664 of lalr1.cc  */
 #line 192 "Parser.ypp"
-    { driver.context.header.setSEG((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.header.setSEG((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 50:
 /* Line 664 of lalr1.cc  */
 #line 193 "Parser.ypp"
-    { driver.context.header.setTOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.header.setSEG((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 51:
 /* Line 664 of lalr1.cc  */
 #line 194 "Parser.ypp"
-    { driver.context.header.setTOL((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.header.setTOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 52:
 /* Line 664 of lalr1.cc  */
 #line 195 "Parser.ypp"
-    { driver.context.header.setCHARGE(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
+    { driver.context.header.setTOL((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 53:
 /* Line 664 of lalr1.cc  */
 #line 196 "Parser.ypp"
-    { driver.context.header.setFRAMES(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
+    { driver.context.header.setCHARGE(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
     break;
 
-  case 57:
+  case 54:
 /* Line 664 of lalr1.cc  */
-#line 202 "Parser.ypp"
-    { driver.context.currentSpectrum.setTITLE(*(yysemantic_stack_[(2) - (1)].stringVal)); delete (yysemantic_stack_[(2) - (1)].stringVal); }
+#line 197 "Parser.ypp"
+    { driver.context.header.setFRAMES(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
     break;
 
   case 58:
 /* Line 664 of lalr1.cc  */
 #line 203 "Parser.ypp"
-    { driver.context.currentSpectrum.setCOMP(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setTITLE(*(yysemantic_stack_[(2) - (1)].stringVal)); delete (yysemantic_stack_[(2) - (1)].stringVal); }
     break;
 
   case 59:
 /* Line 664 of lalr1.cc  */
 #line 204 "Parser.ypp"
-    { driver.context.currentSpectrum.setINSTRUMENT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setCOMP(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 60:
 /* Line 664 of lalr1.cc  */
 #line 205 "Parser.ypp"
-    { driver.context.currentSpectrum.setIT_MODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setINSTRUMENT(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 61:
 /* Line 664 of lalr1.cc  */
 #line 206 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.currentSpectrum.setIT_MODS(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 62:
 /* Line 664 of lalr1.cc  */
 #line 207 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.currentSpectrum.setRTINSECONDS((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 63:
 /* Line 664 of lalr1.cc  */
 #line 208 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].doubleVal), (yysemantic_stack_[(6) - (5)].doubleVal))); }
+    { driver.context.currentSpectrum.setRTINSECONDS((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 64:
 /* Line 664 of lalr1.cc  */
 #line 209 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].doubleVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
+    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].doubleVal), (yysemantic_stack_[(6) - (5)].doubleVal))); }
     break;
 
   case 65:
 /* Line 664 of lalr1.cc  */
 #line 210 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].doubleVal))); }
+    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].doubleVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
     break;
 
   case 66:
 /* Line 664 of lalr1.cc  */
 #line 211 "Parser.ypp"
-    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
+    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].doubleVal))); }
     break;
 
   case 67:
 /* Line 664 of lalr1.cc  */
 #line 212 "Parser.ypp"
-    { driver.context.currentSpectrum.setSCANS(std::make_pair((yysemantic_stack_[(4) - (3)].integerVal), -1)); }
+    { driver.context.currentSpectrum.setRTINSECONDS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
     break;
 
   case 68:
 /* Line 664 of lalr1.cc  */
 #line 213 "Parser.ypp"
-    { driver.context.currentSpectrum.setSCANS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
+    { driver.context.currentSpectrum.setSCANS(std::make_pair((yysemantic_stack_[(4) - (3)].integerVal), -1)); }
     break;
 
   case 69:
 /* Line 664 of lalr1.cc  */
 #line 214 "Parser.ypp"
-    { driver.context.currentSpectrum.setTOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setSCANS(std::make_pair((yysemantic_stack_[(6) - (3)].integerVal), (yysemantic_stack_[(6) - (5)].integerVal))); }
     break;
 
   case 70:
 /* Line 664 of lalr1.cc  */
 #line 215 "Parser.ypp"
-    { driver.context.currentSpectrum.setSEQ(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setTOLU(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 71:
 /* Line 664 of lalr1.cc  */
 #line 216 "Parser.ypp"
-    { driver.context.currentSpectrum.setTAG(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setSEQ(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 72:
 /* Line 664 of lalr1.cc  */
 #line 217 "Parser.ypp"
-    { driver.context.currentSpectrum.setETAG(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
+    { driver.context.currentSpectrum.setTAG(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 73:
 /* Line 664 of lalr1.cc  */
 #line 218 "Parser.ypp"
-    { driver.context.currentSpectrum.setTOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
+    { driver.context.currentSpectrum.setETAG(*(yysemantic_stack_[(4) - (3)].stringVal)); delete (yysemantic_stack_[(4) - (3)].stringVal); }
     break;
 
   case 74:
 /* Line 664 of lalr1.cc  */
 #line 219 "Parser.ypp"
-    { driver.context.currentSpectrum.setTOL((yysemantic_stack_[(4) - (3)].integerVal)); }
+    { driver.context.currentSpectrum.setTOL((yysemantic_stack_[(4) - (3)].doubleVal)); }
     break;
 
   case 75:
 /* Line 664 of lalr1.cc  */
 #line 220 "Parser.ypp"
-    { driver.context.currentSpectrum.setCHARGE(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
+    { driver.context.currentSpectrum.setTOL((yysemantic_stack_[(4) - (3)].integerVal)); }
     break;
 
   case 76:
 /* Line 664 of lalr1.cc  */
 #line 221 "Parser.ypp"
-    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(4) - (3)].doubleVal), 0.0)); }
+    { driver.context.currentSpectrum.setCHARGE(*((yysemantic_stack_[(4) - (3)].integerlistnode)->integers_)); delete (yysemantic_stack_[(4) - (3)].integerlistnode); }
     break;
 
   case 77:
 /* Line 664 of lalr1.cc  */
 #line 222 "Parser.ypp"
-    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].doubleVal), (yysemantic_stack_[(5) - (4)].doubleVal))); }
+    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(4) - (3)].doubleVal), 0.0)); }
     break;
 
   case 78:
 /* Line 664 of lalr1.cc  */
 #line 223 "Parser.ypp"
-    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].doubleVal), (yysemantic_stack_[(5) - (4)].integerVal))); }
+    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].doubleVal), (yysemantic_stack_[(5) - (4)].doubleVal))); }
     break;
 
   case 79:
 /* Line 664 of lalr1.cc  */
 #line 224 "Parser.ypp"
-    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(4) - (3)].integerVal), 0.0)); }
+    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].doubleVal), (yysemantic_stack_[(5) - (4)].integerVal))); }
     break;
 
   case 80:
 /* Line 664 of lalr1.cc  */
 #line 225 "Parser.ypp"
-    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].integerVal), (yysemantic_stack_[(5) - (4)].doubleVal))); }
+    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(4) - (3)].integerVal), 0.0)); }
     break;
 
   case 81:
 /* Line 664 of lalr1.cc  */
 #line 226 "Parser.ypp"
+    { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].integerVal), (yysemantic_stack_[(5) - (4)].doubleVal))); }
+    break;
+
+  case 82:
+/* Line 664 of lalr1.cc  */
+#line 227 "Parser.ypp"
     { driver.context.currentSpectrum.setPEPMASS(std::make_pair((yysemantic_stack_[(5) - (3)].integerVal), (yysemantic_stack_[(5) - (4)].integerVal))); }
     break;
 
-  case 83:
+  case 84:
 /* Line 664 of lalr1.cc  */
-#line 231 "Parser.ypp"
+#line 232 "Parser.ypp"
     {
              driver.context.mgfFile.setHeader(driver.context.header);
              driver.context.header.clear();
@@ -962,7 +968,7 @@ namespace mgf {
 
 
 /* Line 664 of lalr1.cc  */
-#line 966 "Parser.cpp"
+#line 972 "Parser.cpp"
       default:
         break;
       }
@@ -1299,31 +1305,31 @@ namespace mgf {
   const unsigned char
   Parser::yydefact_[] =
   {
-        20,    16,    84,     0,     0,     0,     0,     0,     0,     0,
+        21,    17,    85,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    21,     1,    54,     0,     0,     0,
+       0,     0,     0,     0,    22,     1,    55,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    83,     0,    17,     0,     0,
-      13,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    84,     0,    18,    10,     0,
+      14,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    15,     0,    55,     8,     9,     0,    52,     0,
-       0,    26,    27,    51,    50,    36,    22,    23,    24,    25,
-      28,    29,    30,    31,    32,    33,    34,    35,    37,    38,
-      39,    40,    41,    44,    43,    45,    42,    47,    46,    49,
-      48,    53,     0,     0,    10,    12,    11,    14,     0,     0,
+       0,     0,    16,     0,    56,     8,     9,     0,    53,     0,
+       0,    27,    28,    52,    51,    37,    23,    24,    25,    26,
+      29,    30,    31,    32,    33,    34,    35,    36,    38,    39,
+      40,    41,    42,    45,    44,    46,    43,    48,    47,    50,
+      49,    54,     0,     0,    11,    13,    12,    15,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     7,     0,    56,    82,     0,
-       0,     0,     0,     0,     0,    19,     0,     0,     0,     0,
-       0,     0,     0,     0,    57,     0,     0,     0,     6,     5,
+       0,     0,     0,     0,     0,     7,     0,    57,    83,     0,
+       0,     0,     0,     0,     0,    20,     0,     0,     0,     0,
+       0,     0,     0,     0,    58,     0,     0,     0,     6,     5,
        3,     4,     2,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    18,    75,
-      58,    72,    59,    60,    79,     0,     0,    76,     0,     0,
-      62,     0,    61,     0,    67,     0,    70,    71,    74,    73,
-      69,    81,    80,    78,    77,     0,     0,     0,     0,     0,
-      66,    65,    64,    63,    68
+       0,     0,     0,     0,     0,     0,     0,     0,    19,    76,
+      59,    73,    60,    61,    80,     0,     0,    77,     0,     0,
+      63,     0,    62,     0,    68,     0,    71,    72,    75,    74,
+      70,    82,    81,    79,    78,     0,     0,     0,     0,     0,
+      67,    66,    65,    64,    69
   };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -1459,14 +1465,14 @@ namespace mgf {
   Parser::yyr1_[] =
   {
          0,    53,    54,    54,    54,    54,    55,    55,    56,    56,
-      57,    57,    57,    57,    58,    58,    59,    59,    60,    60,
-      61,    61,    62,    62,    62,    62,    62,    62,    62,    62,
+      56,    57,    57,    57,    57,    58,    58,    59,    59,    60,
+      60,    61,    61,    62,    62,    62,    62,    62,    62,    62,
       62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
       62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
-      62,    62,    62,    62,    62,    63,    63,    64,    64,    64,
+      62,    62,    62,    62,    62,    62,    63,    63,    64,    64,
       64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
       64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
-      64,    64,    64,    65,    66
+      64,    64,    64,    64,    65,    66
   };
 
   /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -1474,14 +1480,14 @@ namespace mgf {
   Parser::yyr2_[] =
   {
          0,     2,     3,     3,     3,     3,     2,     1,     2,     2,
-       3,     3,     3,     1,     3,     1,     0,     2,     6,     5,
-       0,     2,     4,     4,     4,     4,     4,     4,     4,     4,
+       1,     3,     3,     3,     1,     3,     1,     0,     2,     6,
+       5,     0,     2,     4,     4,     4,     4,     4,     4,     4,
        4,     4,     4,     4,     4,     4,     4,     4,     4,     4,
        4,     4,     4,     4,     4,     4,     4,     4,     4,     4,
-       4,     4,     4,     4,     2,     0,     2,     2,     4,     4,
-       4,     4,     4,     6,     6,     6,     6,     4,     6,     4,
-       4,     4,     4,     4,     4,     4,     4,     5,     5,     4,
-       5,     5,     2,     3,     1
+       4,     4,     4,     4,     4,     2,     0,     2,     2,     4,
+       4,     4,     4,     4,     6,     6,     6,     6,     4,     6,
+       4,     4,     4,     4,     4,     4,     4,     4,     5,     5,
+       4,     5,     5,     2,     3,     1
   };
 
 
@@ -1524,42 +1530,42 @@ namespace mgf {
         66,     0,    -1,     7,     7,     3,    -1,     6,     7,     3,
       -1,     7,     6,     3,    -1,     6,     6,     3,    -1,    55,
       54,    -1,    54,    -1,     6,    47,    -1,     6,    48,    -1,
-      49,    57,    50,    -1,    57,    51,    56,    -1,    57,     5,
-      56,    -1,    56,    -1,    58,    51,     6,    -1,     6,    -1,
-      -1,    59,    60,    -1,     9,     3,    63,    55,    12,     3,
-      -1,     9,     3,    63,    12,     3,    -1,    -1,    61,    62,
-      -1,    24,    52,     8,     3,    -1,    25,    52,     8,     3,
-      -1,    26,    52,     8,     3,    -1,    27,    52,     8,     3,
-      -1,    14,    52,     8,     3,    -1,    15,    52,     8,     3,
-      -1,    28,    52,     8,     3,    -1,    29,    52,     8,     3,
-      -1,    30,    52,     8,     3,    -1,    31,    52,     8,     3,
-      -1,    32,    52,     8,     3,    -1,    33,    52,     8,     3,
-      -1,    34,    52,     8,     3,    -1,    35,    52,     8,     3,
-      -1,    23,    52,     8,     3,    -1,    36,    52,     8,     3,
-      -1,    37,    52,     8,     3,    -1,    38,    52,     8,     3,
-      -1,    39,    52,     6,     3,    -1,    40,    52,     6,     3,
-      -1,    43,    52,     6,     3,    -1,    41,    52,     7,     3,
-      -1,    41,    52,     6,     3,    -1,    42,    52,     7,     3,
-      -1,    44,    52,     7,     3,    -1,    44,    52,     6,     3,
-      -1,    45,    52,     7,     3,    -1,    45,    52,     6,     3,
-      -1,    22,    52,     7,     3,    -1,    22,    52,     6,     3,
-      -1,    10,    52,    57,     3,    -1,    46,    52,    58,     3,
-      -1,     4,     3,    -1,    -1,    63,    64,    -1,    21,     3,
-      -1,    11,    52,     8,     3,    -1,    14,    52,     8,     3,
-      -1,    15,    52,     8,     3,    -1,    17,    52,     7,     3,
-      -1,    17,    52,     6,     3,    -1,    17,    52,     7,    48,
-       7,     3,    -1,    17,    52,     7,    48,     6,     3,    -1,
-      17,    52,     6,    48,     7,     3,    -1,    17,    52,     6,
-      48,     6,     3,    -1,    18,    52,     6,     3,    -1,    18,
-      52,     6,    48,     6,     3,    -1,    23,    52,     8,     3,
-      -1,    19,    52,     8,     3,    -1,    20,    52,     8,     3,
-      -1,    13,    52,     8,     3,    -1,    22,    52,     7,     3,
-      -1,    22,    52,     6,     3,    -1,    10,    52,    57,     3,
-      -1,    16,    52,     7,     3,    -1,    16,    52,     7,     7,
-       3,    -1,    16,    52,     7,     6,     3,    -1,    16,    52,
-       6,     3,    -1,    16,    52,     6,     7,     3,    -1,    16,
-      52,     6,     6,     3,    -1,     4,     3,    -1,    61,    59,
-       0,    -1,    65,    -1
+       6,    -1,    49,    57,    50,    -1,    57,    51,    56,    -1,
+      57,     5,    56,    -1,    56,    -1,    58,    51,     6,    -1,
+       6,    -1,    -1,    59,    60,    -1,     9,     3,    63,    55,
+      12,     3,    -1,     9,     3,    63,    12,     3,    -1,    -1,
+      61,    62,    -1,    24,    52,     8,     3,    -1,    25,    52,
+       8,     3,    -1,    26,    52,     8,     3,    -1,    27,    52,
+       8,     3,    -1,    14,    52,     8,     3,    -1,    15,    52,
+       8,     3,    -1,    28,    52,     8,     3,    -1,    29,    52,
+       8,     3,    -1,    30,    52,     8,     3,    -1,    31,    52,
+       8,     3,    -1,    32,    52,     8,     3,    -1,    33,    52,
+       8,     3,    -1,    34,    52,     8,     3,    -1,    35,    52,
+       8,     3,    -1,    23,    52,     8,     3,    -1,    36,    52,
+       8,     3,    -1,    37,    52,     8,     3,    -1,    38,    52,
+       8,     3,    -1,    39,    52,     6,     3,    -1,    40,    52,
+       6,     3,    -1,    43,    52,     6,     3,    -1,    41,    52,
+       7,     3,    -1,    41,    52,     6,     3,    -1,    42,    52,
+       7,     3,    -1,    44,    52,     7,     3,    -1,    44,    52,
+       6,     3,    -1,    45,    52,     7,     3,    -1,    45,    52,
+       6,     3,    -1,    22,    52,     7,     3,    -1,    22,    52,
+       6,     3,    -1,    10,    52,    57,     3,    -1,    46,    52,
+      58,     3,    -1,     4,     3,    -1,    -1,    63,    64,    -1,
+      21,     3,    -1,    11,    52,     8,     3,    -1,    14,    52,
+       8,     3,    -1,    15,    52,     8,     3,    -1,    17,    52,
+       7,     3,    -1,    17,    52,     6,     3,    -1,    17,    52,
+       7,    48,     7,     3,    -1,    17,    52,     7,    48,     6,
+       3,    -1,    17,    52,     6,    48,     7,     3,    -1,    17,
+      52,     6,    48,     6,     3,    -1,    18,    52,     6,     3,
+      -1,    18,    52,     6,    48,     6,     3,    -1,    23,    52,
+       8,     3,    -1,    19,    52,     8,     3,    -1,    20,    52,
+       8,     3,    -1,    13,    52,     8,     3,    -1,    22,    52,
+       7,     3,    -1,    22,    52,     6,     3,    -1,    10,    52,
+      57,     3,    -1,    16,    52,     7,     3,    -1,    16,    52,
+       7,     7,     3,    -1,    16,    52,     7,     6,     3,    -1,
+      16,    52,     6,     3,    -1,    16,    52,     6,     7,     3,
+      -1,    16,    52,     6,     6,     3,    -1,     4,     3,    -1,
+      61,    59,     0,    -1,    65,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -1568,14 +1574,14 @@ namespace mgf {
   Parser::yyprhs_[] =
   {
          0,     0,     3,     7,    11,    15,    19,    22,    24,    27,
-      30,    34,    38,    42,    44,    48,    50,    51,    54,    61,
-      67,    68,    71,    76,    81,    86,    91,    96,   101,   106,
-     111,   116,   121,   126,   131,   136,   141,   146,   151,   156,
-     161,   166,   171,   176,   181,   186,   191,   196,   201,   206,
-     211,   216,   221,   226,   231,   234,   235,   238,   241,   246,
-     251,   256,   261,   266,   273,   280,   287,   294,   299,   306,
-     311,   316,   321,   326,   331,   336,   341,   346,   352,   358,
-     363,   369,   375,   378,   382
+      30,    32,    36,    40,    44,    46,    50,    52,    53,    56,
+      63,    69,    70,    73,    78,    83,    88,    93,    98,   103,
+     108,   113,   118,   123,   128,   133,   138,   143,   148,   153,
+     158,   163,   168,   173,   178,   183,   188,   193,   198,   203,
+     208,   213,   218,   223,   228,   233,   236,   237,   240,   243,
+     248,   253,   258,   263,   268,   275,   282,   289,   296,   301,
+     308,   313,   318,   323,   328,   333,   338,   343,   348,   354,
+     360,   365,   371,   377,   380,   384
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
@@ -1583,14 +1589,14 @@ namespace mgf {
   Parser::yyrline_[] =
   {
          0,   129,   129,   130,   131,   132,   134,   135,   137,   138,
-     140,   141,   142,   143,   145,   146,   148,   149,   155,   160,
-     162,   163,   165,   166,   167,   168,   169,   170,   171,   172,
+     139,   141,   142,   143,   144,   146,   147,   149,   150,   156,
+     161,   163,   164,   166,   167,   168,   169,   170,   171,   172,
      173,   174,   175,   176,   177,   178,   179,   180,   181,   182,
      183,   184,   185,   186,   187,   188,   189,   190,   191,   192,
-     193,   194,   195,   196,   197,   199,   200,   202,   203,   204,
+     193,   194,   195,   196,   197,   198,   200,   201,   203,   204,
      205,   206,   207,   208,   209,   210,   211,   212,   213,   214,
      215,   216,   217,   218,   219,   220,   221,   222,   223,   224,
-     225,   226,   227,   230,   236
+     225,   226,   227,   228,   231,   237
   };
 
   // Print the state stack on the debug stream.
@@ -1683,9 +1689,9 @@ namespace mgf {
 
 } // mgf
 /* Line 1135 of lalr1.cc  */
-#line 1687 "Parser.cpp"
+#line 1693 "Parser.cpp"
 /* Line 1136 of lalr1.cc  */
-#line 238 "Parser.ypp"
+#line 239 "Parser.ypp"
  /*** Additional Code ***/
 
 void mgf::Parser::error(const Parser::location_type& l, const std::string& m)

@@ -136,6 +136,7 @@ ions : ions ion { $$ = new DoublePairListNode($1, $2); }
 
 charge : INTEGER '+' { $$ = new IntegerNode($1); }
        | INTEGER '-' { $$ = new IntegerNode(-$1); }
+       | INTEGER { $$ = new IntegerNode($1); }
 
 charges : '(' charges ')' { $$ = $2; }
         | charges ',' charge { $$ = new IntegerListNode($1, $3); }
