@@ -171,6 +171,22 @@ void MgfSpectrum::setORGANISM(const std::string& organism) {
     organism_ = organism;
 }
 
+std::string MgfSpectrum::getSMILES(void) const {
+    return smiles_;
+}
+
+void MgfSpectrum::setSMILES(const std::string& smileString) {
+    smiles_ = smileString;
+}
+
+std::string MgfSpectrum::getINCHI(void) const {
+    return inchi_;
+}
+
+void MgfSpectrum::setINCHI(const std::string& inchi) {
+    inchi_ = inchi;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -237,6 +253,10 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "IONMODE=" << mgf.ionmode_ << '\n';
     if (!mgf.organism_.empty())
         os << "ORGANISM=" << mgf.organism_ << '\n';
+    if (!mgf.smiles_.empty())
+        os << "SMILES=" << mgf.smiles_ << '\n';
+    if (!mgf.inchi_.empty())
+        os << "INCHI=" << mgf.inchi_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }

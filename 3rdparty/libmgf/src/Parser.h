@@ -158,7 +158,11 @@ namespace mgf {
      IONMODE = 304,
      ORGANISM = 305,
      PI = 306,
-     DATACOLLECTOR = 307
+     DATACOLLECTOR = 307,
+     SUBMITUSER = 308,
+     SMILES = 309,
+     INCHI = 310,
+     INCHIAUX = 311
    };
 
     };
@@ -291,7 +295,7 @@ namespace mgf {
     /// For each rule, the index of the first RHS symbol in \a yyrhs_.
     static const unsigned short int yyprhs_[];
     /// For each rule, its source line number.
-    static const unsigned char yyrline_[];
+    static const unsigned short int yyrline_[];
     /// For each scanner token number, its symbol number.
     static const unsigned short int yytoken_number_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
@@ -340,7 +344,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 344 "Parser.h"
+#line 348 "Parser.h"
 
 
 

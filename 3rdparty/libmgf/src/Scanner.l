@@ -293,6 +293,41 @@ typedef mgf::Parser::token_type token_type;
     return token::DATACOLLECTOR;
 }
 
+"SUBMITUSER" {
+    yylloc->step();
+    return token::SUBMITUSER;
+}
+
+"SMILES="[^\n]* {
+    std::string smileString(yytext);
+    size_t pos = smileString.find("=");
+    yylval->stringVal = new std::string();
+    if (pos != std::string::npos && pos < (smileString.size()-1)) {
+        *(yylval->stringVal) = smileString.substr(pos+1);
+    }
+    return token::SMILES;
+}
+
+"INCHI="[^\n]* {
+    std::string inchiString(yytext);
+    size_t pos = inchiString.find("=");
+    yylval->stringVal = new std::string();
+    if (pos != std::string::npos && pos < (inchiString.size()-1)) {
+        *(yylval->stringVal) = inchiString.substr(pos+1);
+    }
+    return token::INCHI;
+}
+
+"INCHIAUX="[^\n]* {
+    std::string inchiString(yytext);
+    size_t pos = inchiString.find("=");
+    yylval->stringVal = new std::string();
+    if (pos != std::string::npos && pos < (inchiString.size()-1)) {
+        *(yylval->stringVal) = inchiString.substr(pos+1);
+    }
+    return token::INCHIAUX;
+}
+
 "NAME="[^\n]* {
     std::string title(yytext);
     size_t pos = title.find("=");

@@ -282,6 +282,26 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void setORGANISM(const std::string& organism);
 
+    /** Get SMILE string for the entry.
+     *  @return A string storing the SMILE string.
+     */
+    std::string getSMILES(void) const;
+
+    /** Set SMILE string for the entry.
+     *  @param[in] smileString The SMILE string.
+     */
+    void setSMILES(const std::string& smileString);
+
+    /** Get INCHI string identifier for the entry.
+     *  @return A string storing the INCHI key.
+     */
+    std::string getINCHI(void) const;
+
+    /** Get INCHI string identifier for the entry.
+     *  @param[in] inchi The INCHI key.
+     */
+    void setINCHI(const std::string& inchi);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -298,6 +318,8 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     std::string filename_;
     std::string ionmode_;
     std::string organism_;
+    std::string smiles_;
+    std::string inchi_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes

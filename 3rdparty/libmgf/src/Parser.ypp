@@ -111,6 +111,10 @@ using namespace mgf::detail;
 %token ORGANISM "organism keyword"
 %token PI "ivestigator keyword"
 %token DATACOLLECTOR "data collector keyword"
+%token SUBMITUSER "submit user keyword"
+%token <stringVal> SMILES "smile string keyword"
+%token <stringVal> INCHI "international chemical identifier keyword"
+%token <stringVal> INCHIAUX "auxiliary INCHI information keyword"
 
 %type <doublepairnode>	ion
 %type <doublepairlistnode>	ions
@@ -233,6 +237,10 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | ORGANISM '=' STRING EOL { driver.context.currentSpectrum.setORGANISM(*$3); delete $3; }
            | PI '=' STRING EOL { /*driver.context.header.setPI(*$3);*/ delete $3; } // Ignoring
            | DATACOLLECTOR '=' STRING EOL { /*driver.context.header.setDATACOLLECTOR(*$3);*/ delete $3; } // Ignoring
+           | SUBMITUSER '=' STRING EOL { /*driver.context.header.setSUBMITUSER(*$3);*/ delete $3; } // Ignoring
+           | SMILES EOL { driver.context.currentSpectrum.setSMILES(*$1); delete $1; }
+           | INCHI EOL { driver.context.currentSpectrum.setINCHI(*$1); delete $1; }
+           | INCHIAUX EOL { /*driver.context.header.setINCHIAUX(*$1);*/ delete $1; } // Ignoring
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
