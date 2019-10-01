@@ -128,6 +128,16 @@ void MgfSpectrum::clear() {
     Collection<MassAbundancePair>::clear();
 }
 
+int MgfSpectrum::getMSLEVEL(void) const
+{
+    return mslevel_;
+}
+
+void MgfSpectrum::setMSLEVEL(const int mslevel)
+{
+    mslevel_ = mslevel;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -186,6 +196,8 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "TOL=" << mgf.tol_ << '\n';
     if (!mgf.tolu_.empty())
         os << "TOLU=" << mgf.tolu_ << '\n';
+    if (mgf.mslevel_ > 0)
+        os << "MSLEVEL=" << mgf.mslevel_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }

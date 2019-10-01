@@ -104,6 +104,9 @@ using namespace mgf::detail;
 %token SEG "protein mass (kDa) keyword"
 %token FRAMES "NA translation keyword"
 
+/* custom fields added to comply with GNPS' MGF format */
+%token MSLEVEL "MS level keyword"
+
 %type <doublepairnode>	ion
 %type <doublepairlistnode>	ions
 %type <integernode> charge
@@ -219,6 +222,7 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | TOL '=' DOUBLE EOL { driver.context.currentSpectrum.setTOL($3); }
            | TOL '=' INTEGER EOL { driver.context.currentSpectrum.setTOL($3); }
            | CHARGE '=' charges EOL { driver.context.currentSpectrum.setCHARGE(*($3->integers_)); delete $3; }
+           | MSLEVEL '=' INTEGER EOL { driver.context.currentSpectrum.setMSLEVEL($3); }
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }

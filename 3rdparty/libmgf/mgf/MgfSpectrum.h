@@ -240,6 +240,18 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void clear();
 
+    ///////////// Custom fields added for compliance with GNPS MGF /////////////
+
+    /** Get the MS level of the experiment from which the data was recorded.
+     *  @return An integer specifying the MS level.
+     */
+    int getMSLEVEL(void) const;
+
+    /** Set the MS level of the experiment from which the data was recorded.
+     *  @param[in] mslevel The MS level.
+     */
+    void setMSLEVEL(const int mslevel);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -250,6 +262,9 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     std::string seq_, tag_, title_;
     double tol_;
     std::string tolu_;
+
+    ///////////// Custom fields added for compliance with GNPS MGF /////////////
+    int mslevel_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes

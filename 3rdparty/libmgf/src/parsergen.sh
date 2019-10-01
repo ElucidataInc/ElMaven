@@ -1,3 +1,6 @@
+# run flex to refresh scanner
+flex -o Scanner.cpp Scanner.l
+
 # generate parser from the existing yacc grammar
 bison -v -o Parser.cpp Parser.ypp
 
