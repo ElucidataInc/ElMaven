@@ -252,6 +252,16 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void setMSLEVEL(const int mslevel);
 
+    /** Get name of the file which was used to extract data.
+     *  @return A string specifying the file name.
+     */
+    std::string getFILENAME(void) const;
+
+    /** Set name of the file which was used to extract data.
+     *  @param[in] filename The file name.
+     */
+    void setFILENAME(const std::string& filename);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -265,6 +275,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
 
     ///////////// Custom fields added for compliance with GNPS MGF /////////////
     int mslevel_;
+    std::string filename_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes

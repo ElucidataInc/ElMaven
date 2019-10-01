@@ -267,6 +267,11 @@ typedef mgf::Parser::token_type token_type;
     yylloc->step();
     return token::INSTRUMENT;
 }
+
+"FILENAME" {
+    yylloc->step();
+    return token::INSTRUMENT;
+}
  /* end custom fields */
 
 #[^\n]* {

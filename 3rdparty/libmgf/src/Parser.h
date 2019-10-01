@@ -153,7 +153,8 @@ namespace mgf {
      PRECURSOR = 299,
      SEG = 300,
      FRAMES = 301,
-     MSLEVEL = 302
+     MSLEVEL = 302,
+     FILENAME = 303
    };
 
     };
@@ -335,7 +336,7 @@ namespace mgf {
 
 } // mgf
 /* Line 270 of lalr1.cc  */
-#line 339 "Parser.h"
+#line 340 "Parser.h"
 
 
 
