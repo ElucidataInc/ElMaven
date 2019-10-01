@@ -289,7 +289,7 @@ typedef mgf::Parser::token_type token_type;
     return token::TITLE;
 }
 
-[A-Za-z][ :;,()A-Za-z0-9_.-]* {
+[A-Za-z*][ :;,()A-Za-z0-9*_.-]* {
     yylval->stringVal = new std::string(yytext, yyleng);
     return token::STRING;
 }
