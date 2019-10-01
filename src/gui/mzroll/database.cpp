@@ -590,8 +590,8 @@ int Database::loadMascotLibrary(QString filepath,
 {
     mgf::MgfFile mgfFile;
     mgf::Driver driver(mgfFile);
-    driver.trace_parsing = true;
-    driver.trace_scanning = true;
+    driver.trace_parsing = false;
+    driver.trace_scanning = false;
 
     ifstream ifs(filepath.toStdString());
     bool result = driver.parse_stream(ifs);
@@ -600,6 +600,7 @@ int Database::loadMascotLibrary(QString filepath,
                   << std::endl;
         return 0;
     }
+    return mgfFile.size();
 }
 
 bool Database::isSpectralLibrary(string dbName) {

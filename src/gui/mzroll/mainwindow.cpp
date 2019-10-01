@@ -1882,19 +1882,21 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         if (ligandWidget->isVisible())
             ligandWidget->setDatabase(QString(dbName.c_str()));
 
-        QString eventLabel = "MS1";
         vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
-        if (loadedCompounds[0]->precursorMz > 0
-            && (loadedCompounds[0]->productMz > 0
-                || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
-            eventLabel = DB.isSpectralLibrary(dbName) ? "MS2 (PRM)"
-                                                  : "MS2 (MRM)";
-        }
-        analytics->hitEvent("Load Compound DB",
-                            "Successful Load",
-                            eventLabel);
-        if (eventLabel == "MS2 (PRM)") {
-            analytics->hitEvent("PRM", "LoadedSpectralLibrary");
+        if (!loadedCompounds.empty()) {
+            QString eventLabel = "MS1";
+            if (loadedCompounds[0]->precursorMz > 0
+                && (loadedCompounds[0]->productMz > 0
+                    || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
+                eventLabel = DB.isSpectralLibrary(dbName) ? "MS2 (PRM)"
+                                                      : "MS2 (MRM)";
+            }
+            analytics->hitEvent("Load Compound DB",
+                                "Successful Load",
+                                eventLabel);
+            if (eventLabel == "MS2 (PRM)") {
+                analytics->hitEvent("PRM", "LoadedSpectralLibrary");
+            }
         }
 
         setLastLoadedDatabase(filename);
