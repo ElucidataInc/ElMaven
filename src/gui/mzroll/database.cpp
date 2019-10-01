@@ -595,10 +595,48 @@ int Database::loadMascotLibrary(QString filepath,
 
     ifstream ifs(filepath.toStdString());
     bool result = driver.parse_stream(ifs);
+
+    QString filename = QFileInfo(filepath).fileName();
+    if (signal)
+        (*signal)("Reading database: " + filename.toStdString(), 0, 0);
+
     if (!result) {
         std::cerr << "Error parsing data stream"
                   << std::endl;
         return 0;
+    }
+
+    for (auto specIter = begin(mgfFile); specIter != end(mgfFile); ++specIter) {
+        auto charges = specIter->getCHARGE();
+        int charge = 1;
+        if (!charges.empty())
+            charge = charges.front();
+
+        Compound* compound = new Compound(specIter->getTITLE(),
+                                          specIter->getTITLE(),
+                                          "",
+                                          charge);
+        compound->expectedRt = specIter->getRTINSECONDS().first / 60.0f;
+        compound->mass = specIter->getPEPMASS().first;
+        compound->precursorMz = compound->mass;
+        compound->smileString = specIter->getSMILES();
+        compound->ionizationMode = specIter->getIONMODE() == "negative" ? -1
+                                                                        : 1;
+
+        // create spectra
+        vector<float> fragmentMzValues;
+        vector<float> fragmentInValues;
+        for (auto fragPair = specIter->begin();
+             fragPair != specIter->end();
+             ++fragPair) {
+            fragmentMzValues.push_back(fragPair->first);
+            fragmentInValues.push_back(fragPair->second);
+        }
+        compound->fragmentMzValues = fragmentMzValues;
+        compound->fragmentIntensities = fragmentInValues;
+
+        compound->db = mzUtils::cleanFilename(filepath.toStdString());
+        addCompound(compound);
     }
     return mgfFile.size();
 }
