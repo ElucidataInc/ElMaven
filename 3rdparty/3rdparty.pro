@@ -13,7 +13,8 @@ SUBDIRS += obiwarp       \
            Logger        \
            ErrorHandling \
            libsvm        \
-           NimbleDSP
+           NimbleDSP     \
+           libmgf
 
 macx {
   SUBDIRS -= libcdfread
