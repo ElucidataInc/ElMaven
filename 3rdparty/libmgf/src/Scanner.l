@@ -277,6 +277,11 @@ typedef mgf::Parser::token_type token_type;
     yylloc->step();
     return token::IONMODE;
 }
+
+"ORGANISM" {
+    yylloc->step();
+    return token::ORGANISM;
+}
  /* end custom fields */
 
 #[^\n]* {

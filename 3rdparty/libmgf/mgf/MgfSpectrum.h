@@ -272,6 +272,16 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
      */
     void setIONMODE(const std::string& ionmode);
 
+    /** Get identifier for organism from which the sample was extracted.
+     *  @return A string specifying the organism.
+     */
+    std::string getORGANISM(void) const;
+
+    /** Set identifier for organism from which the sample was extracted.
+     *  @param[in] organism The organism.
+     */
+    void setORGANISM(const std::string& organism);
+
   private:
     friend std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf);
     std::vector<int> charges_;
@@ -287,6 +297,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     int mslevel_;
     std::string filename_;
     std::string ionmode_;
+    std::string organism_;
 };
 
 /** An stream operator to output the fragment ion spectrum in MGF. This includes

@@ -163,6 +163,14 @@ void MgfSpectrum::setIONMODE(const std::string& ionmode) {
     ionmode_ = ionmode;
 }
 
+std::string MgfSpectrum::getORGANISM(void) const {
+    return organism_;
+}
+
+void MgfSpectrum::setORGANISM(const std::string& organism) {
+    organism_ = organism;
+}
+
 std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
     // start with title, then A-Z
     os << "BEGIN IONS" << '\n';
@@ -227,6 +235,8 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "FILENAME=" << mgf.filename_ << '\n';
     if (!mgf.ionmode_.empty())
         os << "IONMODE=" << mgf.ionmode_ << '\n';
+    if (!mgf.organism_.empty())
+        os << "ORGANISM=" << mgf.organism_ << '\n';
     for (MgfSpectrum::const_iterator i = mgf.begin(); i != mgf.end(); ++i) {
         os << i->first << " " << i->second << '\n';
     }
