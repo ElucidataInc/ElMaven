@@ -282,6 +282,16 @@ typedef mgf::Parser::token_type token_type;
     yylloc->step();
     return token::ORGANISM;
 }
+
+"NAME="[^\n]* {
+    std::string title(yytext);
+    size_t pos = title.find("=");
+    yylval->stringVal = new std::string();
+    if (pos != std::string::npos && pos < (title.size()-1)) {
+        *(yylval->stringVal) = title.substr(pos+1);
+    }
+    return token::TITLE;
+}
  /* end custom fields */
 
 #[^\n]* {
