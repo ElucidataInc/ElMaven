@@ -1,14 +1,3 @@
-bison_major_version = $$system(bison --version 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n1)
-bison_minor_version = $$system(bison --version 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n3 | tail -n1)
-message(Found bison: "$$bison_major_version"."$$bison_minor_version")
-if (equals(bison_major_version, 2):greaterThan(bison_minor_version, 3)) {
-    message("A suitable bison binary was detected, parsers will be updated\
-             during compilation.")
-} else {
-    warning("To generate updated sources for grammar file, bison executable\
-             between v2.3b and v2.7 is required.")
-}
-
 include($$mac_compiler)
 
 TEMPLATE = lib
