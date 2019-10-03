@@ -1,3 +1,14 @@
+stored_scanner_sha=$(cat scanner_sha)
+stored_parser_sha=$(cat parser_sha)
+current_scanner_sha=$(shasum Scanner.l)
+current_parser_sha=$(shasum Parser.ypp)
+if [ "$current_scanner_sha" == "$stored_scanner_sha" ] && [ "$current_parser_sha" == "$stored_parser_sha" ]; then
+    echo "The scanner and parser are up to date."
+    exit 0
+else
+    echo "The scanner or parser files were changed, their source files need to be regenerated."
+fi
+
 flex_major_version=$(flex --version 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n1)
 flex_minor_version=$(flex --version 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n3 | tail -n1)
 bison_major_version=$(bison --version 2>&1 | head -n1 | grep -o  "[0-9\.]" | head -n1)
@@ -22,6 +33,9 @@ if [ $flex_major_version -eq 2 ] && [ $flex_minor_version -gt 4 ] && [ $bison_ma
     cat location.hh | sed -e 's/location\.hh/location.h/g;s/position\.hh/position.h/g' > location.h
     rm location.hh
     cat position.hh | sed -e 's/position\.hh/position.h/g' > position.h
+
+    shasum Scanner.l > scanner_sha
+    shasum Parser.ypp > parser_sha
 else
     echo "To generate updated sources for grammar file, flex v2.5 or newer and bison executable between v2.3b and v2.7 is required."
     echo "Skipping parser regeneration."
