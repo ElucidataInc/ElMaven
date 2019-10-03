@@ -40,6 +40,7 @@ class mzSlice
         float ionCount;
         Compound *compound;
         vector<Compound*> compoundVector;
+        Adduct* adduct;
         string srmId;
 
         /**
@@ -111,6 +112,7 @@ class mzSlice
             ionCount = b.ionCount;
             compound = b.compound;
             compoundVector = b.compoundVector;
+            adduct = b.adduct;
             srmId = b.srmId;
             mz = b.mz;
             rt = b.rt;

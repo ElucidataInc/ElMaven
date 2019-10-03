@@ -174,6 +174,7 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                      end(groups),
                      [&](PeakGroup& candidate) {
                          if (candidate.getCompound() == group.getCompound()
+                             && candidate.getAdduct() != nullptr
                              && candidate.getAdduct()->isParent()) {
                              parentIons.push_back(&candidate);
                          }
@@ -211,6 +212,30 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
 
             // no parent ion is close enough in the RT domain, eliminate
             if (identifiedParent == nullptr) {
+                it = groups.erase(it);
+                continue;
+            }
+
+            bool correlatedToParent = true;
+            for (auto sample : _mavenParameters->samples) {
+                auto parentPeak = identifiedParent->getPeak(sample);
+                auto deviation = _mavenParameters->adductSearchWindow / 60.0f;
+                double corr =
+                    sample->correlation(group.meanMz,
+                                        identifiedParent->meanMz,
+                                        _mavenParameters->massCutoffMerge,
+                                        parentPeak->rtmin - deviation,
+                                        parentPeak->rtmax + deviation,
+                                        _mavenParameters->eicType,
+                                        _mavenParameters->filterline);
+                if (corr < 0.9f) {
+                    correlatedToParent = false;
+                    break;
+                }
+            }
+
+            // candidate is not highly correlated to identified parent, erase
+            if (!correlatedToParent) {
                 it = groups.erase(it);
                 continue;
             }

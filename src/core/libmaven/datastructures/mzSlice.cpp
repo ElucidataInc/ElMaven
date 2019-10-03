@@ -21,13 +21,15 @@ mzSlice::mzSlice(string filterLine)
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
 	compound = NULL;
-	srmId = filterLine;
+    srmId = filterLine;
+    adduct = nullptr;
 }
 
 mzSlice::mzSlice()
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
-	compound = NULL;
+    compound = NULL;
+    adduct = nullptr;
 }
 
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
