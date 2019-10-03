@@ -576,7 +576,7 @@ int Database::loadNISTLibrary(QString filepath,
         }
         ++currentLine;
         if (signal) {
-            (*signal)("Loading database: " + filename.toStdString(),
+            (*signal)("Loading spectral library: " + filename.toStdString(),
                       currentLine,
                       lineCount);
         }
@@ -598,7 +598,7 @@ int Database::loadMascotLibrary(QString filepath,
 
     QString filename = QFileInfo(filepath).fileName();
     if (signal)
-        (*signal)("Reading database: " + filename.toStdString(), 0, 0);
+        (*signal)("Reading file " + filename.toStdString(), 0, 0);
 
     if (!result) {
         std::cerr << "Error parsing data stream"
@@ -637,7 +637,15 @@ int Database::loadMascotLibrary(QString filepath,
 
         compound->db = mzUtils::cleanFilename(filepath.toStdString());
         addCompound(compound);
+
+        if (signal) {
+            (*signal)("Loading spectral library: " + filename.toStdString(),
+                      (specIter - begin(mgfFile)),
+                      mgfFile.size());
+        }
     }
+    if (signal)
+        (*signal)("Finished loading " + filename.toStdString(), 0, 0);
     return mgfFile.size();
 }
 
