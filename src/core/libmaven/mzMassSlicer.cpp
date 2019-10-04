@@ -420,6 +420,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
                 }
             }
             delete eic;
+            delete comparisonEic;
         }
 
         if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
