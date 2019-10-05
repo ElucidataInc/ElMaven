@@ -136,8 +136,9 @@ using namespace mzUtils;
 
  MainWindow::MainWindow(Controller* controller, QWidget *parent) :
      _controller(controller),
-		QMainWindow(parent) {
-	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
+		QMainWindow(parent)
+{
+		connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
 
@@ -757,14 +758,19 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent* event)
 {
     // things that need to be done after the mainwidow gets displayed
-    qDebug() << "show event";
-    std::cerr << "show event";
+	qDebug() << "Showing mainwindow now";
     gettingstarted->showDialog();
     // check if new update is available, if yes show the update ui
-    if(getController()->getUpdater()->updateAvailable) {
-        qDebug() << "Update available";
-        std::cerr << "Update available";
-    }
+}
+
+void MainWindow::newUpdate()
+{
+	qDebug() << "new update is available";
+	QMessageBox msgBox(this);
+    msgBox.setText("New update is available. Would you like to update now");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.exec();
+
 }
 
 void MainWindow::sendPeaksGA()

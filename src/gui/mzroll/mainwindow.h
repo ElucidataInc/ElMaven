@@ -80,13 +80,15 @@ protected:
     virtual void showEvent(QShowEvent* event);
 
 
-private slots:
+public slots:
     void updateInstalled();
+	void newUpdate();
     void updateFailed();
 
 public:
 	int value() const { return m_value; }
     MainWindow(Controller* controller,QWidget *parent = 0);
+	void setup();
     ~MainWindow();
 	QSettings* getSettings() {
 		return settings;

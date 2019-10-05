@@ -2,17 +2,11 @@
 #include <QProcess>
 #include <QDebug>
 #include <pugixml.hpp>
+#include <QApplication>
 
 
-// UPDATE: Checking of whether an update is available or not is done. Mainwindow needs to show the "Update available window"
-// as soon as El-MAVEN is started. The 'showEvent' function of MainWindow is being called before we get know whether update is available
-// or not.
-
-AutoUpdate::AutoUpdate(DownloadManager* dlManager):
-    updateAvailable(false)
+AutoUpdate::AutoUpdate()
 {
-    qDebug() << "auto updater";
-    checkForUpdate();
 }
 
 AutoUpdate::~AutoUpdate()
@@ -25,7 +19,10 @@ void AutoUpdate::checkForUpdate()
     qDebug() << "checking for updates";
     _proc = new QProcess;
 
-    _proc->setProgram("/home/g_rishabh/elmaven-0.1/maintenancetool");
+    QString maintenanceToolPath = qApp->applicationDirPath() + "/../" + "../" + "../" + "../" + "../"
+                                  + "maintenancetool.app/" + "Contents/" + "MacOS/" + "maintenancetool";
+    qDebug() <<  "path:  " <<  maintenanceToolPath;
+    _proc->setProgram(maintenanceToolPath);
     _proc->setArguments(QStringList() << "--checkupdates");
 
     connect(_proc, &QProcess::started, this, &AutoUpdate::processStarted);
@@ -35,14 +32,6 @@ void AutoUpdate::checkForUpdate()
     connect(_proc, &QProcess::readyReadStandardOutput, this, &AutoUpdate::readOutput);
     connect(_proc, &QProcess::readyReadStandardError, this, &AutoUpdate::readError);
 
-
-    _proc->start();
-
-
-}
-
-void AutoUpdate::installUpdate()
-{
     _proc->start();
 }
 
@@ -70,7 +59,6 @@ void AutoUpdate::start()
             this, &AutoUpdate::processFinished);
     connect(_proc, &QProcess::errorOccurred, this, &AutoUpdate::processError);
 
-    installUpdate();
 }
 
 void AutoUpdate::processStarted()
@@ -94,14 +82,13 @@ void AutoUpdate::parseOutput()
     }
 
     pugi::xml_node pnode = xmlDoc.child("updates");
-    qDebug() << pnode.name();
-
-    for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
-        qDebug() << it->attribute("version").value();
-        newVersion = it->attribute("version").value();
-        updateAvailable = true;
+    if(!pnode.empty()) {
+        pugi::xml_node cnode = pnode.child("update");
+        if(!cnode.empty()) {
+            newVersion = cnode.attribute("version").value();
+            emit updateAvailable();
+        }
     }
-
 }
 
 void AutoUpdate::processFinished(int exitCode, QProcess::ExitStatus status)

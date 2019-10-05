@@ -12,6 +12,7 @@ CONFIG += qt thread sql svg console precompile_header resources_big
 
 #Faster build + C++11 ++ OpenMP
 
+QMAKE_CXXFLAGS += -w
 QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 linux: QMAKE_CXXFLAGS += -Ofast -ffast-math

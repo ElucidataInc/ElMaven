@@ -1,34 +1,22 @@
 #ifndef AUTOUPDATE_H
 #define AUTOUPDATE_H
 
-//#include <QThread>
 #include <QProcess>
 #include <common/downloadmanager.h>
 
 class AutoUpdate: public QObject
-//        public QThread
 {
     Q_OBJECT
 public:
-    AutoUpdate(DownloadManager* dlManager);
+    AutoUpdate();
     ~AutoUpdate();
     void start();
-//    void setDownloadManager(DownloadManager* manager);
 
-    enum class UpdateState {
-        NotStarted,
-        Updating,
-        Success,
-        Failure
-    };
+    void checkForUpdate();
     const char* newVersion;
-    bool updateAvailable;
 
 private:
-    void installUpdate();
-    void checkForUpdate();
     void parseOutput();
-protected:
 
 private slots:
     void processStarted();
@@ -39,16 +27,13 @@ private slots:
 
 Q_SIGNALS:
     void statusChanged();
-    void success();
+    void updateAvailable();
     void failure();
 
-
 private:
-//    UpdateState _state;
     QProcess* _proc;
     QByteArray _output;
     QByteArray _error;
-    DownloadManager _dlManager;
 
 };
 

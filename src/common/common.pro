@@ -5,7 +5,7 @@ OBJECTS_DIR=$$top_builddir/tmp/common/
 
 DESTDIR=$$top_builddir/libs/
 
-QT += core network
+QT += core network widgets
 
 TEMPLATE = lib
 

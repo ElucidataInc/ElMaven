@@ -23,28 +23,29 @@ Controller::Controller()
 
     _dlManager = new DownloadManager;
     iPolly = new PollyIntegration(_dlManager);
-    _updater = new AutoUpdate(_dlManager);
+    _updater = new AutoUpdate();
     _mw = new MainWindow(this);
 
-
-
-    updateUi();
+    connect(_updater, &AutoUpdate::updateAvailable, _mw, &MainWindow::newUpdate);
+    connect(_updater, &AutoUpdate::failure, _mw, &MainWindow::updateFailed);
     connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
     connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->settingsForm, &SettingsForm::updateSettings, this, &Controller::updateOptionsDialogSettings);
     connect(_mw->settingsForm, &SettingsForm::settingsUpdated, this, &Controller::_updateSettingsForSave);
-    connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
+    // connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
     connect(_mw, &MainWindow::loadedSettings, this, &Controller::updateUi);
     connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
     connect(_mw->isotopeDialog, &IsotopeDialog::resetSettings, this, &Controller::resetMP);
-//    connect(updater, &AutoUpdate::success, this, &MainWindow::updateInstalled);
-//    connect(updater, &AutoUpdate::failure, this, &MainWindow::updateFailed);
+    qDebug() << "setup complete";
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();
+    qDebug() << "updating ui complete";
+    _updater->checkForUpdate();
+    qDebug() << "checking for updates";
 }
 
 Controller::~Controller()
