@@ -969,6 +969,7 @@ QString MainWindow::getLatestUserProject()
 void MainWindow::resetAutosave()
 {
     if (this->timestampFileExists) {
+        while (autosave->isRunning());
         fileLoader->closeSQLiteProject();
         QFile::remove(_currentProjectName);
     }
