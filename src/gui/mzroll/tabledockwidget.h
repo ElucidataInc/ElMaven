@@ -137,6 +137,16 @@ public:
    */
   static int lastTableId();
 
+  /**
+   * @brief Clears all key-value pairs from the `_idTitleMap` object. This is
+   * meant to be called only when a "new session" behavior is wanted.
+   */
+  static void clearTitleRegistry() {
+      _idTitleMap.clear();
+      setTitleForId(-1);
+      setTitleForId(0);
+  }
+
 public Q_SLOTS:
   void updateCompoundWidget();
   PeakGroup *addPeakGroup(PeakGroup *group);

@@ -796,6 +796,7 @@ void ProjectDockWidget::clearSession()
         unloadSample(sample);
     _mainwindow->removeAllPeakTables();
     _mainwindow->bookmarkedPeaks->deleteAll();
+    TableDockWidget::clearTitleRegistry();
 }
 
 void ProjectDockWidget::loadMzRollProject(QString fileName) {
