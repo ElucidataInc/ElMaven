@@ -35,6 +35,7 @@ QMAKE_LFLAGS += -L$$top_builddir/libs/
 
 LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf -lobiwarp -lpollyCLI -lcommon
 unix: LIBS += -lboost_system -lboost_filesystem
+win32: LIBS += -lboost_system-mt -lboost_filesystem-mt
 !macx: LIBS += -fopenmp
 
 macx {
