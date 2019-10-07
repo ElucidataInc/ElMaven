@@ -8,6 +8,7 @@
 
 PeakGroup::PeakGroup()  {
     groupId=0;
+    savedGroupId = -1; // initialized to denote unsaved default state
     metaGroupId=0;
     clusterId = 0;
     groupRank=INT_MAX;
@@ -83,6 +84,7 @@ PeakGroup::PeakGroup()  {
 
 void PeakGroup::copyObj(const PeakGroup& o)  {
     groupId= o.groupId;
+    savedGroupId = o.savedGroupId;
     metaGroupId= o.metaGroupId;
     clusterId = o.clusterId;
     groupRank= o.groupRank;

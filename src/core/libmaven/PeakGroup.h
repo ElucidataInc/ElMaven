@@ -87,6 +87,7 @@ class PeakGroup{
         QType quantitationType;
 
         int groupId;
+        int savedGroupId;
         int metaGroupId;
         int clusterId;
 

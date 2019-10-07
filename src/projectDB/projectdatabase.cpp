@@ -261,6 +261,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
         cerr << "Error: failed to save peak group" << endl;
 
     int lastInsertedGroupId = _connection->lastInsertId();
+    group->savedGroupId = lastInsertedGroupId;
     saveGroupPeaks(group, lastInsertedGroupId);
 
     for (auto child: group->children)
@@ -886,6 +887,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
     while (groupsQuery->next()) {
         PeakGroup* group = new PeakGroup();
         group->groupId = groupsQuery->integerValue("group_id");
+        group->savedGroupId = groupsQuery->integerValue("group_id");
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
         group->tagString = groupsQuery->stringValue("tag_string");
         group->metaGroupId = groupsQuery->integerValue("meta_group_id");
@@ -1476,9 +1478,9 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
         return;
 
     vector<int> selectedGroups;
-    selectedGroups.push_back(group->groupId);
+    selectedGroups.push_back(group->savedGroupId);
     for (const auto& child : group->children)
-        selectedGroups.push_back(child.groupId);
+        selectedGroups.push_back(child.savedGroupId);
 
     if (selectedGroups.size() == 0)
         return;
