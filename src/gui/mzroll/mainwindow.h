@@ -214,7 +214,7 @@ public:
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
-	void autoSaveSignal();
+    void autoSaveSignal(PeakGroup* group = nullptr);
 	void normalizeIsotopicMatrix(MatrixXf &MM);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
@@ -259,9 +259,11 @@ public:
     /**
      * @brief Call appropriate save methods for the filename set in
      * `_currentProjectName` variable.
-     * @param tablesOnly Save only peak tables in the project file.
+     * @param singleGroupToBeSaved If supplied, save only the given `PeakGroup`
+     * object in the project file. This assumes that the rest of the project
+     * already contains the other necessary information for session restoration.
      */
-    void saveProjectForFilename(bool tablesOnly=false);
+    void saveProjectForFilename(PeakGroup* singleGroupToBeSaved = nullptr);
 
     /**
      * @brief Stores whether a timestamp file is being used to save in the
@@ -272,7 +274,8 @@ public:
 	void loadPollySettings(QString fileName);
 Q_SIGNALS:
 	void valueChanged(int newValue);
-	void saveSignal();
+    void saveSignal();
+    void saveSignal(PeakGroup* group);
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
     void metaCsvFileLoaded();
@@ -289,6 +292,7 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
+    void autosaveGroup(PeakGroup* group);
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -572,11 +576,11 @@ class AutoSave : public QThread
 
 public:
     AutoSave(MainWindow*);
-    void saveProjectWorker(bool tablesOnly=false);
+    void saveProjectWorker(PeakGroup* singleGroup = nullptr);
     MainWindow* _mainwindow;
 
 private:
-    bool saveTablesOnly;
+    PeakGroup* singleGroupToBeSaved;
     void run();
 };
 

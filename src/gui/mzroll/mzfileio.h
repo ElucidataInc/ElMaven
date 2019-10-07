@@ -132,6 +132,14 @@ Q_OBJECT
         void writeGroups(QList<PeakGroup*> groups, QString tableName);
 
         /**
+         * @brief Update an existing group or write anew if it does not exist
+         * for the given table.
+         * @param group The `PeakGroup` object to be written.
+         * @param tableName Name of the table storing this group.
+         */
+        void updateGroup(PeakGroup* group, QString tableName);
+
+        /**
          * @brief Write current session data into a SQLite database.
          * @details The data saved include samples' metadata, peak groups,
          * peaks, associated compounds and alignment data. Write operation
