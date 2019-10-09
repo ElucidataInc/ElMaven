@@ -193,7 +193,7 @@ contributing C++ code, please make sure that it follows the [style guide](https:
 *	[Shubhra Agrawal](https://github.com/shubhra-agrawal)
 *	[Rishabh Gupta](https://github.com/rish9511)
 *	[Saiful B. Khan](https://github.com/saifulbkhan)
-*	[Raghuram Reddy](https://github.com/r-el-maya)
+*	[Raghuram Reddy](https://github.com/r-maya)
 *	[Pankaj Kumar](https://github.com/IpankajI)
 *	[Rahul Kumar](https://github.com/rkdahmiwal)
 *	[Giridhari](https://github.com/Giridhari013)
