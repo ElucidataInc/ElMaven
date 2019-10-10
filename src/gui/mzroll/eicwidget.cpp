@@ -1886,6 +1886,7 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//addFitLine(group);
     eicParameters->setDisplayedGroup(group);
     eicParameters->setSelectedGroup(group);
+    emit groupSelected(group);
 }
 
 PeakGroup* EicWidget::getSelectedGroup()

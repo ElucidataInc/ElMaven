@@ -189,6 +189,7 @@ Q_SIGNALS:
     void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 	void peakMarkedEicWidget();
     void eicUpdated();
+    void groupSelected(PeakGroup*);
 
 private:
 	EICLogic* eicParameters;

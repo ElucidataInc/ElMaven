@@ -3927,6 +3927,23 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
             }
             mw->getEicWidget()->setSensitiveToTolerance(!on);
         });
+        connect(mw->getEicWidget(),
+                &EicWidget::groupSelected,
+                this,
+                [=](PeakGroup* selectedGroup) {
+                    if (selectedGroup == nullptr)
+                        return;
+
+                    auto& slice = selectedGroup->getSlice();
+                    if ((mzUtils::almostEqual(slice.mzmin, 0.0f)
+                         && mzUtils::almostEqual(slice.mzmax, 0.0f))
+                        || (mzUtils::almostEqual(slice.rtmin, 0.0f)
+                            && mzUtils::almostEqual(slice.rtmax, 0.0f))) {
+                        setDisabled(true);
+                    } else {
+                        setEnabled(true);
+                    }
+                });
         return toleranceSyncSwitch;
     }
 	else {
