@@ -65,8 +65,6 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
     if (quantileFilters(&peakgroup))
         return true;
 
-    if (compound)
-        peakgroup.setCompound(compound);
     if (!_slice->srmId.empty())
         peakgroup.srmId = _slice->srmId;
 
