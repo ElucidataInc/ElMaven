@@ -3924,6 +3924,9 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
             if (on) {
                 QIcon locked(rsrcPath + "/toleranceSyncLock.png");
                 toleranceSyncSwitch->setIcon(locked);
+            } else {
+                QIcon unlocked(rsrcPath + "/toleranceSyncUnlock.png");
+                toleranceSyncSwitch->setIcon(unlocked);
             }
             mw->getEicWidget()->setSensitiveToTolerance(!on);
         });
@@ -3939,6 +3942,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
                          && mzUtils::almostEqual(slice.mzmax, 0.0f))
                         || (mzUtils::almostEqual(slice.rtmin, 0.0f)
                             && mzUtils::almostEqual(slice.rtmax, 0.0f))) {
+                        setChecked(false);
                         setDisabled(true);
                     } else {
                         setEnabled(true);
