@@ -9,8 +9,8 @@ mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
 	mzmax = maxMz;
 	rtmin = minRt;
 	rtmax = maxRt;
-	mz = minMz + (maxMz - minMz) / 2;
-	rt = minRt + (maxRt - minRt) / 2;
+    mz = (maxMz + minMz) / 2.0f;
+    rt = (maxRt + minRt) / 2.0f;
 	compound = NULL;
 	ionCount = 0;
 }
