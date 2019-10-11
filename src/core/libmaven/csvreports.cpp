@@ -163,8 +163,8 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile()
                            << "formula"
                            << "sample"
                            << "peakMz"
-                           << "medianMz"
-                           << "baseMz"
+                           << "mzmin"
+                           << "mzmax"
                            << "rt"
                            << "rtmin"
                            << "rtmax"
@@ -484,8 +484,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << formula
                    << SEP << sampleName
                    << SEP << peak.peakMz
-                   << SEP << peak.medianMz
-                   << SEP << peak.baseMz
+                   << SEP << peak.mzmin
+                   << SEP << peak.mzmax
                    << setprecision(3)
                    << SEP << peak.rt
                    << SEP << peak.rtmin
