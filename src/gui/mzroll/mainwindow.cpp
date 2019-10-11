@@ -2507,7 +2507,7 @@ void MainWindow::readSettings() {
 
 void MainWindow::writeSettings() {
 	settings->setValue("pos", pos());
-	settings->setValue("size", size()*0.7);
+    settings->setValue("size", size());
 	settings->setValue("massCutoffWindowBox", massCutoffWindowBox->value());
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
