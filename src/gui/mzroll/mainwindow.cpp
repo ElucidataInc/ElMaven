@@ -3931,7 +3931,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
             mw->getEicWidget()->setSensitiveToTolerance(!on);
         });
         connect(mw->getEicWidget(),
-                &EicWidget::groupSelected,
+                &EicWidget::groupSet,
                 toleranceSyncSwitch,
                 [=](PeakGroup* selectedGroup) {
                     if (selectedGroup == nullptr)
@@ -3947,6 +3947,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
                     } else {
                         toleranceSyncSwitch->setEnabled(true);
                     }
+                });
+        connect(mw->getEicWidget(),
+                &EicWidget::compoundSet,
+                toleranceSyncSwitch,
+                [=](Compound* selectedCompound) {
+                    toleranceSyncSwitch->setChecked(false);
+                    toleranceSyncSwitch->setDisabled(true);
                 });
         return toleranceSyncSwitch;
     }

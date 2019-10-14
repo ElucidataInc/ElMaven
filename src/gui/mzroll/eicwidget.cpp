@@ -1434,7 +1434,8 @@ void EicWidget::setCompound(Compound* c)
 	slice.compound = c;
 	if (!c->srmId.empty())
 		slice.srmId = c->srmId;
-	setMzSlice(slice);
+    setMzSlice(slice);
+    emit compoundSet(c);
 
 	//clock_gettime(CLOCK_REALTIME, &tE);
 	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
@@ -1531,7 +1532,8 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
 			eicParameters->peakgroups[i].srmId = eicParameters->_slice.srmId;
 
-	replot(group);
+    emit groupSet(group);
+    replot(group);
 	addPeakPositions(group);
 }
 
@@ -1886,7 +1888,6 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//addFitLine(group);
     eicParameters->setDisplayedGroup(group);
     eicParameters->setSelectedGroup(group);
-    emit groupSelected(group);
 }
 
 PeakGroup* EicWidget::getSelectedGroup()
