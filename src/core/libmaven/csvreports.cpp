@@ -462,12 +462,18 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     // this ensures that the order in which the peaks are written is same across different systems.
     std::sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleName);
 
+    vector<mzSample*> samplesWithNoPeak = samples;
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
         mzSample* sample = peak.getSample();
         string sampleName;
         if (sample != NULL) {
-
+            samplesWithNoPeak.erase(remove_if(begin(samplesWithNoPeak),
+                                              end(samplesWithNoPeak),
+                                              [sample] (mzSample* s) {
+                                                  return s == sample;
+                                              }),
+                                    end(samplesWithNoPeak));
             string sampleId = "";
             sampleId = sample->sampleName;
             if (sample->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(sample->sampleNumber);
@@ -502,6 +508,43 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << peak.noNoiseObs
                    << SEP << peak.signalBaselineRatio
                    << SEP << peak.fromBlankSample << endl;
+    }
+    for (auto sample : samplesWithNoPeak) {
+        string sampleName = "";
+        if (sample != nullptr) {
+            string sampleId = "";
+            sampleId = sample->sampleName;
+            if (sample->sampleNumber != -1) {
+                sampleId = sampleId
+                           + " | Sample Number = "
+                           + to_string(sample->sampleNumber);
+            }
+            sampleName = sanitizeString(sampleId.c_str()).toStdString();
+        }
+        peakReport << fixed << setprecision(6)
+                   << group->groupId
+                   << SEP << compoundName
+                   << SEP << compoundID
+                   << SEP << formula
+                   << SEP << sampleName
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << setprecision(3)
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << setprecision(2)
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0.0f
+                   << SEP << 0 << endl;
     }
 }
 
