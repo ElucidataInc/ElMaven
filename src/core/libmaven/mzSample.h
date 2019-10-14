@@ -585,15 +585,6 @@ class mzSample
     */
     static bool compInjectionTime(const mzSample *a, const mzSample *b) { return a->injectionTime < b->injectionTime; }
 
-
-    /**
-                          * [getMinMaxDimentions ]
-                          * @method getMinMaxDimentions
-                          * @param  samples             []
-                          * @return []
-                          */
-    static mzSlice getMinMaxDimentions(const vector<mzSample *> &samples);
-
     /**
                           * [setFilter_minIntensity ]
                           * @method setFilter_minIntensity

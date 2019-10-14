@@ -120,7 +120,7 @@ void PeakDetector::pullAllIsotopes() {
     for (unsigned int j = 0; j < mavenParameters->allgroups.size(); j++) {
         if(mavenParameters->stop) break;
         PeakGroup& group = mavenParameters->allgroups[j];
-        Compound* compound = group.compound;
+        Compound* compound = group.getCompound();
 
         if (mavenParameters->pullIsotopesFlag && !group.isIsotope())
         {
@@ -379,7 +379,7 @@ void PeakDetector::processSlices(vector<mzSlice *> &slices, string setName)
 
         vector<PeakGroup> peakgroups =
             EIC::groupPeaks(eics,
-                            compound,
+                            slice,
                             mavenParameters->eic_smoothingWindow,
                             mavenParameters->grouping_maxRtWindow,
                             mavenParameters->minQuality,
@@ -454,7 +454,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                                            group.meanMz,
                                            mavenParameters->massCutoffMerge)) {
                 PeakGroup groupWithTarget(group);
-                groupWithTarget.compound = compound;
+                groupWithTarget.setCompound(compound);
 
                 // since we are creating targeted groups, we should ensure they
                 // pass MS2 filtering criteria, if enabled

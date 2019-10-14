@@ -19,7 +19,7 @@ void BoxPlot::switchQValue() {
 	// TODO: updated equation, didn't understand why - Kiran
     BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
 	PeakGroup* g = NULL;
-	if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->getSelectedGroup();
+    if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->displayedGroup();
 	if ( g != NULL ) {
 		setPeakGroup(g);
 		scene()->update();

@@ -114,7 +114,7 @@ double GroupRtWidget::getRefRt(PeakGroup group) {
 
     double refRt;
     if (group.hasCompoundLink()) {
-        refRt = group.compound->expectedRt;
+        refRt = group.getCompound()->expectedRt;
     } else {
         refRt = group.medianRt();
     }

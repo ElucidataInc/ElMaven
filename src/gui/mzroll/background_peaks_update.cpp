@@ -338,8 +338,8 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
     auto prmGroupAt = find_if(begin(mavenParameters->allgroups),
                               end(mavenParameters->allgroups),
                               [] (PeakGroup& group) {
-                                  if (group.compound)
-                                    return (group.compound->type()
+                                  if (group.getCompound())
+                                    return (group.getCompound()->type()
                                             == Compound::Type::PRM);
                                   return false;
                               });

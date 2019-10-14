@@ -343,9 +343,9 @@ void MetaboliteNode::dropEvent( QGraphicsSceneDragDropEvent * event ) {
             QVariant v = item->data(0,Qt::UserRole);
             PeakGroup*  group =  v.value<PeakGroup*>();
 
-            if (group && group->compound) { 
-                setCompound(group->compound); 
-                qDebug() << "Setting Compound:" << group->compound->name.c_str();
+            if (group && group->getCompound()) { 
+                setCompound(group->getCompound()); 
+                qDebug() << "Setting Compound:" << group->getCompound()->name.c_str();
             }
         }
     }

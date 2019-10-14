@@ -281,9 +281,9 @@ void SpectraWidget::overlayPeakGroup(PeakGroup* group)
     float productPpmTolr = mainwindow->mavenParameters->fragmentTolerance;
     Scan* avgScan = group->getAverageFragmentationScan(productPpmTolr);
     setScan(avgScan);
-    if (group->compound) {
+    if (group->getCompound()) {
         _currentGroup.copyObj(*group);
-        overlayCompoundFragmentation(group->compound);
+        overlayCompoundFragmentation(group->getCompound());
         //if (!group->compound->smileString.empty()) overlayTheoreticalSpectra(group->compound);
     }
     delete(avgScan);
@@ -359,8 +359,8 @@ void SpectraWidget::overlayScan(Scan *scan)
 
     _overlayMode = OverlayMode::Raw;
     setScan(scan);
-    if (_currentGroup.compound)
-        overlayCompoundFragmentation(_currentGroup.compound);
+    if (_currentGroup.getCompound())
+        overlayCompoundFragmentation(_currentGroup.getCompound());
 }
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
@@ -513,7 +513,7 @@ void SpectraWidget::setGroupTitle()
     _titleText = QString();
 
     QString compoundName("");
-    if (_currentGroup.compound) compoundName = QString(_currentGroup.compound->name.c_str());
+    if (_currentGroup.getCompound()) compoundName = QString(_currentGroup.getCompound()->name.c_str());
     
     float purity = 0;
     if (_currentGroup.fragmentationPattern.mzValues.size()) {

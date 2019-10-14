@@ -18,7 +18,7 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
 
     double mz,mzmin,mzmax,rtmin,rtmax;
 
-    int charge = mavenParameters->getCharge(grp.compound);
+    int charge = mavenParameters->getCharge(grp.getCompound());
     mz = grp.getExpectedMz(charge);
 
     if (mz == -1) {
@@ -61,14 +61,14 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
 
         myfile << ",\n" << "\"compound\": { " ;
 
-        string compoundID = grp.compound->id;
+        string compoundID = grp.getCompound()->id;
         myfile << "\"compoundId\": "<< sanitizeJSONstring(compoundID) ;
-        string compoundName = grp.compound->name;
+        string compoundName = grp.getCompound()->name;
         myfile << ",\n" << "\"compoundName\": "<< sanitizeJSONstring(compoundName);
-        string formula = grp.compound->formula;
+        string formula = grp.getCompound()->formula;
         myfile << ",\n" << "\"formula\": "<< sanitizeJSONstring(formula);
 
-        myfile << ",\n" << "\"expectedRt\": " << grp.compound->expectedRt;
+        myfile << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt;
 
         myfile << ",\n" << "\"expectedMz\": " << mz ;
 
@@ -166,10 +166,10 @@ void JSONReports::writeGroupMzEICJson(PeakGroup& grp,ofstream& myfile, vector<mz
             if ( !grp.srmId.empty() ) { //MS-MS case 1
                 eic = (*it)->getEIC(grp.srmId, mavenParameters->eicType);
             }
-            else if((grp.compound->precursorMz > 0) & (grp.compound->productMz > 0)) { //MS-MS case 2
+            else if((grp.getCompound()->precursorMz > 0) & (grp.getCompound()->productMz > 0)) { //MS-MS case 2
                 //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
                 //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
-                eic =(*it)->getEIC(grp.compound->precursorMz, grp.compound->collisionEnergy, grp.compound->productMz,mavenParameters->eicType,
+                eic =(*it)->getEIC(grp.getCompound()->precursorMz, grp.getCompound()->collisionEnergy, grp.getCompound()->productMz,mavenParameters->eicType,
                                    mavenParameters->filterline, mavenParameters->amuQ1, mavenParameters->amuQ3);
             }
             else {//MS1 case
@@ -255,7 +255,7 @@ void JSONReports::saveMzEICJson(string filename,vector<PeakGroup> allgroups,vect
         PeakGroup& grp = allgroups[i];
 
         //if compound is unknown, output only the unlabeled form information
-        if( grp.compound == NULL || grp.childCount() == 0 ) {
+        if( grp.getCompound() == NULL || grp.childCount() == 0 ) {
             grp.groupId= ++groupId;
             grp.metaGroupId= ++metaGroupId;
             if(groupId>1) myfile << "\n,";

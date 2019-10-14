@@ -306,7 +306,7 @@ void SettingsForm::recomputeEIC() {
      
     getFormValues();
 
-    PeakGroup* previousGroup = mainwindow->getEicWidget()->getParameters()->getSelectedGroup();
+    PeakGroup* previousGroup = mainwindow->getEicWidget()->getParameters()->displayedGroup();
     float rt = 0;
 
     if (previousGroup) {

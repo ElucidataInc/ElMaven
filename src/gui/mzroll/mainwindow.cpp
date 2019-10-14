@@ -1396,8 +1396,8 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 
 PeakGroup* MainWindow::bookmarkPeakGroup()
 {
-    if (eicWidget && (eicWidget->getParameters()->getSelectedGroup() != NULL)) {
-       return bookmarkPeakGroup(eicWidget->getParameters()->getSelectedGroup());
+    if (eicWidget && (eicWidget->getParameters()->displayedGroup() != NULL)) {
+       return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
     }
 }
 
@@ -1417,8 +1417,8 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
 
 		float rtDiff = -1;
 
-		if (group->compound != NULL && group->compound->expectedRt > 0) {
-			rtDiff = abs(group->compound->expectedRt - (group->meanRt));
+		if (group->getCompound() != NULL && group->getCompound()->expectedRt > 0) {
+			rtDiff = abs(group->getCompound()->expectedRt - (group->meanRt));
 			group->expectedRtDiff = rtDiff;
 		}
 
@@ -1426,11 +1426,11 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
 
-        if (mavenParameters->deltaRtCheckFlag && group->compound != NULL && 
-			group->compound->expectedRt > 0) {
-            
-			group->groupRank = pow(rtDiff, 2*C) * pow((1.1 - group->maxQuality), A)
-                                   				* (1 /( pow(log(group->maxIntensity + 1), B)));
+        if (mavenParameters->deltaRtCheckFlag && group->getCompound() != NULL && 
+            group->getCompound()->expectedRt > 0) {
+            group->groupRank = pow(rtDiff, 2*C)
+                               * pow((1.1 - group->maxQuality), A)
+                               * (1 /( pow(log(group->maxIntensity + 1), B)));
         } else {
             group->groupRank = pow((1.1 - group->maxQuality), A)
                                * (1 /(pow(log(group->maxIntensity + 1), B)));
@@ -3295,18 +3295,18 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && isotopeWidget->isVisible() && group->compound != NULL) {
+	if (isotopeWidget && isotopeWidget->isVisible() && group->getCompound() != NULL) {
 		isotopeWidget->setPeakGroupAndMore(group);
 	}
 
-    if ( group->compound != NULL) {
+    if ( group->getCompound() != NULL) {
 		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
 		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->overlayPeakGroup(group);
 		}
-        QString compoundName(group->compound->name.c_str());
+        QString compoundName(group->getCompound()->name.c_str());
         if (! setPeptideSequence(compoundName)) {
-            setUrl(group->compound);
+            setUrl(group->getCompound());
         }
         if (massCalcWidget)
             massCalcWidget->setPeakGroup(group);
@@ -3559,8 +3559,8 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 	float expectedRt = -1;
 
 	if (group->hasCompoundLink()) {
-		compoundName = "\"" + QString(group->compound->name.c_str()) + "\"";
-		expectedRt = group->compound->expectedRt;
+		compoundName = "\"" + QString(group->getCompound()->name.c_str()) + "\"";
+		expectedRt = group->getCompound()->expectedRt;
 	}
 
 	if (compoundName.isEmpty() && group->srmId.length()) {
@@ -3700,6 +3700,12 @@ QWidget* MainWindow::eicWidgetController() {
 	QWidgetAction *btnShowBarplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBarplot");
 	QWidgetAction *btnShowIsotopeplot = new MainWindowWidgetAction(toolBar, this,  "btnShowIsotopeplot");
 	QWidgetAction *btnShowBoxplot = new MainWindowWidgetAction(toolBar, this,  "btnShowBoxplot");
+    QWidgetAction *spacer = new MainWindowWidgetAction(toolBar,
+                                                       this,
+                                                       "spacer");
+    QWidgetAction *toleranceSyncSwitch = new MainWindowWidgetAction(toolBar,
+                                                                    this,
+                                                                    "toleranceSyncSwitch");
 
 	toolBar->addAction(btnZoom);
 	toolBar->addAction(btnBookmark);
@@ -3723,9 +3729,10 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->addAction(btnShowIsotopeplot);
     toolBar->addAction(btnShowBoxplot);
 
-	toolBar->addSeparator();
-	
-	QWidget *window = new QWidget(this);
+    toolBar->addAction(spacer);
+    toolBar->addAction(toleranceSyncSwitch);
+
+    QWidget *window = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setMargin(0);
 	layout->setSpacing(0);
@@ -3900,7 +3907,56 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
 		return btnShowBoxplot;
 	}
-	
+    else if (btnName == "spacer") {
+        QWidget* spacer = new QWidget(parent);
+        spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        return spacer;
+    }
+    else if (btnName == "toleranceSyncSwitch") {
+        QToolButton *toleranceSyncSwitch = new QToolButton(parent);
+        toleranceSyncSwitch->setIcon(QIcon(rsrcPath
+                                           + "/toleranceSyncUnlock.png"));
+        toleranceSyncSwitch->setToolTip(tr("Sync EIC with current global mass "
+                                           "tolerance"));
+        toleranceSyncSwitch->setCheckable(true);
+        toleranceSyncSwitch->setChecked(false);
+        connect(toleranceSyncSwitch, &QToolButton::toggled, this, [=](bool on) {
+            if (on) {
+                QIcon locked(rsrcPath + "/toleranceSyncLock.png");
+                toleranceSyncSwitch->setIcon(locked);
+            } else {
+                QIcon unlocked(rsrcPath + "/toleranceSyncUnlock.png");
+                toleranceSyncSwitch->setIcon(unlocked);
+            }
+            mw->getEicWidget()->setSensitiveToTolerance(!on);
+        });
+        connect(mw->getEicWidget(),
+                &EicWidget::groupSet,
+                toleranceSyncSwitch,
+                [=](PeakGroup* selectedGroup) {
+                    if (selectedGroup == nullptr)
+                        return;
+
+                    auto& slice = selectedGroup->getSlice();
+                    if ((mzUtils::almostEqual(slice.mzmin, 0.0f)
+                         && mzUtils::almostEqual(slice.mzmax, 0.0f))
+                        || (mzUtils::almostEqual(slice.rtmin, 0.0f)
+                            && mzUtils::almostEqual(slice.rtmax, 0.0f))) {
+                        toleranceSyncSwitch->setChecked(false);
+                        toleranceSyncSwitch->setDisabled(true);
+                    } else {
+                        toleranceSyncSwitch->setEnabled(true);
+                    }
+                });
+        connect(mw->getEicWidget(),
+                &EicWidget::compoundSet,
+                toleranceSyncSwitch,
+                [=](Compound* selectedCompound) {
+                    toleranceSyncSwitch->setChecked(false);
+                    toleranceSyncSwitch->setDisabled(true);
+                });
+        return toleranceSyncSwitch;
+    }
 	else {
 		return NULL;
 	}
@@ -4158,9 +4214,9 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	}
 
 	int numberofCarbons = 0;
-	if (group->compound && !group->compound->formula.empty()) {
+	if (group->getCompound() && !group->getCompound()->formula.empty()) {
 		map<string, int> composition = MassCalculator::getComposition(
-				group->compound->formula);
+				group->getCompound()->formula);
 		numberofCarbons = composition["C"];
 	}
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
@@ -4213,9 +4269,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	}
 
 	int numberofCarbons = 0;
-	if (group->compound && !group->compound->formula.empty()) {
+	if (group->getCompound() && !group->getCompound()->formula.empty()) {
 		map<string, int> composition = MassCalculator::getComposition(
-				group->compound->formula);
+				group->getCompound()->formula);
 		numberofCarbons = composition["C"];
 	}
 

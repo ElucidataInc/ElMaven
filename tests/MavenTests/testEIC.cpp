@@ -329,7 +329,7 @@ void TestEIC:: testgroupPeaks() {
                                                mavenparameters);
 
     vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                   slice->compound,
+                                                   slice,
                                                    mavenparameters->eic_smoothingWindow,
                                                    mavenparameters->grouping_maxRtWindow,
                                                    mavenparameters->minQuality,

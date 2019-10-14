@@ -107,5 +107,7 @@
         <file>images/quant.png</file>
         <file>images/quantSelected.png</file>
         <file>images/librarymanager.png</file>
+        <file>images/toleranceSyncLock.png</file>
+        <file>images/toleranceSyncUnlock.png</file>
     </qresource>
 </RCC>

@@ -298,7 +298,7 @@ void TableDockWidget::updateCompoundWidget() {
       PeakGroup *group = v.value<PeakGroup *>();
       if (group == nullptr)
         continue;
-      _mainwindow->ligandWidget->markAsDone(group->compound);
+      _mainwindow->ligandWidget->markAsDone(group->getCompound());
     }
     ++itr;
   }
@@ -363,7 +363,7 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
   item->setText(0, QString::number(group->groupId));
   item->setText(1, QString(group->getName().c_str()));
   item->setText(2, QString::number(group->meanMz, 'f', 4));
-  int charge = _mainwindow->mavenParameters->getCharge(group->compound);
+  int charge = _mainwindow->mavenParameters->getCharge(group->getCompound());
 
   if (group->getExpectedMz(charge) != -1) {
     float mz = group->getExpectedMz(charge);
@@ -381,7 +381,6 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     item->setIcon(0, QIcon(":/images/bad.png"));
 
   if (viewType == groupView) {
-
     item->setText(5, QString::number(group->expectedRtDiff, 'f', 2));
     item->setText(6, QString::number(group->sampleCount));
     item->setText(7, QString::number(group->goodPeakCount));
@@ -447,7 +446,7 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
     allgroups.push_back(*group);
     if (group->childCount() > 0)
       _labeledGroups++;
-    if (group->compound)
+    if (group->getCompound())
       _targetedGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups[allgroups.size() - 1];
@@ -642,8 +641,8 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   auto prmGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
-                              if (group.compound == nullptr) return false;
-                              return group.compound->type() == Compound::Type::PRM;
+                              if (group.getCompound() == nullptr) return false;
+                              return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
@@ -741,9 +740,9 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
   auto ddaGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
-                              if (!group.compound)
+                              if (!group.getCompound())
                                 return false;
-                              return group.compound->type() == Compound::Type::PRM;
+                              return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool ddaGroupExists = ddaGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
@@ -770,7 +769,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 
   for (auto& group : allgroups) {
     // we do not set untargeted groups to Polly yet, remove this when we can.
-    if (selectedGroups.contains(&group) && group.compound != nullptr) {
+    if (selectedGroups.contains(&group) && group.getCompound() != nullptr) {
       csvreports->addGroup(&group);
     }
   }
@@ -1052,7 +1051,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
       if (group->children.size() > 0)
         _labeledGroups--;
-      if (group->compound)
+      if (group->getCompound())
         _targetedGroups--;
 
       // Deleting
@@ -1591,7 +1590,7 @@ void TableDockWidget::findMatchingCompounds() {
   float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
   for (int i = 0; i < allgroups.size(); i++) {
     PeakGroup &g = allgroups[i];
-    int charge = _mainwindow->mavenParameters->getCharge(g.compound);
+    int charge = _mainwindow->mavenParameters->getCharge(g.getCompound());
     QSet<Compound *> compounds =
         _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz,
                                                             massCutoff,
@@ -2576,7 +2575,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
     if (group->children.size() > 0)
       _labeledGroups--;
-    if (group->compound)
+    if (group->getCompound())
       _targetedGroups--;
 
       	// Deleting

@@ -8,7 +8,8 @@
 
 EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);
-	selectedGroup = NULL;
+    _selectedGroup = nullptr;
+    _displayedGroup = nullptr;
 }
 
 void EICLogic::addPeakGroup(PeakGroup& group) {
@@ -20,7 +21,7 @@ void EICLogic::associateNameWithPeakGroups() {
 
 	if (_slice.compound) {
 		for (unsigned int i = 0; i < peakgroups.size(); i++) {
-			peakgroups[i].compound = _slice.compound;
+			peakgroups[i].setCompound(_slice.compound);
 		}
 	}
 	if (!_slice.srmId.empty()) {
@@ -65,7 +66,7 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 }
 
 void EICLogic::groupPeaks(float eic_smoothingWindow,
-                          Compound* compound,
+                          mzSlice* slice,
                           float grouping_maxRtWindow,
                           double minQuality,
                           double distXWeight,
@@ -77,7 +78,7 @@ void EICLogic::groupPeaks(float eic_smoothingWindow,
                           string scoringAlgo)
 {
     peakgroups = EIC::groupPeaks(eics,
-                                compound,
+                                slice,
                                 eic_smoothingWindow,
                                 grouping_maxRtWindow,
                                 minQuality,

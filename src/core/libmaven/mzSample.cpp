@@ -1048,40 +1048,6 @@ void mzSample::calculateMzRtRange()
         maxRt = 1e4;
 }
 
-mzSlice mzSample::getMinMaxDimentions(const vector<mzSample*>& samples)
-{
-    // TODO naman unused function
-
-    mzSlice d;
-    d.rtmin = 0;
-    d.rtmax = 0;
-    d.mzmin = 0;
-    d.mzmax = 0;
-
-    if (samples.size() > 0) {
-        d.rtmin = samples[0]->minRt;
-        d.rtmax = samples[0]->maxRt;
-        d.mzmin = samples[0]->minMz;
-        d.mzmax = samples[0]->maxMz;
-
-        for (unsigned int i = 1; i < samples.size(); i++) {
-            if (samples[i]->minRt < d.rtmin)
-                d.rtmin = samples[i]->minRt;
-            if (samples[i]->maxRt > d.rtmax)
-                d.rtmax = samples[i]->maxRt;
-            if (samples[i]->minMz < d.mzmin)
-                d.mzmin = samples[i]->minMz;
-            if (samples[i]->maxMz > d.mzmax)
-                d.mzmax = samples[i]->maxMz;
-        }
-    }
-
-    cerr << "getMinMaxDimentions() " << d.rtmin << " " << d.rtmax << " "
-         << d.mzmin << " " << d.mzmax << endl;
-
-    return d;
-}
-
 float mzSample::getMaxRt(const vector<mzSample*>& samples)
 {
     // TODO naman unused function

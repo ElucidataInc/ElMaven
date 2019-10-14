@@ -1,6 +1,7 @@
 #ifndef PEAKGROUP_H
 #define PEAKGROUP_H
 
+#include "datastructures/mzSlice.h"
 #include "Fragment.h"
 #include "Peak.h"
 #include "standardincludes.h"
@@ -17,6 +18,10 @@ class MassCutoff;
 using namespace std;
 
 class PeakGroup{
+
+    private:
+        mzSlice _slice;
+        bool _sliceSet;
 
     public:
         enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
@@ -50,7 +55,6 @@ class PeakGroup{
         ~PeakGroup();
 
         PeakGroup* parent;
-        Compound* compound;
 
         // have to do this since `GroupType` enum also has an Adduct.
         // In future use "enum class" instead. Also from MAVEN (upstream).
@@ -172,21 +176,13 @@ class PeakGroup{
          * @return []
          */
         inline  string getSrmId() const { return srmId; }
-
-
-        /**
-         * [isPrimaryGroup ]
-         * @method isPrimaryGroup
-         * @return []
-         */
-        bool isPrimaryGroup();
-
+    
         /**
          * [hasCompoundLink ]
          * @method hasCompoundLink
          * @return []
          */
-        inline bool hasCompoundLink() const  { if(compound != NULL) return true ; return false; }
+        bool hasCompoundLink() const;
 
         /**
          * [isEmpty ]
@@ -213,12 +209,19 @@ class PeakGroup{
 
         inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
 
+        Compound* getCompound();
+
+        void setCompound(Compound* compound);
+
+        void setSlice(const mzSlice& slice);
+
+        const mzSlice& getSlice() const;
+
         /**
-         * [getCompound ]
-         * @method getCompound
-         * @return []
+         * @brief Check whether a slice has previosuly been set for this group.
+         * @return true if a slice has been set, false otherwise.
          */
-        inline Compound* getCompound() { return compound; }
+        bool hasSlice() const;
 
         /**
          * [getParent ]

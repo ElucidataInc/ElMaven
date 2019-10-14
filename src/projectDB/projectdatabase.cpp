@@ -186,7 +186,12 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :fragmentation_spearman_rank_corr   \
                      , :fragmentation_tic_matched          \
                      , :fragmentation_num_matches          \
-                     , :sample_ids                         )");
+                     , :sample_ids                         \
+                     , :slice_mz_min                       \
+                     , :slice_mz_max                       \
+                     , :slice_rt_min                       \
+                     , :slice_rt_max                       \
+                     , :slice_ion_count                    )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
@@ -224,14 +229,20 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
 
     groupsQuery->bind(":compound_id",
-                      group->compound ? group->compound->id : "");
+                      group->getCompound() ? group->getCompound()->id : "");
     groupsQuery->bind(":compound_name",
-                      group->compound ? group->compound->name : "");
+                      group->getCompound() ? group->getCompound()->name : "");
     groupsQuery->bind(":compound_db",
-                      group->compound ? group->compound->db : "");
+                      group->getCompound() ? group->getCompound()->db : "");
 
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
+
+    groupsQuery->bind(":slice_mz_min", group->getSlice().mzmin);
+    groupsQuery->bind(":slice_mz_max", group->getSlice().mzmax);
+    groupsQuery->bind(":slice_rt_min", group->getSlice().rtmin);
+    groupsQuery->bind(":slice_rt_max", group->getSlice().rtmax);
+    groupsQuery->bind(":slice_ion_count", group->getSlice().ionCount);
 
     string sample_ids = "";
     if (group->samples.size() > 0) {
@@ -358,8 +369,8 @@ void ProjectDatabase::saveCompounds(const vector<PeakGroup>& groups)
 
     //find linked compounds (store only unique ones)
     for(auto group: groups) {
-        if (group.compound)
-            seenCompounds.insert(group.compound);
+        if (group.getCompound())
+            seenCompounds.insert(group.getCompound());
     }
 
     saveCompounds(seenCompounds);
@@ -927,7 +938,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                                                          compoundName,
                                                          compoundDB);
             if (compound) {
-                group->compound = compound;
+                group->setCompound(compound);
             } else {
                 group->tagString = compoundName
                                   + " | "
@@ -939,7 +950,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             vector<Compound*> matches = _findSpeciesByName(compoundName,
                                                            compoundDB);
             if (matches.size() > 0)
-                group->compound = matches[0];
+                group->setCompound(matches[0]);
         }
 
         vector<string> sample_ids;
@@ -958,6 +969,17 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                 group->samples.push_back(*sampleIter);
             }
         }
+
+        float sliceMzMin = groupsQuery->doubleValue("slice_mz_min");
+        float sliceMzMax = groupsQuery->doubleValue("slice_mz_max");
+        float sliceRtMin = groupsQuery->doubleValue("slice_rt_min");
+        float sliceRtMax = groupsQuery->doubleValue("slice_rt_max");
+        float sliceIonCount = groupsQuery->doubleValue("slice_ion_count");
+        mzSlice slice(sliceMzMin, sliceMzMax, sliceRtMin, sliceRtMax);
+        slice.ionCount = sliceIonCount;
+        slice.srmId = group->srmId;
+        slice.compound = group->getCompound();
+        group->setSlice(slice);
 
         loadGroupPeaks(group, loaded);
         group->groupStatistics();
