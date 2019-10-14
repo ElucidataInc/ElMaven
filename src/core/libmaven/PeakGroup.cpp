@@ -241,6 +241,17 @@ bool PeakGroup::hasSlice() const
     return _sliceSet;
 }
 
+bool PeakGroup::sliceIsZero() const
+{
+    if (((mzUtils::almostEqual(_slice.mzmin, 0.0f)
+         && mzUtils::almostEqual(_slice.mzmax, 0.0f)))
+        || (mzUtils::almostEqual(_slice.rtmin, 0.0f)
+            && mzUtils::almostEqual(_slice.mzmin, 0.0f))) {
+        return true;
+    }
+    return false;
+}
+
 //TODO: a duplicate function getPeak exists. Delete this function
 Peak* PeakGroup::getSamplePeak(mzSample* sample) {
     for (unsigned int i=0; i< peaks.size(); i++ ) {

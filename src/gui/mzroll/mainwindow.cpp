@@ -3937,11 +3937,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
                     if (selectedGroup == nullptr)
                         return;
 
-                    auto& slice = selectedGroup->getSlice();
-                    if ((mzUtils::almostEqual(slice.mzmin, 0.0f)
-                         && mzUtils::almostEqual(slice.mzmax, 0.0f))
-                        || (mzUtils::almostEqual(slice.rtmin, 0.0f)
-                            && mzUtils::almostEqual(slice.rtmax, 0.0f))) {
+                    if (selectedGroup->sliceIsZero()) {
                         toleranceSyncSwitch->setChecked(false);
                         toleranceSyncSwitch->setDisabled(true);
                     } else {

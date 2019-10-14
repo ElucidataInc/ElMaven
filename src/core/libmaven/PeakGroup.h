@@ -224,6 +224,15 @@ class PeakGroup{
         bool hasSlice() const;
 
         /**
+         * @brief Check whether both bounds of the group's slice are close to
+         * zero in either m/z or rt dimensions.
+         * @return `true` if either slice's `mzmin` and `mzmax` are both close
+         * to zero or slice's `rtmin` and `rtmax` are both close to zero, false
+         * otherwise.
+         */
+        bool sliceIsZero() const;
+
+        /**
          * [getParent ]
          * @method getParent
          * @return []
