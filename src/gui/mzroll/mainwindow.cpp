@@ -3932,7 +3932,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         });
         connect(mw->getEicWidget(),
                 &EicWidget::groupSelected,
-                this,
+                toleranceSyncSwitch,
                 [=](PeakGroup* selectedGroup) {
                     if (selectedGroup == nullptr)
                         return;
@@ -3942,10 +3942,10 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
                          && mzUtils::almostEqual(slice.mzmax, 0.0f))
                         || (mzUtils::almostEqual(slice.rtmin, 0.0f)
                             && mzUtils::almostEqual(slice.rtmax, 0.0f))) {
-                        setChecked(false);
-                        setDisabled(true);
+                        toleranceSyncSwitch->setChecked(false);
+                        toleranceSyncSwitch->setDisabled(true);
                     } else {
-                        setEnabled(true);
+                        toleranceSyncSwitch->setEnabled(true);
                     }
                 });
         return toleranceSyncSwitch;
