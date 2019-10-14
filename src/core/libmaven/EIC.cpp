@@ -1001,6 +1001,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                 PeakGroup grp;
                 pgroups.push_back(grp);
                 grp.groupId = pgroups.size() + 1;
+                grp.setSlice(*slice);
                 grp.addPeak(b);
                 b.groupOverlap = 0;
             }

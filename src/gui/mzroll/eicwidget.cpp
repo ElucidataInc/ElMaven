@@ -1501,7 +1501,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
     if (!group->srmId.empty()) {
         setSrmId(group->srmId);
-    } else if (group->getCompound()) {
+    } else if (group->hasSlice()) {
         setMzSlice(group->getSlice());
     }
 
