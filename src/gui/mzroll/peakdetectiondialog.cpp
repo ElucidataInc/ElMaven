@@ -454,7 +454,7 @@ void PeakDetectionDialog::toggleFragmentation()
         selectedDbName = identificationDatabase->currentText();
     }
 
-    if (foundDda && DB.isNISTLibrary(selectedDbName.toStdString())) {
+    if (foundDda && DB.isSpectralLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);

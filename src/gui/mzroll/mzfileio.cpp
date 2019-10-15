@@ -637,6 +637,14 @@ int mzFileIO::loadCompoundsFromFile(QString filename)
                                     totalSteps));
        });
        compoundCount = DB.loadNISTLibrary(filename, &signal);
+   } else if (filename.endsWith("mgf", Qt::CaseInsensitive)) {
+       boost::signals2::signal<void (string, int, int)> signal;
+       signal.connect([&](string message, int currentSteps, int totalSteps) {
+           Q_EMIT(updateProgressBar(QString::fromStdString(message),
+                                    currentSteps,
+                                    totalSteps));
+       });
+       compoundCount = DB.loadMascotLibrary(filename, &signal);
    } else if (filename.endsWith("massbank", Qt::CaseInsensitive)) {
        compoundCount = loadMassBankLibrary(filename);
    } else if (filename.contains("csv", Qt::CaseInsensitive)
@@ -658,7 +666,7 @@ bool mzFileIO::isKnownFileType(QString filename) {
 bool mzFileIO::isCompoundDatabaseType(QString filename)
 {
     QStringList extList;
-    extList << ".csv" << ".tab" << "msp" << "sptxt" << "massbank";
+    extList << ".csv" << ".tab" << "msp" << "sptxt" << "mgf" << "massbank";
     Q_FOREACH (QString suffix, extList) {
         if (filename.endsWith(suffix, Qt::CaseInsensitive))
             return true;

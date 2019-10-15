@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "database.h"
 #include "masscutofftype.h"
+#include "mgf/mgf.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "mzUtils.h"
@@ -575,7 +576,7 @@ int Database::loadNISTLibrary(QString filepath,
         }
         ++currentLine;
         if (signal) {
-            (*signal)("Loading database: " + filename.toStdString(),
+            (*signal)("Loading spectral library: " + filename.toStdString(),
                       currentLine,
                       lineCount);
         }
@@ -584,7 +585,71 @@ int Database::loadNISTLibrary(QString filepath,
     return compoundCount;
 }
 
-bool Database::isNISTLibrary(string dbName) {
+int Database::loadMascotLibrary(QString filepath,
+                                bsignal::signal<void (string, int, int)> *signal)
+{
+    mgf::MgfFile mgfFile;
+    mgf::Driver driver(mgfFile);
+    driver.trace_parsing = false;
+    driver.trace_scanning = false;
+
+    ifstream ifs(filepath.toStdString());
+    bool result = driver.parse_stream(ifs);
+
+    QString filename = QFileInfo(filepath).fileName();
+    if (signal)
+        (*signal)("Reading file " + filename.toStdString(), 0, 0);
+
+    if (!result) {
+        std::cerr << "Error parsing data stream"
+                  << std::endl;
+        return 0;
+    }
+
+    for (auto specIter = begin(mgfFile); specIter != end(mgfFile); ++specIter) {
+        auto charges = specIter->getCHARGE();
+        int charge = 1;
+        if (!charges.empty())
+            charge = charges.front();
+
+        Compound* compound = new Compound(specIter->getTITLE(),
+                                          specIter->getTITLE(),
+                                          "",
+                                          charge);
+        compound->expectedRt = specIter->getRTINSECONDS().first / 60.0f;
+        compound->mass = specIter->getPEPMASS().first;
+        compound->precursorMz = compound->mass;
+        compound->smileString = specIter->getSMILES();
+        compound->ionizationMode = specIter->getIONMODE() == "negative" ? -1
+                                                                        : 1;
+
+        // create spectra
+        vector<float> fragmentMzValues;
+        vector<float> fragmentInValues;
+        for (auto fragPair = specIter->begin();
+             fragPair != specIter->end();
+             ++fragPair) {
+            fragmentMzValues.push_back(fragPair->first);
+            fragmentInValues.push_back(fragPair->second);
+        }
+        compound->fragmentMzValues = fragmentMzValues;
+        compound->fragmentIntensities = fragmentInValues;
+
+        compound->db = mzUtils::cleanFilename(filepath.toStdString());
+        addCompound(compound);
+
+        if (signal) {
+            (*signal)("Loading spectral library: " + filename.toStdString(),
+                      (specIter - begin(mgfFile)),
+                      mgfFile.size());
+        }
+    }
+    if (signal)
+        (*signal)("Finished loading " + filename.toStdString(), 0, 0);
+    return mgfFile.size();
+}
+
+bool Database::isSpectralLibrary(string dbName) {
     auto compounds = getCompoundsSubset(dbName);
     if (compounds.size() > 0) {
         return compounds.at(0)->type() == Compound::Type::PRM;

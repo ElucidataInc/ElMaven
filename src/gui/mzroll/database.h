@@ -70,6 +70,9 @@ class Database {
         int loadNISTLibrary(QString filepath,
                             bsignal::signal<void (string, int, int)>* signal=nullptr);
 
+        int loadMascotLibrary(QString filepath,
+                              bsignal::signal<void (string, int, int)>* signal=nullptr);
+
         /**
          * @brief Checks whether the library with the given name is an NIST
          * library or not.
@@ -80,7 +83,7 @@ class Database {
          * @return True if the database with given name is an NIST library,
          * false otherwise.
          */
-        bool isNISTLibrary(string dbName);
+        bool isSpectralLibrary(string dbName);
 
         map<string, int> getDatabaseNames();
 	map<string, int> getChromotographyMethods();

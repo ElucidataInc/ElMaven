@@ -1882,27 +1882,30 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         if (ligandWidget->isVisible())
             ligandWidget->setDatabase(QString(dbName.c_str()));
 
-        QString eventLabel = "MS1";
         vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
-        if (loadedCompounds[0]->precursorMz > 0
-            && (loadedCompounds[0]->productMz > 0
-                || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
-            eventLabel = DB.isNISTLibrary(dbName) ? "MS2 (PRM)"
-                                                  : "MS2 (MRM)";
-        }
-        analytics->hitEvent("Load Compound DB",
-                            "Successful Load",
-                            eventLabel);
-        if (eventLabel == "MS2 (PRM)") {
-            analytics->hitEvent("PRM", "LoadedSpectralLibrary");
+        if (!loadedCompounds.empty()) {
+            QString eventLabel = "MS1";
+            if (loadedCompounds[0]->precursorMz > 0
+                && (loadedCompounds[0]->productMz > 0
+                    || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
+                eventLabel = DB.isSpectralLibrary(dbName) ? "MS2 (PRM)"
+                                                      : "MS2 (MRM)";
+            }
+            analytics->hitEvent("Load Compound DB",
+                                "Successful Load",
+                                eventLabel);
+            if (eventLabel == "MS2 (PRM)") {
+                analytics->hitEvent("PRM", "LoadedSpectralLibrary");
+            }
         }
 
         setLastLoadedDatabase(filename);
 
         bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
         bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
-        bool nistFile = isMSPFile || isSPTXTFile;
-        if (nistFile)
+        bool isMascotFile = filename.endsWith("mgf", Qt::CaseInsensitive);
+        bool isSpectralFile = isMSPFile || isSPTXTFile || isMascotFile;
+        if (isSpectralFile)
             _warnIfNISTPolarityMismatch();
 
         setStatusText(tr("Loaded %1 compounds successfully")
@@ -1994,7 +1997,7 @@ void MainWindow::_warnIfNISTPolarityMismatch()
 
     // make sure the database is a spectral library
     string dbName = ligandWidget->getDatabaseName().toStdString();
-    if (!DB.isNISTLibrary(dbName))
+    if (!DB.isSpectralLibrary(dbName))
         return;
 
     int samplePolarity = sample->getPolarity();
@@ -2030,7 +2033,8 @@ void MainWindow::setLastLoadedDatabase(QString filename)
     QFileInfo fileInfo(filename);
     bool isMSPFile = filename.endsWith("msp", Qt::CaseInsensitive);
     bool isSPTXTFile = filename.endsWith("sptxt", Qt::CaseInsensitive);
-    bool nistFile = isMSPFile || isSPTXTFile;
+    bool isMascotFile = filename.endsWith("mgf", Qt::CaseInsensitive);
+    bool nistFile = isMSPFile || isSPTXTFile || isMascotFile;
     bool smallerThan2Mb = fileInfo.size() < 2000000;
     if (!nistFile || smallerThan2Mb)
         settings->setValue("lastDatabaseFile", filename);
@@ -2183,11 +2187,11 @@ void MainWindow::loadCompoundsFile()
         this,
         "Select Compounds File To Load",
         dir,
-        "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.pepXML "
+        "All Known Formats(*.csv *.tab *.tab.txt *.msp *.sptxt *.mgf *.pepXML "
         "*.massbank);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV "
         "File(*.csv);;NIST "
-        "Library(*.msp);;SpectraST(*.sptxt);;pepXML(*.pepXML);;MassBank(*."
-        "massbank");
+        "Library(*.msp);;SpectraST(*.sptxt);;Mascot Library File(*.mgf);;"
+        "pepXML(*.pepXML);;MassBank(*.massbank");
 
     if (filename.isEmpty())
         return;

@@ -86,6 +86,7 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/crashhandler/ \
                 $$top_srcdir/crashhandler/breakpad/src/src/ \
                 $$top_srcdir/3rdparty/libsvm \
+                $$top_srcdir/3rdparty/libmgf \
                 $$top_srcdir/src/
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
@@ -112,7 +113,8 @@ LIBS +=  -lmaven \
          -lprojectDB \
          -lbreakpad \
          -lsvm \
-         -lcommon
+         -lcommon \
+         -lmgf
 
 macx {
 
