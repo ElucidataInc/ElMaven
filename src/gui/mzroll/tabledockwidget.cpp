@@ -1173,20 +1173,20 @@ void TableDockWidget::showConsensusSpectra() {
 
 void TableDockWidget::markGroupGood() {
   setGroupLabel('g');
-  auto currentGroup = getSelectedGroup();
+  auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
   _mainwindow->peaksMarked++;
-  _mainwindow->autoSaveSignal(currentGroup);
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 void TableDockWidget::markGroupBad() {
   setGroupLabel('b');
-  auto currentGroup = getSelectedGroup();
+  auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->peaksMarked++;
-  _mainwindow->autoSaveSignal(currentGroup);
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 bool TableDockWidget::checkLabeledGroups() {
@@ -2624,23 +2624,23 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
 void BookmarkTableDockWidget::markGroupGood() {
   setGroupLabel('g');
-  auto currentGroup = getSelectedGroup();
+  auto currentGroups = getSelectedGroups();
   showNextGroup();
   _mainwindow->peaksMarked++;
   if (checkLabeledGroups())
     _mainwindow->allPeaksMarked = true;
-  _mainwindow->autoSaveSignal(currentGroup);
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 void BookmarkTableDockWidget::markGroupBad() {
 
   setGroupLabel('b');
-  auto currentGroup = getSelectedGroup();
+  auto currentGroups = getSelectedGroups();
   showNextGroup();
   _mainwindow->peaksMarked++;
   if (checkLabeledGroups())
     _mainwindow->allPeaksMarked = true;
-  _mainwindow->autoSaveSignal(currentGroup);
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :

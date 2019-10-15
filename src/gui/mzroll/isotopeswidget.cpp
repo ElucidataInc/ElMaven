@@ -406,7 +406,7 @@ void IsotopeWidget::setClipboard()
             auto group = _mw->bookmarkPeakGroup();
 			bookmarkflag = true;
 			_mw->peaksMarked++;
-            _mw->autoSaveSignal(group);
+            _mw->autoSaveSignal({group});
 		}
 	}
 	workerThread->stop();

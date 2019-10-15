@@ -214,8 +214,8 @@ public:
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
-    void autoSaveSignal(PeakGroup* group = nullptr);
-	void normalizeIsotopicMatrix(MatrixXf &MM);
+    void autoSaveSignal(QList<PeakGroup*> groups = {});
+    void normalizeIsotopicMatrix(MatrixXf &MM);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
 	void setIsotopicPlotStyling();
@@ -259,11 +259,12 @@ public:
     /**
      * @brief Call appropriate save methods for the filename set in
      * `_currentProjectName` variable.
-     * @param singleGroupToBeSaved If supplied, save only the given `PeakGroup`
-     * object in the project file. This assumes that the rest of the project
-     * already contains the other necessary information for session restoration.
+     * @param groupsToBeSaved If supplied, save only the given list of
+     * `PeakGroup` objects in the project file. This assumes that the rest of
+     * the project already contains the other necessary information for session
+     * restoration.
      */
-    void saveProjectForFilename(PeakGroup* singleGroupToBeSaved = nullptr);
+    void saveProjectForFilename(QList<PeakGroup*> groupsToBeSaved);
 
     /**
      * @brief Stores whether a timestamp file is being used to save in the
@@ -275,7 +276,7 @@ public:
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();
-    void saveSignal(PeakGroup* group);
+    void saveSignal(QList<PeakGroup*> groups);
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
     void metaCsvFileLoaded();
@@ -292,7 +293,7 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
-    void autosaveGroup(PeakGroup* group);
+    void autosaveGroup(QList<PeakGroup*> groups = {});
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -576,11 +577,11 @@ class AutoSave : public QThread
 
 public:
     AutoSave(MainWindow*);
-    void saveProjectWorker(PeakGroup* singleGroup = nullptr);
+    void saveProjectWorker(QList<PeakGroup*> groupsToBeSaved = {});
     MainWindow* _mainwindow;
 
 private:
-    PeakGroup* singleGroupToBeSaved;
+    QList<PeakGroup*> groupsToBeSaved;
     void run();
 };
 
