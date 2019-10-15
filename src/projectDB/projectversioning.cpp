@@ -128,6 +128,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN slice_rt_min REAL;"
         "ALTER TABLE peakgroups ADD COLUMN slice_rt_max REAL;"
         "ALTER TABLE peakgroups ADD COLUMN slice_ion_count REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN table_group_id INTEGER;"
 
         "ALTER TABLE user_settings RENAME TO user_settings_old;"
         "CREATE TABLE user_settings ( ionization_mode                  INTEGER "

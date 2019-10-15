@@ -453,6 +453,7 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
       g.searchTableName = this->titlePeakTable->text().toStdString();
       for (unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
+        allgroups[i].setGroupIdForChildren();
       }
       return &g;
     }
@@ -1068,6 +1069,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
   for (unsigned int i = 0; i < allgroups.size(); i++) {
     allgroups[i].groupId = i + 1;
+    allgroups[i].setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();
@@ -2436,6 +2438,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     int finalSize = allgroups.size() + initialSize;
     for (auto group : allgroups) {
         group.groupId = ++initialSize;
+        group.setGroupIdForChildren();
         peakTable->allgroups.append(group);
     }
 
@@ -2613,6 +2616,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
   for (unsigned int i = 0; i < allgroups.size(); i++) {
     allgroups[i].groupId = i + 1;
+    allgroups[i].setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();

@@ -87,7 +87,6 @@ class PeakGroup{
         QType quantitationType;
 
         int groupId;
-        int savedGroupId;
         int metaGroupId;
         int clusterId;
 
@@ -305,6 +304,8 @@ class PeakGroup{
         inline void addChildBarPlot(const PeakGroup& child) { childrenBarPlot.push_back(child); childrenBarPlot.back().parent = this;   }
 
         inline void addChildIsoWidget(const PeakGroup& child) { childrenIsoWidget.push_back(child); childrenIsoWidget.back().parent = this;   }
+
+        inline void setGroupIdForChildren() { for (auto& child : children) child.groupId = groupId; }
 
         /**
          * [getPeak ]
