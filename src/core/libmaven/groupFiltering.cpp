@@ -186,7 +186,7 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                 continue;
             }
 
-            PeakGroup* identifiedParent = nullptr;
+            vector<PeakGroup*> possibleParents;
             for (auto parentIon : parentIons) {
                 bool tooFarFromParent = false;
                 int numSamplesShared = 0;
@@ -205,43 +205,47 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                     }
                 }
                 if (!tooFarFromParent && numSamplesShared > 0) {
-                    identifiedParent = parentIon;
-                    break;
+                    possibleParents.push_back(parentIon);
                 }
             }
 
             // no parent ion is close enough in the RT domain, eliminate
-            if (identifiedParent == nullptr) {
+            if (possibleParents.empty()) {
                 it = groups.erase(it);
                 continue;
             }
 
-            bool correlatedToParent = true;
-            for (auto sample : _mavenParameters->samples) {
-                auto parentPeak = identifiedParent->getPeak(sample);
-                auto deviation = _mavenParameters->adductSearchWindow / 60.0f;
-                double corr =
-                    sample->correlation(group.meanMz,
-                                        identifiedParent->meanMz,
-                                        _mavenParameters->massCutoffMerge,
-                                        parentPeak->rtmin - deviation,
-                                        parentPeak->rtmax + deviation,
-                                        _mavenParameters->eicType,
-                                        _mavenParameters->filterline);
-                if (corr < 0.9f) {
-                    correlatedToParent = false;
-                    break;
+            float highestCorrelation = 0.0f;
+            PeakGroup* bestMatch = nullptr;
+            for (auto candidate : possibleParents) {
+                for (auto sample : _mavenParameters->samples) {
+                    auto parentPeak = candidate->getPeak(sample);
+                    if (!parentPeak)
+                        continue;
+
+                    auto deviation = _mavenParameters->adductSearchWindow / 60.0f;
+                    double corr = sample->correlation(group.meanMz,
+                                                      candidate->meanMz,
+                                                      _mavenParameters->massCutoffMerge,
+                                                      parentPeak->rtmin - deviation,
+                                                      parentPeak->rtmax + deviation,
+                                                      _mavenParameters->eicType,
+                                                      _mavenParameters->filterline);
+                    if (corr > 0.9f && corr > highestCorrelation) {
+                        highestCorrelation = corr;
+                        bestMatch = candidate;
+                    }
                 }
             }
 
             // candidate is not highly correlated to identified parent, erase
-            if (!correlatedToParent) {
+            if (highestCorrelation == 0.0f || bestMatch == nullptr) {
                 it = groups.erase(it);
                 continue;
             }
 
-            identifiedParent->childAdducts.push_back(group);
-            group.parentIon = identifiedParent;
+            bestMatch->childAdducts.push_back(group);
+            group.parentIon = bestMatch;
         }
         ++it;
     }
