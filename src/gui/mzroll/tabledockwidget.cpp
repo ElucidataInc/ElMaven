@@ -449,9 +449,11 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
     if (group->getCompound())
       _targetedGroups++;
     if (allgroups.size() > 0) {
-      PeakGroup &g = allgroups[allgroups.size() - 1];
+      PeakGroup &g = allgroups.back();
+      g.searchTableName = this->titlePeakTable->text().toStdString();
       for (unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
+        allgroups[i].setGroupIdForChildren();
       }
       return &g;
     }
@@ -1067,6 +1069,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
   for (unsigned int i = 0; i < allgroups.size(); i++) {
     allgroups[i].groupId = i + 1;
+    allgroups[i].setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();
@@ -1170,18 +1173,20 @@ void TableDockWidget::showConsensusSpectra() {
 
 void TableDockWidget::markGroupGood() {
   setGroupLabel('g');
+  auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
   _mainwindow->peaksMarked++;
-  _mainwindow->autoSaveSignal();
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 void TableDockWidget::markGroupBad() {
   setGroupLabel('b');
+  auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->peaksMarked++;
-  _mainwindow->autoSaveSignal();
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 bool TableDockWidget::checkLabeledGroups() {
@@ -2433,6 +2438,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     int finalSize = allgroups.size() + initialSize;
     for (auto group : allgroups) {
         group.groupId = ++initialSize;
+        group.setGroupIdForChildren();
         peakTable->allgroups.append(group);
     }
 
@@ -2610,6 +2616,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
   for (unsigned int i = 0; i < allgroups.size(); i++) {
     allgroups[i].groupId = i + 1;
+    allgroups[i].setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();
@@ -2617,21 +2624,23 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
 
 void BookmarkTableDockWidget::markGroupGood() {
   setGroupLabel('g');
+  auto currentGroups = getSelectedGroups();
   showNextGroup();
   _mainwindow->peaksMarked++;
   if (checkLabeledGroups())
     _mainwindow->allPeaksMarked = true;
-  _mainwindow->autoSaveSignal();
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 void BookmarkTableDockWidget::markGroupBad() {
 
   setGroupLabel('b');
+  auto currentGroups = getSelectedGroups();
   showNextGroup();
   _mainwindow->peaksMarked++;
   if (checkLabeledGroups())
     _mainwindow->allPeaksMarked = true;
-  _mainwindow->autoSaveSignal();
+  _mainwindow->autoSaveSignal(currentGroups);
 }
 
 ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :

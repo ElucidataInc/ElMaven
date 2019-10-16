@@ -102,9 +102,9 @@ public:
     /**
      * @brief Save peaks for the given group.
      * @param group The peak group whose peaks need to be saved.
-     * @param groupId The group ID for the group (as saved in the database).
+     * @param databaseId A unique ID for the group (as saved in the database).
      */
-    void saveGroupPeaks(PeakGroup* group, const int groupId);
+    void saveGroupPeaks(PeakGroup* group, const int databaseId);
 
     /**
      * @brief Save compounds linked to a given set of groups.
@@ -204,10 +204,13 @@ public:
     /**
      * @brief Load peaks for a given peak group.
      * @param group The PeakGroup for which peaks are to be loaded.
+     * @param databaseId The unique database ID for peak group whose peaks are
+     * to be loaded. This values is different from a group's local `groupId`.
      * @param loaded A vector of loaded mzSample objects that will be iterated
      * through to associate each peak with.
      */
     void loadGroupPeaks(PeakGroup* group,
+                        int databaseId,
                         const vector<mzSample*>& loaded);
 
     /**

@@ -750,6 +750,19 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
     }
 }
 
+void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
+{
+    if (_currentProject) {
+        _currentProject->deletePeakGroup(group);
+        auto parentGroupId = group->parent == nullptr ? 0
+                                                      : group->parent->groupId;
+        _currentProject->saveGroupAndPeaks(group,
+                                           parentGroupId,
+                                           tableName.toStdString());
+        Q_EMIT(updateStatusString("Updated group attributes"));
+    }
+}
+
 bool mzFileIO::writeSQLiteProject(QString filename)
 {
     if (filename.isEmpty())

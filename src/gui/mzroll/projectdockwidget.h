@@ -10,6 +10,7 @@ class QTextEdit;
 class MainWindow;
 class mzSample;
 class TableDockWidget;
+class PeakGroup;
 
 class ProjectDockWidget : public QDockWidget
 {
@@ -62,14 +63,14 @@ public Q_SLOTS:
     void saveSQLiteProject();
 
     /**
-     * @brief Save all groups from a particular peak table into the current
-     * emDB project, otherwise creates new project from given filename.
-     * @param table Pointer to a TableDockWidget instance from which groups will
-     * be saved.
+     * @brief Save or update the information of a peak group in the current
+     * emDB project.
+     * @param group Pointer to the `PeakGroup` object which will be saved, or
+     * updated.
      * @param filename A string path for filename of the SQLite project to be
      * created (only if it does not exist already).
      */
-    void savePeakTableInSQLite(TableDockWidget* table, QString filename);
+    void savePeakGroupInSQLite(PeakGroup* group, QString filename);
 
     /**
      * @brief Save any pending changes and close the currently open SQLite

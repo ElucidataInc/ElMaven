@@ -305,6 +305,8 @@ class PeakGroup{
 
         inline void addChildIsoWidget(const PeakGroup& child) { childrenIsoWidget.push_back(child); childrenIsoWidget.back().parent = this;   }
 
+        inline void setGroupIdForChildren() { for (auto& child : children) child.groupId = groupId; }
+
         /**
          * [getPeak ]
          * @method getPeak

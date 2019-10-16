@@ -191,9 +191,11 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :slice_mz_max                       \
                      , :slice_rt_min                       \
                      , :slice_rt_max                       \
-                     , :slice_ion_count                    )");
+                     , :slice_ion_count                    \
+                     , :table_group_id                     )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
+    groupsQuery->bind(":table_group_id", group->groupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
     groupsQuery->bind(":expected_mz", group->expectedMz);
@@ -269,7 +271,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     return lastInsertedGroupId;
 }
 
-void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
+void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
 {
     if (!_connection->prepare(CREATE_PEAKS_TABLE)->execute()) {
         cerr << "Error: failed to create peaks table" << endl;
@@ -319,7 +321,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int groupId)
                      , :peak_spline_area        )");
 
     for (Peak p : group->peaks) {
-        peaksQuery->bind(":group_id", groupId);
+        peaksQuery->bind(":group_id", databaseId);
         peaksQuery->bind(":sample_id", p.getSample()->getSampleId());
         peaksQuery->bind(":pos", static_cast<int>(p.pos));
         peaksQuery->bind(":minpos", static_cast<int>(p.minpos));
@@ -882,10 +884,12 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
                                                FROM peakgroups");
 
     vector<PeakGroup*> groups;
+    map<int, PeakGroup*> databaseIdForGroups;
     map<PeakGroup*, int> childParentMap;
     while (groupsQuery->next()) {
         PeakGroup* group = new PeakGroup();
-        group->groupId = groupsQuery->integerValue("group_id");
+        int databaseId = groupsQuery->integerValue("group_id");
+        group->groupId = groupsQuery->integerValue("table_group_id");
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
         group->tagString = groupsQuery->stringValue("tag_string");
         group->metaGroupId = groupsQuery->integerValue("meta_group_id");
@@ -981,7 +985,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         slice.compound = group->getCompound();
         group->setSlice(slice);
 
-        loadGroupPeaks(group, loaded);
+        loadGroupPeaks(group, databaseId, loaded);
         group->groupStatistics();
 
         if (parentGroupId == 0) {
@@ -989,15 +993,16 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         } else {
             childParentMap[group] = parentGroupId;
         }
+        databaseIdForGroups[databaseId] = group;
     }
 
     // assign parents for child groups
     for (auto pair : childParentMap) {
         bool foundParent = false;
         auto child = pair.first;
-        for (auto parent : groups) {
-            if (parent->groupId == pair.second) {
-                parent->addChild(*child);
+        for (auto idGroupPair : databaseIdForGroups) {
+            if (idGroupPair.first == pair.second) {
+                idGroupPair.second->addChild(*child);
                 foundParent = true;
                 break;
             }
@@ -1013,6 +1018,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
 }
 
 void ProjectDatabase::loadGroupPeaks(PeakGroup* parentGroup,
+                                     int databaseId,
                                      const vector<mzSample*>& loaded)
 {
     auto peaksQuery = _connection->prepare(
@@ -1022,7 +1028,7 @@ void ProjectDatabase::loadGroupPeaks(PeakGroup* parentGroup,
                       , samples                             \
                   WHERE peaks.sample_id = samples.sample_id \
                     AND peaks.group_id = :parent_group_id   ");
-    peaksQuery->bind(":parent_group_id", parentGroup->groupId);
+    peaksQuery->bind(":parent_group_id", databaseId);
 
     while (peaksQuery->next()) {
         Peak peak;
@@ -1060,7 +1066,6 @@ void ProjectDatabase::loadGroupPeaks(PeakGroup* parentGroup,
             static_cast<unsigned int>(peaksQuery->integerValue("width"));
         peak.gaussFitSigma = peaksQuery->floatValue("gauss_fit_sigma");
         peak.gaussFitR2 = peaksQuery->floatValue("gauss_fit_r2");
-        peak.groupNum = peaksQuery->integerValue("group_id");
         peak.noNoiseObs =
             static_cast<unsigned int>(peaksQuery->integerValue("no_noise_obs"));
         peak.noNoiseFraction = peaksQuery->floatValue("no_noise_fraction");
@@ -1475,6 +1480,7 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
     if (!group)
         return;
 
+    string tableName = group->searchTableName;
     vector<int> selectedGroups;
     selectedGroups.push_back(group->groupId);
     for (const auto& child : group->children)
@@ -1484,16 +1490,22 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
         return;
 
     auto peakgroupsQuery = _connection->prepare(
-                "DELETE FROM peakgroups          \
-                       WHERE group_id = :group_id");
+                "DELETE FROM peakgroups                 \
+                       WHERE table_group_id = :group_id \
+                         AND table_name = :table_name   ");
 
     auto peaksQuery = _connection->prepare(
-                "DELETE FROM peaks               \
-                       WHERE group_id = :group_id");
+                "DELETE FROM peaks                                          \
+                       WHERE group_id IN (SELECT group_id                   \
+                                            FROM peakgroups                 \
+                                           WHERE table_group_id = :group_id \
+                                             AND table_name = :table_name)  ");
 
-    for (auto id : selectedGroups) {
-        peakgroupsQuery->bind(":group_id", id);
-        peaksQuery->bind(":group_id", id);
+    for (auto groupId : selectedGroups) {
+        peakgroupsQuery->bind(":group_id", groupId);
+        peakgroupsQuery->bind(":table_name", tableName);
+        peaksQuery->bind(":group_id", groupId);
+        peaksQuery->bind(":table_name", tableName);
 
         if (!peaksQuery->execute()) {
             cerr << "Error: while deleting peaks" << endl;

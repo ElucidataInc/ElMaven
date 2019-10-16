@@ -521,6 +521,10 @@ using namespace mzUtils;
     tabifyDockWidget(peptideFragmentation,logWidget);
 
     connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
+    connect(this,
+            SIGNAL(saveSignal(QList<PeakGroup*>)),
+            this,
+            SLOT(autosaveGroup(QList<PeakGroup*>)));
 
     connect(fileLoader,
             SIGNAL(updateStatusString(QString)),
@@ -903,18 +907,17 @@ AutoSave::AutoSave(MainWindow* mw)
 {
     _mainwindow = mw;
     _mainwindow->timestampFileExists = false;
-    saveTablesOnly = false;
 }
 
-void AutoSave::saveProjectWorker(bool tablesOnly)
+void AutoSave::saveProjectWorker(QList<PeakGroup*> groupsToBeSaved)
 {
-    saveTablesOnly = tablesOnly;
+    this->groupsToBeSaved = groupsToBeSaved;
     this->start();
 }
 
 void AutoSave::run()
 {
-    _mainwindow->saveProjectForFilename(saveTablesOnly);
+    _mainwindow->saveProjectForFilename(groupsToBeSaved);
 }
 
 void MainWindow::_setProjectFilenameIfEmpty()
@@ -967,12 +970,23 @@ QString MainWindow::getLatestUserProject()
 void MainWindow::resetAutosave()
 {
     if (this->timestampFileExists) {
+        while (autosave->isRunning());
         fileLoader->closeSQLiteProject();
         QFile::remove(_currentProjectName);
     }
     this->timestampFileExists = false;
     this->peaksMarked = 0;
     _currentProjectName = "";
+}
+
+void MainWindow::autosaveGroup(QList<PeakGroup*> groups)
+{
+    if (groups.empty() || !this->timestampFileExists) {
+        autosaveProject();
+        return;
+    }
+
+    autosave->saveProjectWorker(groups);
 }
 
 void MainWindow::autosaveProject()
@@ -1123,20 +1137,20 @@ void MainWindow::saveProject(bool explicitSave)
         }
         this->autosave->saveProjectWorker();
     } else if (this->timestampFileExists) {
-        this->autosave->saveProjectWorker(true);
+        this->autosave->saveProjectWorker();
     } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
         this->autosave->saveProjectWorker();
     }
 }
 
-void MainWindow::saveProjectForFilename(bool tablesOnly)
+void MainWindow::saveProjectForFilename(QList<PeakGroup*> groupsToBeSaved)
 {
     if (fileLoader->isEmdbProject(_currentProjectName)) {
-        if (tablesOnly) {
-            auto allTables = getPeakTableList();
-            allTables.append(bookmarkedPeaks);
-            for (auto table : allTables)
-                projectDockWidget->savePeakTableInSQLite(table, _currentProjectName);
+        if (!groupsToBeSaved.empty()) {
+            for (auto queuedGroup : groupsToBeSaved) {
+                projectDockWidget->savePeakGroupInSQLite(queuedGroup,
+                                                         _currentProjectName);
+            }
         } else {
             projectDockWidget->saveSQLiteProject(_currentProjectName);
         }
@@ -1213,8 +1227,12 @@ void MainWindow::setUrl(QString url, QString link) {
 	setStatusText(tr("<a href=\"%1\">%2</a>").arg(url, link));
 }
 
-void MainWindow::autoSaveSignal() {
-	Q_EMIT(saveSignal());
+void MainWindow::autoSaveSignal(QList<PeakGroup*> groups) {
+    if (groups.empty()) {
+        Q_EMIT(saveSignal());
+    } else {
+        Q_EMIT(saveSignal(groups));
+    }
 }
 
 void MainWindow::setUrl(Compound* c) {
