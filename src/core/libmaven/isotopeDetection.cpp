@@ -205,6 +205,11 @@ bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, floa
     //here w should really be determined by the minRt and maxRt for the parent and child peaks
     if (parentGroup)
     {
+        float isotopeMass = x.mass;
+        Compound* compound = parentGroup->getCompound();
+        float parentMass = MassCalculator::computeMass(compound->formula, 
+                                                       _mavenParameters->getCharge(compound));
+
         Peak* parentPeak = parentGroup->getPeak(sample);
         float rtmin = parentGroup->minRt;
         float rtmax = parentGroup->maxRt;
@@ -213,8 +218,6 @@ bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, floa
             rtmin = parentPeak->rtmin;
             rtmax = parentPeak->rtmax;
         }
-        float isotopeMass = x.mass;
-        float parentMass = parentGroup->meanMz;
         float w = _mavenParameters->maxIsotopeScanDiff
             * _mavenParameters->avgScanTime;
         double c = sample->correlation(
