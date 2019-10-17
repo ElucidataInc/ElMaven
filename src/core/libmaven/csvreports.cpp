@@ -474,11 +474,8 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                                                   return s == sample;
                                               }),
                                     end(samplesWithNoPeak));
-            string sampleId = "";
-            sampleId = sample->sampleName;
-            if (sample->sampleNumber != -1) sampleId = sampleId + " | Sample Number = " + to_string(sample->sampleNumber);
 
-            sampleName = sanitizeString(sampleId.c_str()).toStdString();
+            sampleName = sanitizeString(sample->sampleName.c_str()).toStdString();
         }
 
 
@@ -512,14 +509,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";
         if (sample != nullptr) {
-            string sampleId = "";
-            sampleId = sample->sampleName;
-            if (sample->sampleNumber != -1) {
-                sampleId = sampleId
-                           + " | Sample Number = "
-                           + to_string(sample->sampleNumber);
-            }
-            sampleName = sanitizeString(sampleId.c_str()).toStdString();
+            sampleName = sanitizeString(sample->sampleName.c_str()).toStdString();
         }
         peakReport << fixed << setprecision(6)
                    << group->groupId
