@@ -895,107 +895,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="methodSummaryTab">
-      <attribute name="title">
-       <string>Method Summary</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_11">
-       <item row="3" column="1">
-        <widget class="QGroupBox" name="methodSummaryOptions">
-         <property name="title">
-          <string>Current Peak Dection Method Summary</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="saveMethodButton">
-            <property name="text">
-             <string>Save Method</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="loadMethodButton">
-            <property name="text">
-             <string>Load Method</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QTextBrowser" name="methodSummary"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QGroupBox" name="groupBox_3">
-         <property name="title">
-          <string>Output Detected Peaks to CSV File</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="1" column="2">
-           <widget class="QPushButton" name="setOutputDirButton">
-            <property name="text">
-             <string>Set Directory</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="outputDirName"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Output Directory</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Output Detected Peak to a Table</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_12">
-          <item row="0" column="1">
-           <widget class="QComboBox" name="outputTableComboBox">
-            <item>
-             <property name="text">
-              <string>Create New Peak Table</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bookmarked Peaks Table</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_23">
-            <property name="text">
-             <string>Output Table</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
@@ -1079,14 +978,6 @@
   <tabstop>loadModelButton</tabstop>
   <tabstop>computeButton</tabstop>
   <tabstop>cancelButton</tabstop>
-  <tabstop>saveMethodButton</tabstop>
-  <tabstop>loadMethodButton</tabstop>
-  <tabstop>methodSummary</tabstop>
-  <tabstop>groupBox</tabstop>
-  <tabstop>outputTableComboBox</tabstop>
-  <tabstop>groupBox_3</tabstop>
-  <tabstop>outputDirName</tabstop>
-  <tabstop>setOutputDirButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

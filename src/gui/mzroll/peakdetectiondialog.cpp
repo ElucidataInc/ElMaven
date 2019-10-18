@@ -135,10 +135,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(identificationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(setOutputDirButton, SIGNAL(clicked(bool)), SLOT(setOutputDir()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
-        connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(showMethodSummary())); //TODO: Sahil - Kiran, Added while merging mainwindow
-        connect(tabwidget,SIGNAL(currentChanged(int)),this,SLOT(updatePeakTableList())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(matchFragmentationOptions,
                 &QGroupBox::toggled,
                 [this](const bool checked)
@@ -159,8 +156,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SIGNAL(valueChanged(double)),
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
-        connect(saveMethodButton,SIGNAL(clicked()),this,SLOT(saveMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
-        connect(loadMethodButton,SIGNAL(clicked()),this,SLOT(loadMethod())); //TODO: Sahil - Kiran, Added while merging mainwindow
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
@@ -341,41 +336,6 @@ void PeakDetectionDialog::setModel(const QString& modelPath)
         clsf->loadModel(modelPath.toStdString());
 }
 
-/*
-@author:Sahil-Kiran
-*/
-// TODO: Sahil - Kiran, Added while merging mainwindow
-void PeakDetectionDialog::loadMethod() {
-    
-    const QString filename = QFileDialog::getOpenFileName(
-        this, "Load Settings", ".", tr("Settings File (*.method)"));
-    peakupdater->loadSettings(filename);
-    inputInitialValuesPeakDetectionDialog();
-}
-
-/*
-@author:Sahil-Kiran
-*/
-// TODO: Sahil - Kiran, Added while merging mainwindow
-void PeakDetectionDialog::saveMethod() {
-    
-    const QString filename = QFileDialog::getSaveFileName(
-        this, "Save Settings", ".", tr("Settings File (*.method)"));
-    peakupdater->saveSettings(filename);
-}
-
-/**
- * PeakDetectionDialog::setOutputDir this function sets the directory of the
- * file to which the output has to be connected
- */
-void PeakDetectionDialog::setOutputDir() {
-    // Getting the user selected folder name and path
-    const QString dirName = QFileDialog::getExistingDirectory(
-        this, "Save Reports to a Folder", ".", QFileDialog::ShowDirsOnly);
-    // Showing it in the output directory box
-    outputDirName->setText(dirName);
-}
-
 /**
  * PeakDetectionDialog::show This function is being called when the
  * database search button or the feature detection button is cliecked
@@ -521,38 +481,19 @@ void PeakDetectionDialog::findPeaks()
         _featureDetectionType = FullSpectrum;
     }
 
-    TableDockWidget* peaksTable = mainwindow->getBookmarkedPeaks();
-    int peakTableIdx = outputTableComboBox->currentIndex();
-
-    if (peakTableIdx == 0) {
-        peaksTable = mainwindow->addPeaksTable(dbName);
-    } else if (peakTableIdx == 1) {
-        peaksTable = mainwindow->getBookmarkedPeaks();
-    } else if (peakTableIdx >= 2) {
-        QList<QPointer<TableDockWidget> > peaksTableList =
-            mainwindow->getPeakTableList();
-        if (peaksTableList.size() >= 1 and
-            peakTableIdx - 2 < peaksTableList.size()) {
-            peaksTable = peaksTableList[peakTableIdx - 2];
-        }
-    }
-
+    TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName);
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
     disconnect(peakupdater, SIGNAL(finished()), 0, 0);
-    // disconnect(peakupdater, SIGNAL(terminated()), 0, 0);
 
     // connect new connections
     connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
-    // connect(peakupdater, SIGNAL(terminated()), peaksTable,
-            // SLOT(showAllGroups()));
     connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
     if(!settings->value("hideVideoPlayer", 0).toBool())
         connect(peakupdater, SIGNAL(finished()), mainwindow->vidPlayer, SLOT(show()));
-    // connect(peakupdater, SIGNAL(terminated()), this, SLOT(close()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 
     // RUN THREAD
@@ -641,13 +582,7 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
     if (settings != NULL) {
 
-        //Pointing the output directory
-        if (!outputDirName->text().isEmpty()) {
-            mavenParameters->setOutputDir(outputDirName->text());
-            mavenParameters->writeCSVFlag = true;
-        } else {
-            mavenParameters->writeCSVFlag = false;
-        }
+        mavenParameters->writeCSVFlag = false;
         //Getting the classification model
         mavenParameters->clsf = mainwindow->getClassifier();
 
@@ -714,38 +649,4 @@ void PeakDetectionDialog::setProgressBar(QString text, int progress,
         showInfo(text);
         progressBar->setRange(0, totalSteps);
         progressBar->setValue(progress);
-}
-
-/*
-@author:Sahil-Kiran
-*/
-void PeakDetectionDialog::showMethodSummary() {
-    
-    //Merged to 776
-    if(peakupdater) {
-        updateQSettingsWithUserInput(settings);
-        setMavenParameters(settings);
-        methodSummary->clear();
-        methodSummary->setPlainText(peakupdater->printSettings());
-    }
-    
-    emit updateSettings(peakSettings);
-}
-
-
-/*
-@author:Sahil-Kiran
-*/
-void PeakDetectionDialog::updatePeakTableList() {
-    
-    //merged to 776
-    if(mainwindow) {
-        QList< QPointer<TableDockWidget> > peaksTableList = mainwindow->getPeakTableList();
-        for(int i=0; i < peaksTableList.size();i++) {
-            QString tableName = peaksTableList[i]->objectName();
-            if (outputTableComboBox->findText(tableName) == -1 ) {
-                outputTableComboBox->addItem(tableName);
-            }
-        }
-    }
 }
