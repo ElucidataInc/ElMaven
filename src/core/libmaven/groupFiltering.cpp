@@ -218,6 +218,8 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
             float highestCorrelation = 0.0f;
             PeakGroup* bestMatch = nullptr;
             for (auto candidate : possibleParents) {
+                float corrSum = 0.0f;
+                int numSamples = 0;
                 for (auto sample : _mavenParameters->samples) {
                     auto parentPeak = candidate->getPeak(sample);
                     if (!parentPeak)
@@ -231,10 +233,13 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                                                       parentPeak->rtmax + deviation,
                                                       _mavenParameters->eicType,
                                                       _mavenParameters->filterline);
-                    if (corr > 0.9f && corr > highestCorrelation) {
-                        highestCorrelation = corr;
-                        bestMatch = candidate;
-                    }
+                    corrSum += corr;
+                    ++numSamples;
+                }
+                float avgCorr = corrSum / static_cast<float>(numSamples);
+                if (avgCorr > 0.9f && avgCorr > highestCorrelation) {
+                    highestCorrelation = avgCorr;
+                    bestMatch = candidate;
                 }
             }
 
