@@ -28,7 +28,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void findPeaks();
 				 void loadModel();
     void setModel(const QString& modelPath);
-                                 void setOutputDir();
 				 void setProgressBar(QString text, int progress, int totalSteps);
 				 void runBackgroupJob(QString func);
                  void dbSearchClicked();
@@ -43,10 +42,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void refreshCompoundDatabases();
 
                  void toggleFragmentation();
-				 void showMethodSummary(); //TODO: Sahil - Kiran, Added while merging mainwindow
-                 void saveMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
-                 void loadMethod(); //TODO: Sahil - Kiran, Added while merging mainwindow
-                 void updatePeakTableList(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void show(); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void showIntensityQuantileStatus(int);
 				 void showQualityQuantileStatus(int);
