@@ -785,6 +785,11 @@ void PeakDetectorCLI::writeReport(string setName,
 
         // try uploading to Polly
         QMap<QString, QString> creds = _readCredentialsFromXml(pollyArgs);
+        if (creds.empty()) {
+            _log->error() << "Error in credentials file. Exiting.." << std::flush;
+            exit(1);
+        }
+
         QDateTime currentTime;
         const QString format = "dd-MM-yyyy_hh_mm_ss";
         QString datetimestamp = currentTime.currentDateTime().toString(format);
