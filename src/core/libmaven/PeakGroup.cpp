@@ -925,3 +925,20 @@ void PeakGroup::setSelectedSamples(vector<mzSample*> vsamples){
         }
     }
 }
+
+void PeakGroup::setAdduct(Adduct* adduct)
+{
+    _adduct = adduct;
+    if (_adduct != nullptr
+        && _adduct->getName() != MassCalculator::MinusHAdduct->getName()
+        && _adduct->getName() != MassCalculator::PlusHAdduct->getName()) {
+        _type = GroupType::Adduct;
+    }
+}
+
+Adduct* PeakGroup::getAdduct() const
+{
+    if (isIsotope())
+        return parent->getAdduct();
+    return _adduct;
+}

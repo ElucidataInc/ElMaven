@@ -289,19 +289,19 @@ class PeakGroup{
          */
         void setLabel(char label);
 
-        inline void setAdduct(Adduct* adduct)
-        {
-            _adduct = adduct;
-            if (_adduct != nullptr)
-                _type = GroupType::Adduct;
-        }
+        /**
+         * @brief Set the adduct form for this `PeakGroup`.
+         * @details If the adduct is a type of parent ion, then this group's
+         * `_type` attribute is set to `GroupType::Adduct`.
+         * @param adduct Pointer to an `Adduct` object to be assigned.
+         */
+        void setAdduct(Adduct* adduct);
 
-        inline Adduct* getAdduct() const
-        {
-            if (isIsotope())
-                return parent->getAdduct();
-            return _adduct;
-        }
+        /**
+         * @brief Get the adduct form for this `PeakGroup`.
+         * @return Pointer to the `Adduct` object set for this group.
+         */
+        Adduct* getAdduct() const;
 
         /**
          * [ppmDist ]
