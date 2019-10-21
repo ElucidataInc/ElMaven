@@ -68,6 +68,7 @@ class Analytics;
 class AutoSave;
 class MavenParameters;
 class LibraryManager;
+class Logger;
 
 extern Database DB;
 
@@ -517,6 +518,12 @@ private:
      * when saving from explicit user command or final save when exiting app.
      */
     QString _latestUserProjectName;
+
+    /**
+     * @brief A logger used to record all the builds of the application that
+     * have ever run on a given system.
+     */
+    Logger* versionLogger;
 
     QString newFileName;
 

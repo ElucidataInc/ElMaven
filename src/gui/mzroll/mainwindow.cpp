@@ -28,6 +28,7 @@
 #include "isotopeswidget.h"
 #include "librarymanager.h"
 #include "ligandwidget.h"
+#include "common/logger.h"
 #include "logwidget.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
@@ -182,7 +183,14 @@ using namespace mzUtils;
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
-	
+    string logPath = QString(QStandardPaths::writableLocation(
+                                 QStandardPaths::GenericConfigLocation)
+                             + QDir::separator()
+                             + "ElMaven"
+                             + QDir::separator()
+                             + "version.log").toStdString();
+    versionLogger = new Logger(logPath, false, false);
+
 	QList<QString> dirs;
 	dirs << dataDir << QApplication::applicationDirPath()
 		 << QApplication::applicationDirPath() + "/../Resources/";
@@ -194,6 +202,7 @@ using namespace mzUtils;
 	}
 
 	setWindowTitle(programName + " " + STR(EL_MAVEN_VERSION));
+    versionLogger->info() << STR(EL_MAVEN_VERSION) << endl;
 
 	//locations of common files and directories
 	QString methodsFolder = settings->value("methodsFolder").value<QString>();
@@ -741,6 +750,7 @@ MainWindow::~MainWindow()
 {
 	analytics->sessionEnd();
     delete mavenParameters;
+    delete versionLogger;
 }
 
 void MainWindow::sendPeaksGA()
