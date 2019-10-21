@@ -1067,6 +1067,12 @@ QString PeakDetectorCLI::uploadToPolly(QString jsPath,
     // set jspath and nodepath for _pollyIntegration library .
     _pollyIntegration->jsPath = jsPath;
     _pollyIntegration->nodePath = nodePath;
+    if (!_pollyIntegration->checkNodeExecutable()) {
+        _log->error() << "NodeJS was not found on this system. "
+                      "Please install NodeJS and try again."
+                      << std::flush;
+        exit(1);
+    }
 
     // In case of CLI, we don't want persistent login as of now, so deleting
     // existing Token everytime and starting afresh. In future if persistent
