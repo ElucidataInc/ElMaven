@@ -1068,9 +1068,15 @@ QString PeakDetectorCLI::uploadToPolly(QString jsPath,
     _pollyIntegration->jsPath = jsPath;
     _pollyIntegration->nodePath = nodePath;
     if (!_pollyIntegration->checkNodeExecutable()) {
-        _log->error() << "NodeJS was not found on this system. "
-                      "Please install NodeJS and try again."
-                      << std::flush;
+        #ifdef Q_OS_MAC
+            _log->error() << "`node_bin` was not found in your system path. "
+                          << "Please contact the technical team at elmaven@elucidata.io"
+                          << std::flush;
+        #else
+            _log->error() << "NodeJS was not found on this system. "
+                          "Please install NodeJS and try again."
+                          << std::flush;
+        #endif
         exit(1);
     }
 
