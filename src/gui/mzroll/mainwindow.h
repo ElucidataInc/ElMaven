@@ -533,6 +533,18 @@ private:
      * failed completely, i.e., no compounds were loaded.
      */
     void _notifyIfBadCompoundsDB(QString filename, bool failedToLoadCompletely);
+
+    /**
+     * @brief This method allows checking whether a version of the application
+     * has been run before on a user's system.
+     * @details If the current running version does not exist in the record, a
+     * `Logger` is used to add the version to the record, which is a file
+     * reserved for this purpose. The record will be used in future checks to
+     * deduce which versions have already been run before.
+     * @return `true` if the current version has been run on the system before,
+     * false otherwise.
+     */
+    bool _versionRecordExists();
 };
 
 struct FileLoader {

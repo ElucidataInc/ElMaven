@@ -28,6 +28,7 @@
 #include "isotopeswidget.h"
 #include "librarymanager.h"
 #include "ligandwidget.h"
+#include "common/logger.h"
 #include "logwidget.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
@@ -182,7 +183,6 @@ using namespace mzUtils;
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
 
-	
 	QList<QString> dirs;
 	dirs << dataDir << QApplication::applicationDirPath()
 		 << QApplication::applicationDirPath() + "/../Resources/";
@@ -1587,6 +1587,17 @@ void MainWindow::analyticsAverageSpectra(){
 
 void MainWindow::open()
 {
+    // TODO: temporarily added for informing user, remove after a few releases
+    if (!_versionRecordExists()) {
+        QMessageBox msgBox;
+        msgBox.setText("El-MAVEN is now capable of reading files containing "
+                       "zlib compressed data. Please feel free to load such "
+                       "files, if you have any.");
+        msgBox.setIcon(QMessageBox::Information);
+        QPushButton* b = msgBox.addButton("Continue", QMessageBox::AcceptRole);
+        msgBox.exec();
+    }
+
     QString dir = ".";
 
     if (settings->contains("lastDir")) {
@@ -1954,6 +1965,58 @@ void MainWindow::setLastLoadedDatabase(QString filename)
     bool smallerThan2Mb = fileInfo.size() < 2000000;
     if (!nistFile || smallerThan2Mb)
         settings->setValue("lastDatabaseFile", filename);
+}
+
+bool MainWindow::_versionRecordExists()
+{
+    QString currentVersion = STR(EL_MAVEN_VERSION);
+    QString versionLogPath = QString(QStandardPaths::writableLocation(
+                                         QStandardPaths::GenericConfigLocation)
+                                     + QDir::separator()
+                                     + "ElMaven"
+                                     + QDir::separator()
+                                     + "version.log");
+
+    // lambda that can be used to log an entry for the current app version
+    auto logCurrentVersion = [&]() {
+        Logger versionLogger(versionLogPath.toStdString(), false, false);
+        versionLogger.info() << currentVersion.toStdString() << endl;
+    };
+
+    // lambda that checks whether two regex matches represent the same hits
+    auto sameVersionMatch = [](QRegularExpressionMatch& first,
+                               QRegularExpressionMatch& second) {
+        // for two successful matches of version strings, one of which might be
+        // "v0.8.0-beta.2-142-g1d3468ae", checks whether the groups (0.8.0),
+        // (beta) and (2) match or not; build numbers and tags are disregarded
+        return (first.captured(2) == second.captured(2)
+                && first.captured(4) == second.captured(4)
+                && first.captured(6) == second.captured(6));
+    };
+
+    QFile data(versionLogPath);
+    if (!data.open(QFile::ReadOnly) ) {
+        qDebug() << "Cannot open file: " << versionLogPath;
+        logCurrentVersion();
+        return false;
+    }
+
+    QRegularExpression
+        ver("v((\\d+\\.\\d+\\.\\d+)(-(beta|alpha))?(\\.(\\d)*)?(-(\\d+))?)");
+    auto currentVersionMatch = ver.match(currentVersion);
+
+    QTextStream stream(&data);
+    while (!stream.atEnd()) {
+        QString line = stream.readLine();
+        auto match = ver.match(line);
+        if (match.hasMatch()
+            && sameVersionMatch(currentVersionMatch, match)) {
+            return true;
+        }
+    }
+
+    logCurrentVersion();
+    return false;
 }
 
 void MainWindow::checkCorruptedSampleInjectionOrder()
