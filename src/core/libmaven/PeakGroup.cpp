@@ -882,7 +882,9 @@ Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
 
 void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
 {
-    if (this->getCompound() == NULL || ms2EventCount == 0) return;
+    if (this->getCompound() == nullptr
+        || this->isAdduct()
+        || ms2EventCount == 0) return;
 
     fragMatchScore = getCompound()->scoreCompoundHit(&fragmentationPattern,
                                                      ppmTolerance);
