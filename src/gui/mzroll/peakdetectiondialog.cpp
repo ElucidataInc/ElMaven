@@ -44,6 +44,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
     settings.insert("searchAdducts", QVariant::fromValue(pd->searchAdducts));
     settings.insert("adductSearchWindow", QVariant::fromValue(pd->adductSearchWindow));
+    settings.insert("adductPercentCorrelation", QVariant::fromValue(pd->adductPercentCorrelation));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -482,8 +483,10 @@ void PeakDetectionDialog::_setAdductWindowState()
 {
     if (searchAdducts->isChecked()) {
         adductSearchWindow->setEnabled(true);
+        adductPercentCorrelation->setEnabled(true);
     } else {
         adductSearchWindow->setEnabled(false);
+        adductPercentCorrelation->setEnabled(false);
     }
 }
 

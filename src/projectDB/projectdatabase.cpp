@@ -691,7 +691,8 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :identification_match_rt          \
                       , :identification_rt_window         \
                       , :search_adducts                   \
-                      , :adduct_search_window             )");
+                      , :adduct_search_window             \
+                      , :adduct_percent_correlation       )");
 
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
@@ -768,6 +769,7 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":limit_groups_per_compound", BINT(settingsMap.at("limitGroupsPerCompound")));
     settingsQuery->bind(":search_adducts", BINT(settingsMap.at("searchAdducts")));
     settingsQuery->bind(":adduct_search_window", BDOUBLE(settingsMap.at("adductSearchWindow")));
+    settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
 
     settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
@@ -1360,6 +1362,7 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
         settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
         settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
+        settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
 
         settingsMap["matchFragmentation"] = settingsQuery->doubleValue("match_fragmentation");
         settingsMap["minFragMatchScore"] = variant(settingsQuery->integerValue("min_frag_match_score"));

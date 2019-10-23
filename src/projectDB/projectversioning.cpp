@@ -440,6 +440,7 @@ map<int, string> dbVersionUpgradeScripts = {
 
         "ALTER TABLE user_settings ADD COLUMN search_adducts INTEGER;"
         "ALTER TABLE user_settings ADD COLUMN adduct_search_window REAL;"
+        "ALTER TABLE user_settings ADD COLUMN adduct_percent_correlation REAL;"
         "COMMIT;"
     },
     {

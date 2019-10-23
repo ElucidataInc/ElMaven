@@ -341,6 +341,36 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="5" column="1">
+           <widget class="QDoubleSpinBox" name="adductSearchWindow">
+            <property name="suffix">
+             <string> seconds from parent ion</string>
+            </property>
+            <property name="minimum">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>2.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>EIC Extraction Window (+/-)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="searchAdducts">
+            <property name="text">
+             <string>Detect adducts within</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="2">
            <widget class="QSpinBox" name="eicMaxGroups">
             <property name="suffix">
@@ -357,17 +387,19 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Select Database</string>
+          <item row="1" column="2">
+           <widget class="QDoubleSpinBox" name="compoundPPMWindow">
+            <property name="suffix">
+             <string> ppm</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>EIC Extraction Window (+/-)</string>
+            <property name="maximum">
+             <double>1000000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -397,6 +429,16 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Select Database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="compoundDatabase"/>
+          </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="matchRt">
             <property name="text">
@@ -404,6 +446,31 @@
             </property>
             <property name="checked">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QDoubleSpinBox" name="adductPercentCorrelation">
+            <property name="prefix">
+             <string>with </string>
+            </property>
+            <property name="suffix">
+             <string notr="true"> % correlation</string>
+            </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>0.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>5.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>90.000000000000000</double>
             </property>
            </widget>
           </item>

@@ -248,7 +248,8 @@
                                               , identification_match_rt          INTEGER \
                                               , identification_rt_window         REAL    \
                                               , search_adducts                   INTEGER \
-                                              , adduct_search_window             REAL    );"
+                                              , adduct_search_window             REAL    \
+                                              , adduct_percent_correlation       REAL    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

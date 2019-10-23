@@ -216,7 +216,7 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                 continue;
             }
 
-            float highestCorrelation = 0.0f;
+            float highestPercentCorrelation = 0.0f;
             PeakGroup* bestMatch = nullptr;
             for (auto candidate : possibleParents) {
                 float corrSum = 0.0f;
@@ -237,15 +237,18 @@ void GroupFiltering::filterAdducts(vector<PeakGroup>& groups)
                     corrSum += corr;
                     ++numSamples;
                 }
-                float avgCorr = corrSum / static_cast<float>(numSamples);
-                if (avgCorr > 0.9f && avgCorr > highestCorrelation) {
-                    highestCorrelation = avgCorr;
+                float avgPercentCorr = corrSum
+                                       / static_cast<float>(numSamples)
+                                       * 100.0f;
+                if (avgPercentCorr > _mavenParameters->adductPercentCorrelation
+                    && avgPercentCorr > highestPercentCorrelation) {
+                    highestPercentCorrelation = avgPercentCorr;
                     bestMatch = candidate;
                 }
             }
 
             // candidate is not highly correlated to identified parent, erase
-            if (highestCorrelation == 0.0f || bestMatch == nullptr) {
+            if (highestPercentCorrelation == 0.0f || bestMatch == nullptr) {
                 it = groups.erase(it);
                 continue;
             }
