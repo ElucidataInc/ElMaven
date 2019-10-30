@@ -160,6 +160,13 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
                     g.expectedAbundance = expectedAbundance;
                     g.isotopeC13count = x.C13;
                     g.setSelectedSamples(parentgroup->samples);
+
+                    // create a slice for this group; RT will be updated later
+                    mzSlice childSlice(mzmin,
+                                       mzmax,
+                                       0.0f,
+                                       numeric_limits<float>::max());
+                    g.setSlice(childSlice);
                     isotopes[isotopeName] = g;
                 }
                 isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
@@ -320,10 +327,16 @@ void IsotopeDetection::childStatistics(
 
     child.tagString = isotopeName;
     child.groupId = parentgroup->groupId;
-    child.setCompound(parentgroup->getCompound());
     child.parent = parentgroup;
     child.setType(PeakGroup::Isotope);
     child.groupStatistics();
+
+    // we now have the RT limits for the isotopic group
+    mzSlice currentSlice = child.getSlice();
+    currentSlice.rtmin = child.minRt;
+    currentSlice.rtmax = child.maxRt;
+    child.setSlice(currentSlice);
+    child.setCompound(parentgroup->getCompound());
 
     bool deltaRtCheckFlag = _mavenParameters->deltaRtCheckFlag;
     float compoundRTWindow = _mavenParameters->compoundRTWindow;
