@@ -2209,7 +2209,7 @@ int MainWindow::loadMetaCsvFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set", "injection order"};
+    static const string allHeadersarr[] = {"sample", "set", "scaling", "injection order"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -2254,6 +2254,17 @@ int MainWindow::loadMetaCsvFile(string filename){
 		else{
 			set = "";
 		}
+
+        float scalingFactor = 1.0f;
+        if (header.count("scaling") && header["scaling"] < N) {
+            auto scaleString = fields[ header["scaling"] ];
+            istringstream iss(scaleString);
+            float tempScalingFactor = 1.0f;
+            iss >> noskipws >> tempScalingFactor;
+            if (iss.eof() && !iss.fail())
+                scalingFactor = tempScalingFactor;
+        }
+
         if (header.count("injection order") && header["injection order"]<N){
 
             string io = fields[header["injection order"]];
@@ -2289,8 +2300,8 @@ int MainWindow::loadMetaCsvFile(string filename){
 		if(!sample) continue; 
         sample->_setName = set;
         sample->setInjectionOrder(injectionOrder);
-       	loadCount++;
-
+        sample->setNormalizationConstant(scalingFactor);
+        loadCount++;
     }
     myfile.close();
     return loadCount;
