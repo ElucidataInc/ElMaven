@@ -4363,7 +4363,7 @@ mzSample* MainWindow::getSampleByName(QString name) {
     //non perfect matching
     for(int i=0; i < samples.size(); i++) {
         if (samples[i] == NULL) continue;
-        if (samples[i]->sampleName == name.toStdString()) {
+        if (samples[i]->sampleName == mzUtils::cleanFilename(name.toStdString())) {
             return samples[i];
         }
     }
