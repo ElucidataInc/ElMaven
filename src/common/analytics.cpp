@@ -102,7 +102,9 @@ void Analytics::httpPost(QUrlQuery query) {
     QNetworkAccessManager *manager = new QNetworkAccessManager();
     QByteArray data;
     data.append(query.query());
+#ifdef DEBUG
     qDebug() << data; // Output for debug purposes.
+#endif
     QNetworkReply *reply = manager->post(req, data);
 
 }
