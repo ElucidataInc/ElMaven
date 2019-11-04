@@ -227,7 +227,6 @@ HEADERS +=  stable.h \
                     samplertwidget.h \
                     controller.h \
                     numeric_treewidgetitem.h \
-                    analytics.h \
                     isotopeplotdockwidget.h \
                     gettingstarted.h \
                     pollywaitdialog.h \
@@ -304,7 +303,6 @@ database.cpp \
     samplertwidget.cpp \
     controller.cpp \
     numeric_treewidgetitem.cpp \
-    analytics.cpp \
     isotopeplotdockwidget.cpp \
     gettingstarted.cpp \
     pollywaitdialog.cpp \

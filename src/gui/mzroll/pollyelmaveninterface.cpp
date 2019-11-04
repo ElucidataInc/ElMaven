@@ -1,6 +1,6 @@
 #include <QVariant>
 
-#include "analytics.h"
+#include "common/analytics.h"
 #include "controller.h"
 #include "csvreports.h"
 #include "database.h"

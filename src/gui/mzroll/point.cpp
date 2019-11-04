@@ -1,5 +1,5 @@
 #include "adductwidget.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "Compound.h"
 #include "eiclogic.h"
 #include "eicwidget.h"

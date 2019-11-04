@@ -4,7 +4,7 @@
 #include <QSettings>
 #include <QPushButton>
 
-#include "analytics.h"
+#include "common/analytics.h"
 #include "mainwindow.h"
 #include "videoplayer.h"
 

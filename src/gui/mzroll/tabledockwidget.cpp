@@ -3,7 +3,7 @@
 #include <QHistogramSlider.h>
 
 #include "alignmentdialog.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "clusterdialog.h"
 #include "Compound.h"
 #include "controller.h"

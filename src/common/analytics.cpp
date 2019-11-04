@@ -1,3 +1,11 @@
+#include <QCoreApplication>
+#include <QDir>
+#include <QHostInfo>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QUrlQuery>
+#include <QUuid>
+
 #include "analytics.h"
 
 Analytics::Analytics() {

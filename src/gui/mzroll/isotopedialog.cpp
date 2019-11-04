@@ -1,4 +1,4 @@
-#include "analytics.h"
+#include "common/analytics.h"
 #include "isotopedialog.h"
 #include "mainwindow.h"
 
