@@ -1112,6 +1112,14 @@ QString PeakDetectorCLI::uploadToPolly(QString jsPath,
         return uploadProjectId;
     }
 
+
+    _analytics->hitEvent("Exports", "Polly");
+    if (_currentPollyApp == PollyApp::PollyPhi) {
+        _analytics->hitEvent("Polly upload", "PollyPhi");
+    } else if (_currentPollyApp == PollyApp::QuantFit) {
+        _analytics->hitEvent("Polly upload", "QuantFit");
+    }
+
     // User is logged in, now proceeding to upload…
 
     // This will list all the project corresponding to the user on polly…
