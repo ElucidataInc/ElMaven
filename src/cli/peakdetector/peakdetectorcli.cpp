@@ -1,3 +1,4 @@
+#include "common/analytics.h"
 #include "common/downloadmanager.h"
 #include "Compound.h"
 #include "csvparser.h"
@@ -7,9 +8,10 @@
 #include "mzUtils.h"
 #include "peakdetectorcli.h"
 
-PeakDetectorCLI::PeakDetectorCLI(Logger* log)
+PeakDetectorCLI::PeakDetectorCLI(Logger* log, Analytics* analytics)
 {
     _log = log;
+    _analytics = analytics;
     status = true;
     textStatus = "";
     mavenParameters = new MavenParameters();
@@ -24,6 +26,8 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log)
     _pollyIntegration = new PollyIntegration(_dlManager);
     _redirectTo = "gsheet_sym_polly_elmaven";
     _currentPollyApp = PollyApp::None;
+
+    analytics->hitScreenView("CLI");
 }
 
 PeakDetectorCLI::~PeakDetectorCLI()

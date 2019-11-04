@@ -1,6 +1,7 @@
 #include "testCLI.h"
 #include "databases.h"
 #include "classifierNeuralNet.h"
+#include "common/analytics.h"
 #include "common/logger.h"
 #include "csvreports.h"
 #include "masscutofftype.h"
@@ -20,6 +21,7 @@ TestCLI::TestCLI()
                     + QDir::separator()
                     + logFile;
     _log = new Logger(fpath.toStdString(), true);
+    _analytics = new Analytics();
 
     xmlPath = "bin/methods/test.xml";
     createXmlPath = "bin/methods/createTest.xml";
@@ -37,7 +39,7 @@ TestCLI::~TestCLI() {
 
 void TestCLI::testLoadClassificationModel() {
     
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
     peakdetectorCLI->loadClassificationModel(clsfPath);
 
     QVERIFY(peakdetectorCLI->mavenParameters->clsf->hasModel());
@@ -46,7 +48,7 @@ void TestCLI::testLoadClassificationModel() {
 
 void TestCLI::testLoadCompoundsFile() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
     peakdetectorCLI->mavenParameters->ligandDbFilename = dbPath;
     peakdetectorCLI->loadCompoundsFile();
 
@@ -56,7 +58,7 @@ void TestCLI::testLoadCompoundsFile() {
 
 void TestCLI::testLoadSamples() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
     peakdetectorCLI->filenames.push_back(normalSample);
     peakdetectorCLI->filenames.push_back(blankSample);
 
@@ -70,7 +72,7 @@ void TestCLI::testLoadSamples() {
 
 void TestCLI::testProcessXml() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
     peakdetectorCLI->processXML((char*)xmlPath);
 
     QVERIFY(peakdetectorCLI->mavenParameters->ionizationMode == -1);
@@ -119,7 +121,7 @@ void TestCLI::testProcessXml() {
 
 void TestCLI::testCreateXMLFile() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
     peakdetectorCLI->createXMLFile((char*)createXmlPath);
 
 
@@ -136,7 +138,7 @@ void TestCLI::testCreateXMLFile() {
 
 void TestCLI::testReduceGroups() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
 
 	peakdetectorCLI->processXML((char*)xmlPath);
 
@@ -170,7 +172,7 @@ void TestCLI::testReduceGroups() {
 
 void TestCLI::testWriteReport() {
 
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(_log, _analytics);
 
 	peakdetectorCLI->processXML((char*)xmlPath);
 
