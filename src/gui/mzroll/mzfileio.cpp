@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "analytics.h"
+#include "common/analytics.h"
 #include "base64.h"
 #include "Compound.h"
 #include "errorcodes.h"

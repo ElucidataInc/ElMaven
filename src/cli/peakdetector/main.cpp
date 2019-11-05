@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 
+#include "common/analytics.h"
 #include "common/logger.h"
 #include "mavenparameters.h"
 #include "peakdetectorcli.h"
@@ -40,7 +41,9 @@ int main(int argc, char *argv[]) {
                     + QDir::separator()
                     + logFile;
     Logger log(fpath.toStdString(), true);
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log);
+    Analytics analytics;
+    analytics.sessionStart();
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log, &analytics);
 
      #ifndef __APPLE__
      double programStartTime = getTime();
@@ -50,7 +53,8 @@ int main(int argc, char *argv[]) {
 
 	if (!peakdetectorCLI->status) {
 		cerr << peakdetectorCLI->textStatus;
-		return(0);
+        analytics.sessionEnd();
+        return(0);
 	}
 
 	//load classification model
@@ -113,5 +117,6 @@ int main(int argc, char *argv[]) {
      #ifndef __APPLE__
      cout << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
      #endif
-	return(0);
+    analytics.sessionEnd();
+    return(0);
 }

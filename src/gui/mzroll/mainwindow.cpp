@@ -7,7 +7,7 @@
 #include "adductwidget.h"
 #include "alignmentdialog.h"
 #include "alignmentvizallgroupswidget.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "animationcontrol.h"
 #include "awsbucketcredentialsdialog.h"
 #include "background_peaks_update.h"

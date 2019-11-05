@@ -1,7 +1,7 @@
 #include <QMessageBox>
 
 #include "aboutpolly.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "controller.h"
 #include "loginform.h"
 #include "mainwindow.h"

@@ -1,4 +1,4 @@
-#include "analytics.h"
+#include "common/analytics.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "isotopeswidget.h"

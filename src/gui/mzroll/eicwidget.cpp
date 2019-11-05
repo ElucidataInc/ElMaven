@@ -3,7 +3,7 @@
 #include "EIC.h"
 #include "Peak.h"
 #include "Scan.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "barplot.h"
 #include "boxplot.h"
 #include "classifierNeuralNet.h"

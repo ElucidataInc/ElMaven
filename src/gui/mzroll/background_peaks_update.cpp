@@ -10,7 +10,7 @@
 
 #include "Compound.h"
 #include "alignmentdialog.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "csvreports.h"
 #include "background_peaks_update.h"
 #include "database.h"

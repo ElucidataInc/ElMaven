@@ -49,6 +49,7 @@ class PollyIntegration;
 class ParseOptions;
 class DownloadManager;
 class Logger;
+class Analytics;
 
 class PeakDetectorCLI
 {
@@ -70,7 +71,7 @@ public:
     QString pollyArgs;
     AlignmentMode alignMode;
 
-    PeakDetectorCLI(Logger* log);
+    PeakDetectorCLI(Logger* log, Analytics* analytics);
     ~PeakDetectorCLI();
 
     /**
@@ -197,6 +198,7 @@ private:
     PollyApp _currentPollyApp;
     QString _pollyExtraInfo;
     Logger *_log;
+    Analytics* _analytics;
 
     /**
      * [Load Arguments for Options Dialog]

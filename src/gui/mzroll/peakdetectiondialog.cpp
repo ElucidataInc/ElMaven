@@ -3,7 +3,7 @@
 #include <QVariant>
 
 #include "alignmentdialog.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "background_peaks_update.h"
 #include "classifierNeuralNet.h"
 #include "database.h"

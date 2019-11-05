@@ -1,7 +1,7 @@
 #include "Compound.h"
 #include "ligandwidget.h"
 #include "alignmentdialog.h"
-#include "analytics.h"
+#include "common/analytics.h"
 #include "globals.h"
 #include "librarymanager.h"
 #include "mainwindow.h"

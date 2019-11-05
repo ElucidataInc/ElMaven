@@ -9,6 +9,7 @@
 
 class PeakDetectorCLI;
 class Logger;
+class Analytics;
 
 using namespace std;
 
@@ -27,6 +28,7 @@ class TestCLI : public QObject {
         const char* xmlPath;
         const char* createXmlPath;
         Logger* _log;
+        Analytics* _analytics;
 
     private Q_SLOTS:
         void testLoadClassificationModel();
