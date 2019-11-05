@@ -35,8 +35,9 @@ install:
   - |
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-        brew install llvm@6;
         brew install grep;
+        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/c3ed67c71e9ea2e0d51809a2b4d5b968b1a6ac70/Formula/llvm@6.rb
+        brew install ./llvm\@6.rb
 
         # brew no longer provides Qt 5.11, so we use an older formula for the same
         curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/56c500b569c724b049be7ab9e12d9693f85522f9/Formula/qt.rb
