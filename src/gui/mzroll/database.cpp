@@ -745,7 +745,7 @@ int Database::loadCompoundCSVFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"mz", "rt", "expectedrt", "charge", "formula", "id", "name",
+    static const string allHeadersarr[] = {"mz", "mass", "rt", "expectedrt", "charge", "formula", "id", "name",
         "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity", "note"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
@@ -794,6 +794,7 @@ int Database::loadCompoundCSVFile(string filename){
         string note;
         float rt=0;
         float mz=0;
+        float mass = 0.0f;
         float charge=0;
         float collisionenergy=0;
         float precursormz=0;
@@ -803,6 +804,8 @@ int Database::loadCompoundCSVFile(string filename){
 
 
         if ( header.count("mz") && header["mz"]<N)  mz = string2float(fields[ header["mz"]]);
+        if ( header.count("mass") && header["mass"]<N)
+            mass = string2float(fields[ header["mass"]]);
         if ( header.count("rt") && header["rt"]<N)  rt = string2float(fields[ header["rt"]]);
         if ( header.count("expectedrt") && header["expectedrt"]<N) rt = string2float(fields[ header["expectedrt"]]);
         if ( header.count("charge")&& header["charge"]<N) charge = string2float(fields[ header["charge"]]);
@@ -850,12 +853,20 @@ int Database::loadCompoundCSVFile(string filename){
         if (id.empty()&& !name.empty()) id=name;
         if (id.empty() && name.empty()) id="cmpd:" + integer2string(loadCount);
 
-        if ( mz > 0 || ! formula.empty() || precursormz > 0) {
+        if ( mz > 0 || ! formula.empty() || precursormz > 0 || mass > 0.0f) {
             Compound* compound = new Compound(id,name,formula,charge);
 
             compound->expectedRt = rt;
 
-            if (mz == 0) mz = MassCalculator::computeMass(formula,charge);
+            if (mass != 0.0f)
+                compound->neutralMass = mass;
+
+            if (mz == 0 && !formula.empty()) {
+                mz = MassCalculator::computeMass(formula,charge);
+            } else if (mass != 0.0f) {
+                mz = MassCalculator::adjustMass(mass, 1);
+            }
+
             compound->mass = mz;
             compound->db = dbname;
             compound->expectedRt=rt;

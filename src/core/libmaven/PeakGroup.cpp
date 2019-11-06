@@ -553,7 +553,7 @@ double PeakGroup::getExpectedMz(int charge) {
         return expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
-        if (!_slice.compound->formula().empty()) {
+        if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
             mz = _slice.compound->mass;

@@ -135,6 +135,7 @@ class Compound{
 
         int charge;     /**@param  -   number of charge of compound (electron loss or gain)   */
         float mass;     /**@param   -  mass of this compund   */
+        float neutralMass;
 
         /** QQQ mapping */
         string method_id;   /**@param  -  TODO*/

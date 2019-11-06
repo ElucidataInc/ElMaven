@@ -461,7 +461,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
         bool matchFound = false;
         for (auto compound : identificationSet) {
             float mz = 0.0f;
-            if (compound->formula().length()) {
+            if (compound->formula().length() || compound->neutralMass != 0.0f) {
                 int charge = mavenParameters->getCharge(compound);
                 mz = compound->adjustedMass(charge);
             } else {

@@ -357,11 +357,10 @@ void LigandWidget::showTable() {
         float precursorMz = compound->precursorMz;
         float productMz = compound->productMz;
 
-        if (compound->formula().length()) {
+        if (compound->formula().length() || compound->neutralMass != 0.0f) {
             int charge = _mw->mavenParameters->getCharge(compound);
             mz = compound->adjustedMass(charge);
-        } 
-        else {
+        } else {
             mz = compound->mass;
         }
 
@@ -729,7 +728,8 @@ void LigandWidget::matchFragmentation() {
 
     int charge = _mw->mavenParameters->getCharge(c); //user specified ionization mode
 	float precursorMz = c->precursorMz;
-    if (!c->formula().empty()) precursorMz = c->adjustedMass(charge);
+    if (!c->formula().empty() || c->neutralMass != 0.0f)
+        precursorMz = c->adjustedMass(charge);
 
     for(int i=0; i < mzCount; i++ ) {
                         float mz = c->fragmentMzValues[i];

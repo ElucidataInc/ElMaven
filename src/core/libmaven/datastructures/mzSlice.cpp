@@ -32,10 +32,10 @@ bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge
 {
 	
     //Calculating the mzmin and mzmax
-    if (!this->compound->formula().empty())
+    if (!this->compound->formula().empty() || this->compound->neutralMass != 0.0f)
 	{
         //Computing the mass if the formula is given
-        double mass = MassCalculator::computeMass(this->compound->formula(), charge);
+        double mass = this->compound->adjustedMass(charge);
 		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
 		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}

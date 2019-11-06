@@ -1452,7 +1452,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
 			<< c->expectedRt;
 
     float mz = c->mass;
-    if (!c->formula().empty())
+    if (!c->formula().empty() || c->neutralMass != 0.0f)
 		mz = c->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 
