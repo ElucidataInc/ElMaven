@@ -401,7 +401,7 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
         float massTolerance = 10.0f * massCutoff->massCutoffValue(mzCenter);
         if (!(abs(mzCenter - mz) <= massTolerance
               && abs(mzCenter - comparisonMz) <= massTolerance)) {
-            return make_pair(false, true);
+            return make_pair(false, false);
         }
 
         // check if common RT regions exist between the slices being compared
