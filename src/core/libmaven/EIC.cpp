@@ -20,6 +20,8 @@ EIC::EIC()
     baseline = NULL;
     mzmin = mzmax = rtmin = rtmax = 0;
     maxIntensity = totalIntensity = 0;
+    rtAtMaxIntensity = 0.0f;
+    mzAtMaxIntensity = 0.0f;
     maxAreaTopIntensity = 0;
     maxAreaIntensity = 0;
     maxAreaTopNotCorrectedIntensity = 0;
@@ -115,8 +117,11 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     for (unsigned int i = 0; i < maxlen; i++)
     {
         intensity[i] /= eicCount;
-        if (intensity[i] > meic->maxIntensity)
+        if (intensity[i] > meic->maxIntensity) {
             meic->maxIntensity = intensity[i];
+            meic->rtAtMaxIntensity = rt[i];
+            meic->mzAtMaxIntensity = mz[i];
+        }
         if (mzcount[i])
             mz[i] /= mzcount[i];
         meic->totalIntensity += intensity[i];
@@ -1212,8 +1217,11 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
         this->intensity.push_back(eicIntensity);
         this->mz.push_back(eicMz);
         this->totalIntensity += eicIntensity;
-        if (eicIntensity > this->maxIntensity)
+        if (eicIntensity > this->maxIntensity) {
             this->maxIntensity = eicIntensity;
+            this->rtAtMaxIntensity = scan->rt;
+            this->mzAtMaxIntensity = eicMz;
+        }
     }
 
     return true;

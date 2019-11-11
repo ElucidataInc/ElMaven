@@ -446,23 +446,13 @@ void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
                                                 1,
                                                 "");
 
-            // find out the highest intensity's mz and rt in the EICs
-            for (size_t i = 0; i < eic->size(); ++i) {
-                auto intensityAtIdx = eic->intensity[i];
-                if (intensityAtIdx > highestIntensity) {
-                    highestIntensity = intensityAtIdx;
-                    mzAtHighestIntensity = eic->mz[i];;
-                    rtAtHighestIntensity = eic->rt[i];
-                }
-            }
-            for (size_t i = 0; i < comparisonEic->size(); ++i) {
-                auto intensityAtIdx = comparisonEic->intensity[i];
-                if (intensityAtIdx > highestCompIntensity) {
-                    highestCompIntensity = intensityAtIdx;
-                    mzAtHighestCompIntensity = comparisonEic->mz[i];
-                    rtAtHighestCompIntensity = comparisonEic->rt[i];
-                }
-            }
+            // obtain the highest intensity's mz and rt in the EICs
+            highestIntensity = eic->maxIntensity;
+            rtAtHighestIntensity = eic->rtAtMaxIntensity;
+            mzAtHighestIntensity = eic->mzAtMaxIntensity;
+            highestCompIntensity = comparisonEic->maxIntensity;
+            rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
+            mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
             delete eic;
             delete comparisonEic;
         }
@@ -596,12 +586,9 @@ void MassSlices::adjustSlices()
         float highestIntensity = 0.0f;
         float mzAtHighestIntensity = 0.0f;
         for (auto eic : eics) {
-            for (size_t i = 0; i < eic->size(); ++i) {
-                auto intensityAtIndex = eic->intensity[i];
-                if (intensityAtIndex > highestIntensity) {
-                    highestIntensity = intensityAtIndex;
-                    mzAtHighestIntensity = eic->mz[i];
-                }
+            if (eic->maxIntensity > highestIntensity) {
+                highestIntensity = eic->maxIntensity;
+                mzAtHighestIntensity = eic->mzAtMaxIntensity;
             }
         }
         float cutoff = mavenParameters->massCutoffMerge
