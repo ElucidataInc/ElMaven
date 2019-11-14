@@ -305,12 +305,12 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     /** Get identifier to a PubMed study associated with this data.
      *  @return A string storing the PubMed identifier.
      */
-    std::string getPUBMED(void) const;
+    int getPUBMED(void) const;
 
     /** Get identifier to a PubMed study associated with this data.
      *  @param[in] pubmed The PubMed ID/Link.
      */
-    void setPUBMED(const std::string& pubmed);
+    void setPUBMED(const int& pubmed);
 
     /** Get a unique identifier for this spectral entry.
      *  @return A string specifying the spectrum ID.
@@ -340,7 +340,7 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     std::string organism_;
     std::string smiles_;
     std::string inchi_;
-    std::string pubmed_;
+    int pubmed_;
     std::string spectrumId_;
 };
 

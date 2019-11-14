@@ -219,6 +219,7 @@ localparams : /* empty */
 localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1; }
            | COMP '=' STRING EOL { driver.context.currentSpectrum.setCOMP(*$3); delete $3; }
            | INSTRUMENT '=' STRING EOL { driver.context.currentSpectrum.setINSTRUMENT(*$3); delete $3; }
+           | INSTRUMENT STRING EOL { driver.context.currentSpectrum.setINSTRUMENT(*$2); delete $2; }
            | IT_MODS '=' STRING EOL { driver.context.currentSpectrum.setIT_MODS(*$3); delete $3; }
            | RTINSECONDS '=' DOUBLE EOL { driver.context.currentSpectrum.setRTINSECONDS($3); }
            | RTINSECONDS '=' INTEGER EOL { driver.context.currentSpectrum.setRTINSECONDS($3); }
@@ -235,20 +236,30 @@ localparam : TITLE EOL { driver.context.currentSpectrum.setTITLE(*$1); delete $1
            | TOL '=' DOUBLE EOL { driver.context.currentSpectrum.setTOL($3); }
            | TOL '=' INTEGER EOL { driver.context.currentSpectrum.setTOL($3); }
            | CHARGE '=' charges EOL { driver.context.currentSpectrum.setCHARGE(*($3->integers_)); delete $3; }
-           | MSLEVEL '=' INTEGER EOL { driver.context.currentSpectrum.setMSLEVEL($3); }
-           | FILENAME '=' STRING EOL { driver.context.currentSpectrum.setFILENAME(*$3); delete $3; }
-           | IONMODE '=' STRING EOL { driver.context.currentSpectrum.setIONMODE(*$3); delete $3; }
-           | ORGANISM '=' STRING EOL { driver.context.currentSpectrum.setORGANISM(*$3); delete $3; }
-           | PI '=' STRING EOL { /*driver.context.header.setPI(*$3);*/ delete $3; } // Ignoring
-           | DATACOLLECTOR '=' STRING EOL { /*driver.context.header.setDATACOLLECTOR(*$3);*/ delete $3; } // Ignoring
-           | SUBMITUSER '=' STRING EOL { /*driver.context.header.setSUBMITUSER(*$3);*/ delete $3; } // Ignoring
+           | MSLEVEL INTEGER EOL { driver.context.currentSpectrum.setMSLEVEL($2); }
+           | FILENAME STRING EOL { driver.context.currentSpectrum.setFILENAME(*$2); delete $2; }
+           | FILENAME EOL {}
+           | IONMODE STRING EOL { driver.context.currentSpectrum.setIONMODE(*$2); delete $2; }
+           | ORGANISM STRING EOL { driver.context.currentSpectrum.setORGANISM(*$2); delete $2; }
+           | ORGANISM EOL {}
+           | PI INTEGER EOL { /*driver.context.header.setPI(*$2);*/ } // Ignoring
+           | PI STRING EOL { /*driver.context.header.setPI(*$2);*/ delete $2; } // Ignoring
+           | PI EOL {}
+           | DATACOLLECTOR  INTEGER EOL { /*driver.context.header.setDATACOLLECTOR(*$2);*/ } // Ignoring
+           | DATACOLLECTOR STRING EOL { /*driver.context.header.setDATACOLLECTOR(*$2);*/ delete $2; } // Ignoring
+           | DATACOLLECTOR EOL { /*driver.context.header.setDATACOLLECTOR(*$2);*/ } // Ignoring
+           | SUBMITUSER INTEGER EOL { /*driver.context.header.setSUBMITUSER(*$2);*/ } // Ignoring
+           | SUBMITUSER STRING EOL { /*driver.context.header.setSUBMITUSER(*$2);*/ delete $2; } // Ignoring
+           | SUBMITUSER EOL { /*driver.context.header.setSUBMITUSER(*$2);*/ } // Ignoring
            | SMILES EOL { driver.context.currentSpectrum.setSMILES(*$1); delete $1; }
            | INCHI EOL { driver.context.currentSpectrum.setINCHI(*$1); delete $1; }
            | INCHIAUX EOL { /*driver.context.header.setINCHIAUX(*$1);*/ delete $1; } // Ignoring
-           | PUBMED '=' STRING EOL { driver.context.currentSpectrum.setPUBMED(*$3); delete $3; }
+           | PUBMED INTEGER EOL { driver.context.currentSpectrum.setPUBMED($2); }
+           | PUBMED STRING EOL { delete $2; }
+           | PUBMED EOL {}
            | TAGS EOL { driver.context.currentSpectrum.setTAG(*$1); delete $1; }
-           | LIBRARYQUALITY '=' INTEGER EOL { /*driver.context.currentSpectrum.setLIBRARYQUALITY($3);*/ }
-           | SPECTRUMID '=' STRING EOL { driver.context.currentSpectrum.setSPECTRUMID(*$3); delete $3; }
+           | LIBRARYQUALITY INTEGER EOL { /*driver.context.currentSpectrum.setLIBRARYQUALITY($2);*/ }
+           | SPECTRUMID STRING EOL { driver.context.currentSpectrum.setSPECTRUMID(*$2); delete $2; }
            | PEPMASS '=' DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, 0.0)); }
            | PEPMASS '=' DOUBLE DOUBLE EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }
            | PEPMASS '=' DOUBLE INTEGER EOL { driver.context.currentSpectrum.setPEPMASS(std::make_pair($3, $4)); }

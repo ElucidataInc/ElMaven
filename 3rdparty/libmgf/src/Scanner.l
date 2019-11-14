@@ -75,7 +75,7 @@ typedef mgf::Parser::token_type token_type;
     return token::DOUBLE;
 }
 
-[0-9]+ {
+[+-]?[0-9]+ {
     yylval->integerVal = atoi(yytext);
     return token::INTEGER;
 }
@@ -258,42 +258,42 @@ typedef mgf::Parser::token_type token_type;
 }
 
  /* custom fields added to comply with GNPS' MGF format */
-"MSLEVEL" {
+"MSLEVEL=" {
     yylloc->step();
     return token::MSLEVEL;
 }
 
-"SOURCE_INSTRUMENT" {
+"SOURCE_INSTRUMENT=" {
     yylloc->step();
     return token::INSTRUMENT;
 }
 
-"FILENAME" {
+"FILENAME=" {
     yylloc->step();
     return token::FILENAME;
 }
 
-"IONMODE" {
+"IONMODE=" {
     yylloc->step();
     return token::IONMODE;
 }
 
-"ORGANISM" {
+"ORGANISM=" {
     yylloc->step();
     return token::ORGANISM;
 }
 
-"PI" {
+"PI=" {
     yylloc->step();
     return token::PI;
 }
 
-"DATACOLLECTOR" {
+"DATACOLLECTOR=" {
     yylloc->step();
     return token::DATACOLLECTOR;
 }
 
-"SUBMITUSER" {
+"SUBMITUSER=" {
     yylloc->step();
     return token::SUBMITUSER;
 }
@@ -328,7 +328,7 @@ typedef mgf::Parser::token_type token_type;
     return token::INCHIAUX;
 }
 
-"PUBMED" {
+"PUBMED=" {
     yylloc->step();
     return token::PUBMED;
 }
@@ -343,12 +343,12 @@ typedef mgf::Parser::token_type token_type;
     return token::TAGS;
 }
 
-"LIBRARYQUALITY" {
+"LIBRARYQUALITY=" {
     yylloc->step();
     return token::LIBRARYQUALITY;
 }
 
-"SPECTRUMID" {
+"SPECTRUMID=" {
     yylloc->step();
     return token::SPECTRUMID;
 }
@@ -379,7 +379,7 @@ typedef mgf::Parser::token_type token_type;
     return token::TITLE;
 }
 
-[A-Za-z*][ :;,()A-Za-z0-9*_.!\\/+-]* {
+[A-Za-z0-9*][ :;,'"$^*@#%&\[\]()A-Za-z0-9*_.?!\\/+-]* {
     yylval->stringVal = new std::string(yytext, yyleng);
     return token::STRING;
 }
