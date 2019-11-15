@@ -35,7 +35,15 @@ class Database {
 	QSqlDatabase& getLigandDB() { return ligandDB; }
 	void loadAll();  // loads all tables
 	void closeAll();
-	bool connect(string filename);
+
+    /**
+     * @brief Remove an already loaded database (and all compounds part of it)
+     * from the DB store.
+     * @param dbName Name of the database to be removed.
+     */
+    void removeDatabase(string dbName);
+
+    bool connect(string filename);
 	bool isConnected() { return _connected; }
 
 	void loadKnowns();

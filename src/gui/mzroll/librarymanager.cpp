@@ -1,4 +1,5 @@
 #include "librarymanager.h"
+#include "ligandwidget.h"
 #include "mainwindow.h"
 #include "mzUtils.h"
 #include "stable.h"
@@ -95,6 +96,15 @@ void LibraryManager::deleteSelectedDatabase()
     delete item;
 
     auto worker = _newWorker();
+    connect(worker,
+            &LibraryWorker::deleteFinished,
+            this,
+            [&]() {
+                DB.removeDatabase(selectedDatabase.databaseName.toStdString());
+                _mw->ligandWidget->setDatabaseNames();
+                _mw->ligandWidget->setDatabase(
+                    _mw->ligandWidget->getDatabaseName());
+            });
     worker->deleteRecord(databaseRecord);
 }
 
