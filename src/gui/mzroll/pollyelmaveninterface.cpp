@@ -238,6 +238,7 @@ void PollyElmavenInterfaceDialog::switchToApp(PollyApp app)
 
 void PollyElmavenInterfaceDialog::_changePage()
 {
+    QCoreApplication::processEvents();
     _selectedApp = PollyApp(workflowMenu->currentRow());
     if (_selectedApp == PollyApp::FirstView) {
         viewTitle->setText("Upload to Polly™ FirstView");
