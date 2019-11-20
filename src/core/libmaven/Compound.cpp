@@ -52,12 +52,14 @@ bool Compound::operator == (const Compound& rhs) const
             && isDecoy == rhs.isDecoy
             && ionizationMode == rhs.ionizationMode
             && db == rhs.db
+            && fragmentMzValues.size() == rhs.fragmentMzValues.size()
             && equal(begin(fragmentMzValues),
                      end(fragmentMzValues),
                      begin(rhs.fragmentMzValues),
                      [](float a, float b) {
                         return almostEqual(a, b);
                      })
+            && fragmentIntensities.size() == rhs.fragmentIntensities.size()
             && equal(begin(fragmentIntensities),
                      end(fragmentIntensities),
                      begin(rhs.fragmentIntensities),

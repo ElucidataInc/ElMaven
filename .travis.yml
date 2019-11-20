@@ -40,7 +40,7 @@ install:
         brew install ./llvm\@6.rb
 
         # brew no longer provides Qt 5.11, so we use an older formula for the same
-        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/56c500b569c724b049be7ab9e12d9693f85522f9/Formula/qt.rb
+        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/65a45a9e61f15046a256cdba6a008f38f79570c9/Formula/qt.rb
         brew install ./qt.rb
         brew link qt5 --force;
     fi

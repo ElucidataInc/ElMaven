@@ -12,6 +12,7 @@ MgfSpectrum::MgfSpectrum() : Collection<MassAbundancePair>() {
     this->clear();
     scans_ = std::make_pair(-1, -1);
     rtinseconds_ = std::make_pair(-1.0, -1.0);
+    pubmed_ = 0;
 }
 
 std::vector<int> MgfSpectrum::getCHARGE(void) const {
@@ -187,11 +188,11 @@ void MgfSpectrum::setINCHI(const std::string& inchi) {
     inchi_ = inchi;
 }
 
-std::string MgfSpectrum::getPUBMED(void) const {
+int MgfSpectrum::getPUBMED(void) const {
     return pubmed_;
 }
 
-void MgfSpectrum::setPUBMED(const std::string& pubmed) {
+void MgfSpectrum::setPUBMED(const int& pubmed) {
     pubmed_ = pubmed;
 }
 
@@ -273,7 +274,7 @@ std::ostream& operator<<(std::ostream& os, const MgfSpectrum& mgf) {
         os << "SMILES=" << mgf.smiles_ << '\n';
     if (!mgf.inchi_.empty())
         os << "INCHI=" << mgf.inchi_ << '\n';
-    if (!mgf.pubmed_.empty())
+    if (!mgf.pubmed_ != 0)
         os << "PUBMED=" << mgf.pubmed_ << '\n';
     if (!mgf.spectrumId_.empty())
         os << "SPECTRUMID=" << mgf.spectrumId_ << '\n';

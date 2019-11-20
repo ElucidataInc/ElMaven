@@ -45,6 +45,22 @@ void Database::closeAll() {
     mzUtils::delete_all(reactionsDB);
 }
 
+void Database::removeDatabase(string dbName)
+{
+    auto iter = begin(compoundsDB);
+    while (iter < end(compoundsDB)) {
+        auto compound = *iter;
+        if (compound->db == dbName) {
+            compoundIdenticalCount.erase(compound->id + compound->name + dbName);
+            compoundIdNameDbMap.erase(compound->id + compound->name + dbName);
+            iter = compoundsDB.erase(iter);
+            delete compound;
+        } else {
+            ++iter;
+        }
+    }
+}
+
 multimap<string,Compound*> Database::keywordSearch(string needle) {
     QSqlQuery query(ligandDB);
     query.prepare("SELECT compound_id, keyword from sets where keyword like '%?%'");
