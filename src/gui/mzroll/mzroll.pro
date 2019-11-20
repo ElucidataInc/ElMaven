@@ -64,6 +64,7 @@ mac {
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
     LIBS += -lbreakpad -lobjc -pthread
     LIBS += -lomp
+    LIBS += -lsentry_crashpad
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql

@@ -27,6 +27,12 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
+#ifndef Q_OS_LINUX
+#ifndef DEBUG
+#include "common/sentry.h"
+#endif
+#endif
+
 #ifdef Q_OS_MAC
 #include <QDateTime>
 #endif
@@ -64,6 +70,17 @@ void initializeLogger()
 
 int main(int argc, char *argv[])
 {
+#ifndef Q_OS_LINUX
+#ifndef DEBUG
+    auto sentryDsnKey = getenv("SENTRY_DSN");
+    if (sentryDsnKey != nullptr) {
+        sentry_options_t *options = sentry_options_new();
+        sentry_options_set_dsn(options, sentryDsnKey);
+        sentry_options_set_handler_path(options, "crashpad_handler");
+        sentry_init(options);
+    }
+#endif
+#endif
 
     QApplication app(argc, argv);
     qApp->setOrganizationName("ElucidataInc");
@@ -90,9 +107,15 @@ int main(int argc, char *argv[])
     contrl.getMainWindow()->gettingstarted->showDialog();
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
+
+#ifndef Q_OS_LINUX
+#ifndef DEBUG
+    if (sentryDsnKey != nullptr)
+        sentry_shutdown();
+#endif
+#endif
+
     return rv;
-
-
 }
 
 
