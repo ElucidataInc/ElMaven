@@ -303,12 +303,12 @@ class MGFP_EXPORT MgfSpectrum : public Collection<MassAbundancePair>
     void setINCHI(const std::string& inchi);
 
     /** Get identifier to a PubMed study associated with this data.
-     *  @return A string storing the PubMed identifier.
+     *  @return An integer storing the PubMed identifier.
      */
     int getPUBMED(void) const;
 
     /** Get identifier to a PubMed study associated with this data.
-     *  @param[in] pubmed The PubMed ID/Link.
+     *  @param[in] pubmed A unique PubMed ID.
      */
     void setPUBMED(const int& pubmed);
 
