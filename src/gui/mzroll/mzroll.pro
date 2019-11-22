@@ -68,6 +68,7 @@ mac {
 
     CONFIG(release, debug|release) {
         LIBS += -lsentry_crashpad
+        DEFINES += "SENTRY_DSN_BASE64=$$(SENTRY_DSN_BASE64)"
     }
 }
 

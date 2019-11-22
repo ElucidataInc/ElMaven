@@ -80,6 +80,9 @@ script:
         export PATH="$SENTRY_MACOSX_BIN:$PATH"
         export LDFLAGS="$LDFLAGS -L/$SENTRY_MACOSX_BIN"
 
+        # export private DSN as base64 encoded string (helps with stringification)
+        export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
+
         qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=separate_debug_info NOTESTS=yes
         make -j4;
       fi

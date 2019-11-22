@@ -19,6 +19,7 @@
 #define _STR(X) #X
 #define STR(X) _STR(X)
 #include "stable.h"
+#include "base64.h"
 #include "Compound.h"
 #include "gettingstarted.h"
 #include "mainwindow.h"
@@ -76,11 +77,15 @@ int main(int argc, char *argv[])
 {
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
-    auto sentryDsnKey = getenv("SENTRY_DSN");
-    if (sentryDsnKey != nullptr) {
+    string sentryDsnEncoded(STR(SENTRY_DSN_BASE64));
+    string sentryDsn = base64::decodeString(sentryDsnEncoded.c_str(),
+                                            sentryDsnEncoded.size());
+    // remove newline from the end appended by decoder
+    sentryDsn = sentryDsn.substr(0, sentryDsn.size() - 1);
+    if (!sentryDsn.empty()) {
         cerr << "Starting crash handling service…" << endl;
         sentry_options_t *options = sentry_options_new();
-        sentry_options_set_dsn(options, sentryDsnKey);
+        sentry_options_set_dsn(options, sentryDsn.c_str());
         sentry_options_set_handler_path(options, "crashpad_handler");
         sentry_options_set_debug(options, 1);
         sentry_init(options);
@@ -121,8 +126,7 @@ int main(int argc, char *argv[])
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
-    if (sentryDsnKey != nullptr)
-        sentry_shutdown();
+    sentry_shutdown();
 #endif
 #endif
 
