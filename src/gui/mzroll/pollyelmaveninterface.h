@@ -266,6 +266,12 @@ private:
     bool _uploadInProgress;
 
     /**
+     * @brief A boolean that denotes whether the last sample cohort file
+     * prepared for upload was valid or not.
+     */
+    bool _lastCohortFileWasValid;
+
+    /**
      * @brief A worker thread that allows separating blocking operations from
      * the main event loop.
      */
