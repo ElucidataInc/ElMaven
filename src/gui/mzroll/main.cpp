@@ -78,10 +78,14 @@ int main(int argc, char *argv[])
 #ifndef DEBUG
     auto sentryDsnKey = getenv("SENTRY_DSN");
     if (sentryDsnKey != nullptr) {
+        cerr << "Starting crash handling service…" << endl;
         sentry_options_t *options = sentry_options_new();
         sentry_options_set_dsn(options, sentryDsnKey);
         sentry_options_set_handler_path(options, "crashpad_handler");
+        sentry_options_set_debug(options, 1);
         sentry_init(options);
+    } else {
+        cerr << "DSN missing, build cannot report crashes." << endl;
     }
 #endif
 #endif
