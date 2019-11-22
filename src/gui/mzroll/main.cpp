@@ -27,7 +27,7 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
-#ifndef Q_OS_LINUX
+#ifdef __OSX_AVAILABLE
 #ifndef DEBUG
 #include "common/sentry.h"
 #endif
@@ -37,7 +37,11 @@
 #include <QDateTime>
 #endif
 
+#ifdef Q_OS_WIN
+#ifndef DEBUG
 #include "elmavexceptionhandler.h"
+#endif
+#endif
 
 #include <QDir>
 #include <list>
@@ -70,7 +74,7 @@ void initializeLogger()
 
 int main(int argc, char *argv[])
 {
-#ifndef Q_OS_LINUX
+#ifdef __OSX_AVAILABLE
 #ifndef DEBUG
     auto sentryDsnKey = getenv("SENTRY_DSN");
     if (sentryDsnKey != nullptr) {
@@ -87,8 +91,11 @@ int main(int argc, char *argv[])
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
 
-
+#ifdef Q_OS_WIN
+#ifndef DEBUG
     elmavexceptionhandler::init();
+#endif
+#endif
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
@@ -108,7 +115,7 @@ int main(int argc, char *argv[])
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
 
-#ifndef Q_OS_LINUX
+#ifdef __OSX_AVAILABLE
 #ifndef DEBUG
     if (sentryDsnKey != nullptr)
         sentry_shutdown();

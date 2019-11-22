@@ -39,20 +39,21 @@ ICON = maven.icns
 QT += sql network xml printsupport
 
 linux {
-    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += -pthread
 }
 
 win32 {
-    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
+    CONFIG(release, debug|release) {
+        INCLUDEPATH  += $$top_srcdir/crashhandler/ \
+                        $$top_srcdir/crashhandler/breakpad/src/src
+    }
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += -pthread
 }
 
 mac {
     QMAKE_CXXFLAGS += -fopenmp
-    INCLUDEPATH  += $$top_srcdir/3rdparty/google-breakpad/src/
     DYLIBPATH = $$system(source ~/.bash_profile ; echo $LDFLAGS)
     isEmpty(DYLIBPATH) {
         warning("LDFLAGS variable is not set. Linking operation might complain about missing OMP library")
@@ -62,9 +63,12 @@ mac {
     QMAKE_LFLAGS += -L$$top_builddir/libs/
     LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
     LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
-    LIBS += -lbreakpad -lobjc -pthread
+    LIBS += -lobjc -pthread
     LIBS += -lomp
-    LIBS += -lsentry_crashpad
+
+    CONFIG(release, debug|release) {
+        LIBS += -lsentry_crashpad
+    }
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
@@ -84,8 +88,6 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/Logger \
                 $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/src/projectDB \
-                $$top_srcdir/crashhandler/ \
-                $$top_srcdir/crashhandler/breakpad/src/src/ \
                 $$top_srcdir/3rdparty/libsvm \
                 $$top_srcdir/3rdparty/libmgf \
                 $$top_srcdir/src/
@@ -112,7 +114,6 @@ LIBS +=  -lmaven \
          -lz \
          -lpollyCLI \
          -lprojectDB \
-         -lbreakpad \
          -lsvm \
          -lcommon \
          -lmgf
@@ -130,6 +131,9 @@ unix {
 
 win32 {
     LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
+    CONFIG(release, debug|release) {
+        LIBS += -lbreakpad
+    }
 }
 
 INSTALLS += sources target

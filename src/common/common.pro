@@ -13,10 +13,6 @@ TARGET = common
 
 CONFIG += staticlib
 
-CONFIG(debug, debug|release) {
-    DEFINES += "DEBUG=1"
-}
-
 QMAKE_CXXFLAGS += -std=c++11
 
 INCLUDEPATH += $$top_srcdir/src
