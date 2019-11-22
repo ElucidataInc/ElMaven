@@ -158,10 +158,11 @@ after_success:
 
       # create application bundles for both binaries
       echo "Deploying bundles ..."
-      otool -L "El-MAVEN.app/Contents/MacOS/El-MAVEN"
       cp "$SENTRY_MACOSX_BIN/crashpad_handler" "El-MAVEN.app/Contents/MacOS/"
       macdeployqt El-MAVEN.app
       macdeployqt peakdetector.app
+      cp "$SENTRY_MACOSX_BIN/libsentry_crashpad.dylib" "El-MAVEN.app/Contents/Frameworks/"
+      install_name_tool -change @rpath/libsentry_crashpad.dylib @executable_path/../Frameworks/libsentry_crashpad.dylib "El-MAVEN.app/Contents/MacOS/El-MAVEN"
 
       if [ $? != 0 ]; then
         echo "Failed to create application bundles."
@@ -171,7 +172,7 @@ after_success:
       # upload debug symbols
       echo "Uploading debug symbols for El-MAVEN ..."
       cd $BIN
-      $BREAKPAD_TOOLS/mac/sentry-cli --auth-token $SENTRY_AUTH upload-dif --project el-maven-logging --org el-maven --include-sources --wait "El-MAVEN.app.dSYM/Contents/Resources/DWARF/"
+      $BREAKPAD_TOOLS/mac/sentry-cli --auth-token $SENTRY_AUTH upload-dif --project el-maven-logging --org el-maven --include-sources --wait El-MAVEN.app.dSYM/Contents/Resources/DWARF/
       rm -r *.dSYM
 
       # copy node
