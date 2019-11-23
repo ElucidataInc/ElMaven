@@ -75,6 +75,11 @@ void initializeLogger()
 
 int main(int argc, char *argv[])
 {
+    QApplication app(argc, argv);
+    qApp->setOrganizationName("ElucidataInc");
+    qApp->setApplicationName("El-Maven");
+    qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
+
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
     string sentryDsnEncoded(STR(SENTRY_DSN_BASE64));
@@ -86,19 +91,20 @@ int main(int argc, char *argv[])
         cerr << "Starting crash handling service…" << endl;
         sentry_options_t *options = sentry_options_new();
         sentry_options_set_dsn(options, sentryDsn.c_str());
-        sentry_options_set_handler_path(options, "crashpad_handler");
-        sentry_options_set_debug(options, 1);
+
+        // path to bundled crash handler
+        auto handlerPath = QCoreApplication::applicationDirPath()
+                           + QDir::separator()
+                           + "crashpad_handler";
+        sentry_options_set_handler_path(options,
+                                        handlerPath.toStdString().c_str());
+
         sentry_init(options);
     } else {
         cerr << "DSN missing, build cannot report crashes." << endl;
     }
 #endif
 #endif
-
-    QApplication app(argc, argv);
-    qApp->setOrganizationName("ElucidataInc");
-    qApp->setApplicationName("El-Maven");
-    qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
 
 #ifdef Q_OS_WIN
 #ifndef DEBUG
