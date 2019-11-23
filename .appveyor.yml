@@ -43,7 +43,7 @@ install:
 
 build_script:
     # write to Sentry keys file
-    - echo "$env:SENTRY_KEYS`n" >> keys
+    - ps: echo $env:SENTRY_KEYS | out-file -encoding ASCII keys
 
     - ps: |
           # check for Sentry keys file
