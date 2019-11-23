@@ -99,6 +99,14 @@ int main(int argc, char *argv[])
         sentry_options_set_handler_path(options,
                                         handlerPath.toStdString().c_str());
 
+        // path to dump files and other run specific information
+        auto dbPath = QStandardPaths::writableLocation(
+                          QStandardPaths::GenericConfigLocation)
+                      + QDir::separator()
+                      + "ElMaven";
+        sentry_options_set_database_path(options,
+                                         dbPath.toStdString().c_str());
+
         sentry_init(options);
     } else {
         cerr << "DSN missing, build cannot report crashes." << endl;
