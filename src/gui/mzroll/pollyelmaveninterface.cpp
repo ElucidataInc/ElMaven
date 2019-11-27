@@ -30,6 +30,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _pollyIntegration = _mainwindow->getController()->iPolly;
     _loadingDialog = new PollyWaitDialog(this);
     _uploadInProgress = false;
+    _lastCohortFileWasValid = false;
 
     workflowMenu->setStyleSheet("QListView::item {"
                                 "border: 1px solid transparent;"
@@ -821,10 +822,7 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
             return redirectionUrl;
 
         // send to google sheets if sample cohort file is not valid
-        QString CohortFileName = _writeableTempDir + QDir::separator()
-                                 + datetimestamp
-                                 + "_Cohort_Mapping_Elmaven.csv";
-        if (!_pollyIntegration->validSampleCohort(CohortFileName))
+        if (_lastCohortFileWasValid)
             landingPage = QString("gsheet_sym_polly_elmaven");
 
         if (workflowId == "-1")
@@ -927,6 +925,7 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
         QString sampleCohortFileName = _writeableTempDir + QDir::separator() + datetimestamp +
                                         "_Cohort_Mapping_Elmaven.csv";
         _mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
+        _lastCohortFileWasValid = _pollyIntegration->validSampleCohort(sampleCohortFileName);
 
         CSVReports csvrpt;
         QList<PeakGroup *> selectedGroups = peakTable->getSelectedGroups();
@@ -972,6 +971,7 @@ void PollyElmavenInterfaceDialog::_logout()
     usernameLabel->setText("");
     _licenseMap.clear();
     _redirectionUrlMap.clear();
+    _lastCohortFileWasValid = false;
     _pollyIntegration->logout();
     _projectNameIdMap = QVariantMap();
     _loadingDialog->close();
