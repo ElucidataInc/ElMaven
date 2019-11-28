@@ -82,7 +82,7 @@ in the .bashrc file. It can be achieved by either manually editing the .bashrc f
 - `sudo apt-get install qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5multimedia5`
 - `sudo apt-get install libqt5multimedia5-plugins qtmultimedia5-dev libqt5webkit5-dev`
 
-3. ##### Mac
+3. ##### MacOS
 
 - Install Xcode from App store
 
@@ -110,6 +110,34 @@ in the .bashrc file. It can be achieved by either manually editing the .bashrc f
 - `echo "export CPPFLAGS+="-I/QT_DIR/include -I/LLVM_DIR/include  -I/LLVM_DIR/c++/v1/" >> .bash_profile`
 
 - `source .bash_profile`
+
+---
+
+Additionally, for MacOS, if building in release mode, sentry-native (Crashpad backend) should be compiled and available through the build environment. In a separate location, download the latest release, unzip and compile:
+
+	curl -O -J -L https://github.com/getsentry/sentry-native/releases/download/0.1.2/sentry-native-0.1.2.zip
+	unzip sentry-native-0.1.2.zip &> /dev/null
+  	cd sentry-native/gen_macosx
+  	make config=release sentry_crashpad
+  	echo "export SENTRY_MACOSX_BIN='$PWD/bin/Release'" >> ~/.bash_profile
+  	cd -
+
+Once this has been done the path to sentry-native binaries and libraries should be exported in the user's enviroment:
+
+	echo "export PATH='$SENTRY_MACOSX_BIN:$PATH'" >> ~/.bash_profile
+	echo "export LDFLAGS='$LDFLAGS -L/$SENTRY_MACOSX_BIN'" >> ~/.bash_profile
+	source ~/.bash_profile
+
+While the above set-up will allow compilation and linking in release mode without any errors, the crash reporting itself will not be functional until a unique Sentry DSN value is exported and available as a base64-encoded string _before_ platform config (qmake) step.
+
+	export SENTRY_DSN=<YOUR_SECRECT_SENTRY_DSN>
+	export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
+
+Post compilation the `crashpad_handler` binary should be copied to the `El-MAVEN.app` bundle.
+	
+	cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/
+
+---
 
 _To make sure the environment has ben setup correctly make sure the correct version of libraries have been installed by issuing the following commands_
 - Qt version should be >= 5.7: `qmake -v`
