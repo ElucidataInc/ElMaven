@@ -133,10 +133,6 @@ While the above set-up will allow compilation and linking in release mode withou
 	export SENTRY_DSN=<YOUR_SECRECT_SENTRY_DSN>
 	export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
 
-Post compilation the `crashpad_handler` binary should be copied to the `El-MAVEN.app` bundle.
-	
-	cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/
-
 ---
 
 _To make sure the environment has ben setup correctly make sure the correct version of libraries have been installed by issuing the following commands_
