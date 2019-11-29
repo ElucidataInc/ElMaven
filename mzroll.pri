@@ -3,6 +3,10 @@ QT += sql core  xml gui
 CONFIG += silent exceptions
 DEFINES += ZLIB BOOST_IOSTREAMS_NO_LIB
 
+CONFIG(debug, debug|release) {
+    DEFINES += "DEBUG=1"
+}
+
 # this is important. Used in mzUtils to make use of correct mkdir function
 win32 {
     message("using win32 config")

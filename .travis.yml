@@ -43,6 +43,16 @@ install:
         curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/65a45a9e61f15046a256cdba6a008f38f79570c9/Formula/qt.rb
         brew install ./qt.rb
         brew link qt5 --force;
+
+        # compile sentry-native binaries and libraries only if we are building an installer
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          curl -O -J -L https://github.com/getsentry/sentry-native/releases/download/0.1.2/sentry-native-0.1.2.zip
+          unzip sentry-native-0.1.2.zip &> /dev/null
+          cd sentry-native/gen_macosx
+          make -j4 config=release sentry_crashpad
+          export SENTRY_MACOSX_BIN="$PWD/bin/Release"
+          cd -
+        fi
     fi
 
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
@@ -55,16 +65,6 @@ install:
     fi
 
 script:
-  # write to Sentry keys file
-  - printf "%s\n\n" $SENTRY_KEYS > keys
-
-  - |
-    # check for Sentry keys file
-    if [ ! -f keys ]; then
-      echo "File not found - 'keys', needed for crash reporter to work properly."
-      exit 1
-    fi
-
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
@@ -76,7 +76,14 @@ script:
         make -j4;
         ./run_tests.sh;
       else
-        qmake CONFIG+=release CONFIG+=force_debug_info NOTESTS=yes
+        # to export the path to sentry-native dynamic library
+        export PATH="$SENTRY_MACOSX_BIN:$PATH"
+        export LDFLAGS="$LDFLAGS -L/$SENTRY_MACOSX_BIN"
+
+        # export private DSN as base64 encoded string (helps with stringification)
+        export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
+
+        qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=separate_debug_info NOTESTS=yes
         make -j4;
       fi
     fi
@@ -152,23 +159,23 @@ after_success:
 
       rsync -av --progress --exclude={'windows', 'linux', 'node', 'node_bin', 'node.exe', 'MavenTests'} $ELMAVEN_BIN . &>/dev/null
 
-      # prepare dSYM files
-      echo "Preparing debug symbol files ..."
-      dsymutil "El-MAVEN.app/Contents/MacOS/El-MAVEN" -o "El-MAVEN.dSYM" &>/dev/null
-      macdeployqt El-MAVEN.app &>/dev/null
-      macdeployqt peakdetector.app &>/dev/null
-      macdeployqt crashreporter.app &>/dev/null
-      # install_name_tool -add_rpath @executable_path/../Frameworks "El-MAVEN.app/Contents/MacOS/crashserver"
+      # create application bundles for both binaries
+      echo "Deploying bundles ..."
+      cp "$SENTRY_MACOSX_BIN/crashpad_handler" "El-MAVEN.app/Contents/MacOS/"
+      macdeployqt El-MAVEN.app
+      macdeployqt peakdetector.app
+      cp "$SENTRY_MACOSX_BIN/libsentry_crashpad.dylib" "El-MAVEN.app/Contents/Frameworks/"
+      install_name_tool -change @rpath/libsentry_crashpad.dylib @executable_path/../Frameworks/libsentry_crashpad.dylib "El-MAVEN.app/Contents/MacOS/El-MAVEN"
 
       if [ $? != 0 ]; then
-        echo "Failed to create debug files."
+        echo "Failed to create application bundles."
         exit 1
       fi
 
-      # strip and upload debug symbols
-      echo "Stripping and uploading symbols ..."
+      # upload debug symbols
+      echo "Uploading debug symbols for El-MAVEN ..."
       cd $BIN
-      $BREAKPAD_TOOLS/mac/strip_symbols.sh $BREAKPAD_TOOLS "El-MAVEN.app/Contents/MacOS/El-MAVEN" El-MAVEN &>/dev/null
+      $BREAKPAD_TOOLS/mac/sentry-cli --auth-token $SENTRY_AUTH upload-dif --project el-maven-logging --org el-maven --include-sources --wait El-MAVEN.app.dSYM/Contents/Resources/DWARF/
       rm -r *.dSYM
 
       # copy node

@@ -1,3 +1,3 @@
 VER=$$system(git describe --tag)
 DEFINES += "APPVERSION=$$VER"
-DEFINES += "APPNAME=ElMaven"
+DEFINES += "APPNAME=El-MAVEN"

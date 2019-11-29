@@ -12,7 +12,7 @@ environment:
   SENTRY_KEYS:
     secure: 4h/RDAT2VRFeFncyVmupjvYW2+ZVLLt8Meb0HZnKpeXw4DgSXxy2C8PicOvkBrxGsywvi1LTBDAJdTBdCaXHXETB0zLjFrasYj9hNUYhF2hWF7XZXA9qYPyhZHNVyg8t
   SENTRY_OAUTH:
-    secure: +59H0p7EcOrHb6126nylf5sN7HF40cJMNa1skgWKDJNK6YZStg+agGdsX8cfqC5QBVMTK8ir/S3W1X35r4ElsgadQD54Zr8y0jvfyKN5hAw=
+    secure: 27P9bk8UQd9PDKzjLCfy1usKSpt+46f8RYs/cNaPxWS3CBksealddVYAA26iGLvog4AE0kLS/jUYAysDZ3yWQsGzRv8sCjC7S8imHwoDpWY=
   CODECOV_TOKEN:
     secure: kDB13lf6yyaC7d63D0DcRbEjf5vZ77xt2WMxHtxx7Jz32OUaR8Ouxso7WBQoubMO
   AWS_ACCESS_KEY:
@@ -43,7 +43,7 @@ install:
 
 build_script:
     # write to Sentry keys file
-    - echo "$env:SENTRY_KEYS`n" >> keys
+    - ps: echo $env:SENTRY_KEYS | out-file -encoding ASCII keys
 
     - ps: |
           # check for Sentry keys file
@@ -168,21 +168,22 @@ after_build:
           # strip and upload debug symbols
           echo "Stripping and uploading symbols ..."
           cd $BIN
-          $BREAKPAD_TOOLS = "$env:APPVEYOR_BUILD_FOLDER\$env:PACKAGING_REPO\breakpad_tools\windows"
-          $exe_file = "$env:APPNAME.exe"
-          $pdb_file = "$env:APPNAME.pdb"
-          $symbol_file = "$env:APPNAME.sym"
+          $WIN_BREAKPAD_TOOLS = "$env:APPVEYOR_BUILD_FOLDER\$env:PACKAGING_REPO\breakpad_tools\windows"
 
-          & "$BREAKPAD_TOOLS\cv2pdb.exe" $exe_file
-          & "$BREAKPAD_TOOLS\dump_syms.exe" $pdb_file > $symbol_file
+          # convert Windows paths to Unix style paths
+          $BREAKPAD_TOOLS = (($WIN_BREAKPAD_TOOLS -replace "\\","/") -replace ":","").ToLower().Trim("/")
+          $EXE_DIR = (($BIN -replace "\\","/") -replace ":","").ToLower().Trim("/")
 
-          $uuid = $( gc $symbol_file | select -first 1 | grep -o -P "(?<=x86_64).*(?=$pdb_file)" | xargs )
-          mkdir -p ..\symbols\"$env:APPNAME.pdb"\$uuid\
-          mv $symbol_file ..\symbols\"$env:APPNAME.pdb"\$uuid\
+          # need to perform symbol creation within bash environment otherwise they are not recognized
+          $APPNAME = $env:APPNAME ; bash -lc "/$BREAKPAD_TOOLS/cv2pdb.exe /$EXE_DIR/$APPNAME.exe"
+          $APPNAME = $env:APPNAME ; bash -lc "/$BREAKPAD_TOOLS/dump_syms.exe /$EXE_DIR/$APPNAME.pdb > /$EXE_DIR/$APPNAME.sym"
 
-          chmod +x $BREAKPAD_TOOLS\sentry-cli.exe
-          & "$BREAKPAD_TOOLS\sentry-cli.exe" --auth-token $env:SENTRY_OAUTH upload-dif -t breakpad --project el-maven-logging --org el-maven ../symbols/
-          rm "$env:APPNAME.pdb"
+          chmod +x $WIN_BREAKPAD_TOOLS\sentry-cli.exe
+          ls
+          & "$WIN_BREAKPAD_TOOLS\sentry-cli.exe" difutil check .\$APPNAME.sym
+          & "$WIN_BREAKPAD_TOOLS\sentry-cli.exe" --auth-token $env:SENTRY_OAUTH upload-dif -t breakpad --project el-maven-logging --org el-maven --wait --include-sources .\$APPNAME.sym
+          rm .\$APPNAME.pdb
+          rm .\$APPNAME.sym
 
           # copy node
           echo "Copying node requirements ..."

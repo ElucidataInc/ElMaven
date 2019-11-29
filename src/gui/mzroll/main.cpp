@@ -19,6 +19,7 @@
 #define _STR(X) #X
 #define STR(X) _STR(X)
 #include "stable.h"
+#include "base64.h"
 #include "Compound.h"
 #include "gettingstarted.h"
 #include "mainwindow.h"
@@ -27,11 +28,21 @@
 #include "controller.h"
 #include "elmavenlogger.h"
 
+#ifdef __OSX_AVAILABLE
+#ifndef DEBUG
+#include "common/sentry.h"
+#endif
+#endif
+
 #ifdef Q_OS_MAC
 #include <QDateTime>
 #endif
 
+#ifdef Q_OS_WIN
+#ifndef DEBUG
 #include "elmavexceptionhandler.h"
+#endif
+#endif
 
 #include <QDir>
 #include <list>
@@ -64,14 +75,50 @@ void initializeLogger()
 
 int main(int argc, char *argv[])
 {
-
     QApplication app(argc, argv);
     qApp->setOrganizationName("ElucidataInc");
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
 
+#ifdef __OSX_AVAILABLE
+#ifndef DEBUG
+    string sentryDsnEncoded(STR(SENTRY_DSN_BASE64));
+    string sentryDsn = base64::decodeString(sentryDsnEncoded.c_str(),
+                                            sentryDsnEncoded.size());
+    // remove newline from the end appended by decoder
+    sentryDsn = sentryDsn.substr(0, sentryDsn.size() - 1);
+    if (!sentryDsn.empty()) {
+        cerr << "Starting crash handling service…" << endl;
+        sentry_options_t *options = sentry_options_new();
+        sentry_options_set_dsn(options, sentryDsn.c_str());
 
+        // path to bundled crash handler
+        auto handlerPath = QCoreApplication::applicationDirPath()
+                           + QDir::separator()
+                           + "crashpad_handler";
+        sentry_options_set_handler_path(options,
+                                        handlerPath.toStdString().c_str());
+
+        // path to dump files and other run specific information
+        auto dbPath = QStandardPaths::writableLocation(
+                          QStandardPaths::GenericConfigLocation)
+                      + QDir::separator()
+                      + "ElMaven";
+        sentry_options_set_database_path(options,
+                                         dbPath.toStdString().c_str());
+
+        sentry_init(options);
+    } else {
+        cerr << "DSN missing, build cannot report crashes." << endl;
+    }
+#endif
+#endif
+
+#ifdef Q_OS_WIN
+#ifndef DEBUG
     elmavexceptionhandler::init();
+#endif
+#endif
 
     QPixmap pixmap(":/images/splash.png","PNG",Qt::ColorOnly);
     QSplashScreen splash(pixmap);
@@ -90,9 +137,14 @@ int main(int argc, char *argv[])
     contrl.getMainWindow()->gettingstarted->showDialog();
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
+
+#ifdef __OSX_AVAILABLE
+#ifndef DEBUG
+    sentry_shutdown();
+#endif
+#endif
+
     return rv;
-
-
 }
 
 
