@@ -4,6 +4,8 @@
 #include <QString>
 #include <QNetworkRequest>
 
+class QSettings;
+
 /**
  * @brief The Mixpanel class allows creating usage trackers that report to a
  * Mixpanel project identified using a secret authentication token (supplied
@@ -31,7 +33,7 @@ public:
      * additional context to the given event.
      */
     void trackEvent(const QString& event,
-                    QMap<QString, QVariant> properties);
+                    QMap<QString, QVariant> properties) const;
 
     /**
      * @brief Update (or insert) the details of a user. Only one attribute is
@@ -40,7 +42,14 @@ public:
      * @param value Value of user attribute being updated.
      */
     void updateUser(const QString& attribute,
-                    const QVariant& value);
+                    const QVariant& value) const;
+
+    /**
+     * @brief Allows querying for values of user attributes that might have been
+     * saved in an earlier session.
+     * @param attribute Name of the attribute to search for.
+     */
+    QVariant userAttribute(const QString& attribute) const;
 
 private:
     /**
@@ -54,6 +63,12 @@ private:
      * Mixpanel account.
      */
     QString _authToken;
+
+    /**
+     * @brief A settings object that stores values that may be needed to store
+     * various machine-specific attributes over multiple sessions.
+     */
+    QSettings* _settings;
 
     /**
      * @brief A flag that stores whether a user session is the first one on a
@@ -77,7 +92,7 @@ private:
      * @brief Obtains the number of seconds elapsed since epoch.
      * @return UNIX timestamp in seconds.
      */
-    uint _getUnixTime();
+    uint _getUnixTime() const;
 
     /**
      * @brief Send an HTTP POST request with a given value of "data" key on one
@@ -88,7 +103,7 @@ private:
      * @param isEventRequest Boolean that denotes whether the request is for
      * event tracking or user update. True by default.
      */
-    void _httpRequest(QByteArray data, bool isEventRequest = true);
+    void _httpRequest(QByteArray data, bool isEventRequest = true) const;
 };
 
 #endif // MIXPANEL_H

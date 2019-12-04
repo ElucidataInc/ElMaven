@@ -109,5 +109,6 @@
         <file>images/librarymanager.png</file>
         <file>images/toleranceSyncLock.png</file>
         <file>images/toleranceSyncUnlock.png</file>
+        <file>images/support.png</file>
     </qresource>
 </RCC>

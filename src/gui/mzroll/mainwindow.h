@@ -69,6 +69,7 @@ class AutoSave;
 class MavenParameters;
 class LibraryManager;
 class Mixpanel;
+class InfoDialog;
 
 extern Database DB;
 
@@ -425,6 +426,12 @@ public Q_SLOTS:
      */
     void setLastLoadedDatabase(QString filename);
 
+    /**
+     * @brief Obtain the global Mixpanel usage tracker.
+     * @return A const pointer to a `Mixpanel` object.
+     */
+    const Mixpanel* getUsageTracker() { return _usageTracker; }
+
 private Q_SLOTS:
 	void createMenus();
 	void openURL(int choice);
@@ -521,7 +528,8 @@ private:
 
     QString newFileName;
 
-    Mixpanel *_usageTracker;
+    Mixpanel* _usageTracker;
+    InfoDialog* _infoDialog;
 
     QString _newAutosaveFile();
     void _setProjectFilenameIfEmpty();

@@ -18,13 +18,15 @@ Mixpanel::Mixpanel()
                                    + "ElMaven"
                                    + QDir::separator()
                                    + "mixpanel.ini");
-    QSettings settings(settingsPath, QSettings::IniFormat);
-    if (!settings.contains("mixpanel-uuid")) {
+    _settings = new QSettings(settingsPath, QSettings::IniFormat);
+    if (!_settings->contains("mixpanel-uuid")) {
         _clientId = QUuid::createUuid().toString();
-        settings.setValue("mixpanel-uuid", _clientId);
+        _settings->setValue("mixpanel-uuid", _clientId);
         _isFirstSession = true;
+        updateUser("Name", "");
+        updateUser("Email", "");
     } else {
-        _clientId = settings.value("mixpanel-uuid").toString();
+        _clientId = _settings->value("mixpanel-uuid").toString();
         _isFirstSession = false;
     }
 
@@ -37,7 +39,7 @@ Mixpanel::Mixpanel()
                            "application/x-www-form-urlencoded");
 
     QMap<QString, QVariant> properties;
-    properties["First session"] = QVariant(_isFirstSession);
+    properties["First session"] = _isFirstSession;
     trackEvent("Session Start", properties);
 }
 
@@ -47,11 +49,11 @@ Mixpanel::~Mixpanel()
 }
 
 void Mixpanel::trackEvent(const QString& event,
-                          QMap<QString, QVariant> properties)
+                          QMap<QString, QVariant> properties) const
 {
-    properties["token"] = QVariant(_authToken);
-    properties["distinct_id"] = QVariant(_clientId);
-    properties["time"] = QVariant(_getUnixTime());
+    properties["token"] = _authToken;
+    properties["distinct_id"] = _clientId;
+    properties["time"] = _getUnixTime();
     QJsonObject eventData
     {
         {"event", event},
@@ -60,23 +62,32 @@ void Mixpanel::trackEvent(const QString& event,
     _httpRequest(QJsonDocument(eventData).toJson().toBase64());
 }
 
-void Mixpanel::updateUser(const QString& attribute, const QVariant& value)
+void Mixpanel::updateUser(const QString& attribute, const QVariant& value) const
 {
     QMap<QString, QVariant> details;
-    details["$token"] = QVariant(_authToken);
-    details["$distinct_id"] = QVariant(_clientId);
-    details["$time"] = QVariant(_getUnixTime());
     details[attribute] = value;
-    auto userData = QJsonObject::fromVariantMap(details);
+
+    QMap<QString, QVariant> body;
+    body["$token"] = _authToken;
+    body["$distinct_id"] = _clientId;
+    body["$time"] = _getUnixTime();
+    body["$set"] = details;
+    auto userData = QJsonObject::fromVariantMap(body);
     _httpRequest(QJsonDocument(userData).toJson().toBase64(), false);
+    _settings->setValue(attribute, value);
 }
 
-uint Mixpanel::_getUnixTime()
+QVariant Mixpanel::userAttribute(const QString &attribute) const
+{
+    return _settings->value(attribute);
+}
+
+uint Mixpanel::_getUnixTime() const
 {
     return static_cast<uint>(::time(nullptr));
 }
 
-void Mixpanel::_httpRequest(QByteArray data, bool isEventRequest)
+void Mixpanel::_httpRequest(QByteArray data, bool isEventRequest) const
 {
     QUrlQuery query;
     QByteArray params;

@@ -23,6 +23,7 @@
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "heatmap.h"
+#include "infodialog.h"
 #include "isotopedialog.h"
 #include "isotopeplot.h"
 #include "isotopeplotdockwidget.h"
@@ -737,6 +738,7 @@ using namespace mzUtils;
 	}
 
     _usageTracker = new Mixpanel;
+    _infoDialog = new InfoDialog(this);
 }
 
 MainWindow::~MainWindow()
@@ -2883,6 +2885,19 @@ void MainWindow::createToolBars() {
 	btnSettings->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnSettings->setToolTip(tr("1. Instrumentation: Ionization settings\n2. File Import: Scan filter settings\n3. Peak Detection: EIC smoothing and baseline settings\n4. Peak Filtering: Parent and Isotopic peak filtering settings\n5. Isotope Detection: Isotopic label filters\n6. EIC (XIC): EIC type selection\n7. Peak Grouping: Peak Grouping Score calculation\n8. Group Rank: Group Rank calculation - Group Rank decides which groups are selected for a given m/z"));
 
+    QToolButton *btnInfo = new QToolButton(toolBar);
+    btnInfo->setText("Support");
+    btnInfo->setIcon(QIcon(rsrcPath + "/support.png"));
+    btnInfo->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnInfo->setStyleSheet("QToolTip {"
+                           "color: #000000;"
+                           "background-color: #fbfbd5;"
+                           "border: 1px solid black;"
+                           "padding: 1px;"
+                           "}");
+    btnInfo->setToolTip(tr("Documentaion, information and technical "
+                           "support for El-MAVEN."));
+
 	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
@@ -2891,6 +2906,10 @@ void MainWindow::createToolBars() {
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
 	//connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
+    connect(btnInfo, &QToolButton::clicked, [this] {
+        if (_infoDialog != nullptr)
+            _infoDialog->exec();
+    });
 
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
@@ -2899,6 +2918,7 @@ void MainWindow::createToolBars() {
 	//toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
+    toolBar->addWidget(btnInfo);
 
 	QWidget *hBox = new QWidget(toolBar);
 	(void) toolBar->addWidget(hBox);

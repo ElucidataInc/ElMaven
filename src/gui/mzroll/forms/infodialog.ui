@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InfoDialog</class>
+ <widget class="QDialog" name="InfoDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>372</width>
+    <height>408</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>372</width>
+    <height>408</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Support Information</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>If provided, the identity will be tied to all user behaviour for this session.</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QGroupBox {
+	background-color: white;
+	border: 1px solid gray;
+	border-radius: 3px;
+	margin-top: 2.8ex;
+	font-size: 11px;
+}
+
+QGroupBox::title {
+	subcontrol-origin: margin;
+	subcontrol-position: top left; /* position at the top center */
+	padding: 0;
+}</string>
+     </property>
+     <property name="title">
+      <string>Session identity</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="nameEntry">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {
+    border: 1px solid gray;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+QLineEdit:focus {
+    outline: 2px solid orange;
+}
+
+QLineEdit:disabled {
+    background-color: rgb(240, 240, 240);
+}</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Email ID</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="emailEntry">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLineEdit {
+    border: 1px solid gray;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+QLineEdit:focus {
+    outline: 2px solid orange;
+}
+
+QLineEdit:disabled {
+    background-color: rgb(240, 240, 240);
+}</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="signInButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: white;
+	padding: 6px;
+	border: 1px solid orange;
+	border-radius: 3px;
+	text-align: left;
+	margin: 6px 3px;
+}
+
+QPushButton:default:hover {
+	background-color: rgb(117, 110, 210);
+	color: white;
+	border: 1px solid rgb(117, 110, 210);
+}
+
+QPushButton:default {
+	background-color: orange;
+	color: white;
+	border: 1px solid orange;
+}</string>
+        </property>
+        <property name="text">
+         <string>Sign in</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QGroupBox {
+	background-color: white;
+	border: 1px solid gray;
+	border-radius: 3px;
+	margin-top: 2.8ex;
+	font-size: 11px;
+}
+
+QGroupBox::title {
+	subcontrol-origin: margin;
+	subcontrol-position: top left; /* position at the top center */
+	padding: 0;
+}</string>
+     </property>
+     <property name="title">
+      <string>Help</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="docButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: white;
+	padding: 6px;
+	border: 1px solid orange;
+	border-radius: 3px;
+	text-align: left;
+	margin: 6px 3px;
+}
+
+QPushButton:hover {
+	background-color: rgb(117, 110, 210);
+	color: white;
+	border: 1px solid rgb(117, 110, 210);
+}</string>
+        </property>
+        <property name="text">
+         <string>Tutorials and documentation</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="academyButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: white;
+	padding: 6px;
+	border: 1px solid orange;
+	border-radius: 3px;
+	text-align: left;
+	margin: 6px 3px;
+}
+
+QPushButton:hover {
+	background-color: rgb(117, 110, 210);
+	color: white;
+	border: 1px solid rgb(117, 110, 210);
+}</string>
+        </property>
+        <property name="text">
+         <string>El-MAVEN Academy</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="citeButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+	background-color: white;
+	padding: 6px;
+	border: 1px solid orange;
+	border-radius: 3px;
+	text-align: left;
+	margin: 6px 3px;
+}
+
+QPushButton:hover {
+	background-color: rgb(117, 110, 210);
+	color: white;
+	border: 1px solid rgb(117, 110, 210);
+}</string>
+        </property>
+        <property name="text">
+         <string>Cite El-MAVEN</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+	padding: 6px;
+	background-color: white;
+	border: 1px solid gray;
+	border-radius: 3px;
+}
+</string>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Contact tech support: &lt;a href=&quot;mailto:elmaven@elucidata.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;elmaven@elucidata.io&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
