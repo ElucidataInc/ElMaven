@@ -1,0 +1,94 @@
+#ifndef MIXPANEL_H
+#define MIXPANEL_H
+
+#include <QString>
+#include <QNetworkRequest>
+
+/**
+ * @brief The Mixpanel class allows creating usage trackers that report to a
+ * Mixpanel project identified using a secret authentication token (supplied
+ * during build time).
+ */
+class Mixpanel
+{
+public:
+    /**
+     * @brief Constructor. Sends a "Session Start" event automatically.
+     */
+    Mixpanel();
+
+    /**
+     * @brief Destructor. Sends a "Session End" event automatically.
+     */
+    ~Mixpanel();
+
+    /**
+     * @brief Track individual events that must have a unique event-action
+     * string. Optionally other attributes can be provided to specialise or
+     * differentiate an event.
+     * @param event A string denoting a meaningful action taken by the user.
+     * @param properties Optional map of event properties that provide
+     * additional context to the given event.
+     */
+    void trackEvent(const QString& event,
+                    QMap<QString, QVariant> properties);
+
+    /**
+     * @brief Update (or insert) the details of a user. Only one attribute is
+     * allowed to be updated at a time (limitation imposed by Mixpanel API).
+     * @param attribute User attribute to update.
+     * @param value Value of user attribute being updated.
+     */
+    void updateUser(const QString& attribute,
+                    const QVariant& value);
+
+private:
+    /**
+     * @brief A unique user ID that is set during object initialization.
+     * Persists for a single machine over multiple sessions.
+     */
+    QString _clientId;
+
+    /**
+     * @brief A unique authentication token used to post events/user updates to
+     * Mixpanel account.
+     */
+    QString _authToken;
+
+    /**
+     * @brief A flag that stores whether a user session is the first one on a
+     * machine or not.
+     */
+    bool _isFirstSession;
+
+    /**
+     * @brief A request object used for all POST requests to the following API:
+     * "https://api.mixpanel.com/track".
+     */
+    QNetworkRequest _eventRequest;
+
+    /**
+     * @brief A request object used for all POST requests to the following API:
+     * "https://api.mixpanel.com/engage".
+     */
+    QNetworkRequest _userRequest;
+
+    /**
+     * @brief Obtains the number of seconds elapsed since epoch.
+     * @return UNIX timestamp in seconds.
+     */
+    uint _getUnixTime();
+
+    /**
+     * @brief Send an HTTP POST request with a given value of "data" key on one
+     * of the Mixpanels endpoints based on whether the request is to track an
+     * event or to update user details.
+     * @param data A base64 encoded byte-array, that encodes a JSON body
+     * acceptable by Mixpanel's HTTP spec.
+     * @param isEventRequest Boolean that denotes whether the request is for
+     * event tracking or user update. True by default.
+     */
+    void _httpRequest(QByteArray data, bool isEventRequest = true);
+};
+
+#endif // MIXPANEL_H

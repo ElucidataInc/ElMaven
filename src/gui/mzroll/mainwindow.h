@@ -68,6 +68,7 @@ class Analytics;
 class AutoSave;
 class MavenParameters;
 class LibraryManager;
+class Mixpanel;
 
 extern Database DB;
 
@@ -519,6 +520,8 @@ private:
     QString _latestUserProjectName;
 
     QString newFileName;
+
+    Mixpanel *_usageTracker;
 
     QString _newAutosaveFile();
     void _setProjectFilenameIfEmpty();

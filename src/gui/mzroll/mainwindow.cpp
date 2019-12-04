@@ -8,6 +8,7 @@
 #include "alignmentdialog.h"
 #include "alignmentvizallgroupswidget.h"
 #include "common/analytics.h"
+#include "common/mixpanel.h"
 #include "animationcontrol.h"
 #include "awsbucketcredentialsdialog.h"
 #include "background_peaks_update.h"
@@ -735,12 +736,14 @@ using namespace mzUtils;
 		}
 	}
 
+    _usageTracker = new Mixpanel;
 }
 
 MainWindow::~MainWindow()
 {
 	analytics->sessionEnd();
     delete mavenParameters;
+    delete _usageTracker;
 }
 
 void MainWindow::sendPeaksGA()

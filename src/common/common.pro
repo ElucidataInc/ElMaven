@@ -15,12 +15,16 @@ CONFIG += staticlib
 
 QMAKE_CXXFLAGS += -std=c++11
 
+DEFINES += "MIXPANEL_TOKEN=$$(MIXPANEL_TOKEN)"
+
 INCLUDEPATH += $$top_srcdir/src
 
 SOURCES += downloadmanager.cpp \
            logger.cpp          \
-           analytics.cpp
+           analytics.cpp       \
+           mixpanel.cpp
 
 HEADERS += downloadmanager.h \
            logger.h          \
-           analytics.h
+           analytics.h       \
+           mixpanel.h
