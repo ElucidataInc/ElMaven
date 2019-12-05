@@ -93,6 +93,11 @@ QLineEdit:focus {
 
 QLineEdit:disabled {
     background-color: rgb(240, 240, 240);
+}
+
+QLineEdit:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
        </widget>
@@ -128,6 +133,11 @@ QLineEdit:focus {
 
 QLineEdit:disabled {
     background-color: rgb(240, 240, 240);
+}
+
+QLineEdit:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
        </widget>
@@ -173,6 +183,11 @@ QPushButton:default {
 	background-color: orange;
 	color: white;
 	border: 1px solid orange;
+}
+
+QPushButton:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
         <property name="text">
@@ -241,6 +256,11 @@ QPushButton:hover {
 	background-color: rgb(117, 110, 210);
 	color: white;
 	border: 1px solid rgb(117, 110, 210);
+}
+
+QPushButton:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
         <property name="text">
@@ -270,6 +290,11 @@ QPushButton:hover {
 	background-color: rgb(117, 110, 210);
 	color: white;
 	border: 1px solid rgb(117, 110, 210);
+}
+
+QPushButton:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
         <property name="text">
@@ -299,6 +324,11 @@ QPushButton:hover {
 	background-color: rgb(117, 110, 210);
 	color: white;
 	border: 1px solid rgb(117, 110, 210);
+}
+
+QPushButton:focus {
+	outline: none;
+	border: 1px solid black;
 }</string>
         </property>
         <property name="text">
