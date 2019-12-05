@@ -9,6 +9,8 @@ LibraryManager::LibraryManager(MainWindow* parent)
 {
     setupUi(this);
     libraryTable->setSortingEnabled(true);
+    loadButton->setEnabled(false);
+    deleteButton->setEnabled(false);
 
     connect(importButton,
             &QPushButton::clicked,
