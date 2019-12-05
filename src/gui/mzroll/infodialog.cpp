@@ -18,6 +18,7 @@ InfoDialog::InfoDialog(MainWindow* parent) :
         ui->emailEntry->setText(email);
         ui->nameEntry->setDisabled(true);
         ui->emailEntry->setDisabled(true);
+        ui->signInButton->setDefault(false);
         ui->signInButton->setText("Sign out");
     }
 
@@ -29,6 +30,7 @@ InfoDialog::InfoDialog(MainWindow* parent) :
             ui->emailEntry->clear();
             ui->nameEntry->setEnabled(true);
             ui->emailEntry->setEnabled(true);
+            ui->signInButton->setDefault(true);
             ui->signInButton->setText("Sign in");
             return;
         }
@@ -46,6 +48,7 @@ InfoDialog::InfoDialog(MainWindow* parent) :
             tracker->updateUser("Email", email);
             ui->nameEntry->setDisabled(true);
             ui->emailEntry->setDisabled(true);
+            ui->signInButton->setDefault(false);
             ui->signInButton->setText("Sign out");
         }
     });
