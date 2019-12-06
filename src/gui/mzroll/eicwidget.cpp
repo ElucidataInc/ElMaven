@@ -1543,7 +1543,11 @@ void EicWidget::setSensitiveToTolerance(bool sensitive)
     if (sensitive) {
         setMassCutoff(getMainWindow()->getUserMassCutoff());
     } else {
-        setPeakGroup(eicParameters->selectedGroup());
+        // a new `PeakGroup` object has to be created because the `setPeakGroup`
+        // method initiates a `cleanup` that erases all peakgroups in
+        // `eicParameters` object; `eicParameters->selectedGroup()` might also
+        // be deleted which leads to corruption
+        setPeakGroup(new PeakGroup(*eicParameters->selectedGroup()));
     }
 }
 
