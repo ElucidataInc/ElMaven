@@ -46,8 +46,8 @@ install:
 
         # compile sentry-native binaries and libraries only if we are building an installer
         if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-          curl -O -J -L https://github.com/getsentry/sentry-native/releases/download/0.1.2/sentry-native-0.1.2.zip
-          unzip sentry-native-0.1.2.zip &> /dev/null
+          curl -O -J -L https://github.com/getsentry/sentry-native/releases/download/0.1.3/sentry-native-0.1.3.zip
+          unzip sentry-native-0.1.3.zip &> /dev/null
           cd sentry-native/gen_macosx
           make -j4 config=release sentry_crashpad
           export SENTRY_MACOSX_BIN="$PWD/bin/Release"
