@@ -1,3 +1,5 @@
+#include <QGraphicsEffect>
+
 #include "common/mixpanel.h"
 #include "infodialog.h"
 #include "mainwindow.h"
@@ -21,8 +23,25 @@ InfoDialog::InfoDialog(MainWindow* parent) :
         ui->signInButton->setDefault(false);
         ui->signInButton->setText("Sign out");
     }
+    ui->signInLabel->hide();
 
-    connect(ui->signInButton, &QPushButton::clicked, [this, tracker] {
+    // lambda that hides a widget by fading it out
+    auto fadeOut = [this](QWidget* widget) {
+        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+        widget->setGraphicsEffect(effect);
+        QPropertyAnimation *animation = new QPropertyAnimation(effect,
+                                                               "opacity");
+        animation->setDuration(500);
+        animation->setStartValue(1);
+        animation->setEndValue(0);
+        animation->setEasingCurve(QEasingCurve::OutBack);
+        QTimer::singleShot(3000, [animation, widget] {
+            animation->start(QPropertyAnimation::DeleteWhenStopped);
+            connect(animation, SIGNAL(finished()), widget, SLOT(hide()));
+        });
+    };
+
+    connect(ui->signInButton, &QPushButton::clicked, [this, tracker, fadeOut] {
         if (ui->signInButton->text() == "Sign out") {
             tracker->updateUser("Name", "");
             tracker->updateUser("Email", "");
@@ -32,6 +51,12 @@ InfoDialog::InfoDialog(MainWindow* parent) :
             ui->emailEntry->setEnabled(true);
             ui->signInButton->setDefault(true);
             ui->signInButton->setText("Sign in");
+
+            ui->signInLabel->setStyleSheet("QLabel { color: black; }");
+            ui->signInLabel->show();
+            ui->signInLabel->setText("Sign-out successful.");
+            fadeOut(ui->signInLabel);
+
             return;
         }
 
@@ -50,6 +75,16 @@ InfoDialog::InfoDialog(MainWindow* parent) :
             ui->emailEntry->setDisabled(true);
             ui->signInButton->setDefault(false);
             ui->signInButton->setText("Sign out");
+
+            ui->signInLabel->show();
+            ui->signInLabel->setStyleSheet("QLabel { color: green; }");
+            ui->signInLabel->setText("Sign-in successful!");
+            fadeOut(ui->signInLabel);
+        } else {
+            ui->signInLabel->show();
+            ui->signInLabel->setStyleSheet("QLabel { color: red; }");
+            ui->signInLabel->setText("Please enter valid email ID.");
+            fadeOut(ui->signInLabel);
         }
     });
     connect(ui->docButton, &QPushButton::clicked, [this, tracker] {

@@ -142,23 +142,10 @@ QLineEdit:focus {
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>185</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="2" column="2">
        <widget class="QPushButton" name="signInButton">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -173,7 +160,7 @@ QLineEdit:focus {
 	margin: 6px 3px;
 }
 
-QPushButton:default:hover {
+QPushButton:hover {
 	background-color: rgb(117, 110, 210);
 	color: white;
 	border: 1px solid rgb(117, 110, 210);
@@ -183,6 +170,12 @@ QPushButton:default {
 	background-color: orange;
 	color: white;
 	border: 1px solid orange;
+}
+
+QPushButton:default:hover {
+	background-color: rgb(117, 110, 210);
+	color: white;
+	border: 1px solid rgb(117, 110, 210);
 }
 
 QPushButton:focus {
@@ -195,6 +188,13 @@ QPushButton:focus {
         </property>
         <property name="default">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QLabel" name="signInLabel">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
