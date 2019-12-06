@@ -11,16 +11,25 @@
 
 Mixpanel::Mixpanel()
 {
-    QString settingsPath = QStandardPaths::writableLocation(
+    QString configLocation = QStandardPaths::writableLocation(
         QStandardPaths::ConfigLocation);
-    settingsPath = QDir::cleanPath(settingsPath
-                                   + QDir::separator()
-                                   + "ElMaven"
-                                   + QDir::separator()
-                                   + "mixpanel.ini");
+    auto gaSettingsPath = QDir::cleanPath(configLocation
+                                          + QDir::separator()
+                                          + "El-MAVEN_analytics.ini");
+    auto gaSettings = new QSettings(gaSettingsPath, QSettings::IniFormat);
+    auto settingsPath = QDir::cleanPath(configLocation
+                                        + QDir::separator()
+                                        + "ElMaven"
+                                        + QDir::separator()
+                                        + "mixpanel.ini");
     _settings = new QSettings(settingsPath, QSettings::IniFormat);
     if (!_settings->contains("mixpanel-uuid")) {
-        _clientId = QUuid::createUuid().toString();
+        // use an existing Google Analytics ID if available
+        if (gaSettings->contains("analytics-cid")) {
+            _clientId = gaSettings->value("analytics-cid").toString();
+        } else {
+            _clientId = QUuid::createUuid().toString();
+        }
         _settings->setValue("mixpanel-uuid", _clientId);
         _isFirstSession = true;
         updateUser("Name", "");
