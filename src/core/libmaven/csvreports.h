@@ -104,6 +104,9 @@ class CSVReports
             selectionFlag = selFlag;
         }
 
+        static bool writeDataForPeakMl(const string& filePath,
+                                       const vector<PeakGroup>& groups);
+
     private:
         /**
          *@brief-  helper function to write group info
