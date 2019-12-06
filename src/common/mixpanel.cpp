@@ -8,6 +8,7 @@
 #include <QNetworkReply>
 
 #include "mixpanel.h"
+#include "sentry.h"
 
 Mixpanel::Mixpanel()
 {
@@ -46,6 +47,15 @@ Mixpanel::Mixpanel()
     _userRequest = QNetworkRequest(QUrl("https://api.mixpanel.com/engage"));
     _userRequest.setHeader(QNetworkRequest::ContentTypeHeader,
                            "application/x-www-form-urlencoded");
+
+#ifdef __OSX_AVAILABLE
+#ifndef DEBUG
+    // this ensures our crash reports for this session will be associated with
+    // the client ID for a given system
+    sentry_set_extra("Client ID",
+                     sentry_value_new_string(_clientId.toStdString().c_str()));
+#endif
+#endif
 
     QMap<QString, QVariant> properties;
     properties["First session"] = _isFirstSession;

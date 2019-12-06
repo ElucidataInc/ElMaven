@@ -49,6 +49,18 @@ FileUploader::~FileUploader()
 
 void FileUploader::uploadMinidump()
 {
+    // have to manually extract client ID since this will run ou-of-process.
+    QString configLocation = QStandardPaths::writableLocation(
+        QStandardPaths::ConfigLocation);
+    auto settingsPath = QDir::cleanPath(configLocation
+                                        + QDir::separator()
+                                        + "ElMaven"
+                                        + QDir::separator()
+                                        + "mixpanel.ini");
+    auto settings = new QSettings(settingsPath, QSettings::IniFormat);
+    QString clientId;
+    if (settings->contains("mixpanel-uuid")) {
+        clientId = gaSettings->value("mixpanel-uuid").toString();
 
     qDebug() << "dump path: " << _dumpPath;
     qDebug() << "app name " << STR(APPNAME);
@@ -61,6 +73,7 @@ void FileUploader::uploadMinidump()
     files[L"upload_file_minidump"] = _dumpPath.toStdWString();
     parameters[L"Application"] = QString(STR(APPNAME)).toStdWString();
     parameters[L"Version"] = QString(STR(APPVERSION)).toStdWString();
+    parameters[L"Client ID"] = clientId.toStdWString();
     qDebug() << "uploading file: " << _dumpPath;
 
     bool uploaded = google_breakpad::HTTPUpload::SendRequest(
