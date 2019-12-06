@@ -56,6 +56,7 @@ void LibraryManager::addDatabase(const QString &filepath)
 void LibraryManager::importNewDatabase()
 {
     _mw->loadCompoundsFile();
+    close();
 }
 
 void LibraryManager::loadSelectedDatabase()
@@ -67,6 +68,7 @@ void LibraryManager::loadSelectedDatabase()
 
     if (QFile::exists(filepath)) {
         _mw->loadCompoundsFile(filepath);
+        close();
     } else {
         QMessageBox msgBox;
         msgBox.setText("This database no longer exists at its last known "
