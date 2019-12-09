@@ -148,36 +148,55 @@ _To make sure the environment has ben setup correctly make sure the correct vers
 
 
 #### <a name="build"> </a> Build
-- `cd ElMaven`
-- For release builds : `qmake CONFIG+=release build.pro`
-- For debug builds : `qmake CONFIG+=debug build.pro`
-- `make -j4`
-- If you want to run tests and want to do a clean build, you can skip the above steps and just run the command from ElMaven directory: `./run.sh`
-- Run El-MAVEN: `bin/El-MAVEN`
+For release builds
+
+    cd ElMaven
+    qmake CONFIG+=release build.pro
+    make -j4
+
+For debug builds
+
+    cd ElMaven
+    qmake CONFIG+=debug build.pro
+    make -j4
+
+If, following earlier steps, El-MAVEN was linked to sentry-native on MacOS, then
+two additional commands need to be run for crash reporter to work correctly
+(this assumes that the `$SENTRY_MACOSX_BIN` env var is defined already):
+
+    install_name_tool -change @rpath/libsentry_crashpad.dylib $SENTRY_MACOSX_BIN/libsentry_crashpad.dylib bin/El-MAVEN.app/Contents/MacOS/El-MAVEN
+    cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/
+
+To run the GUI application execute
+- Windows: `bin/El-MAVEN.exe`
+- Linux: `bin/El-MAVEN`
+- MacOS: `bin/El-MAVEN/Contents/MacOS/El-MAVEN`
+
+If you want to run tests or do a clean build, you can skip the above steps and
+simply execute our build script (in root source directory): `./run.sh`
+
+
 ### Switching versions
 
-Users can switch between versions once they have compiled El-MAVEN successfully on their system. Follow these steps to pull a specific release:
-
-- Choose the version you wish to install from the list of releases. (We recommend the version tagged "Latest release". Pre-releases are not stable and should be avoided)
+Users can switch between versions once they have compiled El-MAVEN successfully
+on their system. To pull a specific release, please follow these steps:
+- Choose the version you wish to install from the list of releases. We recommend
+the version tagged "Latest release". Pre-releases are not stable and should be
+avoided, unless you intend to test features in development.
 - Find the version tag (v0.2.x, 0.1.x, etc) on the left of release notes.
 - Open your terminal and move to the installation folder
 - Give the following commands in the terminal:  
-`cd ElMaven`  
-`./uninstall.sh` (to uninstall your current version)  
-`git checkout develop`  
-`git pull`  
-`git checkout v0.x.y` (Eg. v0.1.5)
+    ```bash
+    cd ElMaven
+    ./uninstall.sh # (to uninstall your current version)
+    git checkout develop
+    git pull
+    git checkout vx.y.z # (for example, v0.8.0)
+    ```
 - Build the new version using the following command:
+    * For Windows and Ubuntu: `./run.sh`
+    * For Mac: `source ~/.bash_profile && ./run.sh`
 
-For Windows and Ubuntu: 
-`./run.sh`
-
-For Mac:  
-`source ~/.bash_profile`
-
-`qmake CONFIG+=debug -o Makefile build.pro`
-
-`make -j4`
 
 ## El-MAVEN features
 

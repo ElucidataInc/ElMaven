@@ -743,6 +743,9 @@ void ProjectDockWidget::saveSQLiteProject()
 void ProjectDockWidget::savePeakGroupInSQLite(PeakGroup* group,
                                               QString filename)
 {
+    if (group == nullptr)
+        return;
+
     if (!_mainwindow->fileLoader->sqliteProjectIsOpen()
             && !filename.isEmpty()) {
         saveSQLiteProject(filename);
