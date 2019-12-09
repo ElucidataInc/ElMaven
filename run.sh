@@ -6,10 +6,6 @@ while true; do
     case $yn in
         [Yy]* )
             qmake CONFIG+=release -o Makefile build.pro;
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                install_name_tool -change @rpath/libsentry_crashpad.dylib $SENTRY_MACOSX_BIN/libsentry_crashpad.dylib bin/El-MAVEN.app/Contents/MacOS/El-MAVEN;
-                cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/;
-            fi
             break;;
         [Nn]* )
             qmake CONFIG+=debug -o Makefile build.pro; flag=10; break;;
@@ -19,6 +15,15 @@ done
 
 make -j $(getconf _NPROCESSORS_ONLN)
 
+if [[ "$OSTYPE" == "darwin"* && flag -eq 100 ]]; then
+	if [[ -z "${SENTRY_MACOSX_BIN}" ]]; then
+		echo "Could not find Sentry library or binaries."
+	else
+		echo "Sentry library and binaries found."
+		install_name_tool -change @rpath/libsentry_crashpad.dylib $SENTRY_MACOSX_BIN/libsentry_crashpad.dylib bin/El-MAVEN.app/Contents/MacOS/El-MAVEN;
+		cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/;
+	fi
+fi
 
 if [ -f tests/MavenTests/test.xml ]; then
 	rm test*.xml

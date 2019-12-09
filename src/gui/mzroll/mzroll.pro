@@ -164,10 +164,12 @@ FORMS = forms/settingsform.ui  \
     forms/gettingstarted.ui \
     forms/pollywaitdialog.ui \
     forms/peaktabledeletiondialog.ui \
-    forms/isotopedialog.ui
+    forms/isotopedialog.ui \
+    forms/infodialog.ui
 
 HEADERS +=  stable.h \
             globals.h \
+    infodialog.h \
             librarymanager.h \
             mainwindow.h \
             tinyplot.h \
@@ -246,6 +248,7 @@ HEADERS +=  stable.h \
 
 SOURCES += mainwindow.cpp  \
 database.cpp \
+    infodialog.cpp \
            librarymanager.cpp \
  plotdock.cpp \
  spectralhit.cpp \

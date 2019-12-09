@@ -108,6 +108,11 @@ int main(int argc, char *argv[])
                                          dbPath.toStdString().c_str());
 
         sentry_init(options);
+
+        sentry_set_extra("Application",
+                         sentry_value_new_string("El-MAVEN"));
+        sentry_set_extra("Version",
+                         sentry_value_new_string(STR(EL_MAVEN_VERSION)));
     } else {
         cerr << "DSN missing, build cannot report crashes." << endl;
     }

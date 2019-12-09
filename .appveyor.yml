@@ -19,6 +19,8 @@ environment:
     secure: FBWRLw84S0Uq5xlHzaNBfg9zknKUzTQ6+jUBWeQFg38=
   AWS_SECRET_KEY:
     secure: uYWVMV2S2RDPMKNuTmncDT75vWfYPwJfHQjog7UO2C0OdtWNuYzxDZnlEvIC/KSA
+  MIXPANEL_TOKEN:
+    secure: z3ZI9fB/7hbyMhWdZv9HVMdAqGGB2GmtIeqGPxCOiSNjfLwQIVsNtuOFxSTC3Pty
 
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
