@@ -822,7 +822,7 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
             return redirectionUrl;
 
         // send to google sheets if sample cohort file is not valid
-        if (_lastCohortFileWasValid)
+        if (!_lastCohortFileWasValid)
             landingPage = QString("gsheet_sym_polly_elmaven");
 
         if (workflowId == "-1")
