@@ -281,6 +281,7 @@ void MassCalcWidget::_showInfo()
         if (!selectedCompound->srmId.empty())
             slice.srmId = selectedCompound->srmId;
 
+        _mw->searchText->setText(QString::number(slice.mz, 'f', 8));
         _mw->getEicWidget()->setMzSlice(slice);
         _mw->fragSpectraWidget->overlayCompoundFragmentation(selectedCompound);
     }
