@@ -1413,6 +1413,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	float mz = c->mass;
 	if (!c->formula.empty())
 		mz = c->adjustedMass(charge);
+    searchText->setText(QString::number(mz, 'f', 8));
 
 	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
 	//  pathwayWidget->clear();
