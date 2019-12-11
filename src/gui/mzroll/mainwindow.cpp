@@ -588,6 +588,28 @@ using namespace mzUtils;
     connect(fileLoader,
             SIGNAL(sqliteDBUnrecognizedVersion(QString)),
             SLOT(_handleUnrecognizedProjectVersion(QString)));
+    connect(fileLoader,
+            &mzFileIO::sampleLoadFailed,
+            this,
+            [=](QList<QString> sampleFiles) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Sample load failure");
+                QString fileHtmlList = "";
+                for (auto& filepath : sampleFiles) {
+                    QFileInfo fi(filepath);
+                    fileHtmlList += "<li>" + fi.fileName();
+                }
+                auto htmlText = QString("<p>The following sample files "
+                                        "failed to load:</p>"
+                                        "<ul>%1</ul>").arg(fileHtmlList);
+                msgBox.setText(htmlText);
+                msgBox.setInformativeText("Please make sure your file import "
+                                          "settings do not conflict with the "
+                                          "type of samples being loaded.");
+                msgBox.setStyleSheet("QMessageBox { font-weight: normal; }");
+                msgBox.addButton(QMessageBox::Ok);
+                msgBox.exec();
+            });
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
     connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));

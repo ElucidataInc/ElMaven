@@ -520,6 +520,7 @@ void mzFileIO::fileImport(void) {
     int numMS1SamplesLoaded = 0;
     int numMS2SamplesLoaded = 0;
     int numPRMSamplesLoaded = 0;
+    QList<QString> samplesFailedToLoad;
     qDebug() << "uploadMultiprocessing: " <<  uploadMultiprocessing << endl;
     if (uploadMultiprocessing) {
         int iter = 0;
@@ -538,6 +539,8 @@ void mzFileIO::fileImport(void) {
                 } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
                     ++numPRMSamplesLoaded;
                 }
+            } else {
+                samplesFailedToLoad.append(filename);
             }
 
             #pragma omp atomic
@@ -561,6 +564,8 @@ void mzFileIO::fileImport(void) {
                 } else if (sample->ms1ScanCount() && sample->ms2ScanCount()) {
                     ++numPRMSamplesLoaded;
                 }
+            } else {
+                samplesFailedToLoad.append(filename);
             }
 
             iter++;
@@ -606,6 +611,8 @@ void mzFileIO::fileImport(void) {
     Q_EMIT(updateProgressBar("Done importing", samples.size(), samples.size()));
     if (samples.size() > 0)
         Q_EMIT(sampleLoaded());
+    if (samplesFailedToLoad.size() > 0)
+        Q_EMIT(sampleLoadFailed(samplesFailedToLoad));
     if (spectralhits.size() > 0)
         Q_EMIT(spectraLoaded());
     if (projects.size() > 0)
