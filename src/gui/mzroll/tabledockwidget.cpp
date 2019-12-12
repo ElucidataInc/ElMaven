@@ -164,6 +164,7 @@ void TableDockWidget::setupPeakTable() {
     colNames << "Max quality";
     colNames << "MS2 score";
     colNames << "#MS2 events";
+    colNames << "Probability"; // TODO: add this column conditionally
     colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -2935,6 +2936,7 @@ void ScatterplotTableDockWidget::setupPeakTable() {
     colNames << "Max quality";
     colNames << "MS2 score";
     colNames << "#MS2 events";
+    colNames << "Probability"; // TODO: add this column conditionally
     colNames << "Rank";
 
     // add scatterplot table columns
