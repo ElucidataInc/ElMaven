@@ -12,7 +12,6 @@
 #include "EIC.h"
 #include "eicwidget.h"
 #include "globals.h"
-#include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "groupsettingslog.h"
 #include "isotopeswidget.h"
@@ -34,7 +33,6 @@
 #include "scatterplot.h"
 #include "spectrallibexport.h"
 #include "spectrawidget.h"
-#include "svmPredictor.h"
 #include "tabledockwidget.h";
 #include "peakdetector.h"
 #include "backgroundopsthread.h"
@@ -42,22 +40,6 @@
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
 TableDockWidget::TableDockWidget(MainWindow *mw) {
-  QDateTime current_time;
-  const QString format = "dd-MM-yyyy_hh_mm_ss";
-  QString datetimestamp= current_time.currentDateTime().toString(format);
-  datetimestamp.replace(" ","_");
-  datetimestamp.replace(":","-");
-  
-  uploadId = datetimestamp+"_Peak_table_"+QString::number(lastTableId());
-
-  writableTempS3Dir = QStandardPaths::writableLocation(
-                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
-                                                + QDir::separator()
-                                                + "tmp_Elmaven_s3_files_"
-                                                + QString::number(lastTableId());
-  if (!QDir(writableTempS3Dir).exists())
-    QDir().mkdir(writableTempS3Dir);
-
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
   _mainwindow = mw;
@@ -71,7 +53,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setDefaultStyle();
 
   viewType = groupView;
-  maxPeaks = 0; //Maximum Number of Peaks in a Group
 
   treeWidget = new PeakGroupTreeWidget(this);
   treeWidget->setSortingEnabled(false);
@@ -118,13 +99,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
 TableDockWidget::~TableDockWidget() {
   if (clusterDialog != NULL)
     delete clusterDialog;
-
-  delete treeWidget;
-  QDir qDirS3(writableTempS3Dir);
-  if(qDirS3.exists()){
-    qDirS3.removeRecursively();
-  }
-
 }
 
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
@@ -369,6 +343,10 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
       item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
     heatmapBackground(item);
   }
+  if (viewType == groupView)
+    item->setText(11, QString::number(group->maxQuality, 'f', 2));
+
+  item->setText(1, QString(group->getName().c_str()));
 
   _paintClassificationDisagreement(item);
 
@@ -724,7 +702,6 @@ void TableDockWidget::showAllGroups() {
   while(*itr) {
       QTreeWidgetItem* item = (*itr);
       shared_ptr<PeakGroup> grp = groupForItem(item);
-      validateGroup(grp.get(), item);
       itr++;
   }
 
@@ -977,7 +954,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 }
 
 void TableDockWidget::exportJsonToPolly(QString writableTempDir,
-                                        QString jsonfileName,
+                                        QString jsonfileName, 
                                         bool addMLInfo)
 {
 
@@ -995,52 +972,8 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
 
   jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
   jsonReports->save(jsonfileName.toStdString(),
-                             vallgroups,
-                             _mainwindow->getVisibleSamples());
-}
-
-UploadPeaksToCloudThread::UploadPeaksToCloudThread(PollyIntegration* iPolly)
-{
-    _pollyintegration = iPolly;
-    
-};
-
-void UploadPeaksToCloudThread::run()
-{
-    qDebug() << "Checking for active internet connection..";
-    QString status;
-    ErrorStatus response = _pollyintegration->activeInternet();
-    if (response == ErrorStatus::Failure ||
-        response == ErrorStatus::Error) {
-        qDebug() << "No internet connection..aborting upload";
-        return;
-    }
-    ErrorStatus uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
-    if (uploadStatus == ErrorStatus::Failure ||
-        uploadStatus == ErrorStatus::Error) {
-        qDebug() << "Peaks upload failed...";
-        return;
-    }
-    return;
-}
-
-UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
-{
-}
-
-
-void TableDockWidget::UploadPeakBatchToCloud(){
-    jsonReports=new JSONReports(_mainwindow->mavenParameters);
-    QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
-    jsonReports->save(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
-
-    PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
-    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);
-    connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
-    uploadPeaksToCloudThread->sessionId = uploadId;
-    uploadPeaksToCloudThread->fileName = uploadId + "_" + QString::number(uploadCount) ;
-    uploadPeaksToCloudThread->filePath = filePath;
-    uploadPeaksToCloudThread->start();
+                    vallgroups,
+                    _mainwindow->getVisibleSamples());
 }
 
 void TableDockWidget::exportJson() {
@@ -1320,13 +1253,6 @@ void TableDockWidget::setGroupLabel(char label)
           subsetPeakGroups.push_back(*(group.get()));
         }
         group->setLabel(label);
-        if (numberOfGroupsMarked ==10){
-          numberOfGroupsMarked = 0;
-          Q_EMIT(UploadPeakBatch());
-          subsetPeakGroups.clear();
-          uploadCount+=1;
-        }
-      }
       updateItem(item);
       if (item->parent() != nullptr)
         updateItem(item->parent(), false);
@@ -3028,85 +2954,6 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   treeWidget->header()->adjustSize();
   treeWidget->setSortingEnabled(true);
-}
-
-//@Kailash: Put decision sequence/tree for automatic validation here
-void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
-{
-    int mark=0;
-    bool decisionConflict=false;
-    if (grp != NULL)
-    {
-        //Disjoint Decision Tree
-        //Require improvements
-
-        //Decisions to mark group good
-        if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69 && grp->weightedAvgPeakQuality > 0.73) {
-            if (mark!=-1) mark=1;
-            else decisionConflict=true;
-        }
-        else if (grp->groupQuality > 0.73) {
-            if (mark!=-1) mark=1;
-            else decisionConflict=true;
-        }
-        else if (grp->predictedLabel == PeakGroup::ClassifiedLabel::Signal) {
-            if (grp->avgPeakQuality > 0.76) {
-                if (mark!=-1) mark=1;
-                else decisionConflict=true;   
-            }
-
-            if (grp->weightedAvgPeakQuality > 0.69) {
-                if (mark!=-1) mark=1;
-                else decisionConflict=true;
-            }
-        }
-        else if (grp->predictedLabel == PeakGroup::ClassifiedLabel::None
-                 && grp->avgPeakQuality > 0.72
-                 && grp->weightedAvgPeakQuality > 0.76) {
-            if (mark!=-1) mark=1;
-            else decisionConflict=true;
-        }
-
-        //Decisions to mark group bad
-        if (grp->avgPeakQuality < 0.25 && grp->weightedAvgPeakQuality < 0.35) {
-            if (mark!=1) mark=-1;
-            else decisionConflict=true;
-        }
-
-        if (grp->predictedLabel == PeakGroup::ClassifiedLabel::Noise) {
-            if (grp->avgPeakQuality < 0.29) {
-                if (mark!=1) mark=-1;
-                else decisionConflict=true;
-            }
-
-            if (grp->weightedAvgPeakQuality < 0.31) {
-                if (mark!=1) mark=-1;
-                else decisionConflict=true;
-            }
-        }
-
-        //Decisions to not mark group
-        if (grp->peakCount() < int(maxPeaks/4) || grp->peakCount() == 1) decisionConflict=true; //Do not mark if number of peaks in the group is less
-
-        if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
-            decisionConflict=true;
-        }
-
-        if (grp->avgPeakQuality > 0.25 && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
-            decisionConflict=true;
-        }
-        grp->markedGoodByCloudModel = 0;
-        grp->markedBadByCloudModel = 0;
-        //Call respected functions to mark the groups
-        if (mark==1 && !decisionConflict) {
-            // markGroupGood(grp, item);
-            grp->markedGoodByCloudModel = 1;
-        }
-        else if (mark==-1 && !decisionConflict) {
-            // markGroupBad(grp, item);
-            grp->markedBadByCloudModel = 1;
-        }
-    }
 }
 
 RowData::RowData()

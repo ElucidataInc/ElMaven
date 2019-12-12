@@ -3,7 +3,6 @@
 
 #include <QWidgetAction>
 
-#include "pollyintegration.h"
 #include "stable.h"
 
 class MainWindow;
@@ -56,8 +55,6 @@ public:
   PeakGroupTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
-  int numberOfGroupsMarked = 0;
-  QString writableTempS3Dir;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -262,9 +259,6 @@ public slots:
   void updateTable();
   void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
   void updateStatus();
-
-  //Group validation functions
-  void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
 
   virtual void markGroupBad();
   virtual void markGroupGood();
