@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>876</width>
-    <height>740</height>
+    <width>814</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="sizeIncrement">
@@ -30,10 +30,28 @@
        <string>Feature Detection Selection</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>6</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>6</number>
+       </property>
        <item row="0" column="0" colspan="2">
         <widget class="QGroupBox" name="featureOptions">
          <property name="enabled">
           <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="statusTip">
           <string/>
@@ -245,6 +263,12 @@
        </item>
        <item row="1" column="0" rowspan="2" colspan="2">
         <widget class="QGroupBox" name="dbSearch">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Compound Database Search:  Limit slices to set of known m/z and retention time values</string>
          </property>
@@ -347,6 +371,12 @@
         <widget class="QGroupBox" name="matchFragmentationOptions">
          <property name="enabled">
           <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <property name="title">
           <string>Match Fragmentation</string>
@@ -462,6 +492,18 @@
        <string>Group Filtering</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>6</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QGroupBox" name="peakScoringOptions">
          <property name="title">
@@ -900,6 +942,18 @@
    <item>
     <widget class="QGroupBox" name="groupBox_4">
      <layout class="QGridLayout" name="gridLayout_4">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
       <item row="4" column="5">
        <widget class="QPushButton" name="cancelButton">
         <property name="text">
