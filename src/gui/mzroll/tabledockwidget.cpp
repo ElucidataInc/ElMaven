@@ -356,12 +356,12 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   } else if (group->label == 'b'
              || group->predictedLabel == PeakGroup::ClassifiedLabel::Noise) {
     item->setIcon(0, QIcon(":/images/bad.png"));
-  } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Correlated) {
+  } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Correlation) {
     item->setIcon(0, QIcon(":/images/moi_correlated.png"));
   } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Pattern) {
     item->setIcon(0, QIcon(":/images/moi_pattern.png"));
   } else if (group->predictedLabel
-             == PeakGroup::ClassifiedLabel::CorrelatedAndPattern) {
+             == PeakGroup::ClassifiedLabel::CorrelationAndPattern) {
     item->setIcon(0, QIcon(":/images/moi_pattern_correlated.png"));
   } else {
     item->setIcon(0, QIcon());

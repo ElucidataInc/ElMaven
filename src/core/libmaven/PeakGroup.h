@@ -56,9 +56,9 @@ class PeakGroup{
             None,                // the group has not been classified using ML yet
             Noise,               // the group is too noisy to be a metbolite
             Signal,              // the group shows a clear signal but may not be an interesting metabolite
-            Correlated,          // the group is a signal and is correlated to one or more signals
+            Correlation,         // the group is a signal and is correlated to one or more signals
             Pattern,             // the group is a signal and shows interesting inter-cohort intensity pattern
-            CorrelatedAndPattern // the group is a signal which shows correlation as well as intensity pattern
+            CorrelationAndPattern // the group is a signal which shows correlation as well as intensity pattern
         };
 
         PeakGroup& operator=(const PeakGroup& o);
@@ -144,12 +144,8 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
-        //@Kailash: group quality computed using neural network
-        int markedGoodByCloudModel = 0;
-        int markedBadByCloudModel = 0;
-        float groupQuality;
-        float weightedAvgPeakQuality;
         ClassifiedLabel predictedLabel;
+        float predictionProbability;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;
