@@ -49,7 +49,13 @@ void svmPredictor::predict(PeakGroup *grp)
         int *labels=(int *) malloc(nr_class*sizeof(int));
 
 		svm_get_labels(model,labels);
-        grp->predictedLabel = int(svm_predict(model,x));
+        if (int(svm_predict(model,x)) == 1) {
+            grp->predictedLabel = PeakGroup::ClassifiedLabel::Signal;
+        } else if (int(svm_predict(model,x)) == -1) {
+            grp->predictedLabel = PeakGroup::ClassifiedLabel::Noise;
+        } else if (int(svm_predict(model,x)) == 0) {
+            grp->predictedLabel = PeakGroup::ClassifiedLabel::None;
+        }
 
         //cerr << endl << grp->predictedLabel << endl;
     }

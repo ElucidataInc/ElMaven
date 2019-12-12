@@ -92,5 +92,8 @@
         <file>images/undockWidget.png</file>
         <file>images/bad.png</file>
         <file>images/good.png</file>
+        <file>images/moi_correlated.png</file>
+        <file>images/moi_pattern_correlated.png</file>
+        <file>images/moi_pattern.png</file>
     </qresource>
 </RCC>
