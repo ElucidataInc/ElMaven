@@ -233,7 +233,6 @@ void EicWidget::integrateRegion(float rtmin, float rtmax) {
         eicParameters->_integratedGroup.computeFragPattern(ppm);
         eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
     }
-    getMainWindow()->isotopeWidget->updateIsotopicBarplot(&eicParameters->_integratedGroup);
     getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
 }
 

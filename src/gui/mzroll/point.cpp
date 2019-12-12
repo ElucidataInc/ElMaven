@@ -271,7 +271,6 @@ void EicPoint::setClipboardToIsotopes() {
                                   "Clipboard",
                                   "Isotopes Information");
     if (_group && _group->getCompound() != NULL && ! _group->getCompound()->formula.empty()) {
-        _mw->isotopeWidget->updateIsotopicBarplot(_group);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
         if (_peak)
             _mw->isotopeWidget->peakSelected(_peak, _group);
