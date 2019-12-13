@@ -270,23 +270,26 @@ void PeakDetectorCLI::processXML(const char* fileName)
     }
 
     if (xmlFile) {
-        _log->info() << "Found config file "
-                     << fileName
-                     << ". Processing…"
-                     << std::flush;
-
         xml_document doc;
         doc.load_file(fileName, pugi::parse_minimal);
-        xml_node argsNode = doc.child("Arguments");
-
-        xml_node optionsArgs = argsNode.child("OptionsDialogArguments");
-        xml_node peaksArgs = argsNode.child("PeaksDialogArguments");
-        xml_node generalArgs = argsNode.child("GeneralArguments");
-
-        _processOptionsArgsXML(optionsArgs);
-        _processPeaksArgsXML(peaksArgs);
-        _processGeneralArgsXML(generalArgs);
-
+        if (string(doc.first_child().name()) == "Arguments") {
+            _log->info() << "Found config file "
+                         << fileName
+                         << ". Processing…"
+                         << std::flush;
+            xml_node argsNode = doc.child("Arguments");
+            xml_node optionsArgs = argsNode.child("OptionsDialogArguments");
+            xml_node peaksArgs = argsNode.child("PeaksDialogArguments");
+            xml_node generalArgs = argsNode.child("GeneralArguments");
+            _processOptionsArgsXML(optionsArgs);
+            _processPeaksArgsXML(peaksArgs);
+            _processGeneralArgsXML(generalArgs);
+        } else {
+            _log->info() << "Provided XML file is not an arguments file. "
+                            "Trying to read it as El-MAVEN settings file…"
+                         << endl;
+            processSettingsFromGui(fileName);
+        }
     } else {
         status = false;
         string errorMsg = "Error Loading file " + (string)fileName
@@ -540,6 +543,25 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
                           << node.name()
                           << std::flush;
         }
+    }
+}
+
+
+void PeakDetectorCLI::processSettingsFromGui(const string& settingsFilepath)
+{
+    bool fileLoaded = false;
+    QFile file(settingsFilepath.c_str());
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray data = file.readAll();
+        file.close();
+
+        if (mavenParameters->loadSettings(data.data()))
+            fileLoaded = true;
+    }
+
+    if (!fileLoaded) {
+        _log->error() << "Failed to load settings file from El-MAVEN"
+                      << std::flush;
     }
 }
 
