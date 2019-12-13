@@ -59,6 +59,7 @@ install:
       sudo apt-get install -y -qq lcov
       sudo apt-get update -qq;
       sudo apt-get install -y -qq --allow-unauthenticated qt5-qmake qtbase5-dev qtscript5-dev qtdeclarative5-dev libqt5webkit5-dev;
+      sudo apt-get install -y -qq --allow-unauthenticated --allow-downgrades libpulse-mainloop-glib0=1:8.0-0ubuntu3.10 libpulse0=1:8.0-0ubuntu3.10 libpulse-dev
       sudo apt-get install -y -qq --allow-unauthenticated libqt5opengl5 libqt5multimedia5 libqt5multimedia5-plugins qtmultimedia5-dev;
       sudo apt-get install -y -qq --allow-unauthenticated libsqlite3-dev libboost-all-dev libnetcdf-dev;
       eval "${MATRIX_EVAL}";
