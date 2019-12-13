@@ -147,7 +147,7 @@ class PeakGroup{
 
         ClassifiedLabel predictedLabel;
         float predictionProbability;
-        map<string, float> predictionInference;
+        multimap<float, string> predictionInference;
 
         double minQuality;
         float maxPeakFracionalArea;

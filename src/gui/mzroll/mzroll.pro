@@ -9,6 +9,8 @@ DESTDIR = $$top_srcdir/bin/
 
 QT += concurrent widgets multimedia multimediawidgets network printsupport sql
 QT -= qmltest
+QT += multimedia multimediawidgets network
+QT += charts
 
 CONFIG += qt thread warn_off sql svg precompile_header resources_big
 win32: CONFIG += windows
