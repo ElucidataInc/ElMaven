@@ -141,7 +141,7 @@ void TableDockWidget::setIntensityColName() {
     break;
   }
   _mainwindow->currentIntensityName = temp;
-  header->setText(9, temp);
+  header->setText(10, temp);
 }
 
 void TableDockWidget::setupPeakTable() {
@@ -149,6 +149,7 @@ void TableDockWidget::setupPeakTable() {
   QStringList colNames;
 
   // Add common coulmns to the Table
+  colNames << "Label"; // TODO: add this column conditionally
   colNames << "#";
   colNames << "ID";
   colNames << "Observed m/z";
@@ -348,28 +349,54 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     heatmapBackground(item);
   }
   if (viewType == groupView)
-    item->setText(11, QString::number(group->maxQuality, 'f', 2));
+    item->setText(12, QString::number(group->maxQuality, 'f', 2));
 
-  item->setText(1, QString(group->getName().c_str()));
+  item->setText(2, QString(group->getName().c_str()));
 
   _paintClassificationDisagreement(item);
 
   if (group->label == 'g'
       || group->predictedLabel == PeakGroup::ClassifiedLabel::Signal) {
     item->setIcon(0, QIcon(":/images/good.png"));
+    // we have to store stringified classifier labels because QVariant has
+    // issues with standard enum classes
+    QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
   } else if (group->label == 'b'
              || group->predictedLabel == PeakGroup::ClassifiedLabel::Noise) {
     item->setIcon(0, QIcon(":/images/bad.png"));
+    QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
   } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Correlation) {
     item->setIcon(0, QIcon(":/images/moi_correlated.png"));
+    QString castLabel = "PeakGroup::ClassifiedLabel::Correlation";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
   } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Pattern) {
     item->setIcon(0, QIcon(":/images/moi_pattern.png"));
+    QString castLabel = "PeakGroup::ClassifiedLabel::Pattern";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
   } else if (group->predictedLabel
              == PeakGroup::ClassifiedLabel::CorrelationAndPattern) {
     item->setIcon(0, QIcon(":/images/moi_pattern_correlated.png"));
+    QString castLabel = "PeakGroup::ClassifiedLabel::CorrelationAndPattern";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
   } else {
     item->setIcon(0, QIcon());
-  }
+    QString castLabel = "PeakGroup::ClassifiedLabel::None";
+    item->setData(0,
+                  Qt::UserRole,
+                  QVariant::fromValue(castLabel));
+ }
 
   if (updateChildren) {
     for (int i = 0; i < item->childCount(); ++i)
@@ -679,7 +706,7 @@ void TableDockWidget::showAllGroups() {
     if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
       if (!parents.contains(clusterId)) {
         parents[clusterId] = new QTreeWidgetItem(treeWidget);
-        parents[clusterId]->setText(0, QString("Cluster ") +
+        parents[clusterId]->setText(1, QString("Cluster ") +
                                            QString::number(clusterId));
         parents[clusterId]->setText(
             5, QString::number(group->meanRt, 'f', 2));
@@ -3107,6 +3134,7 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   QStringList colNames;
 
   // Add common columns to the table
+  colNames << "Label";
   colNames << "#";
   colNames << "ID";
   colNames << "Observed m/z";
