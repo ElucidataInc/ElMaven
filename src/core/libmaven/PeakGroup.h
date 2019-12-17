@@ -88,8 +88,6 @@ class PeakGroup{
         string srmId;
         string tagString;
 
-        /** classification label */
-        char label;
         /**
          * @brief returns group name
          * @method getName
@@ -144,10 +142,6 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
-
-        ClassifiedLabel predictedLabel;
-        float predictionProbability;
-        multimap<float, string> predictionInference;
 
         double minQuality;
         float maxPeakFracionalArea;
@@ -292,11 +286,20 @@ class PeakGroup{
         }
 
         /**
-         * [setLabel ]
-         * @method setLabel
-         * @param  label    []
+         * @brief Assign a label to this peak group.
+         * @details If this method is called with one of the valid user labels,
+         * then user decision overrides any PeakML classified predictions.
+         * @param label A character that is either 'g' (good), 'b' (bad) or
+         * '\0' (unset).
          */
-        void setLabel(char label);
+        void setUserLabel(const char label);
+
+        /**
+         * @brief Get the current good/bad label assigned to this peak group.
+         * @return A character, denoting a good peak if 'g', a bad peak if 'b'
+         * or '\0' if unassigned.
+         */
+        char userLabel() const { return _userLabel; }
 
         /**
          * @brief Get the adduct form for this `PeakGroup`.
@@ -639,6 +642,48 @@ class PeakGroup{
         int metaGroupId() const { return _metaGroupId; }
         void setGroupId(int groupId);
 
+        /*
+         * @brief Set the classification label for this PeakGroup.
+         * @details Anything other than `PeakGroup::ClassifiedLabel::Noise` or
+         * `PeakGroup::ClassifiedLabel::None` will be marked as a good ('g')
+         * group.
+         * @param label The PeakML class to assign.
+         * @param probability The probability for this classification.
+         */
+        void setPredictedLabel(const ClassifiedLabel label,
+                               const float probability);
+
+        /**
+         * @brief Set the inference values for assigned classification.
+         * @param inference A multi-map of computed values mapping to each peak
+         * attribute. A `multimap` is used so that "views" can later on use it
+         * to display top N features responsible for classification, which would
+         * be a tedious process if we used a map of attributes:values instead.
+         */
+        void setPredictionInference(const multimap<float, string>& inference);
+
+        /**
+         * @brief Get the predicted label for this peak group.
+         * @return A `PeakGroup::ClassifiedLabel` denoting the predicted class.
+         */
+        ClassifiedLabel predictedLabel() const;
+
+        /**
+         * @brief The proability with which this group has been assigned its
+         * current PeakML class.
+         * @return A floating point value representing confidence of
+         * prediction.
+         */
+        float predictionProbability() const;
+
+        /**
+         * @brief Obtain inferences that can help illustrate why the peak-group
+         * was assigned its current probability.
+         * @return A `std::multimap` storing values mapping to every known
+         * attribute.
+         */
+        multimap<float, string> predictionInference() const;
+
     private:
         int _groupId;
         int _metaGroupId;
@@ -658,5 +703,13 @@ class PeakGroup{
         IntegrationType _integrationType;
 
         void _updateType();
+        
+        // user classification label
+        char _userLabel;
+
+        // properties for PeakML classification
+        ClassifiedLabel _predictedLabel;
+        float _predictionProbability;
+        multimap<float, string> _predictionInference;
 };
 #endif

@@ -115,10 +115,10 @@ void ClassifierNeuralNet::refineModel(PeakGroup* grp) {
 	if (brain == NULL)
 		brain = new nnwork(num_features, hidden_layer, num_outputs);
 
-	if (grp->label == 'g' || grp->label == 'b') {
-		for (unsigned int j = 0; j < grp->peaks.size(); j++) {
+    if (grp->userLabel() == 'g' || grp->userLabel() == 'b') {
+        for (unsigned int j = 0; j < grp->peaks.size(); j++) {
 			Peak& p = grp->peaks[j];
-			p.label = grp->label;
+            p.label = grp->userLabel();
 			if (p.width < 2)
 				p.label = 'b';
 			if (p.signalBaselineRatio <= 1)

@@ -277,8 +277,8 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     string tagString = group->srmId + group->tagString;
     tagString = _sanitizeString(tagString.c_str()).toStdString();
 
-    char labelStr[2];
-    sprintf(labelStr, "%c", group->label);
+    char label[2];
+    sprintf(label, "%c", group->userLabel());
 
     string adductName = "";
     if (group->adduct() != nullptr && !group->isIsotope())

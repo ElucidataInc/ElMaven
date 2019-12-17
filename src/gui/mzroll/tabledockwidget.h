@@ -359,6 +359,14 @@ private:
   // TODO: investigate and remove this dialog if not being used
   void setupFiltersDialog();
 
+  /**
+   * @brief Adds color to the label cell if El-MAVEN's quality assignment
+   * disagrees with the good/bad curation done by the user. Darker red means
+   * greater disagreement.
+   * @param item The tree widget item to be re-painted.
+   */
+  void _paintClassificationDisagreement(QTreeWidgetItem *item);
+
   ClusterDialog *clusterDialog;
   peakTableSelectionType peakTableSelection;
   bool tableSelectionFlagUp;
