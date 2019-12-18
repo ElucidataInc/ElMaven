@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QApplication>
+#include <QSettings>
 
 #ifdef Q_OS_MAC
 #include "macuploader/interface.h"
@@ -59,8 +60,8 @@ void FileUploader::uploadMinidump()
                                         + "mixpanel.ini");
     auto settings = new QSettings(settingsPath, QSettings::IniFormat);
     QString clientId;
-    if (settings->contains("mixpanel-uuid")) {
-        clientId = gaSettings->value("mixpanel-uuid").toString();
+    if (settings->contains("mixpanel-uuid"))
+        clientId = settings->value("mixpanel-uuid").toString();
 
     qDebug() << "dump path: " << _dumpPath;
     qDebug() << "app name " << STR(APPNAME);
