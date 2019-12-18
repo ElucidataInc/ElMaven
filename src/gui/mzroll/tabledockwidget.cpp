@@ -2173,8 +2173,8 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
               auto fadeBars = [setBarActive, setMarkerActive, setActiveTitle]
                   (QLegendMarker* marker,
                    const QList<QLegendMarker*>& markers,
+                   const QHorizontalStackedBarSeries* series,
                    bool hovering) {
-                      auto series = qobject_cast<QHorizontalStackedBarSeries*>(marker->series());
                       if (!series)
                         return;
                       const auto barSets = series->barSets();
@@ -2196,11 +2196,11 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
                   };
 
               // lambda that fades out legend markers
-              auto fadeMarkers = [chart, setBarActive, setMarkerActive, setActiveTitle]
+              auto fadeMarkers = [setBarActive, setMarkerActive, setActiveTitle]
                   (QBarSet* bar,
                    const QList<QBarSet*>& barSets,
+                   const QLegend* legend,
                    bool hovering) {
-                      auto legend = chart->legend();
                       if (!legend)
                         return;
                       const auto markers = legend->markers();
@@ -2226,17 +2226,18 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
                   connect(marker,
                           &QLegendMarker::hovered,
                           this,
-                          [fadeBars, marker, markers](bool status) {
-                              fadeBars(marker, markers, status);
+                          [fadeBars, marker, markers, series](bool status) {
+                              fadeBars(marker, markers, series, status);
                           });
               }
               const auto barSets = series->barSets();
               for (auto bar : barSets) {
+                  auto legend = chart->legend();
                   connect(bar,
                           &QBarSet::hovered,
                           this,
-                          [fadeMarkers, bar, barSets](bool status) {
-                              fadeMarkers(bar, barSets, status);
+                          [fadeMarkers, bar, barSets, legend](bool status) {
+                              fadeMarkers(bar, barSets, legend, status);
                           });
 
                   // the logic below assigns a nice hue to the bars
