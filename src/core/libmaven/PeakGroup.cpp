@@ -541,13 +541,13 @@ double PeakGroup::getExpectedMz(int charge) {
         && childCount() == 0
         && hasSlice()
         && _slice.compound != NULL
-        && !_slice.compound->formula.empty()
+        && !_slice.compound->formula().empty()
         && _slice.compound->mass > 0
     ) { 
         return expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
-        if (!_slice.compound->formula.empty()) {
+        if (!_slice.compound->formula().empty()) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
             mz = _slice.compound->mass;

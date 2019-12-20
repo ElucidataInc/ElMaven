@@ -1,6 +1,7 @@
 #ifndef COMPOUND_H
 #define COMPOUND_H
 
+#include "constants.h"
 #include "standardincludes.h"
 #include "PeakGroup.h"
 
@@ -28,6 +29,11 @@ class Compound{
         *@param - _groupUnlinked will check  wether Compound and PeakGroup are linked or not
         */
         bool      _groupUnlinked;
+
+        /**
+         * Formula of the compound.
+         */
+        string _formula;
 
     public:
         enum class Type {
@@ -65,11 +71,51 @@ class Compound{
         string id;          /**@param - compund id */
 
         string name;        /**@param -  name of compound */
-        string formula;         /**@param -  formula of compound */
         string kegg_id;         /**@param -  kegg_id-    Kyoto Encyclopedia of Genes and Genomes id*/
         string pubchem_id;      /**@param  -  pubchem_id -    PubChem id*/
         string hmdb_id;         /**@param  -  hmdb_id-    Human Metabolome Database id */
         string alias;       /**@param   -  alias name of compound   */
+
+        /**
+         * @brief Obtain the formula set for this compound.
+         * @return A string representing a valid chemical formula.
+         */
+        string formula() const { return _formula; }
+
+        /**
+         * @brief Set the formula of this compound.
+         * @details Some basic filtering will be done on the formula string
+         * provided as the argument.
+         * @param formula Ideally, an alpha-numeric string, representing a valid
+         * chemical formula.
+         */
+        void setFormula(string formula) { _formula = filterFormula(formula); }
+
+        /**
+         * @brief Filters an arbitrary string and gets rid of any characters
+         * that are not allowed to be part of a small molecule formula.
+         * @details It should be noted that this is only a filter and not a
+         * parser of any sort. This function can be used to strip a possible
+         * formula string to a form which is equivalent to how El-MAVEN
+         * currently understands a checmical formula. The parsing scheme in
+         * `MassCalculator::getComposition` can be used as a guide.
+         * @param formulaString Any arbitrary string.
+         * @return A string stripped of all non-chemical characters.
+         */
+        static string filterFormula(string formulaString)
+        {
+            string validChars = CHE_FORMULA_ALPHA_UPP
+                                + CHE_FORMULA_ALPHA_LOW
+                                + CHE_FORMULA_COFF;
+            formulaString.erase(remove_if(formulaString.begin(),
+                                          formulaString.end(),
+                                          [validChars] (const char& c) {
+                                              return (validChars.find(c)
+                                                      == string::npos);
+                                          }),
+                                formulaString.end());
+            return formulaString;
+        }
 
         /**
          * @brief A simple string in form of a line notation for describing the
@@ -170,7 +216,7 @@ class Compound{
         /**
         *@brief  -  utility function to compare compound by formula for sorting purpose
         */
-        static bool compFormula(const Compound* a, const Compound* b ) { return(a->formula < b->formula); }
+        static bool compFormula(const Compound* a, const Compound* b ) { return(a->formula() < b->formula()); }
         /**
         *@brief   -  utility function to compare compound by number of reactions
         *it is involved in

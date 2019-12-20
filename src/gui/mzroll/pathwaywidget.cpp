@@ -360,8 +360,8 @@ void PathwayWidget::setCompound(Compound* c) {
 	clear();
 
 	//set title
-	QString title = QString(c->name.c_str()) + " "
-			+ QString(c->formula.c_str());
+    QString title = QString(c->name.c_str()) + " "
+                    + QString(c->formula().c_str());
 	setTitle(title);
 
 	//get reactions
@@ -444,8 +444,8 @@ void PathwayWidget::setCompoundFocus(Compound* c) {
 		return;
 	_focusedCompound = c;
 
-	QString title = QString(c->name.c_str()) + ": "
-			+ QString(c->formula.c_str());
+    QString title = QString(c->name.c_str()) + ": "
+                    + QString(c->formula().c_str());
 	setTitle(title);
 
 	c = _focusedCompound;
@@ -1185,8 +1185,8 @@ void PathwayWidget::saveModelFile(QString filename) {
 			stream.writeAttribute("ycoord",QString::number(node->pos().y()));
 		}
 
-		if (c) {
-			stream.writeAttribute("formula",c->formula.c_str());
+        if (c) {
+            stream.writeAttribute("formula", c->formula().c_str());
 			stream.writeAttribute("expectedRt",QString::number(c->expectedRt));
 			//stream.writeAttribute("name",c->name.c_str());
 		}

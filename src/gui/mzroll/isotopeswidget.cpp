@@ -143,8 +143,8 @@ void IsotopeWidget::setCompound(Compound *cpd)
 {
 	clearWidget();
 	if (cpd == NULL)
-		return;
-	QString f = QString(cpd->formula.c_str());
+        return;
+    QString f = QString(cpd->formula().c_str());
 	//isotopeParameters->_group = NULL;
 	isotopeParameters->_compound = cpd;
 	setWindowTitle("Isotopes:" + QString(cpd->name.c_str()));

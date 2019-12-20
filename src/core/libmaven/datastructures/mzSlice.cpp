@@ -31,11 +31,11 @@ mzSlice::mzSlice()
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
 	
-	//Calculating the mzmin and mzmax
-	if (!this->compound->formula.empty())
+    //Calculating the mzmin and mzmax
+    if (!this->compound->formula().empty())
 	{
-		//Computing the mass if the formula is given
-		double mass = MassCalculator::computeMass(this->compound->formula, charge);
+        //Computing the mass if the formula is given
+        double mass = MassCalculator::computeMass(this->compound->formula(), charge);
 		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
 		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}

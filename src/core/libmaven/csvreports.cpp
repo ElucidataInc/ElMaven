@@ -352,8 +352,8 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
     if (group->getCompound() != NULL) {
         compoundName = sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = sanitizeString(group->getCompound()->formula.c_str()).toStdString();
-        if (!group->getCompound()->formula.empty()) {
+        formula = sanitizeString(group->getCompound()->formula().c_str()).toStdString();
+        if (!group->getCompound()->formula().empty()) {
             int charge = getMavenParameters()->getCharge(group->getCompound());
             if (group->parent != NULL) {
                 ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge),
@@ -442,7 +442,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     if (group->getCompound() != NULL) {
         compoundName = sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = sanitizeString(group->getCompound()->formula.c_str()).toStdString();
+        formula = sanitizeString(group->getCompound()->formula().c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.

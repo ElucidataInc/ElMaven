@@ -754,7 +754,7 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
                 out << compound->productMz << SEP;
                 out << compound->expectedRt << SEP;
                 out << compound->id.c_str() << SEP;
-                out << compound->formula.c_str() << SEP;
+                out << compound->formula().c_str() << SEP;
                 out << compound->srmId.c_str() << SEP;
                 out << category.join(";") << SEP;
                 out << "\n";
@@ -1315,7 +1315,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
                 PeakGroup newGroup = group;
                 Compound* compound = group.getCompound();
                 float compoundMz = MassCalculator::computeMass(
-                    compound->formula, mavenParameters->getCharge(compound));
+                    compound->formula(), mavenParameters->getCharge(compound));
                 float cutoffDist = massCutoffDist(
                     group.meanMz, compoundMz, mavenParameters->massCutoffMerge);
                 if (cutoffDist

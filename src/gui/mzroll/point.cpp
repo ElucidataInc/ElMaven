@@ -270,7 +270,9 @@ void EicPoint::setClipboardToIsotopes() {
     _mw->getAnalytics()->hitEvent("Exports",
                                   "Clipboard",
                                   "Isotopes Information");
-    if (_group && _group->getCompound() != NULL && ! _group->getCompound()->formula.empty()) {
+    if (_group
+        && _group->getCompound() != NULL
+        && ! _group->getCompound()->formula().empty()) {
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
         if (_peak)
             _mw->isotopeWidget->peakSelected(_peak, _group);
@@ -307,7 +309,8 @@ void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
     connect(c1, SIGNAL(triggered()), SLOT(setClipboardToGroup()));
 
     if (_group && _group->getCompound() ) {
-       if ( _group->isIsotope() == false && !_group->getCompound()->formula.empty() ) {
+       if ( _group->isIsotope() == false
+            && !_group->getCompound()->formula().empty() ) {
             QAction* z = menu.addAction("Copy Isotope Information to Clipboard");
             z->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
             connect(z, SIGNAL(triggered()), SLOT(setClipboardToIsotopes()));

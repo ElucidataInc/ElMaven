@@ -149,7 +149,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, MassCutoff *mas
         Compound* c = *itr;
         if (!c)
             continue;
-        double cmass = MassCalculator::computeMass(c->formula, charge);
+        double cmass = MassCalculator::computeMass(c->formula(), charge);
         if (mzUtils::massCutoffDist((double) cmass,
                                     (double) mz,
                                     massCutoff) < massCutoff->getMassCutoff()
@@ -169,8 +169,8 @@ void MassCalcWidget::getMatches() {
     delete_all(matches);
     Q_FOREACH(Compound* c, compounds) {
         MassCalculator::Match* m = new MassCalculator::Match();
-        m->name = c->formula;
-        m->mass = MassCalculator::computeMass(c->formula,
+        m->name = c->formula();
+        m->mass = MassCalculator::computeMass(c->formula(),
                                               _mw->mavenParameters->getCharge(c));
         m->diff = mzUtils::massCutoffDist((double)m->mass,
                                           (double)_mz,

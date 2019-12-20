@@ -298,7 +298,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
         hit.score = 0;
     //TODO: precursormz should be preset as the compound m/z
     //compound->mass should be reserved for exact mass or renamed
-    if (!c->formula.empty())
+    if (!c->formula().empty())
         c->precursorMz = c->adjustedMass(mainwindow->mavenParameters->getCharge(c));
     if (mzUtils::almostEqual(c->precursorMz, 0.0f))
         c->precursorMz = c->mass;
