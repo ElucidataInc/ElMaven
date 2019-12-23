@@ -894,8 +894,8 @@ void mzSample::populateMzAndIntensity(const vector<float>& mzint, Scan* _scan)
         float intensityValue = mzint[j++];
         // cerr << mzValue << " " << intensityValue << endl;
         if (mzValue > 0 && intensityValue > 0) {
-            _scan->mz[i] = mzValue;
-            _scan->intensity[i] = intensityValue;
+            _scan->mz[count] = mzValue;
+            _scan->intensity[count] = intensityValue;
             count++;
         }
     }
