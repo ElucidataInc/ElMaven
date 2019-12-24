@@ -999,8 +999,10 @@ void MainWindow::saveProject(bool explicitSave)
             _currentProjectName = "";
             _setProjectFilenameIfEmpty();
 
-            if (_currentProjectName.isEmpty())
+            if (_currentProjectName.isEmpty()) {
+                settings->setValue("closeEvent", 0);
                 return;
+            }
 
             analytics->hitEvent("Project Save", "emDB");
         } else {
@@ -1039,8 +1041,10 @@ void MainWindow::saveProject(bool explicitSave)
                 return;
             }
 
-            if (_currentProjectName.isEmpty())
+            if (_currentProjectName.isEmpty()) {
+                settings->setValue("closeEvent", 0);
                 return;
+            }
         }
 
         QMessageBox msgBox(this);
