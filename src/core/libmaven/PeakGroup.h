@@ -684,6 +684,55 @@ class PeakGroup{
          */
         multimap<float, string> predictionInference() const;
 
+        /**
+         * @brief Converts an integer prediction-class identifier to its
+         * corresponding `PeakGroup::ClassifiedLabel`.
+         * @details This function should be regarded as complementary to
+         * `PeakGroup::integralValueForClass`, assisting in conversion from a
+         * primitive representation (integer).
+         * @param An integer which has to be converted to a `ClassifiedLabel`.
+         * @return A `PeakGroup::ClassifiedLabel`.
+         */
+        static ClassifiedLabel classificationLabelForValue(int value)
+        {
+            if (value == 0)
+                return PeakGroup::ClassifiedLabel::Noise;
+            if (value == 1)
+                return PeakGroup::ClassifiedLabel::Signal;
+            if (value == 2)
+                return PeakGroup::ClassifiedLabel::Correlation;
+            if (value == 3)
+                return PeakGroup::ClassifiedLabel::Pattern;
+            if (value == 4)
+                return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            return PeakGroup::ClassifiedLabel::None;
+        };
+
+        /**
+         * @brief Converts a `PeakGroup::ClassifiedLabel` identifier to an
+         * integer value, guaranteed to be unique for all possible classes.
+         * @details This function should be regarded as complementary to
+         * `PeakGroup::classificationLabelForValue`, assisting in conversion to
+         * a primitive representation (integer).
+         * @param label A `PeakGroup::ClassifiedLabel` that needs to be
+         * converted to an integer.
+         * @return An integer, unique for each enum value.
+         */
+        static int integralValueForLabel(ClassifiedLabel label)
+        {
+            if (label == PeakGroup::ClassifiedLabel::Noise)
+                return 0;
+            if (label == PeakGroup::ClassifiedLabel::Signal)
+                return 1;
+            if (label == PeakGroup::ClassifiedLabel::Correlation)
+                return 2;
+            if (label == PeakGroup::ClassifiedLabel::Pattern)
+                return 3;
+            if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+                return 4;
+            return -1;
+        }
+
     private:
         int _groupId;
         int _metaGroupId;

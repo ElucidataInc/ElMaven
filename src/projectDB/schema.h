@@ -129,7 +129,11 @@
                                            , isotope_c13_count                  INTEGER                           \
                                            , isotope_n15_count                  INTEGER                           \
                                            , isotope_s34_count                  INTEGER                           \
-                                           , isotope_h2_count                   INTEGER                           );"
+                                           , isotope_h2_count                   INTEGER                           \
+                                           , predicted_label                    INTEGER                           \
+                                           , prediction_probability             REAL                              \
+                                           , prediction_inference_key           TEXT                              \
+                                           , prediction_inference_value         TEXT                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \

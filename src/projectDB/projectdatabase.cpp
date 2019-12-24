@@ -242,7 +242,11 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :isotope_c13_count                  \
                      , :isotope_n15_count                  \
                      , :isotope_s34_count                  \
-                     , :isotope_h2_count                   )");
+                     , :isotope_h2_count                   \
+                     , :predicted_label                    \
+                     , :prediction_probability             \
+                     , :prediction_inference_key           \
+                     , :prediction_inference_value         )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -319,6 +323,25 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                                 });
     }
     groupsQuery->bind(":sample_ids", sample_ids);
+
+    groupsQuery->bind(":predicted_label",
+                      PeakGroup::integralValueForLabel(group->predictedLabel()));
+    groupsQuery->bind(":prediction_probability",
+                      group->predictionProbability());
+    string keyString = "";
+    string valueString = "";
+    auto inference = group->predictionInference();
+    if (!inference.empty()) {
+        for (auto& element : inference) {
+            keyString += to_string(element.first) + ",";
+            valueString += element.second + ",";
+        }
+        // remove extra delimiters at the end
+        keyString.pop_back();
+        valueString.pop_back();
+    }
+    groupsQuery->bind(":prediction_inference_key", keyString);
+    groupsQuery->bind(":prediction_inference_value", valueString);
 
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
@@ -1237,6 +1260,37 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             slice.isotope = isotope;
 
         group->setSlice(slice);
+
+        // load PeakML attributes
+        int value = groupsQuery->integerValue("predicted_label");
+        float probability = groupsQuery->doubleValue("prediction_probability");
+        group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
+                                 probability);
+        string predictionInferenceKeys =
+            groupsQuery->stringValue("prediction_inference_key");
+        string predictionInferenceValues =
+            groupsQuery->stringValue("prediction_inference_value");
+        multimap<float, string> inference;
+        size_t keyPos = 0;
+        size_t valuePos = 0;
+        while (true) {
+            keyPos = predictionInferenceKeys.find(",");
+            valuePos = predictionInferenceValues.find(",");
+
+            // both positions should be valid and equal in the number of times
+            // they occur
+            if (keyPos == string::npos || valuePos == string::npos)
+                break;
+
+            float key = atof(predictionInferenceKeys.substr(0, keyPos).c_str());
+            string value = predictionInferenceValues.substr(0, valuePos);
+            inference.insert(make_pair(key, value));
+
+            // (position + 1) to erase the delimiters as well
+            predictionInferenceKeys.erase(0, keyPos + 1);
+            predictionInferenceValues.erase(0, valuePos + 1);
+        }
+        group->setPredictionInference(inference);
 
         loadGroupPeaks(group, databaseId, loaded);
         group->groupStatistics();
