@@ -101,6 +101,7 @@ void TestCSVReports::testopenPeakReport() {
              << "compound"
              << "compoundId"
              << "formula"
+             << "isotopeLabel"
              << "sample"
              << "peakMz"
              << "mzmin"
@@ -311,63 +312,65 @@ void TestCSVReports::verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
     //check if number of columns is correct
     vector<std::string> header;
     mzUtils::splitNew(headersString, "," , header);
-    QVERIFY(header.size() == 21);
+    QVERIFY(header.size() == 22);
 
     // check if parent group values are correctly written
     vector<std::string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
-    QVERIFY(peakValues1.size() == 21);
+    QVERIFY(peakValues1.size() == 22);
     QVERIFY(peakValues1[0] == "1");
     QVERIFY(peakValues1[1] == "Stachyose");
     QVERIFY(peakValues1[2] == "HMDB03553");
     QVERIFY(peakValues1[3] == "C24H42O21");
-    // QVERIFY(peakValues1[4] == "testsample_2");
-    // QVERIFY(peakValues1[5] == "665.216309");
-    // QVERIFY(peakValues1[6] == "665.216431");
-    // QVERIFY(peakValues1[7] == "665.216736");
-    // QVERIFY(peakValues1[8] == "1.466");
-    // QVERIFY(peakValues1[9] == "1.426");
-    // QVERIFY(peakValues1[10] == "1.520");
-    // QVERIFY(peakValues1[11] == "0.667");
-    // QVERIFY(peakValues1[12] == "79580.98");
-    // QVERIFY(peakValues1[13] == "595991.69");
-    // QVERIFY(peakValues1[14] == "635897.38");
-    // QVERIFY(peakValues1[15] == "58567.76");
-    // QVERIFY(peakValues1[16] == "595991.69");
-    // QVERIFY(peakValues1[17] == "58567.76");
+    QVERIFY(peakValues1[4] == "C12 PARENT");
+    // QVERIFY(peakValues1[5] == "testsample_2");
+    // QVERIFY(peakValues1[6] == "665.216309");
+    // QVERIFY(peakValues1[7] == "665.216431");
+    // QVERIFY(peakValues1[8] == "665.216736");
+    // QVERIFY(peakValues1[9] == "1.466");
+    // QVERIFY(peakValues1[10] == "1.426");
+    // QVERIFY(peakValues1[11] == "1.520");
+    // QVERIFY(peakValues1[12] == "0.667");
+    // QVERIFY(peakValues1[13] == "79580.98");
+    // QVERIFY(peakValues1[14] == "595991.69");
+    // QVERIFY(peakValues1[15] == "635897.38");
+    // QVERIFY(peakValues1[16] == "58567.76");
+    // QVERIFY(peakValues1[17] == "595991.69");
+    // QVERIFY(peakValues1[18] == "58567.76");
     #ifndef WIN32
-    QVERIFY(peakValues1[18] == "18");
+    QVERIFY(peakValues1[19] == "18");
     #endif
-    // QVERIFY(peakValues1[19] == "9.12");
-    QVERIFY(peakValues1[20] == "0");
+    // QVERIFY(peakValues1[20] == "9.12");
+    QVERIFY(peakValues1[21] == "0");
 
     // check if labelled child values are correctly written
     vector<std::string> peakValues2;
     mzUtils::splitNew(peakString2, "," , peakValues2);
-    QVERIFY(peakValues2.size() == 21);
+    QVERIFY(peakValues2.size() == 22);
     QVERIFY(peakValues2[0] == "1");
     QVERIFY(peakValues2[1] == "Stachyose");
     QVERIFY(peakValues2[2] == "HMDB03553");
     QVERIFY(peakValues2[3] == "C24H42O21");
-    // QVERIFY(peakValues2[4] == "testsample_3");
-    // QVERIFY(peakValues2[5] == "665.214966");
-    // QVERIFY(peakValues2[6] == "665.215210");
-    // QVERIFY(peakValues2[7] == "665.215088");
-    // QVERIFY(peakValues2[8] == "1.462");
-    // QVERIFY(peakValues2[9] == "1.377");
-    // QVERIFY(peakValues2[10] == "1.502");
-    // QVERIFY(peakValues2[11] == "0.848");
-    // QVERIFY(peakValues2[12] == "54565.93");
-    // QVERIFY(peakValues2[13] == "359001.78");
-    // QVERIFY(peakValues2[14] == "355344.88");
-    // QVERIFY(peakValues2[15] == "38766.77");
-    // QVERIFY(peakValues2[16] == "359001.78");
-    // QVERIFY(peakValues2[17] == "38766.77");
+    QVERIFY(peakValues2[4] == "C12 PARENT");
+    // QVERIFY(peakValues2[5] == "testsample_3");
+    // QVERIFY(peakValues2[6] == "665.214966");
+    // QVERIFY(peakValues2[7] == "665.215210");
+    // QVERIFY(peakValues2[8] == "665.215088");
+    // QVERIFY(peakValues2[9] == "1.462");
+    // QVERIFY(peakValues2[10] == "1.377");
+    // QVERIFY(peakValues2[11] == "1.502");
+    // QVERIFY(peakValues2[12] == "0.848");
+    // QVERIFY(peakValues2[13] == "54565.93");
+    // QVERIFY(peakValues2[14] == "359001.78");
+    // QVERIFY(peakValues2[15] == "355344.88");
+    // QVERIFY(peakValues2[16] == "38766.77");
+    // QVERIFY(peakValues2[17] == "359001.78");
+    // QVERIFY(peakValues2[18] == "38766.77");
     #ifndef WIN32
-    QVERIFY(peakValues2[18] == "16");
+    QVERIFY(peakValues2[19] == "16");
     #endif
-    // QVERIFY(peakValues2[19] == "5456.59");
-    QVERIFY(peakValues2[20] == "0");
+    // QVERIFY(peakValues2[20] == "5456.59");
+    QVERIFY(peakValues2[21] == "0");
 }
 
 void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad,
@@ -396,57 +399,59 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     //check if number of columns is correct
     vector<std::string> header;
     mzUtils::splitNew(headersString, "," , header);
-    QVERIFY(header.size() == 21);
+    QVERIFY(header.size() == 22);
 
     // check if parent group values are correctly written
     vector<std::string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
-    QVERIFY(peakValues1.size() == 21);
+    QVERIFY(peakValues1.size() == 22);
     QVERIFY(peakValues1[0] == "15");
     QVERIFY(peakValues1[1] == "210.150269@16.714417");
     QVERIFY(peakValues1[2] == "210.150269@16.714417");
     QVERIFY(peakValues1[3] == "");
-    // QVERIFY(peakValues1[4] == "testsample_2");
-    // QVERIFY(peakValues1[5] == "210.150375");
-    // QVERIFY(peakValues1[6] == "210.150452");
+    QVERIFY(peakValues1[4] == "");
+    // QVERIFY(peakValues1[5] == "testsample_2");
+    // QVERIFY(peakValues1[6] == "210.150375");
     // QVERIFY(peakValues1[7] == "210.150452");
-    // QVERIFY(peakValues1[8] == "16.710");
-    // QVERIFY(peakValues1[9] == "16.603");
-    // QVERIFY(peakValues1[10] == "17.392");
-    // QVERIFY(peakValues1[11] == "0.801");
-    // QVERIFY(peakValues1[12] == "1255329664.00");
-    // QVERIFY(peakValues1[13] == "30111416320.00");
-    // QVERIFY(peakValues1[14] == "30103683072.00");
-    // QVERIFY(peakValues1[15] == "1234160640.00");
-    // QVERIFY(peakValues1[16] == "30099625984.00");
-    // QVERIFY(peakValues1[17] == "1234094464.00");
-    QVERIFY(peakValues1[18] == "178");
-    // QVERIFY(peakValues1[19] == "116.51");
-    QVERIFY(peakValues1[20] == "0");
+    // QVERIFY(peakValues1[8] == "210.150452");
+    // QVERIFY(peakValues1[9] == "16.710");
+    // QVERIFY(peakValues1[10] == "16.603");
+    // QVERIFY(peakValues1[11] == "17.392");
+    // QVERIFY(peakValues1[12] == "0.801");
+    // QVERIFY(peakValues1[13] == "1255329664.00");
+    // QVERIFY(peakValues1[14] == "30111416320.00");
+    // QVERIFY(peakValues1[15] == "30103683072.00");
+    // QVERIFY(peakValues1[16] == "1234160640.00");
+    // QVERIFY(peakValues1[17] == "30099625984.00");
+    // QVERIFY(peakValues1[18] == "1234094464.00");
+    QVERIFY(peakValues1[19] == "178");
+    // QVERIFY(peakValues1[20] == "116.51");
+    QVERIFY(peakValues1[21] == "0");
 
     // check if labelled child values are correctly written
     vector<std::string> peakValues2;
     mzUtils::splitNew(peakString2, "," , peakValues2);
-    QVERIFY(peakValues2.size() == 21);
+    QVERIFY(peakValues2.size() == 22);
     QVERIFY(peakValues2[0] == "15");
     QVERIFY(peakValues2[1] == "210.150269@16.714417");
     QVERIFY(peakValues2[2] == "210.150269@16.714417");
     QVERIFY(peakValues2[3] == "");
-    // QVERIFY(peakValues2[4] == "testsample_3");
-    // QVERIFY(peakValues2[5] == "210.150055");
-    // QVERIFY(peakValues2[6] == "210.150101");
+    QVERIFY(peakValues2[4] == "");
+    // QVERIFY(peakValues2[5] == "testsample_3");
+    // QVERIFY(peakValues2[6] == "210.150055");
     // QVERIFY(peakValues2[7] == "210.150101");
-    // QVERIFY(peakValues2[8] == "16.719");
-    // QVERIFY(peakValues2[9] == "16.612");
-    // QVERIFY(peakValues2[10] == "17.401");
-    // QVERIFY(peakValues2[11] == "0.803");
-    // QVERIFY(peakValues2[12] == "1221961088.00");
-    // QVERIFY(peakValues2[13] == "29895890944.00");
-    // QVERIFY(peakValues2[14] == "29900089344.00");
-    // QVERIFY(peakValues2[15] == "1199850368.00");
-    // QVERIFY(peakValues2[16] == "29883682816.00");
-    // QVERIFY(peakValues2[17] == "1199781760.00");
-    QVERIFY(peakValues2[18] == "178");
-    // QVERIFY(peakValues2[19] == "114.35");
-    QVERIFY(peakValues2[20] == "0");
+    // QVERIFY(peakValues2[8] == "210.150101");
+    // QVERIFY(peakValues2[9] == "16.719");
+    // QVERIFY(peakValues2[10] == "16.612");
+    // QVERIFY(peakValues2[11] == "17.401");
+    // QVERIFY(peakValues2[12] == "0.803");
+    // QVERIFY(peakValues2[13] == "1221961088.00");
+    // QVERIFY(peakValues2[14] == "29895890944.00");
+    // QVERIFY(peakValues2[15] == "29900089344.00");
+    // QVERIFY(peakValues2[16] == "1199850368.00");
+    // QVERIFY(peakValues2[17] == "29883682816.00");
+    // QVERIFY(peakValues2[18] == "1199781760.00");
+    QVERIFY(peakValues2[19] == "178");
+    // QVERIFY(peakValues2[20] == "114.35");
+    QVERIFY(peakValues2[21] == "0");
 }
