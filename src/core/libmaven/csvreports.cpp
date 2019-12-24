@@ -161,6 +161,7 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile()
                            << "compound"
                            << "compoundId"
                            << "formula"
+                           << "isotopeLabel"
                            << "sample"
                            << "peakMz"
                            << "mzmin"
@@ -199,10 +200,14 @@ void CSVReports::addGroup (PeakGroup* group) {
 
 }
 
-void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group) {
-
-      writePeakInfo(group);
-
+void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group)
+{
+    if (group->childCount() == 0) {
+        writePeakInfo(group);
+    } else {
+        for (auto& child : group->children)
+        writePeakInfo(&child);
+    }
 }
 
 void CSVReports::insertGroupInformationIntoCSVFile(PeakGroup* group)
@@ -439,10 +444,12 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    string isotopeLabel = "";
     if (group->getCompound() != NULL) {
         compoundName = sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->getCompound()->id.c_str()).toStdString();
         formula = sanitizeString(group->getCompound()->formula().c_str()).toStdString();
+        isotopeLabel = sanitizeString(group->tagString.c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
@@ -484,6 +491,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
+                   << SEP << isotopeLabel
                    << SEP << sampleName
                    << SEP << peak.peakMz
                    << SEP << peak.mzmin
@@ -516,6 +524,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
+                   << SEP << isotopeLabel
                    << SEP << sampleName
                    << SEP << 0.0f
                    << SEP << 0.0f
