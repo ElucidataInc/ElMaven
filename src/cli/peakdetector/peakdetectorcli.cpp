@@ -240,8 +240,18 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
     cout << endl;
 
     if (iter.index() < argc) {
-        for (int i = iter.index(); i < argc; i++)
-            filenames.push_back(argv[i]);
+        for (int i = iter.index(); i < argc; i++) {
+            string file = argv[i];
+            if (QFile::exists(QString::fromStdString(file))) {
+                filenames.push_back(file);
+            } else {
+                _log->debug() << "Unable to locate sample file \""
+                              << file
+                              << "\", passed as parameter. Skipping."
+                              << std::flush;
+            }
+
+        }
     }
 
     delete[] optionsArray;
@@ -517,8 +527,14 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
 
         } else if (strcmp(node.name(), "samples") == 0) {
             string sampleStr = node.attribute("value").value();
-            filenames.push_back(sampleStr);
-
+            if (QFile::exists(QString::fromStdString(sampleStr))) {
+                filenames.push_back(sampleStr);
+            } else {
+                _log->debug() << "Unable to locate sample file \""
+                              << sampleStr
+                              << "\", specified in config file. Skipping."
+                              << std::flush;
+            }
         } else {
             _log->error() << "Unknown config node: "
                           << node.name()
