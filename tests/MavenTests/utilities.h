@@ -67,6 +67,8 @@ class TestUtils {
 
     public:
         static bool floatCompare(float a, float b);
+        static float roundTo(float a, int numPlaces);
+        static double roundTo(double a, int numPlaces);
         static bool compareMaps(const map<string,int> & l, const map<string,int> & k);
         static vector<Compound*> getCompoudDataBaseWithRT();
         static vector<Compound*> getCompoudDataBaseWithNORT();
