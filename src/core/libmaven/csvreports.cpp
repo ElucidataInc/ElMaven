@@ -205,8 +205,7 @@ void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group)
     if (group->childCount() == 0) {
         writePeakInfo(group);
     } else {
-        for (auto& child : group->children)
-        writePeakInfo(&child);
+        insertIsotopes(group, true);
     }
 }
 
@@ -219,46 +218,15 @@ void CSVReports::insertGroupInformationIntoCSVFile(PeakGroup* group)
     }
 }
 
-void CSVReports::insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly)
+void CSVReports::insertIsotopes(PeakGroup* group, bool peakMode)
 {
-    if (userSelectedIsotopesOnly) {
-        insertUserSelectedIsotopes(group);
-    } else {
-        insertAllIsotopes(group);
-    }
-}
-
-void CSVReports::insertUserSelectedIsotopes(PeakGroup* group)
-{
-    bool C13Flag = getMavenParameters()->C13Labeled_BPE;
-    bool N15Flag = getMavenParameters()->N15Labeled_BPE;
-    bool S34Flag = getMavenParameters()->S34Labeled_BPE;
-    bool D2Flag = getMavenParameters()->D2Labeled_BPE;
-
-    // iterate over all existing subgroups and for each isotope flag
-    // check if the subgroup contains the isotope's name as tagstring
-    // before writing it to the report. If any of the unselected
-    // labels are found, we discard the child group.
-    for (auto subGroup: group->children) {
-        if (!C13Flag && subGroup.tagString.find("C13") != std::string::npos)
-            continue;
-        if (!N15Flag && subGroup.tagString.find("N15") != std::string::npos)
-            continue;
-        if (!S34Flag && subGroup.tagString.find("S34") != std::string::npos)
-            continue;
-        if (!D2Flag && subGroup.tagString.find("D2") != std::string::npos)
-            continue;
-
+    for (auto& subGroup: group->children) {
         subGroup.metaGroupId = group->metaGroupId;
-        writeGroupInfo(&subGroup);
-    }
-}
-
-void CSVReports::insertAllIsotopes(PeakGroup* group)
-{
-    for (auto subGroup: group->children) {
-        subGroup.metaGroupId = group->metaGroupId;
-        writeGroupInfo(&subGroup);
+        if (peakMode) {
+            writePeakInfo(&subGroup);
+        } else {
+            writeGroupInfo(&subGroup);
+        }
     }
 }
 
