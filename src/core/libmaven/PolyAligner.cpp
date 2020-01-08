@@ -1,6 +1,8 @@
 #include "PolyAligner.h"
 #include "mzUtils.h"
 
+using namespace mzUtils;
+
 PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>& ref) {
 
 	if( subj.size() != ref.size()) { 
@@ -15,7 +17,6 @@ PolyAligner::PolyAligner(StatisticsVector<float>& subj, StatisticsVector<float>&
 			refVector.push_back(ref[indx]);
 		}
 	}
-	mtRand = new MTRand(time(NULL));
 	calculateOutliers(3);
 } 
 
@@ -68,7 +69,7 @@ void PolyAligner::randomOutliers(double keepFrac) {
 	if(!outlierVector.size()) outlierVector = vector<bool>(N,false);
 
 	for(int i=0; i < N; i++ ) {
-		 double r = mtRand->rand(); //random number from 0 to 1
+		 double r = randInt(0,1); //random number from 0 to 1
 		 if (r < keepFrac ) {
 			 outlierVector[i]=false;
 		 } else {

@@ -21,7 +21,6 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mavenparameters.h"
-#include "MersenneTwister.h"
 #include "mzAligner.h"
 #include "mzSample.h"
 #include "mzUtils.h"
@@ -1250,7 +1249,6 @@ void TableDockWidget::Train() {
   vector<PeakGroup *> test_groups;
   vector<PeakGroup *> good_groups;
   vector<PeakGroup *> bad_groups;
-  MTRand mtrand;
 
   for (int i = 0; i < allgroups.size(); i++) {
     PeakGroup *grp = &allgroups[i];

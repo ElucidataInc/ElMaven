@@ -1,7 +1,6 @@
 #ifndef POLYALIGNER
 #define POLYALIGNER
 
-#include "MersenneTwister.h"
 #include "mzFit.h"
 #include "statistics.h"
 
@@ -73,7 +72,6 @@ class PolyAligner {
 		StatisticsVector<float> subjVector;
 		StatisticsVector<float> refVector;
 		vector<bool> outlierVector;
-		MTRand* mtRand;
 
 };
 
