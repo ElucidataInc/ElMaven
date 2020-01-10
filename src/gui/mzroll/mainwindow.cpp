@@ -2234,10 +2234,20 @@ void MainWindow::loadCompoundsFile()
 
 // open function for set csv
 void MainWindow::loadMetaInformation() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
-					".",
-					"All Known Formats(*.csv *.tab *.tab.txt);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv)");
+    auto loadedSamples = getSamples();
+    if (loadedSamples.empty())
+        return;
+    auto lastSample = loadedSamples.back();
+    auto sampleDir = QFileInfo(lastSample->fileName.c_str()).dir();
+
+    QStringList filelist =
+        QFileDialog::getOpenFileNames(this,
+                                      "Select Set Information File To Load",
+                                      sampleDir.path(),
+                                      "All Known Formats(*.csv *.tab *.tab.txt);;"
+                                      "Tab Delimited(*.tab);;"
+                                      "Tab Delimited Text(*.tab.txt);;"
+                                      "CSV File(*.csv)");
 
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
     if(!loadMetaInformation(filelist[0])) {
