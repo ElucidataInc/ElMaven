@@ -161,9 +161,9 @@ void TestCLI::testReduceGroups() {
                                                             peakdetectorCLI->mavenParameters->getDefaultAdductList(),
                                                             "compounds");
         peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 21);
+        QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 23);
         peakdetectorCLI->reduceGroups();
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 19);
+        QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 21);
 		delete_all(slices);
 	}
 
