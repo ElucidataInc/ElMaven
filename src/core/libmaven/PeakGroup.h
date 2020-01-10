@@ -277,7 +277,7 @@ class PeakGroup{
          * @method setLabel
          * @param  label    []
          */
-        inline void setLabel(char label) { this->label=label;}
+        void setLabel(char label);
 
         /**
          * [ppmDist ]
