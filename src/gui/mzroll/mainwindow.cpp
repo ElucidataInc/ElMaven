@@ -2263,7 +2263,7 @@ int MainWindow::loadMetaCsvFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set", "scaling", "injection order"};
+    static const string allHeadersarr[] = {"sample", "set", "cohort," "scaling", "injection order"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -2304,10 +2304,13 @@ int MainWindow::loadMetaCsvFile(string filename){
         int N=fields.size();
 
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
-        if ( header.count("set")&& header["set"]<N)	set = fields[ header["set"] ];
-		else{
-			set = "";
-		}
+        if (header.count("set") && header["set"] < N) {
+            set = fields[header["set"]];
+        } else if (header.count("cohort") && header["cohort"] < N) {
+            set = fields[header["cohort"]];
+        } else {
+            set = "";
+        }
 
         float scalingFactor = 1.0f;
         if (header.count("scaling") && header["scaling"] < N) {

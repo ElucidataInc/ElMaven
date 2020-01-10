@@ -57,16 +57,45 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    QToolButton* loadButton = new QToolButton(toolBar);
-    loadButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-    loadButton->setToolTip("Load Project");
-    //Trigger to open() in slot to load samples while uploading .mzroll file --@Giridhari
-    connect(loadButton,SIGNAL(clicked()),_mainwindow, SLOT(open()));
+    QToolButton* exportMetadataButton = new QToolButton(toolBar);
+    // TODO: Replace this icon with something more appropriate
+    exportMetadataButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
+    exportMetadataButton->setToolTip("Exports a template file with sample "
+                                     "names and which can be edited as a "
+                                     "spreadsheet. This will ease the process "
+                                     "of metadata file generation.");
+    connect(exportMetadataButton, &QToolButton::clicked, [this] {
+        auto loadedSamples = _mainwindow->getSamples();
+        if (loadedSamples.empty())
+            return;
+        auto lastSample = loadedSamples.back();
+        auto sampleDir = QFileInfo(lastSample->fileName.c_str()).dir();
+        QString fileName = QFileDialog::getSaveFileName(
+            this,
+            "Save sample metadata template as (.CSV)",
+            sampleDir.path(),
+            "CSV(*.CSV)"
+        );
 
-    QToolButton* loadMetaDataButton = new QToolButton(toolBar);
-    loadMetaDataButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
-    loadMetaDataButton->setToolTip("Load Sets");
-    connect(loadMetaDataButton,SIGNAL(clicked()),_mainwindow, SLOT(loadMetaInformation()));
+        if (fileName.isEmpty())
+            return;
+
+        if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
+            fileName = fileName + ".csv";
+
+        prepareSampleCohortFile(fileName);
+    });
+
+    QToolButton* loadMetadataButton = new QToolButton(toolBar);
+    loadMetadataButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
+    loadMetadataButton->setToolTip("Load cohort sets, scaling factor and "
+                                   "injection order from sample metadata "
+                                   "file.");
+    connect(loadMetadataButton,
+            &QToolButton::clicked,
+            _mainwindow,
+            static_cast<void (MainWindow::*)(void)>(&MainWindow::loadMetaInformation));
+
     connect(_mainwindow,SIGNAL(metaCsvFileLoaded()),SLOT(updateSampleList()));
 
     QToolButton* colorButton = new QToolButton(toolBar);
@@ -88,8 +117,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     blankButton->setToolTip("Set As a Blank Sample");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
-    toolBar->addWidget(loadButton);
-    toolBar->addWidget(loadMetaDataButton);
+    toolBar->addWidget(exportMetadataButton);
+    toolBar->addWidget(loadMetadataButton);
     toolBar->addWidget(colorButton);
     toolBar->addWidget(removeSamples);
     toolBar->addWidget(checkUncheck);
@@ -152,9 +181,15 @@ void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
     vector<mzSample*> loadedSamples = _mainwindow->getSamples();
 
 	QTextStream out(&file);
-	out << "Sample" << ",Cohort" << "\n";
+    out << "Sample" << ","
+        << "Cohort" << ","
+        << "Scaling" << ","
+        << "Injection Order" << "\n";
 	for (const auto& sample : loadedSamples) {
-		out << QString::fromStdString(sample->getSampleName()) << "," << QString::fromStdString(sample->getSetName()) << "\n";
+        out << QString::fromStdString(sample->getSampleName()) << ","
+            << QString::fromStdString(sample->getSetName()) << ","
+            << QString::number(sample->getNormalizationConstant()) << ","
+            << QString::number(sample->getInjectionOrder()) << "\n";
 	}
 
 	qDebug() << "sample cohort file prepared";
