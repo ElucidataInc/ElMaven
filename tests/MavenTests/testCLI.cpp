@@ -158,9 +158,9 @@ void TestCLI::testReduceGroups() {
 		vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
 				peakdetectorCLI->mavenParameters->compounds, "compounds");
         peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 22);
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 21);
         peakdetectorCLI->reduceGroups();
-        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 20);
+        QVERIFY(peakdetectorCLI->mavenParameters->allgroups.size() == 19);
 		delete_all(slices);
 	}
 
