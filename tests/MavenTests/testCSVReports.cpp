@@ -269,7 +269,7 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
     mzUtils::splitNew(parentString, "," , parentValues);
     QVERIFY(parentValues.size() == 16);
     QVERIFY(parentValues[0] == "");
-    QVERIFY(parentValues[1] == "15");
+    QVERIFY(parentValues[1] == "2");
     QVERIFY(parentValues[2] == "1");
     QVERIFY(parentValues[3] == "2");
     QCOMPARE(stof(parentValues[4]), 210.150269f);
@@ -410,7 +410,7 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     vector<std::string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
     QVERIFY(peakValues1.size() == 22);
-    QVERIFY(peakValues1[0] == "15");
+    QVERIFY(peakValues1[0] == "2");
     QVERIFY(peakValues1[1] == "210.150269@16.714417");
     QVERIFY(peakValues1[2] == "210.150269@16.714417");
     QVERIFY(peakValues1[3] == "");
