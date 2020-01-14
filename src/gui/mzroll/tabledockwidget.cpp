@@ -286,6 +286,10 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
       item->setHidden(false);
     }
   }
+
+  for (int i = 0; i < item->childCount(); ++i) {
+    updateItem(item->child(i));
+  }
 }
 
 void TableDockWidget::updateCompoundWidget() {
