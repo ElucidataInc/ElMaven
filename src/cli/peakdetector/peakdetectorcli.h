@@ -89,6 +89,12 @@ public:
     void processXML(const char* fileName);
 
     /**
+     * @brief Parse XML (saved settings) file generated from El-MAVEN's GUI.
+     * @param settingsFilepath Path to settings file.
+     */
+    void processSettingsFromGui(const string &settingsFilepath);
+
+    /**
      * [load Classfication model]
      * @param clsfModelFilename [name of classifier model]
      */
@@ -170,7 +176,7 @@ public:
             "r?rtStepSize: Enter retention time window for untargeted peak detection. <float>",
             "v?ionizationMode: Enter 0, -1 or 1 ionization mode. <int>",
             "w?minPeakWidth: Enter min peak width threshold in a group. <int>",
-            "x?xml: Enter full path to the config file. <string>",
+            "x?xml: Enter full path to the config file or a settings file from El-MAVEN. <string>",
             "X?defaultXml: Create a template config file.",
             "y?eicSmoothingWindow: Enter number of scans used for smoothing at a time. <int>",
             "z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group. <float>",
