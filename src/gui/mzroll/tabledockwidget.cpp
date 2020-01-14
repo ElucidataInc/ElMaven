@@ -382,7 +382,8 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
 
   if (viewType == groupView) {
     item->setText(5, QString::number(group->expectedRtDiff, 'f', 2));
-    item->setText(6, QString::number(group->sampleCount));
+    item->setText(6, QString::number(group->sampleCount
+                                     + group->blankSampleCount));
     item->setText(7, QString::number(group->goodPeakCount));
     item->setText(8, QString::number(group->maxNoNoiseObs));
     item->setText(9, QString::number(extractMaxIntensity(group), 'g', 3));
