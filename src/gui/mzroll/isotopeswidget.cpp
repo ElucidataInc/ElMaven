@@ -127,6 +127,7 @@ void IsotopeWidget::setPeakGroupAndMore(PeakGroup *grp, bool bookmarkflg)
 		return;
 	
 	computeIsotopes(isotopeParameters->_formula);
+    updateIsotopicBarplot(grp);
 }
 
 void IsotopeWidget::updateIsotopicBarplot(PeakGroup *grp)

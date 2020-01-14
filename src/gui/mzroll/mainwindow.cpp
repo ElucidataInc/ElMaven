@@ -1452,7 +1452,14 @@ void MainWindow::setCompoundFocus(Compound*c) {
 		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
-		}
+        } else if (isotopeWidget
+                   && isotopePlot
+                   && isotopePlot->isVisible()
+                   && selectedGroup
+                   && selectedGroup->getCompound() != NULL) {
+            isotopeWidget->updateIsotopicBarplot(selectedGroup);
+        }
+
 		if (fragSpectraWidget->isVisible())
 			fragSpectraWidget->overlayPeakGroup(selectedGroup);
     }
@@ -3326,7 +3333,13 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 
 	if (isotopeWidget && isotopeWidget->isVisible() && group->getCompound() != NULL) {
 		isotopeWidget->setPeakGroupAndMore(group);
-	}
+    } else if (isotopeWidget
+               && isotopePlot
+               && isotopePlot->isVisible()
+               && group
+               && group->getCompound() != NULL) {
+        isotopeWidget->updateIsotopicBarplot(group);
+    }
 
     if ( group->getCompound() != NULL) {
 		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
