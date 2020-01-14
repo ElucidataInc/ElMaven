@@ -28,6 +28,7 @@ Controller::Controller()
 
     connect(_updater, &AutoUpdate::updateAvailable, _mw, &MainWindow::newUpdate);
     connect(_updater, &AutoUpdate::failure, _mw, &MainWindow::updateFailed);
+    connect(_mw, &MainWindow::updateNow, _updater, &AutoUpdate::update);
     connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
     connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);

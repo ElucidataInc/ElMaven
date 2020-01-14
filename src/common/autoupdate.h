@@ -10,10 +10,14 @@ class AutoUpdate: public QObject
 public:
     AutoUpdate();
     ~AutoUpdate();
-    void start();
 
     void checkForUpdate();
     const char* newVersion;
+    enum State {
+        NotStarted,
+        CheckingForUpdates,
+        Updating
+    };
 
 private:
     void parseOutput();
@@ -25,12 +29,16 @@ private slots:
     void readOutput();
     void readError();
 
+public slots:
+    void update();
+
 Q_SIGNALS:
     void statusChanged();
     void updateAvailable();
     void failure();
 
 private:
+    State _state;
     QProcess* _proc;
     QByteArray _output;
     QByteArray _error;

@@ -769,7 +769,16 @@ void MainWindow::newUpdate()
 	QMessageBox msgBox(this);
     msgBox.setText("New update is available. Would you like to update now");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.exec();
+    int response = msgBox.exec();
+	switch(response) {
+		case QMessageBox::Yes:
+			emit updateNow();
+			break; 
+		case QMessageBox::No:
+			break;
+		default:
+			break;
+	}
 
 }
 
