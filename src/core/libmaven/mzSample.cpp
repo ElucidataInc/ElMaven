@@ -481,9 +481,12 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
 
         xml_node scanNode = spectrum.first_element_by_path("scanList/scan");
         map<string, string> scanAttr = mzML_cvParams(scanNode);
-        if (scanAttr.count("scan start time")) {
-            string rtStr = scanAttr["scan start time"];
+        if (scanAttr.count("scan start time minute")) {
+            string rtStr = scanAttr["scan start time minute"];
             rt = string2float(rtStr);
+        } else if (scanAttr.count("scan start time second")) {
+            string rtStr = scanAttr["scan start time second"];
+            rt = string2float(rtStr) / 60.0f;
         }
 
         if (scanAttr.count("filter string")) {
@@ -580,6 +583,10 @@ map<string, string> mzSample::mzML_cvParams(xml_node node)
          cv = cv.next_sibling("cvParam")) {
         string name = cv.attribute("name").value();
         string value = cv.attribute("value").value();
+        if (name == "scan start time") {
+            string unit = cv.attribute("unitName").value();
+            name += " " + unit;
+        }
         attr[name] = value;
         // cerr << name << "->" << value << endl;
     }
