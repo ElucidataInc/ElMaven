@@ -81,9 +81,9 @@ protected:
 
 
 public slots:
-    void updateInstalled();
-	void newUpdate();
-    void updateFailed();
+    void updateInstalled() {}
+    void newUpdate();
+    void updateFailed() {}
 
 public:
 	int value() const { return m_value; }

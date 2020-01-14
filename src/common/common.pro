@@ -17,7 +17,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += "MIXPANEL_TOKEN=$$(MIXPANEL_TOKEN)"
 
-INCLUDEPATH += $$top_srcdir/src
+INCLUDEPATH += $$top_srcdir/src $$top_srcdir/3rdParty/pugixml/src
 
 SOURCES += downloadmanager.cpp \
            logger.cpp          \
