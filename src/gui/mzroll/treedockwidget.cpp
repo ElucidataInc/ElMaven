@@ -461,7 +461,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ1->setRange(0.001, 2.0);
     amuQ1->setValue(_mainWindow->getSettings()->value("amuQ1").toDouble());
     amuQ1->setSingleStep(0.1);	//amu step
-    amuQ1->setToolTip("PrecursorMz Tolerance");
+    amuQ1->setToolTip("Precursor mz tolerance");
     amuQ1->setSuffix(" amu");
     amuQ1->setMinimumWidth(20);
 
@@ -472,7 +472,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ3->setRange(0.001, 2.0);
     amuQ3->setValue(_mainWindow->getSettings()->value("amuQ3").toDouble());
     amuQ3->setSingleStep(0.1);	//amu step
-    amuQ3->setToolTip("ProductMz Tolerance");
+    amuQ3->setToolTip("Product mz tolerance");
     amuQ3->setSuffix(" amu");
     amuQ3->setMinimumWidth(20);
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
@@ -482,14 +482,29 @@ void TreeDockWidget::setQQQToolBar() {
     associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
     associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
     
-    toolBar->addWidget(new QLabel("Q1"));
+    auto q1Label = new QLabel("Q1 tolerance");
+    q1Label->setStyleSheet("QLabel { margin-left: 6px; }");
+    toolBar->addWidget(q1Label);
     toolBar->addWidget(amuQ1);
-    toolBar->addWidget(new QLabel("Q3"));
+    toolBar->addSeparator();
+    toolBar->addWidget(new QLabel("Q3 tolerance"));
     toolBar->addWidget(amuQ3);
+    toolBar->addSeparator();
     toolBar->addWidget(associateCompounds);
 
-    setTitleBarWidget(toolBar);
+    QWidget* spacer = new QWidget(toolBar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolBar->addWidget(spacer);
 
+    QToolButton *closeButton = new QToolButton(toolBar);
+    closeButton->setIcon(this->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    connect(closeButton,
+            &QToolButton::clicked,
+            this,
+            &TreeDockWidget::hide);
+    toolBar->addWidget(closeButton);
+
+    setTitleBarWidget(toolBar);
 }
 
 void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {

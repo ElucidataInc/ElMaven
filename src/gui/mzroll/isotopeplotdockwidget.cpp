@@ -35,45 +35,33 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    QLabel *title = new QLabel("Isotope Plot: ");
+    QLabel *title = new QLabel("Isotope Plot");
+    title->setStyleSheet("QLabel { margin-left: 6px; }");
     toolBar->addWidget(title);
 
+    toolBar->addSeparator();
+    toolBar->addWidget(new QLabel("Labels: "));
+
     QWidget* spacer1 = new QWidget();
-    spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolBar->addWidget(spacer1);
 
     QCheckBox *C13 = new QCheckBox("C13");
     C13->setChecked(true);
     toolBar->addWidget(C13);
 
-    QWidget *spacer2 = new QWidget();
-    spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer2);
-
     QCheckBox *N15 = new QCheckBox("N15");
     N15->setChecked(false);
     toolBar->addWidget(N15);
-
-    QWidget *spacer3 = new QWidget();
-    spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer3);
 
     QCheckBox *D2 = new QCheckBox("D2");
     D2->setChecked(false);
     toolBar->addWidget(D2);
 
-    QWidget *spacer4 = new QWidget();
-    spacer4->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer4);
-
     QCheckBox *S34 = new QCheckBox("S34");
     S34->setChecked(false);
     toolBar->addWidget(S34);
 
-    QWidget *spacer5 = new QWidget();
-    spacer5->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolBar->addWidget(spacer5);
-
+    toolBar->addSeparator();
     QLabel *pool = new QLabel("Other: <");
     toolBar->addWidget(pool);
 
@@ -84,6 +72,18 @@ void IsotopePlotDockWidget::setToolBar()
     poolLabels->setToolTip("Show < x% as Other");
     poolLabels->setSuffix(" %");
     toolBar->addWidget(poolLabels);
+
+    QWidget* spacer = new QWidget(toolBar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolBar->addWidget(spacer);
+
+    QToolButton *closeButton = new QToolButton(toolBar);
+    closeButton->setIcon(this->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    connect(closeButton,
+            &QToolButton::clicked,
+            this,
+            &IsotopePlotDockWidget::hide);
+    toolBar->addWidget(closeButton);
 
     setTitleBarWidget(toolBar);
 
