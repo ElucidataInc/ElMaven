@@ -976,25 +976,33 @@ void MainWindow::saveProject(bool explicitSave)
         // if no projects were saved or opened
         if (_latestUserProjectName.isEmpty()) {
             QString message = "Would you like to save your data for this "
-                              "session as a project?";
+                              "session as a project, before you quit?";
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this,
                                           "Save as project",
                                           message,
-                                          QMessageBox::Yes | QMessageBox::No,
+                                          QMessageBox::Yes
+                                              | QMessageBox::No
+                                              | QMessageBox::Cancel,
                                           QMessageBox::Yes);
+            if (reply == QMessageBox::Cancel) {
+                settings->setValue("closeEvent", 0);
+                return;
+            }
 
             // remove timestamp autosave file in any case
             fileLoader->closeSQLiteProject();
             QFile::remove(_currentProjectName);
-            if (reply != QMessageBox::Yes)
+            if (reply == QMessageBox::No)
                 return;
 
             _currentProjectName = "";
             _setProjectFilenameIfEmpty();
 
-            if (_currentProjectName.isEmpty())
+            if (_currentProjectName.isEmpty()) {
+                settings->setValue("closeEvent", 0);
                 return;
+            }
 
             analytics->hitEvent("Project Save", "emDB");
         } else {
@@ -1011,6 +1019,10 @@ void MainWindow::saveProject(bool explicitSave)
             msgBox.setDefaultButton(saveButton);
             msgBox.setEscapeButton(cancelButton);
             msgBox.exec();
+            if (msgBox.clickedButton() == cancelButton) {
+                settings->setValue("closeEvent", 0);
+                return;
+            }
 
             // remove current project file only if it was created by autosave
             if (this->timestampFileExists) {
@@ -1029,9 +1041,16 @@ void MainWindow::saveProject(bool explicitSave)
                 return;
             }
 
-            if (_currentProjectName.isEmpty())
+            if (_currentProjectName.isEmpty()) {
+                settings->setValue("closeEvent", 0);
                 return;
+            }
         }
+
+        QMessageBox msgBox(this);
+        msgBox.setText("Please wait. Your project is being saved…");
+        msgBox.setStandardButtons(QMessageBox::NoButton);
+        msgBox.open();
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
         _currentProjectName = _getProjectFilenameFromProjectDockWidget();
@@ -2552,16 +2571,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
     settings->setValue("closeEvent", 1);
     this->saveProject();
 
-    QMessageBox msgBox(this);
-    msgBox.setText("Please wait. Your project is being saved…");
-    msgBox.setStandardButtons(QMessageBox::NoButton);
-    msgBox.open();
-
     writeSettings();
 
     // wait until autosave has finished
     while(autosave->isRunning())
         QApplication::processEvents();
+
+    if (settings->value("closeEvent").toInt() == 0) {
+        event->ignore();
+        return;
+    }
 
     event->accept();
 }
