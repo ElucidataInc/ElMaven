@@ -265,6 +265,7 @@ Q_OBJECT
      void updateStatusString(QString);
      void updateProgressBar(QString,int,int);
      void sampleLoaded();
+     void sampleLoadFailed(QList<QString>);
      void spectraLoaded();
      void projectLoaded();
      void peaklistLoaded();
