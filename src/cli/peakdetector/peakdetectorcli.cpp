@@ -1009,7 +1009,7 @@ void PeakDetectorCLI::saveJson(string setName)
 
         _jsonReports = new JSONReports(mavenParameters);
         string fileName = setName + ".json";
-        _jsonReports->saveMzEICJson(
+        _jsonReports->save(
             fileName, mavenParameters->allgroups, mavenParameters->samples);
         _log->info() << "JSON output file: " << fileName << std::flush;
 #ifndef __APPLE__

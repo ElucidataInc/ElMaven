@@ -805,7 +805,7 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
     vallgroups.push_back(allgroups[i]);
   }
   jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
-  jsonReports->saveMzEICJson(jsonfileName.toStdString(),
+  jsonReports->save(jsonfileName.toStdString(),
                              vallgroups,
                              _mainwindow->getVisibleSamples());
 }
@@ -843,7 +843,7 @@ UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
 void TableDockWidget::UploadPeakBatchToCloud(){
     jsonReports=new JSONReports(_mainwindow->mavenParameters);
     QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
-    jsonReports->saveMzEICJson(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
+    jsonReports->save(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
 
     PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
     UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);

@@ -28,6 +28,12 @@ win32 {
         SUBDIRS += crashhandler
     }
 }
+
 SUBDIRS += src
 
-!equals(NOTESTS, "yes"): SUBDIRS+=tests/MavenTests
+!equals(NOTESTS, "yes") {
+    ENABLE_DOCTEST = "yes"
+    SUBDIRS += src/core/libmaven
+    SUBDIRS += tests/MavenTests
+    SUBDIRS += tests/doctest
+}

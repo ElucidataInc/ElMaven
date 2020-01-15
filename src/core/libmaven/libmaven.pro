@@ -9,6 +9,11 @@ TEMPLATE=lib
 
 CONFIG += staticlib warn_off console silent
 
+DEFINES += DOCTEST_CONFIG_DISABLE
+equals(ENABLE_DOCTEST, "yes") {
+    message("Doctest enabled.")
+    DEFINES -= DOCTEST_CONFIG_DISABLE
+}
 
 QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
@@ -46,7 +51,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/obiwarp/ \
                 $$top_srcdir/3rdparty/Eigen/ \
                 $$top_srcdir/3rdparty/libsvm \
-                $$top_srcdir/3rdparty/NimbleDSP/src
+                $$top_srcdir/3rdparty/NimbleDSP/src \
+                $$top_srcdir/3rdparty/doctest
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 
@@ -100,7 +106,8 @@ SOURCES = 	base64.cpp \
                 groupClassifier.cpp \
                 groupFeatures.cpp \
                 svmPredictor.cpp \
-    zlib.cpp
+                zlib.cpp \
+               
 
 HEADERS += 	constants.h \
 		base64.h \
@@ -144,4 +151,4 @@ HEADERS += 	constants.h \
                 settings.h \
                 groupClassifier.h \
                 groupFeatures.h \
-                svmPredictor.h 
+                svmPredictor.h\
