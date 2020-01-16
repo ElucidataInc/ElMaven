@@ -133,7 +133,8 @@ after_success:
     fi
 
     export PACKAGING_REPO=elmaven-packaging
-    git clone https://github.com/ElucidataInc/elmaven-packaging.git
+    # TODO: reset this to master branch after merge
+    git clone --single-branch --branch online_repo https://github.com/ElucidataInc/elmaven-packaging.git
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       cd $PACKAGING_REPO
@@ -141,6 +142,7 @@ after_success:
       # define variables
       PARENT_DIR=$PWD
       BREAKPAD_TOOLS=$PWD/breakpad_tools/
+      INSTALLER_TOOLS_DIR=$PWD/qt_ifw_tools/mac
       ELMAVEN_BIN="$PARENT_DIR/../bin/"
       BIN="$PARENT_DIR/bin/"
       NODE_MAC="$PARENT_DIR/node_mac/"
@@ -221,11 +223,31 @@ after_success:
       echo "Updating version string in config file ..."
       cd $PARENT_DIR
 
-      python update_version.py $ELMAVEN_VERSION
+      UPDATE_BRANCH="mac"
+      python update_version.py $ELMAVEN_VERSION $UPDATE_BRANCH
 
       if [ $? != 0 ]; then
         echo "Failed to update version in config file."
         exit 1
+      fi
+
+      if [ "$TRAVIS_TAG" != "" ]; then
+        # create and push update repository for this release
+        echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+        export ELMAVEN_UPDATES="repository"
+        cd $PARENT_DIR
+        mkdir "$PARENT_DIR/$ELMAVEN_UPDATES"
+        $INSTALLER_TOOLS_DIR/repogen -p packages -i com.vendor.product "$PARENT_DIR/$ELMAVEN_UPDATES"
+
+        echo "Pushing update repository for $ELMAVEN_BRANCH ..."
+        cd "$PARENT_DIR/$ELMAVEN_UPDATES"
+        git init
+        git config --local user.name $BB_NAME
+        git config --local user.email $BB_EMAIL
+        git add .
+        git commit -m "[MacOS] Update archives for $ELMAVEN_BRANCH"
+        git remote add origin "https://$BB_USER:$BB_APP_PASS@bitbucket.org/saifulbeekhan/elmaven-updates.git"
+        git push --force origin master:$UPDATE_BRANCH
       fi
 
       # create installer
@@ -270,7 +292,7 @@ after_success:
 
       # S3 provider requires the file(s) for deployment to be in a directory
       mkdir $ELMAVEN_BRANCH
-      cp "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
+      mv "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
     fi
 
 
