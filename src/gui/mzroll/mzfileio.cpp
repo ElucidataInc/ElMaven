@@ -1165,8 +1165,6 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     group->metaGroupId =
         xml.attributes().value("metaGroupId").toString().toInt();
     group->clusterId = xml.attributes().value("clusterId").toString().toInt();
-    group->expectedRtDiff =
-        xml.attributes().value("expectedRtDiff").toString().toFloat();
     group->groupRank = xml.attributes().value("grouRank").toString().toFloat();
     group->expectedMz =
         xml.attributes().value("expectedMz").toString().toFloat();

@@ -199,7 +199,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
     groupsQuery->bind(":expected_mz", group->expectedMz);
-    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff);
+    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff()); // do we need this anymore?
     groupsQuery->bind(":expected_abundance", group->expectedAbundance);
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
@@ -894,7 +894,6 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         group->tagString = groupsQuery->stringValue("tag_string");
         group->metaGroupId = groupsQuery->integerValue("meta_group_id");
         group->expectedMz = groupsQuery->floatValue("expected_mz");
-        group->expectedRtDiff = groupsQuery->floatValue("expected_rt_diff");
         group->expectedAbundance =
             groupsQuery->floatValue("expected_abundance");
         group->groupRank = groupsQuery->floatValue("group_rank");
