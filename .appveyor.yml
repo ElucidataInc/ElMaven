@@ -245,30 +245,27 @@ after_build:
               exit 1
           }
 
-          # TODO: only do this on a git-tag event
-          # create and push update repository for this release
-          echo "Creating an update repository for $ELMAVEN_BRANCH ..."
-          $ELMAVEN_UPDATES = "repository"
-          cd $PARENT_DIR
-          mkdir "$PARENT_DIR\$ELMAVEN_UPDATES"
-          repogen.exe -p packages -i com.vendor.product "$PARENT_DIR\$ELMAVEN_UPDATES"
-          if ( $? -eq $false ) {
-              echo 'Failed to create update archive for release.'
-              exit 1
-          }
+          if ( Test-Path env:APPVEYOR_REPO_TAG_NAME ) {
+              # create and push update repository for this release
+              echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+              $ELMAVEN_UPDATES = "repository"
+              cd $PARENT_DIR
+              mkdir "$PARENT_DIR\$ELMAVEN_UPDATES"
+              repogen.exe -p packages -i com.vendor.product "$PARENT_DIR\$ELMAVEN_UPDATES"
+              if ( $? -eq $false ) {
+                  echo 'Failed to create update archive for release.'
+                  exit 1
+              }
 
-          echo "Pushing update repository for $ELMAVEN_BRANCH ..."
-          cd "$PARENT_DIR\$ELMAVEN_UPDATES"
-          git init
-          git config --local user.name $env:BB_NAME
-          git config --local user.email $env:BB_EMAIL
-          git add .
-          git commit -m "[Windows] Update archives for $ELMAVEN_BRANCH"
-          git remote add origin "https://${env:BB_USER}:${env:BB_APP_PASS}@bitbucket.org/saifulbeekhan/elmaven-updates.git"
-          git push --force origin master:${UPDATE_BRANCH} 2>&1 | write-host # send push output to stdout instead of stderr
-          if ( $? -eq $false ) {
-              echo 'Failed to push update repository for release.'
-              exit 1
+              echo "Pushing update repository for $ELMAVEN_BRANCH ..."
+              cd "$PARENT_DIR\$ELMAVEN_UPDATES"
+              git init
+              git config --local user.name $env:BB_NAME
+              git config --local user.email $env:BB_EMAIL
+              git add .
+              git commit -m "[Windows] Update archives for $ELMAVEN_BRANCH"
+              git remote add origin "https://${env:BB_USER}:${env:BB_APP_PASS}@bitbucket.org/saifulbeekhan/elmaven-updates.git"
+              git push --force origin master:${UPDATE_BRANCH} 2>&1 | write-host # send push output to stdout instead of stderr
           }
 
           # create installer
