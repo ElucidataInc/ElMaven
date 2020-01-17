@@ -177,6 +177,18 @@ class MavenParameters
         int eicMaxGroups;
 
         /**
+         * @brief A flag which denotes whether the user has asked for limiting
+         * identified peak-groups using RT window.
+         */
+        bool identificationMatchRt;
+
+        /**
+         * @brief The RT window, within which all identified peak-groups (post
+         * untargeted detection) should lie.
+         */
+        float identificationRtWindow;
+
+        /**
         * grouping of peaks across samples
         * do no group peaks that are greater than differ more than X in retention time
         */

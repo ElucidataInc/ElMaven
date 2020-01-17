@@ -244,7 +244,9 @@
                                               , main_window_charge               INTEGER \
                                               , main_window_peak_quantitation    INTEGER \
                                               , main_window_mass_resolution      REAL    \
-                                              , must_have_fragmentation          INTEGER );"
+                                              , must_have_fragmentation          INTEGER \
+                                              , identification_match_rt          INTEGER \
+                                              , identification_rt_window         REAL    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

@@ -12,6 +12,8 @@
         <maxIntensity>9999999999.000000</maxIntensity>
         <chargeMin>0</chargeMin>
         <chargeMax>0</chargeMax>
+        <identificationMatchRt>0</identificationMatchRt>
+        <identificationRtWindow>1</identificationRtWindow>
         <databaseSearch>1</databaseSearch>
         <compoundExtractionWindow>5</compoundExtractionWindow>
         <compoundRtWindow>1</compoundRtWindow>

@@ -33,6 +33,8 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("chargeMin", QVariant::fromValue(pd->chargeMin));
     settings.insert("mustHaveFragmentation", QVariant::fromValue(pd->mustHaveMs2));
     settings.insert("identificationDatabase", QVariant::fromValue(pd->identificationDatabase));
+    settings.insert("identificationMatchRt", QVariant::fromValue(pd->identificationMatchRt));
+    settings.insert("identificationRtWindow", QVariant::fromValue(pd->identificationRtWindow));
 
     // db search settings
     settings.insert("databaseSearch", QVariant::fromValue(pd->dbSearch));
@@ -133,6 +135,19 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
         connect(identificationDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
+        connect(identificationDatabase,
+                &QComboBox::currentTextChanged,
+                [this] (QString text) {
+                    if (identificationDatabase->currentIndex() == 0
+                        || text == "") {
+                        identificationRtWindow->setEnabled(false);
+                        identificationMatchRt->setEnabled(false);
+                    } else {
+                        identificationRtWindow->setEnabled(true);
+                        identificationMatchRt->setEnabled(true);
+                    }
+                });
+
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
@@ -168,7 +183,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         label_20->setVisible(false);
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
-        
+
         connect(dbSearch, SIGNAL(toggled(bool)), SLOT(dbSearchClicked()));
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));

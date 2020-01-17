@@ -685,7 +685,9 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :main_window_charge               \
                       , :main_window_peak_quantitation    \
                       , :main_window_mass_resolution      \
-                      , :must_have_fragmentation          )");
+                      , :must_have_fragmentation          \
+                      , :identification_match_rt          \
+                      , :identification_rt_window         )");
 
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
@@ -752,6 +754,8 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":min_intensity", BDOUBLE(settingsMap.at("minIntensity")));
     settingsQuery->bind(":max_intensity", BDOUBLE(settingsMap.at("maxIntensity")));
     settingsQuery->bind(":must_have_fragmentation", BINT(settingsMap.at("mustHaveFragmentation")));
+    settingsQuery->bind(":identification_match_rt", BINT(settingsMap.at("identificationMatchRt")));
+    settingsQuery->bind(":identification_rt_window", BDOUBLE(settingsMap.at("identificationRtWindow")));
 
     settingsQuery->bind(":database_search", BINT(settingsMap.at("databaseSearch")));
     settingsQuery->bind(":compound_extraction_window", BDOUBLE(settingsMap.at("compoundExtractionWindow")));
@@ -1342,6 +1346,8 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["minIntensity"] = variant(settingsQuery->doubleValue("min_intensity"));
         settingsMap["maxIntensity"] = variant(settingsQuery->doubleValue("max_intensity"));
         settingsMap["mustHaveFragmentation"] = variant(settingsQuery->integerValue("must_have_fragmentation"));
+        settingsMap["identificationMatchRt"] = variant(settingsQuery->integerValue("identification_match_rt"));
+        settingsMap["identificationRtWindow"] = variant(settingsQuery->doubleValue("identification_rt_window"));
 
         settingsMap["databaseSearch"] = variant(settingsQuery->integerValue("database_search"));
         settingsMap["compoundExtractionWindow"] = settingsQuery->doubleValue("compound_extraction_window");

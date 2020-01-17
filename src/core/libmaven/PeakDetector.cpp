@@ -456,6 +456,14 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                 PeakGroup groupWithTarget(group);
                 groupWithTarget.setCompound(compound);
 
+                // we should filter the annotated group based on its RT, if the
+                // user has restricted RT range
+                auto rtDiff = groupWithTarget.expectedRtDiff();
+                if (mavenParameters->identificationMatchRt
+                    && rtDiff > mavenParameters->identificationRtWindow) {
+                    continue;
+                }
+
                 // since we are creating targeted groups, we should ensure they
                 // pass MS2 filtering criteria, if enabled
                 if (mavenParameters->matchFragmentationFlag
