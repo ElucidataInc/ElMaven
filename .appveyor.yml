@@ -21,6 +21,14 @@ environment:
     secure: uYWVMV2S2RDPMKNuTmncDT75vWfYPwJfHQjog7UO2C0OdtWNuYzxDZnlEvIC/KSA
   MIXPANEL_TOKEN:
     secure: z3ZI9fB/7hbyMhWdZv9HVMdAqGGB2GmtIeqGPxCOiSNjfLwQIVsNtuOFxSTC3Pty
+  BB_NAME:
+    secure: fHR/4cazQFwcu/GAYgVbIw==
+  BB_EMAIL:
+    secure: ottm4gxuOiqR5jXm6xHN8kR4X0rtHzEX3v6Q47Uk750=
+  BB_USER:
+    secure: 0mNAo4VRlrWvGMO0YHe0kw==
+  BB_APP_PASS:
+    secure: zMYWVSSCkflXme8nOUrRiNVUN01gt81KJLT2tp+Z3lA=
 
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -92,7 +100,8 @@ after_build:
 
           # clone packaging repo
           echo "Cloning packaging repo ..."
-          git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
+          # TODO: reset this to master branch after merge
+          git clone --single-branch --branch online_repo https://github.com/ElucidataInc/elmaven-packaging.git
 
           # define variables
           echo "Defining environment variables ..."
@@ -220,12 +229,13 @@ after_build:
           # update version
           echo "Updating version string in config file ..."
           cd $PARENT_DIR
+          $UPDATE_BRANCH="win"
           if ( Get-Command "python.exe" -ErrorAction SilentlyContinue ) {
-              python.exe update_version.py $ELMAVEN_VERSION
+              python.exe update_version.py $ELMAVEN_VERSION $UPDATE_BRANCH
           } elseif ( Get-Command "python2.7.exe" -ErrorAction SilentlyContinue ) {
-              python2.7.exe update_version.py $ELMAVEN_VERSION
+              python2.7.exe update_version.py $ELMAVEN_VERSION $UPDATE_BRANCH
           } elseif ( Get-Command "python3.6.exe" -ErrorAction SilentlyContinue ) {
-              python3.6.exe update_version.py $ELMAVEN_VERSION
+              python3.6.exe update_version.py $ELMAVEN_VERSION $UPDATE_BRANCH
           } else {
               echo 'Unable to find python.'
               exit 1
@@ -234,6 +244,24 @@ after_build:
               echo 'Failed to update version in config file.'
               exit 1
           }
+
+          # TODO: only do this on a git-tag event
+          # create and push update repository for this release
+          echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+          $ELMAVEN_UPDATES = "repository"
+          cd $PARENT_DIR
+          mkdir "$PARENT_DIR\$ELMAVEN_UPDATES"
+          repogen.exe -p packages -i com.vendor.product "$PARENT_DIR\$ELMAVEN_UPDATES"
+
+          echo "Pushing update repository for $ELMAVEN_BRANCH ..."
+          cd "$PARENT_DIR\$ELMAVEN_UPDATES"
+          git init
+          git config --local user.name $env:BB_NAME
+          git config --local user.email $env:BB_EMAIL
+          git add .
+          git commit -m "[Windows] Update archives for $ELMAVEN_BRANCH"
+          git remote add origin "https://${env:BB_USER}:${env:BB_APP_PASS}@bitbucket.org/saifulbeekhan/elmaven-updates.git"
+          git push --force origin master:${UPDATE_BRANCH}
 
           # create installer
           echo "Creating installer ..."
