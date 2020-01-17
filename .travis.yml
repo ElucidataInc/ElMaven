@@ -238,6 +238,10 @@ after_success:
         cd $PARENT_DIR
         mkdir "$PARENT_DIR/$ELMAVEN_UPDATES"
         $INSTALLER_TOOLS_DIR/repogen -p packages -i com.vendor.product "$PARENT_DIR/$ELMAVEN_UPDATES"
+        if [ $? != 0 ]; then
+          echo "Failed to create update archive for release."
+          exit 1
+        fi
 
         echo "Pushing update repository for $ELMAVEN_BRANCH ..."
         cd "$PARENT_DIR/$ELMAVEN_UPDATES"
@@ -248,6 +252,10 @@ after_success:
         git commit -m "[MacOS] Update archives for $ELMAVEN_BRANCH"
         git remote add origin "https://$BB_USER:$BB_APP_PASS@bitbucket.org/saifulbeekhan/elmaven-updates.git"
         git push --force origin master:$UPDATE_BRANCH
+        if [ $? != 0 ]; then
+          echo "Failed to push update repository for release."
+          exit 1
+        fi
       fi
 
       # create installer
