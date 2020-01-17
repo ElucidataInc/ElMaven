@@ -18,27 +18,49 @@ class CSVReports {
     *such as rt,mz, samples used, compound it, formula, etc
     */
 public:
+
+    /**
+     *@brief enum is the type of the
+     *file the user wants to create
+     */
+    enum class ReportType {
+        GroupReport,
+        PeakReport
+    };
+
     /**
     *empty constructor
     */
-    CSVReports() {}
+    
+    CSVReports(){
+        
+    }
+    
     /**
-    *@brief-    creating CSVReports by all the samples uploaded
-    *@see -     see details in its definition
-    */
-    CSVReports(vector<mzSample*>& insamples, bool pollyExport = false);
+     *@brief Parameterised Constructor
+     *@param filename is the name of file
+     *@param reportType gives the type of 
+     *  file being created
+     *@param qt is the user quant type
+     *@param prmReport
+     *@param includeSetNamesLine
+     *@param mp is for maven parameters
+     *@param pollyExport for exporting to polly
+     */
+    
+    CSVReports(string filename,
+                   ReportType reportType, vector<mzSample*>& insamples,
+                   PeakGroup::QType qt = PeakGroup::AreaTop, 
+                   bool prmReport = false, bool includeSetNamesLine = false,
+                   MavenParameters * mp = NULL , bool pollyExport = false);
+    
+     
     /**
     *@brief-    destructor, just close all open output files opened for writing csv or tab file
     */
     ~CSVReports();
 
-    /**
-     * @brief Open output file in which group info will be written.
-     */
-    void openGroupReport(string filename,
-                         bool prmReport = false,
-                         bool includeSetNamesLine = false);
-
+    
     /**
      * @brief Open output file in which peak info will be written.
      */
@@ -48,24 +70,7 @@ public:
     *@brief-    add group for writing csv about
     */
     void addGroup(PeakGroup* group);
-    /**
-    *close output files either of peak report or group report file
-    */
-    void closeFiles();
-    void setSamples(vector<mzSample*>& insamples) {
-        /**
-        *@brief-    set all samples uploaded
-        */
-        samples = insamples;
-    }
-    void setUserQuantType(PeakGroup::QType t) {
-        /**
-        *@details-  set user quant type.
-        *its a parameter which represent intensity
-        */
-        qtype = t;
-    }
-
+    
     QString getErrorReport(void) {
         /**
         *@brief-    return error occured during csv writing
@@ -73,15 +78,7 @@ public:
         */
         return errorReport;
     }
-
-    void setMavenParameters(MavenParameters * mp) { 
-        /**
-        *@brief- set MavenParameters. MavenParameters holds all variable value input by users
-        *either from CLI(peakdetector) or GUI(mzroll)
-        */
-        mavenparameters = mp;
-    }
-
+    
     void writeDataForPolly(const std::string& file, std::list<PeakGroup> groups);
     
     MavenParameters* getMavenParameters() {
@@ -92,70 +89,121 @@ public:
         return mavenparameters;
     }
 
-    void setTabDelimited() {
-        /**
-        *@brief- set the separator as tab   ("\t")
-        */
-        SEP = "\t";
-    }
-    void setCommaDelimited() {
-        /**
-        *@brief- set the separator as comma   (",")
-        */
-        SEP = ",";
-    }
     inline void setSelectionFlag(int selFlag) {
         selectionFlag = selFlag;
     }
-    /**brief-   update string with escape sequence for writing special character    */
-    QString sanitizeString(const char* s);
-    ofstream groupReport;       /**@param-  output file for groups report*/
-    ofstream peakReport;         /**@param-  output file for peaks report*/
-    int groupId;	/**@param-  incremental group numbering. Increment by 1 when a group is added for csv report  */
     
-private:
-    void writeGroupInfo(PeakGroup* group);      /**@brief-  helper function to write group info*/
-    void writePeakInfo(PeakGroup* group);           /**@brief-  helper function to write peak info*/
-    void initialCheck(string outputfile);                   /**@brief-  if number of samples is zero, no output file will be opened*/
-    void openGroupReportCSVFile(string outputfile);     /**@brief-  after performing initial check, it will open output file for groups report*/
-    void openPeakReportCSVFile(string outputfile);        /**@brief-  after performing initial check, it will open output file for peaks report*/
+    void setTabDelimited() {
+    /**
+     *@brief- set the separator as tab   ("\t")
+     */
+    SEP = "\t";
+    }
+    void setCommaDelimited() {
+    /**
+     *@brief- set the separator as comma   (",")
+     */
+    SEP = ",";
+    }
+    
+    /**
+     *@param -  incremental group numbering. 
+     *Increment by 1 when a group is added 
+     *for csv report  
+     */
+    int groupId;	
 
+    
+    
+
+private:
+
+    /**
+     *@brief-  helper function to write group info
+     */
+    void _writeGroupInfo(PeakGroup* group);      
+    /**
+     *@brief-  helper function to write peak info
+     */
+    void _writePeakInfo(PeakGroup* group);           
+        
+              
+
+    /**
+     *@brief -   update string with escape sequence for 
+     *  writing special character    
+     */
+    QString _sanitizeString(const char* s);
+
+    /**
+     * @brief
+     * @details
+     */
+     
+    ReportType _reportType;
+
+    /**
+     *@param -  output file for  report
+     */
+    ofstream _reportStream;       
+
+    
+    /**
+     *@param -  separator in output file
+     */
+    string SEP;     
+
+    /**
+     *@param -  error message, TODO- QString should 
+     *not be in libmaven folder, only standard C++ 
+     *statement should be here
+     */
+    QString errorReport;    
+    
+    /**
+     *@param-  pointers to all mz samples uploaded
+     */
+    vector<mzSample*> samples;      
+    
+    /**
+     *@param -  user quant type, represents intensity of peaks
+     */
+    PeakGroup::QType qtype;             
+    MavenParameters * mavenparameters;
+    int selectionFlag;      /**@param-  TODO*/
+    bool _pollyExport;
+    bool _prmReport;
+    bool _includeSetNamesLine;
+   
+    
     /**
      * @brief Write column name in output file for group report.
      */
-    void insertGroupReportColumnNamesintoCSVFile(string outputfile,
+    void _insertGroupReportColumnNamesintoCSVFile(string outputfile,
                                                  bool prmReport,
                                                  bool includeSetNamesLine);
 
     /**
      * Write column name in output file for group report.
      */
-    void insertPeakReportColumnNamesintoCSVFile();
+    void _insertPeakReportColumnNamesintoCSVFile();
 
-    void insertPeakInformationIntoCSVFile(PeakGroup* group);        /**@brief-  TODO, not a required method, it's just calling another function. Maybe
-                                                                                                                *written to look consistent with   insertGroupInformationIntoCSVFile
-                                                                                                                */
-    /**
-     * @brief - Checks if the given group has child groups and calls the appropriate method to handle it.
-     */
-    void insertGroupInformationIntoCSVFile(PeakGroup* group);
 
     /**
-     * @brief Insert all the child groups of the given group.
-     * @param peakMode If true, the `writePeakInfo` method will be called
-     * instead of `writeGroupInfo` to write the report.
+     * @brief - Relays the function for inserting isotopes to `insertAllIsotopes` by default. Optionally
+     * this method can be used to call `insertUserSelectedIsotopes` by passing a second boolean argument
+     * with `true` value.
      */
-    void insertIsotopes(PeakGroup* group, bool peakMode = false);
+    void _insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly = false);
 
-    string SEP;     /**@param-  separator in output file*/
+    /**
+     * @brief - Create a masslist with isotopes only currently selected by user (accessible through a
+     * global settings object) and then write the subgroups having these isotopes as tagrstrings, if they
+     * were found.
+     */
+    void _insertUserSelectedIsotopes(PeakGroup* group);
 
-    QString errorReport;    /**@param-  error message, TODO- QString should not be in libmaven folder, only standard C++ statement should be here*/
 
-    vector<mzSample*> samples;      /**@param-  pointers to all mz samples uploaded*/
-    PeakGroup::QType qtype;             /**@param-  user quant type, represents intensity of peaks*/
-    MavenParameters * mavenparameters;
-    int selectionFlag;      /**@param-  TODO*/
-    bool _pollyExport;
 };
 
 #endif

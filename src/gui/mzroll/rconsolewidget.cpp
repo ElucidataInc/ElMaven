@@ -262,10 +262,7 @@ void RconsoleWidget::exportGroupsToTable()
     if(peaks.open(QFile::WriteOnly | QFile::Truncate)) {
         vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
         sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-        CSVReports* csvreports = new CSVReports(vsamples);
-        csvreports->setTabDelimited();
-        csvreports->setUserQuantType( _mainwindow->getUserQuantType());
-
+   
         auto prmGroupAt = find_if(begin(groups),
                                   end(groups),
                                   [] (PeakGroup* group) {
@@ -273,15 +270,17 @@ void RconsoleWidget::exportGroupsToTable()
                                   });
         bool prmGroupExists = prmGroupAt != end(groups);
 
-        csvreports->openGroupReport(groupsTableFile.toStdString(),
-                                    prmGroupExists,
-                                    includeSetNames);
+        CSVReports* csvreports = new CSVReports(groupsTableFile.toStdString(),
+                                                CSVReports::ReportType::GroupReport, vsamples,
+                                                _mainwindow->getUserQuantType(),
+                                                prmGroupExists,includeSetNames,
+                                                _mainwindow->mavenParameters);
 
         for(int i=0; i<groups.size(); i++ ) {
             csvreports->addGroup(groups[i]);
         }
 
-        csvreports->closeFiles();
+
         peaks.close();
     } else {
        errorLog->appendPlainText("Can't write to " + groupsTableFile);

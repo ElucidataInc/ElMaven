@@ -2,7 +2,6 @@
 #include <QCoreApplication>
 #include "testLoadSamples.h"
 #include "testMassCalculator.h"
-#include "testCSVReports.h"
 #include "testPeakDetection.h"
 #include "testIsotopeDetection.h"
 #include "testMzSlice.h"
@@ -95,12 +94,6 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestMzFit, argc, argv);
     result|=readLog("testMzFit.xml");
     mzUtils::stopTimer(timer, "testMzFit");
-
-    timer = mzUtils::startTimer();
-    if (freopen("testCSVReports.xml", "w", stdout))
-        result |= QTest::qExec(new TestCSVReports, argc, argv);
-    result|=readLog("testCSVReports.xml");
-    mzUtils::stopTimer(timer, "testCSVReports");
 
     timer = mzUtils::startTimer();
     if (freopen("testSRMList.xml", "w", stdout))

@@ -140,21 +140,19 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
     bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
 
     //write reports
-    CSVReports* csvreports = NULL;
     if (mavenParameters->writeCSVFlag) {
         //Added to pass into csvreports file when merged with Maven776 - Kiran
         bool includeSetNamesLine=true;
         string groupfilename = mavenParameters->outputdir + setName + ".csv";
-        csvreports = new CSVReports(mavenParameters->samples);
-        csvreports->setMavenParameters(mavenParameters);
-        csvreports->setUserQuantType(mainwindow->getUserQuantType());
-        //Added to pass into csvreports file when merged with Maven776 - Kiran
-        csvreports->openGroupReport(groupfilename,
-                                    prmGroupExists,
-                                    includeSetNamesLine);
-    }
+        
+        CSVReports* csvreports = new CSVReports(groupfilename,CSVReports::ReportType::PeakReport, 
+                                                  mavenParameters->samples, 
+                                                  mainwindow->getUserQuantType(),
+                                                  prmGroupExists, includeSetNamesLine,
+                                                  mavenParameters);
+        
 
-    peakDetector->pullAllIsotopes();
+        peakDetector->pullAllIsotopes();
 
         for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
             PeakGroup& group = mavenParameters->allgroups[j];
@@ -173,11 +171,11 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
         }
 
         if (csvreports != NULL) {
-                csvreports->closeFiles();
                 delete (csvreports);
                 csvreports = NULL;
         }
         Q_EMIT(updateProgressBar("Done", 1, 1));
+   }
 }
 
 void BackgroundPeakUpdate::setPeakDetector(PeakDetector *pd)
