@@ -667,11 +667,11 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
     }
 
     if (groupSetComboAlt->currentIndex() == 0) {
-        peakTable->wholePeakSet();
+        peakTable->allPeaks();
     } else if (groupSetComboAlt->currentIndex() == 1) {
-        peakTable->goodPeakSet();
+        peakTable->goodPeaks();
     } else if (groupSetComboAlt->currentIndex() == 2) {
-        peakTable->excludeBadPeakSet();
+        peakTable->excludeBadPeaks();
     }
 
     QString tableName = TableDockWidget::getTitleForId(peakTable->tableId);
@@ -682,7 +682,7 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
                            + "_"
                            + tableName
                            + ".json";
-    peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
+    peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename);
     filenames.append(jsonFilename);
 
     QCoreApplication::processEvents();

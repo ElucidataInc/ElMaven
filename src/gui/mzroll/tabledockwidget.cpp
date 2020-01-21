@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mavenparameters.h"
+#include "multiselectcombobox.h"
 #include "mzAligner.h"
 #include "mzSample.h"
 #include "mzUtils.h"
@@ -42,6 +43,42 @@ using namespace QtCharts;
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
+const QMap<PeakGroup::ClassifiedLabel, QString>
+TableDockWidget::labelsForLegend()
+{
+  static QMap<PeakGroup::ClassifiedLabel, QString> labels = {
+    {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
+     "Signal with correlation and cohort-variance"},
+    {PeakGroup::ClassifiedLabel::Correlation,
+     "Signal with only correlation"},
+    {PeakGroup::ClassifiedLabel::Pattern,
+     "Signal with only cohort-variance"},
+    {PeakGroup::ClassifiedLabel::Signal,
+     "Signal"},
+    {PeakGroup::ClassifiedLabel::Noise,
+     "Noise"}
+  };
+  return labels;
+}
+
+const QMap<PeakGroup::ClassifiedLabel, QIcon>
+TableDockWidget::iconsForLegend()
+{
+  static QMap<PeakGroup::ClassifiedLabel, QIcon> icons {
+    {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
+     QIcon(":/images/moi_pattern_correlated.png")},
+    {PeakGroup::ClassifiedLabel::Correlation,
+     QIcon(":/images/moi_correlated.png")},
+    {PeakGroup::ClassifiedLabel::Pattern,
+     QIcon(":/images/moi_pattern.png")},
+    {PeakGroup::ClassifiedLabel::Signal,
+     QIcon(":/images/good.png")},
+    {PeakGroup::ClassifiedLabel::Noise,
+     QIcon(":/images/bad.png")},
+  };
+  return icons;
+}
+
 TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAllowedAreas(Qt::AllDockWidgetAreas);
   setFloating(false);
@@ -49,6 +86,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   _labeledGroups = 0;
   _targetedGroups = 0;
   _nextGroupId = 1;
+  _legend = nullptr;
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
@@ -355,44 +393,26 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 
   _paintClassificationDisagreement(item);
 
-  if (group->label == 'g'
-      || group->predictedLabel == PeakGroup::ClassifiedLabel::Signal) {
-    item->setIcon(0, QIcon(":/images/good.png"));
-    // we have to store stringified classifier labels because QVariant has
-    // issues with standard enum classes
-    QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
-    item->setData(0,
-                  Qt::UserRole,
-                  QVariant::fromValue(castLabel));
-  } else if (group->label == 'b'
-             || group->predictedLabel == PeakGroup::ClassifiedLabel::Noise) {
-    item->setIcon(0, QIcon(":/images/bad.png"));
-    QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
-    item->setData(0,
-                  Qt::UserRole,
-                  QVariant::fromValue(castLabel));
-  } else if (group->predictedLabel == PeakGroup::ClassifiedLabel::Correlation) {
-    item->setIcon(0, QIcon(":/images/moi_correlated.png"));
+  item->setIcon(0, iconsForLegend()[group->predictedLabel()]);
+  
+  if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Correlation) {
     QString castLabel = "PeakGroup::ClassifiedLabel::Correlation";
     item->setData(0,
                   Qt::UserRole,
                   QVariant::fromValue(castLabel));
   } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Pattern) {
-    item->setIcon(0, QIcon(":/images/moi_pattern.png"));
     QString castLabel = "PeakGroup::ClassifiedLabel::Pattern";
     item->setData(0,
                   Qt::UserRole,
                   QVariant::fromValue(castLabel));
   } else if (group->predictedLabel()
              == PeakGroup::ClassifiedLabel::CorrelationAndPattern) {
-    item->setIcon(0, QIcon(":/images/moi_pattern_correlated.png"));
     QString castLabel = "PeakGroup::ClassifiedLabel::CorrelationAndPattern";
     item->setData(0,
                   Qt::UserRole,
                   QVariant::fromValue(castLabel));
   } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Signal
              || group->userLabel() == 'g') {
-    item->setIcon(0, QIcon(":/images/good.png"));
     // we have to store stringified classifier labels because QVariant has
     // issues with standard enum classes
     QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
@@ -401,13 +421,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
                   QVariant::fromValue(castLabel));
   } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise
              || group->userLabel() == 'b') {
-    item->setIcon(0, QIcon(":/images/bad.png"));
     QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
     item->setData(0,
                   Qt::UserRole,
                   QVariant::fromValue(castLabel));
   } else {
-    item->setIcon(0, QIcon());
     QString castLabel = "PeakGroup::ClassifiedLabel::None";
     item->setData(0,
                   Qt::UserRole,
@@ -755,6 +773,69 @@ void TableDockWidget::showAllGroups() {
 
   treeWidget->header()->setSectionResizeMode(1,QHeaderView::Interactive);
   treeWidget->setColumnWidth(1, 250);
+}
+
+QMap<TableDockWidget::PeakTableSubsetType, int>
+TableDockWidget::countBySubsets()
+{
+  auto itemsBySubset = _peakTableGroupedBySubsets();
+  QMap<PeakTableSubsetType, int> numItemsPerSubset;
+
+  auto insertCountForSubset = [&](PeakTableSubsetType subset) {
+    numItemsPerSubset.insert(subset,
+                             itemsBySubset.value(subset).size());
+  };
+
+  insertCountForSubset(PeakTableSubsetType::Selected);
+  insertCountForSubset(PeakTableSubsetType::All);
+  insertCountForSubset(PeakTableSubsetType::Good);
+  insertCountForSubset(PeakTableSubsetType::Bad);
+  insertCountForSubset(PeakTableSubsetType::ExcludeBad);
+  insertCountForSubset(PeakTableSubsetType::Unmarked);
+  insertCountForSubset(PeakTableSubsetType::Correlated);
+  insertCountForSubset(PeakTableSubsetType::Variance);
+  insertCountForSubset(PeakTableSubsetType::CorrelatedVariance);
+
+  return numItemsPerSubset;
+}
+
+void TableDockWidget::showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets)
+{
+  auto itemsBySubset = _peakTableGroupedBySubsets();
+  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>> itr(itemsBySubset);
+  while (itr.hasNext()) {
+    itr.next();
+    auto subset = itr.key();
+    auto& itemsForSubset = itr.value();
+    if (visibleSubsets.contains(subset)) {
+      for (auto item : itemsForSubset)
+        item->setHidden(false);
+    } else {
+      for (auto item : itemsForSubset)
+        item->setHidden(true);
+    }
+  }
+}
+
+void TableDockWidget::filterForSelectedLabels()
+{
+  QList<PeakTableSubsetType> selectedSubsets;
+  auto selectedLabels = _legend->selectedTexts();
+  for (auto& label : selectedLabels) {
+    auto predictionLabel = labelsForLegend().key(label);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
+      selectedSubsets.append(PeakTableSubsetType::Bad);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::Signal)
+      selectedSubsets.append(PeakTableSubsetType::Good);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::Correlation)
+      selectedSubsets.append(PeakTableSubsetType::Correlated);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::Pattern)
+      selectedSubsets.append(PeakTableSubsetType::Variance);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+      selectedSubsets.append(PeakTableSubsetType::CorrelatedVariance);
+  }
+  selectedSubsets.append(PeakTableSubsetType::Unmarked);
+  showOnlySubsets(selectedSubsets);
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup *group) {
@@ -1278,8 +1359,96 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
   return selectedGroups;
 }
 
-shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup()
-{
+QList<PeakGroup *>
+TableDockWidget::getCustomGroups(PeakTableSubsetType peakSelection) {
+  QList<PeakGroup *> selectedGroups;
+  PeakTableSubsetType temppeakSelection = peakSelection;
+  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
+    if (item) {
+      QVariant v = item->data(1, Qt::UserRole);
+      PeakGroup *group = v.value<PeakGroup *>();
+      if (group != NULL) {
+        if (temppeakSelection == PeakTableSubsetType::Good) {
+          if (group->userLabel() == 'g') {
+            selectedGroups.append(group);
+          }
+        } else if (temppeakSelection == PeakTableSubsetType::Bad) {
+          if (group->userLabel() == 'b') {
+            selectedGroups.append(group);
+          }
+        } else {
+          selectedGroups.append(group);
+        }
+      }
+    }
+  }
+  return selectedGroups;
+}
+
+QMap<TableDockWidget::PeakTableSubsetType, QList<QTreeWidgetItem*>>
+TableDockWidget::_peakTableGroupedBySubsets() {
+  QList<QTreeWidgetItem*> allItems;
+  QList<QTreeWidgetItem*> selectedItems;
+  QList<QTreeWidgetItem*> goodItems;
+  QList<QTreeWidgetItem*> badItems;
+  QList<QTreeWidgetItem*> nonBadItems;
+  QList<QTreeWidgetItem*> unmarkedItems;
+  QList<QTreeWidgetItem*> correlatedItems;
+  QList<QTreeWidgetItem*> varianceItems;
+  QList<QTreeWidgetItem*> correlatedVarianceItems;
+
+  QTreeWidgetItemIterator itr(treeWidget);
+  while (*itr) {
+    QTreeWidgetItem *item = (*itr);
+    if (item) {
+      QVariant v = item->data(1, Qt::UserRole);
+      PeakGroup *group = v.value<PeakGroup *>();
+      if (group == nullptr)
+        continue;
+
+      // all groups (or their children) are inserted into this list
+      allItems.append(item);
+
+      // all selected groups (or their children) are inserted into this list
+      if (item->isSelected())
+        selectedItems.append(item);
+
+      auto label = group->predictedLabel();
+      if (label == PeakGroup::ClassifiedLabel::Noise) {
+        badItems.append(item);
+      } else {
+        nonBadItems.append(item);
+      }
+      if (label == PeakGroup::ClassifiedLabel::Signal)
+        goodItems.append(item);
+      if (label == PeakGroup::ClassifiedLabel::None)
+        unmarkedItems.append(item);
+      if (label == PeakGroup::ClassifiedLabel::Correlation)
+        correlatedItems.append(item);
+      if (label == PeakGroup::ClassifiedLabel::Pattern)
+        varianceItems.append(item);
+      if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+        correlatedVarianceItems.append(item);
+    }
+    ++itr;
+  }
+
+  QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> itemsBySubset;
+  itemsBySubset.insert(PeakTableSubsetType::Selected, selectedItems);
+  itemsBySubset.insert(PeakTableSubsetType::All, allItems);
+  itemsBySubset.insert(PeakTableSubsetType::Good, goodItems);
+  itemsBySubset.insert(PeakTableSubsetType::Bad, badItems);
+  itemsBySubset.insert(PeakTableSubsetType::ExcludeBad, nonBadItems);
+  itemsBySubset.insert(PeakTableSubsetType::Unmarked, unmarkedItems);
+  itemsBySubset.insert(PeakTableSubsetType::Correlated, correlatedItems);
+  itemsBySubset.insert(PeakTableSubsetType::Variance, varianceItems);
+  itemsBySubset.insert(PeakTableSubsetType::CorrelatedVariance,
+                       correlatedVarianceItems);
+
+  return itemsBySubset;
+}
+
+shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup() {
   QTreeWidgetItem *item = treeWidget->currentItem();
   if (!item)
     return NULL;
@@ -2629,34 +2798,34 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
     QAction *exportBad =
         btnGroupCSV->menu()->addAction(tr("Export bad groups"));
 
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeaks()));
     connect(exportSelected,
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
     
-    connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(allPeaks()));
     connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
     connect(exportAll,
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
 
-    connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
+    connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeaks()));
     connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
     connect(exportGood,
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
 
-    connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeakSet()));
+    connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeaks()));
     connect(excludeBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
     connect(excludeBad,
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
 
-    connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
+    connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeaks()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
     connect(exportBad,
             SIGNAL(triggered()),
@@ -2832,9 +3001,27 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   QWidget *spacer = new QWidget();
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
+  MultiSelectComboBox *legend = new MultiSelectComboBox(this);
+  legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  auto labelsForLegend = TableDockWidget::labelsForLegend();
+  auto iconsForLegend = TableDockWidget::iconsForLegend();
+  for (const auto& label : labelsForLegend) {
+    auto type = labelsForLegend.key(label);
+    auto icon = iconsForLegend.value(type);
+    legend->addItem(icon, label);
+  }
+  legend->selectAll();
+  setLegend(legend);
+  connect(legend,
+          &MultiSelectComboBox::selectionChanged,
+          this,
+          &TableDockWidget::filterForSelectedLabels);
+
   toolBar->addAction(titlePeakTable);
   toolBar->addSeparator();
-
+  toolBar->addWidget(new QLabel("Labels"));
+  toolBar->addWidget(legend);
+  toolBar->addSeparator();
   toolBar->addAction(btnSwitchView);
   toolBar->addSeparator();
 
@@ -2859,7 +3046,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
 
-  setTitleBarWidget(toolBar);
+  setTitleBarWidget(toolBar); 
 
   connect(this,
           &PeakTableDockWidget::unSetFromEicWidget,
