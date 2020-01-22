@@ -52,7 +52,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/Eigen/ \
                 $$top_srcdir/3rdparty/libsvm \
                 $$top_srcdir/3rdparty/NimbleDSP/src \
-                $$top_srcdir/3rdparty/doctest
+                $$top_srcdir/3rdparty/doctest       \
+                $$top_srcdir/3rdparty/json
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 
@@ -106,7 +107,7 @@ SOURCES = 	base64.cpp \
                 groupClassifier.cpp \
                 groupFeatures.cpp \
                 svmPredictor.cpp \
-                zlib.cpp \
+                zlib.cpp
                
 
 HEADERS += 	constants.h \
@@ -151,4 +152,4 @@ HEADERS += 	constants.h \
                 settings.h \
                 groupClassifier.h \
                 groupFeatures.h \
-                svmPredictor.h\
+                svmPredictor.h

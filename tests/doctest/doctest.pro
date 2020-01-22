@@ -7,7 +7,8 @@ include($$mzroll_pri)
 TEMPLATE = app
 TARGET = doctest
 
-
+CONFIG+=console
+CONFIG-=app_bundle
 
 QT -= gui core
 
@@ -19,7 +20,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/sr
 				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread \
                 $$top_srcdir/3rdparty/obiwarp $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/3rdparty/Eigen $$top_srcdir/src/      \
-                $$top_srcdir/3rdparty/doctest
+                $$top_srcdir/3rdparty/doctest       \
+                $$top_srcdir/3rdparty/json
 macx {
 
     DYLIBPATH = $$system(source ~/.bash_profile ; echo $LDFLAGS)
