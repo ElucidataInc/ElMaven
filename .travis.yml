@@ -232,7 +232,7 @@ after_success:
       fi
 
       if [ "$TRAVIS_TAG" != "" ]; then
-        # create and push update repository for this release
+        # create update repository for this release
         echo "Creating an update repository for $ELMAVEN_BRANCH ..."
         export ELMAVEN_UPDATES="repository"
         cd $PARENT_DIR
@@ -242,20 +242,7 @@ after_success:
           echo "Failed to create update archive for release."
           exit 1
         fi
-
-        echo "Pushing update repository for $ELMAVEN_BRANCH ..."
-        cd "$PARENT_DIR/$ELMAVEN_UPDATES"
-        git init
-        git config --local user.name $BB_NAME
-        git config --local user.email $BB_EMAIL
-        git add .
-        git commit -m "[MacOS] Update archives for $ELMAVEN_BRANCH"
-        git remote add origin "https://$BB_USER:$BB_APP_PASS@bitbucket.org/saifulbeekhan/elmaven-updates.git"
-        git push --force origin master:$UPDATE_BRANCH
-        if [ $? != 0 ]; then
-          echo "Failed to push update repository for release."
-          exit 1
-        fi
+        mv "$PARENT_DIR/$ELMAVEN_UPDATES" "$PARENT_DIR/../"
       fi
 
       # create installer
@@ -327,4 +314,17 @@ deploy:
     local_dir: $ELMAVEN_BRANCH
     on:
       all_branches: true
+      condition: $TRAVIS_OS_NAME = "osx"
+
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    region: us-west-2
+    bucket: "elmaven-installers"
+    upload-dir: "mac-updates"
+    acl: public_read
+    local_dir: $ELMAVEN_UPDATES
+    on:
+      tags: true
       condition: $TRAVIS_OS_NAME = "osx"
