@@ -29,7 +29,7 @@ cache:
     - C:\msys64\var\cache\pacman\pkg
 
 install:
-    - SET "PATH=C:\Qt\5.12.5\mingw73_64\bin;C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+    - SET "PATH=C:\Qt\5.12.6\mingw73_64\bin;C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
     - bash -lc "pacman -S --needed --noconfirm mingw64/mingw-w64-x86_64-hdf5 mingw64/mingw-w64-x86_64-netcdf mingw64/mingw-w64-x86_64-boost"
 
