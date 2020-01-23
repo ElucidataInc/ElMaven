@@ -254,7 +254,7 @@ after_build:
           # create installer
           echo "Creating installer ..."
           cd $PARENT_DIR
-          binarycreator -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
+          binarycreator --offline-only -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
           if ( $? -eq $false ) {
               echo 'Make sure binarycreator is in system path'
               exit 1

@@ -249,7 +249,7 @@ after_success:
       echo "Creating installer ..."
       cd $PARENT_DIR
 
-      ./binarycreator --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
+      ./binarycreator --offline-only --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
 
       if [ $? != 0 ]; then
         echo "Failed to create installer. Make sure binarycreator is in system path."
