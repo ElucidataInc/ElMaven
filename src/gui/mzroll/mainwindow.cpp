@@ -31,7 +31,6 @@
 #include "isotopeswidget.h"
 #include "librarymanager.h"
 #include "ligandwidget.h"
-#include "common/autoupdate.h"
 #include "common/logger.h"
 #include "logwidget.h"
 #include "mainwindow.h"
@@ -135,10 +134,10 @@ void MainWindow::setValue(int value)
 using namespace mzUtils;
 
  MainWindow::MainWindow(Controller* controller, QWidget *parent) :
-     _controller(controller),
-		QMainWindow(parent)
+    _controller(controller),
+    QMainWindow(parent)
 {
-		connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
+    connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
 
@@ -755,31 +754,27 @@ MainWindow::~MainWindow()
     delete _usageTracker;
 }
 
-void MainWindow::showEvent(QShowEvent* event)
+void MainWindow::promptUpdate(QString version)
 {
-    // things that need to be done after the mainwidow gets displayed
-	qDebug() << "Showing mainwindow now";
-    gettingstarted->showDialog();
-    // check if new update is available, if yes show the update ui
-}
+    qDebug() << "New release"
+             << QString("v%1").arg(version)
+             << "available.";
 
-void MainWindow::newUpdate()
-{
-	qDebug() << "new update is available";
-	QMessageBox msgBox(this);
-    msgBox.setText("New update is available. Would you like to update now");
+    // should we also show the new version number to the user?
+    QMessageBox msgBox(this);
+    msgBox.setText("An update for El-MAVEN is available. Would you like to "
+                   "start the update manager now?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     int response = msgBox.exec();
-	switch(response) {
-		case QMessageBox::Yes:
-			emit updateNow();
-			break; 
-		case QMessageBox::No:
-			break;
-		default:
-			break;
-	}
-
+    switch(response) {
+        case QMessageBox::Yes:
+            emit updateAllowed();
+            break;
+        case QMessageBox::No:
+            break;
+        default:
+            break;
+    }
 }
 
 void MainWindow::sendPeaksGA()

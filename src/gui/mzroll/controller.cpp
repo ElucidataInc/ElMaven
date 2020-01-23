@@ -7,7 +7,7 @@
 #include <QSpinBox>
 
 #include <common/downloadmanager.h>
-#include <common/autoupdate.h>
+#include "autoupdater.h"
 #include "controller.h"
 #include "isotopedialog.h"
 #include "ligandwidget.h"
@@ -20,33 +20,37 @@
 
 Controller::Controller()
 {
-
     _dlManager = new DownloadManager;
     iPolly = new PollyIntegration(_dlManager);
-    _updater = new AutoUpdate();
     _mw = new MainWindow(this);
-
-    connect(_updater, &AutoUpdate::updateAvailable, _mw, &MainWindow::newUpdate);
-    connect(_updater, &AutoUpdate::failure, _mw, &MainWindow::updateFailed);
-    connect(_mw, &MainWindow::updateNow, _updater, &AutoUpdate::update);
+    updateUi();
     connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
     connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
     connect(_mw->settingsForm, &SettingsForm::updateSettings, this, &Controller::updateOptionsDialogSettings);
     connect(_mw->settingsForm, &SettingsForm::settingsUpdated, this, &Controller::_updateSettingsForSave);
-    // connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
+    connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
     connect(_mw, &MainWindow::loadedSettings, this, &Controller::updateUi);
     connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
     connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
     connect(_mw->isotopeDialog, &IsotopeDialog::resetSettings, this, &Controller::resetMP);
-    qDebug() << "setup complete";
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();
-    qDebug() << "updating ui complete";
-    _updater->checkForUpdate();
-    qDebug() << "checking for updates";
+
+    _updater = new AutoUpdater();
+    connect(_updater,
+            &AutoUpdater::updateAvailable,
+            _mw,
+            &MainWindow::promptUpdate);
+    connect(_mw,
+            &MainWindow::updateAllowed,
+            _updater,
+            &AutoUpdater::startMaintenanceTool);
+
+    qDebug() << "Checking for updates…";
+    _updater->start();
 }
 
 Controller::~Controller()

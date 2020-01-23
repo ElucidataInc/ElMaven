@@ -84,6 +84,9 @@ script:
         # export private DSN as base64 encoded string (helps with stringification)
         export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
 
+        # export encoded update repository URL
+        export UPDATE_REPO_URL_BASE64=`echo $UPDATE_REPO_URL | base64`
+
         qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=separate_debug_info NOTESTS=yes
         make -j4;
       fi
@@ -223,8 +226,7 @@ after_success:
       echo "Updating version string in config file ..."
       cd $PARENT_DIR
 
-      UPDATE_BRANCH="mac"
-      python update_version.py $ELMAVEN_VERSION $UPDATE_BRANCH
+      python update_version.py $ELMAVEN_VERSION $UPDATE_REPO_URL
 
       if [ $? != 0 ]; then
         echo "Failed to update version in config file."

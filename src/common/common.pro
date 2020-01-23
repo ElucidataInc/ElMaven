@@ -5,7 +5,7 @@ OBJECTS_DIR=$$top_builddir/tmp/common/
 
 DESTDIR=$$top_builddir/libs/
 
-QT += core network widgets
+QT += core network
 
 TEMPLATE = lib
 
@@ -17,16 +17,14 @@ QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += "MIXPANEL_TOKEN=$$(MIXPANEL_TOKEN)"
 
-INCLUDEPATH += $$top_srcdir/src $$top_srcdir/3rdParty/pugixml/src
+INCLUDEPATH += $$top_srcdir/src
 
 SOURCES += downloadmanager.cpp \
            logger.cpp          \
            analytics.cpp       \
-           mixpanel.cpp        \
-           autoupdate.cpp
+           mixpanel.cpp
 
 HEADERS += downloadmanager.h \
            logger.h          \
            analytics.h       \
-           mixpanel.h        \
-           autoupdate.h
+           mixpanel.h

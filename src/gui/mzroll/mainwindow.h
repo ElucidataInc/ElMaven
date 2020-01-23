@@ -76,19 +76,9 @@ extern Database DB;
 class MainWindow: public QMainWindow {
 Q_OBJECT
 
-protected:
-    virtual void showEvent(QShowEvent* event);
-
-
-public slots:
-    void updateInstalled() {}
-    void newUpdate();
-    void updateFailed() {}
-
 public:
 	int value() const { return m_value; }
     MainWindow(Controller* controller,QWidget *parent = 0);
-	void setup();
     ~MainWindow();
 	QSettings* getSettings() {
 		return settings;
@@ -290,7 +280,7 @@ Q_SIGNALS:
 	void reBoot();
     void metaCsvFileLoaded();
     void loadedSettings();
-	void updateNow();
+    void updateAllowed();
 
 protected:
 	void closeEvent(QCloseEvent *event);
@@ -441,6 +431,14 @@ public Q_SLOTS:
      * @return A const pointer to a `Mixpanel` object.
      */
     const Mixpanel* getUsageTracker() { return _usageTracker; }
+
+    /**
+     * @brief Informs the user that a new version of the application is
+     * available and prompts an update operation.
+     * @param version The new version of application that has been made
+     * available.
+     */
+    void promptUpdate(QString version);
 
 private Q_SLOTS:
 	void createMenus();

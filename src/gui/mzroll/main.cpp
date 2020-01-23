@@ -27,7 +27,6 @@
 #include "mzfileio.h"
 #include "controller.h"
 #include "elmavenlogger.h"
-#include "common/autoupdate.h"
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
@@ -47,7 +46,6 @@
 
 #include <QDir>
 #include <list>
-#include <QProcess>
 
 // initialize the global metabolite database
 Database DB;
@@ -73,36 +71,6 @@ void initializeLogger()
     dir.mkpath(path);
     ElMavenLogger::init(path.toStdString());
 }
-// Using maintenance tool for updates
-// cons: online installer
-
-// pros: works on all 3 platforms
-
-// start a separate thread before creating mainwindow
-// thread will be responsible for all update related operations
-// 1. fetch the update file from the remote server
-// 2. if a new version is available : every release should have version information available - use git describe --tags --abbrev=0
-      //a. match version found in updates file with version stored in app
-// 3. prompt for update(yes/no)
-// 4. if user agrees, run the maintenance tool in silent upgrade mode
-    //a. how to know the location of maintenance tool ?
-    //b. to be able to run the tool in slient upgrade mode, something similar to installer scrip must be present on users system
-    //c. once the update has been installed, the user should be prompted to restart the application
-    //d. if the user agress to restart the applicaiton,
-        //d.1 the current progress should be saved
-        //d.2 stop the thread and close the application
-    //e. if the user disagrees to restart the applicaiton
-        //e.1 since the update is complete, we just need to exit the thread
-// 5. if user disagrees, quit and stop the thread
-
-
-// Maintenance tool does not provide a way to look at the progress
-// Use colors instead, yellow while the update is going on, green for success, red for failure.
-// The update should run in the background without affecting users work
-// Once the update is complete user should be prompted to restart the application...
-
-
-//
 
 int main(int argc, char *argv[])
 {
@@ -110,7 +78,6 @@ int main(int argc, char *argv[])
     qApp->setOrganizationName("ElucidataInc");
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
-//    checkForUpdate();
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
@@ -171,8 +138,8 @@ int main(int argc, char *argv[])
 
     splash.finish(contrl.getMainWindow());
     contrl.getMainWindow()->show();
-
-//    contrl.getMainWindow()->fileLoader->start();
+    contrl.getMainWindow()->gettingstarted->showDialog();
+    contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
 
 #ifdef __OSX_AVAILABLE

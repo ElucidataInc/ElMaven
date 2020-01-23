@@ -8,11 +8,10 @@ DESTDIR = $$top_srcdir/bin/
 
 QT += multimedia multimediawidgets network
 
-CONFIG += qt thread sql svg console precompile_header resources_big
+CONFIG += qt thread warn_off sql svg console precompile_header resources_big
 
 #Faster build + C++11 ++ OpenMP
 
-QMAKE_CXXFLAGS += -w
 QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 linux: QMAKE_CXXFLAGS += -Ofast -ffast-math
@@ -71,6 +70,10 @@ mac {
         LIBS += -lsentry_crashpad
         DEFINES += "SENTRY_DSN_BASE64=$$(SENTRY_DSN_BASE64)"
     }
+}
+
+CONFIG(release, debug|release) {
+    DEFINES += "UPDATE_REPO_URL_BASE64=$$(UPDATE_REPO_URL_BASE64)"
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
@@ -244,7 +247,8 @@ HEADERS += stable.h \
            $$top_srcdir/crashhandler/elmavexceptionhandler.h \
            videoplayer.h \
            isotopedialog.h \
-           adductwidget.h
+           adductwidget.h \
+           autoupdater.h
 
 
 SOURCES += mainwindow.cpp  \
@@ -319,7 +323,8 @@ SOURCES += mainwindow.cpp  \
            notificator.cpp \
            videoplayer.cpp \
            isotopedialog.cpp \
-           adductwidget.cpp
+           adductwidget.cpp \
+           autoupdater.cpp
 
 
 contains (DEFINES,EMBEDHTTPSERVER) {
