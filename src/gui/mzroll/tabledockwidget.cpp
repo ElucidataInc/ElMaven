@@ -2094,11 +2094,15 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnGroupCSV->setMenu(new QMenu("Export Groups"));
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
     QAction *exportSelected =
-        btnGroupCSV->menu()->addAction(tr("Export Selected"));
+        btnGroupCSV->menu()->addAction(tr("Export selected groups"));
     QAction *exportAll =
-        btnGroupCSV->menu()->addAction(tr("Export All Groups"));
-    QAction *exportGood = btnGroupCSV->menu()->addAction(tr("Export Good"));
-    QAction *exportBad = btnGroupCSV->menu()->addAction(tr("Export Bad"));
+        btnGroupCSV->menu()->addAction(tr("Export all groups"));
+    QAction *exportGood =
+        btnGroupCSV->menu()->addAction(tr("Export good groups"));
+    QAction *excludeBad =
+        btnGroupCSV->menu()->addAction(tr("Export excluding bad groups"));
+    QAction *exportBad =
+        btnGroupCSV->menu()->addAction(tr("Export bad groups"));
 
     connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
     connect(exportSelected,
@@ -2122,6 +2126,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             td,
             SLOT(exportGroupsToSpreadsheet()));
     connect(exportGood, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+    connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeakSet()));
+    connect(excludeBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
+    connect(excludeBad,
+            SIGNAL(triggered()),
+            td,
+            SLOT(exportGroupsToSpreadsheet()));
+    connect(excludeBad, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
