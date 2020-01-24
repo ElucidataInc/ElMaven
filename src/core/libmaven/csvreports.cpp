@@ -642,49 +642,66 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
         }
 
         ifstream inputGroupFile("groupReport.csv");
-        ifstream savedGroupFile("C:\\msys64\\home\\kashika\\ElMaven\\tests\\doctest\\test_groupReport.csv");
-        
+        ifstream savedGroupFile("tests/test-libmaven/test_groupReport.csv");
+
+
         string headerInput;
+        getline(inputGroupFile, headerInput);
+        getline(inputGroupFile, headerInput);
         string headerSaved;
-        
-        if( !inputGroupFile.eof())       
-            getline(inputGroupFile,headerInput);
-        if( !savedGroupFile.eof())
-            getline(savedGroupFile,headerSaved);
-        
-        vector<std::string> headerInputValues;
-        mzUtils::splitNew(headerInput, "," , headerInputValues);
-        
-        vector<std::string> headerSavedValues;
-        mzUtils::splitNew(headerSaved, "," , headerSavedValues);
-        
-        for(int i = 0; i < static_cast<int>(headerInputValues.size()); i++)
-            REQUIRE(headerInputValues[i] == headerSavedValues[i]);
-        
-        while(!inputGroupFile.eof() && !savedGroupFile.eof())
-        {
+        getline(savedGroupFile, headerSaved);
+        getline(savedGroupFile, headerSaved);
+
+        int cnt=0;
+        while(!inputGroupFile.eof()){
+
+            cnt++;
             string input;
-            string saved;
-            
             getline(inputGroupFile,input);
-            getline(savedGroupFile,saved);
-                
-            vector<std::string> inputValues;
-            mzUtils::splitNew(input, "," , inputValues);
-        
-            vector<std::string> savedValues;
-            mzUtils::splitNew(saved, "," , savedValues);
+
+            if(input.size() > 0){
+                vector<string> inputValues;
+                mzUtils::splitNew(input , "," , inputValues);
+
+                if(cnt > 1){
+                    savedGroupFile.clear();
+                    savedGroupFile.seekg( 0, ios::beg);
+                    string headerSaved;
+                    getline(savedGroupFile, headerSaved);
+                    getline(savedGroupFile, headerSaved);
+                }
 
 
-            double inputFloat; 
-            double savedFloat;
-            
-            for(int i = 0; i < static_cast<int>(inputValues.size()); i++){  
-                inputFloat = string2float(inputValues[i]);
-                savedFloat = string2float(savedValues[i]);
-                REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
+                 while(!savedGroupFile.eof()){
+
+                    string saved;
+                    getline(savedGroupFile, saved);
+                    if(saved.size()){
+                        vector<string> savedValues;
+                        mzUtils::splitNew(saved, "," , savedValues);
+
+                        if(string2float(inputValues[4]) == doctest::Approx(string2float(savedValues[4])) &&
+                           string2float(inputValues[5]) == doctest::Approx(string2float(savedValues[5])) &&
+                           string2float(inputValues[12]) == doctest::Approx(string2float(savedValues[12])) &&
+                           inputValues[8] == savedValues[8] ){
+
+                            double inputFloat;
+                            double savedFloat;
+                            for(int i = 3; i < static_cast<int>(inputValues.size()); i++){
+                                if( i == 8 || i == 9 || i == 10){
+                                    REQUIRE(inputValues[i] == savedValues[i]);
+                                }
+                                else{
+                                    inputFloat = string2float(inputValues[i]);
+                                    savedFloat = string2float(savedValues[i]);
+                                    REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
+                               }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
-            
         }
         inputGroupFile.close();
         savedGroupFile.close();
@@ -706,55 +723,69 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
         }
         
         ifstream inputPeakFile("peakReport.csv");
-        ifstream savedPeakFile("C:\\msys64\\home\\kashika\\ElMaven\\tests\\doctest\\test_peakReport.csv");
+        ifstream savedPeakFile("tests/test-libmaven/test_peakReport.csv");
         
         string headerInput;
+        getline(inputPeakFile, headerInput);
+
         string headerSaved;
-        
-        if( !inputPeakFile.eof())       
-            getline(inputPeakFile,headerInput);
-        if( !savedPeakFile.eof())
-            getline(savedPeakFile,headerSaved);
-        
-        vector<std::string> headerInputValues;
-        mzUtils::splitNew(headerInput, "," , headerInputValues);
-        
-        vector<std::string> headerSavedValues;
-        mzUtils::splitNew(headerSaved, "," , headerSavedValues);
-        
-        for(int i = 0; i < static_cast<int>(headerInputValues.size()); i++)
-            REQUIRE(headerInputValues[i] == headerSavedValues[i]);
-        
-        while(!inputPeakFile.eof() && !savedPeakFile.eof())
-        {
+        getline(savedPeakFile, headerSaved);
+
+        int cnt=0;
+        while(!inputPeakFile.eof()){
+
+            cnt++;
             string input;
-            string saved;
-            
             getline(inputPeakFile,input);
-            getline(savedPeakFile,saved);
-                
-            vector<std::string> inputValues;
-            mzUtils::splitNew(input, "," , inputValues);
-        
-            vector<std::string> savedValues;
-            mzUtils::splitNew(saved, "," , savedValues);
+
+            if(input.size() > 0){
+                vector<string> inputValues;
+                mzUtils::splitNew(input , "," , inputValues);
+
+                if(cnt > 1){
+                    savedPeakFile.clear();
+                    savedPeakFile.seekg( 0, ios::beg);
+                    string headerSaved;
+                    getline(savedPeakFile, headerSaved);
+
+                }
 
 
-            double inputFloat; 
-            double savedFloat;
-            
-            for(int i = 0; i < static_cast<int>(inputValues.size()); i++){  
-                inputFloat = string2float(inputValues[i]);
-                savedFloat = string2float(savedValues[i]);
-                REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
+                 while(!savedPeakFile.eof()){
+
+                    string saved;
+                    getline(savedPeakFile, saved);
+                    if(saved.size()){
+                        vector<string> savedValues;
+                        mzUtils::splitNew(saved, "," , savedValues);
+
+                        if(string2float(inputValues[8]) == doctest::Approx(string2float(savedValues[8])) &&
+                           string2float(inputValues[12]) == doctest::Approx(string2float(savedValues[12])) &&
+                           inputValues[2] == savedValues[2] ){
+
+                            double inputFloat;
+                            double savedFloat;
+                            for(int i = 1; i < static_cast<int>(inputValues.size()); i++){
+                                if( i == 1 || i == 2 || i == 3){
+                                    REQUIRE(inputValues[i] == savedValues[i]);
+                                }
+                                else if(i == 4)
+                                    continue;
+                                else{
+                                    inputFloat = string2float(inputValues[i]);
+                                    savedFloat = string2float(savedValues[i]);
+                                    REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
+                               }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
-            
         }
-        
         inputPeakFile.close();
         savedPeakFile.close();
         remove("peakReport.csv");
     }
-    
 }
 
