@@ -769,7 +769,7 @@ class Isotope
     int S34;
     int H2;
 
-    Isotope(string name, float mass, int c = 0, int n = 0, int s = 0, int h = 0)
+    Isotope(string name, double mass, int c = 0, int n = 0, int s = 0, int h = 0)
     {
         this->mass = mass;
         this->name = name;
