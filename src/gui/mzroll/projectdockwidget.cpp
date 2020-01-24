@@ -554,7 +554,11 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     _treeWidget->clear();
 
     QStringList header;
-    header << "Sample" << "Set" << "Scaling" << "Injection Order";
+    header << "Sample"
+           << "Set"
+           << "Scaling"
+           << "Injection Order"
+           << "Sample Number";
     _treeWidget->setHeaderLabels( header );
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
@@ -612,6 +616,10 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
             item->setText(3, QString::number(sample->getInjectionOrder()));
         else
             item->setText(3, QString("NA"));
+        if(sample->sampleNumber != -1)
+            item->setText(4, QString::number(sample->sampleNumber));
+        else
+            item->setText(4, QString("NA"));
 
         item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
