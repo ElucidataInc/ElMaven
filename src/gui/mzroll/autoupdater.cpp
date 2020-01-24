@@ -70,8 +70,10 @@ void AutoUpdater::_checkForUpdate()
     string updateRepoUrl = STR(UPDATE_REPO_URL_BASE64);
     updateRepoUrl = base64::decodeString(updateRepoUrl.c_str(),
                                          updateRepoUrl.size());
+#ifdef __OSX_AVAILABLE
     // remove attached newline at the end
     updateRepoUrl = updateRepoUrl.substr(0, updateRepoUrl.size() - 1);
+#endif
     QString updatesXmlUrl = QString::fromStdString(updateRepoUrl)
                             + "/Updates.xml";
 
