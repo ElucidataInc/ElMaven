@@ -219,7 +219,7 @@ void TableDockWidget::updateTable() {
   updateStatus();
 }
 
-void TableDockWidget::updateItem(QTreeWidgetItem *item) {
+void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   QVariant v = item->data(0, Qt::UserRole);
   PeakGroup *group = v.value<PeakGroup *>();
   if (group == NULL)
@@ -267,13 +267,18 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
   } else if (bad > 0 && group->label == 'g') {
     float incorrectFraction = ((float)bad) / total;
     brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
+  } else {
+    brush = QBrush(QColor::fromRgbF(1.0, 1.0, 1.0, 1.0));
   }
   item->setBackground(0, brush);
 
-  if (group->label == 'g')
+  if (group->label == 'g') {
     item->setIcon(0, QIcon(":/images/good.png"));
-  if (group->label == 'b')
+  } else if (group->label == 'b') {
     item->setIcon(0, QIcon(":/images/bad.png"));
+  } else {
+    item->setIcon(0, QIcon());
+  }
 
   if (filtersDialog->isVisible()) {
     float minG = sliders["GoodPeakCount"]->minBoundValue();
@@ -286,8 +291,9 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
     }
   }
 
-  for (int i = 0; i < item->childCount(); ++i) {
-    updateItem(item->child(i));
+  if (updateChildren) {
+    for (int i = 0; i < item->childCount(); ++i)
+      updateItem(item->child(i));
   }
 }
 
@@ -1010,20 +1016,22 @@ void TableDockWidget::setGroupLabel(char label) {
       QVariant v = item->data(0, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
-        if (!(group->label=='g'||group->label=='b')){
+        group->setLabel(label);
+        if (group->label=='g' || group->label=='b') {
           numberOfGroupsMarked+=1;
           group->setLabel(label);
           subsetPeakGroups.push_back(*group);
         }
-        group->setLabel(label);
         if (numberOfGroupsMarked ==10){
           numberOfGroupsMarked = 0;
           Q_EMIT(UploadPeakBatch());
           subsetPeakGroups.clear();
           uploadCount+=1;
-          }
+        }
       }
       updateItem(item);
+      if (item->parent() != nullptr)
+        updateItem(item->parent(), false);
     }
 }
   updateStatus();
@@ -1193,6 +1201,16 @@ void TableDockWidget::markGroupBad() {
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
+void TableDockWidget::unmarkGroup() {
+  // TODO: Add a button for unmarking peak-groups?
+  setGroupLabel('\0');
+  auto currentGroups = getSelectedGroups();
+  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
+  if (_mainwindow->peaksMarked > 0)
+      _mainwindow->peaksMarked--;
+  _mainwindow->autoSaveSignal(currentGroups);
+}
+
 bool TableDockWidget::checkLabeledGroups() {
 
   int totalCount = 0;
@@ -1303,6 +1321,10 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
 
     if (item) {
       markGroupBad();
+    }
+  } else if (e->key() == Qt::Key_U) {
+    if (item) {
+      unmarkGroup();
     }
   } else if (e->key() == Qt::Key_Left) {
 

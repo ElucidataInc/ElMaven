@@ -205,7 +205,7 @@ public Q_SLOTS:
   void printPdfReport();
 
   void updateTable();
-  void updateItem(QTreeWidgetItem *item);
+  void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
   void updateStatus();
 
   //Group validation functions
@@ -213,6 +213,7 @@ public Q_SLOTS:
 
   virtual void markGroupBad();
   virtual void markGroupGood();
+  virtual void unmarkGroup();
   bool checkLabeledGroups();
   void markGroupIgnored();
   void showAllGroups();
