@@ -2164,14 +2164,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
 
     QToolButton *btnGood = new QToolButton(parent);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
-    btnGood->setToolTip("Mark Group as Good");
+    btnGood->setToolTip("Mark selected group as good");
     connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
     return btnGood;
   } else if (btnName == "btnBad") {
 
     QToolButton *btnBad = new QToolButton(parent);
     btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-    btnBad->setToolTip("Mark Good as Bad");
+    btnBad->setToolTip("Mark selected group as bad");
     connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
     return btnBad;
   } else if (btnName == "btnHeatmapelete") {
