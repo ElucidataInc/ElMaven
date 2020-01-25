@@ -14,6 +14,13 @@ EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(par
     if(scene) scene->addItem(this);
 }
 
+void EicLine::removeFromScene()
+{
+    prepareGeometryChange();
+    if (scene() != nullptr)
+        scene()->removeItem(this);
+}
+
 QRectF EicLine::boundingRect() const
 {
 

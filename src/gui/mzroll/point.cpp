@@ -63,6 +63,13 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
 
 EicPoint::~EicPoint() {}
 
+void EicPoint::removeFromScene()
+{
+    prepareGeometryChange();
+    if (scene() != nullptr)
+        scene()->removeItem(this);
+}
+
 QRectF EicPoint::boundingRect() const
 {
     return(QRectF(_x-_cSize/2,_y-_cSize/2,_cSize,_cSize));

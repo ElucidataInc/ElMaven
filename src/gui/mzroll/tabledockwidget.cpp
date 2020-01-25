@@ -934,6 +934,24 @@ vector<EIC *> TableDockWidget::getEICs(float rtmin,
   return (eics);
 }
 
+bool TableDockWidget::selectPeakGroup(PeakGroup *group)
+{
+  if (group == nullptr)
+    return false;
+
+  QTreeWidgetItemIterator it(treeWidget);
+  while (*it) {
+    QTreeWidgetItem *item = (*it);
+    QVariant v = item->data(0, Qt::UserRole);
+    PeakGroup *currentGroup = v.value<PeakGroup *>();
+    if (currentGroup == group) {
+        treeWidget->setCurrentItem(item);
+      return true;
+    }
+  }
+  return false;
+}
+
 void TableDockWidget::showSelectedGroup() {
 
   QTreeWidgetItem *item = treeWidget->currentItem();

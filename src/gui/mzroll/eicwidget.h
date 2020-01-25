@@ -7,6 +7,8 @@
 
 class EIC;
 class EICLogic;
+class EicLine;
+class EicPoint;
 class Note;
 class BoxPlot;
 class BarPlot;
@@ -51,14 +53,18 @@ public Q_SLOTS:
 	void setCompound(Compound* c);
         void setSelectedGroup(PeakGroup* group);
         PeakGroup* getSelectedGroup();
-	void addEICLines(bool showSpline, bool showEIC);
+    void addEICLines(bool showSpline,
+                     bool showEic,
+                     bool overlayingIntegratedArea = false,
+                     float rtMin = -1.0f,
+                     float rtMax = -1.0f);
+
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
 	void addBaseLine();
     void addBaseLine(EIC*);
 	void addTicLine();
 	void addMergedEIC();
 	void setFocusLine(float rt);
-	void drawSelectionLine(float rtmin, float rtmax);
 	void addFocusLine(PeakGroup*);
 	void addBarPlot(PeakGroup*);
 	void addBoxPlot(PeakGroup*);
@@ -124,10 +130,13 @@ public Q_SLOTS:
 	void startSpectralAveraging() {
 		toggleSpectraAveraging(true);
 	}
-	void toggleAreaIntegration(bool f) {
-		_areaIntegration = f;
-		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
-	}
+
+    /**
+     * @brief Hides peak-bubbles and fades the EIC such that any integrated is
+     * clearly visible as highlighted.
+     */
+    void toggleAreaIntegration(bool toggleOn);
+
 	void toggleSpectraAveraging(bool f) {
 		_spectraAveraging = f;
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
@@ -174,7 +183,8 @@ protected:
 	}
 	void contextMenuEvent(QContextMenuEvent * event);
 	void keyPressEvent(QKeyEvent *e);
-	void timerEvent(QTimerEvent * event);
+    void keyReleaseEvent(QKeyEvent *e);
+    void timerEvent(QTimerEvent * event);
 
 	void setupColors();
 	void setTitle();
@@ -243,10 +253,13 @@ private:
      */
     bool _ignoreTolerance;
 
+    bool _ignoreMouseReleaseEvent;
+    vector<EicLine*> _drawnLines;
+    vector<EicPoint*> _drawnPoints;
+
 	//gui related
 	QWidget *parent;
 	QGraphicsLineItem* _focusLine;
-	QGraphicsLineItem* _selectionLine;
 
 	void showPeak(float freq, float amplitude);
 	void groupPeaks();
@@ -267,6 +280,9 @@ private:
 	//function to add and remove notes
 	void getNotes(float mzmin, float mzmax);
 
+    void _clearEicLines();
+    void _clearEicPoints();
+    void _clearBarPlot();
 };
 
 #endif

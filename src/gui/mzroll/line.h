@@ -12,7 +12,7 @@ public:
     EicLine(QGraphicsItem* parent, QGraphicsScene *scene);
     void addPoint(float x, float y)  { _line << QPointF(x,y); }
     void addPoint(QPointF p)  { _line << p; }
-    void setColor(QColor &c)  { _color = c; }
+    void setColor(const QColor &c)  { _color = c; }
     void setPen(QPen &p)  { _pen = p; }
     void setBrush(QBrush &b)  { _brush = b; }
     void fixEnds();
@@ -23,6 +23,7 @@ public:
     void setFillPath(bool value) { _fillPath=value; }
     QPainterPath shape() const;
     void setClosePath(bool value ) {_closePath=value;}
+    void removeFromScene();
 
 protected:
     QRectF boundingRect() const;
