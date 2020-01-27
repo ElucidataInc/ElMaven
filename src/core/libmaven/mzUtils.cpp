@@ -1,3 +1,4 @@
+
 #include "mzUtils.h"
 #include "SavGolSmoother.h"
 #include "csvparser.h"
@@ -11,6 +12,35 @@
  * random collection of useful functions 
  */
 namespace mzUtils {
+
+    int randInt(int low, int high){
+        default_random_engine generator;
+        uniform_int_distribution<int> distribution(low,high);
+        int res = distribution(generator);
+        return res;
+    }
+
+    long randLong(long low, long high){
+        default_random_engine generator;
+        uniform_int_distribution<int> distribution(low,high);
+        long res = distribution(generator);
+        return res;
+    }
+
+    float randFloat(float low, float high){
+        default_random_engine generator;
+        uniform_real_distribution<float> distribution(low,high);
+        float res = distribution(generator);
+        return res;
+    }
+
+    double randDouble(double low, double high){
+        default_random_engine generator;
+        uniform_real_distribution<double> distribution(low,high);
+        double res = distribution(generator);
+        return res;
+    }
+
 
     std::string makeLowerCase(string &s) {
         for (unsigned int i=0; i != s.length(); ++i ) {
@@ -1153,5 +1183,5 @@ Series:  Prentice-Hall Series in Automatic Computation
              << chrono::duration_cast<chrono::milliseconds>(diff).count()
              << " ms\n";
     }
-
+    
 } //namespace end

@@ -1,5 +1,4 @@
 #include "comparesampleslogic.h"
-#include "MersenneTwister.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "PeakGroup.h"
@@ -14,7 +13,6 @@ void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 	int n3 = n1 + n2;
 	if (n1 == 0 || n2 == 0)
 		return;
-	MTRand mtrand; //TODO: replace by std::mt
 
 	//combine two sets
 	//cerr << "N3=" << n3 << endl;
@@ -30,7 +28,7 @@ void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 	for (int s = 0; s < 10; s++) {
 		//shuffle combined set
 		for (int i = 0; i < n3; i++) {
-			int r = mtrand.randInt(n3 - 1);
+			int r = randInt(0,n3 - 1);
 			assert(r <= n3 - 1);
 			if (i == r)
 				continue;

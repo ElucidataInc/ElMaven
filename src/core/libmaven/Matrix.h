@@ -35,7 +35,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdlib>
 #include <iostream>
 #include <assert.h>
-#include "MersenneTwister.h"
+
+#include "mzUtils.h"
 
 /// The Matrix class allows you to create a two-dimensional array with any size dimensions without having to specify them at compile-time.
 /// It makes use of templates so that you can use any type you desire, whether it is an int, short int, or perhaps an array of complex objects.
@@ -248,11 +249,10 @@ class mzMatrix {
 	}
 
 	void shuffle() {
-		MTRand mtrand;
 		for(int i=0; i< nrows; i++ ) {
 				for(int j=0; j< ncols; j++ ) {
-						int ii=mtrand.randInt(nrows-1);
-						int jj=mtrand.randInt(ncols-1);
+						int ii = mzUtils::randInt(0,nrows-1);
+						int jj = mzUtils::randInt(0,ncols-1);
 						T tmp = this->tileRows[ii][jj];
 						tileRows[ii][jj] = tileRows[i][j];
 						tileRows[i][j]=tmp;

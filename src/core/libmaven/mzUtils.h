@@ -1,14 +1,21 @@
 #ifndef UTILS_INCLUDED
 #define UTILS_INCLUDED
+ 
+/**  
+ *  "standardincludes.h" library thas has the correct order 
+ *  of including "math.h" and "cmath" libraries which is why 
+ *  it needs to be added before any other standard library
+ *  specially "iostream"
+ */
+#include "standardincludes.h"
 
+#include <random>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <iostream>
 #include <chrono>
-
-#include "standardincludes.h"
 #include "statistics.h"
 
 #ifdef ZLIB
@@ -59,6 +66,48 @@ namespace mzUtils {
         if (val - long(val) >= 0.5) return (ceil(val));
         return (floor(val));
     }
+    
+       
+    /**
+     *@brief Generates a random integer number in
+     * the given range.
+     *@param low  Lower inclusive bound of the range.
+     *@param high Upper inclusive bound of the range.
+     *@return An integer in range of closed lower and
+     *closed upper bounds.
+    */
+	int randInt(int low, int high);	
+		
+    /**
+     *@brief Generates a long Random integer numbers
+     * in the given range.
+     *@param low  Lower inclusive bound of the range.
+     *@param high Upper inclusive bound of the range.
+     *@return A long value in range of closed lower
+     *and closed upper bounds.
+    */	
+    long randLong(long low, long high);
+		
+	/**
+     *@brief Generates the Float Random Integer numbers
+     * in the given range.
+     *@param low  Lower inclusive bound of the range.
+     *@param high Upper inclusicve bound of the range.
+     *@return A float in range of closed lower and
+     *closed upper bounds.
+    */
+	float randFloat(float low, float high);
+		
+    /**
+     *@brief Generates Double Random Integer numbers in
+     * the given range.
+     *@param low  Lower inclusive bound of the range.
+     *@param high Upper inclusive bound of the range.
+     *@return A double in range of closed lower and
+     *closed upper bounds.
+    */
+    double randDouble(double low, double high);
+		
 
     bool strcasecmp_withNumbers(const std::string& a, const std::string& b );
 
@@ -685,7 +734,8 @@ namespace mzUtils {
          * attributed to.
          */
         void stopTimer(chrono::time_point<chrono::high_resolution_clock>& clock,
-                       string name);
+                       string name);		
+
 }
 
 template <typename T>
