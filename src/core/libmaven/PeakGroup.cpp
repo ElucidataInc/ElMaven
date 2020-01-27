@@ -1073,6 +1073,16 @@ void PeakGroup::setUserLabel(char label)
     _predictionProbability = 0.0f;
     _predictionInference.clear();
     _userLabel = label;
+
+    if (parent != nullptr && tagString == "C12 PARENT") {
+        parent->setUserLabel(label);
+        return;
+    }
+
+    for (auto& child : children) {
+        if (child.tagString == "C12 PARENT" && child._userLabel != label)
+            child.setUserLabel(label);
+    }
 }
 
 void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
