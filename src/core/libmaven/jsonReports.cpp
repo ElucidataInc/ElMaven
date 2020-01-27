@@ -63,13 +63,13 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
 
     filename << ",\n" << "\"compound\": { " ;
 
-    string compoundID = grp.getCompound()->id;
+    string compoundID = grp.getCompound()->id();
     filename << "\"compoundId\": "<< _sanitizeJSONstring(compoundID) ;
-    string compoundName = grp.getCompound()->name;
+    string compoundName = grp.getCompound()->name();
     filename << ",\n" << "\"compoundName\": "<< _sanitizeJSONstring(compoundName);
     string formula = grp.getCompound()->formula();
     filename << ",\n" << "\"formula\": "<< _sanitizeJSONstring(formula);
-    filename << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt;
+    filename << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt();
     filename << ",\n" << "\"expectedMz\": " << mz ;
     filename << ",\n" << "\"srmID\": " << _sanitizeJSONstring(grp.srmId) ;
     filename << ",\n" << "\"tagString\": " << _sanitizeJSONstring(grp.tagString) ;
@@ -188,17 +188,16 @@ void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample
 
     //TODO: Refactor the code :Sahil
     if (grp.hasCompoundLink()) {
-        if (!grp.srmId.empty()) {
-            //MS-MS case 1
+        if ( !grp.srmId.empty() ) { //MS-MS case 1
             eic = (sample)->getEIC(grp.srmId, _mavenParameters->eicType);
-        } else if((grp.getCompound()->precursorMz > 0) & (grp.getCompound()->productMz > 0)) {
-            //MS-MS case 2
+        }
+        else if((grp.getCompound()->precursorMz() > 0) & (grp.getCompound()->productMz() > 0)) { //MS-MS case 2
             //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
             //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
-            eic =(sample)->getEIC(grp.getCompound()->precursorMz, grp.getCompound()->collisionEnergy, grp.getCompound()->productMz, _mavenParameters->eicType,
-                                  _mavenParameters->filterline, _mavenParameters->amuQ1, _mavenParameters->amuQ3);
-        } else {
-            //MS1 case
+            eic =(sample)->getEIC(grp.getCompound()->precursorMz(), grp.getCompound()->collisionEnergy(), grp.getCompound()->productMz(),_mavenParameters->eicType,
+                               _mavenParameters->filterline, _mavenParameters->amuQ1, _mavenParameters->amuQ3);
+        }
+       else {//MS1 case
             //TODO: same problem here: need the ppm that was used, or the slice object
             //for mz could rely on same computation being done way above
             //redoing it only for code clarity

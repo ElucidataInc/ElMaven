@@ -70,9 +70,9 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             }
 
             if (compound) {
-                compound->srmId = filterLine.toStdString();
+                compound->srmId() = filterLine.toStdString();
                 s->compound = compound;
-                s->rt = compound->expectedRt;
+                s->rt = compound->expectedRt();
                 countMatches++;
             }
         }
@@ -87,15 +87,15 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
     float distRt=FLT_MAX;
 
     for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
-            if (compoundsDB[i]->precursorMz == 0 ) continue;
+            if (compoundsDB[i]->precursorMz() == 0 ) continue;
             //cerr << polarity << " " << compoundsDB[i]->charge << endl;
-            if ((int) compoundsDB[i]->charge != polarity && compoundsDB[i]->charge != 0) continue;
-            float a = abs(compoundsDB[i]->precursorMz - precursorMz);
+            if ((int) compoundsDB[i]->charge() != polarity && compoundsDB[i]->charge() != 0) continue;
+            float a = abs(compoundsDB[i]->precursorMz() - precursorMz);
             if ( a > amuQ1 ) continue; // q1 tolerance
-            float b = abs(compoundsDB[i]->productMz - productMz);
+            float b = abs(compoundsDB[i]->productMz() - productMz);
             if ( b > amuQ3 ) continue; // q3 tolerance
             float dMz = sqrt(a*a+b*b);
-            float dRt = abs(compoundsDB[i]->expectedRt - rt);
+            float dRt = abs(compoundsDB[i]->expectedRt() - rt);
             if (  ( dMz < distMz)  ||   ((dMz == distMz) && (dRt < distRt))  ) { 
                 x = compoundsDB[i];
                 distMz=dMz; 
@@ -168,11 +168,11 @@ deque<Compound*> SRMList::getMatchedCompounds(string srmId, double amuQ1, double
     float productMz = getProductOfSrm(srmId);
 
     for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
-        if ((int) compoundsDB[i]->charge != polarity && compoundsDB[i]->charge != 0) continue;
-        if (compoundsDB[i]->precursorMz == 0 ) continue;
-        float a = abs(compoundsDB[i]->precursorMz - precursorMz);
+        if ((int) compoundsDB[i]->charge() != polarity && compoundsDB[i]->charge() != 0) continue;
+        if (compoundsDB[i]->precursorMz() == 0 ) continue;
+        float a = abs(compoundsDB[i]->precursorMz() - precursorMz);
         if ( a > amuQ1 ) continue; // q1 tolerance
-        float b = abs(compoundsDB[i]->productMz - productMz);
+        float b = abs(compoundsDB[i]->productMz() - productMz);
         if ( b > amuQ3 ) continue; // q3 tolerance
 
         matchedCompounds.push_back(compoundsDB[i]);

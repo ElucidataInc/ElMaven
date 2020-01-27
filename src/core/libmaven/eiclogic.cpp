@@ -103,8 +103,8 @@ mzSlice EICLogic::setMzSlice(float mz1,MassCutoff *massCutoff, float mz2) {
 	x.mzmax = mz1 + massCutoff->massCutoffValue(mz1);
 	if (mz2 > 0) {
 		Compound* c = new Compound("1", "", "C", 0);
-		c->precursorMz = mz1;
-		c->productMz = mz2;
+        c->setPrecursorMz (mz1);
+        c->setProductMz (mz2);
 		x.compound = c;
 	}
 	return x;

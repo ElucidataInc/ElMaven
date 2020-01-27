@@ -124,7 +124,7 @@ void HeatMap::drawMap() {
 
             Compound* c  = group->getCompound();
             if ( c != NULL) {
-                QGraphicsTextItem* item = scene()->addText(QString(c->name.c_str()));
+                QGraphicsTextItem* item = scene()->addText(QString(c->name().c_str()));
                 int textWidth = item->boundingRect().width();
                 float ratio = _rowSpacer/(float) textWidth;
                 item->setPos(0,_sampleSpacer+i*_boxH);

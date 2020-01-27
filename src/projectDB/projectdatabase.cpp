@@ -233,11 +233,11 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                                           ? group->getAdduct()->getName() : "");
 
     groupsQuery->bind(":compound_id",
-                      group->getCompound() ? group->getCompound()->id : "");
+                      group->getCompound() ? group->getCompound()->id() : "");
     groupsQuery->bind(":compound_name",
-                      group->getCompound() ? group->getCompound()->name : "");
+                      group->getCompound() ? group->getCompound()->name() : "");
     groupsQuery->bind(":compound_db",
-                      group->getCompound() ? group->getCompound()->db : "");
+                      group->getCompound() ? group->getCompound()->db() : "");
 
     groupsQuery->bind(":table_name", tableName);
     groupsQuery->bind(":min_quality", group->minQuality);
@@ -449,20 +449,20 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
             fragIonType << c->fragmentIonTypes.rbegin()->second;
         }
 
-        compoundsQuery->bind(":compound_id", c->id);
-        compoundsQuery->bind(":db_name", c->db);
-        compoundsQuery->bind(":name", c->name);
+        compoundsQuery->bind(":compound_id", c->id());
+        compoundsQuery->bind(":db_name", c->db());
+        compoundsQuery->bind(":name", c->name());
         compoundsQuery->bind(":formula", c->formula());
         compoundsQuery->bind(":smile_string", c->smileString);
-        compoundsQuery->bind(":srm_id", c->srmId);
+        compoundsQuery->bind(":srm_id", c->srmId());
 
-        compoundsQuery->bind(":mass", c->mass);
-        compoundsQuery->bind(":charge", c->charge);
-        compoundsQuery->bind(":expected_rt", c->expectedRt);
-        compoundsQuery->bind(":precursor_mz", c->precursorMz);
-        compoundsQuery->bind(":product_mz", c->productMz);
+        compoundsQuery->bind(":mass", c->mass());
+        compoundsQuery->bind(":charge", c->charge());
+        compoundsQuery->bind(":expected_rt", c->expectedRt());
+        compoundsQuery->bind(":precursor_mz", c->precursorMz());
+        compoundsQuery->bind(":product_mz", c->productMz());
 
-        compoundsQuery->bind(":collision_energy", c->collisionEnergy);
+        compoundsQuery->bind(":collision_energy", c->collisionEnergy());
         compoundsQuery->bind(":log_p", c->logP);
         compoundsQuery->bind(":virtual_fragmentation", c->virtualFragmentation);
         compoundsQuery->bind(":ionization_mode", c->ionizationMode);
@@ -474,7 +474,7 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
 
         compoundsQuery->bind(":note", c->note);
         if (!compoundsQuery->execute())
-            cerr << "Error: failed to save compound " << c->name << endl;
+            cerr << "Error: failed to save compound " << c->name() << endl;
     }
 
     _connection->commit();
@@ -1131,28 +1131,28 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
 
         // the neutral mass is computed automatically inside the constructor
         Compound* compound = new Compound(id, name, formula, charge);
-        compound->db = db;
-        compound->expectedRt = expectedRt;
+        compound->setDb (db);
+        compound->setExpectedRt( expectedRt);
 
         if (formula.empty()) {
             if (mass > 0)
-                compound->mass = mass;
+                compound->setMass ( mass);
         } else {
-            compound->mass =
-                    static_cast<float>(mcalc.computeNeutralMass(formula));
+            compound->setMass
+                    (static_cast<float>(mcalc.computeNeutralMass(formula)));
         }
 
-        compound->precursorMz = compoundsQuery->floatValue("precursor_mz");
-        compound->productMz = compoundsQuery->floatValue("product_mz");
-        compound->collisionEnergy =
-                compoundsQuery->floatValue("collision_energy");
+        compound->setPrecursorMz ( compoundsQuery->floatValue("precursor_mz"));
+        compound->setProductMz (compoundsQuery->floatValue("product_mz"));
+        compound->setCollisionEnergy
+                (compoundsQuery->floatValue("collision_energy"));
         compound->smileString = compoundsQuery->stringValue("smile_string");
         compound->logP = compoundsQuery->floatValue("log_p");
         compound->ionizationMode = compoundsQuery->floatValue("ionization_mode");
         compound->note = compoundsQuery->stringValue("note");
 
         // mark compound as decoy if names contains DECOY string
-        if (compound->name.find("DECOY") != string::npos)
+        if (compound->name().find("DECOY") != string::npos)
             compound->isDecoy = true;
 
         // lambda function to split a string using given delimiters
@@ -1192,7 +1192,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compound->fragmentIonTypes[i] = fragIonType;
         }
 
-        _compoundIdMap[compound->id  + compound->name + compound->db] = compound;
+        _compoundIdMap[compound->id()  + compound->name() + compound->db()] = compound;
         compounds.push_back(compound);
         loadCount++;
     }
@@ -1646,7 +1646,7 @@ vector<Compound*> ProjectDatabase::_findSpeciesByName(string name,
     vector<Compound*> similarlyNamedCompounds;
     for (const auto& key : _compoundIdMap) {
         Compound* compound = key.second;
-        if (compound->name == name && compound->db == databaseName)
+        if (compound->name() == name && compound->db() == databaseName)
             similarlyNamedCompounds.push_back(compound);
     }
     return similarlyNamedCompounds;

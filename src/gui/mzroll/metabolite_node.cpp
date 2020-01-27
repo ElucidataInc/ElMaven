@@ -41,7 +41,7 @@ void MetaboliteNode::paint(QPainter *painter, const QStyleOptionGraphicsItem*, Q
 		paintMetabolite(painter);
 	}
 
-        if(_showBarPlot && c && c->hasGroup()){
+        if(_showBarPlot){
             addBarPlot();
          } else if (_barplot) {
             _barplot->hide();
@@ -50,7 +50,7 @@ void MetaboliteNode::paint(QPainter *painter, const QStyleOptionGraphicsItem*, Q
 
 void MetaboliteNode::addBarPlot() {
     Compound* c = getCompound();
-    if (!c || !c->hasGroup()) return;
+    if (!c) return;
 
     if (!_barplot) { _barplot = new BarPlot(this,scene());  }
 
@@ -60,7 +60,6 @@ void MetaboliteNode::addBarPlot() {
         _barplot->showIntensityText(false);
         _barplot->showSampleNames(false);
         _barplot->showQValueType(false);
-         _barplot->setPeakGroup(c->getPeakGroup());
      }
 
 }
@@ -193,7 +192,7 @@ void MetaboliteNode::paintMetabolite(QPainter *painter) {
 
     QColor color1 = Qt::white;
     QColor color2 = Qt::gray;
-	if (c->hasGroup() && getConcentration()>0)  color2 = Qt::blue;
+        if ( getConcentration()>0)  color2 = Qt::blue;
 
 	QPen pen(Qt::black,0);
 	if ( isHighlighted() ) pen.setColor(Qt::yellow);
@@ -279,7 +278,7 @@ void MetaboliteNode::hoverEnterEvent (QGraphicsSceneHoverEvent*event ) {
 	Compound* c = getCompound();
 	if (c )  {
 		Q_EMIT compoundHover( c );
-		QString title(c->name.c_str());
+                QString title(c->name().c_str());
 		if(_graph) _graph->setTitle(title);
 		update(); 
 	}
@@ -305,7 +304,7 @@ void MetaboliteNode::expandOnCompound() {
 void MetaboliteNode::contextMenuEvent (QGraphicsSceneContextMenuEvent * event ) {
     QMenu menu;
 
-    if ( getCompound() && getCompound()->hasGroup() ) {
+    if ( getCompound()) {
         QAction* a1 = menu.addAction("Edit Group");
         connect(a1, SIGNAL(triggered()),SLOT(editGroup()));
 
@@ -345,7 +344,7 @@ void MetaboliteNode::dropEvent( QGraphicsSceneDragDropEvent * event ) {
 
             if (group && group->getCompound()) { 
                 setCompound(group->getCompound()); 
-                qDebug() << "Setting Compound:" << group->getCompound()->name.c_str();
+                qDebug() << "Setting Compound:" << group->getCompound()->name().c_str();
             }
         }
     }

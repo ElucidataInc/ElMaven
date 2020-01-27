@@ -116,7 +116,7 @@ void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 		slice.compound = c;
 		slice.rtmin = 0;
 		slice.rtmax = 1e9;
-		if (!c->srmId.empty()) slice.srmId=c->srmId;
+                if (!c->srmId().empty()) slice.srmId=c->srmId();
 
         if (!c->formula().empty()) {
             int charge = mainwindow->mavenParameters->getCharge(c);
@@ -132,7 +132,7 @@ void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 		}
     */
 		TinyPlot* plot = addEicPlot(slice);
-		if(plot) plot->setTitle(QString(c->name.c_str()));
+                if(plot) plot->setTitle(QString(c->name().c_str()));
 		if(plot) plot->setData(0, QVariant::fromValue(c));
 	}
 	if (plotitems.size() > 0) replot();
@@ -161,7 +161,7 @@ void GalleryWidget::addEicPlots(std::vector<PeakGroup*>&groups) {
 
    		mzSlice slice(minmz,maxmz,rtmin,rtmax);
 		if(c) slice.compound = c;
-		if(c && !c->srmId.empty()) slice.srmId=c->srmId;
+                if(c && !c->srmId().empty()) slice.srmId=c->srmId();
 
 		TinyPlot* plot = addEicPlot(slice);
 		if ( plot ) {

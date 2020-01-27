@@ -289,12 +289,9 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     float ppmDist = 0;
 
     if (group->getCompound() != NULL) {
-        compoundName =
-            _sanitizeString(group->getCompound()->name.c_str()).toStdString();
-        compoundID =
-            _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str())
-                      .toStdString();
+        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
+        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
         if (!group->getCompound()->formula().empty()) {
             int charge = getMavenParameters()->getCharge(group->getCompound());
             if (group->parent != NULL) {
@@ -302,17 +299,15 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                     (double)group->getExpectedMz(charge),
                     (double)group->meanMz,
                     getMavenParameters()->massCutoffMerge);
-            } else {
-                ppmDist = mzUtils::massCutoffDist(
-                    (double)group->getCompound()->adjustedMass(charge),
-                    (double)group->meanMz,
-                    getMavenParameters()->massCutoffMerge);
+            } 
+            else {
+                ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
+                                                  (double) group->meanMz,
+                                                  getMavenParameters()->massCutoffMerge);
             }
-        } else {
-            ppmDist =
-                mzUtils::massCutoffDist((double)group->getCompound()->mass,
-                                        (double)group->meanMz,
-                                        getMavenParameters()->massCutoffMerge);
+        }
+        else {
+            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mass(), (double) group->meanMz,getMavenParameters()->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff();
         // TODO: Added this while merging this file
@@ -380,12 +375,9 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     string compoundID = "";
     string formula = "";
     if (group->getCompound() != NULL) {
-        compoundName =
-            _sanitizeString(group->getCompound()->name.c_str()).toStdString();
-        compoundID =
-            _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str())
-                      .toStdString();
+        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
+        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using
         // untargeted detection,
@@ -489,10 +481,8 @@ void CSVReports::writeDataForPolly(const std::string& file,
                 _reportStream << ",";
 
                 string compoundName = "";
-                if (child.getCompound() != NULL)
-                    compoundName =
-                        _sanitizeString(child.getCompound()->name.c_str())
-                            .toStdString();
+                if(child.getCompound() != NULL)
+                    compoundName = _sanitizeString(child.getCompound()->name().c_str()).toStdString();
                 else
                     compoundName = std::to_string(child.meanMz) + "@"
                                    + std::to_string(child.meanRt);

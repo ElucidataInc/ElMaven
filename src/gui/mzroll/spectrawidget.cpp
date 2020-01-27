@@ -299,11 +299,11 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
         hit.score = 0;
     //TODO: precursormz should be preset as the compound m/z
     //compound->mass should be reserved for exact mass or renamed
-    if (!c->formula().empty() || c->neutralMass != 0.0f)
-        c->precursorMz = c->adjustedMass(mainwindow->mavenParameters->getCharge(c));
-    if (mzUtils::almostEqual(c->precursorMz, 0.0f))
-        c->precursorMz = c->mass;
-    hit.precursorMz = c->precursorMz;
+    if (!c->formula().empty())
+        c->setPrecursorMz ( c->adjustedMass(mainwindow->mavenParameters->getCharge(c)));
+    if (mzUtils::almostEqual(c->precursorMz(), 0.0f))
+        c->setPrecursorMz( c->mass());
+    hit.precursorMz = c->precursorMz();
     hit.matchCount = 0;
     hit.sampleName = "";
     hit.productPPM = mainwindow->mavenParameters->fragmentTolerance;
@@ -317,7 +317,7 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 
     _spectralHit = hit;
 
-    cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name << " " << c->precursorMz << endl;
+    cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name() << " " << c->precursorMz() << endl;
 
     if (_currentScan && _currentScan->mslevel == 2) {
         _showOverlay = true;
@@ -514,7 +514,7 @@ void SpectraWidget::setGroupTitle()
     _titleText = QString();
 
     QString compoundName("");
-    if (_currentGroup.getCompound()) compoundName = QString(_currentGroup.getCompound()->name.c_str());
+    if (_currentGroup.getCompound()) compoundName = QString(_currentGroup.getCompound()->name().c_str());
     
     float purity = 0;
     if (_currentGroup.fragmentationPattern.mzValues.size()) {

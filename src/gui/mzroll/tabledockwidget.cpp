@@ -1653,7 +1653,7 @@ void TableDockWidget::findMatchingCompounds() {
                                                             charge);
     if (compounds.size() > 0)
       Q_FOREACH (Compound *c, compounds) {
-        g.tagString += " |" + c->name;
+        g.tagString += " |" + c->name();
         break;
       }
   }

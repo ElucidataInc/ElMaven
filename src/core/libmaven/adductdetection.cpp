@@ -13,7 +13,7 @@ mzSlice* AdductDetection::createSliceForCompoundAdduct(Compound *compound,
 {
     MassCalculator massCalc;
     mzSlice* slice = new mzSlice;
-    float neutralMass = compound->neutralMass;
+    float neutralMass = compound->neutralMass();
     if (!compound->formula().empty())
         neutralMass = massCalc.computeNeutralMass(compound->formula());
     if (neutralMass <= 0)

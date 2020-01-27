@@ -969,9 +969,9 @@ void SpectralHitsDockWidget::integrateMS1() {
            qDebug() << peptideId;
            if(peptideCompoundMap.count(peptideId)==0) {
                Compound* cpd = new Compound(peptideId.toStdString(),hit->getProteinIds().toStdString(),string(),hit->charge);
-               cpd->expectedRt=hit->rt;
-               cpd->precursorMz = hit->precursorMz;
-               cpd->mass=hit->precursorMz;
+               cpd->setExpectedRt(hit->rt);
+               cpd->setPrecursorMz (hit->precursorMz);
+               cpd->setMass(hit->precursorMz);
                peptideCompoundMap[peptideId]=cpd;
            }
            peptideMap[peptideId] = slice;
@@ -1031,10 +1031,10 @@ void SpectralHitsDockWidget::integrateMS1() {
            if(peptideCompoundMap.count(peptide)) {
                Compound* cpd = peptideCompoundMap[peptide];
                nearestGrp->setCompound(cpd);
-               nearestGrp->getCompound()->expectedRt = slice->rt;
+               nearestGrp->getCompound()->setExpectedRt(slice->rt);
 
-               if(proteinAccessionMap.contains(cpd->name.c_str())) {
-                   ProteinHit* prot = proteinAccessionMap[cpd->name.c_str()];
+               if(proteinAccessionMap.contains(cpd->name().c_str())) {
+                   ProteinHit* prot = proteinAccessionMap[cpd->name().c_str()];
                    if (prot) {
                         nearestGrp->tagString=prot->geneSymbol.toStdString();
                         nearestGrp->metaGroupId=prot->proteinGroup;

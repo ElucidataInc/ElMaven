@@ -74,8 +74,8 @@ QList<Edge*> Node::findConnectedEdges(Node* other) {
 bool Node::unlinkGroup() { 
 	if (getDataReference() && isMetabolite()) {
 		Compound* c = (Compound*) getDataReference();
-		if (c && c->hasGroup() ) {
-				c->unlinkGroup();
+                if (c ) {
+
 				QVector<float>v;
 				setConcentrations(v);
 				setLabeledConcentrations(v);

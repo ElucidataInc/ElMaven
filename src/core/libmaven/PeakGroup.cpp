@@ -304,8 +304,8 @@ float PeakGroup::medianRt() {
 float PeakGroup::expectedRtDiff()
 {
     auto associatedCompound = getCompound();
-    if (associatedCompound != nullptr && associatedCompound->expectedRt > 0) {
-        return abs(associatedCompound->expectedRt - meanRt);
+    if (associatedCompound != nullptr && associatedCompound->expectedRt() > 0) {
+        return abs(associatedCompound->expectedRt() - meanRt);
     }
     return -1.0f;
 }
@@ -558,34 +558,33 @@ double PeakGroup::getExpectedMz(int charge) {
 
     float mz = 0;
 
-    if (isIsotope() 
+    if (isIsotope()
         && childCount() == 0
         && hasSlice()
         && _slice.compound != NULL
         && !_slice.compound->formula().empty()
-        && _slice.compound->mass > 0
-    ) { 
+        && _slice.compound->mass() > 0
+        ) {
         return expectedMz;
     }
-    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
+    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass() > 0) {
         if (!_slice.compound->formula().empty() && _adduct != nullptr) {
             auto mass =
                 MassCalculator::computeNeutralMass(_slice.compound->formula());
             mz = _adduct->computeAdductMz(mass);
-        } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
+        } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass() != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
-            mz = _slice.compound->mass;
+            mz = _slice.compound->mass();
         }
         return mz;
     }
-    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mass == 0 && _slice.compound->productMz > 0) {
-        mz = _slice.compound->productMz;
+    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mass() == 0 && _slice.compound->productMz() > 0) {
+        mz = _slice.compound->productMz();
         return mz;
     }
 
     return -1;
-
 }
 
 void PeakGroup::groupStatistics() {
@@ -790,7 +789,7 @@ void PeakGroup::reorderSamples() {
 string PeakGroup::getName() {
     string tag;
     //compound is assigned in case of targeted search
-    if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name;
+    if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name();
     // add name of external charged species fused with adduct
     if (_adduct != nullptr) tag +=  " | " + _adduct->getName();
     //add isotopic label
@@ -903,7 +902,7 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
     double B = (double) intensityWeight/10;
     double C = (double) deltaRTWeight/10;
 
-    if (deltaRtCheckFlag && hasSlice() && _slice.compound != NULL && _slice.compound->expectedRt > 0) {
+    if (deltaRtCheckFlag && hasSlice() && _slice.compound != NULL && _slice.compound->expectedRt() > 0) {
         groupRank = pow(rtDiff, 2*C) * pow((1.1 - maxQuality), A)
                                 * (1 /( pow(log(maxIntensity + 1), B))); //TODO Formula to rank groups
     } else {

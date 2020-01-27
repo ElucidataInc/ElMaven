@@ -62,10 +62,10 @@ vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
 
             if (!slice->srmId.empty()) {
                 e = sample->getEIC(slice->srmId, mp->eicType);
-            } else if (c && c->precursorMz > 0 && c->productMz > 0) {
-                e = sample->getEIC(c->precursorMz,
-                                   c->collisionEnergy,
-                                   c->productMz,
+            } else if (c && c->precursorMz() > 0 && c->productMz() > 0) {
+                e = sample->getEIC(c->precursorMz(),
+                                   c->collisionEnergy(),
+                                   c->productMz(),
                                    mp->eicType,
                                    mp->filterline,
                                    mp->amuQ1,
@@ -143,12 +143,6 @@ void PeakDetector::pullAllIsotopes() {
                 S34Flag,
                 D2Flag);
             isotopeDetection.pullIsotopes(&group);
-        }
-
-        if (compound) {
-            if (!compound->hasGroup() ||
-                group.groupRank < compound->getPeakGroup()->groupRank)
-                compound->setPeakGroup(group);
         }
 
 
@@ -350,9 +344,7 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
             break;
 
         mzSlice* slice = slices[s];
-        Compound* compound = slice->compound;
-        if (compound != nullptr && compound->hasGroup())
-            compound->unlinkGroup();
+        Compound *compound = slice->compound;
 
         vector<EIC*> eics = pullEICs(slice,
                                      mavenParameters->samples,
@@ -440,11 +432,11 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
         bool matchFound = false;
         for (auto compound : identificationSet) {
             float mz = 0.0f;
-            if (compound->formula().length() || compound->neutralMass != 0.0f) {
+            if (compound->formula().length() || compound->neutralMass() != 0.0f) {
                 int charge = mavenParameters->getCharge(compound);
                 mz = compound->adjustedMass(charge);
             } else {
-                mz = compound->mass;
+                mz = compound->mass();
             }
             if (mzUtils::withinXMassCutoff(mz,
                                            group.meanMz,

@@ -147,7 +147,7 @@ void IsotopeWidget::setCompound(Compound *cpd)
     QString f = QString(cpd->formula().c_str());
 	//isotopeParameters->_group = NULL;
 	isotopeParameters->_compound = cpd;
-	setWindowTitle("Isotopes:" + QString(cpd->name.c_str()));
+        setWindowTitle("Isotopes:" + QString(cpd->name().c_str()));
 	setFormula(f);
 }
 
@@ -476,7 +476,7 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 	if (group->isIsotope())
 		tag = QString(group->parent->tagString.c_str());
 	if (tag.isEmpty() && group->getCompound() != NULL)
-		tag = QString(group->getCompound()->name.c_str());
+                tag = QString(group->getCompound()->name().c_str());
 	if (tag.isEmpty() && group->srmId.length())
 		tag = QString(group->srmId.c_str());
 	if (tag.isEmpty() && group->meanMz > 0)

@@ -734,9 +734,9 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
                 Compound* compound = mavenParameters->compounds[i];
 
                 QString charpolarity;
-                if (compound->charge > 0)
+                if (compound->charge() > 0)
                     charpolarity = "+";
-                if (compound->charge < 0)
+                if (compound->charge() < 0)
                     charpolarity = "-";
 
                 QStringList category;
@@ -746,16 +746,16 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
                 }
 
                 out << charpolarity << SEP;
-                out << QString(compound->name.c_str()) << SEP;
-                out << compound->mass << SEP;
-                out << compound->charge << SEP;
-                out << compound->precursorMz << SEP;
-                out << compound->collisionEnergy << SEP;
-                out << compound->productMz << SEP;
-                out << compound->expectedRt << SEP;
-                out << compound->id.c_str() << SEP;
+                out << QString(compound->name().c_str()) << SEP;
+                out << compound->mass() << SEP;
+                out << compound->charge() << SEP;
+                out << compound->precursorMz() << SEP;
+                out << compound->collisionEnergy() << SEP;
+                out << compound->productMz() << SEP;
+                out << compound->expectedRt() << SEP;
+                out << compound->id().c_str() << SEP;
                 out << compound->formula().c_str() << SEP;
-                out << compound->srmId.c_str() << SEP;
+                out << compound->srmId().c_str() << SEP;
                 out << category.join(";") << SEP;
                 out << "\n";
             }

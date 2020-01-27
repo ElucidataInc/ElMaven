@@ -123,9 +123,9 @@ void SuggestPopup::doSearchCompounds(QString needle) {
 
     for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
         Compound* c = DB.compoundsDB[i];
-        QString name(c->name.c_str() );
+        QString name(c->name().c_str() );
         QString formula(c->formula().c_str() );
-        QString id(c->id.c_str() );
+        QString id(c->id().c_str() );
 
         if ( name.length()==0) continue;
 
@@ -133,14 +133,14 @@ void SuggestPopup::doSearchCompounds(QString needle) {
         int index = regexp.indexIn(name);
         if ( index < 0) index = regexp.indexIn(id);
         if ( index < 0) continue;
-        if ( c->db != currentDb ) continue;
+        if ( c->db() != currentDb ) continue;
 
        // qDebug() << "Compound: " << name << " " << currentDb.c_str() ;
 
         //score
         float c1=0;
         if ( searchHistory.contains(name)) c1 = searchHistory.value(name);
-        if ( c->db == currentDb ) c1 += 10;
+        if ( c->db() == currentDb ) c1 += 10;
         if ( index == 0 ) c1 +=20;
         if ( formula == needle) c1 += 100;
 
@@ -148,7 +148,7 @@ void SuggestPopup::doSearchCompounds(QString needle) {
         c2 = regexp.matchedLength();
 
         float c3=0;
-        if ( c->expectedRt > 0 ) c3=1;
+        if ( c->expectedRt() > 0 ) c3=1;
 
         float score=1+c1+c2+c3;
 
