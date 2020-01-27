@@ -802,17 +802,31 @@ TableDockWidget::countBySubsets()
 void TableDockWidget::showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets)
 {
   auto itemsBySubset = _peakTableGroupedBySubsets();
-  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>> itr(itemsBySubset);
-  while (itr.hasNext()) {
-    itr.next();
-    auto subset = itr.key();
-    auto& itemsForSubset = itr.value();
+
+  // first, we hide all items from subsets that are not in the inclusion list
+  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>>
+      hideItr(itemsBySubset);
+  while (hideItr.hasNext()) {
+    hideItr.next();
+    auto subset = hideItr.key();
+    auto& itemsForSubset = hideItr.value();
+    if (!visibleSubsets.contains(subset)) {
+      for (auto item : itemsForSubset)
+        item->setHidden(true);
+    }
+  }
+
+  // next, we separately show visible subset because some of the items that
+  // were hidden in the last iteration might have to be shown again
+  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>>
+      showItr(itemsBySubset);
+  while (showItr.hasNext()) {
+    showItr.next();
+    auto subset = showItr.key();
+    auto& itemsForSubset = showItr.value();
     if (visibleSubsets.contains(subset)) {
       for (auto item : itemsForSubset)
         item->setHidden(false);
-    } else {
-      for (auto item : itemsForSubset)
-        item->setHidden(true);
     }
   }
 }
@@ -1406,10 +1420,10 @@ TableDockWidget::_peakTableGroupedBySubsets() {
       if (group == nullptr)
         continue;
 
-      // all groups (or their children) are inserted into this list
+      // all groups are inserted into this list
       allItems.append(item);
 
-      // all selected groups (or their children) are inserted into this list
+      // all selected groups are inserted into this list
       if (item->isSelected())
         selectedItems.append(item);
 
