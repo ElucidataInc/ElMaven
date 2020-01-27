@@ -1261,36 +1261,39 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
 
         group->setSlice(slice);
 
-        // load PeakML attributes
-        int value = groupsQuery->integerValue("predicted_label");
-        float probability = groupsQuery->doubleValue("prediction_probability");
-        group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
-                                 probability);
-        string predictionInferenceKeys =
-            groupsQuery->stringValue("prediction_inference_key");
-        string predictionInferenceValues =
-            groupsQuery->stringValue("prediction_inference_value");
-        multimap<float, string> inference;
-        size_t keyPos = 0;
-        size_t valuePos = 0;
-        while (true) {
-            keyPos = predictionInferenceKeys.find(",");
-            valuePos = predictionInferenceValues.find(",");
+        // load PeakML attributes (only if the prediction label is non-empty)
+        string predictedLabel = groupsQuery->stringValue("predicted_label");
+        if (!predictedLabel.empty()) {
+            int value = groupsQuery->integerValue("predicted_label");
+            float probability = groupsQuery->doubleValue("prediction_probability");
+            group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
+                                     probability);
+            string predictionInferenceKeys =
+                groupsQuery->stringValue("prediction_inference_key");
+            string predictionInferenceValues =
+                groupsQuery->stringValue("prediction_inference_value");
+            multimap<float, string> inference;
+            size_t keyPos = 0;
+            size_t valuePos = 0;
+            while (true) {
+                keyPos = predictionInferenceKeys.find(",");
+                valuePos = predictionInferenceValues.find(",");
 
-            // both positions should be valid and equal in the number of times
-            // they occur
-            if (keyPos == string::npos || valuePos == string::npos)
-                break;
+                // both positions should be valid and equal in the number of
+                // times they occur
+                if (keyPos == string::npos || valuePos == string::npos)
+                    break;
 
-            float key = atof(predictionInferenceKeys.substr(0, keyPos).c_str());
-            string value = predictionInferenceValues.substr(0, valuePos);
-            inference.insert(make_pair(key, value));
+                float key = atof(predictionInferenceKeys.substr(0, keyPos).c_str());
+                string value = predictionInferenceValues.substr(0, valuePos);
+                inference.insert(make_pair(key, value));
 
-            // (position + 1) to erase the delimiters as well
-            predictionInferenceKeys.erase(0, keyPos + 1);
-            predictionInferenceValues.erase(0, valuePos + 1);
+                // (position + 1) to erase the delimiters as well
+                predictionInferenceKeys.erase(0, keyPos + 1);
+                predictionInferenceValues.erase(0, valuePos + 1);
+            }
+            group->setPredictionInference(inference);
         }
-        group->setPredictionInference(inference);
 
         loadGroupPeaks(group, databaseId, loaded);
         group->groupStatistics();
