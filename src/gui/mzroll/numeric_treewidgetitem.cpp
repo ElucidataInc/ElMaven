@@ -29,10 +29,10 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
         return false;
         
     // takes care of sorting based on PeakML class labels
-    QVariant thisUserData = this->data(sortCol, Qt::UserRole);
-    QVariant otherUserData = other.data(sortCol, Qt::UserRole);
-    auto thisLabel = labelForString(thisUserData.value<QString>());
-    auto otherLabel = labelForString(otherUserData.value<QString>());
+    QString thisLabelString = this->data(sortCol, Qt::UserRole).value<QString>();
+    QString otherLabelString = other.data(sortCol, Qt::UserRole).value<QString>();
+    auto thisLabel = PeakGroup::labelForString(thisLabelString.toStdString());
+    auto otherLabel = PeakGroup::labelForString(otherLabelString.toStdString());
     if (thisLabel != PeakGroup::ClassifiedLabel::None
         || otherLabel != PeakGroup::ClassifiedLabel::None) {
         return thisLabel < otherLabel;

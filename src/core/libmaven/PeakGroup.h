@@ -61,6 +61,39 @@ class PeakGroup{
             CorrelationAndPattern // the group is a signal which shows correlation as well as intensity pattern
         };
 
+        static string labelToString (ClassifiedLabel label)
+        {
+            if (label == ClassifiedLabel::Noise)
+                return "ClassifiedLabel::Noise";
+            if (label == ClassifiedLabel::Signal)
+                return "ClassifiedLabel::Signal";
+            if (label == ClassifiedLabel::Correlation)
+                return "ClassifiedLabel::Correlation";
+            if (label == ClassifiedLabel::Pattern)
+                return "ClassifiedLabel::Pattern";
+            if (label == ClassifiedLabel::CorrelationAndPattern)
+                return "ClassifiedLabel::CorrelationAndPattern";
+            return "ClassifiedLabel::None";
+        }
+
+        static ClassifiedLabel labelForString(const string& labelString)
+        {
+            if (labelString == "ClassifiedLabel::Signal") {
+                return PeakGroup::ClassifiedLabel::Signal;
+            } else if (labelString == "ClassifiedLabel::Noise") {
+                return PeakGroup::ClassifiedLabel::Noise;
+            } else if (labelString == "ClassifiedLabel::Correlation") {
+                return PeakGroup::ClassifiedLabel::Correlation;
+            } else if (labelString == "ClassifiedLabel::Pattern") {
+                return PeakGroup::ClassifiedLabel::Pattern;
+            } else if (labelString == "ClassifiedLabel::CorrelationAndPattern") {
+                return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            }
+            return PeakGroup::ClassifiedLabel::None;
+        }
+
+        PeakGroup();
+        PeakGroup(const PeakGroup& o);
         PeakGroup& operator=(const PeakGroup& o);
 
         bool operator==(const PeakGroup* o);
