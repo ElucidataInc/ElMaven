@@ -992,7 +992,12 @@ void EicWidget::unSetPeakTableGroup(PeakGroup* group)
     }
 }
 
-void EicWidget::replot(PeakGroup* group) {
+void EicWidget::replot(PeakGroup* group)
+{
+    if (_areaIntegration) {
+        toggleAreaIntegration(false);
+        return;
+    }
 
 	if (eicParameters->eics.size() == 0)
 		return;
