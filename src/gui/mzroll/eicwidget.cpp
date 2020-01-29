@@ -651,6 +651,10 @@ void EicWidget::addEICLines(bool showSpline,
         }
 
         setLineAttributes(lineSpline, eic, 0.7f, zValue);
+
+        // we do not want baseline to be computed on area integration's redraws
+        if(_showBaseline && !_areaIntegration)
+            addBaseLine(eic, zValue);
     }
 }
 
@@ -852,9 +856,8 @@ void EicWidget::addMergedEIC() {
 
 }
 
-void EicWidget::addBaseLine(EIC* eic) {
-    QSettings* settings = this->getMainWindow()->getSettings();
-
+void EicWidget::addBaseLine(EIC* eic, double zValue)
+{
     if (!eic->baseline) {
         auto parameters = getMainWindow()->mavenParameters;
         eic->setBaselineDropTopX(parameters->baseline_dropTopX);
@@ -890,23 +893,12 @@ void EicWidget::addBaseLine(EIC* eic) {
 
     QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 1 );
     line->setColor(color);
-	line->setZValue(5);
+    line->setZValue(zValue);
 
     QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
     line->setPen(pen);
 }
-
-void EicWidget::addBaseLine() {
-	qDebug() << " EicWidget::addBaseLine()";
-
-	for (unsigned int i = 0; i < eicParameters->eics.size(); i++) {
-		EIC* eic = eicParameters->eics[i];
-        addBaseLine(eic);
-    }
-}
-
-
 
 void EicWidget::showPeakArea(Peak* peak) {
 	//qDebug <<" EicWidget::showPeakArea(Peak* peak)";
@@ -1023,8 +1015,6 @@ void EicWidget::replot(PeakGroup* group) {
 
     if (_showCubicSpline)
         addCubicSpline();
-    if (_showBaseline)
-        addBaseLine();
     if (_showTicLine || _showBicLine)
         addTicLine();
     if (_showMergedEIC)

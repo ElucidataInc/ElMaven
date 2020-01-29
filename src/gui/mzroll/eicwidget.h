@@ -60,8 +60,7 @@ public Q_SLOTS:
                      float rtMax = -1.0f);
 
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
-	void addBaseLine();
-    void addBaseLine(EIC*);
+    void addBaseLine(EIC* eic, double zValue = 0.0);
 	void addTicLine();
 	void addMergedEIC();
 	void setFocusLine(float rt);
