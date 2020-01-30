@@ -1070,7 +1070,14 @@ void EicWidget::replot(PeakGroup* group)
 
 	setSelectedGroup(group);
 	setTitle();
-	addEICLines(_showSpline, _showEIC);
+
+    if (group != nullptr && !group->searchTableName.empty()) {
+        float rtMin = group->minRt;
+        float rtMax = group->maxRt;
+        addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);
+    } else {
+        addEICLines(_showSpline, _showEIC);
+    }
 	showAllPeaks();
 
 	if (group && group->getCompound() != NULL && group->getCompound()->expectedRt > 0)
