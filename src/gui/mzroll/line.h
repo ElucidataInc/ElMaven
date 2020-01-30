@@ -24,6 +24,9 @@ public:
     QPainterPath shape() const;
     void setClosePath(bool value ) {_closePath=value;}
     void removeFromScene();
+    void setClipPath(QPainterPath& path) { _clipPath = path; }
+    QPolygonF line() const { return _line; }
+    void setLine(const QPolygonF& line) { _line = line; }
 
 protected:
     QRectF boundingRect() const;
@@ -43,7 +46,7 @@ private:
     bool _endsFixed;
     bool _closePath;
     bool _fillPath;
-
+    QPainterPath _clipPath;
 };
 
 #endif

@@ -641,10 +641,12 @@ void EicWidget::addEICLines(bool showSpline,
         float fadedMultiplier = 0.1f;
 
         // if we are in "Shift" mode, then fade each EIC
-        if (_areaIntegration && !overlayingIntegratedArea)
-            alphaMultiplier = fadedMultiplier;
+        if (_areaIntegration && !overlayingIntegratedArea) {
+            setLineAttributes(lineEic, eic, fadedMultiplier, zValue);
+        } else {
+            setLineAttributes(lineEic, eic, alphaMultiplier, zValue);
+        }
 
-        setLineAttributes(lineEic, eic, alphaMultiplier, zValue);
         if (overlayingIntegratedArea) {
             setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
             setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
@@ -652,9 +654,65 @@ void EicWidget::addEICLines(bool showSpline,
 
         setLineAttributes(lineSpline, eic, 0.7f, zValue);
 
-        // we do not want baseline to be computed on area integration's redraws
-        if(_showBaseline && !_areaIntegration)
-            addBaseLine(eic, zValue);
+        if (_showBaseline) {
+            auto baseline = addBaseLine(eic, zValue);
+            if (baseline == nullptr)
+                continue;
+
+            _drawnLines.push_back(baseline);
+
+            // if the quantity is not supposed to be corrected, then the entire
+            // area below baseline is shown as it is
+            auto quantitationType = getMainWindow()->getUserQuantType();
+            if (quantitationType != PeakGroup::Area
+                && quantitationType != PeakGroup::AreaTop) {
+                continue;
+            }
+
+            // clip EIC below the baseline
+            QPainterPath sceneBounds;
+            sceneBounds.addPolygon(scene()->sceneRect());
+            baseline->fixEnds();
+            auto baselinePath = baseline->shape();
+            auto correctedEicBounds = sceneBounds - baselinePath;
+            lineEic->setClipPath(correctedEicBounds);
+
+            // shade clipped EIC below baseline
+            EicLine* lineBelowBaseline = new EicLine(0, scene());
+            lineBelowBaseline->setLine(lineEic->line());
+            lineBelowBaseline->setClipPath(baselinePath);
+            if (_areaIntegration || overlayingIntegratedArea) {
+                setLineAttributes(lineBelowBaseline,
+                                  eic,
+                                  fadedMultiplier,
+                                  zValue);
+            } else {
+                setLineAttributes(lineBelowBaseline,
+                                  eic,
+                                  alphaMultiplier,
+                                  zValue);
+            }
+
+            if (overlayingIntegratedArea) {
+                lineEicLeft->setClipPath(correctedEicBounds);
+                lineEicRight->setClipPath(correctedEicBounds);
+
+                EicLine* lineBelowBaselineLeft = new EicLine(0, scene());
+                EicLine* lineBelowBaselineRight = new EicLine(0, scene());
+                lineBelowBaselineLeft->setLine(lineEicLeft->line());
+                lineBelowBaselineRight->setLine(lineEicRight->line());
+                lineBelowBaselineLeft->setClipPath(baselinePath);
+                lineBelowBaselineRight->setClipPath(baselinePath);
+                setLineAttributes(lineBelowBaselineLeft,
+                                  eic,
+                                  fadedMultiplier,
+                                  zValue);
+                setLineAttributes(lineBelowBaselineRight,
+                                  eic,
+                                  fadedMultiplier,
+                                  zValue);
+            }
+        }
     }
 }
 
@@ -856,7 +914,7 @@ void EicWidget::addMergedEIC() {
 
 }
 
-void EicWidget::addBaseLine(EIC* eic, double zValue)
+EicLine* EicWidget::addBaseLine(EIC* eic, double zValue)
 {
     if (!eic->baseline) {
         auto parameters = getMainWindow()->mavenParameters;
@@ -875,7 +933,7 @@ void EicWidget::addBaseLine(EIC* eic, double zValue)
     }
 
     if (eic->size() == 0)
-        return;
+        return nullptr;
     EicLine* line = new EicLine(0, scene());
     line->setEIC(eic);
 
@@ -889,15 +947,16 @@ void EicWidget::addBaseLine(EIC* eic, double zValue)
         line->addPoint(QPointF(toX(eic->rt[j]), toY(eic->baseline[j])));
     }
 
-    if (baselineSum == 0) return;
+    if (baselineSum == 0) return nullptr;
 
     QColor color = QColor::fromRgbF( eic->color[0], eic->color[1], eic->color[2], 1 );
     line->setColor(color);
     line->setZValue(zValue);
 
     QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-
     line->setPen(pen);
+
+    return line;
 }
 
 void EicWidget::showPeakArea(Peak* peak) {
