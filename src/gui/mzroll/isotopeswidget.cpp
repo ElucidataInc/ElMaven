@@ -323,12 +323,16 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
 		if (!peak)
 			continue;
 
+        vector<mzSample*> samples = {_selectedSample};
+        auto quantity = child.getOrderedIntensityVector(samples,
+                                                        _mw->getUserQuantType()).at(0);
+
 		mzLink link;
 		link.mz1 = parentMass;
 		link.mz2 = child.expectedMz;
 		link.note = isotopeName;
-		link.value1 = child.expectedAbundance;
-		link.value2 = peak->peakIntensity;
+        link.value1 = child.expectedAbundance;
+        link.value2 = quantity;
 		isotopeParameters->links.push_back(link);
 	}
 }
@@ -565,8 +569,8 @@ void IsotopeWidget::showTable()
 	p->clear();
 	p->setColumnCount(6);
 	p->setHeaderLabels(QStringList() << "Isotope Name"
-									 << "m/z"
-									 << "Intensity"
+                                     << "m/z"
+                                     << _mw->quantType->currentText()
 									 << "%Labeling"
 									 << "%Expected"
 									 << "%Relative");
