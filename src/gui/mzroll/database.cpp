@@ -127,23 +127,23 @@ bool Database::addCompound(Compound* newCompound)
 
         // return false if any of the compounds having the same ID are the
         // exact same in all aspects.
+        auto originalName = newCompound->name;
         for (int i = 0; i < loadOrder; ++i) {
-            string name = newCompound->name;
+            string nameWithSuffix = originalName;
             if (i != 0)
-                name = name + " (" + to_string(i) + ")";
+                nameWithSuffix = originalName + " (" + to_string(i) + ")";
 
+            newCompound->name = nameWithSuffix;
             Compound* possibleCopy = compoundIdNameDbMap[newCompound->id
-                                                         + name
+                                                         + nameWithSuffix
                                                          + newCompound->db];
             if (possibleCopy != nullptr && *newCompound == *possibleCopy)
                 return false;
+
+            newCompound->name = originalName;
         }
 
-        auto originalName = newCompound->name;
-        newCompound->name = originalName
-                            + " ("
-                            + to_string(loadOrder)
-                            + ")";
+        newCompound->name = originalName + " (" + to_string(loadOrder) + ")";
         compoundIdenticalCount[newCompound->id
                                + originalName
                                + newCompound->db] = ++loadOrder;
