@@ -29,6 +29,7 @@
 *.app
 bin/crashreporter
 bin/El-MAVEN
+bin/doctest
 
 # Project Files
 */tmp/
