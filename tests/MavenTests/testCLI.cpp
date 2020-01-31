@@ -13,7 +13,8 @@
 TestCLI::TestCLI()
 {
     QString parentFolder = "ElMaven";
-    QString logFile = "peakdetector_cli.log";
+    QString logFile = QString::fromStdString(Logger::constant_time()
+                                             + "_peakdetector_cli.log");
     QString fpath = QStandardPaths::writableLocation(
                         QStandardPaths::GenericConfigLocation)
                     + QDir::separator()

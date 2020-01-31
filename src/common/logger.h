@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 class LogBuffer;
@@ -58,6 +59,23 @@ public:
      * @return A reference to a `std::ostream` object.
      */
     std::ostream& error();
+
+    /**
+     * @brief Obtain a unique calendar time, stamped from the first time this
+     * function is called.
+     * @return A shorthand ISO 8601 formatted time string, representing a UTC
+     * time-point.
+     */
+    static std::string constant_time()
+    {
+        static auto now = std::chrono::system_clock::now();
+        auto constant_time = std::chrono::system_clock::to_time_t(now);
+        auto tm = *std::gmtime(&constant_time);
+
+        std::stringstream sstream;
+        sstream << std::put_time(&tm, "%Y%m%dT%H%M%SZ");
+        return sstream.str();
+    }
 
 private:
     /**
