@@ -673,3 +673,8 @@ QString IsotopeWidget::groupTextEport(PeakGroup *group)
 	}
 	return info.join("\t");
 }
+
+void IsotopeWidget::refreshForCurrentPeak()
+{
+    computeIsotopes(isotopeParameters->_formula);
+}

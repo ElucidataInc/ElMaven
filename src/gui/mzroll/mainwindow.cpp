@@ -3089,6 +3089,10 @@ void MainWindow::createToolBars() {
     connect(quantType,
             SIGNAL(currentIndexChanged(int)),
             SLOT(refreshIntensities()));
+    connect(quantType,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            isotopeWidget,
+            &IsotopeWidget::refreshForCurrentPeak);
     fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
                                      variant(0));
 
