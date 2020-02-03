@@ -44,7 +44,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
       nodeModulesPath = binDir + "node_modules" + QDir::separator();
     #endif
 
-    indexFileURL = "https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js";
+    indexFileURL = "https://raw.githubusercontent.com/saifulbkhan/polly-cli/ftr_get_project_endpoint/prod/index.js";
     _dlManager->setRequest(indexFileURL, this);
 }
 
@@ -675,6 +675,18 @@ QByteArray PollyIntegration::redirectionUiEndpoint()
     result = resultList[resultList.size() - 2];
 
     return result;
+}
+
+QString PollyIntegration::getProjectUrl(QString projectId)
+{
+    QString command2 = "getProjectUrl";
+    QList<QByteArray> resultAndError = runQtProcess(command2,
+                                                    QStringList() << projectId);
+    if (_hasError(resultAndError))
+        return "";
+
+    QByteArray result = resultAndError.at(0);
+    return QString(result).trimmed();
 }
 
 QString PollyIntegration::getComponentEndpoint(QString componentId,

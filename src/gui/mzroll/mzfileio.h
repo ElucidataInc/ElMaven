@@ -140,6 +140,14 @@ Q_OBJECT
         void updateGroup(PeakGroup* group, QString tableName);
 
         /**
+         * @brief Write current session data into a SQLite database meant to be
+         * uploaded to Polly.
+         * @param filename Name of the on-disk database file.
+         * @return `true` if write was successful, `false` otherwise.
+         */
+        bool writeSQLiteProjectForPolly(QString filename);
+
+        /**
          * @brief Write current session data into a SQLite database.
          * @details The data saved include samples' metadata, peak groups,
          * peaks, associated compounds and alignment data. Write operation
