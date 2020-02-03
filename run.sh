@@ -24,13 +24,3 @@ if [[ "$OSTYPE" == "darwin"* && flag -eq 100 ]]; then
 		cp $SENTRY_MACOSX_BIN/crashpad_handler bin/El-MAVEN.app/Contents/MacOS/;
 	fi
 fi
-
-if [ -f tests/MavenTests/test.xml ]; then
-	rm test*.xml
-fi
-
-if [ -f ./bin/MavenTests ]; then
-        echo "Running tests"
-	./bin/MavenTests -xml
-fi
-
