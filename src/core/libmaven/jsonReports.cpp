@@ -446,7 +446,7 @@ class JsonReportsFixture{
  *@brief Defines the test cases to test JSONReports class.
  * @details Generates the json file by calling the correspoding
  * functions of the Json class. Compare it against the already
- * saved Jsonfile in "tests/doctest" directory.
+ * saved Jsonfile in "tests/test-libmaven" directory.
  */
 TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
 {
@@ -455,7 +455,7 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
     jsonReports->save(jsonFilename, allgroups(), samples());
 
     ifstream fileInput("test.json");
-    ifstream fileSaved("tests/doctest/test_jsonReports.json");
+    ifstream fileSaved("tests/test-libmaven/test_jsonReports.json");
                 
     json rootInput = json::parse(fileInput);
     json rootSaved = json::parse(fileSaved);

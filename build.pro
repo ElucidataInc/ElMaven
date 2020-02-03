@@ -35,5 +35,5 @@ SUBDIRS += src
     ENABLE_DOCTEST = "yes"
     SUBDIRS += src/core/libmaven
     SUBDIRS += tests/MavenTests
-    SUBDIRS += tests/doctest
+    SUBDIRS += tests/test-libmaven
 }

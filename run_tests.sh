@@ -16,10 +16,10 @@ if [ -f ./bin/MavenTests* ]; then
         exit 1
     fi
 fi
-if [ -f ./bin/doctest* ]; then
-    ./bin/doctest
+if [ -f ./bin/test-libmaven* ]; then
+    ./bin/test-libmaven
     VAR=$?
-    printf "\"doctest\" exit code: %s\n" "$VAR"
+    printf "\"test-libmaven\" exit code: %s\n" "$VAR"
     if [ $VAR != 0 ]; then
         exit 1
     fi

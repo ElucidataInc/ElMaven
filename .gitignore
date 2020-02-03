@@ -29,7 +29,7 @@
 *.app
 bin/crashreporter
 bin/El-MAVEN
-bin/doctest
+bin/test-libmaven
 
 # Project Files
 */tmp/

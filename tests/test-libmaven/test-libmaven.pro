@@ -5,7 +5,7 @@ DESTDIR = $$top_srcdir/bin/
 OBJECTS_DIR=$$top_builddir/tmp/doctest/
 include($$mzroll_pri)
 TEMPLATE = app
-TARGET = doctest
+TARGET = test-libmaven
 
 CONFIG+=console
 CONFIG-=app_bundle
