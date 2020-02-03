@@ -391,10 +391,13 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 
   item->setText(2, QString(group->getName().c_str()));
 
-  _paintClassificationDisagreement(item);
-
   item->setIcon(0, iconsForLegend()[group->predictedLabel()]);
-  
+  QString castLabel =
+      QString::fromStdString(PeakGroup::labelToString(group->predictedLabel()));
+  item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+  // TODO: we show classification disagreement only for non-PeakML tables
+  // _paintClassificationDisagreement(item);
+
   if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Correlation) {
     QString castLabel = "PeakGroup::ClassifiedLabel::Correlation";
     item->setData(0,
