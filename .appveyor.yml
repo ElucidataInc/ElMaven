@@ -63,6 +63,10 @@ build_script:
               if ( $LASTEXITCODE -ne 0 ) {
                   exit 1
               }
+              &{ bash -lc "cd C:/projects/ElMaven/ ; ./run_tests.sh" 2>&1 | %{ "$_" } }
+              if ( $LASTEXITCODE -ne 0 ) {
+                  exit 1
+              }
               bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
               &{ bash -lc "lcov --summary /c/projects/ElMaven/lcov.info" 2>&1 | %{ "$_" } }
           } else {
