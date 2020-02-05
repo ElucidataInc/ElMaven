@@ -1121,12 +1121,15 @@ QStringList
 PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
 {
     QStringList filenames;
+
+    // write a JSON and CSV file for each peak table
     QList<QPointer<TableDockWidget>> peakTableList =
         _mainwindow->getPeakTableList();
     peakTableList.append(_mainwindow->getBookmarkedPeaks());
+    for (TableDockWidget* peakTable : peakTableList) {
+        if (peakTable->getGroups().isEmpty())
+            continue;
 
-    // lambda that creates JSON files for the table
-    auto writeJsonForTable = [this, datetimestamp](TableDockWidget *peakTable) {
         QString tableName = TableDockWidget::getTitleForId(peakTable->tableId);
         tableName.replace(" ", "_"); // replace spaces with underscores
         QString jsonFilename = _writeableTempDir
@@ -1135,16 +1138,20 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
                                + "_"
                                + tableName
                                + ".json";
-
         peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
-        return jsonFilename;
-    };
+        filenames.append(jsonFilename);
 
-    for (TableDockWidget* peakTable : peakTableList) {
-        if (peakTable->getGroups().isEmpty())
-            continue;
+        QCoreApplication::processEvents();
 
-        filenames.append(writeJsonForTable(peakTable));
+        QString csvFilename = datetimestamp + "_" + tableName + ".csv";
+        peakTable->treeWidget->selectAll();
+        peakTable->prepareDataForPolly(_writeableTempDir,
+                                       "Groups Summary Matrix Format "
+                                       "Comma Delimited (*.csv)",
+                                        csvFilename);
+        filenames.append(_writeableTempDir + QDir::separator() + csvFilename);
+
+        QCoreApplication::processEvents();
     }
 
     if (filenames.isEmpty()) {
@@ -1155,6 +1162,39 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
         return filenames;
     }
 
+    // write a CSV file for each compound DB
+    auto databases = DB.getDatabaseNames();
+    for (auto& elem : databases) {
+        auto compoundCount = elem.second;
+        if (compoundCount <= 0)
+            continue;
+
+        QString compoundDbName = QString::fromStdString(elem.first);
+        QString compoundDbNameCopy = compoundDbName;
+        compoundDbNameCopy.replace(" ", "_");
+        QString compoundDbFilename = _writeableTempDir
+                                     + QDir::separator()
+                                     + datetimestamp
+                                     + "_"
+                                     + compoundDbNameCopy
+                                     + "_compound_db.csv";
+        _mainwindow->ligandWidget->saveCompoundList(compoundDbFilename,
+                                                    compoundDbName);
+        filenames.append(compoundDbFilename);
+    }
+
+    // write a CSV file for cohort mapping (if available)
+    QString sampleCohortFilename = _writeableTempDir
+                                   + QDir::separator()
+                                   + datetimestamp
+                                   + "_cohort_mapping.csv";
+    _mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFilename);
+    if (_pollyIntegration->validSampleCohort(sampleCohortFilename))
+        filenames.append(sampleCohortFilename);
+
+    QCoreApplication::processEvents();
+
+    // write an emDB file for the entire session
     QString emdbFilename = _writeableTempDir
                            + QDir::separator()
                            + datetimestamp
@@ -1174,6 +1214,7 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
         filenames.clear();
     }
 
+    QCoreApplication::processEvents();
     return filenames;
 }
 
