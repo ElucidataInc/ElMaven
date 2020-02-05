@@ -84,6 +84,14 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
             fileName = fileName + ".csv";
 
         prepareSampleCohortFile(fileName);
+
+        QMessageBox::information(this,
+                                 "Meta-data file exported",
+                                 QString("A file has been exported with your "
+                                         "current sample meta-data at the "
+                                         "location \"%1\". It can be edited "
+                                         "and imported back into "
+                                         "El-MAVEN.").arg(fileName));
     });
 
     QToolButton* loadMetadataButton = new QToolButton(toolBar);
