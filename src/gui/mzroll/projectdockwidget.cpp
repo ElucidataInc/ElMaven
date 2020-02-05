@@ -186,10 +186,14 @@ void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
         << "Scaling" << ","
         << "Injection Order" << "\n";
 	for (const auto& sample : loadedSamples) {
+        QString injectionOrder = "";
+        if (sample->getInjectionOrder() > 0)
+            injectionOrder = QString::number(sample->getInjectionOrder());
+
         out << QString::fromStdString(sample->getSampleName()) << ","
             << QString::fromStdString(sample->getSetName()) << ","
             << QString::number(sample->getNormalizationConstant()) << ","
-            << QString::number(sample->getInjectionOrder()) << "\n";
+            << injectionOrder << "\n";
 	}
 
 	qDebug() << "sample cohort file prepared";
