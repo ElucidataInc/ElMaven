@@ -815,7 +815,7 @@ void PeakDetectorCLI::writeReport(string setName,
     // save files in the output dir if Polly arguments have not been provided
     if (_currentPollyApp == PollyApp::None || pollyArgs.isEmpty()) {
         // create an output folder
-        mzUtils::createDir(mavenParameters->outputdir.c_str());
+        mzUtils::createDir(mavenParameters->outputdir);
         string fileName = mavenParameters->outputdir + setName;
 
         _log->info() << "Saving data reports…" << std::flush;

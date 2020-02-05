@@ -35,7 +35,7 @@ int Databases::loadCompoundCSVFile(string filename) {
         lineCount++;
 
         vector<string> fields;
-        mzUtils::splitNew(line, sep, fields);
+        mzUtils::split(line, sep, fields);
 
         mzUtils::removeSpecialcharFromStartEnd(fields);
 
@@ -191,7 +191,7 @@ vector<string> Databases::getCategoryFromDB(vector<string>& fields, map<string, 
     if ( header.count("category") && header["category"] < NumOfFields) {
         string catstring = fields[header["category"]];
         if (!catstring.empty()) {
-            mzUtils::split(catstring,';', categorylist);
+            mzUtils::split(catstring,";", categorylist);
             if(categorylist.size() == 0) categorylist.push_back(catstring);
         }
     }

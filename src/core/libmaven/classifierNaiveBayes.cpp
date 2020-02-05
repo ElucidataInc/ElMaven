@@ -70,7 +70,7 @@ void ClassifierNaiveBayes::loadModel(string filename) {
 		if (!line.empty() && line[0] == '#')
 			continue;
 		fields.clear();
-		mzUtils::split(line, ',', fields);
+        mzUtils::split(line, ",", fields);
 		if (fields.size() == 0)
 			continue;
 

@@ -116,20 +116,20 @@ string mzSample::getFileName(const string& filename)
     return ("");
 }
 
-void mzSample::loadAnySample(const char* filename)
+void mzSample::loadAnySample(string filename)
 {
-    if (mystrcasestr(filename, "mzCSV") != NULL) {
-        parseMzCSV(filename);
-    } else if (mystrcasestr(filename, "mzdata") != NULL) {
-        parseMzData(filename);
-    } else if (mystrcasestr(filename, "mzxml") != NULL) {
-        parseMzXML(filename);
-    } else if (mystrcasestr(filename, "mzml") != NULL) {
-        parseMzML(filename);
-    } else if (mystrcasestr(filename, "cdf") != NULL) {
-        parseCDF(filename, 1);
+    if (compareStr(filename, "mzCSV") != " ") {
+        parseMzCSV(filename.c_str());
+    } else if (compareStr(filename, "mzdata") != " " ) {
+        parseMzData(filename.c_str());
+    } else if (compareStr(filename, "mzxml") != " ") {
+        parseMzXML(filename.c_str());
+    } else if (compareStr(filename, "mzml") != " ") {
+        parseMzML(filename.c_str());
+    } else if (compareStr(filename, "cdf") != " ") {
+        parseCDF(filename.c_str(), 1);
     } else {
-        parseMzData(filename);
+        parseMzData(filename.c_str());
     }
 }
 
@@ -155,7 +155,7 @@ void mzSample::checkSampleBlank(const char* filename)
     }
 }
 
-void mzSample::loadSample(const char* filename)
+void mzSample::loadSample(string filename)
 {
     // Loading and Decoding the file
     // catch any error while parsing
@@ -174,10 +174,10 @@ void mzSample::loadSample(const char* filename)
     calculateMzRtRange();
 
     // Setting Sample name
-    sampleNaming(filename);
+    sampleNaming(filename.c_str());
 
     // Checking if a sample is blank or not
-    checkSampleBlank(filename);
+    checkSampleBlank(filename.c_str());
 }
 
 void mzSample::parseMzCSV(const char* filename)
@@ -208,7 +208,7 @@ void mzSample::parseMzCSV(const char* filename)
     while (getline(myfile, line)) {
         lineNum++;
         vector<string> fields;
-        mzUtils::split(line, ',', fields);
+        mzUtils::split(line, ",", fields);
         if (fields.size() >= 5 && lineNum > 1) {
             ss.clear();
 

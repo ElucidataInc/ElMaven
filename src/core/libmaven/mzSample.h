@@ -198,7 +198,7 @@ class mzSample
     * @param filename Sample file name
     */
 
-    void loadSample(const char *filename);
+    void loadSample(string filename);
 
     /**
     * @brief Parse mzData file format
@@ -726,7 +726,7 @@ class mzSample
 
     void populateFilterline(const string& filterLine, Scan *_scan);
 
-    void loadAnySample(const char *filename);
+    void loadAnySample(string filename);
 
     //TODO: This should be moved
     static string getFileName(const string &filename);

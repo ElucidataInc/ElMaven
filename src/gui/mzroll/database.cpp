@@ -717,7 +717,7 @@ void Database::loadAdducts(string filename)
             continue;
 
         vector<string> fields;
-        mzUtils::split(line, ',', fields);
+        mzUtils::split(line, ",", fields);
 
         if(fields.size() < 2 )
             continue;
@@ -745,7 +745,7 @@ void Database::loadFragments(string filename) {
     while ( getline(myfile,line) ) {
 		if (!line.empty() && line[0] == '#') continue;
       	vector<string>fields;
-        mzUtils::split(line,',', fields);
+        mzUtils::split(line,",", fields);
 
 		if(fields.size() < 3 ) continue;
 		string name=fields[0];
@@ -791,7 +791,7 @@ int Database::loadCompoundCSVFile(string filename)
         lineCount++;
 
         vector<string>fields;
-        mzUtils::splitNew(line, sep, fields);
+        mzUtils::split(line, sep, fields);
 
         for(unsigned int i=0; i < fields.size(); i++ ) {
             int n = fields[i].length();
@@ -853,7 +853,7 @@ int Database::loadCompoundCSVFile(string filename)
         if ( header.count("category") && header["category"]<N) {
             string catstring = fields[header["category"]];
             if (!catstring.empty()) {
-                mzUtils::split(catstring,';', categorylist);
+                mzUtils::split(catstring,";", categorylist);
                 if(categorylist.size() == 0) categorylist.push_back(catstring);
                 //cerr << catstring << " ListSize=" << categorylist.size() << endl;
             }

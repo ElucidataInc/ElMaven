@@ -978,7 +978,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         }
 
         vector<string> sample_ids;
-        mzUtils::split(groupsQuery->stringValue("sample_ids"), ';', sample_ids);
+        mzUtils::split(groupsQuery->stringValue("sample_ids"), ";", sample_ids);
         for (auto idString : sample_ids) {
             if (idString.empty())
                 continue;

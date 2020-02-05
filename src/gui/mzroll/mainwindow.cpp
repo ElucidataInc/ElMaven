@@ -1602,7 +1602,7 @@ void MainWindow::doSearch(QString needle) {
 void MainWindow::setMzValue() {
 	bool isDouble = false;
 	vector<string> values;
-	mzUtils::split(searchText->text().toStdString(), '-', values);
+    mzUtils::split(searchText->text().toStdString(), "-", values);
 	QString value = QString::fromStdString(values[0]);
 	float mz1 = value.toDouble(&isDouble);
 	bool isDouble2 = false;
@@ -2318,7 +2318,7 @@ int MainWindow::loadMetaCsvFile(string filename){
         lineCount++;
 
         vector<string>fields;
-        mzUtils::splitNew(line, sep, fields);
+        mzUtils::split(line, sep, fields);
 
         for(unsigned int i=0; i < fields.size(); i++ ) {
             int n = fields[i].length();

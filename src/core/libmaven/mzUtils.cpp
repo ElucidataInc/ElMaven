@@ -1,4 +1,4 @@
-
+#include "doctest.h"
 #include "mzUtils.h"
 #include "SavGolSmoother.h"
 #include "csvparser.h"
@@ -7,274 +7,210 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/algorithm/string.hpp>
 
 /**
  * random collection of useful functions 
  */
 namespace mzUtils {
 
-    int randInt(int low, int high){
+    const long double   Pi = 3.1415926535897932384626433832795028841968;
+
+    int randInt(int low, int high)
+    {
         default_random_engine generator;
-        uniform_int_distribution<int> distribution(low,high);
+        uniform_int_distribution<int> distribution(low, high);
         int res = distribution(generator);
         return res;
     }
 
-    long randLong(long low, long high){
+    long randLong(long low, long high)
+    {
         default_random_engine generator;
-        uniform_int_distribution<int> distribution(low,high);
+        uniform_int_distribution<int> distribution(low, high);
         long res = distribution(generator);
         return res;
     }
 
-    float randFloat(float low, float high){
+    float randFloat(float low, float high)
+    {
         default_random_engine generator;
-        uniform_real_distribution<float> distribution(low,high);
+        uniform_real_distribution<float> distribution(low, high);
         float res = distribution(generator);
         return res;
     }
 
-    double randDouble(double low, double high){
+    double randDouble(double low, double high)
+    {
         default_random_engine generator;
-        uniform_real_distribution<double> distribution(low,high);
+        uniform_real_distribution<double> distribution(low, high);
         double res = distribution(generator);
         return res;
     }
 
-
-    std::string makeLowerCase(string &s) {
-        for (unsigned int i=0; i != s.length(); ++i ) {
-            s[i] = std::tolower(s[i]);
+    std::string makeLowerCase(string &str)
+    {
+        for (size_t i = 0; i != str.length(); ++i) {
+            str[i] = std::tolower(str[i]);
         }
-        return s;
+        return str;
     }
 
-    void split(const string& s, char c, vector<string>& v) {
-        string::size_type i = 0;
-        string::size_type j = s.find(c);
-
-        while (j != string::npos) {
-            v.push_back(s.substr(i, j-i));
-            i = ++j;
-            j = s.find(c, j);
-
-            if (j == string::npos)
-                v.push_back(s.substr(i, s.length( )));
-        }
-        if ( v.size() == 0) v.push_back(s);
+    void split(const string& str, const string& sep, vector<string>& result)
+    {
+        boost::split(result, str, boost::is_any_of(sep));
     }
 
-    void splitNew(const string& s, const string& c, vector<string>& v){
-
-        const char *whole_row = s.c_str();
-        const char *del = c.c_str();
-
-        CsvParser *csvparser = CsvParser_new_from_string(whole_row, del, 0);
-
-        CsvRow *row;
-
-        row = CsvParser_getRow(csvparser);
-        const char **rowFields = CsvParser_getFields(row);
-        for (int i = 0 ; i < CsvParser_getNumFields(row) ; i++) {
-            v.push_back(rowFields[i]);
-        }
-    }
-
-    void removeSpecialcharFromStartEnd(vector<string>& fields) {
-        for(unsigned int i=0; i < fields.size(); i++ ) {
+    void removeSpecialcharFromStartEnd(vector<string>& fields)
+    {
+        for(size_t i = 0; i < fields.size(); i++) {
             int n = fields[i].length();
-            if (n > 2 && fields[i][0] == '"' && fields[i][n - 1] == '"') {
-                fields[i] = fields[i].substr(1, n - 2);
-            }
-            if (n > 2 && fields[i][0] == '\'' && fields[i][n - 1] == '\'') {
-                fields[i] = fields[i].substr(1, n - 2);
+            if (n > 2 ){
+                if((fields[i][0] == '"' && fields[i][n - 1] == '"') ||
+                    (fields[i][0] == '\'' && fields[i][n - 1] == '\''))
+                        fields[i] = fields[i].substr(1, n - 2);
             }
         }
     }
 
-    char *mystrcasestr(const char *s1, const char *s2) {
-        register const char *s = s1;
-        register const char *p = s2;
-        do {
-            if (!*p) {
-                return (char *) s1;;
-            }
-            if ((*p == *s)
-                    || (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))
-               ) {
-                ++p;
-                ++s;
-            } else {
-                p = s2;
-                if (!*s) {
-                    return NULL;
-                }
-                s = ++s1;
-            }
-        } while (1);
+    string compareStr(const string str1,const string str2)
+    {
+        string s = str1;
+        string p = str2;
+        transform(s.begin(), s.end(), s.begin(), ::tolower);
+        transform(p.begin(), p.end(), p.begin(), ::tolower);
+        if(boost::algorithm::contains(s, p))
+            return str1;
+        else
+            return " ";
     }
 
-    string substituteInQuotedString(const string& s, const string& chars, const string& substitutions ) {
-        string result;
-        for (string::size_type pos = 0; pos < s.size(); ++pos) {
-            char c = s[pos];
-            string::size_type subst_pos = chars.find_first_of(c);
-            if (subst_pos != string::npos) c = substitutions[subst_pos];
-            result += c;
-        }
-        return result;
-    }
-
-    void smoothAverage(float *y, float* s, int smoothWindowLen, int ly) {
+    void smoothAverage(float *input, float* result, int smoothWindowLen,
+                       int inputLen)
+    {
         if (smoothWindowLen == 0 ) return;
         float* x = new float[smoothWindowLen];
-        for(int i=0; i< smoothWindowLen; i++ ) x[i] = 1.0/smoothWindowLen;
-        conv(smoothWindowLen,-smoothWindowLen/2,x,ly, 0,y,ly,0,s);
+
+        for(int i = 0; i < smoothWindowLen; i++)
+            x[i] = 1.0/smoothWindowLen;
+        conv(smoothWindowLen, -smoothWindowLen/2, x, inputLen,
+                 0, input, inputLen, 0, result);
         delete[] x;
     }
 
-    void conv (int lx, int ifx, float *x, int ly, int ify, float *y, int lz, int ifz, float *z) /*****************************************************************************
-                                                                                                  Compute z = x convolved with y; i.e.,
+    void conv (int xLen, int indexFirstX, float *x, int inputLen,
+              int indexFirstInput, float *input, int resultLen,
+              int indexFirstResult, float *result)
+   {
+        int ilx = indexFirstX + xLen - 1;
+        int ily = indexFirstInput + inputLen - 1;
+        int ilz = indexFirstResult + resultLen - 1;
 
-                                                                                                  ifx+lx-1
-                                                                                                  z[i] =   sum    x[j]*y[i-j]  ;  i = ifz,...,ifz+lz-1
-                                                                                                  j=ifx
-                                                                                                 ******************************************************************************
-                                                                                                 Input:
-                                                                                                 lx		length of x array
-                                                                                                 ifx		sample index of first x
-                                                                                                 x		array[lx] to be convolved with y
-                                                                                                 ly		length of y array
-                                                                                                 ify		sample index of first y
-                                                                                                 y		array[ly] with which x is to be convolved
-                                                                                                 lz		length of z array
-                                                                                                 ifz		sample index of first z
-
-                                                                                                 Output:
-                                                                                                 z		array[lz] containing x convolved with y
-                                                                                                 ******************************************************************************
-                                                                                                 Notes:
-                                                                                                 The x samples are contained in x[0], x[1], ..., x[lx-1]; likewise for
-                                                                                                 the y and z samples.  The sample indices of the first x, y, and z values
-                                                                                                 determine the location of the origin for each array.  For example, if
-                                                                                                 z is to be a weighted average of the nearest 5 samples of y, one might
-                                                                                                 use
-                                                                                                 ...
-                                                                                                 x[0] = x[1] = x[2] = x[3] = x[4] = 1.0/5.0;
-                                                                                                 conv(5,-2,x,lx,0,y,ly,0,z);
-                                                                                                 ...
-                                                                                                 In this example, the filter x is symmetric, with index of first sample = -2.
-
-                                                                                                 This function is optimized for architectures that can simultaneously perform
-                                                                                                 a multiply, add, and one load from memory; e.g., the IBM RISC System/6000.
-                                                                                                 Because, for each value of i, it accumulates the convolution sum z[i] in a
-                                                                                                 scalar, this function is not likely to be optimal for vector architectures.
-                                                                                                 ******************************************************************************
-                                                                                                 Author:  Dave Hale, Colorado School of Mines, 11/23/91
-                                                                                                 *****************************************************************************/
-    {
-        int ilx=ifx+lx-1,ily=ify+ly-1,ilz=ifz+lz-1,i,j,jlow,jhigh;
+        int i, j, jlow, jhigh;
         float sum;
 
-        x -= ifx;  y -= ify;  z -= ifz;
-        for (i=ifz; i<=ilz; ++i) {
-            jlow = i-ily;  if (jlow<ifx) jlow = ifx;
-            jhigh = i-ify;  if (jhigh>ilx) jhigh = ilx;
-            for (j=jlow,sum=0.0; j<=jhigh; ++j)
-                sum += x[j]*y[i-j];
-            z[i] = sum;
+        x -= indexFirstX;
+        input -= indexFirstInput;
+        result -= indexFirstResult;
+
+        for (i = indexFirstResult; i <= ilz; ++i)
+        {
+            jlow = i - ily;
+            if (jlow < indexFirstX)
+                    jlow = indexFirstX;
+            jhigh = i - indexFirstInput;
+            if (jhigh > ilx)
+                jhigh = ilx;
+
+            for (j = jlow, sum = 0.0; j <= jhigh; ++j)
+                sum += x[j] * input[i-j];
+            result[i] = sum;
         }
     }
 
-    void gaussian1d_smoothing (int ns, int nsr, float *data)
+    void gaussian1d_smoothing (int numSample, int smoothWindowLen, float *data)
     {
-        //Subroutine to apply a one-dimensional gaussian smoothing
-
-        /******************************************************************************
-Input:
-ns		number of samples in the input data
-nsr		width (in samples) of the gaussian for which
-amplitude > 0.5*max amplitude
-data		1-D array[ns] of data to smooth
-
-Output:
-data		1-D array[ns] of smoothed data
-         ******************************************************************************/
-        int is;				/* loop counter */
-        float sum=0.0;
+        int is;             /* loop counter */
+        float sum = 0.0;
         float fcut;
         float r;
-        float fcutr=1.0/nsr;
-        int n=0;
-        int mean=0;
-        float fcutl=0;
-        float s[1000];		/* smoothing filter array */
-        float *temp;			/* temporary array */
+        float fcutr = 1.0/smoothWindowLen;
+        int n = 0;
+        int mean = 0;
+        float fcutl = 0;
+        float s[1000];      /* smoothing filter array */
+        float *temp;            /* temporary array */
 
         /* save input fcut */
-        fcut=fcutr;
+        fcut = fcutr;
 
         /* don't smooth if nsr equal to zero */
-        if (nsr==0 || ns<=1) return;
+        if (smoothWindowLen == 0 || numSample <= 1)
+            return;
 
         /* if halfwidth more than 100 samples, truncate */
-        if (nsr>100) fcut=1.0/100;
+        if (smoothWindowLen > 100)
+            fcut=1.0/100;
 
         /* allocate space */
-        temp=new float[ns];
-
+        temp = new float[numSample];
 
         /* initialize smoothing function if not the same as the last one used */
         if (fcut != fcutl) {
-            fcutl=fcut;
+            fcutl = fcut;
 
             /* set span of 3, at width of 1.5*exp(-PI*1.5**2)=1/1174 */
-            n=(int) (3.0/fcut+0.5);
-            n=2*n/2+1;		/* make it odd for symmetry */
+            n = (int) (3.0 / fcut + 0.5);
+            n = 2 * n / 2 + 1;      /* make it odd for symmetry */
 
             /* mean is the index of the zero in the smoothing wavelet */
-            mean=n/2;
+            mean = n / 2;
 
             /* s(n) is the smoothing gaussian */
-            for (is=1; is<=n; is++) {
-                r=is-mean-1;
-                r= -r*r*fcut*fcut*3.141;
-                s[is-1]=exp(r);
+            for (is = 1; is <= n; is++) {
+                r = is- mean - 1;
+                r = -r * r * fcut * fcut * 3.141;
+                s[is-1] = exp(r);
             }
 
             /* normalize to unit area, will preserve DC frequency at full
                amplitude. Frequency at fcut will be half amplitude */
-            for (is=0; is<n; is++) sum +=s[is];
-            for (is=0; is<n; is++) s[is] /=sum;
-            //cerr << "new gaussian " << nsr << endl;
+            for (is = 0; is < n; is++)
+                sum += s[is];
+            for (is = 0; is < n; is++)
+                s[is] /= sum;
         }
 
         /* convolve by gaussian into buffer */
-        if (1.01/fcutr>(float)ns) {
-
+        if (1.01/fcutr > (float)numSample) {
             /* replace drastic smoothing by averaging */
-            sum=0.0;
-            for (is=0; is<ns; is++) sum +=data[is];
-            sum /=ns;
-            for (is=0; is<ns; is++) data[is]=sum;
+            sum = 0.0;
+            for (is = 0; is < numSample; is++)
+                sum += data[is];
+            sum /= numSample;
+
+            for (is = 0; is < numSample; is++)
+                data[is] = sum;
 
         } else {
-
             /* convolve with gaussian */
-            conv (n, -mean, s, ns, -mean, data, ns, -mean, temp);
-
+            conv (n, -mean, s, numSample, -mean, data, numSample, -mean, temp);
             /* copy filtered data back to output array */
-            for (is=0; is<ns; is++) data[is]=temp[is];
+            for (is = 0; is < numSample; is++) data[is] = temp[is];
         }
-
         /* free allocated space */
         delete[] temp;
     }
 
-    float median(vector <float> y) {
-        if (y.empty() ) return(0.0);
-        if (y.size() == 1 ) return(y[0]);
-        if (y.size() == 2 ) { return(y[0]+y[1])/2; }
+    float median(vector <float> y)
+    {
+        if (y.empty())
+            return(0.0);
+        if (y.size() == 1 )
+            return(y[0]);
+        if (y.size() == 2 ){
+            return(y[0] + y[1])/2;
+        }
 
         unsigned int n = y.size();
         std::sort(y.begin(), y.end());
@@ -291,13 +227,16 @@ data		1-D array[ns] of smoothed data
     }
 
     float median(float* y, int n) {
-        if (n == 0) return(0.0);
-        if (n == 1) return(y[0]);
-        if (n == 2) return((y[0]+y[1])/2);
+        if (n == 0)
+            return(0.0);
+        if (n == 1)
+            return(y[0]);
+        if (n == 2)
+            return((y[0] + y[1])/2);
 
         float* tmpy = new float[n];
-        memcpy(tmpy,y,n*sizeof(float));
-        sort(tmpy,tmpy+n);
+        memcpy(tmpy, y, n*sizeof(float));
+        sort(tmpy, tmpy + n);
 
         int i = n / 2;
         float median = 0.0;
@@ -308,113 +247,35 @@ data		1-D array[ns] of smoothed data
             median = tmpy[i];
 
         delete[] tmpy;
-        //for(int i=0; i < n; i++ ) { cerr << tmpy[i] << " "; }
-        //cerr << "median=" << median << endl;
         return (median);
     }
 
-    /*
-     * The following code is public domain.
-     * Algorithm by Torben Mogensen, implementation by N. Devillard.
-     * This code in public domain.
-     *  In place median, no need to allocate memory
-     */
-    float torben_median(const vector<float> &m) {
-        int         i, less, greater, equal;
-        float min, max, guess, maxltguess, mingtguess;
-        int n = m.size();
-        if (n == 0 ) return 0;
-        if (n == 1 ) return m[0];
-        min = max = m[0] ;
-
-        for (i=1 ; i<n ; i++) {
-            if (m[i]<min) min=m[i];
-            if (m[i]>max) max=m[i];
-        }
-        while (1) {
-            guess = (min+max)/2;
-            less = 0; greater = 0; equal = 0;
-            maxltguess = min ;
-            mingtguess = max ;
-            for (i=0; i<n; i++) {
-                if (m[i]<guess) {
-                    less++;
-                    if (m[i]>maxltguess) maxltguess = m[i] ;
-                } else if (m[i]>guess) {
-                    greater++;
-                    if (m[i]<mingtguess) mingtguess = m[i] ;
-                } else equal++;
-            }
-            if (less <= (n+1)/2 && greater <= (n+1)/2) break ;
-            else if (less>greater) max = maxltguess ;
-            else min = mingtguess;
-        }
-        if (less >= (n+1)/2) return maxltguess;
-        else if (less+equal >= (n+1)/2) return guess;
-        else return mingtguess;
-    }
-
-    /*
-     * Algorithm from N. Wirth’s book, implementation by N. Devillard.
-     * This code in public domain.
-     */
-#define ELEM_SWAP(a,b) { register float t=(a);(a)=(b);(b)=t; }
-    /*---------------------------------------------------------------------------
-Function :   kth_smallest()
-:   array of elements, # of elements in the array, rank k
-In
-:   one element
-Out
-Job      :   find the kth smallest element in the array
-Notice   :   use the median() macro defined below to get the median.
-Reference:
-Author:  Wirth, Niklaus
-Title:  Algorithms + data structures = programs
-Publisher:  Englewood Cliffs: Prentice-Hall, 1976
-Physical description: 366 p.
-Series:  Prentice-Hall Series in Automatic Computation
----------------------------------------------------------------------------*/
     float kth_smallest(float a[], int n, int k)
     {
-        register int i,j,l,m ;
-        register float x ;
-        l=0 ; m=n-1 ;
-        while (l<m) {
-            x=a[k] ;
-            i=l ;
-            j=m ;
-            do {
-                while (a[i]<x) i++ ;
-                while (x<a[j]) j-- ;
-                if (i<=j) {
-                    ELEM_SWAP(a[i],a[j]) ;
-                    i++ ; j-- ;
-                }
-            } while (i<=j) ;
-            if (j<k) l=i ;
-            if (k<i) m=j ;
-        }
-        return a[k] ;
+        float* tmpy = new float[n];
+        memcpy(tmpy, a, n*sizeof(float));
+        sort(tmpy, tmpy + n);
+        return(a[k-1]);
     }
-#define wirth_median(a,n) kth_smallest(a,n,(((n)&1)?((n)/2):(((n)/2)-1)))
-    /* string2integer */
-    int string2integer(const std::string& s){
+
+    int string2integer(const std::string& s)
+    {
         std::istringstream i(s);
         int x = 0;
         i >> x;
         return x;
     }
 
-    /* string2float */
-    float string2float(const std::string& s){
+    float string2float(const std::string& s)
+    {
         std::istringstream i(s);
         float x = 0;
         i >> x;
         return x;
     }
 
-    /* string2integer */
-    string integer2string(int x){
+    string integer2string(int x)
+    {
         std::stringstream i;
         string s;
         i << x;
@@ -422,17 +283,20 @@ Series:  Prentice-Hall Series in Automatic Computation
         return s;
     }
 
-    string float2string(float f, int p) {
+    string float2string(float f, int p)
+    {
         std::stringstream ss;
         ss << setprecision(p) << f; string str; ss >> str;
         return(str);
     }
 
-    float massCutoffDist(const float mz1, const float mz2,MassCutoff *massCutoff) {
-        if(massCutoff->getMassCutoffType()=="ppm"){
-            return ( abs((mz2-mz1)/(mz1/1e6)) );
+    float massCutoffDist(const float mz1, const float mz2,
+                         MassCutoff *massCutoff)
+    {
+        if(massCutoff->getMassCutoffType() == "ppm"){
+            return (abs((mz2-mz1)/(mz1/1e6)));
         }
-        else if(massCutoff->getMassCutoffType()=="mDa"){
+        else if(massCutoff->getMassCutoffType() == "mDa"){
             return abs((mz2-mz1)*1e3) ;
         }
         else{
@@ -441,12 +305,13 @@ Series:  Prentice-Hall Series in Automatic Computation
         }
     }
 
-    double massCutoffDist(const double mz1, const double mz2,MassCutoff *massCutoff) {
-
-        if(massCutoff->getMassCutoffType()=="ppm"){
+    double massCutoffDist(const double mz1, const double mz2,
+                          MassCutoff *massCutoff)
+    {
+        if(massCutoff->getMassCutoffType() == "ppm"){
             return ppmDist(mz1, mz2);
         }
-        else if(massCutoff->getMassCutoffType()=="mDa"){
+        else if(massCutoff->getMassCutoffType() == "mDa"){
             return abs((mz2-mz1)*1e3) ;
         }
         else{
@@ -455,45 +320,56 @@ Series:  Prentice-Hall Series in Automatic Computation
         }
     }
 
-    float ppmDist(const float mz1, const float mz2) {
-        return (abs((mz2-mz1)/(mz1/1e6)));
+    float ppmDist(const float mz1, const float mz2)
+    {
+        return (abs((mz2 - mz1) / (mz1 / 1e6)));
     }
 
-    double ppmDist(const double mz1, const double mz2) {
-        return (abs((mz2-mz1)/(mz1/1e6)));
+    double ppmDist(const double mz1, const double mz2)
+    {
+        return (abs((mz2 - mz1) / (mz1 / 1e6)));
     }
 
-    float ppmround(const float mz1, const float resolution) {
-        //resolution parameter =10  -> one digit after decimal point,
-        //                      100 -> two digits after decimal point
-        //                      etc..
-
-        return( round(mz1*resolution)/resolution);
+    float ppmround(const float mz1, const float resolution)
+    {
+        return( round(mz1 * resolution) / resolution);
     }
 
-    bool withinXMassCutoff( float mz1, float mz2, MassCutoff *massCutoff ) {
-        if ( mz2 > (mz1 - massCutoff->massCutoffValue(mz1)) && mz2 < (mz1 + massCutoff->massCutoffValue(mz1)) ) return(true);
-        else return(false);
+    bool withinXMassCutoff( float mz1, float mz2, MassCutoff *massCutoff )
+    {
+        float masscutOffMz = massCutoff->massCutoffValue(mz1);
+        if ( mz2 > (mz1 - masscutOffMz) &&
+            mz2 < (mz1 + masscutOffMz) ){
+            return(true);
+        } else
+            return(false);
     }
 
-    vector<float> quantileDistribution( vector<float> y ) {
-        int ysize = y.size();
-        std::sort(y.begin(), y.end());	//sort y
-        vector<float> quantiles(101,0);
-        for (int i=0; i < 101; i++ ) {
-            int pos = (float) i/100 * ysize;
-            if (pos < ysize) quantiles[i] = y[pos];
+
+    vector<float> quantileDistribution( vector<float> input)
+    {
+        int inputSize = input.size();
+        std::sort(input.begin(), input.end());
+        vector<float> quantiles(101, 0);
+
+        for (int i = 0; i < 101; i++ ) {
+            int pos = i/100.0 * inputSize ;
+            if (pos < inputSize)
+                quantiles[i] = input[pos];
         }
         return(quantiles);
     }
 
 
-    float ttest(StatisticsVector<float>& groupA, StatisticsVector<float>& groupB ) {
+    float ttest(StatisticsVector<float>& groupA,
+                                 StatisticsVector<float>& groupB )
+    {
         int n1 = groupA.size();
         int n2 = groupB.size();
-        if ( n1 == 0 && n2 == 0) return 0;       //both empty.. no different
-        if ( n1 == 0 || n2 == 0) return 1000;    //one is empty inf difference
-
+        if ( n1 == 0 && n2 == 0)
+            return 0;
+        if ( n1 == 0 || n2 == 0)
+            return 1000;
         float meanA = groupA.mean();
         float meanB = groupB.mean();
 
@@ -502,59 +378,52 @@ Series:  Prentice-Hall Series in Automatic Computation
         if (stdA == 0 ) stdA=1.0;
         if (stdB == 0 ) stdB=1.0;
 
-        float t_test = (meanA-meanB)/sqrt(((stdA*stdA)/n1)+((stdB*stdB)/n2));
+        float t_test = (meanA - meanB) / sqrt(((stdA * stdA) / n1) +
+                                              ((stdB * stdB) / n2));
         return t_test;
     }
 
-
-    int countBelow(vector<float>& y, float ymax) {
-        vector<float>::iterator itr = lower_bound(y.begin(), y.end(), ymax);
-        int lb = itr-y.begin();
+   int countBelow(vector<float>& y, float ymax)
+    {
+        vector<float> temp = y;
+        sort(temp.begin(), temp.end());
+        auto itr = lower_bound(temp.begin(), temp.end(), ymax);
+        int lb = itr-temp.begin();
         return lb;
-        /*
-           int count=0;
-           for (int i=0; i < y.size(); i++) if (y[i] < ymax) count++;
-           return(count);
-           */
+
     }
 
-    bool fileExists(string strFilename) {
+    bool fileExists(string strFilename)
+    {
         struct stat stFileInfo;
-        bool blnReturn;
+        bool flag;
         int intStat;
-        // Attempt to get the file attributes
-        intStat = stat(strFilename.c_str(),&stFileInfo);
+        intStat = stat(strFilename.c_str(), &stFileInfo);
         if(intStat == 0) {
-            blnReturn = true;
+            flag = true;
         } else {
-            blnReturn = false;
+            flag = false;
         }
-        return(blnReturn);
+        return(flag);
     }
 
 
-    int createDir(const char* path) {
+    int createDir(string path) {
         if (isDir(path)) return 0;
         cout << "Creating path: " << path << endl;
         mode_t old_mask = umask(0);
 #ifdef MINGW
-        int retval = mkdir(path);
+        int retval = mkdir(path.c_str());
 #else
-        int retval = mkdir(path, 0771);
+        int retval = mkdir(path.c_str(), 0771);
 #endif
         umask(old_mask);
         return retval;
     }
 
-    int isFile(const char* path) {
+    int isDir(string path) {
         struct stat sbuf;
-        int retval = stat(path, &sbuf);
-        return (!retval && (sbuf.st_mode & S_IFREG));
-    }
-
-    int isDir(const char* path) {
-        struct stat sbuf;
-        int retval = stat(path, &sbuf);
+        int retval = stat(path.c_str(), &sbuf);
         return (!retval && (sbuf.st_mode & S_IFDIR));
     }
 
@@ -582,9 +451,10 @@ Series:  Prentice-Hall Series in Automatic Computation
                 || std::abs(a - b) < std::numeric_limits<float>::min();
     }
 
-    float correlation(const vector<float>&x, const vector<float>&y) {
+    float correlation(const vector<float>&x, const vector<float>&y)
+    {
         int n = x.size();
-        double sumx = 0; 		//
+        double sumx = 0;
         double sumy = 0;
         double sumxy =0;
         double x2 = 0;
@@ -593,93 +463,90 @@ Series:  Prentice-Hall Series in Automatic Computation
         for (int i = 0; i < n; i++) {
             sumx += x[i];
             sumy += y[i];
-            sumxy += x[i]*y[i];
-            x2 += x[i]*x[i];
-            y2 += y[i]*y[i];
+            sumxy += x[i] * y[i];
+            x2 += x[i] * x[i];
+            y2 += y[i] * y[i];
         }
         if (n == 0) return 0;
-        double var1 = x2-(sumx*sumx)/n;
-        double var2 = y2-(sumy*sumy)/n;
+        double var1 = x2 - (sumx * sumx) / n;
+        double var2 = y2 - (sumy * sumy) / n;
         if ( var1 == 0 || var2 == 0 ) return 0;
-        return (sumxy -( sumx*sumy)/n) / sqrt((x2-(sumx*sumx)/n)*(y2-(sumy*sumy)/n));
+        float corr = (sumxy -( sumx * sumy) / n) /
+                       sqrt((x2 - (sumx * sumx) / n) *
+                          (y2 - (sumy * sumy) / n));
+        return corr;
     }
 
-
-    /*peak fitting function*/
-    void gaussFit(const vector<float>&ycoord, float* sigma, float* R2) {
-
+    pair<float, float> gaussFit(const vector<float>& ycoord)
+    {
         float s = 20;
         float min_s = 0;
         float minR = 1e99;
 
         //find best fit
-        if (ycoord.size()<3) return;
-        vector<float>yobs=ycoord;
-        int ysize=yobs.size();
-        int midpoint  = int(ysize/2);
+        if (ycoord.size()<3){
+            pair<float, float> res = make_pair(0.0, 0.0);
+            return res;
+        }
+        vector<float>yobs = ycoord;
+        int ysize = yobs.size();
+        int midpoint = int(ysize/2);
         //find maximum point ( assuming it somewhere around midpoint of the yobs);
-        float ymax = max(max(yobs[midpoint], yobs[midpoint-1]),yobs[midpoint+1]);
+        float ymax = max(max(yobs[midpoint], yobs[midpoint-1]),
+                         yobs[midpoint+1]);
         float ymin = min( yobs[0], yobs[ysize-1]);
 
-        //initialize x vector, values centered around 0, forxample  -2, -1, 0, 1, 2
-        int xinit = int(ysize/2)*-1;
-        vector<float>x(ysize,0);
-        int greaterZeroCount=0;
+        //initialize x vector, values centered around 0,
+        //forxample  -2, -1, 0, 1, 2
+        int xinit = int(ysize / 2) * -1;
+        vector<float> x(ysize, 0);
+        int greaterZeroCount = 0;
 
-        for(int i=0; i<ysize; i++ ) {
-            x[i] = xinit+i;
-            if ( yobs[i] > ymin ) greaterZeroCount++;
-            yobs[i] = (yobs[i]-ymin)/(ymax-ymin);
-            if(yobs[i]<0) yobs[i]=0;
+        for(int i = 0; i < ysize; i++){
+            x[i] = xinit + i;
+            if (yobs[i] > ymin) greaterZeroCount++;
+            yobs[i] = (yobs[i] - ymin) / (ymax - ymin);
+            if(yobs[i] < 0) yobs[i] = 0;
         }
-
-        /*
-           cerr << "fitting yobs:" << endl; for(int i=0; i < ysize; i++ )
-           cerr << setprecision(2) << yobs[i] << ", "; cerr << endl;
-           */
 
         bool converged = false;
         int ittr = 0;
 
-        if (greaterZeroCount <= 3 ) return;
+        if (greaterZeroCount <= 3 ){
+            pair<float, float> res = make_pair(0.0, 0.0);
+            return res;
+        }
         while (!converged ) {
             if ( ittr++ > 20 ) break;
-            float Rsqr=0;
-            for(int i=0; i < ysize; i++ )  { Rsqr += POW2(exp(-0.5*POW2(x[i]/s)) - yobs[i]); }
-            //       cerr << "\t\ts=" << s << " Rsqr=" << Rsqr << endl;
+            float Rsqr = 0;
+            for(int i = 0; i < ysize; i++ ){
+                Rsqr += POW2(exp(-0.5*POW2(x[i]/s)) - yobs[i]);
+            }
+
             if ( Rsqr < minR || ittr == 0 ) { minR = Rsqr; min_s = s; }
             else if ( Rsqr > minR ) break;
             else if ( Rsqr - minR == 0 ) break;
             s /= 1.25;
         }
-
-        *sigma = min_s;
-        *R2 = minR/(ysize*ysize);	//corrected R2
-        //cerr << "fit() s=" << *sigma << " R2=" << *R2 << endl;
+        pair<float, float> res = make_pair(min_s, minR/(ysize*ysize));
+        return res;
     }
 
+    inline unsigned long factorial(int n)
+    {
+        long p = 1;
+        while(n > 1)
+            p *= n--;
+        return p;
+    }
 
-    inline unsigned long factorial(int n) {
-        long p=1; while(n>1) p*=n--; return p; }
-
-    /*
-       long nchoosek(int n, int k) {
-       if(k==n) return 1;
-       if(k==0) return 1;
-       if(k>n) return 0;
-       return (factorial(n)/(factorial(n-k)*factorial(k)));
-       }
-       */
-    long long nchoosek(int n, int k) {
-
+    long long nchoosek(int n, int k)
+    {
         int n_k = n - k;
-
-        if (k < n_k)
-        {
+        if (k < n_k){
             k = n_k;
             n_k = n - k;
         }
-
         long long  nchsk = 1;
         for ( int i = 1; i <= n_k; i++)
         {
@@ -689,9 +556,9 @@ Series:  Prentice-Hall Series in Automatic Computation
         return nchsk;
     }
 
-    string cleanFilename(const string& filename) {
-
-        string outstring=filename;
+    string cleanFilename(const string& filename)
+    {
+        string outstring = filename;
         std::string::size_type pos =outstring.find_last_of("/");
 
         if (pos != std::string::npos) {
@@ -705,80 +572,96 @@ Series:  Prentice-Hall Series in Automatic Computation
 
         pos=outstring.find_last_of(".");
         if (pos != std::string::npos) {
-            outstring=outstring.substr(0,pos);
+            outstring=outstring.substr(0, pos);
         }
         return outstring;
     }
 
-    std::vector<double> naturalAbundanceCorrection(int nC, std::vector<double>& M, std::map<unsigned int, string> carbonIsotopeSpecies) {
-        //inputs
-        int n = nC;		//number of carbonms
-        int nr_13C = n + 1; //number of labeled carbons
+    std::vector<double> naturalAbundanceCorrection(
+        int nC,
+        std::vector<double>& M,
+        std::map<unsigned int, string> carbonIsotopeSpecies)
+    {
+        /* carbonIsotopeSpecies = {
+         *   {0, C12 PARENT},
+         *   {1, C13-Label-1},
+         *   {2, C13-Label-2},
+         *   {3, C13-Label-3},
+         * }
+         */
 
-        //uncorrected values
-        vector<double>C(nr_13C,0); // output vector with corrected values
-        vector<double>COriginal(carbonIsotopeSpecies.size(),0); // output vector with corrected values
+        // inputs
+        int n = nC;          // number of carbonms
+        int nr_13C = n + 1;  // number of labeled carbons
+
+        // uncorrected values
+        vector<double> C(nr_13C, 0);  // output vector with corrected values
+        vector<double> COriginal(carbonIsotopeSpecies.size(),
+                                 0);  // output vector with corrected values
         unsigned int carbonIsotopicSpeciesInt = 0;
 
-        for(int k=0; k < nr_13C; k++ ) {
-            double contamination=0;
+        for (int k = 0; k < nr_13C; k++) {
+            double contamination = 0;
 
-            for(int i=0; i<k; i++ ) {
-                contamination += pow( 0.011,k-i) * pow(0.989, n-k) * nchoosek(n-i,k-i) * C[i];
+            for (int i = 0; i < k; i++) {
+                contamination += pow(0.011, k - i) * pow(0.989, n - k)
+                                 * nchoosek(n - i, k - i) * C[i];
             }
 
-            C[k] = (M[k]-contamination) / pow(0.989,n-k);
-            if(C[k] < 1e-4) C[k]=0;
+            C[k] = (M[k] - contamination) / pow(0.989, n - k);
+            if (C[k] < 1e-4)
+                C[k] = 0;
 
             if (carbonIsotopeSpecies.find(k) != carbonIsotopeSpecies.end()) {
                 COriginal[carbonIsotopicSpeciesInt++] = C[k];
             }
         }
-
         return COriginal;
     }
 
-
-    const long double 	Pi = 3.1415926535897932384626433832795028841968;
-
-    double beta(double x, double y) {
-
-        if (x >= 2 && y >= 2 ) { //approximation
-            return sqrt(2*Pi)*pow(x,x-0.5)*pow(y,y-0.5)/pow(x+y,(x+y-0.5));
+    double beta(double x, double y)
+    {
+        if (x >= 2 && y >= 2 ) {
+            //approximation
+            double result =  sqrt(2*Pi) * pow(x, x - 0.5) * pow(y, y - 0.5)/
+                             pow(x + y,(x + y - 0.5));
+            return result;
         }
-
         //integral form
-        double dt=0.01;
-        double sum=0;
-        for(double t=0.0001; t<=0.9999; t+=dt) {
-            sum += pow(t,(x-1))*pow((1-t),(y-1))*dt;
+        double dt = 0.01;
+        double sum = 0;
+        for(double t = 0.0001; t <= 0.9999; t += dt) {
+            sum += pow(t,(x - 1)) * pow((1 - t), (y - 1)) * dt;
         }
         return sum;
     }
 
-    double gamma(double z) {
+    double gamma(double z)
+    {
         //integral form
-        double dt=0.0001;
-        double sum=0;
-        for(double t=0.000001; t<=10; t+=dt) {
-            sum += pow(t,z-1)*exp(-t)*dt;
+        double dt = 0.0001;
+        double sum = 0;
+        for(double t = 0.000001; t <= 10; t += dt) {
+            sum += pow(t, z - 1) * exp(-t) * dt;
         }
         return sum;
     }
 
-    double betaPDF(double x, double a, double b) {
-        return pow(x,a-1)*pow(1-x,b-1)/beta(a,b);
+    double betaPDF(double x, double a, double b)
+    {
+        return pow(x, a - 1) * pow(1 - x, b - 1) / beta(a, b);
     }
 
-    double pertPDF(double x, double min, double mode, double max ) {
-        double a = 6*(mode-min)/(max-min);
-        double b = 6*(max-mode)/(max-min);
-        return pow(x-min,a-1)*pow(max-x,b-1)/(beta(a,b)*pow(max-min,a+b-1));
+    double pertPDF(double x, double min, double mode, double max )
+    {
+        double a = 6 * (mode - min)/(max - min);
+        double b = 6 * (max - mode)/(max - min);
+        return pow(x - min,a - 1) * pow(max - x,b - 1)/(beta(a, b)*
+                                              pow(max - min,a + b - 1));
     }
 
 
     void tridiagonal ( int n, float *c, float *a, float *b, float *r )
-
     {
         int i;
 
@@ -792,54 +675,12 @@ Series:  Prentice-Hall Series in Automatic Computation
             r[i] = ( r[i] - c[i-1] * r[i-1] ) / a[i];
 
         for ( i = n-2; i >= 0; i-- )
-            r[i] -= r[i+1] * b[i];
+            r[i] -= r[i + 1] * b[i];
     }
 
 
-    void cubic_nak ( int n, float *x, float *f, float *b, float *c, float *d )
-
-        /*
-           PURPOSE:
-           determine the coefficients for the 'not-a-knot'
-           cubic spline for a given set of data
-
-
-           CALLING SEQUENCE:
-           cubic_nak ( n, x, f, b, c, d );
-
-
-           INPUTS:
-           n		number of interpolating points
-           x		array containing interpolating points
-           f		array containing function values to
-           be interpolated;  f[i] is the function
-           value corresponding to x[i]
-           b		array of size at least n; contents will
-           be overwritten
-           c		array of size at least n; contents will
-           be overwritten
-           d		array of size at least n; contents will
-           be overwritten
-
-
-           OUTPUTS:
-           b		coefficients of linear terms in cubic
-           spline
-           c		coefficients of quadratic terms in
-           cubic spline
-           d		coefficients of cubic terms in cubic
-           spline
-
-           REMARK:
-           remember that the constant terms in the cubic spline
-           are given by the function values being interpolated;
-           i.e., the contents of the f array are the constant
-           terms
-
-           to evaluate the cubic spline, use the routine
-           'spline_eval'
-           */
-
+    void cubic_nak ( int num, float *interpolatingPoints, float *functionValues,
+                   float *linearCoeff, float *quadraticCoeff, float *cubicCoeff)
     {
         float *h,
               *dl,
@@ -847,35 +688,43 @@ Series:  Prentice-Hall Series in Automatic Computation
               *du;
         int i;
 
-        h  = new float [n];
-        dl = new float [n];
-        dd = new float [n];
-        du = new float [n];
+        h  = new float [num];
+        dl = new float [num];
+        dd = new float [num];
+        du = new float [num];
 
-        for ( i = 0; i < n-1; i++ )
-            h[i] = x[i+1] - x[i];
-        for ( i = 0; i < n-3; i++ )
-            dl[i] = du[i] = h[i+1];
+        for ( i = 0; i < num-1; i++ )
+            h[i] = interpolatingPoints[i + 1] - interpolatingPoints[i];
+        for ( i = 0; i < num-3; i++ )
+            dl[i] = du[i] = h[i + 1];
 
-        for ( i = 0; i < n-2; i++ ) {
-            dd[i] = 2.0 * ( h[i] + h[i+1] );
-            c[i]  = ( 3.0 / h[i+1] ) * ( f[i+2] - f[i+1] ) -
-                ( 3.0 / h[i] ) * ( f[i+1] - f[i] );
+        for ( i = 0; i < num-2; i++ ) {
+            dd[i] = 2.0 * ( h[i] + h[i + 1] );
+            quadraticCoeff[i]  = ( 3.0 / h[i + 1] ) * ( functionValues[i + 2] -
+                                                    functionValues[i + 1] ) -
+                ( 3.0 / h[i] ) * ( functionValues[i + 1] - functionValues[i] );
         }
         dd[0] += ( h[0] + h[0]*h[0] / h[1] );
-        dd[n-3] += ( h[n-2] + h[n-2]*h[n-2] / h[n-3] );
+        dd[num - 3] += ( h[num - 2] + h[num - 2]*h[num - 2] / h[num - 3] );
         du[0] -= ( h[0]*h[0] / h[1] );
-        dl[n-4] -= ( h[n-2]*h[n-2] / h[n-3] );
+        dl[num - 4] -= ( h[num - 2]*h[num - 2] / h[num - 3] );
 
-        tridiagonal ( n-2, dl, dd, du, c );
+        tridiagonal ( num - 2, dl, dd, du, quadraticCoeff );
 
-        for ( i = n-3; i >= 0; i-- )
-            c[i+1] = c[i];
-        c[0] = ( 1.0 + h[0] / h[1] ) * c[1] - h[0] / h[1] * c[2];
-        c[n-1] = ( 1.0 + h[n-2] / h[n-3] ) * c[n-2] - h[n-2] / h[n-3] * c[n-3];
-        for ( i = 0; i < n-1; i++ ) {
-            d[i] = ( c[i+1] - c[i] ) / ( 3.0 * h[i] );
-            b[i] = ( f[i+1] - f[i] ) / h[i] - h[i] * ( c[i+1] + 2.0*c[i] ) / 3.0;
+        for (i = num - 3; i >= 0; i--)
+            quadraticCoeff[i + 1] = quadraticCoeff[i];
+        quadraticCoeff[0] = (1.0 + h[0] / h[1]) * quadraticCoeff[1]
+                            - h[0] / h[1] * quadraticCoeff[2];
+        quadraticCoeff[num - 1] =
+            (1.0 + h[num - 2] / h[num - 3]) * quadraticCoeff[num - 2]
+            - h[num - 2] / h[num - 3] * quadraticCoeff[num - 3];
+        for (i = 0; i < num - 1; i++) {
+            cubicCoeff[i] =
+                (quadraticCoeff[i + 1] - quadraticCoeff[i]) / (3.0 * h[i]);
+            linearCoeff[i] =
+                (functionValues[i + 1] - functionValues[i]) / h[i]
+                - h[i] * (quadraticCoeff[i + 1] + 2.0 * quadraticCoeff[i])
+                      / 3.0;
         }
 
         delete [] h;
@@ -886,45 +735,6 @@ Series:  Prentice-Hall Series in Automatic Computation
 
     float spline_eval ( int n, float *x, float *f, float *b, float *c,
             float *d, float t )
-
-        /*
-           PURPOSE:
-           evaluate a cubic spline at a single value of
-           the independent variable given the coefficients of
-           the cubic spline interpolant (obtained from
-           'cubic_nak' or 'cubic_clamped')
-
-
-           CALLING SEQUENCE:
-           y = spline_eval ( n, x, f, b, c, d, t );
-           spline_eval ( n, x, f, b, c, d, t );
-
-
-           INPUTS:
-           n		number of interpolating points
-           x		array containing interpolating points
-           f		array containing the constant terms from
-           the cubic spline (obtained from 'cubic_nak'
-           or 'cubic_clamped')
-           b		array containing the coefficients of the
-           linear terms from the cubic spline
-           (obtained from 'cubic_nak' or 'cubic_clamped')
-           c		array containing the coefficients of the
-           quadratic terms from the cubic spline
-           (obtained from 'cubic_nak' or 'cubic_clamped')
-           d		array containing the coefficients of the
-           cubic terms from the cubic spline
-           (obtained from 'cubic_nak' or 'cubic_clamped')
-           t		value of independent variable at which
-           the interpolating polynomial is to be
-           evaluated
-
-
-           OUTPUTS:
-           y		value of cubic spline at the specified
-           value of the independent variable
-           */
-
     {
         int i=1;
         int found=0;
@@ -936,7 +746,8 @@ Series:  Prentice-Hall Series in Automatic Computation
                 i++;
         }
 
-        t = f[i-1] + ( t - x[i-1] ) * ( b[i-1] + ( t - x[i-1] ) * ( c[i-1] + (t - x[i-1] ) * d[i-1] ) );
+        t = f[i-1] + ( t - x[i-1] ) * ( b[i-1] + ( t - x[i-1] ) *
+                                        ( c[i-1] + (t - x[i-1] ) * d[i-1] ) );
         return ( t );
     }
 
@@ -955,7 +766,23 @@ Series:  Prentice-Hall Series in Automatic Computation
         return outstring;
     }
 
-    bool gzipInflate( const std::string& compressedBytes, std::string& uncompressedBytes ) {
+    std::string compressString(const std::string& uncompressedString) {
+        string outstring;
+#ifdef ZLIB
+        stringstream uncompressed(uncompressedString);
+        stringstream compressed;
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+        in.push(boost::iostreams::zlib_compressor());
+        in.push(uncompressed);
+        boost::iostreams::copy(in, compressed);
+        outstring = compressed.str();
+#endif
+        return outstring;
+    }
+
+    bool gzipInflate( const std::string& compressedBytes,
+                     std::string& uncompressedBytes )
+    {
 #ifdef ZLIB
         if ( compressedBytes.size() == 0 ) {
             uncompressedBytes = compressedBytes ;
@@ -988,7 +815,8 @@ Series:  Prentice-Hall Series in Automatic Computation
             // If our output buffer is too small
             if (strm.total_out >= uncompLength ) {
                 // Increase size of output buffer
-                char* uncomp2 = (char*) calloc( sizeof(char), uncompLength + half_length );
+                char* uncomp2 = (char*) calloc( sizeof(char),
+                                              uncompLength + half_length );
                 memcpy( uncomp2, uncomp, uncompLength );
                 uncompLength += half_length ;
                 free( uncomp );
@@ -1011,13 +839,14 @@ Series:  Prentice-Hall Series in Automatic Computation
             return false;
         }
 
-        for ( size_t i=0; i<strm.total_out; ++i ) {
+        for ( size_t i = 0; i<strm.total_out; ++i ) {
             uncompressedBytes += uncomp[ i ];
         }
         free( uncomp );
 #endif
         return true ;
     }
+
 
     bool strcasecmp_withNumbers(const std::string& a, const std::string& b ) {
         if (a.empty())
@@ -1185,3 +1014,627 @@ Series:  Prentice-Hall Series in Automatic Computation
     }
     
 } //namespace end
+
+//////////////////////////////////////TestCases/////////////////////////////
+
+TEST_SUITE("Testing mzUtils functions")
+{
+    TEST_CASE("Testing random functions")
+    {
+        SUBCASE("Testing Random Integer")
+        {
+            int res = mzUtils::randInt(0, 100);
+            REQUIRE((res <= 100 && res >= 0) == true);
+            res = mzUtils::randInt(INT_MIN, INT_MAX);
+            REQUIRE((res >= INT_MIN && res <= INT_MAX) == true) ;
+        }
+
+        SUBCASE("Testing Random Long Integer")
+        {
+            long int res = mzUtils::randInt(5000,10000);
+            REQUIRE((res <= 100000 && res >= 5000) == true);
+            res = mzUtils::randLong(LONG_MIN, LONG_MAX);
+            REQUIRE((res >= LONG_MIN && res <= LONG_MAX) == true) ;
+        }
+
+        SUBCASE("Testing Random Float")
+        {
+            float res = mzUtils::randInt(0.0,100.0);
+            REQUIRE((res <= 100.0 && res >= 0.0) == true);
+            res = mzUtils::randFloat(FLT_MIN, FLT_MAX);
+            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true) ;
+        }
+
+        SUBCASE("Testing Random Double")
+        {
+            double res = mzUtils::randInt(5000.0,10000.0);
+            REQUIRE((res <= 100000.0 && res >= 5000.0) == true);
+            res = mzUtils::randDouble(FLT_MIN, FLT_MAX);
+            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true) ;
+        }
+    }
+
+    TEST_CASE("Testing split function")
+    {
+        string str = "Hello,this,is,to,test,function";
+        string sep = ",";
+        vector<string> v;
+        mzUtils::split(str, sep, v);
+        REQUIRE(v.size() == 6);
+        REQUIRE(v[0] == "Hello");
+        REQUIRE(v[1] == "this");
+        REQUIRE(v[2] == "is");
+        REQUIRE(v[3] == "to");
+        REQUIRE(v[4] == "test");
+        REQUIRE(v[5] == "function");
+    }
+
+    TEST_CASE("Testing converting to Lower case")
+    {
+        string str = "TESTING";
+        mzUtils::makeLowerCase(str);
+        REQUIRE(str == "testing");
+    }
+
+    TEST_CASE("Removing Special Characters")
+    {
+        string str1 = "\"Doctest\"";
+        string str2 = "\directory";
+        vector<string> fields;
+        fields.push_back(str1);
+        fields.push_back(str2);
+        mzUtils::removeSpecialcharFromStartEnd(fields);
+        REQUIRE(fields[0] == "Doctest");
+        REQUIRE(fields[1] == "directory");
+    }
+
+    TEST_CASE("Testing Compare strings")
+    {
+        string str = "mzCSVFile";
+        string res = mzUtils::compareStr(str, "mzCSV");
+        REQUIRE(res == "mzCSVFile");
+    }
+
+    TEST_CASE("Testing Smooth Average")
+    {
+        float *input = new float[10];
+        input[0] = 10.002;
+        input[1] = 15.001;
+        input[2] = 22.002;
+        input[3] = 42.229;
+        input[4] = 28.992;
+        input[5] = 11.09;
+        input[6] = 12.091;
+        input[7] = 33.082;
+        input[8] = 12.234;
+        input[9] = 43.998;
+
+        float *result = new float[10];
+        mzUtils::smoothAverage(input, result, 5, 10);
+
+        REQUIRE(doctest::Approx(result[0]) == 9.401);
+        REQUIRE(doctest::Approx(result[1]) == 17.8468);
+        REQUIRE(doctest::Approx(result[2]) == 23.6452);
+        REQUIRE(doctest::Approx(result[3]) == 23.8628);
+        REQUIRE(doctest::Approx(result[4]) == 23.2808);
+        REQUIRE(doctest::Approx(result[5]) == 25.4968);
+        REQUIRE(doctest::Approx(result[6]) == 19.4978);
+        REQUIRE(doctest::Approx(result[7]) == 22.499);
+        REQUIRE(doctest::Approx(result[8]) == 20.281);
+        REQUIRE(doctest::Approx(result[9]) == 17.8628);
+    }
+
+
+    TEST_CASE("Testing Gaussian 1D Smoothing")
+    {
+        float *input = new float[10];
+        input[0] = 10.002;
+        input[1] = 15.001;
+        input[2] = 22.002;
+        input[3] = 42.229;
+        input[4] = 28.992;
+        input[5] = 11.09;
+        input[6] = 12.091;
+        input[7] = 33.082;
+        input[8] = 12.234;
+        input[9] = 43.998;
+        mzUtils::gaussian1d_smoothing(10, 5, input);
+        REQUIRE(doctest::Approx(input[0]) == 10.9483);
+        REQUIRE(doctest::Approx(input[1]) == 16.1078);
+        REQUIRE(doctest::Approx(input[2]) == 20.584);
+        REQUIRE(doctest::Approx(input[3]) == 23.111);
+        REQUIRE(doctest::Approx(input[4]) == 23.4083);
+        REQUIRE(doctest::Approx(input[5]) == 22.4539);
+        REQUIRE(doctest::Approx(input[6]) == 21.5049);
+        REQUIRE(doctest::Approx(input[7]) == 20.8023);
+        REQUIRE(doctest::Approx(input[8]) == 19.4174);
+        REQUIRE(doctest::Approx(input[9]) == 16.3895);
+    }
+
+    TEST_CASE("Testing Medians")
+    {
+        SUBCASE("Testing array of floats")
+        {
+            float *input = new float[10];
+            input[0] = 10.002;
+            input[1] = 15.001;
+            input[2] = 22.002;
+            input[3] = 42.229;
+            input[4] = 28.992;
+            input[5] = 11.09;
+            input[6] = 12.091;
+            input[7] = 33.082;
+            input[8] = 12.234;
+            input[9] = 43.998;
+            float res = mzUtils::median(input, 10);
+            REQUIRE(doctest::Approx(res) == 18.5015);
+        }
+
+        SUBCASE("Testing vectors of floats")
+        {
+            vector<float> input;
+            input.push_back(10.002);
+            input.push_back(15.001);
+            input.push_back(22.002);
+            input.push_back(42.229);
+            input.push_back(28.992);
+            input.push_back(11.09);
+            input.push_back(12.091);
+            input.push_back(33.082);
+            input.push_back(12.234);
+            input.push_back(43.998);
+            float res = mzUtils::median(input);
+            REQUIRE(doctest::Approx(res) == 18.5015f);
+        }
+    }
+
+    TEST_CASE("Testing kthSmallest ")
+    {
+        float *input = new float[10];
+        input[0] = 10.002;
+        input[1] = 15.001;
+        input[2] = 22.002;
+        input[3] = 42.229;
+        input[4] = 28.992;
+        input[5] = 11.09;
+        input[6] = 12.091;
+        input[7] = 33.082;
+        input[8] = 12.234;
+        input[9] = 43.998;
+        float res = mzUtils::kth_smallest(input, 10, 3);
+        REQUIRE(doctest::Approx(res) == 22.002);
+    }
+
+    TEST_CASE("Testinng Convert Datatypes")
+    {
+        string str = mzUtils::integer2string(29);
+        REQUIRE(str == "29");
+
+        float res = mzUtils::string2float("30.0");
+        REQUIRE(doctest::Approx(res) == 30.0);
+
+        int result = mzUtils::string2integer("98");
+        REQUIRE(result == 98);
+    }
+
+    TEST_CASE("Testing MassCutoffDist")
+    {
+        MassCutoff* massCutoff = new MassCutoff();
+        massCutoff->setMassCutoffAndType(0.3, "ppm");
+
+        SUBCASE("Testing float parameters")
+        {
+            float res = mzUtils::massCutoffDist(10.3, 10.8, massCutoff);
+            REQUIRE(doctest::Approx(res) == 48543.7);
+        }
+
+        SUBCASE("Testing Double parameters")
+        {
+            float res = mzUtils::massCutoffDist(100.003, 150.8027, massCutoff);
+            REQUIRE(doctest::Approx(res) == 507982);
+        }
+
+        SUBCASE("Testing withinXMasscutOff")
+        {
+            bool res = mzUtils::withinXMassCutoff(10.3, 10.8, massCutoff);
+            REQUIRE(res == false);
+        }
+    }
+
+    TEST_CASE("Testing ppmDist functions")
+    {
+        SUBCASE("Testing Float parameters")
+        {
+            float res = mzUtils::ppmDist(10.3, 10.8);
+            REQUIRE(doctest::Approx(res) == 48543.7);
+        }
+
+        SUBCASE("Testing Double parameters")
+        {
+            float res = mzUtils::ppmDist(100.003, 150.8027);
+            REQUIRE(doctest::Approx(res) == 507982);
+        }
+
+        SUBCASE("Testing ppmRound")
+        {
+            float res = mzUtils::ppmround(10.3,100);
+            REQUIRE(doctest::Approx(res) == 10.3);
+        }
+    }
+
+    TEST_CASE("Testing QuantileDistribution")
+    {
+        vector<float> input;
+        input.push_back(10.002);
+        input.push_back(15.001);
+        input.push_back(22.002);
+        input.push_back(42.229);
+        input.push_back(28.992);
+        input.push_back(11.09);
+        input.push_back(12.091);
+        input.push_back(33.082);
+        input.push_back(12.234);
+        input.push_back(43.998);
+
+        vector<float> res;
+        res = mzUtils::quantileDistribution(input);
+        for( int i = 0; i < 10; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 10.002);
+        for( int i = 10; i < 20; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 11.09);
+        for( int i = 20; i < 30; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 12.091);
+        for( int i = 30; i < 40; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 12.234);
+        for( int i = 40; i < 50; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 15.001);
+        for( int i = 50; i < 60; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 22.002);
+        for( int i = 60; i < 70; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 28.992);
+        for( int i = 70; i < 80; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 33.082);
+        for( int i = 80; i < 90; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 42.229);
+        for( int i = 90; i < 100; i++ )
+            REQUIRE(doctest::Approx(res[i]) == 43.998);
+        REQUIRE(res[100] == 0);
+    }
+
+
+    TEST_CASE("Testing t_test")
+    {
+        StatisticsVector<float> groupA;
+        groupA.push_back(10.002);
+        groupA.push_back(15.001);
+        groupA.push_back(22.002);
+        groupA.push_back(42.229);
+        groupA.push_back(28.992);
+        groupA.push_back(11.09);
+        groupA.push_back(12.091);
+        groupA.push_back(33.082);
+        groupA.push_back(12.234);
+        groupA.push_back(43.998);
+
+        StatisticsVector<float> groupB;
+        groupB.push_back(13.002);
+        groupB.push_back(11.001);
+        groupB.push_back(20.002);
+        groupB.push_back(22.229);
+        groupB.push_back(23.992);
+        groupB.push_back(31.09);
+        groupB.push_back(22.091);
+        groupB.push_back(43.082);
+        groupB.push_back(82.234);
+        groupB.push_back(20.998);
+
+        float res = mzUtils::ttest(groupA, groupB);
+        REQUIRE( doctest::Approx(res) == -0.758955);
+    }
+
+    TEST_CASE("Testing countBelow")
+    {
+        StatisticsVector<float> groupA;
+        groupA.push_back(10.002);
+        groupA.push_back(15.001);
+        groupA.push_back(22.002);
+        groupA.push_back(42.229);
+        groupA.push_back(28.992);
+        groupA.push_back(11.09);
+        groupA.push_back(12.091);
+        groupA.push_back(33.082);
+        groupA.push_back(12.234);
+        groupA.push_back(43.998);
+
+        int res = mzUtils::countBelow(groupA, 22.002);
+        REQUIRE(res == 5);
+    }
+
+    TEST_CASE("Testing fileExists")
+    {
+        REQUIRE((mzUtils::fileExists("testCharge.xml")) == true);
+        REQUIRE((mzUtils::fileExists("hello.cpp")) == false);
+    }
+
+    TEST_CASE("Testing AlmostEquals")
+    {
+        REQUIRE((mzUtils::almostEqual(33.082, 43.085)) == false);
+    }
+
+    TEST_CASE("Testing correlation")
+    {
+        StatisticsVector<float> groupA;
+        groupA.push_back(10.002);
+        groupA.push_back(15.001);
+        groupA.push_back(22.002);
+        groupA.push_back(42.229);
+        groupA.push_back(28.992);
+        groupA.push_back(11.09);
+        groupA.push_back(12.091);
+        groupA.push_back(33.082);
+        groupA.push_back(12.234);
+        groupA.push_back(43.998);
+
+        StatisticsVector<float> groupB;
+        groupB.push_back(13.002);
+        groupB.push_back(11.001);
+        groupB.push_back(20.002);
+        groupB.push_back(22.229);
+        groupB.push_back(23.992);
+        groupB.push_back(31.09);
+        groupB.push_back(22.091);
+        groupB.push_back(43.082);
+        groupB.push_back(82.234);
+        groupB.push_back(20.998);
+
+        float res = mzUtils::correlation(groupA, groupB);
+        REQUIRE(doctest::Approx(res) == -0.141492);
+    }
+
+    TEST_CASE("Testing combination and factorial")
+    {
+        SUBCASE("Testing Factorial")
+        {
+            REQUIRE(mzUtils::factorial(4) == 24);
+        }
+        SUBCASE("Testing Combination")
+        {
+            REQUIRE((mzUtils::nchoosek(5,2)) == 10);
+        }
+    }
+
+    TEST_CASE("Testing cleaning of filename")
+    {
+        string str ="tests/test-libmaven/test_jsonReports.csv";
+        string res = mzUtils::cleanFilename(str);
+        REQUIRE(res == "test_jsonReports");
+    }
+
+    TEST_CASE("Testing beta and gama functions")
+    {
+        float res = mzUtils::beta(0.78, 1.87);
+        REQUIRE(doctest::Approx(res) == 0.815535);
+
+        res = mzUtils::gamma(0.67);
+        REQUIRE(doctest::Approx(res) == 1.35569);
+
+        res = mzUtils::betaPDF(0.78, 1.87, 0.67);
+        REQUIRE(doctest::Approx(res) == 1.48414);
+    }
+
+    TEST_CASE("Testing cubic_nak and spline")
+    {
+        float *input = new float[5];
+        input[0] = 10.002;
+        input[1] = 15.001;
+        input[2] = 22.002;
+        input[3] = 42.229;
+        input[4] = 28.992;
+
+        float *functionValues = new float[5];
+        functionValues[0] = 12.65;
+        functionValues[1] = 10.5;
+        functionValues[2] = 15.32;
+        functionValues[3] = 18.65;
+        functionValues[4] = 2.65;
+
+        float *linearCoeff = new float[5];
+        linearCoeff[0] = 0;
+        linearCoeff[1] = 0;
+        linearCoeff[2] = 0;
+        linearCoeff[3] = 0;
+        linearCoeff[4] = 0;
+
+        float *quadraticCoef = new float[5];
+        quadraticCoef[0] =0;
+        quadraticCoef[1] =0;
+        quadraticCoef[2] =0;
+        quadraticCoef[3] =0;
+        quadraticCoef[4] =0;
+
+        float *cubicCoef = new float[5];
+        cubicCoef[0] = 0;
+        cubicCoef[1] = 0;
+        cubicCoef[2] = 0;
+        cubicCoef[3] = 0;
+        cubicCoef[4] = 0;
+
+        mzUtils::cubic_nak(5, input, functionValues,
+                           linearCoeff, quadraticCoef, cubicCoef);
+        REQUIRE(doctest::Approx(linearCoeff[0]) == -2.17844);
+        REQUIRE(doctest::Approx(linearCoeff[1]) == 0.78405);
+        REQUIRE(doctest::Approx(linearCoeff[2]) == -0.45489);
+        REQUIRE(doctest::Approx(linearCoeff[3]) == 7.73426);
+        REQUIRE(doctest::Approx(linearCoeff[4]) == 0);
+
+        REQUIRE(doctest::Approx(quadraticCoef[0]) == 0.456606);
+        REQUIRE(doctest::Approx(quadraticCoef[1]) ==  0.136011);
+        REQUIRE(doctest::Approx(quadraticCoef[2]) == -0.312977);
+        REQUIRE(doctest::Approx(quadraticCoef[3]) ==  0.717839);
+        REQUIRE(doctest::Approx(quadraticCoef[4]) ==  0.0432502);
+
+        REQUIRE(doctest::Approx(cubicCoef[0]) == -0.0213773);
+        REQUIRE(doctest::Approx(cubicCoef[1]) == -0.0213773);
+        REQUIRE(doctest::Approx(cubicCoef[2]) == 0.0169875);
+        REQUIRE(doctest::Approx(cubicCoef[3]) == 0.0169875);
+        REQUIRE(doctest::Approx(cubicCoef[4]) == 0);
+
+        mzUtils::spline_eval(5,input, functionValues,
+                             linearCoeff, quadraticCoef, cubicCoef, 0.34f);
+        REQUIRE(doctest::Approx(linearCoeff[0]) == -2.17844);
+        REQUIRE(doctest::Approx(linearCoeff[1]) == 0.78405);
+        REQUIRE(doctest::Approx(linearCoeff[2]) == -0.45489);
+        REQUIRE(doctest::Approx(linearCoeff[3]) == 7.73426);
+        REQUIRE(doctest::Approx(linearCoeff[4]) == 0);
+
+        REQUIRE(doctest::Approx(quadraticCoef[0]) == 0.456606);
+        REQUIRE(doctest::Approx(quadraticCoef[1]) ==  0.136011);
+        REQUIRE(doctest::Approx(quadraticCoef[2]) == -0.312977);
+        REQUIRE(doctest::Approx(quadraticCoef[3]) ==  0.717839);
+        REQUIRE(doctest::Approx(quadraticCoef[4]) ==  0.0432502);
+
+        REQUIRE(doctest::Approx(cubicCoef[0]) == -0.0213773);
+        REQUIRE(doctest::Approx(cubicCoef[1]) == -0.0213773);
+        REQUIRE(doctest::Approx(cubicCoef[2]) == 0.0169875);
+        REQUIRE(doctest::Approx(cubicCoef[3]) == 0.0169875);
+        REQUIRE(doctest::Approx(cubicCoef[4]) == 0);
+    }
+
+    TEST_CASE("Tesrting Decompress String")
+    {
+        string destStr = "TestingDoneSuccessfully";
+        string str = "Testing";
+        bool res = mzUtils::gzipInflate(destStr, str);
+        REQUIRE(res == true);
+    }
+
+    TEST_CASE("Testing comparing numbers in string format")
+    {
+        string str1 = "7648";
+        string str2 = "7648";
+        bool res = mzUtils::strcasecmp_withNumbers(str1, str2);
+        REQUIRE(res == true);
+    }
+
+    TEST_CASE("Testing besseli0")
+    {
+        double res = mzUtils::besseli0(0.34);
+        REQUIRE(doctest::Approx(res) == 1.02911);
+    }
+
+    TEST_CASE("Testing Kaiser")
+    {
+        vector<double> vect = mzUtils::kaiser(3, 2.3);
+        REQUIRE(doctest::Approx(vect[0]) == 0.353406);
+        REQUIRE(doctest::Approx(vect[1]) == 1);
+        REQUIRE(doctest::Approx(vect[2]) == 0.353406);
+    }
+
+    TEST_CASE("Testing sinc")
+    {
+        float res = mzUtils::sinc(2.3);
+        REQUIRE(doctest::Approx(res) == 0.111964);
+    }
+
+    TEST_CASE("Testing firDesignKaiser")
+    {
+        vector<double> vect = mzUtils::firDesignKaiser(3, 0.1);
+        REQUIRE(doctest::Approx(vect[0]) == 0.003611);
+        REQUIRE(doctest::Approx(vect[1]) ==  0.1);
+        REQUIRE(doctest::Approx(vect[2]) == 0.003611);
+    }
+
+    TEST_CASE("Testing Filter Coefficient")
+    {
+        vector<double> vect = mzUtils::computeFilterCoefficients(1, 2);
+        REQUIRE(doctest::Approx(vect[0]) == -7.15527e-19);
+        REQUIRE(doctest::Approx(vect[1]) == -0.00105091);
+        REQUIRE(doctest::Approx(vect[2]) == 1.85334e-18);
+        REQUIRE(doctest::Approx(vect[3]) == 0.00250767);
+        REQUIRE(doctest::Approx(vect[4]) == -3.49234e-18);
+        REQUIRE(doctest::Approx(vect[5]) == -0.0048923);
+        REQUIRE(doctest::Approx(vect[6]) == 5.60355e-18);
+        REQUIRE(doctest::Approx(vect[7]) == 0.00855213);
+        REQUIRE(doctest::Approx(vect[8]) == -8.08683e-18);
+        REQUIRE(doctest::Approx(vect[9]) == -0.0139827);
+        REQUIRE(doctest::Approx(vect[10]) == 1.07756e-17);
+        REQUIRE(doctest::Approx(vect[11]) == 0.0220117);
+        REQUIRE(doctest::Approx(vect[12]) == -1.34527e-17);
+        REQUIRE(doctest::Approx(vect[13]) == -0.0343224);
+        REQUIRE(doctest::Approx(vect[14]) == 1.58764e-17);
+        REQUIRE(doctest::Approx(vect[15]) == 0.0552597);
+        REQUIRE(doctest::Approx(vect[16]) == -1.7811e-17);
+        REQUIRE(doctest::Approx(vect[17]) == -0.100878);
+        REQUIRE(doctest::Approx(vect[18]) == 1.90594e-17);
+        REQUIRE(doctest::Approx(vect[19]) == 0.316537);
+        REQUIRE(doctest::Approx(vect[20]) == 0.5);
+        REQUIRE(doctest::Approx(vect[21]) == 0.316537);
+        REQUIRE(doctest::Approx(vect[22]) == 1.90594e-17);
+        REQUIRE(doctest::Approx(vect[23]) == -0.100878);
+        REQUIRE(doctest::Approx(vect[24]) == -1.7811e-17);
+        REQUIRE(doctest::Approx(vect[25]) == 0.0552597);
+        REQUIRE(doctest::Approx(vect[26]) == 1.58764e-17);
+        REQUIRE(doctest::Approx(vect[27]) == -0.0343224);
+        REQUIRE(doctest::Approx(vect[28]) == -1.34527e-17);
+        REQUIRE(doctest::Approx(vect[29]) == 0.0220117);
+        REQUIRE(doctest::Approx(vect[30]) == 1.07756e-17);
+        REQUIRE(doctest::Approx(vect[31]) == -0.0139827);
+        REQUIRE(doctest::Approx(vect[32]) == -8.08683e-18);
+        REQUIRE(doctest::Approx(vect[33]) == 0.00855213);
+        REQUIRE(doctest::Approx(vect[34]) == 5.60355e-18);
+
+    }
+
+    TEST_CASE("Testing Resampling Factor")
+    {
+        int res = mzUtils::approximateResamplingFactor(5, 3);
+        REQUIRE(res == 1);
+    }
+
+    TEST_CASE("Testing resample")
+    {
+        vector<double> input;
+        input.push_back(10.002);
+        input.push_back(15.001);
+        input.push_back(22.002);
+        vector<double> vect = mzUtils::resample(input, 1, 1);
+        REQUIRE(doctest::Approx(vect[0]) == 10.002);
+        REQUIRE(doctest::Approx(vect[1]) ==  15.001);
+        REQUIRE(doctest::Approx(vect[2]) == 22.002);
+    }
+
+    TEST_CASE("Testing GaussFit")
+    {
+        vector<float> input;
+        input.push_back(10.002);
+        input.push_back(15.001);
+        input.push_back(22.002);
+        input.push_back(42.229);
+        input.push_back(28.992);
+        input.push_back(11.09);
+        input.push_back(12.091);
+        input.push_back(33.082);
+        input.push_back(12.234);
+        input.push_back(43.998);
+
+        pair<float, float> res = mzUtils::gaussFit(input);
+        REQUIRE(doctest::Approx(res.first) == 4.1943);
+        REQUIRE(doctest::Approx(res.second) == 0.0455033);
+    }
+
+    TEST_CASE("Testing decompress string")
+    {
+        string str = "Testing if test works";
+        string compress = mzUtils::compressString(str);
+        string res = mzUtils::decompressString(compress);
+        REQUIRE(res == str);
+    }
+
+    TEST_CASE("Testing CreateDir")
+    {
+        string path = "tests/path";
+        int res = mzUtils::createDir(path);
+        REQUIRE(res == 0);
+        remove(path.c_str());
+    }
+}
