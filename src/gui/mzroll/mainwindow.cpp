@@ -2273,7 +2273,7 @@ int MainWindow::loadMetaCsvFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set", "cohort," "scaling", "injection order"};
+    static const string allHeadersarr[] = {"sample", "set", "cohort", "scaling", "injection order"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
