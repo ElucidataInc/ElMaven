@@ -326,20 +326,6 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
         if (mavenParameters->clsf->hasModel())
             mavenParameters->clsf->scoreEICs(eics);
-        auto highestIntensity = 0.0f;
-        auto mzAtHighestIntensity = 0.0f;
-        auto rtAtHighestIntensity = 0.0f;
-
-        for (auto eic: eics) {
-            for (size_t i = 0; i < eic->size(); ++i) {
-                auto intensityAtIdx = eic->intensity[i];
-                if (intensityAtIdx > highestIntensity) {
-                    highestIntensity = intensityAtIdx;
-                    mzAtHighestIntensity = eic->mz[i];;
-                    rtAtHighestIntensity = eic->rt[i];;
-                }
-            }
-        }
 
         float eicMaxIntensity = 0;
         for (auto eic : eics) {
