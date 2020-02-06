@@ -1016,12 +1016,11 @@ void TableDockWidget::setGroupLabel(char label) {
       QVariant v = item->data(0, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
-        group->setLabel(label);
-        if (group->label=='g' || group->label=='b') {
+        if (group->label != 'g' && group->label != 'b') {
           numberOfGroupsMarked+=1;
-          group->setLabel(label);
           subsetPeakGroups.push_back(*group);
         }
+        group->setLabel(label);
         if (numberOfGroupsMarked ==10){
           numberOfGroupsMarked = 0;
           Q_EMIT(UploadPeakBatch());
