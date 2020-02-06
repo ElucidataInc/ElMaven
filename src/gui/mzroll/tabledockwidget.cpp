@@ -219,7 +219,7 @@ void TableDockWidget::updateTable() {
   updateStatus();
 }
 
-void TableDockWidget::updateItem(QTreeWidgetItem *item) {
+void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   QVariant v = item->data(0, Qt::UserRole);
   PeakGroup *group = v.value<PeakGroup *>();
   if (group == NULL)
@@ -267,13 +267,18 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
   } else if (bad > 0 && group->label == 'g') {
     float incorrectFraction = ((float)bad) / total;
     brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
+  } else {
+    brush = QBrush(QColor::fromRgbF(1.0, 1.0, 1.0, 1.0));
   }
   item->setBackground(0, brush);
 
-  if (group->label == 'g')
+  if (group->label == 'g') {
     item->setIcon(0, QIcon(":/images/good.png"));
-  if (group->label == 'b')
+  } else if (group->label == 'b') {
     item->setIcon(0, QIcon(":/images/bad.png"));
+  } else {
+    item->setIcon(0, QIcon());
+  }
 
   if (filtersDialog->isVisible()) {
     float minG = sliders["GoodPeakCount"]->minBoundValue();
@@ -286,8 +291,9 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item) {
     }
   }
 
-  for (int i = 0; i < item->childCount(); ++i) {
-    updateItem(item->child(i));
+  if (updateChildren) {
+    for (int i = 0; i < item->childCount(); ++i)
+      updateItem(item->child(i));
   }
 }
 
@@ -1010,9 +1016,8 @@ void TableDockWidget::setGroupLabel(char label) {
       QVariant v = item->data(0, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group != NULL) {
-        if (!(group->label=='g'||group->label=='b')){
+        if (group->label != 'g' && group->label != 'b') {
           numberOfGroupsMarked+=1;
-          group->setLabel(label);
           subsetPeakGroups.push_back(*group);
         }
         group->setLabel(label);
@@ -1021,9 +1026,11 @@ void TableDockWidget::setGroupLabel(char label) {
           Q_EMIT(UploadPeakBatch());
           subsetPeakGroups.clear();
           uploadCount+=1;
-          }
+        }
       }
       updateItem(item);
+      if (item->parent() != nullptr)
+        updateItem(item->parent(), false);
     }
 }
   updateStatus();
@@ -1193,6 +1200,16 @@ void TableDockWidget::markGroupBad() {
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
+void TableDockWidget::unmarkGroup() {
+  // TODO: Add a button for unmarking peak-groups?
+  setGroupLabel('\0');
+  auto currentGroups = getSelectedGroups();
+  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
+  if (_mainwindow->peaksMarked > 0)
+      _mainwindow->peaksMarked--;
+  _mainwindow->autoSaveSignal(currentGroups);
+}
+
 bool TableDockWidget::checkLabeledGroups() {
 
   int totalCount = 0;
@@ -1303,6 +1320,10 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
 
     if (item) {
       markGroupBad();
+    }
+  } else if (e->key() == Qt::Key_U) {
+    if (item) {
+      unmarkGroup();
     }
   } else if (e->key() == Qt::Key_Left) {
 
@@ -2072,11 +2093,15 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnGroupCSV->setMenu(new QMenu("Export Groups"));
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
     QAction *exportSelected =
-        btnGroupCSV->menu()->addAction(tr("Export Selected"));
+        btnGroupCSV->menu()->addAction(tr("Export selected groups"));
     QAction *exportAll =
-        btnGroupCSV->menu()->addAction(tr("Export All Groups"));
-    QAction *exportGood = btnGroupCSV->menu()->addAction(tr("Export Good"));
-    QAction *exportBad = btnGroupCSV->menu()->addAction(tr("Export Bad"));
+        btnGroupCSV->menu()->addAction(tr("Export all groups"));
+    QAction *exportGood =
+        btnGroupCSV->menu()->addAction(tr("Export good groups"));
+    QAction *excludeBad =
+        btnGroupCSV->menu()->addAction(tr("Export excluding bad groups"));
+    QAction *exportBad =
+        btnGroupCSV->menu()->addAction(tr("Export bad groups"));
 
     connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
     connect(exportSelected,
@@ -2100,6 +2125,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             td,
             SLOT(exportGroupsToSpreadsheet()));
     connect(exportGood, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+    connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeakSet()));
+    connect(excludeBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
+    connect(excludeBad,
+            SIGNAL(triggered()),
+            td,
+            SLOT(exportGroupsToSpreadsheet()));
+    connect(excludeBad, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2142,14 +2175,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
 
     QToolButton *btnGood = new QToolButton(parent);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
-    btnGood->setToolTip("Mark Group as Good");
+    btnGood->setToolTip("Mark selected group as good");
     connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
     return btnGood;
   } else if (btnName == "btnBad") {
 
     QToolButton *btnBad = new QToolButton(parent);
     btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-    btnBad->setToolTip("Mark Good as Bad");
+    btnBad->setToolTip("Mark selected group as bad");
     connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
     return btnBad;
   } else if (btnName == "btnHeatmapelete") {

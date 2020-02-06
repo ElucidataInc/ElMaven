@@ -503,8 +503,14 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
 void PeakGroup::setLabel(char label)
 {
     this->label = label;
+
+    if (parent != nullptr && tagString == "C12 PARENT") {
+        parent->setLabel(label);
+        return;
+    }
+
     for (auto& child : children) {
-        if (child.tagString == "C12 PARENT")
+        if (child.tagString == "C12 PARENT" && child.label != label)
             child.setLabel(label);
     }
 }
