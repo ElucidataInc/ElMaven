@@ -864,7 +864,7 @@ int Database::loadCompoundCSVFile(string filename){
             if (mz == 0 && !formula.empty()) {
                 mz = MassCalculator::computeMass(formula,charge);
             } else if (mass != 0.0f) {
-                mz = MassCalculator::adjustMass(mass, 1);
+                mz = MassCalculator::adjustMass(mass, charge);
             }
 
             compound->mass = mz;
