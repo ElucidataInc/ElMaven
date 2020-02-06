@@ -173,5 +173,11 @@ class MassSlices {
                                                           mzSlice*)>& compareSlices,
                           MassCutoff* massCutoff,
                           const string& updateMessage);
+
+        /**
+         * @brief This method will reduce the internal slice vector by merging
+         * and resizing them if they share a signifant region of interest.
+         */
+        void _reduceSlices();
 };
 #endif
