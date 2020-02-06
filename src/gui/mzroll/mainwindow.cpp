@@ -1451,8 +1451,8 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	qDebug() << "setCompoundFocus:" << c->name.c_str() << " " << charge << " "
 			<< c->expectedRt;
 
-	float mz = c->mass;
-	if (!c->formula.empty())
+    float mz = c->mass;
+    if (!c->formula().empty())
 		mz = c->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 
@@ -4294,10 +4294,10 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
 	}
 
-	int numberofCarbons = 0;
-	if (group->getCompound() && !group->getCompound()->formula.empty()) {
-		map<string, int> composition = MassCalculator::getComposition(
-				group->getCompound()->formula);
+    int numberofCarbons = 0;
+    if (group->getCompound() && !group->getCompound()->formula().empty()) {
+        map<string, int> composition = MassCalculator::getComposition(
+            group->getCompound()->formula());
 		numberofCarbons = composition["C"];
 	}
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
@@ -4349,10 +4349,10 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 		}
 	}
 
-	int numberofCarbons = 0;
-	if (group->getCompound() && !group->getCompound()->formula.empty()) {
-		map<string, int> composition = MassCalculator::getComposition(
-				group->getCompound()->formula);
+    int numberofCarbons = 0;
+    if (group->getCompound() && !group->getCompound()->formula().empty()) {
+        map<string, int> composition = MassCalculator::getComposition(
+            group->getCompound()->formula());
 		numberofCarbons = composition["C"];
 	}
 

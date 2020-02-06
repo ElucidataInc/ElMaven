@@ -292,7 +292,7 @@ void LigandWidget::showMatches(QString needle) {
                     QStringList stack;
                     stack << compound->name.c_str()
                           << compound->id.c_str()
-                          << compound->formula.c_str();
+                          << compound->formula().c_str();
 
                     if( compound->category.size()) {
                         for(int i=0; i < compound->category.size(); i++) {
@@ -357,7 +357,7 @@ void LigandWidget::showTable() {
         float precursorMz = compound->precursorMz;
         float productMz = compound->productMz;
 
-        if (compound->formula.length()) {
+        if (compound->formula().length()) {
             int charge = _mw->mavenParameters->getCharge(compound);
             mz = compound->adjustedMass(charge);
         } 
@@ -378,8 +378,8 @@ void LigandWidget::showTable() {
 
         if (compound->charge)
             addItem(parent, "Charge", compound->charge);
-        if (compound->formula.length())
-            addItem(parent, "Formula", compound->formula.c_str());
+        if (compound->formula().length())
+            addItem(parent, "Formula", compound->formula().c_str());
         if (compound->precursorMz && compound->fragmentMzValues.size() == 0)
             addItem(parent, "Precursor Mz", compound->precursorMz);
         if (compound->productMz)
@@ -521,7 +521,7 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
             out << compound->productMz    << SEP;
             out << compound->expectedRt   << SEP;
             out << compound->id.c_str() <<  SEP;
-            out << compound->formula.c_str() << SEP;
+            out << compound->formula().c_str() << SEP;
             out << compound->srmId.c_str() << SEP;
             out << category.join(";") << SEP;
             out << "\n";
@@ -621,7 +621,7 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
             if (currentTag == "item") {
                 if (remoteCompound !=NULL) {
 
-                    if (!remoteCompound->formula.empty()) {
+                    if (!remoteCompound->formula().empty()) {
                         remoteCompound->mass=remoteCompound->adjustedMass(0);
                     }
 
@@ -653,7 +653,7 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
                 remoteCompound->name = xmltext.toStdString();
 
             else if (currentTag == "formula")
-                remoteCompound->formula = xmltext.toStdString();
+                remoteCompound->setFormula(xmltext.toStdString());
 
             else if (currentTag == "kegg_id")
                 remoteCompound->kegg_id = xmltext.toStdString();
@@ -729,7 +729,7 @@ void LigandWidget::matchFragmentation() {
 
     int charge = _mw->mavenParameters->getCharge(c); //user specified ionization mode
 	float precursorMz = c->precursorMz;
-    if (!c->formula.empty()) precursorMz = c->adjustedMass(charge);
+    if (!c->formula().empty()) precursorMz = c->adjustedMass(charge);
 
     for(int i=0; i < mzCount; i++ ) {
                         float mz = c->fragmentMzValues[i];

@@ -8,13 +8,13 @@ using namespace mzUtils;
 Compound::Compound(string id, string name, string formula, int charge ) {
     this->id = id;
     this->name = name;
-    this->formula = formula;
+    this->setFormula(formula);
     this->charge = charge;
     /**
     *@brief  -   calculate mass of compound by its formula and assign it to mass
     *@see  - double MassCalculator::computeNeutralMass(string formula) in mzMassCalculator.cpp
     */
-    this->mass =  MassCalculator::computeNeutralMass(formula);
+    this->mass =  MassCalculator::computeNeutralMass(_formula);
     this->expectedRt = -1;
     this->logP = 0;
 
@@ -32,7 +32,7 @@ bool Compound::operator == (const Compound& rhs) const
 {
     return (id == rhs.id
             && name == rhs.name
-            && formula == rhs.formula
+            && formula() == rhs.formula()
             && kegg_id == rhs.kegg_id
             && pubchem_id == rhs.pubchem_id
             && hmdb_id == rhs.hmdb_id
@@ -76,7 +76,7 @@ float Compound::adjustedMass(int charge) {
     *@return    -    total mass by formula minus loss of electrons' mass 
     *@see  -  double MassCalculator::computeMass(string formula, int charge) in mzMassCalculator.cpp
     */
-    return MassCalculator::computeMass(formula,charge);
+     return MassCalculator::computeMass(_formula, charge);
 }
 
 Compound::Type Compound::type() const {

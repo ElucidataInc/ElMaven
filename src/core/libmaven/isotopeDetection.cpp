@@ -35,12 +35,12 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
         return;
     if (parentgroup->getCompound() == NULL)
         return;
-    if (parentgroup->getCompound()->formula.empty() == true)
+    if (parentgroup->getCompound()->formula().empty() == true)
         return;
     if (_mavenParameters->samples.size() == 0)
         return;
 
-    string formula = parentgroup->getCompound()->formula; //parent formula
+    string formula = parentgroup->getCompound()->formula(); //parent formula
     int charge = _mavenParameters->getCharge(parentgroup->getCompound());//generate isotope list for parent mass
 
     vector<Isotope> masslist = MassCalculator::computeIsotopes(
@@ -214,7 +214,7 @@ bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, floa
     {
         float isotopeMass = x.mass;
         Compound* compound = parentGroup->getCompound();
-        float parentMass = MassCalculator::computeMass(compound->formula, 
+        float parentMass = MassCalculator::computeMass(compound->formula(),
                                                        _mavenParameters->getCharge(compound));
 
         Peak* parentPeak = parentGroup->getPeak(sample);

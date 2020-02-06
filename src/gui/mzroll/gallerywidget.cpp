@@ -118,9 +118,9 @@ void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
 		slice.rtmax = 1e9;
 		if (!c->srmId.empty()) slice.srmId=c->srmId;
 
-		if (!c->formula.empty()) {
-			int charge = mainwindow->mavenParameters->getCharge(c);
-			double mass = mcalc.computeMass(c->formula,charge);
+        if (!c->formula().empty()) {
+            int charge = mainwindow->mavenParameters->getCharge(c);
+            double mass = mcalc.computeMass(c->formula(), charge);
             double massCutoffW = massCutoff->massCutoffValue(mass);
             slice.mzmin = mass-massCutoffW;
             slice.mzmax = mass+massCutoffW;

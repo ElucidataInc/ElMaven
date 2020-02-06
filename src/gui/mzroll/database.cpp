@@ -467,8 +467,8 @@ int Database::loadNISTLibrary(QString filepath,
             // before reading the next record or ending stream, save the
             // compound created from last record
             if (currentCompound and !currentCompound->name.empty()) {
-                if (!currentCompound->formula.empty()) {
-                    auto formula = currentCompound->formula;
+                if (!currentCompound->formula().empty()) {
+                    auto formula = currentCompound->formula();
                     auto exactMass = MassCalculator::computeMass(formula, 0);
                     currentCompound->mass = exactMass;
                 }
@@ -537,12 +537,12 @@ int Database::loadNISTLibrary(QString filepath,
             QString formula = line.mid(9, line.length()).simplified();
             formula.replace("\"", "", Qt::CaseInsensitive);
             if (!formula.isEmpty())
-                currentCompound->formula = formula.toStdString();
+                currentCompound->setFormula(formula.toStdString());
         } else if (line.startsWith("MOLECULE FORMULA:", Qt::CaseInsensitive)) {
             QString formula = line.mid(17, line.length()).simplified();
             formula.replace("\"", "", Qt::CaseInsensitive);
             if (!formula.isEmpty())
-                currentCompound->formula = formula.toStdString();
+                currentCompound->setFormula(formula.toStdString());
         } else if (line.startsWith("CATEGORY:", Qt::CaseInsensitive)) {
             currentCompound->category.push_back(line.mid(10, line.length())
                                                     .simplified()
@@ -560,9 +560,9 @@ int Database::loadNISTLibrary(QString filepath,
         } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)) {
             QString comment = line.mid(8, line.length()).simplified();
             if (comment.contains(formulaMatch)) {
-                currentCompound->formula = formulaMatch.capturedTexts()
-                                                       .at(1)
-                                                       .toStdString();
+                currentCompound->setFormula(formulaMatch.capturedTexts()
+                                                        .at(1)
+                                                        .toStdString());
             }
             if (comment.contains(retentionTimeMatch)) {
                 currentCompound->expectedRt = retentionTimeMatch.capturedTexts()

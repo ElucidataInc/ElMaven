@@ -67,7 +67,7 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
     filename << "\"compoundId\": "<< _sanitizeJSONstring(compoundID) ;
     string compoundName = grp.getCompound()->name;
     filename << ",\n" << "\"compoundName\": "<< _sanitizeJSONstring(compoundName);
-    string formula = grp.getCompound()->formula;
+    string formula = grp.getCompound()->formula();
     filename << ",\n" << "\"formula\": "<< _sanitizeJSONstring(formula);
     filename << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt;
     filename << ",\n" << "\"expectedMz\": " << mz ;

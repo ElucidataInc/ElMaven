@@ -50,7 +50,7 @@ void TestLoadDB::testExtractCompoundfromEachLineNormal() {
     TestUtils::floatCompare(compound->expectedRt, 14.14) && \
     TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
-    formula.compare(compound->formula) == 0 && \
+    formula.compare(compound->formula()) == 0 && \
     id.compare(compound->id) == 0 && \
     db.compare(compound->db) == 0);
 }
@@ -78,7 +78,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithNoMz() {
     TestUtils::floatCompare(compound->expectedRt, 14.14) && \
     TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
-    formula.compare(compound->formula) == 0 && \
+    formula.compare(compound->formula()) == 0 && \
     id.compare(compound->id) == 0 && \
     db.compare(compound->db) == 0);
 }
@@ -129,7 +129,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithExpRTandRT() {
     TestUtils::floatCompare(compound->expectedRt, 12.14) && \
     TestUtils::floatCompare(compound->charge, -1) && \
     name.compare(compound->name) == 0 && \
-    formula.compare(compound->formula) == 0 && \
+    formula.compare(compound->formula()) == 0 && \
     id.compare(compound->id) == 0 && \
     db.compare(compound->db) == 0);
 }
@@ -159,7 +159,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithCompoundField() {
     TestUtils::floatCompare(compound->expectedRt, 14.14) && \
     TestUtils::floatCompare(compound->charge, -1) && \
     compoundname.compare(compound->name) == 0 && \
-    formula.compare(compound->formula) == 0 && \
+    formula.compare(compound->formula()) == 0 && \
     id.compare(compound->id) == 0 && \
     db.compare(compound->db) == 0);
 }

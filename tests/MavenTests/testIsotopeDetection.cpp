@@ -64,7 +64,7 @@ void TestIsotopeDetection::testgetIsotopes() {
     peakDetector.processSlices(slices, "compounds");
     PeakGroup* parentgroup = &mavenparameters->allgroups[0];
 
-    string formula = parentgroup->getCompound()->formula;
+    string formula = parentgroup->getCompound()->formula();
 
     int charge = mavenparameters->getCharge(parentgroup->getCompound());
 

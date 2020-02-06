@@ -216,7 +216,7 @@ bool Databases::addCompound(Compound* c) {
                 //compound from the same database
                 currentCompound->id = c->id;
                 currentCompound->name = c->name;
-                currentCompound->formula = c->formula;
+                currentCompound->setFormula(c->formula());
                 currentCompound->srmId = c->srmId;
                 currentCompound->expectedRt = c->expectedRt;
                 currentCompound->charge = c->charge;

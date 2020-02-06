@@ -450,7 +450,7 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":compound_id", c->id);
         compoundsQuery->bind(":db_name", c->db);
         compoundsQuery->bind(":name", c->name);
-        compoundsQuery->bind(":formula", c->formula);
+        compoundsQuery->bind(":formula", c->formula());
         compoundsQuery->bind(":smile_string", c->smileString);
         compoundsQuery->bind(":srm_id", c->srmId);
 
