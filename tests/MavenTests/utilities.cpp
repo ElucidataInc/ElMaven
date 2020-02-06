@@ -109,6 +109,10 @@ void TestUtils::loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
     mavenparameters->amuQ3 = 0.30;
     mavenparameters->baseline_smoothingWindow = 5;
     mavenparameters->baseline_dropTopX = 80;
+
+    // limiting time and mz range for speedier testing
+    mavenparameters->maxRt = 6.0f;
+    mavenparameters->maxMz = 200.0f;
 }
 
 vector<PeakGroup> TestUtils::getGroupsFromProcessCompounds()
