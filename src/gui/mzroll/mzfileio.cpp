@@ -107,7 +107,10 @@ mzSample* mzFileIO::loadSample(const QString& filename){
     if ( sample && sample->scans.size() > 0 ) {
         if (sample->sampleNumber > 0){
             qDebug() << sampleName;
-            QString sampleNumberInfo = " | Sample Number=" + QString::number(sample->sampleNumber);
+            QString sampleNumber =
+                sample->sampleNumber != -1 ? QString::number(sample->sampleNumber)
+                                           : "NA";
+            QString sampleNumberInfo = " | Sample Number=" + sampleNumber;
             sampleName = sampleName + sampleNumberInfo;
         }
 

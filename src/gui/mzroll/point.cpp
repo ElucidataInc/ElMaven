@@ -82,15 +82,18 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 
 	string sampleName;
     if (_peak && _peak->getSample() ) {
-        sampleName = _peak->getSample()->sampleName;
-
+        auto sample = _peak->getSample();
+        QString sampleNumber =
+            sample->sampleNumber != -1 ? QString::number(sample->sampleNumber)
+                                       : "NA";
+        sampleName = sample->sampleName;
         setToolTip( "<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
                           "<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
                             "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
                             "<br> <b>Spline Area: </b>" + 		  QString::number(_peak->peakSplineArea) +
                             "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
-                            "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) + 
-                            "<br> <b>sample number: </b>" +   QString::number(_peak->getSample()->sampleNumber) + 
+                            "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) +
+                            "<br> <b>sample number: </b>" + sampleNumber +
                             "<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
                         );
 
@@ -113,11 +116,15 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 		   "<br> <b>Group Overlap Frac: </b>" + QString::number(_peak->groupOverlapFrac) +
 		 */
 	} 
-	if (_scan) { 
+    if (_scan) {
+        auto sample = _scan->getSample();
+        QString sampleNumber =
+            sample->sampleNumber != -1 ? QString::number(sample->sampleNumber)
+                                       : "NA";
 		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
 					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
 					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
-                    "<br> <b>sample number: </b>" +   QString::number(_scan->sample->sampleNumber) + 
+                    "<br> <b>sample number: </b>" + sampleNumber +
 					"<br> <b>PrecursorMz: </b>" +   QString::number(_scan->precursorMz, 'f', 2 )
 		);
 	}
