@@ -141,23 +141,11 @@ private:
     void insertGroupInformationIntoCSVFile(PeakGroup* group);
 
     /**
-     * @brief - Relays the function for inserting isotopes to `insertAllIsotopes` by default. Optionally
-     * this method can be used to call `insertUserSelectedIsotopes` by passing a second boolean argument
-     * with `true` value.
+     * @brief Insert all the child groups of the given group.
+     * @param peakMode If true, the `writePeakInfo` method will be called
+     * instead of `writeGroupInfo` to write the report.
      */
-    void insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly = false);
-
-    /**
-     * @brief - Create a masslist with isotopes only currently selected by user (accessible through a
-     * global settings object) and then write the subgroups having these isotopes as tagrstrings, if they
-     * were found.
-     */
-    void insertUserSelectedIsotopes(PeakGroup* group);
-
-    /**
-     * @brief - Insert all the child groups of the given group.
-     */
-    void insertAllIsotopes(PeakGroup* group);
+    void insertIsotopes(PeakGroup* group, bool peakMode = false);
 
     string SEP;     /**@param-  separator in output file*/
 

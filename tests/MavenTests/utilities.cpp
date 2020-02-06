@@ -18,6 +18,18 @@ bool TestUtils::floatCompare(float a, float b)
     return fabs(a - b) < EPSILON;
 }
 
+float TestUtils::roundTo(float value, int numPlaces)
+{
+    float factor = powf(10.0f, numPlaces);
+    return roundf(value * factor) / factor;
+}
+
+double TestUtils::roundTo(double value, int numPlaces)
+{
+    double factor = pow(10.0, numPlaces);
+    return round(value * factor) / factor;
+}
+
 bool TestUtils::compareMaps(const map<string, int>& l,
                             const map<string, int>& k)
 {

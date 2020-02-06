@@ -161,6 +161,7 @@ void CSVReports::insertPeakReportColumnNamesintoCSVFile()
                            << "compound"
                            << "compoundId"
                            << "formula"
+                           << "isotopeLabel"
                            << "sample"
                            << "peakMz"
                            << "mzmin"
@@ -199,10 +200,13 @@ void CSVReports::addGroup (PeakGroup* group) {
 
 }
 
-void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group) {
-
-      writePeakInfo(group);
-
+void CSVReports::insertPeakInformationIntoCSVFile(PeakGroup* group)
+{
+    if (group->childCount() == 0) {
+        writePeakInfo(group);
+    } else {
+        insertIsotopes(group, true);
+    }
 }
 
 void CSVReports::insertGroupInformationIntoCSVFile(PeakGroup* group)
@@ -214,46 +218,15 @@ void CSVReports::insertGroupInformationIntoCSVFile(PeakGroup* group)
     }
 }
 
-void CSVReports::insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly)
+void CSVReports::insertIsotopes(PeakGroup* group, bool peakMode)
 {
-    if (userSelectedIsotopesOnly) {
-        insertUserSelectedIsotopes(group);
-    } else {
-        insertAllIsotopes(group);
-    }
-}
-
-void CSVReports::insertUserSelectedIsotopes(PeakGroup* group)
-{
-    bool C13Flag = getMavenParameters()->C13Labeled_BPE;
-    bool N15Flag = getMavenParameters()->N15Labeled_BPE;
-    bool S34Flag = getMavenParameters()->S34Labeled_BPE;
-    bool D2Flag = getMavenParameters()->D2Labeled_BPE;
-
-    // iterate over all existing subgroups and for each isotope flag
-    // check if the subgroup contains the isotope's name as tagstring
-    // before writing it to the report. If any of the unselected
-    // labels are found, we discard the child group.
-    for (auto subGroup: group->children) {
-        if (!C13Flag && subGroup.tagString.find("C13") != std::string::npos)
-            continue;
-        if (!N15Flag && subGroup.tagString.find("N15") != std::string::npos)
-            continue;
-        if (!S34Flag && subGroup.tagString.find("S34") != std::string::npos)
-            continue;
-        if (!D2Flag && subGroup.tagString.find("D2") != std::string::npos)
-            continue;
-
+    for (auto& subGroup: group->children) {
         subGroup.metaGroupId = group->metaGroupId;
-        writeGroupInfo(&subGroup);
-    }
-}
-
-void CSVReports::insertAllIsotopes(PeakGroup* group)
-{
-    for (auto subGroup: group->children) {
-        subGroup.metaGroupId = group->metaGroupId;
-        writeGroupInfo(&subGroup);
+        if (peakMode) {
+            writePeakInfo(&subGroup);
+        } else {
+            writeGroupInfo(&subGroup);
+        }
     }
 }
 
@@ -439,10 +412,12 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    string isotopeLabel = "";
     if (group->getCompound() != NULL) {
         compoundName = sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = sanitizeString(group->getCompound()->id.c_str()).toStdString();
         formula = sanitizeString(group->getCompound()->formula().c_str()).toStdString();
+        isotopeLabel = sanitizeString(group->tagString.c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
@@ -484,6 +459,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
+                   << SEP << isotopeLabel
                    << SEP << sampleName
                    << SEP << peak.peakMz
                    << SEP << peak.mzmin
@@ -516,6 +492,7 @@ void CSVReports::writePeakInfo(PeakGroup* group) {
                    << SEP << compoundName
                    << SEP << compoundID
                    << SEP << formula
+                   << SEP << isotopeLabel
                    << SEP << sampleName
                    << SEP << 0.0f
                    << SEP << 0.0f
