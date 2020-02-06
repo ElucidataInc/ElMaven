@@ -832,8 +832,8 @@ bool PollyIntegration::validSampleCohort(QString sampleCohortFile, QStringList l
 	QStringList cohorts;
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
-		QList<QByteArray> splitRow = line.split(',');
-		if (splitRow.size() != 2) {
+        QList<QByteArray> splitRow = line.split(',');
+        if (splitRow.size() < 2) {
             _log->debug() << "Missing column(s)" << std::flush;
 			return false;
         }

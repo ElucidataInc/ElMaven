@@ -2234,10 +2234,20 @@ void MainWindow::loadCompoundsFile()
 
 // open function for set csv
 void MainWindow::loadMetaInformation() {
-	QStringList filelist =
-			QFileDialog::getOpenFileNames(this, "Select Set Information File To Load",
-					".",
-					"All Known Formats(*.csv *.tab *.tab.txt);;Tab Delimited(*.tab);;Tab Delimited Text(*.tab.txt);;CSV File(*.csv)");
+    auto loadedSamples = getSamples();
+    if (loadedSamples.empty())
+        return;
+    auto lastSample = loadedSamples.back();
+    auto sampleDir = QFileInfo(lastSample->fileName.c_str()).dir();
+
+    QStringList filelist =
+        QFileDialog::getOpenFileNames(this,
+                                      "Select Set Information File To Load",
+                                      sampleDir.path(),
+                                      "All Known Formats(*.csv *.tab *.tab.txt);;"
+                                      "Tab Delimited(*.tab);;"
+                                      "Tab Delimited Text(*.tab.txt);;"
+                                      "CSV File(*.csv)");
 
     if ( filelist.size() == 0 || filelist[0].isEmpty() ) return;
     if(!loadMetaInformation(filelist[0])) {
@@ -2263,7 +2273,7 @@ int MainWindow::loadMetaCsvFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set", "scaling", "injection order"};
+    static const string allHeadersarr[] = {"sample", "set", "cohort", "scaling", "injection order"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -2304,10 +2314,13 @@ int MainWindow::loadMetaCsvFile(string filename){
         int N=fields.size();
 
         if ( header.count("sample")&& header["sample"]<N) 	 sampleName = QString::fromUtf8(fields[ header["sample"] ].c_str());
-        if ( header.count("set")&& header["set"]<N)	set = fields[ header["set"] ];
-		else{
-			set = "";
-		}
+        if (header.count("set") && header["set"] < N) {
+            set = fields[header["set"]];
+        } else if (header.count("cohort") && header["cohort"] < N) {
+            set = fields[header["cohort"]];
+        } else {
+            set = "";
+        }
 
         float scalingFactor = 1.0f;
         if (header.count("scaling") && header["scaling"] < N) {
