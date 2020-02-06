@@ -114,24 +114,13 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
             break;
         }
 
-        string num;
-        if (i==0) {
-            num = "st";
-        } else if (i==1) {
-            num = "nd";
-        } else if (i==2) {
-            num = "rd";
-        } else {
-            num = "th";
-        }
-
         // updating progress on samples
         if (mavenParameters->showProgressFlag ) {
-            string progressText = to_string(i + 1)
-                                  + num
+            string progressText = "Processing "
+                                  + to_string(i + 1)
                                   + " out of "
                                   + to_string(mavenParameters->samples.size())
-                                  + " sample(s) processing…";
+                                  + " sample(s)…";
             sendSignal(progressText, currentScans, totalScans);
         }
 
