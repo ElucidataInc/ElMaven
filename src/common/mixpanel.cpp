@@ -8,7 +8,11 @@
 #include <QNetworkReply>
 
 #include "mixpanel.h"
+#ifdef __OSX_AVAILABLE
+#ifndef DEBUG
 #include "sentry.h"
+#endif
+#endif
 
 Mixpanel::Mixpanel()
 {
