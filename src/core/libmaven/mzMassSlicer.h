@@ -59,20 +59,6 @@ class MassSlices {
                              float rtMaxBound);
 
         /**
-         * @brief Merge neighbouring slices that are related to each other,
-         * i.e., the highest intensities of these slices fall in a small window.
-         * @param massCutoff A `MassCutoff` object that can be used to compare
-         * and quantify the distance between two m/z values. This value will,
-         * therefore, be used to tell whether two slices or their highest
-         * intensities are too far in the m/z domain.
-         * @param rtTolerance The tolerance for retention time axis. If the
-         * highest intensity of two slices differ by more than this value on
-         * rt axis, then they will not be merged.
-         */
-        void mergeNeighbouringSlices(MassCutoff* massCutoff,
-                                     float rtTolerance=0.005f);
-
-        /**
          * @brief Adjust all slices in m/z domain such that they are centered
          * around its current highest intensity.
          */
@@ -146,33 +132,52 @@ class MassSlices {
         MavenParameters* mavenParameters;
 
         /**
-         * @brief Merge slices that satisfy some given condition.
-         * @details This uses a lambda function as a criterion to decide whether
+         * @brief Merge neighbouring slices that are related to each other,
+         * i.e., the highest intensities of these slices fall in a small window.
+         * @details This method uses `_compareSlices` function to decide whether
          * two slices should be merged. Iteration happens for each slice in the
          * `slices` vector and for each sample. For each slice, the neighbouring
          * slices (positive and negative look-ahead) are checked until the
-         * second value returned from a lambda call is found to be `false`,
+         * second value returned from a comparison call is found to be `false`,
          * signalling that further neighbours are not qualified for merging, by
          * definition.
-         * @param compareSlices A lambda function that takes in a vector of
-         * `mzSample` objects, and two pointers to the mzSlices that need to be
-         * compared. The function must return a pair of boolean values, the
-         * first of which can be used to determine whether the slices should be
-         * merged or not. The second returned boolean can be used to decide
-         * whether iteration needs to proceed in the current direction (proceed
-         * if `true`, stop if `false`).
          * @param massCutoff A `MassCutoff` object that decides the maximum
          * width of a slice in the m/z domain. Any merged slice that expands to
          * a size more than what this cutoff dictates, will be resized around
          * its mean m/z value.
+         * @param rtTolerance A time value, that will be used to judge the
+         * "closeness" of two points in two different slices.
          * @param updateMessage A string message that will be emitted along with
          * progress updates on the completion of the merge operation.
          */
-        void _mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&,
-                                                          mzSlice*,
-                                                          mzSlice*)>& compareSlices,
-                          MassCutoff* massCutoff,
-                          const string& updateMessage);
+        void _mergeSlices(const MassCutoff* massCutoff,
+                          const float rtTolerance);
+
+        /**
+         * @brief A function that takes in a vector of `mzSample` objects, and
+         * two pointers to the mzSlices that need to be compared.
+         * @param samples A vector of `mzSample` objects, each of which will be
+         * used to obtain the EIC for slices, while deciding their mergeability.
+         * @param The first slice for comparison.
+         * @param The second slice for comparison.
+         * @param massCutoff A `MassCutoff` object that can be used to compare
+         * and quantify the distance between two m/z values. This value will,
+         * therefore, be used to tell whether two slices or their highest
+         * intensities are too far in the m/z domain.
+         * @param rtTolerance The tolerance for retention time axis. If the
+         * highest intensity of two slices differ by more than this value on
+         * rt axis, then they will not be merged.
+         * @return The function returns a pair of boolean values, the first of
+         * which can be used to determine whether the slices should be merged or
+         * not. The second boolean can be used to decide whether iteration needs
+         * to proceed in the current direction (proceed if `true`, stop if
+         * `false`).
+         */
+        pair<bool, bool> _compareSlices(vector<mzSample*>& samples,
+                                        mzSlice* slice,
+                                        mzSlice* comparisonSlice,
+                                        const MassCutoff *massCutoff,
+                                        const float rtTolerance);
 
         /**
          * @brief This method will reduce the internal slice vector by merging

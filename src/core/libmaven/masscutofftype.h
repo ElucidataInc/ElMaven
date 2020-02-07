@@ -23,6 +23,6 @@ public:
 	string getMassCutoffType(){return _massCutoffType;}
 	void setMassCutoff(double massCutoff){_massCutoff=massCutoff;}
 	double getMassCutoff(){return _massCutoff;}
-	double massCutoffValue(double mz);
+    double massCutoffValue(double mz) const;
 };
 #endif

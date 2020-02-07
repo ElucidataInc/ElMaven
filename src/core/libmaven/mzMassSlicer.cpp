@@ -205,7 +205,7 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
     removeDuplicateSlices(massCutoff, threshold);
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
-    mergeNeighbouringSlices(massCutoff, rtWindow);
+    _mergeSlices(massCutoff, rtWindow);
     adjustSlices();
 
     cerr << "After final merging and adjustments, "
@@ -357,7 +357,9 @@ void MassSlices::_reduceSlices()
                 secondSlice->ionCount = -1.0f;
             }
         }
-        sendSignal("Reducing slices…", first - begin(slices), slices.size());
+        sendSignal("Reducing redundant slices…",
+                   first - begin(slices),
+                   slices.size());
     }
 
     // remove merged slices
@@ -369,116 +371,8 @@ void MassSlices::_reduceSlices()
                  slices.end());
 }
 
-void MassSlices::mergeNeighbouringSlices(MassCutoff* massCutoff,
-                                         float rtTolerance)
-{
-    auto slicesInProximity = [&](vector<mzSample*>& samples,
-                                 mzSlice* slice,
-                                 mzSlice* comparisonSlice) {
-        auto mz = slice->mz;
-        auto mzMin = slice->mzmin;
-        auto mzMax = slice->mzmax;
-        auto rtMin = slice->rtmin;
-        auto rtMax = slice->rtmax;
-        auto comparisonMz = comparisonSlice->mz;
-        auto comparisonMzMin = comparisonSlice->mzmin;
-        auto comparisonMzMax = comparisonSlice->mzmax;
-        auto comparisonRtMin = comparisonSlice->rtmin;
-        auto comparisonRtMax = comparisonSlice->rtmax;
-        auto mzCenter = (mz + comparisonMz) / 2.0f;
-
-        // check to make sure slices are close to each other (or have some
-        // overlap in mz domain); the tolerance is multiplied 10x so as to
-        // include slices that may be further apart but should be merged
-        float massTolerance = 10.0f * massCutoff->massCutoffValue(mzCenter);
-        if (!(abs(mzCenter - mz) <= massTolerance
-              && abs(mzCenter - comparisonMz) <= massTolerance)) {
-            return make_pair(false, false);
-        }
-
-        // check if common RT regions exist between the slices being compared
-        auto commonLowerRt = 0.0f;
-        auto commonUpperRt = 0.0f;
-        if (rtMin <= comparisonRtMin && rtMax >= comparisonRtMax) {
-            commonLowerRt = comparisonRtMin;
-            commonUpperRt = comparisonRtMax;
-        } else if (rtMin >= comparisonRtMin && rtMax <= comparisonRtMax) {
-            commonLowerRt = rtMin;
-            commonUpperRt  = rtMax;
-        } else if (rtMin >= comparisonRtMin && rtMin <= comparisonRtMax) {
-            commonLowerRt = rtMin;
-            commonUpperRt = min(rtMax, comparisonRtMax);
-        } else if (rtMax >= comparisonRtMin && rtMax <= comparisonRtMax) {
-            commonLowerRt = max(rtMin, comparisonRtMin);
-            commonUpperRt = rtMax;
-        }
-        if (commonLowerRt == 0.0f && commonUpperRt == 0.0f)
-            return make_pair(false, true);
-
-        auto highestIntensity = 0.0f;
-        auto mzAtHighestIntensity = 0.0f;
-        auto rtAtHighestIntensity = 0.0f;
-        auto highestCompIntensity = 0.0f;
-        auto mzAtHighestCompIntensity = 0.0f;
-        auto rtAtHighestCompIntensity = 0.0f;
-        for (auto sample : samples) {
-            // obtain EICs for the two slices
-            auto eic = sample->getEIC(mzMin,
-                                      mzMax,
-                                      rtMin,
-                                      rtMax,
-                                      1,
-                                      1,
-                                      "");
-            auto comparisonEic = sample->getEIC(comparisonMzMin,
-                                                comparisonMzMax,
-                                                comparisonRtMin,
-                                                comparisonRtMax,
-                                                1,
-                                                1,
-                                                "");
-
-            // obtain the highest intensity's mz and rt in the EICs
-            highestIntensity = eic->maxIntensity;
-            rtAtHighestIntensity = eic->rtAtMaxIntensity;
-            mzAtHighestIntensity = eic->mzAtMaxIntensity;
-            highestCompIntensity = comparisonEic->maxIntensity;
-            rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
-            mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
-            delete eic;
-            delete comparisonEic;
-        }
-
-        if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
-            return make_pair(false, true);
-
-        // calculate and check for rt difference and mz difference, if
-        // conditions are satisfied, mark the comparison slice to be merged
-        auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
-        auto mzCenterForIntensity = (mzAtHighestIntensity
-                                  + mzAtHighestCompIntensity) / 2.0f;
-        auto massToleranceForIntensity =
-            massCutoff->massCutoffValue(mzCenterForIntensity);
-        auto mzDeltaNeg = abs(mzCenterForIntensity - mzAtHighestIntensity );
-        auto mzDeltaPos = abs(mzAtHighestCompIntensity - mzCenterForIntensity );
-        if (rtDelta <= rtTolerance
-            && mzDeltaNeg <= massToleranceForIntensity
-            && mzDeltaPos <= massToleranceForIntensity) {
-            return make_pair(true, true);
-        }
-
-        return make_pair(false, true);
-    };
-    _mergeSlices(slicesInProximity,
-                 massCutoff,
-                 "Merging related slices in samples…");
-}
-
-void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&,
-                                                              mzSlice *,
-                                                              mzSlice *)> &compareSlices,
-                              MassCutoff* massCutoff,
-                              const string &updateMessage)
+void MassSlices::_mergeSlices(const MassCutoff* massCutoff,
+                              const float rtTolerance)
 {
     // lambda to help expand a given slice by merging a vector of slices into it
     auto expandSlice = [&](mzSlice* mergeInto, vector<mzSlice*> slices) {
@@ -513,7 +407,9 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&
             break;
         }
 
-        sendSignal(updateMessage, it - begin(slices), slices.size());
+        sendSignal("Merging adjacent slices…",
+                   it - begin(slices),
+                   slices.size());
 
         auto slice = *it;
         vector<mzSlice*> slicesToMerge;
@@ -523,7 +419,11 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&
              ahead != end(slices) && it != end(slices);
              ++ahead) {
             auto comparisonSlice = *ahead;
-            auto comparison = compareSlices(samples, slice, comparisonSlice);
+            auto comparison = _compareSlices(samples,
+                                             slice,
+                                             comparisonSlice,
+                                             massCutoff,
+                                             rtTolerance);
             auto shouldMerge = comparison.first;
             auto continueIteration = comparison.second;
             if (shouldMerge)
@@ -537,7 +437,11 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&
              behind != begin(slices) && it != begin(slices);
              --behind) {
             auto comparisonSlice = *behind;
-            auto comparison = compareSlices(samples, slice, comparisonSlice);
+            auto comparison = _compareSlices(samples,
+                                             slice,
+                                             comparisonSlice,
+                                             massCutoff,
+                                             rtTolerance);
             auto shouldMerge = comparison.first;
             auto continueIteration = comparison.second;
             if (shouldMerge)
@@ -561,6 +465,107 @@ void MassSlices::_mergeSlices(const function<pair<bool, bool>(vector<mzSample*>&
                      end(slices),
                      [&](mzSlice* s) { return s == slice; });
     }
+}
+
+pair<bool, bool> MassSlices::_compareSlices(vector<mzSample*>& samples,
+                                            mzSlice* slice,
+                                            mzSlice* comparisonSlice,
+                                            const MassCutoff *massCutoff,
+                                            const float rtTolerance)
+{
+    auto mz = slice->mz;
+    auto mzMin = slice->mzmin;
+    auto mzMax = slice->mzmax;
+    auto rtMin = slice->rtmin;
+    auto rtMax = slice->rtmax;
+    auto comparisonMz = comparisonSlice->mz;
+    auto comparisonMzMin = comparisonSlice->mzmin;
+    auto comparisonMzMax = comparisonSlice->mzmax;
+    auto comparisonRtMin = comparisonSlice->rtmin;
+    auto comparisonRtMax = comparisonSlice->rtmax;
+    auto mzCenter = (mz + comparisonMz) / 2.0f;
+
+    // check to make sure slices are close to each other (or have some
+    // overlap in mz domain); the tolerance is multiplied 10x so as to
+    // include slices that may be further apart but should be merged
+    float massTolerance = 10.0f * massCutoff->massCutoffValue(mzCenter);
+    if (!(abs(mzCenter - mz) <= massTolerance
+          && abs(mzCenter - comparisonMz) <= massTolerance)) {
+        return make_pair(false, false);
+    }
+
+    // check if common RT regions exist between the slices being compared
+    auto commonLowerRt = 0.0f;
+    auto commonUpperRt = 0.0f;
+    if (rtMin <= comparisonRtMin && rtMax >= comparisonRtMax) {
+        commonLowerRt = comparisonRtMin;
+        commonUpperRt = comparisonRtMax;
+    } else if (rtMin >= comparisonRtMin && rtMax <= comparisonRtMax) {
+        commonLowerRt = rtMin;
+        commonUpperRt  = rtMax;
+    } else if (rtMin >= comparisonRtMin && rtMin <= comparisonRtMax) {
+        commonLowerRt = rtMin;
+        commonUpperRt = min(rtMax, comparisonRtMax);
+    } else if (rtMax >= comparisonRtMin && rtMax <= comparisonRtMax) {
+        commonLowerRt = max(rtMin, comparisonRtMin);
+        commonUpperRt = rtMax;
+    }
+    if (commonLowerRt == 0.0f && commonUpperRt == 0.0f)
+        return make_pair(false, true);
+
+    auto highestIntensity = 0.0f;
+    auto mzAtHighestIntensity = 0.0f;
+    auto rtAtHighestIntensity = 0.0f;
+    auto highestCompIntensity = 0.0f;
+    auto mzAtHighestCompIntensity = 0.0f;
+    auto rtAtHighestCompIntensity = 0.0f;
+    for (auto sample : samples) {
+        // obtain EICs for the two slices
+        auto eic = sample->getEIC(mzMin,
+                                  mzMax,
+                                  rtMin,
+                                  rtMax,
+                                  1,
+                                  1,
+                                  "");
+        auto comparisonEic = sample->getEIC(comparisonMzMin,
+                                            comparisonMzMax,
+                                            comparisonRtMin,
+                                            comparisonRtMax,
+                                            1,
+                                            1,
+                                            "");
+
+        // obtain the highest intensity's mz and rt in the EICs
+        highestIntensity = eic->maxIntensity;
+        rtAtHighestIntensity = eic->rtAtMaxIntensity;
+        mzAtHighestIntensity = eic->mzAtMaxIntensity;
+        highestCompIntensity = comparisonEic->maxIntensity;
+        rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
+        mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
+        delete eic;
+        delete comparisonEic;
+    }
+
+    if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
+        return make_pair(false, true);
+
+    // calculate and check for rt difference and mz difference, if
+    // conditions are satisfied, mark the comparison slice to be merged
+    auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
+    auto mzCenterForIntensity = (mzAtHighestIntensity
+                              + mzAtHighestCompIntensity) / 2.0f;
+    auto massToleranceForIntensity =
+        massCutoff->massCutoffValue(mzCenterForIntensity);
+    auto mzDeltaNeg = abs(mzCenterForIntensity - mzAtHighestIntensity );
+    auto mzDeltaPos = abs(mzAtHighestCompIntensity - mzCenterForIntensity );
+    if (rtDelta <= rtTolerance
+        && mzDeltaNeg <= massToleranceForIntensity
+        && mzDeltaPos <= massToleranceForIntensity) {
+        return make_pair(true, true);
+    }
+
+    return make_pair(false, true);
 }
 
 void MassSlices::adjustSlices()
