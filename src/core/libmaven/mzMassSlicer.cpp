@@ -534,12 +534,16 @@ pair<bool, bool> MassSlices::_compareSlices(vector<mzSample*>& samples,
                                             "");
 
         // obtain the highest intensity's mz and rt in the EICs
-        highestIntensity = eic->maxIntensity;
-        rtAtHighestIntensity = eic->rtAtMaxIntensity;
-        mzAtHighestIntensity = eic->mzAtMaxIntensity;
-        highestCompIntensity = comparisonEic->maxIntensity;
-        rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
-        mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
+        if (highestIntensity < eic->maxIntensity) {
+            highestIntensity = eic->maxIntensity;
+            rtAtHighestIntensity = eic->rtAtMaxIntensity;
+            mzAtHighestIntensity = eic->mzAtMaxIntensity;
+        }
+        if (highestCompIntensity < comparisonEic->maxIntensity) {
+            highestCompIntensity = comparisonEic->maxIntensity;
+            rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
+            mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
+        }
         delete eic;
         delete comparisonEic;
     }
