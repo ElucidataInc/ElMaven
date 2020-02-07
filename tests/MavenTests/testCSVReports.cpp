@@ -407,9 +407,20 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     QVERIFY(header.size() == 22);
 
     // check if parent group values are correctly written
-    vector<std::string> peakValues1;
+    vector<string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
     QVERIFY(peakValues1.size() == 22);
+
+    vector<string> peakValues2;
+    mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2.size() == 22);
+
+    if (!(almostEqual(stof(peakValues1[6]), 124.008064f)
+          && almostEqual(stof(peakValues1[9]), 1.132f))) {
+        // the order was changed and the second entry should be checked
+        peakValues1 = peakValues2;
+    }
+
     QVERIFY(peakValues1[0] == "0");
     QVERIFY(peakValues1[1] == "124.007996@1.125152");
     QVERIFY(peakValues1[2] == "124.007996@1.125152");
