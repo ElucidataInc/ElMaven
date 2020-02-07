@@ -64,8 +64,6 @@ class MassSlices {
          */
         void adjustSlices();
 
-        void removeDuplicateSlices(MassCutoff *massCutoff, float threshold);
-        
         /**
          * [This is function is called when mass Slicing using 
          * AlgorithmB returns no slices. The slices here are created using the filterLine

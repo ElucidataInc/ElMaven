@@ -201,9 +201,6 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
     cerr << "Reduced to " << slices.size() << " slices" << endl;
 
-    float threshold = 100;
-    removeDuplicateSlices(massCutoff, threshold);
-
     sort(slices.begin(), slices.end(), mzSlice::compMz);
     _mergeSlices(massCutoff, rtWindow);
     adjustSlices();
@@ -599,70 +596,4 @@ void MassSlices::adjustSlices()
         ++progressCount;
         sendSignal("Adjusting slices…", progressCount, slices.size());
     }
-}
-
-void MassSlices::removeDuplicateSlices(MassCutoff *massCutoff, float threshold){
-
-    vector<mzSlice*> returnSlices;
-    mzSlice* slice;
-    multimap<int,int>vectorCache;
-    
-   for(int i=0; i<slices.size(); i++) {
-        slice = slices[i];
-        float mz = slice->mz;
-        multimap<int, int>::iterator start, end;
-        
-        start = vectorCache.equal_range( (int) (mz* 10 - 1) ).first;
-        end = vectorCache.equal_range( (int) (mz* 10 + 1) ).second;
-        float mzOverlap =  0.0;
-        float rtOverlap = 0.0;
-        float overlapArea, bestOverlapArea = 0.0;
-        int bestSliceNum = -1;
-
-        for(; start != end; start++) {
-            int thisSliceNum = (*start).second;
-            mzSlice *thisSlice = returnSlices[thisSliceNum];
-
-            float low = thisSlice->mzmin > slice->mzmin ? thisSlice->mzmin : slice->mzmin;
-            float high = thisSlice->mzmax < slice->mzmax ? thisSlice->mzmax : slice->mzmax;
-            mzOverlap = high-low;
-
-            low = thisSlice->rtmin > slice->rtmin ? thisSlice->rtmin : slice->rtmin;
-            high = thisSlice->rtmax < slice->rtmax ? thisSlice->rtmax : slice->rtmax;
-            rtOverlap = high-low;
-
-            if(mzOverlap>0 && rtOverlap>0) overlapArea = mzOverlap * rtOverlap;
-            else overlapArea = 0;
-
-            float area1 = (thisSlice->mzmax-thisSlice->mzmin) * (thisSlice->rtmax-thisSlice->rtmin);
-            float area2 = (slice->mzmax-slice->mzmin) * (slice->rtmax-slice->rtmin);
-            float area = area1 < area2 ? area1 : area2;
-
-            if (overlapArea/area >= threshold/100 && overlapArea > bestOverlapArea){
-                bestOverlapArea = overlapArea;
-                bestSliceNum = thisSliceNum;
-            }
-            
-        }
-
-        if(bestSliceNum >= 0){
-            mzSlice* Z = returnSlices[bestSliceNum];
-            
-            Z->ionCount = std::max((float) Z->ionCount, (float ) slice->ionCount);
-            Z->rtmax = std::max((float)Z->rtmax, (float)slice->rtmax);
-            Z->rtmin = std::min((float)Z->rtmin, (float)slice->rtmin);
-            Z->mzmax = std::max((float)Z->mzmax, (float)slice->mzmax);
-            Z->mzmin = std::min((float)Z->mzmin, (float)slice->mzmin);
-
-            //make sure that mz windown doesn't get out of control
-            if (Z->mzmin < mz-massCutoff->massCutoffValue(mz)) Z->mzmin =  mz-massCutoff->massCutoffValue(mz);
-            if (Z->mzmax > mz+massCutoff->massCutoffValue(mz)) Z->mzmax =  mz+massCutoff->massCutoffValue(mz);
-            Z->mz = (Z->mzmin + Z->mzmax) / 2; Z->rt=(Z->rtmin + Z->rtmax) / 2;
-        }
-        else{
-            vectorCache.insert(pair<int,int>(int (mz*10),returnSlices.size()));
-            returnSlices.push_back(slice);
-        }
-    }
-    slices = returnSlices;
 }
