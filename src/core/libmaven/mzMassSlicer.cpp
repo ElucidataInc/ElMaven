@@ -516,36 +516,55 @@ pair<bool, bool> MassSlices::_compareSlices(vector<mzSample*>& samples,
     auto highestCompIntensity = 0.0f;
     auto mzAtHighestCompIntensity = 0.0f;
     auto rtAtHighestCompIntensity = 0.0f;
-    for (auto sample : samples) {
-        // obtain EICs for the two slices
-        auto eic = sample->getEIC(mzMin,
-                                  mzMax,
-                                  rtMin,
-                                  rtMax,
-                                  1,
-                                  1,
-                                  "");
-        auto comparisonEic = sample->getEIC(comparisonMzMin,
-                                            comparisonMzMax,
-                                            comparisonRtMin,
-                                            comparisonRtMax,
-                                            1,
-                                            1,
-                                            "");
+#pragma omp parallel
+    {
+        vector<vector<float>> eicValues;
+        vector<vector<float>> comparisonEicValues;
+#pragma omp for nowait
+        for (size_t i = 0; i < samples.size(); ++i) {
+            auto sample = samples.at(i);
 
-        // obtain the highest intensity's mz and rt in the EICs
-        if (highestIntensity < eic->maxIntensity) {
-            highestIntensity = eic->maxIntensity;
-            rtAtHighestIntensity = eic->rtAtMaxIntensity;
-            mzAtHighestIntensity = eic->mzAtMaxIntensity;
+            // obtain EICs for the two slices
+            auto eic = sample->getEIC(mzMin,
+                                      mzMax,
+                                      rtMin,
+                                      rtMax,
+                                      1,
+                                      1,
+                                      "");
+            auto comparisonEic = sample->getEIC(comparisonMzMin,
+                                                comparisonMzMax,
+                                                comparisonRtMin,
+                                                comparisonRtMax,
+                                                1,
+                                                1,
+                                                "");
+            eicValues.push_back({eic->maxIntensity,
+                                 eic->rtAtMaxIntensity,
+                                 eic->mzAtMaxIntensity});
+            comparisonEicValues.push_back({comparisonEic->maxIntensity,
+                                           comparisonEic->rtAtMaxIntensity,
+                                           comparisonEic->mzAtMaxIntensity});
+            delete eic;
+            delete comparisonEic;
         }
-        if (highestCompIntensity < comparisonEic->maxIntensity) {
-            highestCompIntensity = comparisonEic->maxIntensity;
-            rtAtHighestCompIntensity = comparisonEic->rtAtMaxIntensity;
-            mzAtHighestCompIntensity = comparisonEic->mzAtMaxIntensity;
+#pragma omp critical
+        // obtain the highest intensity's mz and rt
+        // these updates should happen in a single thread
+        for (auto values : eicValues) {
+            if (highestIntensity < values[0]) {
+                highestIntensity = values[0];
+                rtAtHighestIntensity = values[1];
+                mzAtHighestIntensity = values[2];
+            }
         }
-        delete eic;
-        delete comparisonEic;
+        for (auto values : comparisonEicValues) {
+            if (highestCompIntensity < values[0]) {
+                highestCompIntensity = values[0];
+                rtAtHighestCompIntensity = values[1];
+                mzAtHighestCompIntensity = values[2];
+            }
+        }
     }
 
     if (highestIntensity == 0.0f && highestCompIntensity == 0.0f)
