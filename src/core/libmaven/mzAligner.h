@@ -42,7 +42,8 @@ class Aligner {
                         vector<float> &mzPoints,
                         ObiWarp& obiWarp,
                         bool setAsReference,
-                        const MavenParameters* mp);
+                        const MavenParameters* mp,
+                        map<string,vector<AlignmentSegment>>& alignmentSegment_private);
     map<pair<string,string>, double> getDeltaRt() {return deltaRt; }
 	map<pair<string, string>, double> deltaRt;
     vector<vector<float> > fit;
@@ -63,7 +64,8 @@ class Aligner {
      * @param sampleName Name of the sample associated with this segment.
      * @param seg Pointer to the AlignmentSegment to be added.
      */
-    void addSegment(string sampleName, AlignmentSegment* seg);
+    void addSegment(string sampleName, AlignmentSegment seg,
+                    map<string,vector<AlignmentSegment>>& alignmentSegment_private);
 
     /**
      * @brief Perform alignment using segments of known retention times, where
@@ -78,6 +80,16 @@ class Aligner {
      */
     void setSamples(vector<mzSample*> set) { samples = set; }
 
+    map<string,vector<AlignmentSegment>> alignmentSegments()
+    {
+        return _alignmentSegments;
+    }
+
+    void setAlignmentSegment(map<string,vector<AlignmentSegment>> mp)
+    {
+        _alignmentSegments = mp;
+    }
+
 public:
     boost::signals2::signal< void (const string&,unsigned int , int ) > setAlignmentProgress;
 
@@ -85,7 +97,7 @@ public:
     vector<PeakGroup*> allgroups;
     int maxIterations;
     int polynomialDegree;
-    map<string,vector<AlignmentSegment*>> _alignmentSegments;
+    map<string,vector<AlignmentSegment>> _alignmentSegments;
 };
 
 

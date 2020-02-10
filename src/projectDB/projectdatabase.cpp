@@ -1264,9 +1264,10 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
                 seg->segStart = lastSegment->segEnd;
                 seg->newStart = lastSegment->newEnd;
             }
-
-            aligner.addSegment(sampleName, seg);
+            auto alignmentSegments = aligner.alignmentSegments();
+            aligner.addSegment(sampleName, *seg, alignmentSegments);
             lastSegment = seg;
+            aligner.setAlignmentSegment(alignmentSegments);
         }
     }
 
