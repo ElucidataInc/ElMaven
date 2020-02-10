@@ -718,6 +718,25 @@ class PeakGroup{
         multimap<float, string> predictionInference() const;
 
         /**
+         * @brief Add a peak-group to the internal correlation records.
+         * @param correlatedGroup A peak-group that is believed to be
+         * correlated with this peak-group.
+         * @param correlationFactor A floating point value (between 0 and 1)
+         * that signifies how closely the two peak-groups resemble in terms of
+         * their intensity pattern.
+         */
+        void addCorrelatedGroup(PeakGroup *correlatedGroup,
+                                const float correlationFactor);
+
+        /**
+         * @brief Obtain a map of peak-groups and their correlation values, that
+         * exhibit a similar intensity pattern w.r.t. this peak-group.
+         * @return A map of pointers to `PeakGroup` objects mapping to their
+         * correlation factor with this group.
+         */
+        map<PeakGroup*, float> getCorrelatedGroups() const;
+
+        /**
          * @brief Converts an integer prediction-class identifier to its
          * corresponding `PeakGroup::ClassifiedLabel`.
          * @details This function should be regarded as complementary to
@@ -788,6 +807,9 @@ class PeakGroup{
         
         // user classification label
         char _userLabel;
+
+        // group IDs (with score) with which this group is correlated
+        map<PeakGroup*, float> _correlatedGroups;
 
         // properties for PeakML classification
         ClassifiedLabel _predictedLabel;

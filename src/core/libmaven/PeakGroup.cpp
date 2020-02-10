@@ -1119,3 +1119,14 @@ multimap<float, string> PeakGroup::predictionInference() const
 {
     return _predictionInference;
 }
+
+void PeakGroup::addCorrelatedGroup(PeakGroup* correlatedGroup,
+                                   const float correlationFactor)
+{
+    _correlatedGroups[correlatedGroup] = correlationFactor;
+}
+
+map<PeakGroup *, float> PeakGroup::getCorrelatedGroups() const
+{
+    return _correlatedGroups;
+}
