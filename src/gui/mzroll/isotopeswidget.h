@@ -63,6 +63,13 @@ public Q_SLOTS:
 	**/
 	void updateSampleList();
 
+    /**
+     * @brief This slot is meant to be called when the isotopes list needs to be
+     * updated based on changes to some external state. It will simply
+     * repopulate the list for an already set peak.
+     */
+    void refreshForCurrentPeak();
+
 private Q_SLOTS:
 	void showInfo();
 	void showTable();

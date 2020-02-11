@@ -86,9 +86,35 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
         QString sampleNumber =
             sample->sampleNumber != -1 ? QString::number(sample->sampleNumber)
                                        : "NA";
-        sampleName = sample->sampleName;
+        sampleName = _peak->getSample()->sampleName;
+
+        auto quantType = _mw->getUserQuantType();
+        float quantity = _peak->peakIntensity;
+        switch (quantType) {
+            case PeakGroup::Area:
+                quantity = _peak->peakAreaCorrected;
+                break;
+            case PeakGroup::AreaTop:
+                quantity = _peak->peakAreaTopCorrected;
+                break;
+            case PeakGroup::AreaNotCorrected:
+                quantity = _peak->peakArea;
+                break;
+            case PeakGroup::AreaTopNotCorrected:
+                quantity = _peak->peakAreaTop;
+                break;
+            case PeakGroup::Quality:
+                quantity = _peak->quality;
+                break;
+            case PeakGroup::RetentionTime:
+                quantity = _peak->rt;
+            default:
+                break;
+        }
+
         setToolTip( "<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
-                          "<br> <b>intensity: </b>" +   QString::number(_peak->peakIntensity) +
+                   QString("<br> <b>%1: </b>").arg(_mw->quantType->currentText())
+                   + QString::number(quantity) +
                             "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
                             "<br> <b>Spline Area: </b>" + 		  QString::number(_peak->peakSplineArea) +
                             "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
