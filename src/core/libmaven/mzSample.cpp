@@ -105,9 +105,6 @@ void mzSample::addScan(Scan* s)
 string mzSample::getFileName(const string& filename)
 {
     char sep = '/';
-#ifdef _WIN32
-    sep = '\\';
-#endif
 
     size_t i = filename.rfind(sep, filename.length());
 
