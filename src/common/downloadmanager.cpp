@@ -13,7 +13,8 @@ DownloadManager::DownloadManager():
     err(false)
 {
     QString parentFolder = "ElMaven";
-    QString logFile = "download_manager.log";
+    QString logFile = QString::fromStdString(Logger::constant_time()
+                                             + "_download_manager.log");
     QString fpath = QStandardPaths::writableLocation(
                         QStandardPaths::GenericConfigLocation)
                     + QDir::separator()

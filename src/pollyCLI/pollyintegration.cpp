@@ -10,7 +10,8 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     _fPtr(nullptr)
 {
     QString parentFolder = "ElMaven";
-    QString logFile = "polly_integration.log";
+    QString logFile = QString::fromStdString(Logger::constant_time()
+                                             + "_polly_integration.log");
     QString fpath = QStandardPaths::writableLocation(
                         QStandardPaths::GenericConfigLocation)
                     + QDir::separator()
