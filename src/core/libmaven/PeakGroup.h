@@ -146,7 +146,6 @@ class PeakGroup{
         float maxSignalBaseRatio;
         float maxSignalBaselineRatio;
         int goodPeakCount;
-        float expectedRtDiff;
         float groupRank;
 
         //for sample contrasts  ratio and pvalue
@@ -378,6 +377,17 @@ class PeakGroup{
          * @return []
          */
         float meanRtW();
+
+        /**
+         * @brief Obtain the deviation of this peak-group from its expected
+         * retention time.
+         * @details The RT difference between expected and observed is returned
+         * as an absolute value. In case there was no expected value for this
+         * group, then the value returned is -1.0.
+         * @return A floating point value denoting absolute RT deviation in
+         * minutes.
+         */
+        float expectedRtDiff();
 
         /**
          * [reduce ]

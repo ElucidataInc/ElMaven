@@ -67,7 +67,14 @@ class EIC
 
     float *baseline; /**< pointer to baseline array */
 
-    float maxIntensity; /**< maximum intensity out of all eics */
+    /* maximum intensity of all scans*/
+    float maxIntensity;
+
+    /* rt value of maximum intensity*/
+    float rtAtMaxIntensity;
+
+    /* mz value of maximum intensity*/
+    float mzAtMaxIntensity;
 
     float maxAreaTopIntensity; /**< maximum areaTop intensity (after baseline correction) out of all peaks */
 

@@ -1208,8 +1208,11 @@ EIC* mzSample::getEIC(float precursorMz,
             e->mz.push_back(eicMz);
         }
         e->totalIntensity += eicIntensity;
-        if (eicIntensity > e->maxIntensity)
+        if (eicIntensity > e->maxIntensity) {
             e->maxIntensity = eicIntensity;
+            e->rtAtMaxIntensity = scan->rt;
+            e->mzAtMaxIntensity = eicMz;
+        }
     }
 
     if (e->rt.size() > 0) {
@@ -1300,8 +1303,11 @@ EIC* mzSample::getEIC(string srm, int eicType)
             e->mz.push_back(eicMz);
             e->totalIntensity += eicIntensity;
 
-            if (eicIntensity > e->maxIntensity)
+            if (eicIntensity > e->maxIntensity) {
                 e->maxIntensity = eicIntensity;
+                e->rtAtMaxIntensity = scan->rt;
+                e->mzAtMaxIntensity = eicMz;
+            }
         }
     }
 
@@ -1422,8 +1428,11 @@ EIC* mzSample::getTIC(float rtmin, float rtmax, int mslevel)
             e->rt.push_back(scan->rt);
             e->intensity.push_back(y);
             e->totalIntensity += y;
-            if (y > e->maxIntensity)
+            if (y > e->maxIntensity) {
                 e->maxIntensity = y;
+                e->rtAtMaxIntensity = scan->rt;
+                e->mzAtMaxIntensity = 0;
+            }
         }
     }
     if (e->rt.size() > 0) {
@@ -1473,8 +1482,11 @@ EIC* mzSample::getBIC(float rtmin, float rtmax, int mslevel)
             e->rt.push_back(scan->rt);
             e->intensity.push_back(maxIntensity);
             e->totalIntensity += maxIntensity;
-            if (maxIntensity > e->maxIntensity)
+            if (maxIntensity > e->maxIntensity) {
                 e->maxIntensity = maxIntensity;
+                e->rtAtMaxIntensity = scan->rt;
+                e->mzAtMaxIntensity = maxMz;
+            }
         }
     }
     if (e->rt.size() > 0) {

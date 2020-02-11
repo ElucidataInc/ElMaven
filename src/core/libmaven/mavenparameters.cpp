@@ -263,6 +263,12 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key,"chargeMax") == 0)
         maxCharge = atof(value);
 
+    if(strcmp(key, "identificationMatchRt") == 0)
+        identificationMatchRt = static_cast<bool>(atoi(value));
+
+    if(strcmp(key, "identificationRtWindow") == 0)
+        identificationRtWindow = atof(value);
+
     if(strcmp(key, "databaseSearch") == 0 );
         //TODO
 

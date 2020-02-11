@@ -269,21 +269,21 @@ void TestCSVReports::verifyUntargetedGroupReport(vector<mzSample*>& samplesToLoa
     mzUtils::splitNew(parentString, "," , parentValues);
     QVERIFY(parentValues.size() == 16);
     QVERIFY(parentValues[0] == "");
-    QVERIFY(parentValues[1] == "15");
+    QVERIFY(parentValues[1] == "0");
     QVERIFY(parentValues[2] == "1");
     QVERIFY(parentValues[3] == "2");
-    QCOMPARE(stof(parentValues[4]), 210.150269f);
-    QCOMPARE(stof(parentValues[5]), TestUtils::roundTo(16.714417f, 3));
-    QCOMPARE(stof(parentValues[6]), 0.803054f);
+    QCOMPARE(stof(parentValues[4]), 124.007996f);
+    QCOMPARE(stof(parentValues[5]), TestUtils::roundTo(1.125f, 3));
+    QCOMPARE(stof(parentValues[6]), 0.802657f);
     QVERIFY(parentValues[7] == "");
-    QVERIFY(parentValues[8] == "210.150269@16.714417");
-    QVERIFY(parentValues[9] == "210.150269@16.714417");
+    QVERIFY(parentValues[8] == "124.007996@1.125152");
+    QVERIFY(parentValues[9] == "124.007996@1.125152");
     QVERIFY(parentValues[10] == "");
     QCOMPARE(stof(parentValues[11]), TestUtils::roundTo(0.000f, 3));
     QCOMPARE(stof(parentValues[12]), 0.000000f);
-    QCOMPARE(stof(parentValues[13]), 210.150269f);
-    QCOMPARE(stof(parentValues[14]), 1234094464.00f);
-    QCOMPARE(stof(parentValues[15]), 1199781760.00f);
+    QCOMPARE(stof(parentValues[13]), 124.007996f);
+    QCOMPARE(stof(parentValues[14]), 420679136.00f);
+    QCOMPARE(stof(parentValues[15]), 424024704.00f);
 }
 
 void TestCSVReports::verifyTargetedPeakReport(vector<mzSample*>& samplesToLoad,
@@ -407,31 +407,42 @@ void TestCSVReports::verifyUntargetedPeakReport(vector<mzSample*>& samplesToLoad
     QVERIFY(header.size() == 22);
 
     // check if parent group values are correctly written
-    vector<std::string> peakValues1;
+    vector<string> peakValues1;
     mzUtils::splitNew(peakString1, "," , peakValues1);
     QVERIFY(peakValues1.size() == 22);
-    QVERIFY(peakValues1[0] == "15");
-    QVERIFY(peakValues1[1] == "210.150269@16.714417");
-    QVERIFY(peakValues1[2] == "210.150269@16.714417");
+
+    vector<string> peakValues2;
+    mzUtils::splitNew(peakString2, "," , peakValues2);
+    QVERIFY(peakValues2.size() == 22);
+
+    if (!(almostEqual(stof(peakValues1[6]), 124.008064f)
+          && almostEqual(stof(peakValues1[9]), 1.132f))) {
+        // the order was changed and the second entry should be checked
+        peakValues1 = peakValues2;
+    }
+
+    QVERIFY(peakValues1[0] == "0");
+    QVERIFY(peakValues1[1] == "124.007996@1.125152");
+    QVERIFY(peakValues1[2] == "124.007996@1.125152");
     QVERIFY(peakValues1[3] == "");
     QVERIFY(peakValues1[4] == "");
 #ifndef WIN32
     QVERIFY(peakValues1[5] == "testsample_2");
 #endif
-    QCOMPARE(stof(peakValues1[6]), 210.150375f);
-    QCOMPARE(stof(peakValues1[7]), 210.150452f);
-    QCOMPARE(stof(peakValues1[8]), 210.150452f);
-    QCOMPARE(stof(peakValues1[9]), 16.710f);
-    QCOMPARE(stof(peakValues1[10]), 16.603f);
-    QCOMPARE(stof(peakValues1[11]), 17.392f);
-    QCOMPARE(stof(peakValues1[12]), 0.801f);
-    QCOMPARE(stof(peakValues1[13]), 1255329664.00f);
-    QCOMPARE(stof(peakValues1[14]), 30111416320.00f);
-    QCOMPARE(stof(peakValues1[15]), 30103683072.00f);
-    QCOMPARE(stof(peakValues1[16]), 1234160640.00f);
-    QCOMPARE(stof(peakValues1[17]), 30099625984.00f);
-    QCOMPARE(stof(peakValues1[18]), 1234094464.00f);
-    QVERIFY(peakValues1[19] == "178");
-    QCOMPARE(stof(peakValues1[20]), 116.51f);
+    QCOMPARE(stof(peakValues1[6]), 124.008064f);
+    QCOMPARE(stof(peakValues1[7]), 124.008041f);
+    QCOMPARE(stof(peakValues1[8]), 124.008186f);
+    QCOMPARE(stof(peakValues1[9]), 1.132f);
+    QCOMPARE(stof(peakValues1[10]), 1.043f);
+    QCOMPARE(stof(peakValues1[11]), 1.448f);
+    QCOMPARE(stof(peakValues1[12]), 0.803f);
+    QCOMPARE(stof(peakValues1[13]), 440557184.00f);
+    QCOMPARE(stof(peakValues1[14]), 10139367424.00f);
+    QCOMPARE(stof(peakValues1[15]), 10128309248.00f);
+    QCOMPARE(stof(peakValues1[16]), 421155360.00f);
+    QCOMPARE(stof(peakValues1[17]), 10097184768.00f);
+    QCOMPARE(stof(peakValues1[18]), 420679136.00f);
+    QVERIFY(peakValues1[19] == "88");
+    QCOMPARE(stof(peakValues1[20]), 106.85f);
     QVERIFY(peakValues1[21] == "0");
 }

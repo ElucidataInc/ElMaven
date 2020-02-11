@@ -390,7 +390,12 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     item->setIcon(0, QIcon(":/images/bad.png"));
 
   if (viewType == groupView) {
-    item->setText(5, QString::number(group->expectedRtDiff, 'f', 2));
+    auto expectedRtDiff = group->expectedRtDiff();
+    if (expectedRtDiff == -1.0f) {
+      item->setText(5, "NA");
+    } else {
+      item->setText(5, QString::number(expectedRtDiff, 'f', 2));
+    }
     item->setText(6, QString::number(group->sampleCount
                                      + group->blankSampleCount));
     item->setText(7, QString::number(group->goodPeakCount));

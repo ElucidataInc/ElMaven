@@ -1377,13 +1377,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
 
     if (bookmarkedPeaks->hasPeakGroup(group) == false) {
 
-		float rtDiff = -1;
-
-		if (group->getCompound() != NULL && group->getCompound()->expectedRt > 0) {
-			rtDiff = abs(group->getCompound()->expectedRt - (group->meanRt));
-			group->expectedRtDiff = rtDiff;
-		}
-
+        float rtDiff = group->expectedRtDiff();
 		double A = (double) mavenParameters->qualityWeight/10;
         double B = (double) mavenParameters->intensityWeight/10;
         double C = (double) mavenParameters->deltaRTWeight/10;
@@ -1452,7 +1446,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
 			<< c->expectedRt;
 
     float mz = c->mass;
-    if (!c->formula().empty())
+    if (!c->formula().empty() || c->neutralMass != 0.0f)
 		mz = c->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 

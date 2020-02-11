@@ -24,7 +24,7 @@
 #define _NNWORK_H
 #include "neuron.h"
 #include <string.h>
-
+#include <vector>
 
 #define ALL 0
 #define NEUN_INPUT 1
@@ -55,10 +55,25 @@ public:
 
 	void train (float [], float [], float, float);
 
-// Run args are input data, output
+    /**
+     * @brief Given a vector of inputs, outputs a vector of adjusted values.
+     * @details This method should only be used after the network has been
+     * suitably trained. When it is ready, data are applied at the input, and
+     * the output (basically a boolean output but could be different) goes into
+     * the result. Naturally, data and result are the same size as the input and
+     * output vectors respectively.
+     * @param data A vector of input float values.
+     * @return Weight-adjusted output vector, coming as the result of pretrained
+     * neural net.
+     */
+    std::vector<float> run(std::vector<float>& data);
 
-	void run (float [], float []);
-	
+    /**
+     * @brief Legacy function that does the same thing as the other `run` method
+     * except this one does update the NN.
+     */
+    void run(float [], float []);
+
 // Arg for load and save is just the filename.
 
 	int load (char*);

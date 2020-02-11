@@ -68,13 +68,7 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
     if (!_slice->srmId.empty())
         peakgroup.srmId = _slice->srmId;
 
-    float rtDiff = -1;
-
-    if (compound != NULL && compound->expectedRt > 0)
-    {
-        rtDiff = abs(compound->expectedRt - (peakgroup.meanRt));
-        peakgroup.expectedRtDiff = rtDiff;
-    }
+    float rtDiff = peakgroup.expectedRtDiff();
 
     double A = (double)_mavenParameters->qualityWeight / 10;
     double B = (double)_mavenParameters->intensityWeight / 10;
@@ -86,7 +80,7 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
         {
             peakgroup.groupRank = pow(rtDiff, 2 * C) * pow((1.1 - peakgroup.maxQuality), A) * (1 / (pow(log(peakgroup.maxIntensity + 1), B))); //TODO Formula to rank groups
         }
-        if (_mavenParameters->matchRtFlag && peakgroup.expectedRtDiff > _mavenParameters->compoundRTWindow)
+        if (_mavenParameters->matchRtFlag && rtDiff > _mavenParameters->compoundRTWindow)
             return true;
     }
 

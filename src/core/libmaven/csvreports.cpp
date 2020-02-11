@@ -340,7 +340,7 @@ void CSVReports::writeGroupInfo(PeakGroup* group) {
         else {
             ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mass, (double) group->meanMz,getMavenParameters()->massCutoffMerge);
         }
-        expectedRtDiff = group->expectedRtDiff;
+        expectedRtDiff = group->expectedRtDiff();
 
         // TODO: Added this while merging this file
         //for(int i=0;i<group->getCompound()->category.size(); i++) {

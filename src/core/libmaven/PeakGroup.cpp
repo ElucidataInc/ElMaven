@@ -53,7 +53,6 @@ PeakGroup::PeakGroup()  {
     //quantileIntensityPeaks = 0;
     //quantileQualityPeaks = 0;
 
-    expectedRtDiff=-1;
     expectedAbundance=0;
     isotopeC13count=0;
 
@@ -127,7 +126,6 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     groupQuality=o.groupQuality;
     weightedAvgPeakQuality=o.weightedAvgPeakQuality;
     predictedLabel=o.predictedLabel;
-    expectedRtDiff=o.expectedRtDiff;
     expectedAbundance = o.expectedAbundance;
     isotopeC13count=o.isotopeC13count;
 
@@ -293,6 +291,15 @@ float PeakGroup::medianRt() {
     float medianValue = mzUtils::median(rts, peakCount());
     delete[] rts;
     return medianValue;
+}
+
+float PeakGroup::expectedRtDiff()
+{
+    auto associatedCompound = getCompound();
+    if (associatedCompound != nullptr && associatedCompound->expectedRt > 0) {
+        return abs(associatedCompound->expectedRt - meanRt);
+    }
+    return -1.0f;
 }
 
 void PeakGroup::deleteChildren() {
@@ -553,7 +560,7 @@ double PeakGroup::getExpectedMz(int charge) {
         return expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
-        if (!_slice.compound->formula().empty()) {
+        if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
             mz = _slice.compound->mass;
@@ -874,13 +881,7 @@ void PeakGroup::calGroupRank(bool deltaRtCheckFlag,
                             int intensityWeight,
                             int deltaRTWeight) {
 
-    float rtDiff = -1;
-
-    if (hasSlice() && _slice.compound != NULL && _slice.compound->expectedRt > 0)
-    {
-        rtDiff = abs(_slice.compound->expectedRt - (meanRt));
-        expectedRtDiff = rtDiff;
-    }
+    float rtDiff = expectedRtDiff();
 
     // Peak Group Rank accoording to given weightage
     double A = (double) qualityWeight/10;

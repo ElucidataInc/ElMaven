@@ -19,7 +19,8 @@ map<Version, int> appDbVersionMap = {
     {Version("0.6.0"), 0},
     {Version("0.7.0"), 1},
     {Version("0.8.0"), 2},
-    {Version("0.9.0"), 3}
+    {Version("0.9.0"), 3},
+    {Version("0.10.0"), 4}
 };
 
 /**
@@ -437,6 +438,13 @@ map<int, string> dbVersionUpgradeScripts = {
         "                       FROM user_settings_old               ;"
         "DROP TABLE user_settings_old;"
 
+        "COMMIT;"
+    },
+    {
+        3,
+        "BEGIN TRANSACTION;"
+        "ALTER TABLE user_settings ADD COLUMN identification_match_rt  INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN identification_rt_window REAL;"
         "COMMIT;"
     }
 };

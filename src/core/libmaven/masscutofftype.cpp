@@ -5,7 +5,7 @@ MassCutoff::MassCutoff(){
     _massCutoffType="";
     _massCutoff=0;
 }
-double MassCutoff::massCutoffValue(double mz){
+double MassCutoff::massCutoffValue(double mz) const {
     
     if(_massCutoffType=="ppm"){
         //cerr<<"mass cutoff type:  "<<_massCutoffType<<"  value: "<<_massCutoff<<endl;
