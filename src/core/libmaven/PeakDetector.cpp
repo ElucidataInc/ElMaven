@@ -217,7 +217,7 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
  */
 vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
                                                 vector<Adduct*> adductList,
-                                                string setName)
+                                                std::string setName)
 {
     vector<mzSlice*>slices;
     if (set.size() == 0 )
@@ -375,7 +375,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             compoundVector.push_back(compound);
         }
 
-        float neutralMass = massCalc.computeNeutralMass(compound->formula);
+        float neutralMass = massCalc.computeNeutralMass(compound->formula());
         if (neutralMass <= 0) {
             continue;
         }
