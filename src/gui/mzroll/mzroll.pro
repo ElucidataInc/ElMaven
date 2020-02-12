@@ -169,7 +169,8 @@ FORMS = forms/settingsform.ui  \
         forms/peaktabledeletiondialog.ui \
         forms/isotopedialog.ui \
         forms/infodialog.ui \
-        forms/adductwidget.ui
+        forms/adductwidget.ui \
+        forms/updatedialog.ui
 
 HEADERS += stable.h \
            globals.h \
@@ -248,8 +249,8 @@ HEADERS += stable.h \
            videoplayer.h \
            isotopedialog.h \
            adductwidget.h \
-           autoupdater.h
-
+           autoupdater.h \
+           updatedialog.h
 
 SOURCES += mainwindow.cpp  \
            database.cpp \
@@ -324,8 +325,8 @@ SOURCES += mainwindow.cpp  \
            videoplayer.cpp \
            isotopedialog.cpp \
            adductwidget.cpp \
-           autoupdater.cpp
-
+           autoupdater.cpp \
+           updatedialog.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp

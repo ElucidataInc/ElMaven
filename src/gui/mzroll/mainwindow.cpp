@@ -65,6 +65,7 @@
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 #include "treemap.h"
+#include "updatedialog.h"
 #include "videoplayer.h"
 
 #ifdef WIN32
@@ -760,21 +761,13 @@ void MainWindow::promptUpdate(QString version)
              << QString("v%1").arg(version)
              << "available.";
 
-    // should we also show the new version number to the user?
-    QMessageBox msgBox(this);
-    msgBox.setText("An update for El-MAVEN is available. Would you like to "
-                   "start the update manager now?");
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    int response = msgBox.exec();
-    switch(response) {
-        case QMessageBox::Yes:
+    // prompt for update after 15 seconds
+    QTimer::singleShot(15000, [this] {
+        UpdateDialog prompt(this);
+        prompt.exec();
+        if (prompt.updateAllowed())
             emit updateAllowed();
-            break;
-        case QMessageBox::No:
-            break;
-        default:
-            break;
-    }
+    });
 }
 
 void MainWindow::sendPeaksGA()
