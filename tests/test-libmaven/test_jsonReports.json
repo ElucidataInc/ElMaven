@@ -3,7 +3,7 @@
 "groupId": 1,
 "label": "",
 "metaGroupId": 1,
-"meanMz": 282.084259,
+"meanMz": 282.0842896,
 "meanRt": 4.69644165,
 "rtmin": 4.563683987,
 "rtmax": 4.944950104,
@@ -18,7 +18,7 @@
 "fullCompoundName": "guanosine",
 "fullCompoundID": "C00387"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 282.0843201,
 "medianMz": 282.084259,
 "baseMz": 282.0842896,
@@ -51,7 +51,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 282.0842896,
 "medianMz": 282.0842285,
 "baseMz": 282.084259,
@@ -84,7 +84,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 282.0843201,
 "medianMz": 282.0842285,
 "baseMz": 282.084198,
@@ -117,7 +117,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 282.0843811,
 "medianMz": 282.0844116,
 "baseMz": 282.0843811,
@@ -169,7 +169,7 @@
 "fullCompoundName": "N-acetyl-glucosamine-1/6-phosphate",
 "fullCompoundID": "C04256|C00357"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 300.0494385,
 "medianMz": 300.0492859,
 "baseMz": 300.0491943,
@@ -202,7 +202,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 300.0494995,
 "medianMz": 300.0490723,
 "baseMz": 300.0490723,
@@ -235,7 +235,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 300.0497437,
 "medianMz": 300.0496216,
 "baseMz": 300.049408,
@@ -259,7 +259,7 @@
 "symmetry": 6,
 "noNoiseFraction": 0.9736841917,
 "groupOverlap": 0.001975786872,
-"groupOverlapFrac": -0.04949072376,
+"groupOverlapFrac": -0.04949070513,
 "gaussFitR2": 0.001444490394,
 "peakRank": 0,
 "peakWidth": 24,
@@ -268,7 +268,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 300.04953,
 "medianMz": 300.0493774,
 "baseMz": 300.0493469,
@@ -292,7 +292,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.9411764741,
 "groupOverlap": 0.009086270817,
-"groupOverlapFrac": -0.1050934047,
+"groupOverlapFrac": -0.1050933897,
 "gaussFitR2": 0.0002198430739,
 "peakRank": 0,
 "peakWidth": 40,
@@ -305,7 +305,7 @@
 "groupId": 3,
 "label": "",
 "metaGroupId": 3,
-"meanMz": 306.0764465,
+"meanMz": 306.076416,
 "meanRt": 7.952633858,
 "rtmin": 7.519649982,
 "rtmax": 8.694533348,
@@ -320,7 +320,7 @@
 "fullCompoundName": "glutathione",
 "fullCompoundID": "C00051"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 306.0762024,
 "medianMz": 306.0762939,
 "baseMz": 306.0762939,
@@ -329,7 +329,7 @@
 "rt": 7.947250366,
 "rtmin": 7.74898386,
 "rtmax": 8.694533348,
-"quality": 0.7248705626,
+"quality": 0.7248705029,
 "peakIntensity": 57728.28906,
 "peakBaseLineLevel": 591.1483765,
 "peakArea": 1527826.125,
@@ -344,7 +344,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.5446428657,
 "groupOverlap": 0.0001138596053,
-"groupOverlapFrac": -0.09825900942,
+"groupOverlapFrac": -0.09825903177,
 "gaussFitR2": 0.002142025856,
 "peakRank": 0,
 "peakWidth": 59,
@@ -353,7 +353,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 306.076416,
 "medianMz": 306.076416,
 "baseMz": 306.076416,
@@ -386,7 +386,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 306.0764771,
 "medianMz": 306.076416,
 "baseMz": 306.0764771,
@@ -419,7 +419,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 306.076416,
 "medianMz": 306.0765686,
 "baseMz": 306.0765686,
@@ -443,7 +443,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.5840708017,
 "groupOverlap": 0.0001420187909,
-"groupOverlapFrac": -0.09089411795,
+"groupOverlapFrac": -0.0908941403,
 "gaussFitR2": 0.001213353593,
 "peakRank": 0,
 "peakWidth": 56,
@@ -457,7 +457,7 @@
 "label": "",
 "metaGroupId": 4,
 "meanMz": 267.0733643,
-"meanRt": 3.8995502,
+"meanRt": 3.899550438,
 "rtmin": 3.694366932,
 "rtmax": 4.10615015,
 "maxQuality": 0.8476433158,
@@ -471,7 +471,7 @@
 "fullCompoundName": "inosine",
 "fullCompoundID": "C00294"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 267.0732727,
 "medianMz": 267.0733032,
 "baseMz": 267.0733337,
@@ -504,7 +504,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 267.0732727,
 "medianMz": 267.0733032,
 "baseMz": 267.0732422,
@@ -537,7 +537,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 267.0736694,
 "medianMz": 267.0735474,
 "baseMz": 267.0735168,
@@ -570,7 +570,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 267.0734863,
 "medianMz": 267.0734253,
 "baseMz": 267.0733948,
@@ -608,7 +608,7 @@
 "label": "",
 "metaGroupId": 5,
 "meanMz": 323.0288086,
-"meanRt": 10.15929985,
+"meanRt": 10.1593008,
 "rtmin": 9.849184036,
 "rtmax": 10.9803009,
 "maxQuality": 0.8464002013,
@@ -622,7 +622,7 @@
 "fullCompoundName": "UMP",
 "fullCompoundID": "C00105"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 323.0286255,
 "medianMz": 323.028717,
 "baseMz": 323.0286255,
@@ -645,8 +645,8 @@
 "peakAreaFractional": 0.99904567,
 "symmetry": 4,
 "noNoiseFraction": 0.9714285731,
-"groupOverlap": 0.0008805614198,
-"groupOverlapFrac": -0.008657636121,
+"groupOverlap": 0.0008805620018,
+"groupOverlapFrac": -0.008657651022,
 "gaussFitR2": 0.0006080514286,
 "peakRank": 0,
 "peakWidth": 60,
@@ -655,7 +655,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 323.0289917,
 "medianMz": 323.0289917,
 "baseMz": 323.0289612,
@@ -678,7 +678,7 @@
 "peakAreaFractional": 0.9966765046,
 "symmetry": 2,
 "noNoiseFraction": 0.9142857194,
-"groupOverlap": 8.562794392e-05,
+"groupOverlap": 8.562793664e-05,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.0004065147659,
 "peakRank": 0,
@@ -688,7 +688,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 323.0285339,
 "medianMz": 323.0287781,
 "baseMz": 323.0286865,
@@ -711,7 +711,7 @@
 "peakAreaFractional": 0.9978024364,
 "symmetry": 2,
 "noNoiseFraction": 0.9545454383,
-"groupOverlap": 0.0006106509245,
+"groupOverlap": 0.0006106512155,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.00122220139,
 "peakRank": 0,
@@ -721,7 +721,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 323.0290833,
 "medianMz": 323.0290222,
 "baseMz": 323.0289612,
@@ -744,8 +744,8 @@
 "peakAreaFractional": 0.9992554188,
 "symmetry": 2,
 "noNoiseFraction": 0.972602725,
-"groupOverlap": 0.0005736718304,
-"groupOverlapFrac": -0.008657636121,
+"groupOverlap": 0.0005736717721,
+"groupOverlapFrac": -0.008657651022,
 "gaussFitR2": 0.0003429159697,
 "peakRank": 0,
 "peakWidth": 67,
@@ -762,7 +762,7 @@
 "meanRt": 4.231279373,
 "rtmin": 4.043150425,
 "rtmax": 4.395216942,
-"maxQuality": 0.8442208767,
+"maxQuality": 0.8440880775,
 "compound": { "compoundId": "C00455",
 "compoundName": "Nicotinamide ribotide",
 "formula": "C11H15N2O8P",
@@ -773,7 +773,7 @@
 "fullCompoundName": "Nicotinamide ribotide",
 "fullCompoundID": "C00455"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 333.0524597,
 "medianMz": 333.0524597,
 "baseMz": 333.0523987,
@@ -782,7 +782,7 @@
 "rt": 4.258566856,
 "rtmin": 4.090766907,
 "rtmax": 4.380617142,
-"quality": 0.8372218013,
+"quality": 0.8369624019,
 "peakIntensity": 12690.40918,
 "peakBaseLineLevel": 0,
 "peakArea": 136651.25,
@@ -796,8 +796,8 @@
 "peakAreaFractional": 0.9919053316,
 "symmetry": 2,
 "noNoiseFraction": 0.8181818128,
-"groupOverlap": 0.0005724361399,
-"groupOverlapFrac": -0.1841544956,
+"groupOverlap": 0.000571505574,
+"groupOverlapFrac": -0.2004166842,
 "gaussFitR2": 0.001745330053,
 "peakRank": 0,
 "peakWidth": 18,
@@ -806,7 +806,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 333.0523682,
 "medianMz": 333.0516968,
 "baseMz": 333.051239,
@@ -829,7 +829,7 @@
 "peakAreaFractional": 0.5770652294,
 "symmetry": 0,
 "noNoiseFraction": 0.571428597,
-"groupOverlap": 0.001069720718,
+"groupOverlap": 0.001073286752,
 "groupOverlapFrac": -0.1956639588,
 "gaussFitR2": 0.009131060913,
 "peakRank": 0,
@@ -839,7 +839,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 333.0523071,
 "medianMz": 333.0523071,
 "baseMz": 333.0522766,
@@ -848,7 +848,7 @@
 "rt": 4.242716789,
 "rtmin": 4.074966908,
 "rtmax": 4.395216942,
-"quality": 0.8442208767,
+"quality": 0.8440880775,
 "peakIntensity": 14981.66406,
 "peakBaseLineLevel": 0,
 "peakArea": 122637.2344,
@@ -862,8 +862,8 @@
 "peakAreaFractional": 0.9896724224,
 "symmetry": 4,
 "noNoiseFraction": 0.8333333135,
-"groupOverlap": 0.001449203352,
-"groupOverlapFrac": -0.1722498387,
+"groupOverlap": 0.001447388669,
+"groupOverlapFrac": -0.1874849498,
 "gaussFitR2": 0.0006426027976,
 "peakRank": 0,
 "peakWidth": 20,
@@ -872,32 +872,32 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 333.0525208,
 "medianMz": 333.0523376,
 "baseMz": 333.0523376,
 "mzmin": 333.0518799,
-"mzmax": 333.0526733,
+"mzmax": 333.0526428,
 "rt": 4.210916996,
 "rtmin": 4.043150425,
-"rtmax": 4.332917213,
-"quality": 0.8108167648,
+"rtmax": 4.317667007,
+"quality": 0.8024014235,
 "peakIntensity": 2898.954346,
 "peakBaseLineLevel": 0,
-"peakArea": 18820.25,
-"peakSplineArea": 18803.37109,
+"peakArea": 17724.9043,
+"peakSplineArea": 17706.61914,
 "peakAreaTop": 2351.399414,
-"peakAreaNotCorrected": 18820.25,
+"peakAreaNotCorrected": 17724.9043,
 "peakAreaTopNotCorrected": 2351.399414,
-"noNoiseObs": 13,
+"noNoiseObs": 12,
 "signalBaselineRatio": 289.8954468,
 "fromBlankSample": 0,
-"peakAreaFractional": 0.8140016794,
+"peakAreaFractional": 0.8047517538,
 "symmetry": 2,
-"noNoiseFraction": 0.6499999762,
-"groupOverlap": 0.001753679593,
-"groupOverlapFrac": -0.1607403755,
-"gaussFitR2": 0.006335529499,
+"noNoiseFraction": 0.6315789223,
+"groupOverlap": 0.001764060929,
+"groupOverlapFrac": -0.1922376454,
+"gaussFitR2": 0.00750396261,
 "peakRank": 0,
 "peakWidth": 5,
 "eic": {"rt": [2.045916796,2.061183453,2.07643342,2.091716766,2.106966734,2.122233391,2.137466908,2.152716637,2.167950153,2.18321681,2.198450089,2.213716745,2.228933334,2.244250059,2.259516716,2.274783373,2.29003334,2.305316687,2.320566654,2.335833311,2.351066828,2.366333485,2.381600142,2.39683342,2.412100077,2.427333355,2.442600012,2.457866907,2.473116636,2.488383293,2.503633499,2.518883467,2.534133434,2.549383402,2.564116716,2.579350233,2.59461689,2.609850168,2.625116825,2.640366793,2.65563345,2.670900106,2.686133385,2.701383352,2.716616631,2.731883287,2.747133493,2.762383461,2.777633667,2.792916775,2.808150053,2.82338357,2.838650227,2.853916883,2.869150162,2.884416819,2.899683475,2.914916992,2.930166721,2.94506669,2.960316896,2.975566864,2.990816832,3.006066799,3.021333456,3.036583662,3.051833391,3.067100286,3.082350016,3.097600222,3.112866879,3.128116846,3.143366814,3.158616781,3.173866987,3.189116716,3.204366684,3.21961689,3.234866858,3.250116825,3.265366793,3.280616999,3.295866728,3.311116934,3.326366901,3.341616631,3.356866837,3.372116804,3.38736701,3.402616739,3.417866945,3.433116913,3.448366642,3.463616848,3.478866816,3.494116783,3.509383678,3.524633408,3.539883614,3.555133581,3.570383549,3.585633516,3.600883484,3.616133451,3.631383419,3.646633625,3.661883593,3.67713356,3.692383528,3.707633495,3.722883463,3.73813343,3.753383636,3.768633366,3.783883572,3.799150229,3.814400196,3.829633474,3.844900131,3.860150099,3.875400305,3.890650034,3.90590024,3.921150208,3.936400414,3.951650143,3.966900349,3.982150316,3.997400045,4.01265049,4.027900219,4.043150425,4.058400154,4.07365036,4.088900089,4.104166985,4.119416714,4.13466692,4.149916649,4.165166855,4.180417061,4.19566679,4.210916996,4.226167202,4.241416931,4.25666666,4.271916866,4.287167072,4.302416801,4.317667007,4.332917213,4.348166943,4.363416672,4.378666878,4.393917084,4.409166813,4.424417019,4.439666748,4.454916954,4.470166683,4.485433578,4.500667095,4.515933514,4.53118372,4.546433926,4.561683178,4.576933384,4.59218359,4.607433796,4.622683525,4.637933731,4.653183937,4.668433189,4.683683395,4.698933601,4.714183807,4.729433537,4.744683743,4.759933949,4.775183201,4.790433407,4.805683613,4.820933819,4.836183548,4.851433754,4.866683483,4.881933212,4.897183418,4.912433624,4.927700043,4.942950249,4.958200455,4.973450661,4.988699913,5.003950119,5.019200325,5.034466743,5.049716949,5.064967155,5.080216885,5.095467091,5.11071682,5.125967026,5.141216755,5.156466961,5.171717167,5.186966896,5.202217102,5.217466831,5.232717037,5.247966766,5.263216972,5.278467178,5.293716908,5.308966637,5.324216843,5.339467049,5.354716778,5.369966984,5.38521719,5.400467396,5.415716648,5.430966854,5.44621706,5.461466789,5.476716995,5.491967201,5.507217407,5.52246666,5.537733555,5.552983284,5.56823349,5.583483696,5.598733902,5.613983631,5.62923336,5.644483566,5.659733772,5.674983501,5.690233707,5.705483913,5.720733643,5.735983372,5.751233578,5.766483784,5.781733513,5.796983719,5.812233925,5.827483654,5.842733383,5.857983589,5.873233795,5.888483524,5.90373373,5.918983936,5.934233189,5.949483395,5.964733601,5.979983807,5.995233536,6.010483742,6.025733948,6.040983677,6.056216717,6.071450233,6.086683273,6.10191679,6.117134094,6.132366657,6.147616863,6.162833691,6.17806673,6.193300247,6.208533764,6.223766804,6.238983631,6.254233837,6.269466877,6.284683704,6.299916744,6.315150261,6.330383778,6.345616817,6.360833645,6.376066685,6.391300201],
@@ -910,7 +910,7 @@
 "label": "",
 "metaGroupId": 7,
 "meanMz": 337.0549927,
-"meanRt": 17.2455864,
+"meanRt": 17.24558449,
 "rtmin": 17.16050148,
 "rtmax": 17.44983482,
 "maxQuality": 0.8473848104,
@@ -924,7 +924,7 @@
 "fullCompoundName": "aminoimidazole carboxamide ribonucleotide",
 "fullCompoundID": "C04677"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 337.0549011,
 "medianMz": 337.0548706,
 "baseMz": 337.0548706,
@@ -957,7 +957,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 337.0549927,
 "medianMz": 337.0549622,
 "baseMz": 337.0549927,
@@ -990,7 +990,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 337.054718,
 "medianMz": 337.054657,
 "baseMz": 337.0550232,
@@ -1023,7 +1023,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 337.0550232,
 "medianMz": 337.0549011,
 "baseMz": 337.0550842,
@@ -1075,7 +1075,7 @@
 "fullCompoundName": "AMP",
 "fullCompoundID": "C00020"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 346.0561523,
 "medianMz": 346.0560608,
 "baseMz": 346.0560913,
@@ -1108,7 +1108,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 346.0562439,
 "medianMz": 346.0562134,
 "baseMz": 346.0561829,
@@ -1141,7 +1141,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 346.056366,
 "medianMz": 346.0561523,
 "baseMz": 346.0561523,
@@ -1174,7 +1174,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 346.0560913,
 "medianMz": 346.0559998,
 "baseMz": 346.0559998,
@@ -1211,8 +1211,8 @@
 "groupId": 9,
 "label": "",
 "metaGroupId": 9,
-"meanMz": 233.0933228,
-"meanRt": 16.10322571,
+"meanMz": 233.093338,
+"meanRt": 16.10322762,
 "rtmin": 15.83530045,
 "rtmax": 16.73333359,
 "maxQuality": 0.8498108387,
@@ -1226,7 +1226,7 @@
 "fullCompoundName": "5-methoxytryptophan",
 "fullCompoundID": "HMDB02339"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 233.0930023,
 "medianMz": 233.0935059,
 "baseMz": 233.0934753,
@@ -1249,8 +1249,8 @@
 "peakAreaFractional": 0.9910505414,
 "symmetry": 8,
 "noNoiseFraction": 0.8500000238,
-"groupOverlap": 0.0002456519287,
-"groupOverlapFrac": -0.1029331833,
+"groupOverlap": 0.0002456518705,
+"groupOverlapFrac": -0.1029331982,
 "gaussFitR2": 0.001685716561,
 "peakRank": 0,
 "peakWidth": 44,
@@ -1259,7 +1259,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 233.0932922,
 "medianMz": 233.0933075,
 "baseMz": 233.0932922,
@@ -1282,8 +1282,8 @@
 "peakAreaFractional": 0.9838145375,
 "symmetry": 8,
 "noNoiseFraction": 0.6666666865,
-"groupOverlap": 4.611350232e-05,
-"groupOverlapFrac": -0.208287403,
+"groupOverlap": 4.611349868e-05,
+"groupOverlapFrac": -0.2082873881,
 "gaussFitR2": 0.0004870516423,
 "peakRank": 0,
 "peakWidth": 51,
@@ -1292,7 +1292,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 233.092926,
 "medianMz": 233.0933533,
 "baseMz": 233.0933228,
@@ -1315,7 +1315,7 @@
 "peakAreaFractional": 0.9872743487,
 "symmetry": 8,
 "noNoiseFraction": 0.7857142687,
-"groupOverlap": 0.0002718421456,
+"groupOverlap": 0.0002718420583,
 "groupOverlapFrac": -0.1273924112,
 "gaussFitR2": 0.003338688519,
 "peakRank": 0,
@@ -1325,7 +1325,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 233.0928345,
 "medianMz": 233.0932922,
 "baseMz": 233.0932465,
@@ -1348,8 +1348,8 @@
 "peakAreaFractional": 0.9834794402,
 "symmetry": 8,
 "noNoiseFraction": 0.6623376608,
-"groupOverlap": 0.0001842926431,
-"groupOverlapFrac": -0.08404202014,
+"groupOverlap": 0.0001842926285,
+"groupOverlapFrac": -0.08404203504,
 "gaussFitR2": 0.0005110447528,
 "peakRank": 0,
 "peakWidth": 51,
@@ -1377,7 +1377,7 @@
 "fullCompoundName": "tryptophan",
 "fullCompoundID": "C00078|C00525|C00806"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 203.0823517,
 "medianMz": 203.082428,
 "baseMz": 203.082428,
@@ -1410,7 +1410,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 203.082428,
 "medianMz": 203.0825195,
 "baseMz": 203.0825195,
@@ -1443,7 +1443,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 203.0825958,
 "medianMz": 203.0825806,
 "baseMz": 203.0825653,
@@ -1476,7 +1476,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 203.0824738,
 "medianMz": 203.08255,
 "baseMz": 203.0825653,
@@ -1528,7 +1528,7 @@
 "fullCompoundName": "pantothenate",
 "fullCompoundID": "C00864"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 218.103241,
 "medianMz": 218.1034241,
 "baseMz": 218.1034088,
@@ -1552,7 +1552,7 @@
 "symmetry": 18,
 "noNoiseFraction": 0.546875,
 "groupOverlap": 1.706582771e-05,
-"groupOverlapFrac": -0.1008215398,
+"groupOverlapFrac": -0.1008215547,
 "gaussFitR2": 5.517886893e-05,
 "peakRank": 0,
 "peakWidth": 34,
@@ -1561,7 +1561,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 218.1031036,
 "medianMz": 218.1035156,
 "baseMz": 218.1034698,
@@ -1594,7 +1594,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 218.1032562,
 "medianMz": 218.1035156,
 "baseMz": 218.1035156,
@@ -1627,7 +1627,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 218.1028137,
 "medianMz": 218.1033936,
 "baseMz": 218.1033325,
@@ -1651,7 +1651,7 @@
 "symmetry": 24,
 "noNoiseFraction": 0.546875,
 "groupOverlap": 2.105768544e-06,
-"groupOverlapFrac": -0.1202185154,
+"groupOverlapFrac": -0.1202185377,
 "gaussFitR2": 0.0001353272528,
 "peakRank": 0,
 "peakWidth": 34,
@@ -1679,7 +1679,7 @@
 "fullCompoundName": "dGMP",
 "fullCompoundID": "C00362"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 346.0561523,
 "medianMz": 346.0560913,
 "baseMz": 346.0560913,
@@ -1712,7 +1712,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 346.0562439,
 "medianMz": 346.0561829,
 "baseMz": 346.0561523,
@@ -1745,7 +1745,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 346.056366,
 "medianMz": 346.0561523,
 "baseMz": 346.0561829,
@@ -1778,7 +1778,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 346.0560913,
 "medianMz": 346.0559998,
 "baseMz": 346.0559387,
@@ -1815,11 +1815,11 @@
 "groupId": 13,
 "label": "",
 "metaGroupId": 13,
-"meanMz": 259.0228271,
+"meanMz": 259.0228882,
 "meanRt": 6.609725475,
 "rtmin": 6.482683659,
 "rtmax": 7.566133499,
-"maxQuality": 0.845271349,
+"maxQuality": 0.8452756405,
 "compound": { "compoundId": "C00103",
 "compoundName": "glucose-1-phosphate",
 "formula": "C6H13O9P",
@@ -1830,7 +1830,7 @@
 "fullCompoundName": "glucose-1-phosphate",
 "fullCompoundID": "C00103"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 259.0223694,
 "medianMz": 259.022583,
 "baseMz": 259.022644,
@@ -1863,7 +1863,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 259.0228577,
 "medianMz": 259.0227051,
 "baseMz": 259.0229187,
@@ -1896,27 +1896,27 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 259.0228577,
 "medianMz": 259.0228882,
-"baseMz": 259.0229187,
-"mzmin": 259.0217896,
-"mzmax": 259.0248108,
+"baseMz": 259.0230103,
+"mzmin": 259.0224915,
+"mzmax": 259.0250549,
 "rt": 6.621067047,
 "rtmin": 6.560133934,
 "rtmax": 7.169350624,
-"quality": 0.845271349,
+"quality": 0.8452756405,
 "peakIntensity": 19821.90039,
 "peakBaseLineLevel": 0,
-"peakArea": 146417.6406,
-"peakSplineArea": 146514.4844,
+"peakArea": 146817.7344,
+"peakSplineArea": 146894.1094,
 "peakAreaTop": 17662.61523,
-"peakAreaNotCorrected": 146417.6406,
+"peakAreaNotCorrected": 146817.7344,
 "peakAreaTopNotCorrected": 17662.61523,
 "noNoiseObs": 38,
 "signalBaselineRatio": 1982.190063,
 "fromBlankSample": 0,
-"peakAreaFractional": 0.8447276354,
+"peakAreaFractional": 0.8450852036,
 "symmetry": 8,
 "noNoiseFraction": 0.5428571701,
 "groupOverlap": 0.0005175339757,
@@ -1929,7 +1929,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 259.0227966,
 "medianMz": 259.0227966,
 "baseMz": 259.0228577,
@@ -1966,11 +1966,11 @@
 "groupId": 14,
 "label": "",
 "metaGroupId": 14,
-"meanMz": 259.0228271,
+"meanMz": 259.0228882,
 "meanRt": 6.609725475,
 "rtmin": 6.482683659,
 "rtmax": 7.566133499,
-"maxQuality": 0.8460552096,
+"maxQuality": 0.8460571766,
 "compound": { "compoundId": "C00085",
 "compoundName": "glucose-6-phosphate",
 "formula": "C6H13O9P",
@@ -1981,7 +1981,7 @@
 "fullCompoundName": "glucose-6-phosphate",
 "fullCompoundID": "C00085"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 259.0223694,
 "medianMz": 259.022583,
 "baseMz": 259.022644,
@@ -2014,7 +2014,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 259.0228577,
 "medianMz": 259.0227051,
 "baseMz": 259.0229187,
@@ -2047,27 +2047,27 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 259.0228577,
 "medianMz": 259.0228882,
-"baseMz": 259.0229187,
-"mzmin": 259.0217896,
-"mzmax": 259.0248108,
+"baseMz": 259.0230103,
+"mzmin": 259.0224915,
+"mzmax": 259.0250549,
 "rt": 6.621067047,
 "rtmin": 6.560133934,
 "rtmax": 7.169350624,
-"quality": 0.8460552096,
+"quality": 0.8460571766,
 "peakIntensity": 19821.90039,
 "peakBaseLineLevel": 0,
-"peakArea": 146417.6406,
-"peakSplineArea": 146514.4844,
+"peakArea": 146817.7344,
+"peakSplineArea": 146894.1094,
 "peakAreaTop": 17662.61523,
-"peakAreaNotCorrected": 146417.6406,
+"peakAreaNotCorrected": 146817.7344,
 "peakAreaTopNotCorrected": 17662.61523,
 "noNoiseObs": 38,
 "signalBaselineRatio": 1982.190063,
 "fromBlankSample": 0,
-"peakAreaFractional": 0.9313132167,
+"peakAreaFractional": 0.9314875603,
 "symmetry": 8,
 "noNoiseFraction": 0.6551724076,
 "groupOverlap": 0.0007415232831,
@@ -2080,7 +2080,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 259.0227966,
 "medianMz": 259.0227966,
 "baseMz": 259.0228577,
@@ -2132,7 +2132,7 @@
 "fullCompoundName": "NAD+",
 "fullCompoundID": "C00003"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 662.1020508,
 "medianMz": 662.1019287,
 "baseMz": 662.1021118,
@@ -2156,7 +2156,7 @@
 "symmetry": 18,
 "noNoiseFraction": 0.8536585569,
 "groupOverlap": 0.0005727322423,
-"groupOverlapFrac": -0.08224496245,
+"groupOverlapFrac": -0.08224494755,
 "gaussFitR2": 0.0001541206148,
 "peakRank": 0,
 "peakWidth": 35,
@@ -2165,7 +2165,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 662.1018066,
 "medianMz": 662.1021118,
 "baseMz": 662.1022339,
@@ -2198,7 +2198,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 662.1021729,
 "medianMz": 662.1021729,
 "baseMz": 662.1022339,
@@ -2231,7 +2231,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 662.102356,
 "medianMz": 662.102417,
 "baseMz": 662.102478,
@@ -2255,7 +2255,7 @@
 "symmetry": 22,
 "noNoiseFraction": 0.8974359035,
 "groupOverlap": 9.751880862e-05,
-"groupOverlapFrac": -0.1176348031,
+"groupOverlapFrac": -0.1176347956,
 "gaussFitR2": 0.0001883034856,
 "peakRank": 0,
 "peakWidth": 35,
@@ -2269,7 +2269,7 @@
 "label": "",
 "metaGroupId": 16,
 "meanMz": 481.9776917,
-"meanRt": 15.04095078,
+"meanRt": 15.04095173,
 "rtmin": 14.07219982,
 "rtmax": 15.88470078,
 "maxQuality": 0.8450132012,
@@ -2283,7 +2283,7 @@
 "fullCompoundName": "CTP",
 "fullCompoundID": "C00063"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 481.9775085,
 "medianMz": 481.9778442,
 "baseMz": 481.9778442,
@@ -2316,7 +2316,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 481.9777222,
 "medianMz": 481.9777222,
 "baseMz": 481.9776611,
@@ -2349,7 +2349,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 481.9776611,
 "medianMz": 481.9776917,
 "baseMz": 481.9776611,
@@ -2382,7 +2382,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 481.9775391,
 "medianMz": 481.9775391,
 "baseMz": 481.9776306,
@@ -2434,7 +2434,7 @@
 "fullCompoundName": "UTP",
 "fullCompoundID": "C00075"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 482.9617004,
 "medianMz": 482.9617615,
 "baseMz": 482.9616394,
@@ -2467,7 +2467,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 482.9616394,
 "medianMz": 482.9616394,
 "baseMz": 482.9615784,
@@ -2500,7 +2500,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 482.9615479,
 "medianMz": 482.9616394,
 "baseMz": 482.9615784,
@@ -2533,7 +2533,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 482.9616394,
 "medianMz": 482.9615784,
 "baseMz": 482.9615173,
@@ -2571,7 +2571,7 @@
 "label": "",
 "metaGroupId": 18,
 "meanMz": 505.9887695,
-"meanRt": 15.30745125,
+"meanRt": 15.30745029,
 "rtmin": 14.37550163,
 "rtmax": 15.92900085,
 "maxQuality": 0.8362323046,
@@ -2585,7 +2585,7 @@
 "fullCompoundName": "ATP",
 "fullCompoundID": "C00002"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 505.9888,
 "medianMz": 505.9888916,
 "baseMz": 505.9888916,
@@ -2618,7 +2618,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 505.9887695,
 "medianMz": 505.9887695,
 "baseMz": 505.988739,
@@ -2651,7 +2651,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 505.988739,
 "medianMz": 505.9887695,
 "baseMz": 505.988739,
@@ -2684,7 +2684,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 505.9885864,
 "medianMz": 505.988678,
 "baseMz": 505.9887085,
@@ -2721,7 +2721,7 @@
 "groupId": 19,
 "label": "",
 "metaGroupId": 19,
-"meanMz": 521.9837646,
+"meanMz": 521.9838257,
 "meanRt": 15.28842545,
 "rtmin": 14.60390091,
 "rtmax": 15.92640018,
@@ -2736,7 +2736,7 @@
 "fullCompoundName": "GTP",
 "fullCompoundID": "C00044"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 521.9839478,
 "medianMz": 521.9838867,
 "baseMz": 521.9838257,
@@ -2769,7 +2769,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 521.9835815,
 "medianMz": 521.9838257,
 "baseMz": 521.9838257,
@@ -2793,7 +2793,7 @@
 "symmetry": 6,
 "noNoiseFraction": 0.9599999785,
 "groupOverlap": 0.0006542166811,
-"groupOverlapFrac": -0.05555013567,
+"groupOverlapFrac": -0.05555015057,
 "gaussFitR2": 0.0002378783975,
 "peakRank": 0,
 "peakWidth": 65,
@@ -2802,7 +2802,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 521.9839478,
 "medianMz": 521.9838257,
 "baseMz": 521.9838257,
@@ -2826,7 +2826,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.9411764741,
 "groupOverlap": 0.004116478842,
-"groupOverlapFrac": -0.07653864473,
+"groupOverlapFrac": -0.07653865963,
 "gaussFitR2": 0.0001997887302,
 "peakRank": 0,
 "peakWidth": 32,
@@ -2835,7 +2835,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 521.9835815,
 "medianMz": 521.9836426,
 "baseMz": 521.9836426,
@@ -2872,8 +2872,8 @@
 "groupId": 20,
 "label": "",
 "metaGroupId": 20,
-"meanMz": 565.0484009,
-"meanRt": 13.32737541,
+"meanMz": 565.0484619,
+"meanRt": 13.32737637,
 "rtmin": 13.20260048,
 "rtmax": 13.56550026,
 "maxQuality": 0.8490988612,
@@ -2887,7 +2887,7 @@
 "fullCompoundName": "UDP-D-glucose",
 "fullCompoundID": "C00029"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 565.048584,
 "medianMz": 565.0485229,
 "baseMz": 565.0484619,
@@ -2911,7 +2911,7 @@
 "symmetry": 12,
 "noNoiseFraction": 0.9499999881,
 "groupOverlap": 0.0003327476734,
-"groupOverlapFrac": -0.2259677798,
+"groupOverlapFrac": -0.2259677947,
 "gaussFitR2": 0.0003321389377,
 "peakRank": 0,
 "peakWidth": 18,
@@ -2920,7 +2920,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 565.0488892,
 "medianMz": 565.0487061,
 "baseMz": 565.0485229,
@@ -2953,7 +2953,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 565.0481567,
 "medianMz": 565.0482178,
 "baseMz": 565.0482178,
@@ -2977,7 +2977,7 @@
 "symmetry": 14,
 "noNoiseFraction": 0.944444418,
 "groupOverlap": 0.0008834172622,
-"groupOverlapFrac": -0.2561849356,
+"groupOverlapFrac": -0.2561849654,
 "gaussFitR2": 0.0003369236656,
 "peakRank": 0,
 "peakWidth": 17,
@@ -2986,7 +2986,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 565.0480347,
 "medianMz": 565.0482178,
 "baseMz": 565.0484009,
@@ -3010,7 +3010,7 @@
 "symmetry": 10,
 "noNoiseFraction": 0.9375,
 "groupOverlap": 0.0004503306118,
-"groupOverlapFrac": -0.2434023023,
+"groupOverlapFrac": -0.2434023172,
 "gaussFitR2": 0.001140775392,
 "peakRank": 0,
 "peakWidth": 14,
@@ -3038,7 +3038,7 @@
 "fullCompoundName": "UDP-D-glucuronate",
 "fullCompoundID": "C00167"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 579.0272217,
 "medianMz": 579.02771,
 "baseMz": 579.0276489,
@@ -3071,7 +3071,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 579.0274658,
 "medianMz": 579.0274658,
 "baseMz": 579.0275269,
@@ -3104,7 +3104,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 579.0270386,
 "medianMz": 579.0274658,
 "baseMz": 579.0275879,
@@ -3137,7 +3137,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 579.0272217,
 "medianMz": 579.0272217,
 "baseMz": 579.0271606,
@@ -3175,7 +3175,7 @@
 "label": "",
 "metaGroupId": 22,
 "meanMz": 588.0751953,
-"meanRt": 13.59775066,
+"meanRt": 13.59774971,
 "rtmin": 13.50870037,
 "rtmax": 13.77900028,
 "maxQuality": 0.8445056081,
@@ -3189,7 +3189,7 @@
 "fullCompoundName": "ADP-D-glucose",
 "fullCompoundID": "C00498"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 588.0755005,
 "medianMz": 588.0755615,
 "baseMz": 588.0756226,
@@ -3222,7 +3222,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 588.0753174,
 "medianMz": 588.0753174,
 "baseMz": 588.0752563,
@@ -3255,7 +3255,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 588.0751953,
 "medianMz": 588.0751953,
 "baseMz": 588.0752563,
@@ -3288,7 +3288,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 588.0753784,
 "medianMz": 588.0751343,
 "baseMz": 588.0747681,
@@ -3340,7 +3340,7 @@
 "fullCompoundName": "UDP-N-acetyl-glucosamine",
 "fullCompoundID": "C00043"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 606.0749512,
 "medianMz": 606.0749512,
 "baseMz": 606.0750732,
@@ -3364,7 +3364,7 @@
 "symmetry": 16,
 "noNoiseFraction": 0.5625,
 "groupOverlap": 9.358966054e-06,
-"groupOverlapFrac": -0.09326690435,
+"groupOverlapFrac": -0.09326688945,
 "gaussFitR2": 0.0006141992053,
 "peakRank": 0,
 "peakWidth": 26,
@@ -3373,7 +3373,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 606.0750732,
 "medianMz": 606.0748291,
 "baseMz": 606.0748901,
@@ -3397,7 +3397,7 @@
 "symmetry": 18,
 "noNoiseFraction": 0.3506493568,
 "groupOverlap": 1.532301667e-06,
-"groupOverlapFrac": -0.2561486065,
+"groupOverlapFrac": -0.2561485767,
 "gaussFitR2": 0.0004832884588,
 "peakRank": 0,
 "peakWidth": 26,
@@ -3406,7 +3406,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 606.074646,
 "medianMz": 606.074646,
 "baseMz": 606.074707,
@@ -3439,7 +3439,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 606.074646,
 "medianMz": 606.074646,
 "baseMz": 606.074707,
@@ -3463,7 +3463,7 @@
 "symmetry": 16,
 "noNoiseFraction": 0.4576271176,
 "groupOverlap": 2.157537665e-06,
-"groupOverlapFrac": -0.1203909963,
+"groupOverlapFrac": -0.1203909814,
 "gaussFitR2": 0.0002296761668,
 "peakRank": 0,
 "peakWidth": 26,
@@ -3491,7 +3491,7 @@
 "fullCompoundName": "glutathione disulfide",
 "fullCompoundID": "C00127"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 611.1452637,
 "medianMz": 611.1452026,
 "baseMz": 611.1452637,
@@ -3524,7 +3524,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 611.1456299,
 "medianMz": 611.1456299,
 "baseMz": 611.1455688,
@@ -3548,7 +3548,7 @@
 "symmetry": 14,
 "noNoiseFraction": 0.5645161271,
 "groupOverlap": 1.115458508e-05,
-"groupOverlapFrac": -0.2860183418,
+"groupOverlapFrac": -0.2860183716,
 "gaussFitR2": 0.001189487753,
 "peakRank": 0,
 "peakWidth": 34,
@@ -3557,7 +3557,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 611.1453247,
 "medianMz": 611.1452637,
 "baseMz": 611.1452026,
@@ -3581,7 +3581,7 @@
 "symmetry": 20,
 "noNoiseFraction": 0.4470588267,
 "groupOverlap": 7.495078989e-06,
-"groupOverlapFrac": -0.1259102821,
+"groupOverlapFrac": -0.1259103268,
 "gaussFitR2": 0.0007480354398,
 "peakRank": 0,
 "peakWidth": 37,
@@ -3590,7 +3590,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 611.1450806,
 "medianMz": 611.1451416,
 "baseMz": 611.1451416,
@@ -3614,7 +3614,7 @@
 "symmetry": 16,
 "noNoiseFraction": 0.6129032373,
 "groupOverlap": 0.0001466805115,
-"groupOverlapFrac": -0.1343216896,
+"groupOverlapFrac": -0.1343217045,
 "gaussFitR2": 0.0004061973887,
 "peakRank": 0,
 "peakWidth": 37,
@@ -3642,7 +3642,7 @@
 "fullCompoundName": "NADH",
 "fullCompoundID": "C00004"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 664.1182861,
 "medianMz": 664.1182861,
 "baseMz": 664.1183472,
@@ -3675,7 +3675,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 664.117981,
 "medianMz": 664.117981,
 "baseMz": 664.118103,
@@ -3708,7 +3708,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 664.1181641,
 "medianMz": 664.118103,
 "baseMz": 664.117981,
@@ -3741,7 +3741,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 664.118103,
 "medianMz": 664.118103,
 "baseMz": 664.118042,
@@ -3782,7 +3782,7 @@
 "meanRt": 13.74622631,
 "rtmin": 13.65720081,
 "rtmax": 14.20530033,
-"maxQuality": 0.8457028866,
+"maxQuality": 0.8457610011,
 "compound": { "compoundId": "C00006",
 "compoundName": "NADP+",
 "formula": "C21H28N7O17P3",
@@ -3793,7 +3793,7 @@
 "fullCompoundName": "NADP+",
 "fullCompoundID": "C00006"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 742.0692749,
 "medianMz": 742.069397,
 "baseMz": 742.0693359,
@@ -3802,20 +3802,20 @@
 "rt": 13.72190094,
 "rtmin": 13.66100025,
 "rtmax": 13.93520069,
-"quality": 0.8457028866,
+"quality": 0.8457610011,
 "peakIntensity": 7367.779785,
 "peakBaseLineLevel": 0,
 "peakArea": 48102.70703,
-"peakSplineArea": 48049.51953,
+"peakSplineArea": 48072.57422,
 "peakAreaTop": 6972.121582,
 "peakAreaNotCorrected": 48102.70703,
 "peakAreaTopNotCorrected": 6972.121582,
 "noNoiseObs": 15,
 "signalBaselineRatio": 736.7779541,
 "fromBlankSample": 0,
-"peakAreaFractional": 0.999979198,
+"peakAreaFractional": 0.9906944036,
 "symmetry": 8,
-"noNoiseFraction": 0.9375,
+"noNoiseFraction": 0.8823529482,
 "groupOverlap": 0.0008996319957,
 "groupOverlapFrac": -0.4471548796,
 "gaussFitR2": 0.003335789312,
@@ -3826,7 +3826,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 742.0693359,
 "medianMz": 742.0686646,
 "baseMz": 742.0690918,
@@ -3849,7 +3849,7 @@
 "peakAreaFractional": 0.999951601,
 "symmetry": 4,
 "noNoiseFraction": 0.9166666865,
-"groupOverlap": 0.0005796904443,
+"groupOverlap": 0.00145882857,
 "groupOverlapFrac": -1.14447403,
 "gaussFitR2": 0.02999999933,
 "peakRank": 0,
@@ -3859,7 +3859,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 742.0695801,
 "medianMz": 742.0691528,
 "baseMz": 742.0689697,
@@ -3892,7 +3892,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 742.0686646,
 "medianMz": 742.0684814,
 "baseMz": 742.0684814,
@@ -3944,7 +3944,7 @@
 "fullCompoundName": "NADPH",
 "fullCompoundID": "C00005"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 744.085144,
 "medianMz": 744.0843506,
 "baseMz": 744.0843506,
@@ -3967,7 +3967,7 @@
 "peakAreaFractional": 0.9996988773,
 "symmetry": 0,
 "noNoiseFraction": 0.8000000119,
-"groupOverlap": 0.0004801490868,
+"groupOverlap": 0.000480149145,
 "groupOverlapFrac": -0.7527951002,
 "gaussFitR2": 0.02999999933,
 "peakRank": 0,
@@ -3977,7 +3977,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 744.0847168,
 "medianMz": 744.0846558,
 "baseMz": 744.0844727,
@@ -4001,7 +4001,7 @@
 "symmetry": 12,
 "noNoiseFraction": 0.9499999881,
 "groupOverlap": 0.0002345236717,
-"groupOverlapFrac": -1.654388547,
+"groupOverlapFrac": -1.654388428,
 "gaussFitR2": 0.0007438748726,
 "peakRank": 0,
 "peakWidth": 15,
@@ -4010,7 +4010,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 744.0827026,
 "medianMz": 744.0827026,
 "baseMz": 744.0827026,
@@ -4033,7 +4033,7 @@
 "peakAreaFractional": 0.9978023767,
 "symmetry": 0,
 "noNoiseFraction": 0.5,
-"groupOverlap": 0.0005526170717,
+"groupOverlap": 0.0005526171299,
 "groupOverlapFrac": -0.7430308461,
 "gaussFitR2": 0.02999999933,
 "peakRank": 0,
@@ -4043,7 +4043,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 744.0845947,
 "medianMz": 744.0845337,
 "baseMz": 744.0844116,
@@ -4080,7 +4080,7 @@
 "groupId": 28,
 "label": "",
 "metaGroupId": 28,
-"meanMz": 402.9953918,
+"meanMz": 402.9953613,
 "meanRt": 13.69292545,
 "rtmin": 13.26360035,
 "rtmax": 14.42260075,
@@ -4095,7 +4095,7 @@
 "fullCompoundName": "UDP",
 "fullCompoundID": "C00015"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 402.9953613,
 "medianMz": 402.9954834,
 "baseMz": 402.9955444,
@@ -4128,7 +4128,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 402.9952393,
 "medianMz": 402.9952393,
 "baseMz": 402.9953308,
@@ -4161,7 +4161,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 402.995575,
 "medianMz": 402.9954224,
 "baseMz": 402.9953918,
@@ -4194,7 +4194,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 402.9953308,
 "medianMz": 402.9951782,
 "baseMz": 402.9952087,
@@ -4246,7 +4246,7 @@
 "fullCompoundName": "riboflavin",
 "fullCompoundID": "C00255"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 375.1316528,
 "medianMz": 375.1315308,
 "baseMz": 375.1315308,
@@ -4279,7 +4279,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 375.1315613,
 "medianMz": 375.1316223,
 "baseMz": 375.1316223,
@@ -4312,7 +4312,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 375.1312866,
 "medianMz": 375.1312866,
 "baseMz": 375.1312561,
@@ -4345,7 +4345,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 375.1312561,
 "medianMz": 375.1312561,
 "baseMz": 375.1310425,
@@ -4397,7 +4397,7 @@
 "fullCompoundName": "S-adenosyl-L-homoCysteine",
 "fullCompoundID": "C00021"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 383.1149292,
 "medianMz": 383.1147766,
 "baseMz": 383.1145935,
@@ -4430,7 +4430,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 383.1148682,
 "medianMz": 383.1148376,
 "baseMz": 383.1148682,
@@ -4463,7 +4463,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 383.1152649,
 "medianMz": 383.1152344,
 "baseMz": 383.1152039,
@@ -4496,7 +4496,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 383.1149292,
 "medianMz": 383.1149292,
 "baseMz": 383.1149292,
@@ -4533,7 +4533,7 @@
 "groupId": 31,
 "label": "",
 "metaGroupId": 31,
-"meanMz": 195.0510406,
+"meanMz": 195.0510254,
 "meanRt": 5.222620964,
 "rtmin": 4.698933601,
 "rtmax": 5.890516758,
@@ -4548,7 +4548,7 @@
 "fullCompoundName": "D-gluconate",
 "fullCompoundID": "C00257"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 195.0509491,
 "medianMz": 195.0509491,
 "baseMz": 195.0509491,
@@ -4572,7 +4572,7 @@
 "symmetry": 10,
 "noNoiseFraction": 0.947368443,
 "groupOverlap": 0.002362946747,
-"groupOverlapFrac": -0.05599141866,
+"groupOverlapFrac": -0.05599140003,
 "gaussFitR2": 0.0002292405115,
 "peakRank": 0,
 "peakWidth": 51,
@@ -4581,7 +4581,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 195.0509491,
 "medianMz": 195.0509644,
 "baseMz": 195.0509491,
@@ -4614,7 +4614,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 195.0509644,
 "medianMz": 195.0510864,
 "baseMz": 195.0510864,
@@ -4647,7 +4647,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 195.0511627,
 "medianMz": 195.0511017,
 "baseMz": 195.0511169,
@@ -4671,7 +4671,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.8461538553,
 "groupOverlap": 0.001640555332,
-"groupOverlapFrac": -0.1773546636,
+"groupOverlapFrac": -0.1773546487,
 "gaussFitR2": 0.0003914571716,
 "peakRank": 0,
 "peakWidth": 49,
@@ -4699,7 +4699,7 @@
 "fullCompoundName": "ADP",
 "fullCompoundID": "C00008"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 426.0225525,
 "medianMz": 426.0226135,
 "baseMz": 426.0226135,
@@ -4732,7 +4732,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 426.0224304,
 "medianMz": 426.0224609,
 "baseMz": 426.0224915,
@@ -4755,7 +4755,7 @@
 "peakAreaFractional": 0.9728856087,
 "symmetry": 16,
 "noNoiseFraction": 0.7466666698,
-"groupOverlap": 0.0001350220118,
+"groupOverlap": 0.0001350220409,
 "groupOverlapFrac": -0.1336725056,
 "gaussFitR2": 0.0003782266285,
 "peakRank": 0,
@@ -4765,7 +4765,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 426.0223999,
 "medianMz": 426.0224915,
 "baseMz": 426.022522,
@@ -4788,7 +4788,7 @@
 "peakAreaFractional": 0.9858206511,
 "symmetry": 18,
 "noNoiseFraction": 0.8157894611,
-"groupOverlap": 0.0003463545872,
+"groupOverlap": 0.0003463546454,
 "groupOverlapFrac": -0.07059661299,
 "gaussFitR2": 0.0001847529929,
 "peakRank": 0,
@@ -4798,7 +4798,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 426.0224304,
 "medianMz": 426.0223999,
 "baseMz": 426.0223999,
@@ -4821,7 +4821,7 @@
 "peakAreaFractional": 0.9676681757,
 "symmetry": 14,
 "noNoiseFraction": 0.7534246445,
-"groupOverlap": 0.0002141799487,
+"groupOverlap": 0.0002141799632,
 "groupOverlapFrac": -0.1025329158,
 "gaussFitR2": 0.0004814625718,
 "peakRank": 0,
@@ -4850,7 +4850,7 @@
 "fullCompoundName": "folate",
 "fullCompoundID": "C00504"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 440.1326904,
 "medianMz": 440.1327209,
 "baseMz": 440.1327209,
@@ -4883,7 +4883,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 440.1325684,
 "medianMz": 440.1326599,
 "baseMz": 440.1326599,
@@ -4916,7 +4916,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 440.1325378,
 "medianMz": 440.1326599,
 "baseMz": 440.1326599,
@@ -4949,7 +4949,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 440.1324158,
 "medianMz": 440.1325989,
 "baseMz": 440.1325378,
@@ -5001,7 +5001,7 @@
 "fullCompoundName": "CDP-ethanolamine",
 "fullCompoundID": "C00570"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 445.0531006,
 "medianMz": 445.0531006,
 "baseMz": 445.0530701,
@@ -5025,7 +5025,7 @@
 "symmetry": 2,
 "noNoiseFraction": 0.3235294223,
 "groupOverlap": 0.001218736637,
-"groupOverlapFrac": -0.225103125,
+"groupOverlapFrac": -0.2251031399,
 "gaussFitR2": 0.00446362514,
 "peakRank": 0,
 "peakWidth": 11,
@@ -5034,7 +5034,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 445.0532532,
 "medianMz": 445.0531006,
 "baseMz": 445.0530701,
@@ -5067,7 +5067,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 445.0535583,
 "medianMz": 445.0534363,
 "baseMz": 445.0534058,
@@ -5100,7 +5100,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 445.0534363,
 "medianMz": 445.0534973,
 "baseMz": 445.0533142,
@@ -5124,7 +5124,7 @@
 "symmetry": 12,
 "noNoiseFraction": 0.3658536673,
 "groupOverlap": 0.0003228116548,
-"groupOverlapFrac": -0.2226568013,
+"groupOverlapFrac": -0.2226568162,
 "gaussFitR2": 0.0004502390802,
 "peakRank": 0,
 "peakWidth": 13,
@@ -5152,7 +5152,7 @@
 "fullCompoundName": "CDP-ethanolamine",
 "fullCompoundID": "C00570"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 445.0534668,
 "medianMz": 445.0534363,
 "baseMz": 445.0533447,
@@ -5185,7 +5185,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 445.0541687,
 "medianMz": 445.0534973,
 "baseMz": 445.0535889,
@@ -5218,7 +5218,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 445.053894,
 "medianMz": 445.053833,
 "baseMz": 445.0538025,
@@ -5251,7 +5251,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 445.0540771,
 "medianMz": 445.0534058,
 "baseMz": 445.0533752,
@@ -5303,7 +5303,7 @@
 "fullCompoundName": "Citraconic acid",
 "fullCompoundID": "C02226"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 129.019455,
 "medianMz": 129.0194702,
 "baseMz": 129.019455,
@@ -5326,7 +5326,7 @@
 "peakAreaFractional": 0.6740657091,
 "symmetry": 14,
 "noNoiseFraction": 0.4473684132,
-"groupOverlap": 0.001485830988,
+"groupOverlap": 0.001485831104,
 "groupOverlapFrac": -0.122607708,
 "gaussFitR2": 7.834861026e-05,
 "peakRank": 0,
@@ -5336,7 +5336,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 129.0194244,
 "medianMz": 129.0194092,
 "baseMz": 129.0194092,
@@ -5369,7 +5369,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 129.0195312,
 "medianMz": 129.019455,
 "baseMz": 129.019455,
@@ -5392,7 +5392,7 @@
 "peakAreaFractional": 0.7132929564,
 "symmetry": 12,
 "noNoiseFraction": 0.4907407463,
-"groupOverlap": 0.0002715761366,
+"groupOverlap": 0.0002715761657,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.000140974691,
 "peakRank": 0,
@@ -5402,7 +5402,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 129.0194092,
 "medianMz": 129.0194092,
 "baseMz": 129.0194244,
@@ -5425,7 +5425,7 @@
 "peakAreaFractional": 0.6831748486,
 "symmetry": 10,
 "noNoiseFraction": 0.4347825944,
-"groupOverlap": 0.0001614403736,
+"groupOverlap": 0.0001614403882,
 "groupOverlapFrac": -0.04133570567,
 "gaussFitR2": 0.0004077119811,
 "peakRank": 0,
@@ -5440,7 +5440,7 @@
 "label": "",
 "metaGroupId": 37,
 "meanMz": 129.0194397,
-"meanRt": 12.8438015,
+"meanRt": 12.84380054,
 "rtmin": 12.31680012,
 "rtmax": 13.16950035,
 "maxQuality": 0.8190683126,
@@ -5454,7 +5454,7 @@
 "fullCompoundName": "Citraconic acid",
 "fullCompoundID": "C02226"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 129.0193634,
 "medianMz": 129.0194397,
 "baseMz": 129.0194397,
@@ -5487,7 +5487,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 129.0195923,
 "medianMz": 129.0194855,
 "baseMz": 129.0194855,
@@ -5520,7 +5520,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 129.0193939,
 "medianMz": 129.0194092,
 "baseMz": 129.0194092,
@@ -5553,7 +5553,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 129.0193939,
 "medianMz": 129.0194244,
 "baseMz": 129.0194092,
@@ -5605,7 +5605,7 @@
 "fullCompoundName": "N-Acetyl-L-alanine",
 "fullCompoundID": "C01073"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 130.0508728,
 "medianMz": 130.0508728,
 "baseMz": 130.0508575,
@@ -5628,7 +5628,7 @@
 "peakAreaFractional": 0.9739057422,
 "symmetry": 16,
 "noNoiseFraction": 0.5,
-"groupOverlap": 0.0001527472632,
+"groupOverlap": 0.0001527472486,
 "groupOverlapFrac": -0.303606689,
 "gaussFitR2": 7.051639113e-05,
 "peakRank": 0,
@@ -5638,7 +5638,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 130.0508575,
 "medianMz": 130.0509186,
 "baseMz": 130.0509186,
@@ -5661,7 +5661,7 @@
 "peakAreaFractional": 0.9597779512,
 "symmetry": 16,
 "noNoiseFraction": 0.6136363745,
-"groupOverlap": 0.0002060432453,
+"groupOverlap": 0.000206043318,
 "groupOverlapFrac": -0.08563695848,
 "gaussFitR2": 0.0003851673391,
 "peakRank": 0,
@@ -5671,7 +5671,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 130.0509644,
 "medianMz": 130.0509338,
 "baseMz": 130.0509186,
@@ -5694,7 +5694,7 @@
 "peakAreaFractional": 0.9850130081,
 "symmetry": 16,
 "noNoiseFraction": 0.7619047761,
-"groupOverlap": 0.0002199500595,
+"groupOverlap": 0.0002199500304,
 "groupOverlapFrac": -0.1146061867,
 "gaussFitR2": 0.0001678961271,
 "peakRank": 0,
@@ -5704,7 +5704,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 130.0509491,
 "medianMz": 130.0509644,
 "baseMz": 130.0509949,
@@ -5727,7 +5727,7 @@
 "peakAreaFractional": 0.9824584723,
 "symmetry": 16,
 "noNoiseFraction": 0.805555582,
-"groupOverlap": 0.001010041218,
+"groupOverlap": 0.001010041684,
 "groupOverlapFrac": -0.1033635288,
 "gaussFitR2": 0.0002946667082,
 "peakRank": 0,
@@ -5756,7 +5756,7 @@
 "fullCompoundName": "Hydroxyisocaproic acid",
 "fullCompoundID": "HMDB00746"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 131.0714569,
 "medianMz": 131.0714722,
 "baseMz": 131.0714722,
@@ -5789,7 +5789,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 131.0714569,
 "medianMz": 131.0714569,
 "baseMz": 131.0714569,
@@ -5822,7 +5822,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 131.0715485,
 "medianMz": 131.0714111,
 "baseMz": 131.0714111,
@@ -5855,7 +5855,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 131.0713959,
 "medianMz": 131.0714111,
 "baseMz": 131.0714111,
@@ -5892,7 +5892,7 @@
 "groupId": 40,
 "label": "",
 "metaGroupId": 40,
-"meanMz": 132.0301514,
+"meanMz": 132.0301666,
 "meanRt": 4.418112755,
 "rtmin": 4.060383797,
 "rtmax": 4.973450661,
@@ -5907,7 +5907,7 @@
 "fullCompoundName": "aspartate",
 "fullCompoundID": "C00049"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 132.0301056,
 "medianMz": 132.0301819,
 "baseMz": 132.0301514,
@@ -5930,7 +5930,7 @@
 "peakAreaFractional": 0.9962824583,
 "symmetry": 32,
 "noNoiseFraction": 0.8983050585,
-"groupOverlap": 1.672494363e-05,
+"groupOverlap": 1.672494545e-05,
 "groupOverlapFrac": -0.02718955092,
 "gaussFitR2": 0.0002539952111,
 "peakRank": 0,
@@ -5940,7 +5940,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 132.0301361,
 "medianMz": 132.0301666,
 "baseMz": 132.0301208,
@@ -5963,7 +5963,7 @@
 "peakAreaFractional": 0.9978442192,
 "symmetry": 20,
 "noNoiseFraction": 0.8676470518,
-"groupOverlap": 4.514067041e-05,
+"groupOverlap": 4.514068132e-05,
 "groupOverlapFrac": -0.03415544704,
 "gaussFitR2": 0.0003633468586,
 "peakRank": 0,
@@ -5973,7 +5973,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 132.0301666,
 "medianMz": 132.0301971,
 "baseMz": 132.0301666,
@@ -5996,7 +5996,7 @@
 "peakAreaFractional": 0.9953839183,
 "symmetry": 26,
 "noNoiseFraction": 0.8688524365,
-"groupOverlap": 4.859853652e-05,
+"groupOverlap": 4.859855471e-05,
 "groupOverlapFrac": -0.0004020136548,
 "gaussFitR2": 0.0002109676861,
 "peakRank": 0,
@@ -6006,7 +6006,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 132.0302277,
 "medianMz": 132.0302429,
 "baseMz": 132.0301971,
@@ -6029,7 +6029,7 @@
 "peakAreaFractional": 0.9962506294,
 "symmetry": 22,
 "noNoiseFraction": 0.9076923132,
-"groupOverlap": 0.0001214513395,
+"groupOverlap": 0.0001214513977,
 "groupOverlapFrac": -0.007367910352,
 "gaussFitR2": 0.0003042646858,
 "peakRank": 0,
@@ -6058,7 +6058,7 @@
 "fullCompoundName": "malate",
 "fullCompoundID": "C00149|C00497|C00711"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 133.014389,
 "medianMz": 133.0143433,
 "baseMz": 133.0143433,
@@ -6091,7 +6091,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 133.0144043,
 "medianMz": 133.0144043,
 "baseMz": 133.0144196,
@@ -6115,7 +6115,7 @@
 "symmetry": 6,
 "noNoiseFraction": 0.6031746268,
 "groupOverlap": 7.416246081e-05,
-"groupOverlapFrac": -0.2284538448,
+"groupOverlapFrac": -0.228453815,
 "gaussFitR2": 0.0009868957568,
 "peakRank": 0,
 "peakWidth": 36,
@@ -6124,7 +6124,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 133.0143585,
 "medianMz": 133.0143433,
 "baseMz": 133.014328,
@@ -6148,7 +6148,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.5263158083,
 "groupOverlap": 4.875119339e-05,
-"groupOverlapFrac": -0.06785304844,
+"groupOverlapFrac": -0.06785302609,
 "gaussFitR2": 0.002040978055,
 "peakRank": 0,
 "peakWidth": 39,
@@ -6157,7 +6157,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 133.014328,
 "medianMz": 133.0143127,
 "baseMz": 133.0142975,
@@ -6209,7 +6209,7 @@
 "fullCompoundName": "adenine",
 "fullCompoundID": "C00147"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 134.0471039,
 "medianMz": 134.0471191,
 "baseMz": 134.0471191,
@@ -6242,7 +6242,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 134.0470428,
 "medianMz": 134.0471497,
 "baseMz": 134.0471344,
@@ -6275,7 +6275,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 134.0472565,
 "medianMz": 134.0471649,
 "baseMz": 134.0471649,
@@ -6308,7 +6308,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 134.0471344,
 "medianMz": 134.0472107,
 "baseMz": 134.0472107,
@@ -6360,7 +6360,7 @@
 "fullCompoundName": "pyruvate",
 "fullCompoundID": "C00022"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 87.0087204,
 "medianMz": 87.00871277,
 "baseMz": 87.00871277,
@@ -6393,7 +6393,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 87.0087738,
 "medianMz": 87.00875092,
 "baseMz": 87.00875092,
@@ -6426,7 +6426,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 87.00872803,
 "medianMz": 87.00874329,
 "baseMz": 87.00875092,
@@ -6459,7 +6459,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 87.00878906,
 "medianMz": 87.00878143,
 "baseMz": 87.00878906,
@@ -6511,7 +6511,7 @@
 "fullCompoundName": "pyruvate",
 "fullCompoundID": "C00022"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 87.00871277,
 "medianMz": 87.00872803,
 "baseMz": 87.00873566,
@@ -6544,7 +6544,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 87.00873566,
 "medianMz": 87.00874329,
 "baseMz": 87.00874329,
@@ -6577,7 +6577,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 87.00875092,
 "medianMz": 87.00874329,
 "baseMz": 87.00874329,
@@ -6610,7 +6610,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 87.00880432,
 "medianMz": 87.0087738,
 "baseMz": 87.0087738,
@@ -6648,7 +6648,7 @@
 "label": "",
 "metaGroupId": 45,
 "meanMz": 89.02442932,
-"meanRt": 7.687054634,
+"meanRt": 7.687054157,
 "rtmin": 7.54883337,
 "rtmax": 7.899033546,
 "maxQuality": 0.6830254793,
@@ -6662,7 +6662,7 @@
 "fullCompoundName": "lactate",
 "fullCompoundID": "C00186|C00256|C01432"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 89.0243988,
 "medianMz": 89.02438354,
 "baseMz": 89.02439117,
@@ -6695,7 +6695,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 89.02442169,
 "medianMz": 89.02440643,
 "baseMz": 89.0243988,
@@ -6728,7 +6728,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 89.0244751,
 "medianMz": 89.0244751,
 "baseMz": 89.0244751,
@@ -6761,7 +6761,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 89.02445984,
 "medianMz": 89.02443695,
 "baseMz": 89.02443695,
@@ -6813,7 +6813,7 @@
 "fullCompoundName": "acetoacetate",
 "fullCompoundID": "C00164"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 101.0243759,
 "medianMz": 101.0243454,
 "baseMz": 101.0243454,
@@ -6837,7 +6837,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.6282051206,
 "groupOverlap": 0.001506673638,
-"groupOverlapFrac": -0.1487655342,
+"groupOverlapFrac": -0.1487655193,
 "gaussFitR2": 0.003684758442,
 "peakRank": 0,
 "peakWidth": 48,
@@ -6846,7 +6846,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 101.0243912,
 "medianMz": 101.0243912,
 "baseMz": 101.0243759,
@@ -6879,7 +6879,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 101.024353,
 "medianMz": 101.0244217,
 "baseMz": 101.0244217,
@@ -6903,7 +6903,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.5569620132,
 "groupOverlap": 0.0003325803555,
-"groupOverlapFrac": -0.03500497714,
+"groupOverlapFrac": -0.03500499204,
 "gaussFitR2": 0.02999999933,
 "peakRank": 0,
 "peakWidth": 43,
@@ -6912,7 +6912,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 101.0244141,
 "medianMz": 101.0244141,
 "baseMz": 101.0244141,
@@ -6936,7 +6936,7 @@
 "symmetry": 6,
 "noNoiseFraction": 0.5443037748,
 "groupOverlap": 0.001992103411,
-"groupOverlapFrac": -0.0422295481,
+"groupOverlapFrac": -0.04222954437,
 "gaussFitR2": 0.003885403508,
 "peakRank": 0,
 "peakWidth": 42,
@@ -6950,7 +6950,7 @@
 "label": "",
 "metaGroupId": 47,
 "meanMz": 102.0560226,
-"meanRt": 4.246529579,
+"meanRt": 4.246529102,
 "rtmin": 3.877366781,
 "rtmax": 4.974750042,
 "maxQuality": 0.8434064388,
@@ -6964,7 +6964,7 @@
 "fullCompoundName": "4-aminobutyrate",
 "fullCompoundID": "C00334"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 102.055954,
 "medianMz": 102.056015,
 "baseMz": 102.0560074,
@@ -6997,7 +6997,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 102.0559311,
 "medianMz": 102.0560303,
 "baseMz": 102.0559921,
@@ -7021,7 +7021,7 @@
 "symmetry": 10,
 "noNoiseFraction": 0.6194690466,
 "groupOverlap": 9.814493751e-06,
-"groupOverlapFrac": -0.0252401866,
+"groupOverlapFrac": -0.02524020337,
 "gaussFitR2": 0.0004516518384,
 "peakRank": 0,
 "peakWidth": 69,
@@ -7030,7 +7030,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 102.0559616,
 "medianMz": 102.0560379,
 "baseMz": 102.0560379,
@@ -7054,7 +7054,7 @@
 "symmetry": 32,
 "noNoiseFraction": 0.6770833135,
 "groupOverlap": 7.860210462e-05,
-"groupOverlapFrac": -0.04827957973,
+"groupOverlapFrac": -0.04827959836,
 "gaussFitR2": 5.744844748e-05,
 "peakRank": 0,
 "peakWidth": 63,
@@ -7063,7 +7063,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 102.0560455,
 "medianMz": 102.0560837,
 "baseMz": 102.0560455,
@@ -7101,7 +7101,7 @@
 "label": "",
 "metaGroupId": 48,
 "meanMz": 102.0560303,
-"meanRt": 4.246529579,
+"meanRt": 4.246529102,
 "rtmin": 3.877366781,
 "rtmax": 5.171717167,
 "maxQuality": 0.8436461687,
@@ -7115,7 +7115,7 @@
 "fullCompoundName": "dimethylglycine",
 "fullCompoundID": "C01026"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 102.055954,
 "medianMz": 102.056015,
 "baseMz": 102.0560074,
@@ -7148,7 +7148,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 102.0559311,
 "medianMz": 102.0560303,
 "baseMz": 102.0559998,
@@ -7181,7 +7181,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 102.0559616,
 "medianMz": 102.0560379,
 "baseMz": 102.0560379,
@@ -7214,7 +7214,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 102.0560455,
 "medianMz": 102.0560913,
 "baseMz": 102.0560684,
@@ -7251,8 +7251,8 @@
 "groupId": 49,
 "label": "",
 "metaGroupId": 49,
-"meanMz": 115.0037842,
-"meanRt": 12.7524004,
+"meanMz": 115.0037766,
+"meanRt": 12.75240135,
 "rtmin": 12.53250122,
 "rtmax": 13.23450089,
 "maxQuality": 0.8327896595,
@@ -7266,7 +7266,7 @@
 "fullCompoundName": "fumarate",
 "fullCompoundID": "C00122"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 115.0038147,
 "medianMz": 115.0037537,
 "baseMz": 115.0037689,
@@ -7299,7 +7299,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 115.0038376,
 "medianMz": 115.00383,
 "baseMz": 115.00383,
@@ -7332,7 +7332,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 115.0037918,
 "medianMz": 115.0037613,
 "baseMz": 115.0037613,
@@ -7365,7 +7365,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 115.0037308,
 "medianMz": 115.003746,
 "baseMz": 115.0037384,
@@ -7402,7 +7402,7 @@
 "groupId": 50,
 "label": "",
 "metaGroupId": 50,
-"meanMz": 115.0037689,
+"meanMz": 115.0037613,
 "meanRt": 13.43400002,
 "rtmin": 13.21790028,
 "rtmax": 14.05700016,
@@ -7417,7 +7417,7 @@
 "fullCompoundName": "fumarate",
 "fullCompoundID": "C00122"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 115.0037842,
 "medianMz": 115.0037994,
 "baseMz": 115.0037994,
@@ -7450,7 +7450,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 115.0038223,
 "medianMz": 115.0037766,
 "baseMz": 115.0037689,
@@ -7483,7 +7483,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 115.0038223,
 "medianMz": 115.0037613,
 "baseMz": 115.0037537,
@@ -7516,7 +7516,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 115.0037537,
 "medianMz": 115.0037231,
 "baseMz": 115.0037231,
@@ -7568,7 +7568,7 @@
 "fullCompoundName": "2-keto-isovalerate",
 "fullCompoundID": "C00141"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 115.0401917,
 "medianMz": 115.0401764,
 "baseMz": 115.0401688,
@@ -7601,7 +7601,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 115.0401459,
 "medianMz": 115.0402069,
 "baseMz": 115.0401917,
@@ -7625,7 +7625,7 @@
 "symmetry": 8,
 "noNoiseFraction": 0.477876097,
 "groupOverlap": 0.000109397035,
-"groupOverlapFrac": -0.2474918067,
+"groupOverlapFrac": -0.2474917918,
 "gaussFitR2": 0.0003457536513,
 "peakRank": 0,
 "peakWidth": 41,
@@ -7634,7 +7634,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 115.0401306,
 "medianMz": 115.0401382,
 "baseMz": 115.0401382,
@@ -7667,7 +7667,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 115.0401001,
 "medianMz": 115.040123,
 "baseMz": 115.0401077,
@@ -7704,8 +7704,8 @@
 "groupId": 52,
 "label": "",
 "metaGroupId": 52,
-"meanMz": 116.05056,
-"meanRt": 7.793220997,
+"meanMz": 116.0505524,
+"meanRt": 7.793221474,
 "rtmin": 7.655617237,
 "rtmax": 8.339817047,
 "maxQuality": 0.851698637,
@@ -7719,7 +7719,7 @@
 "fullCompoundName": "indole",
 "fullCompoundID": "C16074"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 116.0505295,
 "medianMz": 116.0505142,
 "baseMz": 116.0505219,
@@ -7752,7 +7752,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 116.0505219,
 "medianMz": 116.0505524,
 "baseMz": 116.0505447,
@@ -7776,7 +7776,7 @@
 "symmetry": 2,
 "noNoiseFraction": 0.8076922894,
 "groupOverlap": 2.04987391e-05,
-"groupOverlapFrac": -0.2488944978,
+"groupOverlapFrac": -0.2488945127,
 "gaussFitR2": 0.0003601733479,
 "peakRank": 0,
 "peakWidth": 41,
@@ -7785,7 +7785,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 116.0506134,
 "medianMz": 116.0505981,
 "baseMz": 116.0505829,
@@ -7818,7 +7818,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 116.0505829,
 "medianMz": 116.0505829,
 "baseMz": 116.0505905,
@@ -7870,7 +7870,7 @@
 "fullCompoundName": "betaine",
 "fullCompoundID": "C00719"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 116.0717621,
 "medianMz": 116.0716705,
 "baseMz": 116.0716553,
@@ -7903,7 +7903,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 116.0716553,
 "medianMz": 116.0716934,
 "baseMz": 116.0716858,
@@ -7936,7 +7936,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 116.0716934,
 "medianMz": 116.071701,
 "baseMz": 116.0717087,
@@ -7960,7 +7960,7 @@
 "symmetry": 6,
 "noNoiseFraction": 0.1473880559,
 "groupOverlap": 0.00174389407,
-"groupOverlapFrac": -0.01986152306,
+"groupOverlapFrac": -0.01986150816,
 "gaussFitR2": 0.0009681130177,
 "peakRank": 0,
 "peakWidth": 78,
@@ -7969,7 +7969,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 116.0717087,
 "medianMz": 116.0717468,
 "baseMz": 116.0717239,
@@ -7993,7 +7993,7 @@
 "symmetry": 4,
 "noNoiseFraction": 0.1290322542,
 "groupOverlap": 4.114941839e-05,
-"groupOverlapFrac": -0.03007757291,
+"groupOverlapFrac": -0.03007755801,
 "gaussFitR2": 0.00469556218,
 "peakRank": 0,
 "peakWidth": 75,
@@ -8021,7 +8021,7 @@
 "fullCompoundName": "betaine",
 "fullCompoundID": "C00719"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 116.0717163,
 "medianMz": 116.0716934,
 "baseMz": 116.0716934,
@@ -8044,7 +8044,7 @@
 "peakAreaFractional": 0.2455755174,
 "symmetry": 4,
 "noNoiseFraction": 0.1632653028,
-"groupOverlap": 0.001007419312,
+"groupOverlap": 0.00100741908,
 "groupOverlapFrac": -0.07156306505,
 "gaussFitR2": 0.00309150829,
 "peakRank": 1,
@@ -8054,7 +8054,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 116.0717087,
 "medianMz": 116.0717163,
 "baseMz": 116.0717087,
@@ -8077,7 +8077,7 @@
 "peakAreaFractional": 0.2642029822,
 "symmetry": 4,
 "noNoiseFraction": 0.1742957681,
-"groupOverlap": 0.001285401406,
+"groupOverlap": 0.001285401871,
 "groupOverlapFrac": -0.1611655951,
 "gaussFitR2": 0.002238109708,
 "peakRank": 1,
@@ -8087,7 +8087,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 116.07164,
 "medianMz": 116.0717545,
 "baseMz": 116.0717392,
@@ -8110,7 +8110,7 @@
 "peakAreaFractional": 0.2670557201,
 "symmetry": 6,
 "noNoiseFraction": 0.1697761267,
-"groupOverlap": 0.001512952149,
+"groupOverlap": 0.001512952731,
 "groupOverlapFrac": -0.07866317034,
 "gaussFitR2": 0.001836656826,
 "peakRank": 1,
@@ -8120,7 +8120,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 116.0717316,
 "medianMz": 116.0717773,
 "baseMz": 116.0717621,
@@ -8143,7 +8143,7 @@
 "peakAreaFractional": 0.3255657852,
 "symmetry": 8,
 "noNoiseFraction": 0.181663841,
-"groupOverlap": 0.0001230708731,
+"groupOverlap": 0.0001230708876,
 "groupOverlapFrac": -0.02841904014,
 "gaussFitR2": 0.001033721375,
 "peakRank": 1,
@@ -8172,7 +8172,7 @@
 "fullCompoundName": "Methylmalonic acid",
 "fullCompoundID": "C02170"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 117.0194397,
 "medianMz": 117.0194244,
 "baseMz": 117.0194244,
@@ -8205,7 +8205,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 117.0194778,
 "medianMz": 117.0194778,
 "baseMz": 117.019455,
@@ -8238,7 +8238,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 117.0194626,
 "medianMz": 117.019455,
 "baseMz": 117.019455,
@@ -8271,7 +8271,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 117.0194168,
 "medianMz": 117.0194016,
 "baseMz": 117.0193939,
@@ -8323,7 +8323,7 @@
 "fullCompoundName": "succinate",
 "fullCompoundID": "C00042"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 117.0194397,
 "medianMz": 117.0194244,
 "baseMz": 117.0194244,
@@ -8356,7 +8356,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 117.0194778,
 "medianMz": 117.0194778,
 "baseMz": 117.019455,
@@ -8389,7 +8389,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 117.0194626,
 "medianMz": 117.019455,
 "baseMz": 117.019455,
@@ -8422,7 +8422,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 117.0194168,
 "medianMz": 117.0194016,
 "baseMz": 117.0193939,
@@ -8459,8 +8459,8 @@
 "groupId": 57,
 "label": "",
 "metaGroupId": 57,
-"meanMz": 119.0171738,
-"meanRt": 12.76000118,
+"meanMz": 119.0171661,
+"meanRt": 12.76000023,
 "rtmin": 12.65430069,
 "rtmax": 12.91470146,
 "maxQuality": 0.7862109542,
@@ -8474,7 +8474,7 @@
 "fullCompoundName": "3-S-methylthiopropionate",
 "fullCompoundID": "C08276"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 119.0172272,
 "medianMz": 119.0171509,
 "baseMz": 119.0171661,
@@ -8507,7 +8507,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 119.0172195,
 "medianMz": 119.0172195,
 "baseMz": 119.0172348,
@@ -8540,7 +8540,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 119.0171738,
 "medianMz": 119.0171509,
 "baseMz": 119.0171585,
@@ -8573,7 +8573,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 119.0171432,
 "medianMz": 119.0171509,
 "baseMz": 119.0171204,
@@ -8625,7 +8625,7 @@
 "fullCompoundName": "aconitate",
 "fullCompoundID": "C00417|C02341"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 173.0092773,
 "medianMz": 173.0093231,
 "baseMz": 173.0093231,
@@ -8658,7 +8658,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 173.009201,
 "medianMz": 173.0092316,
 "baseMz": 173.0092316,
@@ -8691,7 +8691,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 173.0093689,
 "medianMz": 173.0092926,
 "baseMz": 173.0093079,
@@ -8724,7 +8724,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 173.009201,
 "medianMz": 173.0092316,
 "baseMz": 173.0092621,
@@ -8762,7 +8762,7 @@
 "label": "",
 "metaGroupId": 59,
 "meanMz": 179.0350952,
-"meanRt": 14.26030159,
+"meanRt": 14.26029968,
 "rtmin": 13.9616003,
 "rtmax": 14.54040051,
 "maxQuality": 0.828733325,
@@ -8776,7 +8776,7 @@
 "fullCompoundName": "hydroxyphenylpyruvate",
 "fullCompoundID": "C01179"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 179.0350952,
 "medianMz": 179.0350952,
 "baseMz": 179.0351105,
@@ -8799,7 +8799,7 @@
 "peakAreaFractional": 0.820702672,
 "symmetry": 8,
 "noNoiseFraction": 0.5348837376,
-"groupOverlap": 0.001870256965,
+"groupOverlap": 0.001870256616,
 "groupOverlapFrac": -0.1070823595,
 "gaussFitR2": 0.001053209882,
 "peakRank": 0,
@@ -8809,7 +8809,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 179.0352173,
 "medianMz": 179.03508,
 "baseMz": 179.0351105,
@@ -8832,7 +8832,7 @@
 "peakAreaFractional": 0.913977921,
 "symmetry": 4,
 "noNoiseFraction": 0.6444444656,
-"groupOverlap": 0.0003119453904,
+"groupOverlap": 0.0003119453613,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.0008691402618,
 "peakRank": 0,
@@ -8842,7 +8842,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 179.0350647,
 "medianMz": 179.0350952,
 "baseMz": 179.0351105,
@@ -8865,7 +8865,7 @@
 "peakAreaFractional": 0.7974127531,
 "symmetry": 4,
 "noNoiseFraction": 0.480769217,
-"groupOverlap": 0.001205696841,
+"groupOverlap": 0.001205696608,
 "groupOverlapFrac": -0.1603256464,
 "gaussFitR2": 0.00127685687,
 "peakRank": 0,
@@ -8875,7 +8875,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 179.0351562,
 "medianMz": 179.0350647,
 "baseMz": 179.0350494,
@@ -8898,7 +8898,7 @@
 "peakAreaFractional": 0.8950783014,
 "symmetry": 12,
 "noNoiseFraction": 0.6444444656,
-"groupOverlap": 0.004812149797,
+"groupOverlap": 0.004812148865,
 "groupOverlapFrac": -0.05324329063,
 "gaussFitR2": 0.0002326511312,
 "peakRank": 0,
@@ -8927,7 +8927,7 @@
 "fullCompoundName": "3-phospho-serine",
 "fullCompoundID": "C01005"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 184.0016479,
 "medianMz": 184.0014648,
 "baseMz": 184.0014954,
@@ -8960,7 +8960,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 184.0017853,
 "medianMz": 184.0015717,
 "baseMz": 184.0015717,
@@ -8993,7 +8993,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 184.0018311,
 "medianMz": 184.0016327,
 "baseMz": 184.0016022,
@@ -9026,7 +9026,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 184.0017395,
 "medianMz": 184.0016785,
 "baseMz": 184.0016632,
@@ -9063,7 +9063,7 @@
 "groupId": 61,
 "label": "",
 "metaGroupId": 61,
-"meanMz": 188.0566101,
+"meanMz": 188.0566406,
 "meanRt": 13.0951004,
 "rtmin": 12.88280106,
 "rtmax": 13.53770065,
@@ -9078,7 +9078,7 @@
 "fullCompoundName": "N-acetyl-glutamate",
 "fullCompoundID": "C00624"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 188.0564728,
 "medianMz": 188.0566406,
 "baseMz": 188.0566711,
@@ -9111,7 +9111,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 188.0566254,
 "medianMz": 188.0566711,
 "baseMz": 188.0566711,
@@ -9144,7 +9144,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 188.0564575,
 "medianMz": 188.0565643,
 "baseMz": 188.0566101,
@@ -9177,7 +9177,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 188.0567017,
 "medianMz": 188.0565186,
 "baseMz": 188.0565491,
@@ -9215,7 +9215,7 @@
 "label": "",
 "metaGroupId": 62,
 "meanMz": 191.0198669,
-"meanRt": 13.76144981,
+"meanRt": 13.76145172,
 "rtmin": 13.43110085,
 "rtmax": 14.55820084,
 "maxQuality": 0.8395434022,
@@ -9229,7 +9229,7 @@
 "fullCompoundName": "citrate",
 "fullCompoundID": "C00158"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 191.0198669,
 "medianMz": 191.0198975,
 "baseMz": 191.0198975,
@@ -9262,7 +9262,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 191.0197906,
 "medianMz": 191.0198364,
 "baseMz": 191.0198364,
@@ -9295,7 +9295,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 191.0200348,
 "medianMz": 191.0198669,
 "baseMz": 191.0198822,
@@ -9328,7 +9328,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 191.0198822,
 "medianMz": 191.0198059,
 "baseMz": 191.0198212,
@@ -9366,7 +9366,7 @@
 "label": "",
 "metaGroupId": 63,
 "meanMz": 191.0198669,
-"meanRt": 13.76144981,
+"meanRt": 13.76145172,
 "rtmin": 13.43110085,
 "rtmax": 14.55820084,
 "maxQuality": 0.8395434022,
@@ -9380,7 +9380,7 @@
 "fullCompoundName": "citrate/isocitrate",
 "fullCompoundID": "C00158|C00311"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 191.0198669,
 "medianMz": 191.0198975,
 "baseMz": 191.0198975,
@@ -9413,7 +9413,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 191.0197906,
 "medianMz": 191.0198364,
 "baseMz": 191.0198364,
@@ -9446,7 +9446,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 191.0200348,
 "medianMz": 191.0198669,
 "baseMz": 191.0198822,
@@ -9479,7 +9479,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 191.0198822,
 "medianMz": 191.0198059,
 "baseMz": 191.0198212,
@@ -9517,7 +9517,7 @@
 "label": "",
 "metaGroupId": 64,
 "meanMz": 191.0198669,
-"meanRt": 13.76144981,
+"meanRt": 13.76145172,
 "rtmin": 13.43110085,
 "rtmax": 14.55820084,
 "maxQuality": 0.8395434022,
@@ -9531,7 +9531,7 @@
 "fullCompoundName": "isocitrate",
 "fullCompoundID": "C00311"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 191.0198669,
 "medianMz": 191.0198975,
 "baseMz": 191.0198975,
@@ -9554,7 +9554,7 @@
 "peakAreaFractional": 0.9346284866,
 "symmetry": 18,
 "noNoiseFraction": 0.6315789223,
-"groupOverlap": 0.0001630521583,
+"groupOverlap": 0.0001630521438,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.0001113134058,
 "peakRank": 0,
@@ -9564,7 +9564,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 191.0197906,
 "medianMz": 191.0198364,
 "baseMz": 191.0198364,
@@ -9587,7 +9587,7 @@
 "peakAreaFractional": 0.8861054778,
 "symmetry": 20,
 "noNoiseFraction": 0.6213592291,
-"groupOverlap": 7.5058947e-06,
+"groupOverlap": 7.505893791e-06,
 "groupOverlapFrac": 0,
 "gaussFitR2": 9.871483053e-05,
 "peakRank": 0,
@@ -9597,7 +9597,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 191.0200348,
 "medianMz": 191.0198669,
 "baseMz": 191.0198822,
@@ -9620,7 +9620,7 @@
 "peakAreaFractional": 0.9492405057,
 "symmetry": 16,
 "noNoiseFraction": 0.6696428657,
-"groupOverlap": 0.000117931515,
+"groupOverlap": 0.0001179315077,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.0001032081636,
 "peakRank": 0,
@@ -9630,7 +9630,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 191.0198822,
 "medianMz": 191.0198059,
 "baseMz": 191.0198212,
@@ -9653,7 +9653,7 @@
 "peakAreaFractional": 0.9008700848,
 "symmetry": 18,
 "noNoiseFraction": 0.6761904955,
-"groupOverlap": 9.114510613e-05,
+"groupOverlap": 9.114509885e-05,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.0001185004221,
 "peakRank": 0,
@@ -9682,7 +9682,7 @@
 "fullCompoundName": "glutamate",
 "fullCompoundID": "C00025"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 146.0457611,
 "medianMz": 146.0458069,
 "baseMz": 146.0457916,
@@ -9705,7 +9705,7 @@
 "peakAreaFractional": 0.9947316647,
 "symmetry": 6,
 "noNoiseFraction": 0.8372092843,
-"groupOverlap": 2.471381049e-05,
+"groupOverlap": 2.471381958e-05,
 "groupOverlapFrac": -0.0335482955,
 "gaussFitR2": 7.804179768e-05,
 "peakRank": 0,
@@ -9715,7 +9715,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 146.045639,
 "medianMz": 146.0458069,
 "baseMz": 146.0457764,
@@ -9738,8 +9738,8 @@
 "peakAreaFractional": 0.9970469475,
 "symmetry": 10,
 "noNoiseFraction": 0.7821782231,
-"groupOverlap": 7.254697721e-06,
-"groupOverlapFrac": -0.05316086859,
+"groupOverlap": 7.254698176e-06,
+"groupOverlapFrac": -0.05316085368,
 "gaussFitR2": 0.0005169891519,
 "peakRank": 0,
 "peakWidth": 78,
@@ -9748,7 +9748,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 146.0456848,
 "medianMz": 146.0458374,
 "baseMz": 146.0458527,
@@ -9771,8 +9771,8 @@
 "peakAreaFractional": 0.9978301525,
 "symmetry": 32,
 "noNoiseFraction": 0.8720930219,
-"groupOverlap": 5.937673268e-05,
-"groupOverlapFrac": -0.06576700509,
+"groupOverlap": 5.937679452e-05,
+"groupOverlapFrac": -0.06576699018,
 "gaussFitR2": 7.38396775e-05,
 "peakRank": 0,
 "peakWidth": 74,
@@ -9781,7 +9781,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 146.0457611,
 "medianMz": 146.0458984,
 "baseMz": 146.0458679,
@@ -9804,7 +9804,7 @@
 "peakAreaFractional": 0.9987440109,
 "symmetry": 10,
 "noNoiseFraction": 0.8453608155,
-"groupOverlap": 1.538776451e-05,
+"groupOverlap": 1.538776814e-05,
 "groupOverlapFrac": -0.02094216086,
 "gaussFitR2": 0.0005055204383,
 "peakRank": 0,
@@ -9833,7 +9833,7 @@
 "fullCompoundName": "2-Aminooctanoic acid",
 "fullCompoundID": "HMDB00991"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 158.1187439,
 "medianMz": 158.1187592,
 "baseMz": 158.1187744,
@@ -9856,7 +9856,7 @@
 "peakAreaFractional": 0.1018187925,
 "symmetry": 2,
 "noNoiseFraction": 0.05916306004,
-"groupOverlap": 0.002413993701,
+"groupOverlap": 0.002413993236,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.001337562106,
 "peakRank": 2,
@@ -9866,7 +9866,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 158.1187134,
 "medianMz": 158.1187286,
 "baseMz": 158.1187286,
@@ -9889,7 +9889,7 @@
 "peakAreaFractional": 0.09584321827,
 "symmetry": 12,
 "noNoiseFraction": 0.04229607433,
-"groupOverlap": 0.0007189328317,
+"groupOverlap": 0.0007189327735,
 "groupOverlapFrac": 0,
 "gaussFitR2": 0.001821058337,
 "peakRank": 4,
@@ -9899,7 +9899,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 158.1186981,
 "medianMz": 158.1187134,
 "baseMz": 158.1187134,
@@ -9922,7 +9922,7 @@
 "peakAreaFractional": 0.09240927547,
 "symmetry": 4,
 "noNoiseFraction": 0.04630969465,
-"groupOverlap": 0.003674220992,
+"groupOverlap": 0.003674220294,
 "groupOverlapFrac": -0.03847138956,
 "gaussFitR2": 0.0008259492461,
 "peakRank": 3,
@@ -9932,7 +9932,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 158.1188049,
 "medianMz": 158.1187744,
 "baseMz": 158.1187286,
@@ -9955,7 +9955,7 @@
 "peakAreaFractional": 0.1032751426,
 "symmetry": 4,
 "noNoiseFraction": 0.05473372713,
-"groupOverlap": 0.004526449833,
+"groupOverlap": 0.004526448902,
 "groupOverlapFrac": -0.03847138956,
 "gaussFitR2": 0.0007613660418,
 "peakRank": 2,
@@ -9970,7 +9970,7 @@
 "label": "",
 "metaGroupId": 67,
 "meanMz": 160.0613403,
-"meanRt": 4.074941635,
+"meanRt": 4.074942112,
 "rtmin": 3.785866737,
 "rtmax": 4.212916851,
 "maxQuality": 0.8490958214,
@@ -9984,7 +9984,7 @@
 "fullCompoundName": "Aminoadipic acid",
 "fullCompoundID": "C00956"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 160.0612946,
 "medianMz": 160.0613556,
 "baseMz": 160.0613251,
@@ -10017,7 +10017,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 160.0611572,
 "medianMz": 160.0613708,
 "baseMz": 160.0612488,
@@ -10050,7 +10050,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 160.0614624,
 "medianMz": 160.0614166,
 "baseMz": 160.0613708,
@@ -10083,7 +10083,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 160.0611877,
 "medianMz": 160.0614471,
 "baseMz": 160.0614014,
@@ -10120,8 +10120,8 @@
 "groupId": 68,
 "label": "",
 "metaGroupId": 68,
-"meanMz": 164.0715942,
-"meanRt": 4.116888046,
+"meanMz": 164.0716095,
+"meanRt": 4.116887569,
 "rtmin": 3.815683365,
 "rtmax": 4.792433262,
 "maxQuality": 0.841597259,
@@ -10135,7 +10135,7 @@
 "fullCompoundName": "phenylalanine",
 "fullCompoundID": "C00079"},
 "peaks": [ {
-"sampleName": "",
+"sampleName": "091215_120i",
 "peakMz": 164.0713654,
 "medianMz": 164.0715942,
 "baseMz": 164.071579,
@@ -10168,7 +10168,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_120M",
 "peakMz": 164.0709839,
 "medianMz": 164.0716248,
 "baseMz": 164.0715485,
@@ -10201,7 +10201,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240i",
 "peakMz": 164.0714874,
 "medianMz": 164.07164,
 "baseMz": 164.07164,
@@ -10234,7 +10234,7 @@
 }
 },
 {
-"sampleName": "",
+"sampleName": "091215_240M",
 "peakMz": 164.0710449,
 "medianMz": 164.0716858,
 "baseMz": 164.07164,

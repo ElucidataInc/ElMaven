@@ -60,7 +60,7 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
 
     if (mz == -1)
         mz = grp.meanMz;
-    
+
     filename << ",\n" << "\"compound\": { " ;
 
     string compoundID = grp.getCompound()->id;
@@ -90,7 +90,7 @@ void JSONReports::_writePeak(PeakGroup& grp, ofstream& filename, vector<mzSample
 {
 
     filename << setprecision(10);
-    
+
     filename << ",\n"<< "\"peaks\": [ " ;
 
     for(auto it = vsamples.begin(); it != vsamples.end(); ++it) {
@@ -164,20 +164,20 @@ void JSONReports::_writePeak(PeakGroup& grp, ofstream& filename, vector<mzSample
         }
         _writeEIC(grp, filename, sample);
     }
-    
+
     filename << "\n]" ; //peaks
-    
+
     filename << "}" ; //group
 }
 
 
 void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample)
 {
-    
+
     filename << setprecision(10);
-    
+
     mzSlice* slice= new mzSlice();
-    
+
     int charge = _mavenParameters->getCharge(grp.getCompound());
     slice->mz = grp.getExpectedMz(charge);
 
@@ -185,7 +185,7 @@ void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample
         slice->mz = grp.meanMz;
 
     EIC* eic = nullptr;
-                
+
     //TODO: Refactor the code :Sahil
     if (grp.hasCompoundLink()) {
         if (!grp.srmId.empty()) {
@@ -238,7 +238,7 @@ void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample
                 if (i < N - 1) filename << ",";
             }
         }
-            
+
         filename << "],\n" ; //rt
         filename << "\"intensity\": [";
         for(int i= 0; i < N; i++){
@@ -247,13 +247,13 @@ void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample
                 if (i < N - 1) filename << ",";
             }
         }
-            
+
         filename << "]" ; //intensity
         filename << "\n}" ;//eic
         filename << "\n}" ; //peak
         delete(eic);
     }
-   
+
 }
 
 
@@ -267,7 +267,7 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
 
     int groupId = 0;
     int metaGroupId = 0;
-   
+
     for(size_t i=0; i < allgroups.size() ; i++ ) {
         PeakGroup& grp = allgroups[i];
 
@@ -290,7 +290,7 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
                 grp.children[k].metaGroupId = grp.metaGroupId;
                 grp.children[k].groupId = ++groupId;
                 if(groupId > 1) file << "\n,";
-            
+
                 _writeGroup(grp.children[k], file);
                 if( grp.children[k].hasCompoundLink() )
                     _writeCompoundLink(grp, file);
@@ -337,7 +337,7 @@ class JsonReportsFixture{
                 _samples.push_back(sample2);
                 _samples.push_back(sample3);
                 _samples.push_back(sample4);
-                  
+
             }
 
             /**
@@ -349,7 +349,7 @@ class JsonReportsFixture{
             void _loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
                                          MavenParameters* mavenparameters)
             {
-          
+
                 ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
                 string loadmodel = "bin/default.model";
                 clsf->loadModel(loadmodel);
@@ -402,7 +402,7 @@ class JsonReportsFixture{
                 _mavenparameters = new MavenParameters();
                 _makeSampleList();
                 _allgroups = _getGroupsFromProcessCompounds();
-                 
+
             }
 
 
@@ -452,55 +452,59 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
 {
     string jsonFilename = "test.json";
     JSONReports* jsonReports = new JSONReports(mavenparameters(), false);
-    jsonReports->save(jsonFilename, allgroups(), samples());
+    auto samplesUsed = samples();
+    sort(begin(samplesUsed), end(samplesUsed), mzSample::compSampleSort);
+    jsonReports->save(jsonFilename, allgroups(), samplesUsed);
 
     ifstream fileInput("test.json");
     ifstream fileSaved("tests/test-libmaven/test_jsonReports.json");
-                
+
     json rootInput = json::parse(fileInput);
     json rootSaved = json::parse(fileSaved);
-                              
-
-    size_t saved = 0;
+    REQUIRE_MESSAGE(rootSaved["groups"].size() == rootInput["groups"].size(),
+                    "number of groups in the two reports do not match");
 
     // samples are loaded in different order at different insatance.
     // correct group must be found in the json files to compare.
-    for(size_t input=0 ; input < rootInput["groups"].size(); input++){
-        size_t s = 0;
-        for(s = 0; s < rootSaved["groups"].size(); s++ ){
-            if(rootInput["groups"][input]["meanMz"].get<double>() ==
-               doctest::Approx(rootSaved["groups"][s]["meanMz"].get<double>()) &&
-               rootInput["groups"][input]["meanRt"].get<double>() ==
-               doctest::Approx(rootSaved["groups"][s]["meanRt"].get<double>()) &&
-               rootInput["groups"][input]["compound"]["compoundName"].get<string>() ==
-               rootSaved["groups"][s]["compound"]["compoundName"].get<string>()){
-                    saved = s;
-                    break;
+    for(size_t input = 0; input < rootInput["groups"].size(); input++) {
+        size_t saved = -1;
+        for(size_t s = 0; s < rootSaved["groups"].size(); s++ ) {
+            if (rootInput["groups"][input]["meanMz"].get<double>() ==
+                    doctest::Approx(rootSaved["groups"][s]["meanMz"].get<double>())
+                && rootInput["groups"][input]["meanRt"].get<double>() ==
+                    doctest::Approx(rootSaved["groups"][s]["meanRt"].get<double>())
+                && rootInput["groups"][input]["compound"]["compoundName"].get<string>() ==
+                    rootSaved["groups"][s]["compound"]["compoundName"].get<string>()) {
+                saved = s;
+                break;
             }
         }
 
-        REQUIRE(s <= rootSaved["groups"].size());
+        auto compoundName = rootInput["groups"][input]["compound"]["compoundName"].get<string>();
+        REQUIRE_MESSAGE(saved != -1, "compound \""<< compoundName << "\" not found");
+
+        REQUIRE(saved <= rootSaved["groups"].size());
 
         string labelInput = "";
         string labelSaved = "";
         if(!rootInput["groups"][input]["label"].is_null())
             labelInput = rootInput["groups"][input]["label"].get<string>();
-                    
+
         if(!rootSaved["groups"][saved]["label"].is_null())
             labelSaved = rootSaved["groups"][saved]["label"].get<string>();
 
         double meanMzInput = rootInput["groups"][input]["meanMz"].get<double>();
         double meanMzSaved = rootSaved["groups"][saved]["meanMz"].get<double>();
-                    
+
         double meanRtInput = rootInput["groups"][input]["meanRt"].get<double>();
         double meanRtSaved = rootSaved["groups"][saved]["meanRt"].get<double>();
-                    
+
         double rtminInput = rootInput["groups"][input]["rtmin"].get<double>();
         double rtminSaved = rootSaved["groups"][saved]["rtmin"].get<double>();
-                    
+
         double rtmaxInput = rootInput["groups"][input]["rtmax"].get<double>();
         double rtmaxSaved = rootSaved["groups"][saved]["rtmax"].get<double>();
-                    
+
         double maxQualityInput = rootInput["groups"][input]["maxQuality"].get<double>();
         double maxQualitySaved = rootSaved["groups"][saved]["maxQuality"].get<double>();
 
@@ -510,43 +514,43 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
         REQUIRE(rtminInput == doctest::Approx(rtminSaved).epsilon(0.05));
         REQUIRE(rtmaxInput == doctest::Approx(rtmaxSaved).epsilon(0.05));
         REQUIRE(maxQualityInput == doctest::Approx(maxQualitySaved).epsilon(0.05));
-        
+
         string compoundIdInput = rootInput["groups"][input]["compound"]["compoundId"].get<string>();
         string compoundIdSaved = rootSaved["groups"][saved]["compound"]["compoundId"].get<string>();
-                            
+
         string compoundNameInput = rootInput["groups"][input]["compound"]["compoundName"].get<string>();
         string compoundNameSaved = rootSaved["groups"][saved]["compound"]["compoundName"].get<string>();
-                            
+
         string formulaInput = rootInput["groups"][input]["compound"]["formula"].get<string>();
         string formulaSaved = rootSaved["groups"][saved]["compound"]["formula"].get<string>();
-                            
+
         double expectedRtInput = rootInput["groups"][input]["compound"]["expectedRt"].get<double>();
         double expectedRtSaved = rootSaved["groups"][saved]["compound"]["expectedRt"].get<double>();
-                            
+
         double expectedMzInput = rootInput["groups"][input]["compound"]["expectedMz"].get<double>();
         double expectedMzSaved = rootSaved["groups"][saved]["compound"]["expectedMz"].get<double>();
-                                
+
         string srmIdInput = "";
         string srmIdSaved = "";
-                            
+
         if(!rootInput["groups"][input]["compound"]["srmId"].is_null())
             srmIdInput = rootInput["groups"][input]["compound"]["srmId"].get<string>();
-                            
+
         if(!rootSaved["groups"][saved]["compound"]["srmId"].is_null())
             srmIdSaved= rootSaved["groups"][saved]["compound"]["srmId"].get<string>();
-                            
+
         string tagStringInput = "";
         string tagStringSaved = "";
-                            
+
         if(!rootInput["groups"][input]["compound"]["tagString"].is_null())
             tagStringInput = rootInput["groups"][input]["compound"]["tagString"].get<string>();
-                            
+
         if(!rootInput["groups"][saved]["compound"]["tagString"].is_null())
             tagStringSaved = rootSaved["groups"][saved]["compound"]["tagString"].get<string>();
-                            
+
         string fullCompoundNameInput = rootInput["groups"][input]["compound"]["fullCompoundName"].get<string>();
         string fullCompoundNameSaved = rootSaved["groups"][saved]["compound"]["fullCompoundName"].get<string>();
-                            
+
         string fullCompoundIDInput = rootInput["groups"][input]["compound"]["fullCompoundID"].get<string>();
         string fullCompoundIDSaved = rootSaved["groups"][saved]["compound"]["fullCompoundID"].get<string>();
 
@@ -560,101 +564,98 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
         REQUIRE( fullCompoundNameInput == fullCompoundNameSaved );
         REQUIRE( fullCompoundIDInput == fullCompoundIDSaved );
 
-        for(size_t i = 0 ; i < rootInput["groups"][input]["peak"].size(); i++ ){
-                                    
-            string SampleNameInput = "";
-            string SampleNameSaved = "";
+        for(size_t i = 0; i < rootInput["groups"][input]["peaks"].size(); i++) {
+            string sampleNameInput;
+            string sampleNameSaved;
 
-            REQUIRE( !rootInput["groups"][input]["peak"][i]["sampleName"].is_null() );
-            SampleNameInput = rootInput["groups"][input]["peak"][i]["sampleName"].get<string>();
-                                    
-            REQUIRE( !rootInput["groups"][input]["peak"][i]["sampleName"].is_null() );
-            SampleNameSaved = rootSaved["groups"][saved]["peak"][i]["sampleName"].get<string>();
-                                    
-            double pMzInput = rootInput["groups"][input]["peak"][i]["peakMz"].get<double>();
-            double pMzSaved = rootSaved["groups"][saved]["peak"][i]["peakMz"].get<double>();
-                                    
-            double mMzInput = rootInput["groups"][input]["peak"][i]["medianMz"].get<double>();
-            double mMzSaved = rootSaved["groups"][saved]["peak"][i]["medianMz"].get<double>();
-                                    
-            double bMzInput = rootInput["groups"][input]["peak"][i]["baseMz"].get<double>();
-            double bMzSaved = rootSaved["groups"][saved]["peak"][i]["baseMz"].get<double>();
-                                    
-            double mzminInput = rootInput["groups"][input]["peak"][i]["mzmin"].get<double>();
-            double mzminSaved = rootSaved["groups"][saved]["peak"][i]["mzmin"].get<double>();
-                                    
-            double mzmaxInput = rootInput["groups"][input]["peak"][i]["mzmax"].get<double>();
-            double mzmaxSaved = rootSaved["groups"][saved]["peak"][i]["mzmax"].get<double>();
-                                    
-            double rtInput = rootInput["groups"][input]["peak"][i]["rt"].get<double>();
-            double rtSaved = rootSaved["groups"][saved]["peak"][i]["rt"].get<double>();
-                                    
-            double rtminInput = rootInput["groups"][input]["peak"][i]["rtmin"].get<double>();
-            double rtminSaved = rootSaved["groups"][saved]["peak"][i]["rtmin"].get<double>();
-                                    
-            double rtmaxInput = rootInput["groups"][input]["peak"][i]["rtmax"].get<double>();
-            double rtmaxSaved = rootSaved["groups"][saved]["peak"][i]["rtmax"].get<double>();
-                                    
-            double qualityInput = rootInput["groups"][input]["peak"][i]["quality"].get<double>();
-            double qualitySaved = rootSaved["groups"][saved]["peak"][i]["quality"].get<double>();
-            
-            
-            double pIInput = rootInput["groups"][input]["peak"][i]["peakIntensity"].get<double>();
-            double pISaved = rootSaved["groups"][saved]["peak"][i]["peakIntensity"].get<double>();
-                                            
-            double pBLLInput = rootInput["groups"][input]["peak"][i]["peakBaseLineLevel"].get<double>();
-            double pBLLSaved = rootSaved["groups"][saved]["peak"][i]["peakBaseLineLevel"].get<double>();
-                                            
-            double pAreaInput = rootInput["groups"][input]["peak"][i]["peakArea"].get<double>();
-            double pAreaSaved = rootSaved["groups"][saved]["peak"][i]["peakArea"].get<double>();
-                                            
-            double pSAreaInput = rootInput["groups"][input]["peak"][i]["peakSplineArea"].get<double>();
-            double pSAreaSaved = rootSaved["groups"][saved]["peak"][i]["peakSplineArea"].get<double>();
-                                            
-            double pATopInput = rootInput["groups"][input]["peak"][i]["peakAreaTop"].get<double>();
-            double pATopSaved = rootSaved["groups"][saved]["peak"][i]["peakAreaTop"].get<double>();
-                                            
-            double pANotCorInput = rootInput["groups"][input]["peak"][i]["peakAreaNotCorrected"].get<double>();
-            double pANotCorSaved = rootSaved["groups"][saved]["peak"][i]["peakAreaNotCorrected"].get<double>();
-                                            
-            double pATNotInput = rootInput["groups"][input]["peak"][i]["peakAreaTopNotCorrected"].get<double>();
-            double pATNOtSaved = rootSaved["groups"][saved]["peak"][i]["peakAreaTopNotCorrected"].get<double>();
-                                            
-            double NoNoiseInput = rootInput["groups"][input]["peak"][i]["noNoiseObs"].get<double>();
-            double NoNoiseSaved = rootSaved["groups"][saved]["peak"][i]["noNoiseObs"].get<double>();
-                                            
-            double SBRatioInput = rootInput["groups"][input]["peak"][i]["SignalBaselineRatio"].get<double>();
-            double SBRatioSaved = rootSaved["groups"][saved]["peak"][i]["SignalBaselineRatio"].get<double>();
-                                            
-            double fBankSInput = rootInput["groups"][input]["peak"][i]["fromBankSample"].get<double>();
-            double fBankSSaved = rootSaved["groups"][saved]["peak"][i]["peakIntensity"].get<double>();
-                                            
-            double pAFInput = rootInput["groups"][input]["peak"][i]["peakAreaFractional"].get<double>();
-            double pAFSaved = rootSaved["groups"][saved]["peak"][i]["peakAreaFractional"].get<double>();
-            
-            double symmetryInput = rootInput["groups"][input]["peak"][i]["symmetry"].get<double>();
-            double symmetrySaved = rootSaved["groups"][saved]["peak"][i]["symmetry"].get<double>();
+            REQUIRE(!rootInput["groups"][input]["peaks"][i]["sampleName"].is_null());
+            sampleNameInput = rootInput["groups"][input]["peaks"][i]["sampleName"].get<string>();
 
-            double noNFracInput = rootInput["groups"][input]["peak"][i]["noNoiseFraction"].get<double>();
-            double noNFracSaved = rootSaved["groups"][saved]["peak"][i]["noNoiseFraction"].get<double>();
-                                                
-                                                        
-            double gOverlapInput = rootInput["groups"][input]["peak"][i]["groupOverlap"].get<double>();
-            double gOverlapSaved = rootSaved["groups"][saved]["peak"][i]["groupOverlap"].get<double>();
-                                                
-            double gOFracInput = rootInput["groups"][input]["peak"][i]["groupOverlapFrac"].get<double>();
-            double gOFracSaved = rootSaved["groups"][saved]["peak"][i]["groupOverlapFrac"].get<double>();
-                                                
-            double gFitInput = rootInput["groups"][input]["peak"][i]["gaussFitR2"].get<double>();
-            double gFitSaved = rootSaved["groups"][saved]["peak"][i]["gaussFitR2"].get<double>();
+            REQUIRE(!rootInput["groups"][input]["peaks"][i]["sampleName"].is_null());
+            sampleNameSaved = rootSaved["groups"][saved]["peaks"][i]["sampleName"].get<string>();
 
-            double pRankInput = rootInput["groups"][input]["peak"][i]["peakRank"].get<double>();
-            double pRankSaved = rootSaved["groups"][saved]["peak"][i]["peakRank"].get<double>();
-                                                
-            double pWidthInput = rootInput["groups"][input]["peak"][i]["peakWidth"].get<double>();
-            double pWidthSaved = rootSaved["groups"][saved]["peak"][i]["peakWidth"].get<double>();
+            double pMzInput = rootInput["groups"][input]["peaks"][i]["peakMz"].get<double>();
+            double pMzSaved = rootSaved["groups"][saved]["peaks"][i]["peakMz"].get<double>();
 
-            REQUIRE( SampleNameSaved == SampleNameInput );
+            double mMzInput = rootInput["groups"][input]["peaks"][i]["medianMz"].get<double>();
+            double mMzSaved = rootSaved["groups"][saved]["peaks"][i]["medianMz"].get<double>();
+
+            double bMzInput = rootInput["groups"][input]["peaks"][i]["baseMz"].get<double>();
+            double bMzSaved = rootSaved["groups"][saved]["peaks"][i]["baseMz"].get<double>();
+
+            double mzminInput = rootInput["groups"][input]["peaks"][i]["mzmin"].get<double>();
+            double mzminSaved = rootSaved["groups"][saved]["peaks"][i]["mzmin"].get<double>();
+
+            double mzmaxInput = rootInput["groups"][input]["peaks"][i]["mzmax"].get<double>();
+            double mzmaxSaved = rootSaved["groups"][saved]["peaks"][i]["mzmax"].get<double>();
+
+            double rtInput = rootInput["groups"][input]["peaks"][i]["rt"].get<double>();
+            double rtSaved = rootSaved["groups"][saved]["peaks"][i]["rt"].get<double>();
+
+            double rtminInput = rootInput["groups"][input]["peaks"][i]["rtmin"].get<double>();
+            double rtminSaved = rootSaved["groups"][saved]["peaks"][i]["rtmin"].get<double>();
+
+            double rtmaxInput = rootInput["groups"][input]["peaks"][i]["rtmax"].get<double>();
+            double rtmaxSaved = rootSaved["groups"][saved]["peaks"][i]["rtmax"].get<double>();
+
+            double qualityInput = rootInput["groups"][input]["peaks"][i]["quality"].get<double>();
+            double qualitySaved = rootSaved["groups"][saved]["peaks"][i]["quality"].get<double>();
+
+            double pIInput = rootInput["groups"][input]["peaks"][i]["peakIntensity"].get<double>();
+            double pISaved = rootSaved["groups"][saved]["peaks"][i]["peakIntensity"].get<double>();
+
+            double pBLLInput = rootInput["groups"][input]["peaks"][i]["peakBaseLineLevel"].get<double>();
+            double pBLLSaved = rootSaved["groups"][saved]["peaks"][i]["peakBaseLineLevel"].get<double>();
+
+            double pAreaInput = rootInput["groups"][input]["peaks"][i]["peakArea"].get<double>();
+            double pAreaSaved = rootSaved["groups"][saved]["peaks"][i]["peakArea"].get<double>();
+
+            double pSAreaInput = rootInput["groups"][input]["peaks"][i]["peakSplineArea"].get<double>();
+            double pSAreaSaved = rootSaved["groups"][saved]["peaks"][i]["peakSplineArea"].get<double>();
+
+            double pATopInput = rootInput["groups"][input]["peaks"][i]["peakAreaTop"].get<double>();
+            double pATopSaved = rootSaved["groups"][saved]["peaks"][i]["peakAreaTop"].get<double>();
+
+            double pANotCorInput = rootInput["groups"][input]["peaks"][i]["peakAreaNotCorrected"].get<double>();
+            double pANotCorSaved = rootSaved["groups"][saved]["peaks"][i]["peakAreaNotCorrected"].get<double>();
+
+            double pATNotInput = rootInput["groups"][input]["peaks"][i]["peakAreaTopNotCorrected"].get<double>();
+            double pATNOtSaved = rootSaved["groups"][saved]["peaks"][i]["peakAreaTopNotCorrected"].get<double>();
+
+            double noNoiseInput = rootInput["groups"][input]["peaks"][i]["noNoiseObs"].get<double>();
+            double noNoiseSaved = rootSaved["groups"][saved]["peaks"][i]["noNoiseObs"].get<double>();
+
+            double sBRatioInput = rootInput["groups"][input]["peaks"][i]["signalBaselineRatio"].get<double>();
+            double sBRatioSaved = rootSaved["groups"][saved]["peaks"][i]["signalBaselineRatio"].get<double>();
+
+            double fBankSInput = rootInput["groups"][input]["peaks"][i]["fromBlankSample"].get<double>();
+            double fBankSSaved = rootSaved["groups"][saved]["peaks"][i]["fromBlankSample"].get<double>();
+
+            double pAFInput = rootInput["groups"][input]["peaks"][i]["peakAreaFractional"].get<double>();
+            double pAFSaved = rootSaved["groups"][saved]["peaks"][i]["peakAreaFractional"].get<double>();
+
+            double symmetryInput = rootInput["groups"][input]["peaks"][i]["symmetry"].get<double>();
+            double symmetrySaved = rootSaved["groups"][saved]["peaks"][i]["symmetry"].get<double>();
+
+            double noNFracInput = rootInput["groups"][input]["peaks"][i]["noNoiseFraction"].get<double>();
+            double noNFracSaved = rootSaved["groups"][saved]["peaks"][i]["noNoiseFraction"].get<double>();
+
+            double gOverlapInput = rootInput["groups"][input]["peaks"][i]["groupOverlap"].get<double>();
+            double gOverlapSaved = rootSaved["groups"][saved]["peaks"][i]["groupOverlap"].get<double>();
+
+            double gOFracInput = rootInput["groups"][input]["peaks"][i]["groupOverlapFrac"].get<double>();
+            double gOFracSaved = rootSaved["groups"][saved]["peaks"][i]["groupOverlapFrac"].get<double>();
+
+            double gFitInput = rootInput["groups"][input]["peaks"][i]["gaussFitR2"].get<double>();
+            double gFitSaved = rootSaved["groups"][saved]["peaks"][i]["gaussFitR2"].get<double>();
+
+            double pRankInput = rootInput["groups"][input]["peaks"][i]["peakRank"].get<double>();
+            double pRankSaved = rootSaved["groups"][saved]["peaks"][i]["peakRank"].get<double>();
+
+            double pWidthInput = rootInput["groups"][input]["peaks"][i]["peakWidth"].get<double>();
+            double pWidthSaved = rootSaved["groups"][saved]["peaks"][i]["peakWidth"].get<double>();
+
+            // REQUIRE( sampleNameSaved == sampleNameInput );
             REQUIRE( pMzInput == doctest::Approx( pMzSaved ).epsilon(0.05));
             REQUIRE( mMzInput == doctest::Approx( mMzSaved ).epsilon(0.05));
             REQUIRE( bMzInput == doctest::Approx( bMzSaved ).epsilon(0.05));
@@ -671,8 +672,8 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
             REQUIRE( pATopInput == doctest::Approx( pATopSaved ).epsilon(0.05));
             REQUIRE( pANotCorInput == doctest::Approx( pANotCorSaved ).epsilon(0.05));
             REQUIRE( pATNOtSaved == doctest::Approx( pATNotInput ).epsilon(0.05));
-            REQUIRE( NoNoiseInput == doctest::Approx( NoNoiseSaved ).epsilon(0.05));
-            REQUIRE( SBRatioInput == doctest::Approx( SBRatioSaved ).epsilon(0.05));
+            REQUIRE( noNoiseInput == doctest::Approx( noNoiseSaved ).epsilon(0.05));
+            REQUIRE( sBRatioInput == doctest::Approx( sBRatioSaved ).epsilon(0.05));
             REQUIRE( fBankSInput == doctest::Approx( fBankSSaved ).epsilon(0.05));
             REQUIRE( pAFInput == doctest::Approx( pAFSaved ).epsilon(0.05));
             REQUIRE( symmetryInput == doctest::Approx( symmetrySaved ).epsilon(0.05));
@@ -682,15 +683,23 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
             REQUIRE( gFitInput == doctest::Approx( gFitSaved ).epsilon(0.05));
             REQUIRE( pRankInput == doctest::Approx( pRankSaved ).epsilon(0.05));
             REQUIRE( pWidthInput == doctest::Approx( pWidthSaved ).epsilon(0.05));
-            
-            for(size_t l = 0 ; l < rootInput["groups"][input]["peak"][i]["eic"]["rt"].size() ; l++)
-                REQUIRE(rootInput["groups"][input]["peak"][i]["eic"]["rt"][l] ==
-                                                                rootSaved["groups"][saved]["peak"][i]["eic"]["rt"][l]);
-                                                                                              
-            for(size_t l = 0; i < rootInput["groups"][input]["peak"][i]["eic"]["intensity"].size() ; l++)
-                REQUIRE(rootInput["groups"][input]["peak"][i]["eic"]["intensity"][l] == 
-                                                                rootSaved["groups"][saved]["peak"][i]["eic"]["intensity"][l]);
-                                
+
+            auto eicNodeInput = rootInput["groups"][input]["peaks"][i]["eic"];
+            auto eicNodeSaved = rootSaved["groups"][saved]["peaks"][i]["eic"];
+
+            REQUIRE (eicNodeInput["rt"].size() == eicNodeSaved["rt"].size());
+            for(size_t l = 0; l < eicNodeInput["rt"].size(); l++) {
+                auto input = eicNodeInput["rt"][l].get<double>();
+                auto saved = eicNodeSaved["rt"][l].get<double>();
+                REQUIRE(input == doctest::Approx( saved ).epsilon(0.05));
+            }
+
+            REQUIRE (eicNodeInput["intensity"].size() == eicNodeSaved["intensity"].size());
+            for(size_t l = 0; l < eicNodeInput["intensity"].size(); l++) {
+                auto input = eicNodeInput["intensity"][l].get<double>();
+                auto saved = eicNodeSaved["intensity"][l].get<double>();
+                REQUIRE(input == doctest::Approx( saved ).epsilon(0.05));
+            }
         }
     }
     remove("test.json");
