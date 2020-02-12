@@ -77,6 +77,7 @@ void Mixpanel::trackEvent(const QString& event,
     properties["token"] = _authToken;
     properties["distinct_id"] = _clientId;
     properties["time"] = _getUnixTime();
+    properties["Version"] = qApp->applicationVersion();
     QJsonObject eventData
     {
         {"event", event},
