@@ -1143,13 +1143,35 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
 
         QCoreApplication::processEvents();
 
-        QString csvFilename = datetimestamp + "_" + tableName + ".csv";
+        QString groupCsvFilename = datetimestamp
+                                   + "_"
+                                   + tableName
+                                   + "_groups"
+                                   + ".csv";
         peakTable->treeWidget->selectAll();
         peakTable->prepareDataForPolly(_writeableTempDir,
                                        "Groups Summary Matrix Format "
                                        "Comma Delimited (*.csv)",
-                                        csvFilename);
-        filenames.append(_writeableTempDir + QDir::separator() + csvFilename);
+                                        groupCsvFilename);
+        filenames.append(_writeableTempDir
+                         + QDir::separator()
+                         + groupCsvFilename);
+
+        QCoreApplication::processEvents();
+
+        QString peakCsvFilename = datetimestamp
+                                  + "_"
+                                  + tableName
+                                  + "_peaks"
+                                  + ".csv";
+        peakTable->treeWidget->selectAll();
+        peakTable->prepareDataForPolly(_writeableTempDir,
+                                       "Peaks Detailed Format "
+                                       "Comma Delimited (*.csv)",
+                                        peakCsvFilename);
+        filenames.append(_writeableTempDir
+                         + QDir::separator()
+                         + peakCsvFilename);
 
         QCoreApplication::processEvents();
     }
