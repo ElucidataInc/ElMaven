@@ -19,19 +19,22 @@ CSVReports::CSVReports(string filename, ReportType reportType,
                    MavenParameters * mp, bool pollyExport)
 {
     /*
-     *@detail -   constructor for opening the type of report needed by the user
-     *(group or peak report)and instantiating class by all samples uploaded,
-     *different from samples vector of PeakGroup which will hold
-     *samples used for that particular group. it will be used to export group info
-     *only for samples used by a group and for other group, fields will be marked NA.
-     *Note that these samples are represented by pointers which will change their state
-     *even after group has been determine and detected. Only way to get those samples
-     *used for particular group by comparing these sample and samples from PeakGroup
+     * @detail -   constructor for opening the type of report needed by the user
+     * (group or peak report)and instantiating class by all samples uploaded,
+     * different from samples vector of PeakGroup which will hold
+     * samples used for that particular group. it will be used to export group
+     * info only for samples used by a group and for other group, fields will
+     * be marked NA. Note that these samples are represented by pointers which
+     * will change their state even after group has been determine and detected.
+     * Only way to get those samples used for particular group by comparing
+     * these sample and samples from PeakGroup
      */
     samples = insamples;
     groupId = 0;
     _pollyExport = pollyExport;
-    /**@brief-  set user quant type-  generally represent intensity but not always check QType enum in PeaKGroup.h  */
+    /**@brief-  set user quant type-  generally represent intensity
+     * but not always check QType enum in PeaKGroup.h
+     */
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
     errorReport = "";
     mavenparameters = mp;
@@ -48,12 +51,11 @@ CSVReports::CSVReports(string filename, ReportType reportType,
         else
             setTabDelimited();
         _reportStream.open(filename.c_str());
-        
-        _insertPeakReportColumnNamesintoCSVFile();      /**@brief-  write name of column  if output file is open */
+        /**@brief-  write name of column  if output file is open */
+        _insertPeakReportColumnNamesintoCSVFile();
     }
         
     else{
-        
         // if number of sample is zero, output file will not open
         if (insamples.size() == 0)
             return;
@@ -69,9 +71,6 @@ CSVReports::CSVReports(string filename, ReportType reportType,
                                                 _prmReport,
                                                 _includeSetNamesLine);
     }
-        
-  
-    
 }
 
 CSVReports::~CSVReports()
@@ -83,9 +82,9 @@ CSVReports::~CSVReports()
 QString CSVReports::_sanitizeString(const char* s) 
 {
     QString out=s;
-    out.replace(QString("\""),QString("\"\""));
+    out.replace(QString("\""), QString("\"\""));
     if(out.contains(SEP.c_str())){
-        out="\""+out+"\"";
+        out = "\"" + out + "\"";
     }
     return out;
 }
@@ -142,7 +141,7 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(string outputfile,
             for(int i = 0; i < cohort_offset; i++)
                 _reportStream << SEP;
 
-            for(int i = 0; i < static_cast<int>(samples.size()); i++) {
+            for(size_t i = 0; i < samples.size(); i++) {
                 string name = samples[i]->getSetName();
                 _reportStream << SEP
                               << _sanitizeString(name.c_str()).toStdString();
@@ -207,7 +206,8 @@ void CSVReports::addGroup (PeakGroup* group)
     }
 }
 
-void CSVReports::_insertIsotopes(PeakGroup* group, bool userSelectedIsotopesOnly)
+void CSVReports::_insertIsotopes(PeakGroup* group,
+                                 bool userSelectedIsotopesOnly)
 {
     if (userSelectedIsotopesOnly) {
         _insertUserSelectedIsotopes(group);
@@ -247,11 +247,11 @@ void CSVReports::_insertUserSelectedIsotopes(PeakGroup* group)
 }
 
 
-void CSVReports::_writeGroupInfo(PeakGroup* group) {
+void CSVReports::_writeGroupInfo(PeakGroup* group)
+{
     if (!_reportStream.is_open())
         return;
     groupId++;
-    
     
     char lab;
     lab = group->label;
@@ -261,8 +261,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
         if (group->label == '\0') {
             lab = parentGroup->label;
         }
-    }
-    else{
+    } else{
         parentGroup=group;
     }
     
@@ -273,8 +272,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
     } else if (selectionFlag == 4) {
         if (lab == 'b') return;
     }
-    
-   
+
     vector<float> yvalues = group->getOrderedIntensityVector(samples, qtype);
     // if ( group->metaGroupId == 0 ) { group->metaGroupId=groupId; }
 
@@ -295,7 +293,6 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
                   << SEP << setprecision(6) << group->maxQuality
                   << SEP << tagString;
 
-    
     string compoundName = "";
     string compoundID = "";
     string formula = "";
@@ -306,8 +303,8 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
     if (group->getCompound() != NULL) {
         compoundName = _sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula.c_str()).toStdString();
-        if (!group->getCompound()->formula.empty()) {
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
+        if (!group->getCompound()->formula().empty()) {
             int charge = getMavenParameters()->getCharge(group->getCompound());
             if (group->parent != NULL) {
                 ppmDist = mzUtils::massCutoffDist((double) group->getExpectedMz(charge),
@@ -319,20 +316,17 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
             }
         }
         else {
-            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mass, (double) group->meanMz,getMavenParameters()->massCutoffMerge);
+            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mass,
+                                              (double) group->meanMz,
+                                              getMavenParameters()->massCutoffMerge);
         }
-        expectedRtDiff = group->expectedRtDiff;
-
+        expectedRtDiff = group->expectedRtDiff();
         // TODO: Added this while merging this file
-        //for(int i=0;i<group->getCompound()->category.size(); i++) {
-        //    categoryString += group->getCompound()->category[i] + ";";
-        //}
-        //categoryString=_sanitizeString(categoryString.c_str()).toStdString();
-
     } else {
         // absence of a group compound means this group was created using untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
-        compoundName = std::to_string(group->meanMz) + "@" + std::to_string(group->meanRt);
+        compoundName = std::to_string(group->meanMz) + "@" +
+                       std::to_string(group->meanRt);
         compoundID = compoundName;
     }
     
@@ -348,7 +342,9 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
         _reportStream << SEP << group->meanMz;
     }
 
-    if (group->getCompound() && group->getCompound()->type() == Compound::Type::PRM && !_pollyExport) {
+    if (group->getCompound() &&
+        group->getCompound()->type() == Compound::Type::PRM &&
+        !_pollyExport) {
         auto groupToWrite = group;
 
         // if this is a C12 PARENT, then all PRM attributes should be taken from
@@ -382,22 +378,21 @@ void CSVReports::_writeGroupInfo(PeakGroup* group) {
             }
         }   
     }
-    
     _reportStream << endl;
-    
 }
 
-void CSVReports::_writePeakInfo(PeakGroup* group) {
-    
+void CSVReports::_writePeakInfo(PeakGroup* group)
+{
     string compoundName = "";
     string compoundID = "";
     string formula = "";
     if (group->getCompound() != NULL) {
         compoundName = _sanitizeString(group->getCompound()->name.c_str()).toStdString();
         compoundID   = _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula.c_str()).toStdString();
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
     } else {
-        // absence of a group compound means this group was created using untargeted detection,
+        // absence of a group compound means this group was created using
+        // untargeted detection,
         // we set compound name and ID to {mz}@{rt} strings for untargeted sets.
         compoundName = std::to_string(group->meanMz) + "@" + std::to_string(group->meanRt);
         compoundID = compoundName;
@@ -411,8 +406,10 @@ void CSVReports::_writePeakInfo(PeakGroup* group) {
         if (group->label == 'b') return;
     }
 
-    // sort the peaks in the group according to the sample names using a comparison function
-    // this ensures that the order in which the peaks are written is same across different systems.
+    // sort the peaks in the group according to the sample names using a
+    // comparison function
+    // this ensures that the order in which the peaks are written is same across
+    // different systems.
     std::sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleName);
 
     vector<mzSample*> samplesWithNoPeak = samples;
@@ -431,7 +428,6 @@ void CSVReports::_writePeakInfo(PeakGroup* group) {
             sampleName = _sanitizeString(sample->sampleName.c_str()).toStdString();
         }
 
-
         _reportStream << fixed << setprecision(6)
                       << group->groupId
                       << SEP << compoundName
@@ -446,8 +442,10 @@ void CSVReports::_writePeakInfo(PeakGroup* group) {
                       << SEP << peak.rtmin
                       << SEP << peak.rtmax
                       << SEP << peak.quality
-                      // for intensity values, we only write two digits of floating point precision
-                      // since these values are supposed to be large (in the order of > 10^3).
+                      // for intensity values, we only write two digits of
+                      // floating point precision
+                      // since these values are supposed to be large
+                      // (in the order of > 10^3).
                       << setprecision(2)
                       << SEP << peak.peakIntensity
                       << SEP << peak.peakArea
@@ -489,12 +487,10 @@ void CSVReports::_writePeakInfo(PeakGroup* group) {
                    << SEP << 0.0f
                    << SEP << 0 << endl;
     }
-    
-  
 }
 
-
-void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup> groups)
+void CSVReports::writeDataForPolly(const std::string& file,
+                                   std::list<PeakGroup> groups)
 {
     _reportStream.open(file.c_str());
     if(_reportStream.is_open()) {
@@ -503,7 +499,8 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
         for(auto grp: groups) {
             for(auto child: grp.children) {
 
-                int mlLabel =  (child.markedGoodByCloudModel) ? 1 : (child.markedBadByCloudModel) ? 0 : -1;
+                int mlLabel =  (child.markedGoodByCloudModel) ? 1 :
+                               (child.markedBadByCloudModel) ? 0 : -1;
                 _reportStream << mlLabel;
                 _reportStream << ",";
 
@@ -516,9 +513,9 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
                 if(child.getCompound() != NULL)
                     compoundName = _sanitizeString(child.getCompound()->name.c_str()).toStdString();
                 else
-                    compoundName = std::to_string(child.meanMz) + "@" + std::to_string(child.meanRt);
+                    compoundName = std::to_string(child.meanMz) + "@" +
+                                   std::to_string(child.meanRt);
                 _reportStream << compoundName;
-
                 _reportStream << endl;
             }
         }
@@ -526,22 +523,16 @@ void CSVReports::writeDataForPolly(const std::string& file, std::list<PeakGroup>
     _reportStream.close();
 }
     
-
-
-
+///////////////////////////Test Cases//////////////////////////////
 class CSVReportFixture
 {
-    protected:
-    
-            vector<mzSample*> samples;
-               
-            vector <PeakGroup> allgroups;
-            
-            MavenParameters* mavenparameters;
+    private:
+            vector<mzSample*> _samples;
+            vector <PeakGroup> _allgroups;
+            MavenParameters* _mavenparameters;
             
     private:
             
-
             Databases database;
             
             void _makeSampleList()
@@ -555,10 +546,10 @@ class CSVReportFixture
                 sample3->loadSample("bin/methods/091215_240i.mzXML");
                 sample4->loadSample("bin/methods/091215_240M.mzXML");
                 
-                samples.push_back(sample1);
-                samples.push_back(sample2);
-                samples.push_back(sample3);
-                samples.push_back(sample4);
+                _samples.push_back(sample1);
+                _samples.push_back(sample2);
+                _samples.push_back(sample3);
+                _samples.push_back(sample4);
                   
             }
             
@@ -590,61 +581,80 @@ class CSVReportFixture
                 database.loadCompoundCSVFile(loadCompoundDB);
                 vector<Compound*> compounds =
                     database.getCompoundsSubset("KNOWNS");
-
-          
-                _loadSamplesAndParameters(samples,mavenparameters);
-
+                _loadSamplesAndParameters(_samples,_mavenparameters);
                 PeakDetector peakDetector;
-                peakDetector.setMavenParameters(mavenparameters);
+                peakDetector.setMavenParameters(_mavenparameters);
                 vector<mzSlice*> slices =
                     peakDetector.processCompounds(compounds, "compounds");
                 peakDetector.processSlices(slices, "compounds");
 
-                return mavenparameters->allgroups;
+                return _mavenparameters->allgroups;
             }
 
-            
-            
     public:
             CSVReportFixture(){
-                mavenparameters= new MavenParameters();
-                                
+                _mavenparameters= new MavenParameters();
                 _makeSampleList();
-          
-                allgroups=_getGroupsFromProcessCompounds();
-                 
+                _allgroups=_getGroupsFromProcessCompounds();
             }
                 
             ~CSVReportFixture(){
-                delete samples[0];
-                delete samples[1];
-                delete samples[2];
-                delete samples[3];
-                delete mavenparameters;
-            }            
-            
-};
+                delete _samples[0];
+                delete _samples[1];
+                delete _samples[2];
+                delete _samples[3];
+                delete _mavenparameters;
+            }
+            /**
+             * @brief samples Returns vector of samples loaded.
+             * @return
+             */
+            vector<mzSample*> samples()
+            {
+                return _samples;
+            }
 
+            /**
+             * @brief allgroups Returns all peakgroups of the mavenparameters.
+             * @return
+             */
+            vector<PeakGroup> allgroups()
+            {
+                return _allgroups;
+            }
+
+            /**
+             * @brief mavenparameters   Returns MavenParameters
+             * @return
+             */
+            MavenParameters* mavenparameters()
+            {
+                return _mavenparameters;
+            }
+};
 
 TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
 {
    
-    SUBCASE("Testing Group File"){
-        
+    SUBCASE("Testing Group File")
+    {
+        auto sample = samples();
+        auto mavenparameter = mavenparameters();
         string groupReport = "groupReport.csv";
-   
-        CSVReports* csvReports = new CSVReports(groupReport,CSVReports::ReportType::GroupReport,samples, 
-                                                        PeakGroup::AreaTop, false, true, mavenparameters);
-        
-        for(int i=0; i < static_cast<int>(allgroups.size()); i++ ) {
-            PeakGroup* peakGroup = new PeakGroup(allgroups[i]);
+        CSVReports* csvReports = new CSVReports(groupReport,
+                                                CSVReports::ReportType::GroupReport,
+                                                sample,
+                                                PeakGroup::AreaTop,
+                                                false, true,
+                                                mavenparameter);
+        auto allgroup = allgroups();
+        for(int i=0; i < static_cast<int>(allgroups().size()); i++ ) {
+            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
             csvReports->addGroup(peakGroup);
         }
 
         ifstream inputGroupFile("groupReport.csv");
         ifstream savedGroupFile("tests/test-libmaven/test_groupReport.csv");
-
-
         string headerInput;
         getline(inputGroupFile, headerInput);
         getline(inputGroupFile, headerInput);
@@ -654,7 +664,6 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
 
         int cnt=0;
         while(!inputGroupFile.eof()){
-
             cnt++;
             string input;
             getline(inputGroupFile,input);
@@ -662,7 +671,6 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
             if(input.size() > 0){
                 vector<string> inputValues;
                 mzUtils::splitNew(input , "," , inputValues);
-
                 if(cnt > 1){
                     savedGroupFile.clear();
                     savedGroupFile.seekg( 0, ios::beg);
@@ -673,32 +681,34 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
 
 
                  while(!savedGroupFile.eof()){
-
                     string saved;
                     getline(savedGroupFile, saved);
-                    if(saved.size()){
-                        vector<string> savedValues;
-                        mzUtils::splitNew(saved, "," , savedValues);
+                    vector<string> savedValues;
+                    mzUtils::splitNew(saved, "," , savedValues);
 
-                        if(string2float(inputValues[4]) == doctest::Approx(string2float(savedValues[4])) &&
-                           string2float(inputValues[5]) == doctest::Approx(string2float(savedValues[5])) &&
-                           string2float(inputValues[12]) == doctest::Approx(string2float(savedValues[12])) &&
-                           inputValues[8] == savedValues[8] ){
+                    if(string2float(inputValues[4]) ==
+                       doctest::Approx(string2float(savedValues[4])) &&
+                       string2float(inputValues[5]) ==
+                       doctest::Approx(string2float(savedValues[5])) &&
+                        /*epsilon value has to be a greater term i.e 15% as
+                          inputValue[12] is parts per millions. Thus, it may
+                          show a more deviation that normal */
+                        string2float(inputValues[12]) ==
+                        doctest::Approx(string2float(savedValues[12])).epsilon(0.15) &&
+                       inputValues[8] == savedValues[8] ){
 
-                            double inputFloat;
-                            double savedFloat;
-                            for(int i = 3; i < static_cast<int>(inputValues.size()); i++){
-                                if( i == 8 || i == 9 || i == 10){
-                                    REQUIRE(inputValues[i] == savedValues[i]);
-                                }
-                                else{
-                                    inputFloat = string2float(inputValues[i]);
-                                    savedFloat = string2float(savedValues[i]);
-                                    REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
-                               }
-                            }
-                            break;
+                        double inputFloat;
+                        double savedFloat;
+                        for(int i = 3; i < static_cast<int>(inputValues.size()); i++){
+                            if( i == 8 || i == 9 || i == 10){
+                                REQUIRE(inputValues[i] == savedValues[i]);
+                            } else{
+                                inputFloat = string2float(inputValues[i]);
+                                savedFloat = string2float(savedValues[i]);
+                                REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.15));
+                           }
                         }
+                        break;
                     }
                 }
             }
@@ -708,17 +718,22 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
         remove("groupReport.csv");
     }
     
-    
     SUBCASE("Testing Peak File"){
-        
-        
+
         string peakReport = "peakReport.csv";
-   
-        CSVReports* csvReports = new CSVReports(peakReport,CSVReports::ReportType::PeakReport,samples, 
-                                                        PeakGroup::AreaTop, false, true, mavenparameters);
-        
-        for(int i=0; i < static_cast<int>(allgroups.size()); i++ ) {
-            PeakGroup* peakGroup = new PeakGroup(allgroups[i]);
+        auto sample = samples();
+        auto mavenparameter = mavenparameters();
+
+        CSVReports* csvReports = new CSVReports(peakReport,
+                                                CSVReports::ReportType::PeakReport,
+                                                sample,
+                                                PeakGroup::AreaTop,
+                                                false, true,
+                                                mavenparameter);
+
+        auto allgroup = allgroups();
+        for(int i=0; i < static_cast<int>(allgroup.size()); i++ ) {
+            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
             csvReports->addGroup(peakGroup);
         }
         
@@ -751,37 +766,33 @@ TEST_CASE_FIXTURE(CSVReportFixture,"Testing csvReports")
                 }
 
 
-                 while(!savedPeakFile.eof()){
+                while(!savedPeakFile.eof()){
+                string saved;
+                getline(savedPeakFile, saved);
+                vector<string> savedValues;
+                mzUtils::splitNew(saved, "," , savedValues);
+                if(string2float(inputValues[8]) == doctest::Approx(string2float(savedValues[8])) &&
+                   string2float(inputValues[12]) == doctest::Approx(string2float(savedValues[12])) &&
+                   inputValues[2] == savedValues[2] ){
 
-                    string saved;
-                    getline(savedPeakFile, saved);
-                    if(saved.size()){
-                        vector<string> savedValues;
-                        mzUtils::splitNew(saved, "," , savedValues);
-
-                        if(string2float(inputValues[8]) == doctest::Approx(string2float(savedValues[8])) &&
-                           string2float(inputValues[12]) == doctest::Approx(string2float(savedValues[12])) &&
-                           inputValues[2] == savedValues[2] ){
-
-                            double inputFloat;
-                            double savedFloat;
-                            for(int i = 1; i < static_cast<int>(inputValues.size()); i++){
-                                if( i == 1 || i == 2 || i == 3){
-                                    REQUIRE(inputValues[i] == savedValues[i]);
-                                }
-                                else if(i == 4)
-                                    continue;
-                                else{
-                                    inputFloat = string2float(inputValues[i]);
-                                    savedFloat = string2float(savedValues[i]);
-                                    REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.05));
-                               }
-                            }
-                            break;
+                    double inputFloat;
+                    double savedFloat;
+                    for(int i = 1; i < static_cast<int>(inputValues.size()); i++){
+                        if( i == 1 || i == 2 || i == 3){
+                            REQUIRE(inputValues[i] == savedValues[i]);
+                        }
+                        else if(i == 4)
+                            continue;
+                        else{
+                            inputFloat = string2float(inputValues[i]);
+                            savedFloat = string2float(savedValues[i]);
+                            REQUIRE( inputFloat == doctest::Approx(savedFloat).epsilon(0.15));
                         }
                     }
+                    break;
                 }
-            }
+             }
+          }
         }
         inputPeakFile.close();
         savedPeakFile.close();
