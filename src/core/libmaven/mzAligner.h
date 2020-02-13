@@ -62,9 +62,13 @@ class Aligner {
      * @brief Add an AlignmentSegment that will be used when performing
      * segmented alignment on the next call to `performSegmentedAlignment`.
      * @param sampleName Name of the sample associated with this segment.
-     * @param seg Pointer to the AlignmentSegment to be added.
+     * @param seg The AlignmentSegment to be added.
+     * @param alignmentSegment_private Private map, function makes
+     * use of multiprocessing. Each Iteration must make edits private maps
+     * and then merged into final map.
      */
-    void addSegment(string sampleName, AlignmentSegment seg,
+    void addSegment(string sampleName,
+                    AlignmentSegment seg,
                     map<string,vector<AlignmentSegment>>& alignmentSegment_private);
 
     /**

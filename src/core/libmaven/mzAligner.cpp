@@ -51,36 +51,30 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups)
 	saveFit();
 	double R2_before = checkFit();
 
-    cerr << "Max Iterations: " << maxIterations << endl;
     for(int iter = 0; iter < maxIterations; iter++) {
-		cerr << iter << endl;
-
         PolyFit(polynomialDegree);
         double R2_after = checkFit();
-        cerr << "Iteration:" << iter << " R2_before" << R2_before << " R2_after" << R2_after << endl;
-
-		if (R2_after > R2_before) {
+        if (R2_after > R2_before) {
             cerr << "done..restoring previous fit.." << endl;
-			restoreFit();
-			break;
-		} else {
-			saveFit();
-		}
-		
-        R2_before = R2_after;
-	}
+            restoreFit();
+            break;
+        } else {
+            saveFit();
+        }
 
-	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
-		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
-			Peak peak = grp->getPeaks().at(jj);
-			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
-		}
-	}
+    R2_before = R2_after;
+    }
+
+    for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
+            PeakGroup* grp = allgroups.at(ii);
+            for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
+                    Peak peak = grp->getPeaks().at(jj);
+                    deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
+            }
+    }
 }
 
 void Aligner::saveFit() {
-	cerr << "saveFit()" << endl;
 	fit.clear();
 	fit.resize(samples.size());
 	for(unsigned int i=0; i < samples.size(); i++ ) {
@@ -113,16 +107,14 @@ double Aligner::checkFit() {
 	for(unsigned int i=0; i < allgroups.size(); i++ ) {
 		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
 			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
-		}
-	}
-	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
+                }
+        }
 	return sumR2;
 }
 
 void Aligner::PolyFit(int poly_align_degree) {
 
 	if (allgroups.size() < 2 ) return;
-	cerr << "Align: " << allgroups.size() << endl;
 
 	vector<double> allGroupsMeansRt  = groupMeanRt();
 
@@ -531,9 +523,6 @@ void Aligner::performSegmentedAlignment()
 
         string sampleName = sample->sampleName;
         if (_alignmentSegments.count(sampleName) == 0) {
-            cerr << "Cannot find alignment information for sample "
-                 << sampleName
-                 << endl;
             continue;
         }
 
