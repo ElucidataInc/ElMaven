@@ -253,6 +253,7 @@ private:
     bool _ignoreTolerance;
 
     bool _ignoreMouseReleaseEvent;
+    QGraphicsLineItem* _selectionLine;
     vector<EicLine*> _drawnLines;
     vector<EicPoint*> _drawnPoints;
 
@@ -278,6 +279,9 @@ private:
 
 	//function to add and remove notes
 	void getNotes(float mzmin, float mzmax);
+
+    void _drawSelectionLine(float rtMin, float rtMax);
+    void _eraseSelectionLine();
 
     void _clearEicLines();
     void _clearEicPoints();

@@ -81,6 +81,7 @@ EicWidget::EicWidget(QWidget *p) {
     _mouseEndPos = _mouseStartPos = QPointF(0,0); //TODO: Sahil, added while merging eicwidget
     _ignoreTolerance = false;
     _ignoreMouseReleaseEvent = false;
+    _selectionLine = nullptr;
 
 	connect(scene(), SIGNAL(selectionChanged()), SLOT(selectionChangedAction()));
     connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGalleryToEics);
@@ -306,6 +307,25 @@ void EicWidget::setScan(Scan* scan) {
 
 }
 
+void EicWidget::_drawSelectionLine(float rtMin, float rtMax) {
+    if (_selectionLine == nullptr)
+        _selectionLine = new QGraphicsLineItem(nullptr);
+    if (_selectionLine->scene() != scene())
+        scene()->addItem(_selectionLine);
+
+    QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    _selectionLine->setPen(pen);
+    _selectionLine->setZValue(1000);
+    _selectionLine->setLine(toX(rtMin), height() - 8, toX(rtMax), height() - 8);
+    _selectionLine->update();
+}
+
+void EicWidget::_eraseSelectionLine()
+{
+    if (_selectionLine != nullptr && _selectionLine->scene() == scene())
+        scene()->removeItem(_selectionLine);
+}
+
 void EicWidget::mouseMoveEvent(QMouseEvent* event) {
 // //qDebug <<" EicWidget::mouseMoveEvent(QMouseEvent* event)";
 	QGraphicsView::mouseMoveEvent(event);
@@ -505,6 +525,7 @@ void EicWidget::_clearEicLines()
             line->removeFromScene();
     }
     _drawnLines.clear();
+    _eraseSelectionLine();
     scene()->update();
 }
 
@@ -650,6 +671,7 @@ void EicWidget::addEICLines(bool showSpline,
         if (overlayingIntegratedArea) {
             setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
             setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
+            _drawSelectionLine(rtMin, rtMax);
         }
 
         setLineAttributes(lineSpline, eic, 0.7f, zValue);
@@ -1036,6 +1058,7 @@ void EicWidget::clearPlot() {
 	if (_statusText && _statusText->scene()) {
 		scene()->removeItem(_statusText);
 	}
+    _eraseSelectionLine();
 	scene()->clear();
 	scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
 }
