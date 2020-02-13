@@ -1722,6 +1722,7 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
 
     emit groupSet(group);
     replot(group);
+    _clearEicPoints();
 	addPeakPositions(group);
 }
 
