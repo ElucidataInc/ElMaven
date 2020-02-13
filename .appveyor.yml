@@ -97,8 +97,7 @@ after_build:
 
           # clone packaging repo
           echo "Cloning packaging repo ..."
-          # TODO: reset this to master branch after merge
-          git clone --single-branch --branch online_repo https://github.com/ElucidataInc/elmaven-packaging.git
+          git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
 
           # define variables
           echo "Defining environment variables ..."

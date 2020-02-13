@@ -136,8 +136,7 @@ after_success:
     fi
 
     export PACKAGING_REPO=elmaven-packaging
-    # TODO: reset this to master branch after merge
-    git clone --single-branch --branch online_repo https://github.com/ElucidataInc/elmaven-packaging.git
+    git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       cd $PACKAGING_REPO
