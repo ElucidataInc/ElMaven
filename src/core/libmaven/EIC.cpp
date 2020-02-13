@@ -581,7 +581,6 @@ void EIC::findPeakBounds(Peak &peak)
 void EIC::getPeakDetails(Peak &peak)
 {
     unsigned int N = intensity.size();
-
     if (N == 0)
         return;
     if (baseline == NULL)
@@ -721,19 +720,20 @@ void EIC::getPeakDetails(Peak &peak)
 
 void EIC::getPeakWidth(Peak &peak)
 {
+
     int width = 1;
     int left = 0;
     int right = 0;
-    unsigned int N = intensity.size();
+    size_t N = intensity.size();
 
     for (unsigned int i = peak.pos - 1; i > peak.minpos && i < N; i--)
     {
-        if (intensity[i] > baseline[i])
-            left++;
-        else
+        if (intensity[i] < baseline[i] ||
+            mzUtils::almostEqual(baseline[i], intensity[i], 0.0000005f))
             break;
+        else
+            left++;
     }
-
     for (unsigned int j = peak.pos + 1; j < peak.maxpos && j < N; j++)
     {
         if (intensity[j] > baseline[j])
@@ -741,7 +741,6 @@ void EIC::getPeakWidth(Peak &peak)
         else
             break;
     }
-
     peak.width = width + left + right;
 }
 

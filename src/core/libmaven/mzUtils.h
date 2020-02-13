@@ -512,7 +512,8 @@ namespace mzUtils {
      * @param b Second double value to be compared.
      * @return True if the values are relatively close to each other.
      */
-    bool almostEqual(double a, double b);
+    bool almostEqual(double a, double b,
+                     double epsilon = std::numeric_limits<double>::epsilon());
 
     /**
      * @brief Check whether two single precision fractions are almost equal to
@@ -521,7 +522,8 @@ namespace mzUtils {
      * @param b Second float value to be compared.
      * @return True if the values are relatively close to each other.
      */
-    bool almostEqual(float a, float b);
+    bool almostEqual(float a, float b,
+                     float epsilon = std::numeric_limits<float>::epsilon());
 
     /**
      * [fractional overlap between two line segments]

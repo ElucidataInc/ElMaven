@@ -558,24 +558,24 @@ Series:  Prentice-Hall Series in Automatic Computation
         return (!retval && (sbuf.st_mode & S_IFDIR));
     }
 
-    bool almostEqual(double a, double b)
+    bool almostEqual(double a, double b, double epsilon)
     {
         // the machine epsilon has to be scaled to the magnitude of the values
         // used and multiplied by the desired precision in ULPs (units in the
         // last place).
-        return std::abs(a - b) <= std::numeric_limits<double>::epsilon()
+        return std::abs(a - b) <= epsilon
                 * std::abs(a + b)
                 * 2
                 // unless the result is subnormal
                 || std::abs(a - b) < std::numeric_limits<double>::min();
     }
 
-    bool almostEqual(float a, float b)
+    bool almostEqual(float a, float b, float epsilon)
     {
         // the machine epsilon has to be scaled to the magnitude of the values
         // used and multiplied by the desired precision in ULPs (units in the
         // last place).
-        return std::abs(a - b) <= std::numeric_limits<float>::epsilon()
+        return std::abs(a - b) <= epsilon
                 * std::abs(a + b)
                 * 1
                 // unless the result is subnormal
