@@ -164,7 +164,6 @@ FORMS = forms/settingsform.ui  \
         forms/awsbucketcredentialsdialog.ui \
         forms/samplertwidget.ui \
         forms/isotopeplotdockwidget.ui \
-        forms/gettingstarted.ui \
         forms/pollywaitdialog.ui \
         forms/peaktabledeletiondialog.ui \
         forms/isotopedialog.ui \
@@ -240,7 +239,6 @@ HEADERS += stable.h \
            controller.h \
            numeric_treewidgetitem.h \
            isotopeplotdockwidget.h \
-           gettingstarted.h \
            pollywaitdialog.h \
            peaktabledeletiondialog.h \
            notificator.h \
@@ -318,7 +316,6 @@ SOURCES += mainwindow.cpp  \
            controller.cpp \
            numeric_treewidgetitem.cpp \
            isotopeplotdockwidget.cpp \
-           gettingstarted.cpp \
            pollywaitdialog.cpp \
            peaktabledeletiondialog.cpp \
            notificator.cpp \

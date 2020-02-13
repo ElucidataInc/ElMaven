@@ -21,7 +21,6 @@
 #include "stable.h"
 #include "base64.h"
 #include "Compound.h"
-#include "gettingstarted.h"
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
@@ -138,7 +137,6 @@ int main(int argc, char *argv[])
 
     splash.finish(contrl.getMainWindow());
     contrl.getMainWindow()->show();
-    contrl.getMainWindow()->gettingstarted->showDialog();
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
 

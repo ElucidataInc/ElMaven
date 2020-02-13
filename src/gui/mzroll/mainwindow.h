@@ -33,7 +33,7 @@ class SpectraWidget;
 class GroupRtWidget;
 class AlignmentVizAllGroupsWidget;
 class IsotopicPlots;
-class GettingStarted;
+class AdductWidget;
 class LigandWidget;
 class PathwayWidget;
 class IsotopeWidget;
@@ -128,7 +128,7 @@ public:
     QCustomPlot *sampleRtVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
-	GettingStarted *gettingstarted;
+	AdductWidget *adductWidget;
 	LigandWidget *ligandWidget;
 	IsotopeWidget *isotopeWidget;
 	TreeDockWidget *covariantsPanel;
@@ -442,7 +442,6 @@ public Q_SLOTS:
 
 private Q_SLOTS:
 	void createMenus();
-	void openURL(int choice);
 	void createToolBars();
 	void readSettings();
 	void writeSettings();

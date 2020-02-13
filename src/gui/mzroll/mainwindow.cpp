@@ -19,7 +19,6 @@
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "gallerywidget.h"
-#include "gettingstarted.h"
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
@@ -312,7 +311,7 @@ using namespace mzUtils;
     sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
-	gettingstarted = new GettingStarted(this);
+	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
 
@@ -2727,26 +2726,22 @@ void MainWindow::createMenus() {
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
 
-	QAction* start = helpMenu->addAction("Getting Started");
-	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
-
 	signalMapper->setMapping(doc, 1);
 	signalMapper->setMapping(tutorial, 2);
 	signalMapper->setMapping(faq, 3);
 
-	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(openURL(int)));
+    connect(signalMapper,
+            QOverload<int>::of(&QSignalMapper::mapped),
+            [this] (int choice) {
+                map<int,QUrl> URL{
+                    {1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
+                    {2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
+                    {3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
+                };
+                QDesktopServices::openUrl(URL[choice]);
+            });
 
 	menuBar()->show();
-}
-
-void MainWindow::openURL(int choice)
-{
-	map<int,QUrl> URL{
-		{1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
-		{2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
-		{3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
-	};
-	QDesktopServices::openUrl(URL[choice]);
 }
 
 QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
