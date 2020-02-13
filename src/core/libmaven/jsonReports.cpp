@@ -276,7 +276,6 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
             grp.groupId = ++groupId;
             grp.metaGroupId = ++metaGroupId;
             if(groupId > 1) file<< "\n,";
-
             _writeGroup(grp,file);
             if(grp.hasCompoundLink())
                 _writeCompoundLink(grp, file);
@@ -290,7 +289,6 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
                 grp.children[k].metaGroupId = grp.metaGroupId;
                 grp.children[k].groupId = ++groupId;
                 if(groupId > 1) file << "\n,";
-
                 _writeGroup(grp.children[k], file);
                 if( grp.children[k].hasCompoundLink() )
                     _writeCompoundLink(grp, file);
@@ -383,6 +381,7 @@ class JsonReportsFixture{
 
                 PeakDetector peakDetector;
                 peakDetector.setMavenParameters(_mavenparameters);
+
                 vector<mzSlice*> slices =
                     peakDetector.processCompounds(compounds, "compounds");
                 peakDetector.processSlices(slices, "compounds");
@@ -450,6 +449,7 @@ class JsonReportsFixture{
  */
 TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
 {
+
     string jsonFilename = "test.json";
     JSONReports* jsonReports = new JSONReports(mavenparameters(), false);
     auto samplesUsed = samples();
@@ -655,7 +655,6 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
             double pWidthInput = rootInput["groups"][input]["peaks"][i]["peakWidth"].get<double>();
             double pWidthSaved = rootSaved["groups"][saved]["peaks"][i]["peakWidth"].get<double>();
 
-            // REQUIRE( sampleNameSaved == sampleNameInput );
             REQUIRE( pMzInput == doctest::Approx( pMzSaved ).epsilon(0.05));
             REQUIRE( mMzInput == doctest::Approx( mMzSaved ).epsilon(0.05));
             REQUIRE( bMzInput == doctest::Approx( bMzSaved ).epsilon(0.05));
