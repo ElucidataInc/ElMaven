@@ -59,7 +59,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     QToolButton* exportMetadataButton = new QToolButton(toolBar);
     // TODO: Replace this icon with something more appropriate
-    exportMetadataButton->setIcon(QIcon(rsrcPath + "/fileopen.png"));
+    exportMetadataButton->setIcon(QIcon(rsrcPath + "/exportMetadataTemplate.png"));
     exportMetadataButton->setToolTip("Exports a template file with sample "
                                      "names and which can be edited as a "
                                      "spreadsheet. This will ease the process "

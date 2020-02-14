@@ -110,5 +110,6 @@
         <file>images/toleranceSyncLock.png</file>
         <file>images/toleranceSyncUnlock.png</file>
         <file>images/support.png</file>
+        <file>images/exportMetadataTemplate.png</file>
     </qresource>
 </RCC>
