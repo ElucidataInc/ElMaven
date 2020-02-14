@@ -51,36 +51,30 @@ void Aligner::doAlignment(vector<PeakGroup*>& peakgroups)
 	saveFit();
 	double R2_before = checkFit();
 
-    cerr << "Max Iterations: " << maxIterations << endl;
     for(int iter = 0; iter < maxIterations; iter++) {
-		cerr << iter << endl;
-
         PolyFit(polynomialDegree);
         double R2_after = checkFit();
-        cerr << "Iteration:" << iter << " R2_before" << R2_before << " R2_after" << R2_after << endl;
-
-		if (R2_after > R2_before) {
+        if (R2_after > R2_before) {
             cerr << "done..restoring previous fit.." << endl;
-			restoreFit();
-			break;
-		} else {
-			saveFit();
-		}
-		
-        R2_before = R2_after;
-	}
+            restoreFit();
+            break;
+        } else {
+            saveFit();
+        }
 
-	for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
-		PeakGroup* grp = allgroups.at(ii);
-		for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
-			Peak peak = grp->getPeaks().at(jj);
-			deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
-		}
-	}
+    R2_before = R2_after;
+    }
+
+    for (unsigned int ii = 0; ii < allgroups.size(); ii++) {
+            PeakGroup* grp = allgroups.at(ii);
+            for (unsigned int jj = 0; jj < grp->getPeaks().size(); jj++) {
+                    Peak peak = grp->getPeaks().at(jj);
+                    deltaRt[make_pair(grp->getName(), peak.getSample()->getSampleName())] -= peak.rt;
+            }
+    }
 }
 
 void Aligner::saveFit() {
-	cerr << "saveFit()" << endl;
 	fit.clear();
 	fit.resize(samples.size());
 	for(unsigned int i=0; i < samples.size(); i++ ) {
@@ -113,16 +107,14 @@ double Aligner::checkFit() {
 	for(unsigned int i=0; i < allgroups.size(); i++ ) {
 		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
 			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
-		}
-	}
-	cerr << "groups=" << allgroups.size() << " checkFit() " << sumR2 << endl;
+                }
+        }
 	return sumR2;
 }
 
 void Aligner::PolyFit(int poly_align_degree) {
 
 	if (allgroups.size() < 2 ) return;
-	cerr << "Align: " << allgroups.size() << endl;
 
 	vector<double> allGroupsMeansRt  = groupMeanRt();
 
@@ -330,7 +322,8 @@ bool Aligner::alignSampleRts(mzSample* sample,
                              vector<float> &mzPoints,
                              ObiWarp& obiWarp,
                              bool setAsReference,
-                             const MavenParameters* mp)
+                             const MavenParameters* mp,
+                             map<string,vector<AlignmentSegment>>& alignmentSegment_private)
 {
     // we set the rt interval using the reference sample
     int rtBinSize = 1;
@@ -381,27 +374,37 @@ bool Aligner::alignSampleRts(mzSample* sample,
             return(true);
 
         // perform segmented alignment
-        AlignmentSegment* lastSegment = nullptr;
+        AlignmentSegment lastSegment;
+
         for (int i = 0; i < rtPoints.size(); ++i) {
             auto originalRt = rtPoints.at(i);
             auto updatedRt = updatedRtPoints.at(i);
-            AlignmentSegment* seg = new AlignmentSegment();
-            seg->sampleName = sample->sampleName;
-            seg->segStart = 0;
-            seg->segEnd = originalRt;
-            seg->newStart = 0;
-            seg->newEnd = updatedRt;
+            AlignmentSegment seg;
+            seg.sampleName = sample->sampleName;
+            seg.segStart = 0;
+            seg.segEnd = originalRt;
+            seg.newStart = 0;
+            seg.newEnd = updatedRt;
 
-            if (lastSegment and lastSegment->sampleName == seg->sampleName) {
-                seg->segStart = lastSegment->segEnd;
-                seg->newStart = lastSegment->newEnd;
+            if (lastSegment.sampleName == seg.sampleName) {
+                seg.segStart = lastSegment.segEnd;
+                seg.newStart = lastSegment.newEnd;
             }
 
-            addSegment(sample->sampleName, seg);
+            addSegment(sample->sampleName, seg, alignmentSegment_private );
             lastSegment = seg;
         }
+
     }
     return (false);
+}
+
+void Aligner::addSegment(string sampleName, AlignmentSegment seg,
+                         map<string,vector<AlignmentSegment>>& alignmentSegment_private) {
+    if (alignmentSegment_private.count(sampleName) == 0) {
+        alignmentSegment_private[sampleName] = {};
+    }
+    alignmentSegment_private.at(sampleName).push_back(seg);
 }
 
 void Aligner::setRefSample(mzSample* sample)
@@ -452,7 +455,7 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
         mzPoints.push_back(bin);
 
     bool stopped = false;
-    stopped = alignSampleRts(refSample, mzPoints, *obiWarp, true, mp);
+    stopped = alignSampleRts(refSample, mzPoints, *obiWarp, true, mp, _alignmentSegments);
 
     if (mp->stop || stopped) {
         delete obiWarp;
@@ -462,26 +465,33 @@ bool Aligner::alignWithObiWarp(vector<mzSample*> samples,
     _alignmentSegments.clear();
     setSamples(samples);
     int samplesAligned = 0;
-    #pragma omp parallel for shared(samplesAligned)
-    for (int i = 0; i < samples.size(); ++i) {
-        if (samples[i] == refSample)
-            continue;
-        if (mp->stop || stopped) {
-            stopped = true;
-            #pragma omp cancel for
+    #pragma omp parallel
+    {
+        map<string,vector<AlignmentSegment>> alignmentSegment_private;
+        samplesAligned = 0;
+        #pragma for shared(samplesAligned)
+        for (int i = 0; i < samples.size(); ++i) {
+            if (samples[i] == refSample)
+                continue;
+            if (mp->stop || stopped) {
+                stopped = true;
+            }
+
+            if (alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp, alignmentSegment_private)) {
+                stopped = true;
+            } else {
+                samplesAligned++;
+                setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
+            }
         }
-        #pragma omp cancellation point for
-        if (alignSampleRts(samples[i], mzPoints, *obiWarp, false, mp)) {
-            stopped = true;
-        } else {
-            samplesAligned++;
-            setAlignmentProgress("Aligning samples", samplesAligned, samples.size()-1);
-        }
+    #pragma critical
+        _alignmentSegments.insert(alignmentSegment_private.begin(),
+                                  alignmentSegment_private.end());
     }
+
     setAlignmentProgress("Performing post-alignment interpolation…", 1, 1);
     performSegmentedAlignment();
 
-    cerr << "Samples modified: " << samplesAligned << endl;
     delete obiWarp;
     return(stopped);
 }
@@ -505,13 +515,6 @@ float AlignmentSegment::updateRt(float oldRt)
     }
 }
 
-void Aligner::addSegment(string sampleName, AlignmentSegment* seg) {
-    if (_alignmentSegments.count(sampleName) == 0) {
-        _alignmentSegments[sampleName] = {};
-    }
-    _alignmentSegments.at(sampleName).push_back(seg);
-}
-
 void Aligner::performSegmentedAlignment()
 {
     for (auto sample : samples) {
@@ -520,18 +523,15 @@ void Aligner::performSegmentedAlignment()
 
         string sampleName = sample->sampleName;
         if (_alignmentSegments.count(sampleName) == 0) {
-            cerr << "Cannot find alignment information for sample "
-                 << sampleName
-                 << endl;
             continue;
         }
 
         for (auto scan : sample->scans) {
             AlignmentSegment* seg = nullptr;
             for (auto segment : _alignmentSegments[sampleName]) {
-                if (scan->rt >= segment->segStart
-                    && scan->rt <= segment->segEnd) {
-                    seg = segment;
+                if (scan->rt >= segment.segStart
+                    && scan->rt <= segment.segEnd) {
+                    seg = &segment;
                     break;
                 }
             }
