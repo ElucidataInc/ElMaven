@@ -25,7 +25,8 @@ public:
      */
     enum class ReportType {
         GroupReport,
-        PeakReport
+        PeakReport,
+        PollyReport
     };
 
     /**
@@ -47,12 +48,24 @@ public:
      *@param mp is for maven parameters
      *@param pollyExport for exporting to polly
      */
-    
+    /*
+     * @detail -   constructor for opening the type of report needed by the user
+     * (group or peak report)and instantiating class by all samples uploaded,
+     * different from samples vector of PeakGroup which will hold
+     * samples used for that particular group. it will be used to export group
+     * info only for samples used by a group and for other group, fields will
+     * be marked NA. Note that these samples are represented by pointers which
+     * will change their state even after group has been determine and detected.
+     * Only way to get those samples used for particular group by comparing
+     * these sample and samples from PeakGroup
+     */
     CSVReports(string filename,
-                   ReportType reportType, vector<mzSample*>& insamples,
-                   PeakGroup::QType qt = PeakGroup::AreaTop, 
-                   bool prmReport = false, bool includeSetNamesLine = false,
-                   MavenParameters * mp = NULL , bool pollyExport = false);
+               ReportType reportType,
+               vector<mzSample*>& insamples,
+               PeakGroup::QType quantType = PeakGroup::AreaTop,
+               bool prmReport = false,
+               bool includeSetNamesLine = false,
+               MavenParameters * mp = NULL , bool pollyExport = false);
     
      
     /**
@@ -92,20 +105,7 @@ public:
     inline void setSelectionFlag(int selFlag) {
         selectionFlag = selFlag;
     }
-    
-    void setTabDelimited() {
-    /**
-     *@brief- set the separator as tab   ("\t")
-     */
-    SEP = "\t";
-    }
-    void setCommaDelimited() {
-    /**
-     *@brief- set the separator as comma   (",")
-     */
-    SEP = ",";
-    }
-    
+
     /**
      *@param -  incremental group numbering. 
      *Increment by 1 when a group is added 
@@ -136,16 +136,16 @@ private:
     QString _sanitizeString(const char* s);
 
     /**
-     * @brief
+     * @brief   Type of the report to be produced
      * @details
      */
-     
+
     ReportType _reportType;
 
     /**
      *@param -  output file for  report
      */
-    ofstream _reportStream;       
+    fstream _reportStream;
 
     
     /**
@@ -168,7 +168,7 @@ private:
     /**
      *@param -  user quant type, represents intensity of peaks
      */
-    PeakGroup::QType qtype;             
+    PeakGroup::QType _qtype;
     MavenParameters * mavenparameters;
     int selectionFlag;      /**@param-  TODO*/
     bool _pollyExport;
@@ -203,7 +203,18 @@ private:
      */
     void _insertUserSelectedIsotopes(PeakGroup* group);
 
-
+    void setTabDelimited() {
+        /**
+     *@brief- set the separator as tab   ("\t")
+     */
+        SEP = "\t";
+    }
+    void setCommaDelimited() {
+        /**
+     *@brief- set the separator as comma   (",")
+     */
+        SEP = ",";
+    }
 };
 
 #endif
