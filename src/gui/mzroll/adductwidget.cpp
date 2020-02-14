@@ -20,6 +20,21 @@ AdductWidget::AdductWidget(MainWindow* parent) :
     setWindowTitle("Adducts");
 
     qRegisterMetaType<Adduct*>("Adduct*");
+
+    connect(adductList,
+            &QTreeWidget::itemChanged,
+            this,
+            [this] (QTreeWidgetItem* item, int column) {
+                QCoreApplication::processEvents();
+                if (item == nullptr || column != 0)
+                    return;
+                auto checked = item->checkState(column);
+                auto items = adductList->selectedItems();
+                for (auto item : items) {
+                    if (item != nullptr)
+                        item->setCheckState(column, checked);
+                }
+            });
 }
 
 void AdductWidget::loadAdducts()
