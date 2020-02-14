@@ -63,12 +63,12 @@ Mixpanel::Mixpanel()
 
     QMap<QString, QVariant> properties;
     properties["First session"] = _isFirstSession;
-    trackEvent("Session Start", properties);
+    trackEvent("EM Session Start", properties);
 }
 
 Mixpanel::~Mixpanel()
 {
-    trackEvent("Session End", QMap<QString, QVariant>());
+    trackEvent("EM Session End", QMap<QString, QVariant>());
 }
 
 void Mixpanel::trackEvent(const QString& event,
