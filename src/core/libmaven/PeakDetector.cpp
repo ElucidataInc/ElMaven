@@ -251,29 +251,7 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
         stringToCompoundMap.insert(keyValuePair);
     }
 
-    // TODO: instead of separating by sample, just organize all samples together
-    // into a single vector
-    map<mzSample*, vector<Scan*>> allMs2Scans = {};
-    if (mavenParameters->matchFragmentationFlag) {
-        for (mzSample* sample : mavenParameters->samples) {
-            if (mavenParameters->stop) {
-                delete_all(slices);
-                break;
-            }
-
-            vector<Scan*> scanVector;
-            for (auto scan : sample->scans) {
-                if (scan->mslevel == 2)
-                    scanVector.push_back(scan);
-            }
-            sort(scanVector.begin(), scanVector.end(),
-                 [](const Scan* lhs, const Scan* rhs) {
-                     return lhs->precursorMz < rhs->precursorMz;
-                 });
-            allMs2Scans.insert(make_pair(sample, scanVector));
-        }
-    }
-
+    // lambda that generates (and stores) slices from compounds and adduct list
     auto addSlicesWithAdducts = [&](float compoundMass,
                                     Compound* compound,
                                     vector<Compound*> compoundVector) {
@@ -294,42 +272,6 @@ vector<mzSlice*> PeakDetector::processCompounds(vector<Compound*> set,
             slice->calculateRTMinMax(mavenParameters->matchRtFlag,
                                      mavenParameters->compoundRTWindow);
             slice->setSRMId();
-
-            if (mavenParameters->matchFragmentationFlag) {
-                bool keepSlice = false;
-                for (mzSample* sample : mavenParameters->samples) {
-                    auto it = allMs2Scans.find(sample);
-                    if (it != allMs2Scans.end()) {
-                        auto scanVector = it->second;
-                        auto low = lower_bound(scanVector.begin(),
-                                               scanVector.end(),
-                                               slice->mzmin,
-                                               [](const Scan* scan,
-                                                   const double &val) {
-                                                   return scan->precursorMz < val;
-                                               });
-                        for (auto scanIter = low;
-                             scanIter != scanVector.end();
-                             scanIter++) {
-                            Scan* scan = *scanIter;
-                            if (scan->precursorMz >= slice->mzmin
-                                && scan->precursorMz <= slice->mzmax) {
-                                keepSlice = true;
-                                break;
-                            } else if (scan->precursorMz > slice->mzmax) {
-                                break;
-                            }
-                        }
-                    }
-                    if (keepSlice)
-                        break;
-                }
-                if (!keepSlice) {
-                    delete (slice);
-                    continue;
-                }
-            }
-
             slices.push_back(slice);
         }
     };
