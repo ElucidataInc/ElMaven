@@ -242,9 +242,21 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 {
-    // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
-    // cancel in turn calls close();
+    if (_inDetectionMode) {
+        event->ignore();
+        return;
+    }
+
+    // update maven peak settings on close-event ('close' or 'cancel' button)
     emit updateSettings(peakSettings);
+}
+
+void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (_inDetectionMode) {
+        event->ignore();
+        return;
+    }
 }
 
 void PeakDetectionDialog::dbSearchClicked()
@@ -303,6 +315,8 @@ void PeakDetectionDialog::cancel() {
             return;
         }
     }
+    setDetectionMode(false);
+    setProgressBar("Cancelled", 0, 1);
     close();
 }
 
@@ -497,6 +511,26 @@ void PeakDetectionDialog::_setAdductWindowState()
     }
 }
 
+void PeakDetectionDialog::setDetectionMode(bool detectionModeOn)
+{
+    _inDetectionMode = detectionModeOn;
+    if (_inDetectionMode) {
+        featureOptions->setDisabled(true);
+        dbSearch->setDisabled(true);
+        matchFragmentationOptions->setDisabled(true);
+        peakScoringOptions->setDisabled(true);
+        computeButton->setDisabled(true);
+        resetButton->setDisabled(true);
+    } else {
+        featureOptions->setEnabled(true);
+        dbSearch->setEnabled(true);
+        matchFragmentationOptions->setEnabled(true);
+        peakScoringOptions->setEnabled(true);
+        computeButton->setEnabled(true);
+        resetButton->setEnabled(true);
+    }
+}
+
 /**
  * PeakDetectionDialog::findPeaks This is the function which excuite functions
  * related to peak detection
@@ -515,6 +549,7 @@ void PeakDetectionDialog::_setAdductWindowState()
 void PeakDetectionDialog::findPeaks()
 {
     emit findPeaksClicked();
+    setDetectionMode(true);
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
@@ -566,7 +601,13 @@ void PeakDetectionDialog::findPeaks()
     connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
-    connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
+    connect(peakupdater,
+            &BackgroundPeakUpdate::finished,
+            this,
+            [this] {
+                setDetectionMode(false);
+                close();
+            });
     if(!settings->value("hideVideoPlayer", 0).toBool())
         connect(peakupdater, SIGNAL(finished()), mainwindow->vidPlayer, SLOT(show()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
