@@ -99,10 +99,22 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_scoringAlgo">
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="scoringAlgo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="cursor">
+             <cursorShape>BlankCursor</cursorShape>
+            </property>
             <property name="text">
-             <string>Scoring Algorithm</string>
+             <string>Hypergeometric Score</string>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -110,6 +122,30 @@
            <widget class="QLabel" name="label_fragmentTolerance">
             <property name="text">
              <string>Fragment Mass Tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_matchAtLeastX">
+            <property name="text">
+             <string>Match at least X peaks</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_scoringAlgo">
+            <property name="text">
+             <string>Scoring Algorithm</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="minFragMatch">
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <double>3.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -123,23 +159,6 @@
             </property>
             <property name="value">
              <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_matchAtLeastX">
-            <property name="text">
-             <string>Match at least X peaks</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="minFragMatch">
-            <property name="decimals">
-             <number>0</number>
-            </property>
-            <property name="value">
-             <double>3.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -162,26 +181,14 @@
              <double>1000.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>5.000000000000000</double>
+             <double>0.500000000000000</double>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="scoringAlgo">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="cursor">
-             <cursorShape>BlankCursor</cursorShape>
-            </property>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="mustHaveMs2">
             <property name="text">
-             <string>Hypergeometric Score</string>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
+             <string>Exclude unfragmented groups</string>
             </property>
            </widget>
           </item>
@@ -194,6 +201,7 @@
          <zorder>fragmentTolerance</zorder>
          <zorder>label_fragmentTolerance</zorder>
          <zorder>label_scoringAlgo</zorder>
+         <zorder>mustHaveMs2</zorder>
         </widget>
        </item>
        <item row="0" column="0" colspan="2">
@@ -241,107 +249,15 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>Limit m/z Range</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QDoubleSpinBox" name="rtMax">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QDoubleSpinBox" name="identificationRtWindow">
-            <property name="suffix">
-             <string> min</string>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4">
-           <widget class="QDoubleSpinBox" name="maxIntensity">
+          <item row="3" column="3">
+           <widget class="QDoubleSpinBox" name="minIntensity">
             <property name="maximum">
              <double>9999999999.989999771118164</double>
             </property>
             <property name="value">
-             <double>9999999999.000000000000000</double>
+             <double>50000.000000000000000</double>
             </property>
            </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QDoubleSpinBox" name="mzMax">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Mass Domain Resolution</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Limit Time Range</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="mustHaveMs2">
-            <property name="text">
-             <string>Exclude unfragmented groups</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QDoubleSpinBox" name="rtMin">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QDoubleSpinBox" name="mzMin">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Time Domain Resolution</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Limit Intensity Range</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QComboBox" name="identificationDatabase"/>
           </item>
           <item row="1" column="1">
            <widget class="QDoubleSpinBox" name="rtStep">
@@ -371,32 +287,67 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="ppmStep">
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Limit Time Range</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QDoubleSpinBox" name="identificationRtWindow">
             <property name="suffix">
-             <string> ppm</string>
-            </property>
-            <property name="decimals">
-             <number>3</number>
-            </property>
-            <property name="maximum">
-             <double>1000000000.000000000000000</double>
+             <string> min</string>
             </property>
             <property name="singleStep">
              <double>0.500000000000000</double>
             </property>
             <property name="value">
-             <double>20.000000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
-           <widget class="QDoubleSpinBox" name="minIntensity">
+          <item row="3" column="1">
+           <widget class="QComboBox" name="identificationDatabase"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Identify using database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QDoubleSpinBox" name="rtMax">
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Time Domain Resolution</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QDoubleSpinBox" name="mzMin">
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QDoubleSpinBox" name="maxIntensity">
             <property name="maximum">
              <double>9999999999.989999771118164</double>
             </property>
             <property name="value">
-             <double>50000.000000000000000</double>
+             <double>9999999999.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -407,10 +358,17 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_17">
             <property name="text">
-             <string>Identify using database</string>
+             <string>Limit m/z Range</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Mass Domain Resolution</string>
             </property>
            </widget>
           </item>
@@ -418,19 +376,6 @@
            <widget class="QLabel" name="label_20">
             <property name="text">
              <string>Limit Charged Species</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="3">
-           <widget class="QSpinBox" name="chargeMin">
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>999999999</number>
-            </property>
-            <property name="value">
-             <number>0</number>
             </property>
            </widget>
           </item>
@@ -444,6 +389,62 @@
             </property>
             <property name="value">
              <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QSpinBox" name="chargeMin">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>Limit Intensity Range</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QDoubleSpinBox" name="mzMax">
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QDoubleSpinBox" name="rtMin">
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="ppmStep">
+            <property name="minimum">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>1000000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -483,24 +484,7 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="matchRt">
-            <property name="text">
-             <string>Match Retention Time (+/-)</string>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="searchAdducts">
-            <property name="text">
-             <string>Detect adducts within</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
+          <item row="3" column="2">
            <widget class="QSpinBox" name="eicMaxGroups">
             <property name="suffix">
              <string> best</string>
@@ -523,34 +507,12 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2">
-           <widget class="QDoubleSpinBox" name="adductPercentCorrelation">
-            <property name="prefix">
-             <string>with </string>
-            </property>
-            <property name="suffix">
-             <string notr="true"> % correlation</string>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>100.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>5.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>90.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
+             <string>Match Retention Time (+/-)</string>
+            </property>
+            <property name="checked" stdset="0">
              <string>Limit Number of Reported Groups per Compound</string>
             </property>
            </widget>
@@ -578,7 +540,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="2" column="2">
            <widget class="QDoubleSpinBox" name="compoundRTWindow">
             <property name="prefix">
              <string/>
@@ -597,10 +559,24 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="compoundDatabase"/>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="matchRt">
+            <property name="text">
+             <string>Match Retention Time (+/-)</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
-          <item row="5" column="1">
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="searchAdducts">
+            <property name="text">
+             <string>Detect adducts within</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
            <widget class="QDoubleSpinBox" name="adductSearchWindow">
             <property name="suffix">
              <string> seconds from parent ion</string>
@@ -615,6 +591,34 @@
              <double>0.100000000000000</double>
             </property>
            </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QDoubleSpinBox" name="adductPercentCorrelation">
+            <property name="prefix">
+             <string>with </string>
+            </property>
+            <property name="suffix">
+             <string notr="true"> % correlation</string>
+            </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>0.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>5.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>90.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="compoundDatabase"/>
           </item>
          </layout>
         </widget>
@@ -1146,9 +1150,7 @@
  <tabstops>
   <tabstop>tabwidget</tabstop>
   <tabstop>featureOptions</tabstop>
-  <tabstop>ppmStep</tabstop>
   <tabstop>mzMin</tabstop>
-  <tabstop>mzMax</tabstop>
   <tabstop>rtStep</tabstop>
   <tabstop>rtMin</tabstop>
   <tabstop>rtMax</tabstop>

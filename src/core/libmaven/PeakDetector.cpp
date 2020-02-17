@@ -455,7 +455,8 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                 // since we are creating targeted groups, we should ensure they
                 // pass MS2 filtering criteria, if enabled
                 if (mavenParameters->matchFragmentationFlag
-                    && groupFiltering.filterByMS2(groupWithTarget)) {
+                    && groupFiltering.filterByMS2(groupWithTarget)
+                    && mavenParameters->mustHaveFragmentation) {
                     continue;
                 }
 

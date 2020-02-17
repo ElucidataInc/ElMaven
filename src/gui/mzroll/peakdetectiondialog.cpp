@@ -461,6 +461,13 @@ void PeakDetectionDialog::refreshCompoundDatabases()
 
 void PeakDetectionDialog::toggleFragmentation()
 {
+    QString selectedDbName = "";
+    if (dbSearch->isChecked()) {
+        selectedDbName = compoundDatabase->currentText();
+    } else if (featureOptions->isChecked()) {
+        selectedDbName = identificationDatabase->currentText();
+    }
+
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples),
                         end(samples),
@@ -469,25 +476,13 @@ void PeakDetectionDialog::toggleFragmentation()
                                    && (s->ms2ScanCount() > 0));
                         });
     bool foundDda = iter != end(samples);
-    if (foundDda && featureOptions->isChecked()) {
-        mustHaveMs2->setEnabled(true);
-    } else {
-        mustHaveMs2->setEnabled(false);
-        mustHaveMs2->setChecked(false);
-    }
-
-    QString selectedDbName = "";
-    if (dbSearch->isChecked()) {
-        selectedDbName = compoundDatabase->currentText();
-    } else if (featureOptions->isChecked()) {
-        selectedDbName = identificationDatabase->currentText();
-    }
 
     if (foundDda && DB.isSpectralLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
         matchFragmentationOptions->setEnabled(false);
+        mustHaveMs2->setChecked(false);
     }
 }
 
@@ -529,7 +524,6 @@ void PeakDetectionDialog::findPeaks()
     if (peakupdater == NULL) return;
     if (peakupdater->isRunning()) cancel();
     if (peakupdater->isRunning()) return;
-    peakupdater->setUntargetedMustHaveMs2(false);
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
@@ -537,28 +531,29 @@ void PeakDetectionDialog::findPeaks()
     mainwindow->setTotalCharge();
 
     QString dbName = "";
+    QString mode = "";
     if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
-        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
+        mode = "Targeted";
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
         dbName = compoundDatabase->currentText();
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
+        mode = "Untargeted";
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
-        if (mustHaveMs2->isChecked()) {
-            peakupdater->setUntargetedMustHaveMs2(true);
-            mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                                 "Untargeted",
-                                                 "Filter for MS2 events");
-        } else {
-            mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                                 "Untargeted"
-                                                 "No filter");
-        }
         if (identificationDatabase->currentIndex() != 0)
             dbName = identificationDatabase->currentText();
     } else {
         _featureDetectionType = FullSpectrum;
+    }
+    if (mustHaveMs2->isChecked()) {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             mode,
+                                             "Filter for MS2 events");
+    } else {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             mode,
+                                             "No filter");
     }
 
     TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName);
