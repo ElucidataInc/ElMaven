@@ -488,8 +488,8 @@ void CSVReports::writeDataForPolly(const std::string& file,
         _reportStream << endl;
 
         for(auto grp: groups) {
-
             for(auto child: grp.children) {
+
                 int mlLabel =  (child.markedGoodByCloudModel) ? 1 :
                                (child.markedBadByCloudModel) ? 0 : -1;
                 _reportStream << mlLabel;
@@ -567,7 +567,7 @@ class CSVReportFixture
                 mavenparameters->baseline_dropTopX = 80;
             }
 
-            vector<PeakGroup> _getGroupsFromProcessCompounds()
+            vector<PeakGroup> _getTargettedGroupsFromProcessCompounds()
             {
                 const char* loadCompoundDB = "bin/methods/KNOWNS.csv";
                 database.loadCompoundCSVFile(loadCompoundDB);
@@ -582,14 +582,19 @@ class CSVReportFixture
                 return _mavenparameters->allgroups;
             }
 
+            vector<PeakGroup> _getUntargettedGroups()
+            {
+                _loadSamplesAndParameters(_samples,_mavenparameters);
+                PeakDetector peakDetector;
+                peakDetector.setMavenParameters(_mavenparameters);
+                peakDetector.processMassSlices();
+                return _mavenparameters->allgroups;
+            }
+
     public:
             CSVReportFixture(){
                 _mavenparameters= new MavenParameters();
                 _makeSampleList();
-                _allgroups=_getGroupsFromProcessCompounds();
-                for(size_t i = 0; i < _allgroups.size(); i++)
-                    _isotopeGroups.push_back(_allgroups[i]);
-                detectIsotopes(_isotopeGroups);
             }
                 
             ~CSVReportFixture(){
@@ -598,6 +603,22 @@ class CSVReportFixture
                 delete _samples[2];
                 delete _samples[3];
                 delete _mavenparameters;
+            }
+
+            void targettedGroup()
+            {
+                _allgroups = _getTargettedGroupsFromProcessCompounds();
+                for(size_t i = 0; i < _allgroups.size(); i++)
+                    _isotopeGroups.push_back(_allgroups[i]);
+                detectIsotopes(_isotopeGroups);
+            }
+
+            void untargettedGroup()
+            {
+                _allgroups = _getUntargettedGroups();
+                for(size_t i = 0; i < _allgroups.size(); i++)
+                    _isotopeGroups.push_back(_allgroups[i]);
+                detectIsotopes(_isotopeGroups);
             }
             /**
              * @brief detectIsotopes Detects isotopes in the group.
@@ -658,10 +679,11 @@ class CSVReportFixture
 
 };
 
-TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
+TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
 {
     SUBCASE("Testing Group File")
     {
+        targettedGroup();
         auto sample = samples();
         auto mavenparameter = mavenparameters();
         string groupReport = "groupReport.csv";
@@ -680,7 +702,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
         }
 
         ifstream inputGroupFile("groupReport.csv");
-        ifstream savedGroupFile("tests/test-libmaven/test_groupReport.csv");
+        ifstream savedGroupFile("tests/test-libmaven/test_TargettedGroupReport.csv");
         string headerInput;
         getline(inputGroupFile, headerInput);
         getline(inputGroupFile, headerInput);
@@ -750,6 +772,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
 
     SUBCASE("Testing Peak File")
     {
+        targettedGroup();
         string peakReport = "peakReport.csv";
         auto sample = samples();
         auto mavenparameter = mavenparameters();
@@ -770,7 +793,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
         }
 
         ifstream inputPeakFile("peakReport.csv");
-        ifstream savedPeakFile("tests/test-libmaven/test_peakReport.csv");
+        ifstream savedPeakFile("tests/test-libmaven/test_TargettedPeakReport.csv");
 
         string headerInput;
         getline(inputPeakFile, headerInput);
@@ -834,7 +857,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
 
     SUBCASE("Testing write for polly")
     {
-
+        targettedGroup();
         string pollyFile = "polly.csv";
         auto sample = samples();
         auto mavenparameter = mavenparameters();
@@ -890,6 +913,175 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing csvReports")
         inputPeakFile.close();
         savedPeakFile.close();
         remove("polly.csv");
-
     }
+}
+
+
+TEST_CASE_FIXTURE(CSVReportFixture, "Testing untargettedGroups")
+{
+    SUBCASE("Testing Untargetted Group File")
+    {
+        untargettedGroup();
+        auto sample = samples();
+        auto mavenparameter = mavenparameters();
+        string groupReport = "groupReport.csv";
+        CSVReports* csvReports =
+            new CSVReports(groupReport,
+                           CSVReports::ReportType::GroupReport,
+                           sample,
+                           PeakGroup::AreaTop,
+                           false,
+                           true,
+                           mavenparameter);
+        auto allgroup = allgroups();
+        for (int i = 0; i < static_cast<int>(allgroups().size()); i++) {
+            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
+            csvReports->addGroup(peakGroup);
+        }
+        ifstream inputGroupFile("groupReport.csv");
+        ifstream savedGroupFile("tests/test-libmaven/test_untargettedGroupReport.csv");
+        string headerInput;
+        getline(inputGroupFile, headerInput);
+        getline(inputGroupFile, headerInput);
+        string headerSaved;
+        getline(savedGroupFile, headerSaved);
+        getline(savedGroupFile, headerSaved);
+
+        int cnt = 0;
+
+        while (!inputGroupFile.eof()) {
+            cnt++;
+            string input;
+            getline(inputGroupFile, input);
+
+            if (input.size() > 0) {
+                vector<string> inputValues;
+                mzUtils::splitNew(input, ",", inputValues);
+                if (cnt > 1) {
+                    savedGroupFile.clear();
+                    savedGroupFile.seekg(0, ios::beg);
+                    string headerSaved;
+                    getline(savedGroupFile, headerSaved);
+                    getline(savedGroupFile, headerSaved);
+                }
+
+                while (!savedGroupFile.eof()) {
+                    string saved;
+                    getline(savedGroupFile, saved);
+                    vector<string> savedValues;
+                    mzUtils::splitNew(saved, ",", savedValues);
+                    if (string2float(inputValues[4])
+                            == doctest::Approx(string2float(savedValues[4]))
+                        && string2float(inputValues[5])
+                               == doctest::Approx(string2float(savedValues[5])).epsilon(0.01)
+                        &&
+                        inputValues[3] == savedValues[3]) {
+                        double inputFloat;
+                        double savedFloat;
+                        for (size_t i = 3; i < inputValues.size(); i++) {
+                            if (i == 8 || i == 9) {
+                                continue;
+                            } else {
+                                inputFloat = string2float(inputValues[i]);
+                                savedFloat = string2float(savedValues[i]);
+                                REQUIRE(inputFloat
+                                        == doctest::Approx(savedFloat)
+                                               .epsilon(0.15));
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        inputGroupFile.close();
+        savedGroupFile.close();
+        remove("groupReport.csv");
+    }
+
+    SUBCASE("Testing Untargetted Peak File")
+    {
+        untargettedGroup();
+        string peakReport = "peakReport.csv";
+        auto sample = samples();
+        auto mavenparameter = mavenparameters();
+
+        CSVReports* csvReports =
+            new CSVReports(peakReport,
+                           CSVReports::ReportType::PeakReport,
+                           sample,
+                           PeakGroup::AreaTop,
+                           false,
+                           true,
+                           mavenparameter);
+
+        auto allgroup = allgroups();
+        for (int i = 0; i < static_cast<int>(allgroup.size()); i++) {
+            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
+            csvReports->addGroup(peakGroup);
+        }
+        ifstream inputPeakFile("peakReport.csv");
+        ifstream savedPeakFile("tests/test-libmaven/test_untargettedPeakReport.csv");
+
+        string headerInput;
+        getline(inputPeakFile, headerInput);
+
+        string headerSaved;
+        getline(savedPeakFile, headerSaved);
+
+        int cnt = 0;
+        while (!inputPeakFile.eof()) {
+            cnt++;
+
+            string input;
+            getline(inputPeakFile, input);
+
+            if (input.size() > 0) {
+                vector<string> inputValues;
+                mzUtils::splitNew(input, ",", inputValues);
+
+                if (cnt > 1) {
+                    savedPeakFile.clear();
+                    savedPeakFile.seekg(0, ios::beg);
+                    string headerSaved;
+                    getline(savedPeakFile, headerSaved);
+                }
+
+                while (!savedPeakFile.eof()) {
+                    string saved;
+                    getline(savedPeakFile, saved);
+                    vector<string> savedValues;
+                    mzUtils::splitNew(saved, ",", savedValues);
+
+                    if (string2float(inputValues[16])
+                            == doctest::Approx(string2float(savedValues[16])).epsilon(0.0005)
+                        && string2float(inputValues[12])
+                               == doctest::Approx(string2float(savedValues[12])).epsilon(0.0005)
+                        && inputValues[4] == savedValues[4]
+                        && string2float(inputValues[11])
+                               == doctest::Approx(string2float(savedValues[11])).epsilon(0.0005)) {
+                        double inputFloat;
+                        double savedFloat;
+                        for (size_t i = 3; i < inputValues.size(); i++) {
+                            if (i == 4) {
+                                REQUIRE(inputValues[i] == savedValues[i]);
+                            }
+                            else {
+                                inputFloat = string2float(inputValues[i]);
+                                savedFloat = string2float(savedValues[i]);
+                                REQUIRE(inputFloat
+                                        == doctest::Approx(savedFloat)
+                                               .epsilon(0.15));
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        inputPeakFile.close();
+        savedPeakFile.close();
+        remove("peakReport.csv");
+    }
+
 }
