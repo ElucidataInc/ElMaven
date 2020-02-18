@@ -4003,6 +4003,10 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
                                            "tolerance"));
         toleranceSyncSwitch->setCheckable(true);
         toleranceSyncSwitch->setChecked(false);
+        if (mw->getEicWidget()->getParameters()->selectedGroup() == nullptr){
+            toleranceSyncSwitch->setEnabled(false);
+        }
+
         connect(toleranceSyncSwitch, &QToolButton::toggled, this, [=](bool on) {
             if (on) {
                 QIcon locked(rsrcPath + "/toleranceSyncLock.png");
