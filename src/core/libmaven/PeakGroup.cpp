@@ -796,7 +796,7 @@ void PeakGroup::reorderSamples() {
     }
 }
 
-string PeakGroup::getName() {
+string PeakGroup::getName() const {
     string tag;
 
     // compound is assigned in case of targeted search

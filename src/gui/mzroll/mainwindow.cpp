@@ -13,6 +13,7 @@
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
+#include "correlationtable.h"
 #include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
@@ -845,6 +846,12 @@ using namespace mzUtils;
 			settings->sync();
 		}
 	}
+
+    _correlationTable = new CorrelationTable;
+    addDockWidget(Qt::BottomDockWidgetArea,
+                  _correlationTable,
+                  Qt::Horizontal);
+    _correlationTable->setVisible(false);
 
     _usageTracker = new Mixpanel;
     _infoDialog = new InfoDialog(this);

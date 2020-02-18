@@ -371,6 +371,8 @@ protected:
   void focusOutEvent(QFocusEvent *event);
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
+  void hideEvent(QHideEvent *event);
+  void showEvent(QShowEvent *event);
 
 signals:
   void updateProgressBar(QString, int, int, bool = false);
