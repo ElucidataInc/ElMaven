@@ -197,7 +197,6 @@ private:
 	 * @param  setName       [name of set]
      */
     void processCompounds(vector<Compound*> set,
-                          vector<Adduct*> adducts,
                           string setName);
 
 	/**

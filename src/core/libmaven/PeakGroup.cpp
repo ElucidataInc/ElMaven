@@ -211,7 +211,7 @@ bool PeakGroup::hasCompoundLink() const
     return false;
 }
 
-Compound* PeakGroup::getCompound()
+Compound* PeakGroup::getCompound() const
 {
     if (hasSlice()) {
         return _slice.compound;

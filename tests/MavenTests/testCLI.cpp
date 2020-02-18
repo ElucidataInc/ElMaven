@@ -158,7 +158,6 @@ void TestCLI::testReduceGroups() {
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
         vector<mzSlice*> slices =
             peakdetectorCLI->peakDetector->processCompounds(peakdetectorCLI->mavenParameters->compounds,
-                                                            peakdetectorCLI->mavenParameters->getDefaultAdductList(),
                                                             "compounds");
         peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
         QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 23);
@@ -194,7 +193,6 @@ void TestCLI::testWriteReport() {
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
         vector<mzSlice*> slices =
             peakdetectorCLI->peakDetector->processCompounds(peakdetectorCLI->mavenParameters->compounds,
-                                                            peakdetectorCLI->mavenParameters->getDefaultAdductList(),
                                                             "compounds");
 		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
 

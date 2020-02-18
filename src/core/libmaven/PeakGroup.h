@@ -214,7 +214,7 @@ class PeakGroup{
 
         inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
 
-        Compound* getCompound();
+        Compound* getCompound() const;
 
         void setCompound(Compound* compound);
 

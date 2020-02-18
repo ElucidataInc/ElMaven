@@ -108,7 +108,8 @@ SOURCES = base64.cpp \
           groupClassifier.cpp \
           groupFeatures.cpp \
           svmPredictor.cpp \
-          zlib.cpp
+          zlib.cpp \
+          adductdetection.cpp
 
 HEADERS += constants.h \
            base64.h \
@@ -153,4 +154,5 @@ HEADERS += constants.h \
            settings.h \
            groupClassifier.h \
            groupFeatures.h \
-           svmPredictor.h 
+           svmPredictor.h \
+           adductdetection.h

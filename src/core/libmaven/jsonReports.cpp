@@ -383,9 +383,7 @@ class JsonReportsFixture{
                 peakDetector.setMavenParameters(_mavenparameters);
 
                 vector<mzSlice*> slices =
-                    peakDetector.processCompounds(compounds,
-                                                  _mavenparameters->getDefaultAdductList(),
-                                                  "compounds");
+                    peakDetector.processCompounds(compounds, "compounds");
                 peakDetector.processSlices(slices, "compounds");
 
                 return _mavenparameters->allgroups;

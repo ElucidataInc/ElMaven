@@ -86,10 +86,12 @@ bool Adduct::isParent() const
 
 float Adduct::computeParentMass(float mz)
 {
-    return (mz * abs(_charge) - _mass) / _nmol;
+    return (mz * static_cast<float>(abs(_charge)) - _mass)
+           / static_cast<float>(_nmol);
 }
 
 float Adduct::computeAdductMz(float parentMass)
 {
-    return (parentMass * _nmol + _mass) / abs(_charge);
+    return (parentMass * static_cast<float>(_nmol) + _mass)
+           / static_cast<float>(abs(_charge));
 }
