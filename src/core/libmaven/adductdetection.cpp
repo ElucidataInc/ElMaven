@@ -53,10 +53,12 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
         }
     }
 
-    // this will populate `mp->allgroups` with any new groups from slices
-    detector->processSlices(slices, "adducts");
-    for (const auto& group : mp->allgroups)
-        adducts.push_back(group);
+    if (!slices.empty()) {
+        // this will populate `mp->allgroups` with any new groups from slices
+        detector->processSlices(slices, "adducts");
+        for (const auto& group : mp->allgroups)
+            adducts.push_back(group);
+    }
 
     mzUtils::delete_all(slices);
     return adducts;
