@@ -1305,7 +1305,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     if (fileNeedsCorrection) {
         // rewrite file if needed
-        csvreports->groupId = 0;
+        csvreports->setGroupId(0);
 
         sort(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end());
         for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
@@ -1315,7 +1315,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
             // within groupsWithMissingLabels or not.
             if (binary_search(groupsWithMissingLabels.begin(),
                               groupsWithMissingLabels.end(),
-                              csvreports->groupId + 1)) {
+                              csvreports->groupId() + 1)) {
                 PeakGroup newGroup = group;
                 Compound* compound = group.getCompound();
                 float compoundMz = MassCalculator::computeMass(

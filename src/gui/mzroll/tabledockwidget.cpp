@@ -662,34 +662,28 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
-   char flag;
+  auto reportType = CSVReports::ReportType::GroupReport;
   if (sFilterSel == groupsSCSV) {
-    flag = 'g';
+    reportType = CSVReports::ReportType::GroupReport;
   } else if (sFilterSel == groupsSTAB) {
-    flag='g';
+    reportType = CSVReports::ReportType::GroupReport;
   } else if (sFilterSel == peaksCSV) {
-    flag = 'p';
+    reportType = CSVReports::ReportType::PeakReport;
   } else if (sFilterSel == peaksTAB) {
-    flag = 'p';
+    reportType = CSVReports::ReportType::PeakReport;
   } else {
-    flag = 'g';
+    reportType = CSVReports::ReportType::GroupReport;
   }
-  
 
     CSVReports* csvreports;
-    
-    if(flag == 'g'){
-        csvreports = new CSVReports(fileName.toStdString(), CSVReports::ReportType::GroupReport, 
-                                                samples,_mainwindow->getUserQuantType(),
-                                                prmGroupExists, includeSetNamesLines,
-                                                _mainwindow->mavenParameters);
-    }
-    else if(flag == 'p'){
-        csvreports = new CSVReports(fileName.toStdString(), CSVReports::ReportType::PeakReport, 
-                                                samples,_mainwindow->getUserQuantType(),
-                                                prmGroupExists, includeSetNamesLines,
-                                                _mainwindow->mavenParameters);
-    }
+
+    csvreports = new CSVReports(fileName.toStdString(),
+                                reportType,
+                                samples,
+                                _mainwindow->getUserQuantType(),
+                                prmGroupExists,
+                                includeSetNamesLines,
+                                _mainwindow->mavenParameters);
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
   csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
