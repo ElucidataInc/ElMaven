@@ -56,9 +56,13 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     gotoPollyButtonAlt->setVisible(false);
 
     groupSetCombo->addItem("All Groups");
+    groupSetComboAlt->addItem("All Groups");
     groupSetCombo->addItem("Only Good Groups");
+    groupSetComboAlt->addItem("Only Good Groups");
     groupSetCombo->addItem("Exclude Bad Groups");
+    groupSetComboAlt->addItem("Exclude Bad Groups");
     groupSetCombo->setCurrentIndex(0);
+    groupSetComboAlt->setCurrentIndex(0);
 
     _selectedMode = SendMode::PollyApp;
 
@@ -71,6 +75,22 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
             this,
             SLOT(_changePage()));
+    connect(peakTableCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            peakTableComboAlt,
+            &QComboBox::setCurrentIndex);
+    connect(peakTableComboAlt,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            peakTableCombo,
+            &QComboBox::setCurrentIndex);
+    connect(groupSetCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            groupSetComboAlt,
+            &QComboBox::setCurrentIndex);
+    connect(groupSetComboAlt,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            groupSetCombo,
+            &QComboBox::setCurrentIndex);
     connect(newProjectRadio,
             &QRadioButton::toggled,
             this,
@@ -542,6 +562,7 @@ void PollyElmavenInterfaceDialog::_resetUiElements()
         return;
 
     peakTableCombo->clear();
+    peakTableComboAlt->clear();
 
     newProjectEntry->setEnabled(true);
     newProjectRadio->setChecked(true);
@@ -673,23 +694,29 @@ void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
             allBad = false;
     }
     auto model = dynamic_cast<QStandardItemModel*>(groupSetCombo->model());
+    auto modelAlt = dynamic_cast<QStandardItemModel*>(groupSetComboAlt->model());
 
     // if any group is good, enable "Only Good Groups"
     auto item = model->item(1, 0);
+    auto itemAlt = modelAlt->item(1, 0);
     if (anyGood) {
         item->setEnabled(true);
+        itemAlt->setEnabled(true);
     } else {
         item->setEnabled(false);
+        itemAlt->setEnabled(false);
     }
 
     // if all groups are bad, disable "Exclude Bad Groups"
     item = model->item(2, 0);
+    itemAlt = modelAlt->item(2, 0);
     if (allBad) {
         item->setEnabled(false);
+        itemAlt->setEnabled(false);
     } else {
         item->setEnabled(true);
+        itemAlt->setEnabled(true);
     }
-
 }
 
 void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
@@ -703,6 +730,7 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
                    || _selectedApp == PollyApp::QuantFit) {
             peakTableCombo->addItem(tableName);
         }
+        peakTableComboAlt->addItem(tableName);
         _tableNameMapping[tableName] = table;
     }
 }
@@ -713,7 +741,9 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     gotoPollyButton->setVisible(false);
     uploadButton->setEnabled(false);
     peakTableCombo->setEnabled(false);
+    peakTableComboAlt->setEnabled(false);
     groupSetCombo->setEnabled(false);
+    groupSetComboAlt->setEnabled(false);
     projectOptions->setEnabled(false);
     workflowMenu->setEnabled(false);
     sendModeTab->setEnabled(false);
@@ -1122,63 +1152,82 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
 {
     QStringList filenames;
 
-    // write a JSON and CSV file for each peak table
-    QList<QPointer<TableDockWidget>> peakTableList =
-        _mainwindow->getPeakTableList();
-    peakTableList.append(_mainwindow->getBookmarkedPeaks());
-    for (TableDockWidget* peakTable : peakTableList) {
-        if (peakTable->getGroups().isEmpty())
-            continue;
+    // check for no peak tables
+    if (peakTableComboAlt->currentIndex() == -1) {
+        _showErrorMessage("Error",
+                          "No peak tables available. Either there are "
+                          "no peak tables in the current session or "
+                          "the existing ones are not suitable for "
+                          "the selected Polly app.",
+                          QMessageBox::Warning);
+        return filenames;
+    }
 
-        QString tableName = TableDockWidget::getTitleForId(peakTable->tableId);
-        tableName.replace(" ", "_"); // replace spaces with underscores
-        QString jsonFilename = _writeableTempDir
-                               + QDir::separator()
-                               + datetimestamp
+    auto peakTable = _tableNameMapping[peakTableComboAlt->currentText()];
+    if (peakTable->getGroups().isEmpty()) {
+        _showErrorMessage("Error",
+                          "The selected peak table does not have any "
+                          "peak-groups. Cancelling upload.",
+                          QMessageBox::Warning);
+        return filenames;
+    }
+
+    if (groupSetComboAlt->currentIndex() == 0) {
+        peakTable->wholePeakSet();
+    } else if (groupSetComboAlt->currentIndex() == 1) {
+        peakTable->goodPeakSet();
+    } else if (groupSetComboAlt->currentIndex() == 2) {
+        peakTable->excludeBadPeakSet();
+    }
+
+    QString tableName = TableDockWidget::getTitleForId(peakTable->tableId);
+    tableName.replace(" ", "_"); // replace spaces with underscores
+    QString jsonFilename = _writeableTempDir
+                           + QDir::separator()
+                           + datetimestamp
+                           + "_"
+                           + tableName
+                           + ".json";
+    peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
+    filenames.append(jsonFilename);
+
+    QCoreApplication::processEvents();
+
+    QString groupCsvFilename = datetimestamp
                                + "_"
                                + tableName
-                               + ".json";
-        peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
-        filenames.append(jsonFilename);
+                               + "_groups"
+                               + ".csv";
+    peakTable->treeWidget->selectAll();
+    peakTable->prepareDataForPolly(_writeableTempDir,
+                                   "Groups Summary Matrix Format "
+                                   "Comma Delimited (*.csv)",
+                                    groupCsvFilename);
+    filenames.append(_writeableTempDir
+                     + QDir::separator()
+                     + groupCsvFilename);
 
-        QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
-        QString groupCsvFilename = datetimestamp
-                                   + "_"
-                                   + tableName
-                                   + "_groups"
-                                   + ".csv";
-        peakTable->treeWidget->selectAll();
-        peakTable->prepareDataForPolly(_writeableTempDir,
-                                       "Groups Summary Matrix Format "
-                                       "Comma Delimited (*.csv)",
-                                        groupCsvFilename);
-        filenames.append(_writeableTempDir
-                         + QDir::separator()
-                         + groupCsvFilename);
+    QString peakCsvFilename = datetimestamp
+                              + "_"
+                              + tableName
+                              + "_peaks"
+                              + ".csv";
+    peakTable->treeWidget->selectAll();
+    peakTable->prepareDataForPolly(_writeableTempDir,
+                                   "Peaks Detailed Format "
+                                   "Comma Delimited (*.csv)",
+                                    peakCsvFilename);
+    filenames.append(_writeableTempDir
+                     + QDir::separator()
+                     + peakCsvFilename);
 
-        QCoreApplication::processEvents();
-
-        QString peakCsvFilename = datetimestamp
-                                  + "_"
-                                  + tableName
-                                  + "_peaks"
-                                  + ".csv";
-        peakTable->treeWidget->selectAll();
-        peakTable->prepareDataForPolly(_writeableTempDir,
-                                       "Peaks Detailed Format "
-                                       "Comma Delimited (*.csv)",
-                                        peakCsvFilename);
-        filenames.append(_writeableTempDir
-                         + QDir::separator()
-                         + peakCsvFilename);
-
-        QCoreApplication::processEvents();
-    }
+    QCoreApplication::processEvents();
 
     if (filenames.isEmpty()) {
         _showErrorMessage("Error",
-                          "None of the peak tables have any peak-groups. "
+                          "Unable to prepare files for selected peak table. "
                           "Cancelling upload.",
                           QMessageBox::Warning);
         return filenames;
@@ -1259,7 +1308,9 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     uploadButton->setEnabled(true);
     uploadButtonAlt->setEnabled(true);
     peakTableCombo->setEnabled(true);
+    peakTableComboAlt->setEnabled(true);
     groupSetCombo->setEnabled(true);
+    groupSetComboAlt->setEnabled(true);
     projectOptions->setEnabled(true);
     projectOptionsAlt->setEnabled(true);
     workflowMenu->setEnabled(true);
