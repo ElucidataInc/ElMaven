@@ -21,7 +21,8 @@ map<Version, int> appDbVersionMap = {
     {Version("0.8.0"), 2},
     {Version("0.9.0"), 3},
     {Version("0.10.0"), 4},
-    {Version("0.11.0"), 5}
+    {Version("0.11.0"), 5},
+    {Version("0.12.0"), 6}
 };
 
 /**
@@ -777,6 +778,19 @@ map<int, string> dbVersionUpgradeScripts = {
         "DROP TABLE user_settings_old;"
 
         "ALTER TABLE peakgroups ADD COLUMN integration_type INTEGER;"
+
+        "COMMIT;"
+    },
+    {
+        5,
+        "BEGIN TRANSACTION;"
+
+        "ALTER TABLE samples ADD COLUMN injection_time INTEGER;"
+        "ALTER TABLE samples ADD COLUMN manufacturer TEXT;"
+        "ALTER TABLE samples ADD COLUMN model TEXT;"
+        "ALTER TABLE samples ADD COLUMN ionisation TEXT;"
+        "ALTER TABLE samples ADD COLUMN mass_analyzer TEXT;"
+        "ALTER TABLE samples ADD COLUMN detector TEXT;"
 
         "COMMIT;"
     }

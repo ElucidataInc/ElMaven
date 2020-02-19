@@ -81,24 +81,30 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
     _assignSampleIds(samples);
 
     auto samplesQuery = _connection->prepare(
-        "REPLACE INTO samples         \
-               VALUES ( :sample_id    \
-                      , :name         \
-                      , :filename     \
-                      , :set_name     \
-                      , :sample_order \
-                      , :is_blank     \
-                      , :is_selected  \
-                      , :color_red    \
-                      , :color_green  \
-                      , :color_blue   \
-                      , :color_alpha  \
-                      , :norml_const  \
-                      , :transform_a0 \
-                      , :transform_a1 \
-                      , :transform_a2 \
-                      , :transform_a4 \
-                      , :transform_a5 )");
+        "REPLACE INTO samples           \
+               VALUES ( :sample_id      \
+                      , :name           \
+                      , :filename       \
+                      , :set_name       \
+                      , :sample_order   \
+                      , :is_blank       \
+                      , :is_selected    \
+                      , :color_red      \
+                      , :color_green    \
+                      , :color_blue     \
+                      , :color_alpha    \
+                      , :norml_const    \
+                      , :transform_a0   \
+                      , :transform_a1   \
+                      , :transform_a2   \
+                      , :transform_a4   \
+                      , :transform_a5   \
+                      , :injection_time \
+                      , :manufacturer   \
+                      , :model          \
+                      , :ionisation     \
+                      , :mass_analyzer  \
+                      , :detector       )");
 
     _connection->begin();
 
@@ -123,6 +129,30 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
         samplesQuery->bind(":transform_a2", 0);
         samplesQuery->bind(":transform_a4", 0);
         samplesQuery->bind(":transform_a5", 0);
+
+        samplesQuery->bind(":injection_time",
+                           static_cast<long>(s->injectionTime));
+
+        if (s->instrumentInfo.count("msManufacturer")) {
+            samplesQuery->bind(":manufacturer",
+                               s->instrumentInfo["msManufacturer"]);
+        }
+        if (s->instrumentInfo.count("msModel")) {
+            samplesQuery->bind(":model",
+                               s->instrumentInfo["msModel"]);
+        }
+        if (s->instrumentInfo.count("msIonisation")) {
+            samplesQuery->bind(":ionisation",
+                               s->instrumentInfo["msIonisation"]);
+        }
+        if (s->instrumentInfo.count("msMassAnalyzer")) {
+            samplesQuery->bind(":mass_analyzer",
+                               s->instrumentInfo["msMassAnalyzer"]);
+        }
+        if (s->instrumentInfo.count("msDetector")) {
+            samplesQuery->bind(":detector",
+                               s->instrumentInfo["msDetector"]);
+        }
 
         if (!samplesQuery->execute()) {
             cerr << "Error: failed to save sample " << s->getSampleName()
@@ -910,6 +940,9 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
         float color_green = samplesQuery->floatValue("color_green");
         float color_alpha = samplesQuery->floatValue("color_alpha");
         float norml_const = samplesQuery->floatValue("norml_const");
+
+        // injection time and instrument information will be read from the
+        // sample files when they are loaded, so we do not extract them here
 
         if (norml_const == 0.0f)
             norml_const = 1.0f;

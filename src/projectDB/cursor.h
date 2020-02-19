@@ -55,6 +55,14 @@ public:
     bool bind(const std::string& param, int value);
 
     /**
+     * @brief Bind long integer value for statement with named parameter.
+     * @param param Name of the parameter to be bound.
+     * @param value Value as long integer to be bound for the parameter.
+     * @return True if value was successfully bound.
+     */
+    bool bind(const std::string& param, long value);
+
+    /**
      * @brief Bind double precision value for statement with named parameter.
      * @param param Name of the parameter to be bound.
      * @param value Value as a double to be bound for the parameter.

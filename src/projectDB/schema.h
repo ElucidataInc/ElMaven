@@ -2,23 +2,29 @@
 #define SCHEMA_H
 
 #define CREATE_SAMPLES_TABLE \
-    "CREATE TABLE IF NOT EXISTS samples ( sample_id    INTEGER PRIMARY KEY AUTOINCREMENT \
-                                        , name         TEXT                              \
-                                        , filename     TEXT                              \
-                                        , set_name     TEXT                              \
-                                        , sample_order INTEGER                           \
-                                        , is_blank     INTEGER                           \
-                                        , is_selected  INTEGER                           \
-                                        , color_red    REAL                              \
-                                        , color_green  REAL                              \
-                                        , color_blue   REAL                              \
-                                        , color_alpha  REAL                              \
-                                        , norml_const  REAL                              \
-                                        , transform_a0 REAL                              \
-                                        , transform_a1 REAL                              \
-                                        , transform_a2 REAL                              \
-                                        , transform_a4 REAL                              \
-                                        , transform_a5 REAL                              );"
+    "CREATE TABLE IF NOT EXISTS samples ( sample_id      INTEGER PRIMARY KEY AUTOINCREMENT \
+                                        , name           TEXT                              \
+                                        , filename       TEXT                              \
+                                        , set_name       TEXT                              \
+                                        , sample_order   INTEGER                           \
+                                        , is_blank       INTEGER                           \
+                                        , is_selected    INTEGER                           \
+                                        , color_red      REAL                              \
+                                        , color_green    REAL                              \
+                                        , color_blue     REAL                              \
+                                        , color_alpha    REAL                              \
+                                        , norml_const    REAL                              \
+                                        , transform_a0   REAL                              \
+                                        , transform_a1   REAL                              \
+                                        , transform_a2   REAL                              \
+                                        , transform_a4   REAL                              \
+                                        , transform_a5   REAL                              \
+                                        , injection_time INTEGER                           \
+                                        , manufacturer   TEXT                              \
+                                        , model          TEXT                              \
+                                        , ionisation     TEXT                              \
+                                        , mass_analyzer  TEXT                              \
+                                        , detector       TEXT                              );"
 
 #define CREATE_SCANS_TABLE \
     "CREATE TABLE IF NOT EXISTS scans ( id               INTEGER PRIMARY KEY AUTOINCREMENT \
