@@ -202,9 +202,14 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":table_group_id", group->groupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
-    groupsQuery->bind(":expected_mz", group->expectedMz);
+
+    auto expectedMz = 0.0f;
+    if (group->hasCompoundLink())
+        expectedMz = group->getExpectedMz(group->getCompound()->charge());
+    groupsQuery->bind(":expected_mz", expectedMz);
+
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff()); // do we need this anymore?
-    groupsQuery->bind(":expected_abundance", group->expectedAbundance);
+    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
     groupsQuery->bind(":type", static_cast<int>(group->type()));
@@ -963,11 +968,14 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
 
         group->groupId = groupsQuery->integerValue("table_group_id");
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
-        group->tagString = groupsQuery->stringValue("tag_string");
         group->metaGroupId = groupsQuery->integerValue("meta_group_id");
-        group->expectedMz = groupsQuery->floatValue("expected_mz");
-        group->expectedAbundance =
-            groupsQuery->floatValue("expected_abundance");
+
+        auto tagString = groupsQuery->stringValue("tag_string");
+        auto expectedMz = groupsQuery->floatValue("expected_mz");
+        auto expectedAbundance = groupsQuery->floatValue("expected_abundance");
+        if (tagString != "" && expectedMz > 0.0f && expectedAbundance > 0.0f)
+            group->tagIsotope(tagString, expectedMz, expectedAbundance);
+
         group->groupRank = groupsQuery->floatValue("group_rank");
         group->label = groupsQuery->stringValue("label")[0];
         group->ms2EventCount = groupsQuery->integerValue("ms2_event_count");

@@ -105,7 +105,6 @@ class PeakGroup{
         float currentIntensity;
         float meanRt;
         float meanMz;
-        float expectedMz;
         int totalSampleCount;
 
         int  ms2EventCount;
@@ -114,7 +113,6 @@ class PeakGroup{
         Fragment fragmentationPattern;
 
         //isotopic information
-        float expectedAbundance;
         int   isotopeC13count;
 
         double minIntensity;
@@ -265,6 +263,12 @@ class PeakGroup{
         void matchFragmentation(float ppmTolerance, string scoringAlgo);
         
         double getExpectedMz(int charge);
+
+        float getExpectedAbundance() const;
+
+        void tagIsotope(string isotopeName,
+                        float isotopeMass,
+                        float isotopeAbundance);
 
         /**
          * [setParent ]
@@ -644,6 +648,9 @@ class PeakGroup{
         Adduct* _adduct;
         mzSlice _slice;
         bool _sliceSet;
+
+        float _expectedMz;
+        float _expectedAbundance;
 
         string _tableName;
         shared_ptr<MavenParameters> _parameters;

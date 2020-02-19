@@ -338,10 +338,10 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
                                                         _mw->getUserQuantType()).at(0);
 
 		mzLink link;
-		link.mz1 = parentMass;
-		link.mz2 = child.expectedMz;
+        link.mz1 = parentMass;
+        link.mz2 = child.getExpectedMz(_mw->mavenParameters->charge);
 		link.note = isotopeName;
-        link.value1 = child.expectedAbundance;
+        link.value1 = child.getExpectedAbundance();
         link.value2 = quantity;
 		isotopeParameters->links.push_back(link);
 	}

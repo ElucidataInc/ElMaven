@@ -166,9 +166,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                 PeakGroup childGroup(parameters, parentGroup->integrationType());
                 // meanMz is updated in group statistics later
                 childGroup.meanMz = isotopeMass;
-                childGroup.expectedMz = isotopeMass;
-                childGroup.tagString = isotopeName;
-                childGroup.expectedAbundance = expectedAbundance;
+                childGroup.tagIsotope(isotopeName, isotopeMass, expectedAbundance);
                 childGroup.isotopeC13count = isotope.C13;
                 childGroup.setSelectedSamples(parentGroup->samples);
 
