@@ -29,7 +29,7 @@ public:
     void setPointShape(POINTSHAPE shape) { pointShape=shape; }
     void forceFillColor(bool flag) { _forceFill = flag; }
     void setSize(float size) { _cSize=size; }
-
+    void removeFromScene();
 
 protected:
     QRectF boundingRect() const;

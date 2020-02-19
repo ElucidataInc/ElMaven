@@ -246,6 +246,15 @@ public Q_SLOTS:
   void writeMascotGeneric(QString fileName);
   vector<EIC *> getEICs(float rtmin, float rtmax, PeakGroup &grp);
 
+  /**
+   * @brief Selects the item in the tree which stores the given peak-group.
+   * @param A pointer to a `PeakGroup` object that will be used to compare
+   * against stored peak-groups.
+   * @return Boolean value denoting whether the peak-group was found and
+   * selected or not.
+   */
+  bool selectPeakGroup(PeakGroup *group);
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;

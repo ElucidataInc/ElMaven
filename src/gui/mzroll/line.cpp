@@ -14,6 +14,13 @@ EicLine::EicLine(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(par
     if(scene) scene->addItem(this);
 }
 
+void EicLine::removeFromScene()
+{
+    prepareGeometryChange();
+    if (scene() != nullptr)
+        scene()->removeItem(this);
+}
+
 QRectF EicLine::boundingRect() const
 {
 
@@ -34,10 +41,12 @@ void EicLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     	painter->setPen(pen);
     }
 
-    if (_fillPath)
+    if (_fillPath) {
+        if (!_clipPath.isEmpty())
+            painter->setClipPath(_clipPath);
         painter->drawPolygon(_line);
     //Draw piece by piece line - Kiran
-    else {
+    } else {
         for(int i=0; i <_line.size()-2;i+=2) {
             painter->drawLine(_line[i],_line[i+1]);
         }
@@ -94,4 +103,4 @@ void EicLine::fixEnds() {
 
     //qDebug() << last << a << b << first;
     _endsFixed=true;
-} 
+}

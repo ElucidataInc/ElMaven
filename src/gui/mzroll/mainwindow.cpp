@@ -1395,6 +1395,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
 		bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
+        bookmarkedPeaks->selectPeakGroup(bookmarkedGroup);
     }
     return bookmarkedGroup;
 }
