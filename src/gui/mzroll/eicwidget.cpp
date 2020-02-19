@@ -1546,7 +1546,8 @@ void EicWidget::setSensitiveToTolerance(bool sensitive)
         // method initiates a `cleanup` that erases all peakgroups in
         // `eicParameters` object; `eicParameters->selectedGroup()` might also
         // be deleted which leads to corruption
-        setPeakGroup(new PeakGroup(*eicParameters->selectedGroup()));
+        if ((*eicParameters).selectedGroup() != nullptr)
+            setPeakGroup(new PeakGroup(*eicParameters->selectedGroup()));
     }
 }
 
