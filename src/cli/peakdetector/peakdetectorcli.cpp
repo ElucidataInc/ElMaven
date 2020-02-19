@@ -1235,8 +1235,8 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     string fileName = setName + ".csv";
 
-    CSVReports* csvreports = new CSVReports(mavenParameters->samples, pollyExport);
-    csvreports->setMavenParameters(mavenParameters);
+    CSVReports* csvreports;
+
 
     if (mavenParameters->allgroups.size() == 0) {
         _log->info() << "Writing to CSV failed: no groups found." << std::flush;
@@ -1249,7 +1249,6 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     if (mavenParameters->samples.size() == 0)
         return;
 
-    csvreports->setUserQuantType(quantitationType);
 
     auto ddaGroupAt =
         find_if(begin(mavenParameters->allgroups),
@@ -1263,13 +1262,19 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     // Added to pass into csvreports file when merged with Maven776 - Kiran
     // CLI exports the default Group Summary Matrix Format (without set Names)
-    csvreports->openGroupReport(fileName, ddaGroupExists);
+
+    bool includeSetNamesLine = false;
+    
+    csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
+                                mavenParameters->samples, quantitationType,  
+                                ddaGroupExists, includeSetNamesLine,
+                                mavenParameters, pollyExport);
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
         PeakGroup& group = mavenParameters->allgroups[i];
         csvreports->addGroup(&group);
     }
-    csvreports->closeFiles();
+
 
     // NOTE: The following validation is being done to prevent a workflow
     // breaking issue (SYP-24) caused by missing C12 PARENT labels for labelled
@@ -1300,8 +1305,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     if (fileNeedsCorrection) {
         // rewrite file if needed
-        csvreports->openGroupReport(fileName, ddaGroupExists);
-        csvreports->groupId = 0;
+        csvreports->setGroupId(0);
 
         sort(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end());
         for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
@@ -1311,7 +1315,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
             // within groupsWithMissingLabels or not.
             if (binary_search(groupsWithMissingLabels.begin(),
                               groupsWithMissingLabels.end(),
-                              csvreports->groupId + 1)) {
+                              csvreports->groupId() + 1)) {
                 PeakGroup newGroup = group;
                 Compound* compound = group.getCompound();
                 float compoundMz = MassCalculator::computeMass(
@@ -1329,7 +1333,6 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
             }
             csvreports->addGroup(&group);
         }
-        csvreports->closeFiles();
     }
 
     if (csvreports->getErrorReport() != "") {

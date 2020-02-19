@@ -48,7 +48,6 @@ macx {
 HEADERS += \
     testLoadSamples.h \
     testMassCalculator.h \
-    testCSVReports.h \
     testMzSlice.h \
     testLoadDB.h \
     testPeakDetection.h \
@@ -73,7 +72,6 @@ HEADERS += \
 SOURCES += \
     testLoadSamples.cpp \
     testMassCalculator.cpp \
-    testCSVReports.cpp \
     testPeakDetection.cpp \
     testIsotopeDetection.cpp \
     testMzSlice.cpp \

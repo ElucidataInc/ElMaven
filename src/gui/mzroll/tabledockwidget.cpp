@@ -586,8 +586,7 @@ float TableDockWidget::extractMaxIntensity(PeakGroup *group) {
 void TableDockWidget::exportGroupsToSpreadsheet() {
 
   vector<mzSample *> samples = _mainwindow->getSamples();
-  CSVReports *csvreports = new CSVReports(samples);
-  csvreports->setMavenParameters(_mainwindow->mavenParameters);
+
   if (allgroups.size() == 0) {
     QString msg = "Peaks Table is Empty";
     QMessageBox::warning(this, tr("Error"), msg);
@@ -653,8 +652,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     return;
   }
 
-  csvreports->setUserQuantType(_mainwindow->getUserQuantType());
-
+ 
   auto prmGroupAt = find_if(begin(allgroups),
                             end(allgroups),
                             [] (PeakGroup& group) {
@@ -664,22 +662,28 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = true;
 
+  auto reportType = CSVReports::ReportType::GroupReport;
   if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
-                                includeSetNamesLines);
+    reportType = CSVReports::ReportType::GroupReport;
   } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(),
-                                prmGroupExists,
-                                includeSetNamesLines);
+    reportType = CSVReports::ReportType::GroupReport;
   } else if (sFilterSel == peaksCSV) {
-    csvreports->openPeakReport(fileName.toStdString());
+    reportType = CSVReports::ReportType::PeakReport;
   } else if (sFilterSel == peaksTAB) {
-    csvreports->openPeakReport(fileName.toStdString());
+    reportType = CSVReports::ReportType::PeakReport;
   } else {
-    // default to group summary
-    csvreports->openGroupReport(fileName.toStdString(), prmGroupExists);
+    reportType = CSVReports::ReportType::GroupReport;
   }
+
+    CSVReports* csvreports;
+
+    csvreports = new CSVReports(fileName.toStdString(),
+                                reportType,
+                                samples,
+                                _mainwindow->getUserQuantType(),
+                                prmGroupExists,
+                                includeSetNamesLines,
+                                _mainwindow->mavenParameters);
 
   QList<PeakGroup *> selectedGroups = getSelectedGroups();
   csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
@@ -690,8 +694,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
       csvreports->addGroup(&group);
     }
   }
-  csvreports->closeFiles();
-
+ 
   if (csvreports->getErrorReport() != "") {
     QMessageBox msgBox(_mainwindow);
     msgBox.setIcon(QMessageBox::Critical);
@@ -703,101 +706,100 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 void TableDockWidget::prepareDataForPolly(QString writableTempDir,
                                           QString exportFormat,
                                           QString userFilename) {
+    vector<mzSample*> samples = _mainwindow->getSamples();
 
-  vector<mzSample *> samples = _mainwindow->getSamples();
-  CSVReports *csvreports = new CSVReports(samples, true);
-  csvreports->setMavenParameters(_mainwindow->mavenParameters);
-  if (allgroups.size() == 0) {
-    QString msg = "Peaks Table is Empty";
-    QMessageBox::warning(this, tr("Error"), msg);
-    return;
-  }
-
-  QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
-  QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
-  QString peaksTAB = "Peaks Detailed Format (*.tab)";
-  QString groupsSCSV =
-      "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
-  QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-  QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
-
-  QString peaksListQE = "Inclusion List QE (*.csv)";
-  QString mascotMGF = "Mascot Format MS2 Scans (*.mgf)";
-
-  QString sFilterSel = exportFormat;
-  QString fileName = writableTempDir + QDir::separator() + userFilename;
-  if (fileName.isEmpty())
-    return;
-
-  if (sFilterSel == groupsSCSV || sFilterSel == peaksCSV ||
-      sFilterSel == groupsCSV) {
-    if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
-      fileName = fileName + ".csv";
-  }
-
-  if (sFilterSel == groupsSTAB || sFilterSel == peaksTAB ||
-      sFilterSel == groupsTAB) {
-    if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
-      fileName = fileName + ".tab";
-  }
-
-  if (samples.size() == 0)
-    return;
-
-  if (sFilterSel == peaksListQE) {
-    writeQEInclusionList(fileName);
-    return;
-  } else if (sFilterSel == mascotMGF) {
-    writeMascotGeneric(fileName);
-    return;
-  }
-
-  csvreports->setUserQuantType(_mainwindow->getUserQuantType());
-
-  auto ddaGroupAt = find_if(begin(allgroups),
-                            end(allgroups),
-                            [] (PeakGroup& group) {
-                              if (!group.getCompound())
-                                return false;
-                              return group.getCompound()->type() == Compound::Type::PRM;
-                            });
-  bool ddaGroupExists = ddaGroupAt != end(allgroups);
-  bool includeSetNamesLines = true;
-
-  if (sFilterSel == groupsSCSV) {
-    csvreports->openGroupReport(fileName.toStdString(),
-                                ddaGroupExists,
-                                includeSetNamesLines);
-  } else if (sFilterSel == groupsSTAB) {
-    csvreports->openGroupReport(fileName.toStdString(),
-                                ddaGroupExists,
-                                includeSetNamesLines);
-  } else if (sFilterSel == peaksCSV) {
-    csvreports->openPeakReport(fileName.toStdString());
-  } else if (sFilterSel == peaksTAB) {
-    csvreports->openPeakReport(fileName.toStdString());
-  } else {
-    // default to group summary
-    csvreports->openGroupReport(fileName.toStdString(), ddaGroupExists);
-  }
-
-  QList<PeakGroup *> selectedGroups = getSelectedGroups();
-  csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
-
-  for (auto& group : allgroups) {
-    // we do not set untargeted groups to Polly yet, remove this when we can.
-    if (selectedGroups.contains(&group) && group.getCompound() != nullptr) {
-      csvreports->addGroup(&group);
+    if (allgroups.size() == 0) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
     }
-  }
-  csvreports->closeFiles();
 
-  if (csvreports->getErrorReport() != "") {
-    QMessageBox msgBox(_mainwindow);
-    msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(csvreports->getErrorReport());
-    msgBox.exec();
-  }
+    QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
+    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
+    QString peaksTAB = "Peaks Detailed Format (*.tab)";
+    QString groupsSCSV =
+        "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
+    QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
+    QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
+
+    QString peaksListQE = "Inclusion List QE (*.csv)";
+    QString mascotMGF = "Mascot Format MS2 Scans (*.mgf)";
+
+    QString sFilterSel = exportFormat;
+    QString fileName = writableTempDir + QDir::separator() + userFilename;
+    if (fileName.isEmpty())
+        return;
+
+    if (sFilterSel == groupsSCSV || sFilterSel == peaksCSV
+        || sFilterSel == groupsCSV) {
+        if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
+            fileName = fileName + ".csv";
+    }
+
+    if (sFilterSel == groupsSTAB || sFilterSel == peaksTAB
+        || sFilterSel == groupsTAB) {
+        if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
+            fileName = fileName + ".tab";
+    }
+
+    if (samples.size() == 0)
+        return;
+
+    if (sFilterSel == peaksListQE) {
+        writeQEInclusionList(fileName);
+        return;
+    } else if (sFilterSel == mascotMGF) {
+        writeMascotGeneric(fileName);
+        return;
+    }
+
+    auto ddaGroupAt =
+        find_if(begin(allgroups), end(allgroups), [](PeakGroup& group) {
+            if (!group.getCompound())
+                return false;
+            return group.getCompound()->type() == Compound::Type::PRM;
+        });
+    bool ddaGroupExists = ddaGroupAt != end(allgroups);
+    bool includeSetNamesLines = true;
+
+    auto reportType = CSVReports::ReportType::GroupReport;
+    char flag;
+    if (sFilterSel == groupsSCSV) {
+        reportType = CSVReports::ReportType::GroupReport;
+    } else if (sFilterSel == groupsSTAB) {
+        reportType = CSVReports::ReportType::GroupReport;
+    } else if (sFilterSel == peaksCSV) {
+        reportType = CSVReports::ReportType::PeakReport;
+    } else if (sFilterSel == peaksTAB) {
+        reportType = CSVReports::ReportType::PeakReport;
+    }
+    CSVReports* csvreports;
+    csvreports = new CSVReports(fileName.toStdString(),
+                                reportType,
+                                samples,
+                                _mainwindow->getUserQuantType(),
+                                ddaGroupExists,
+                                includeSetNamesLines,
+                                _mainwindow->mavenParameters,
+                                true);
+
+    QList<PeakGroup*> selectedGroups = getSelectedGroups();
+    csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+
+    for (auto& group : allgroups) {
+        // we do not set untargeted groups to Polly yet, remove this when we
+        // can.
+        if (selectedGroups.contains(&group) && group.getCompound() != nullptr) {
+            csvreports->addGroup(&group);
+        }
+    }
+
+    if (csvreports->getErrorReport() != "") {
+        QMessageBox msgBox(_mainwindow);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText(csvreports->getErrorReport());
+        msgBox.exec();
+    }
 }
 
 void TableDockWidget::exportJsonToPolly(QString writableTempDir,

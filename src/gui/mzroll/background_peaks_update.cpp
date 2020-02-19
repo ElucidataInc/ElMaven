@@ -61,11 +61,10 @@ void BackgroundPeakUpdate::run(void) {
         connect(this, SIGNAL(alignmentComplete(QList<PeakGroup> )), mainwindow->sampleRtWidget, SLOT(plotGraph()));
         mavenParameters->stop = false;
         started();
-
         if (runFunction == "alignUsingDatabase") {
                 alignUsingDatabase();
         } else if (runFunction == "processSlices") {
-                processSlices();
+            processSlices();
         } else if (runFunction == "processMassSlices") {
                 processMassSlices();
         } else if (runFunction == "pullIsotopes") {
@@ -138,46 +137,42 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
                                   return false;
                               });
     bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
-
     //write reports
-    CSVReports* csvreports = NULL;
+
+    CSVReports* csvreports = nullptr;
     if (mavenParameters->writeCSVFlag) {
         //Added to pass into csvreports file when merged with Maven776 - Kiran
         bool includeSetNamesLine=true;
         string groupfilename = mavenParameters->outputdir + setName + ".csv";
-        csvreports = new CSVReports(mavenParameters->samples);
-        csvreports->setMavenParameters(mavenParameters);
-        csvreports->setUserQuantType(mainwindow->getUserQuantType());
-        //Added to pass into csvreports file when merged with Maven776 - Kiran
-        csvreports->openGroupReport(groupfilename,
-                                    prmGroupExists,
-                                    includeSetNamesLine);
+        
+        CSVReports* csvreports = new CSVReports(groupfilename,CSVReports::ReportType::GroupReport,
+                                                  mavenParameters->samples, 
+                                                  mainwindow->getUserQuantType(),
+                                                  prmGroupExists, includeSetNamesLine,
+                                                  mavenParameters);
     }
-
     peakDetector->pullAllIsotopes();
 
-        for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
-            PeakGroup& group = mavenParameters->allgroups[j];
+    for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
+        PeakGroup& group = mavenParameters->allgroups[j];
+        if (csvreports != NULL)
+            csvreports->addGroup(&group);
 
-            if (csvreports != NULL)
-                csvreports->addGroup(&group);
+        if (mavenParameters->keepFoundGroups) {
+            if (_untargetedMustHaveMs2
+                && mavenParameters->allgroups[j].ms2EventCount == 0)
+                continue;
 
-            if (mavenParameters->keepFoundGroups) {
-                if (_untargetedMustHaveMs2
-                    && mavenParameters->allgroups[j].ms2EventCount == 0)
-                    continue;
-
-                Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
-                QCoreApplication::processEvents();
-            }
+            Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
+            QCoreApplication::processEvents();
         }
+    }
 
-        if (csvreports != NULL) {
-                csvreports->closeFiles();
-                delete (csvreports);
-                csvreports = NULL;
-        }
-        Q_EMIT(updateProgressBar("Done", 1, 1));
+    if (csvreports != NULL) {
+            delete (csvreports);
+            csvreports = NULL;
+    }
+    Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
 void BackgroundPeakUpdate::setPeakDetector(PeakDetector *pd)
@@ -271,7 +266,6 @@ void BackgroundPeakUpdate::alignUsingDatabase() {
 
 void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
                                          string setName) {
-
         getProcessSlicesSettings();
 
         peakDetector->processSlices(slices, setName);
@@ -282,7 +276,6 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
             && mavenParameters->pullIsotopesFlag) {
                 Q_EMIT(updateProgressBar("Calculating Isotopes", 1, 100));
         }
-
         writeCSVRep(setName);
 }
 
@@ -294,7 +287,6 @@ void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int progr
 
 void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
                                             string setName) {
-
         if (set.size() == 0)
                 return;
 
@@ -328,10 +320,10 @@ void BackgroundPeakUpdate::completeStop() {
 }
 
 void BackgroundPeakUpdate::computePeaks() {
-        if (mavenParameters->compounds.size() == 0)
-                return;
 
-        processCompounds(mavenParameters->compounds, "compounds");
+    if (mavenParameters->compounds.size() == 0)
+                return;
+    processCompounds(mavenParameters->compounds, "compounds");
 }
 
 /**
