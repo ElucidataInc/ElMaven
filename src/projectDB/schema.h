@@ -82,7 +82,9 @@
                                       , local_max_flag          REAL                              \
                                       , from_blank_sample       INTEGER                           \
                                       , label                   INTEGER                           \
-                                      , peak_spline_area        REAL                              );"
+                                      , peak_spline_area        REAL                              \
+                                      , eic_rt                  TEXT                              \
+                                      , eic_intensity           TEXT                              );"
 
 #define CREATE_PEAK_GROUPS_TABLE \
     "CREATE TABLE IF NOT EXISTS peakgroups ( group_id                           INTEGER PRIMARY KEY AUTOINCREMENT \
