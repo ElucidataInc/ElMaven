@@ -47,6 +47,7 @@
 #include "peptidefragmentation.h"
 #include "pollyelmaveninterface.h"
 #include "projectdockwidget.h"
+#include "projectsaveworker.h"
 #include "qdownloader.h"
 #include "remotespectrahandler.h"
 #include "samplertwidget.h"
@@ -266,7 +267,8 @@ using namespace mzUtils;
 
     //added while merging with Maven776 - Kiran
 	//fileLoader
-	autosave = new AutoSave(this);
+    saveWorker = new ProjectSaveWorker(this);
+    autosaveWorker = new TempProjectSaveWorker(this);
 
     fileLoader = new mzFileIO(this);
     fileLoader->setMainWindow(this);
@@ -503,7 +505,7 @@ using namespace mzUtils;
     connect(this,
             SIGNAL(saveSignal(QList<shared_ptr<PeakGroup>>)),
             this,
-            SLOT(autosaveGroup(QList<shared_ptr<PeakGroup>>)));
+            SLOT(autosaveGroups(QList<shared_ptr<PeakGroup>>)));
 
     connect(fileLoader,
             SIGNAL(updateStatusString(QString)),
@@ -845,69 +847,36 @@ void MainWindow::createPeakTable(QString filenameNew) {
     peaksTable->showAllGroups();
 }
 
-QString MainWindow::_newAutosaveFile()
+QString MainWindow::_getNewProjectFilename()
 {
-    auto now = QDateTime::currentDateTime();
-    auto tempFilename = now.toString("dd_MM_yyyy_hh_mm_ss") + ".emDB";
-    auto firstSampleFile = getSamples()[0]->fileName;
-    auto sampleFileInfo = QFileInfo(QString::fromStdString(firstSampleFile));
-    auto samplePath = sampleFileInfo.absolutePath();
-    return samplePath + QDir::separator() + tempFilename;
-}
+    QString projectName = "";
+    QString dir = ".";
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
 
-AutoSave::AutoSave(MainWindow* mw)
-{
-    _mainwindow = mw;
-    _mainwindow->timestampFileExists = false;
-}
-
-void AutoSave::saveProjectWorker(QList<shared_ptr<PeakGroup>> groupsToBeSaved)
-{
-    this->groupsToBeSaved = groupsToBeSaved;
-    this->start();
-}
-
-void AutoSave::run()
-{
-    _mainwindow->saveProjectForFilename(groupsToBeSaved);
-}
-
-void MainWindow::_setProjectFilenameIfEmpty()
-{
-    if (this->_currentProjectName.isEmpty()) {
-        QString dir = ".";
-        if (settings->contains("lastDir")) {
-            QString ldir = settings->value("lastDir").value<QString>();
-            QDir test(ldir);
-            if (test.exists())
-                dir = ldir;
-        }
-
-        // we prefer "emDB" format as the default
-        auto filename =
-            QFileDialog::getSaveFileName(this,
-                                         "Save Project (.emDB)",
-                                         dir,
-                                         "El-MAVEN Database Format(*.emDB)");
-        if (!filename.isEmpty()) {
-            if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
-                this->_currentProjectName = filename + ".emDB";
-            } else {
-                this->_currentProjectName = filename;
-            }
+    // we prefer "emDB" format as the default
+    auto filename = QFileDialog::getSaveFileName(this,
+                                                 "Save Project (.emDB)",
+                                                 dir,
+                                                 "El-MAVEN Database Format"
+                                                 "(*.emDB)");
+    if (!filename.isEmpty()) {
+        if (!filename.endsWith(".emDB", Qt::CaseInsensitive)) {
+            projectName = filename + ".emDB";
+        } else {
+            projectName = filename;
         }
     }
+    return projectName;
 }
 
 QString MainWindow::_getProjectFilenameFromProjectDockWidget()
 {
-    auto lastSave = projectDockWidget->getLastSavedTime();
-    auto lastLoad = projectDockWidget->getLastOpenedTime();
-    if (!projectDockWidget->getLastSavedProject().isEmpty()
-            && lastSave > lastLoad)
-        return projectDockWidget->getLastSavedProject();
-    if (!projectDockWidget->getLastOpenedProject().isEmpty()
-            && lastLoad > lastSave)
+    if (!projectDockWidget->getLastOpenedProject().isEmpty())
         return projectDockWidget->getLastOpenedProject();
     return "";
 }
@@ -919,57 +888,28 @@ QString MainWindow::getLatestUserProject()
     return _latestUserProjectName;
 }
 
-void MainWindow::resetAutosave()
+void MainWindow::autosaveGroups(QList<shared_ptr<PeakGroup>> groups)
 {
-    if (this->timestampFileExists) {
-        while (autosave->isRunning());
-        fileLoader->closeSQLiteProject();
-        QFile::remove(_currentProjectName);
-    }
-    this->timestampFileExists = false;
-    _currentProjectName = "";
-}
-
-void MainWindow::autosaveGroup(QList<shared_ptr<PeakGroup>> groups)
-{
-    if (groups.empty() || !this->timestampFileExists) {
+    if (groups.empty() || autosaveWorker->currentProjectName().isEmpty()) {
         autosaveProject();
         return;
     }
 
-    autosave->saveProjectWorker(groups);
+    autosaveWorker->updateProject(groups);
 }
 
 void MainWindow::autosaveProject()
 {
-    if (!this->timestampFileExists) {
-        this->_currentProjectName = this->_newAutosaveFile();
-        this->timestampFileExists = true;
-    }
-    autosave->saveProjectWorker();
+    autosaveWorker->saveProject();
 }
 
 void MainWindow::explicitSave()
 {
-    // the user is ordering an explicit save, reset the current project name
-    if (timestampFileExists) {
-        resetAutosave();
-    }
-
     saveProject(true);
 }
 
 void MainWindow::threadSave(QString filename)
 {
-    // a non-temporary file is being used to save session data,
-    // all autosave states should be discarded
-    if (timestampFileExists) {
-        resetAutosave();
-    }
-
-    _currentProjectName = filename;
-    _latestUserProjectName = filename;
-
     QFileInfo fileInfo(filename);
     setWindowTitle(programName
                    + " "
@@ -977,11 +917,13 @@ void MainWindow::threadSave(QString filename)
                    + " "
                    + fileInfo.fileName());
 
-    autosave->saveProjectWorker();
+    autosaveWorker->deleteCurrentProject();
+    saveWorker->saveProject(filename);
 }
 
 void MainWindow::saveProject(bool explicitSave)
 {
+    QString projectName;
     QSettings* settings = this->getSettings();
     if (settings->value("closeEvent").toInt() == 1) {
         // if there are no samples, its unlikely that there has been any work
@@ -989,16 +931,11 @@ void MainWindow::saveProject(bool explicitSave)
         if (getSamples().size() == 0)
             return;
 
-        if (_currentProjectName.isEmpty())
-            _currentProjectName = _getProjectFilenameFromProjectDockWidget();
-
-        // If the currently loaded project is an mzroll Project, then we should
-        // not consider it for our session closure
-        if (fileLoader->isMzRollProject(_currentProjectName))
-            _currentProjectName = "";
+        if (saveWorker->currentProjectName().isEmpty())
+            projectName = getLatestUserProject();
 
         // if no projects were saved or opened
-        if (_latestUserProjectName.isEmpty()) {
+        if (getLatestUserProject().isEmpty()) {
             QMessageBox confirmation;
             confirmation.setWindowTitle("Save as project");
             confirmation.setText("Would you like to save your data for this "
@@ -1018,16 +955,13 @@ void MainWindow::saveProject(bool explicitSave)
                 return;
             }
 
-            // remove timestamp autosave file in any case
-            fileLoader->closeSQLiteProject();
-            QFile::remove(_currentProjectName);
-            if (confirmation.clickedButton() == noButton)
+            if (confirmation.clickedButton() == noButton) {
+                autosaveWorker->deleteCurrentProject();
                 return;
+            }
 
-            _currentProjectName = "";
-            _setProjectFilenameIfEmpty();
-
-            if (_currentProjectName.isEmpty()) {
+            projectName = _getNewProjectFilename();
+            if (projectName.isEmpty()) {
                 settings->setValue("closeEvent", 0);
                 return;
             }
@@ -1051,11 +985,7 @@ void MainWindow::saveProject(bool explicitSave)
                 settings->setValue("closeEvent", 0);
                 return;
             } else if (confirmation.clickedButton() == noButton) {
-                // remove current project file only if it was created by autosave
-                if (this->timestampFileExists) {
-                    fileLoader->closeSQLiteProject();
-                    QFile::remove(_currentProjectName);
-                }
+                autosaveWorker->deleteCurrentProject();
                 return;
             }
 
@@ -1067,26 +997,20 @@ void MainWindow::saveProject(bool explicitSave)
             QPushButton* newButton = msgBox.addButton(tr("Save in new"),
                                                       QMessageBox::AcceptRole);
             msgBox.setDefaultButton(saveButton);
+            msgBox.setEscapeButton(cancelButton);
             msgBox.exec();
 
-            // remove current project file only if it was created by autosave
-            if (this->timestampFileExists) {
-                fileLoader->closeSQLiteProject();
-                QFile::remove(_currentProjectName);
-            }
-
             if (msgBox.clickedButton() == newButton) {
-                _currentProjectName = "";
-                _setProjectFilenameIfEmpty();
+                projectName = _getNewProjectFilename();
                 analytics->hitEvent("Project Save", "emDB In New File");
             } else if (msgBox.clickedButton() == saveButton) {
-                _currentProjectName = _latestUserProjectName;
+                projectName = getLatestUserProject();
                 analytics->hitEvent("Project Save", "emDB In Current File");
             } else {
                 return;
             }
 
-            if (_currentProjectName.isEmpty()) {
+            if (projectName.isEmpty()) {
                 settings->setValue("closeEvent", 0);
                 return;
             }
@@ -1099,10 +1023,10 @@ void MainWindow::saveProject(bool explicitSave)
         msgBox->setStandardButtons(QMessageBox::NoButton);
         msgBox->open();
 
-        this->autosave->saveProjectWorker();
+        autosaveWorker->deleteCurrentProject();
+        saveWorker->saveProject(projectName);
     } else if (explicitSave) {
-        _currentProjectName = _getProjectFilenameFromProjectDockWidget();
-        if (_latestUserProjectName.isEmpty()) {
+        if (getLatestUserProject().isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",
                                                "You do not have a project for "
@@ -1111,13 +1035,13 @@ void MainWindow::saveProject(bool explicitSave)
                                                QMessageBox::No|QMessageBox::Yes,
                                                QMessageBox::Yes);
             if (reply == QMessageBox::Yes)
-                _setProjectFilenameIfEmpty();
+                projectName = _getNewProjectFilename();
 
             // still empty?!
-            if (_currentProjectName.isEmpty())
+            if (projectName.isEmpty())
                 return;
 
-            _latestUserProjectName = _currentProjectName;
+            _latestUserProjectName = projectName;
             QFileInfo fileInfo(_latestUserProjectName);
             setWindowTitle(programName
                            + " "
@@ -1125,26 +1049,10 @@ void MainWindow::saveProject(bool explicitSave)
                            + " "
                            + fileInfo.fileName());
         } else {
-            _currentProjectName = _latestUserProjectName;
+            projectName = getLatestUserProject();
         }
-        this->autosave->saveProjectWorker();
-    } else if (this->timestampFileExists) {
-        this->autosave->saveProjectWorker();
-    }
-}
-
-void
-MainWindow::saveProjectForFilename(QList<shared_ptr<PeakGroup>> groupsToBeSaved)
-{
-    if (fileLoader->isEmdbProject(_currentProjectName)) {
-        if (!groupsToBeSaved.empty()) {
-            for (auto queuedGroup : groupsToBeSaved) {
-                projectDockWidget->savePeakGroupInSQLite(queuedGroup.get(),
-                                                         _currentProjectName);
-            }
-        } else {
-            projectDockWidget->saveSQLiteProject(_currentProjectName);
-        }
+        autosaveWorker->deleteCurrentProject();
+        saveWorker->saveProject(projectName);
     }
 }
 
@@ -1808,6 +1716,22 @@ void MainWindow::open()
     }
 
     if (!emdbProjectBeingLoaded.isEmpty()) {
+        // this will check if the user (by mistake?) does not try to open this
+        // session's autosave file itself (which will get deleted when session
+        // is cleared, so we do not end up trying to open a deleted file
+        if (emdbProjectBeingLoaded == autosaveWorker->currentProjectName()) {
+            filelist.clear();
+            fileLoader->setFileList(filelist);
+            QMessageBox::warning(this,
+                                 "Not allowed",
+                                 "This emDB file cannot be opened since it is "
+                                 "the current session's autosave (temporary) "
+                                 "file. We save them to prevent data loss in "
+                                 "the event of a crash. Please select a "
+                                 "different file.");
+            return;
+        }
+
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
         _latestUserProjectName = emdbProjectBeingLoaded;
 
@@ -2699,7 +2623,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
     writeSettings();
 
     // wait until autosave has finished
-    while(autosave->isRunning())
+    while(saveWorker->isRunning())
         QApplication::processEvents();
 
     if (settings->value("closeEvent").toInt() == 0) {

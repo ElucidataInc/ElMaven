@@ -23,11 +23,7 @@ public:
     QTreeWidget* getTreeWidget();
     void prepareSampleCohortFile(QString sampleCohortFileName);
     QString getLastOpenedProject();
-    std::chrono::time_point<std::chrono::system_clock> getLastOpenedTime();
     void setLastOpenedProject(QString filename);
-    QString getLastSavedProject();
-    std::chrono::time_point<std::chrono::system_clock> getLastSavedTime();
-    void setLastSavedProject(QString filename);
     QColor getSampleColor(mzSample* sample);
     QIcon getSampleIcon(mzSample* sample);
 
@@ -49,28 +45,10 @@ public Q_SLOTS:
     void saveProjectAsSQLite();
 
     /**
-     * @brief Write project data into given file as a SQLite database.
-     * @details If the file is already a project DB, all project tables are
-     * deleted and created anew.
-     * @param filename Name of the file to be saved as SQLite project on disk.
-     */
-    void saveSQLiteProject(QString filename);
-
-    /**
      * @brief Update saved data in the currently open emDB project. If no
      * project is currently open, prompts the user to create a new one.
      */
     void saveSQLiteProject();
-
-    /**
-     * @brief Save or update the information of a peak group in the current
-     * emDB project.
-     * @param group Pointer to the `PeakGroup` object which will be saved, or
-     * updated.
-     * @param filename A string path for filename of the SQLite project to be
-     * created (only if it does not exist already).
-     */
-    void savePeakGroupInSQLite(PeakGroup* group, QString filename);
 
     /**
      * @brief Save any pending changes and close the currently open SQLite
@@ -129,9 +107,6 @@ private:
     QColor  usedColor;
 
     QString _lastOpenedProject;
-    QString _lastSavedProject;
-    std::chrono::time_point<std::chrono::system_clock> _lastSave;
-    std::chrono::time_point<std::chrono::system_clock> _lastLoad;
 };
 
 /**

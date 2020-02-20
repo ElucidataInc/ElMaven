@@ -6,8 +6,8 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "common/analytics.h"
 #include "base64.h"
+#include "common/analytics.h"
 #include "Compound.h"
 #include "datastructures/adduct.h"
 #include "errorcodes.h"
@@ -23,6 +23,7 @@
 #include "mzUtils.h"
 #include "projectdatabase.h"
 #include "projectdockwidget.h"
+#include "projectsaveworker.h"
 #include "Scan.h"
 #include "spectralhitstable.h"
 #include "tabledockwidget.h"
@@ -853,7 +854,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         }
         _currentProject->saveCompounds(compoundSet);
         qDebug() << "finished writing to project" << filename;
-        if (!_mainwindow->timestampFileExists)
+        if (_mainwindow->autosaveWorker->currentProjectName().isEmpty())
             Q_EMIT(updateStatusString(
                 QString("Project successfully saved to %1").arg(filename)
             ));

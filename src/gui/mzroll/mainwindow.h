@@ -69,6 +69,8 @@ class MavenParameters;
 class LibraryManager;
 class Mixpanel;
 class InfoDialog;
+class ProjectSaveWorker;
+class TempProjectSaveWorker;
 
 extern Database DB;
 
@@ -96,7 +98,8 @@ public:
 		return analytics;
 	}
 
-	AutoSave* autosave;
+    ProjectSaveWorker* saveWorker;
+    TempProjectSaveWorker* autosaveWorker;
 	MavenParameters* mavenParameters;
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
@@ -260,12 +263,6 @@ public:
      */
     void saveProjectForFilename(QList<shared_ptr<PeakGroup> > groupsToBeSaved);
 
-    /**
-     * @brief Stores whether a timestamp file is being used to save in the
-     * background.
-     */
-    bool timestampFileExists;
-
 	void loadPollySettings(QString fileName);
 Q_SIGNALS:
 	void valueChanged(int newValue);
@@ -288,7 +285,7 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
-    void autosaveGroup(QList<shared_ptr<PeakGroup> > groups = {});
+    void autosaveGroups(QList<shared_ptr<PeakGroup>> groups = {});
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -399,12 +396,6 @@ public Q_SLOTS:
      * @param filename String name of a  project file to save to.
      */
     void threadSave(QString filename);
-
-    /**
-     * @brief Reset the status of autosave for current El-MAVEN session. Should
-     * be called whenever a new project is loaded into the session.
-     */
-    void resetAutosave();
 
     /**
      * @brief Get the latest project that was loaded/saved by the user.
@@ -535,23 +526,15 @@ private:
         QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 
     /**
-     * @brief Name of the project to which all threaded saving will be done.
-     */
-    QString _currentProjectName;
-
-    /**
      * @brief Name of the project that was last loaded or saved and will be used
      * when saving from explicit user command or final save when exiting app.
      */
     QString _latestUserProjectName;
 
-    QString newFileName;
-
     Mixpanel* _usageTracker;
     InfoDialog* _infoDialog;
 
-    QString _newAutosaveFile();
-    void _setProjectFilenameIfEmpty();
+    QString _getNewProjectFilename();
     QString _getProjectFilenameFromProjectDockWidget();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
@@ -609,20 +592,6 @@ class MainWindowWidgetAction : public QWidgetAction
 
     private:
         QString btnName;
-};
-
-class AutoSave : public QThread
-{
-    Q_OBJECT
-
-public:
-    AutoSave(MainWindow*);
-    void saveProjectWorker(QList<shared_ptr<PeakGroup> > groupsToBeSaved = {});
-    MainWindow* _mainwindow;
-
-private:
-    QList<shared_ptr<PeakGroup>> groupsToBeSaved;
-    void run();
 };
 
 #endif
