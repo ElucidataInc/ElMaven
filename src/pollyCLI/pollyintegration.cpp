@@ -424,10 +424,10 @@ ErrorStatus PollyIntegration::activeInternet()
         return ErrorStatus::Error;
 
     QList<QByteArray> results = resultAndError.at(0).split('\n');
-    QString status = results[1];
-    if (status == "Connected") {
+    // the order of status string is not fixed, so we check both the elements
+    if (results[0] == "Connected" || results[1] == "Connected")
         return ErrorStatus::Success;
-    }
+
     return ErrorStatus::Failure; 
 }
 
