@@ -394,8 +394,10 @@ public Q_SLOTS:
     /**
      * @brief Save a session in a filename using a background thread.
      * @param filename String name of a  project file to save to.
+     * @param saveRawData Whether the emDB should be saved with raw EIC and
+     * spectra for peaks. `false` by default.
      */
-    void threadSave(QString filename);
+    void threadSave(const QString filename, const bool saveRawData = false);
 
     /**
      * @brief Get the latest project that was loaded/saved by the user.

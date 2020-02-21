@@ -35,29 +35,32 @@ QString ProjectSaveWorker::currentProjectName() const
 
 void ProjectSaveWorker::run()
 {
-    if (!_groupsToSave.isEmpty()) {
+    if (!_groupsToSave.isEmpty() && !_currentProjectName.isEmpty()) {
         for (auto queuedGroup : _groupsToSave)
-            _savePeakGroupInSqlite(queuedGroup, _currentProjectName);
+            _savePeakGroupInSqlite(queuedGroup);
     } else {
-        _saveSqliteProject(_currentProjectName);
+        _saveSqliteProject();
     }
 }
 
-void ProjectSaveWorker::_saveSqliteProject(const QString fileName)
+void ProjectSaveWorker::_saveSqliteProject()
 {
-    auto success = _mw->fileLoader->writeSQLiteProject(fileName);
-    if (success)
-        _currentProjectName = fileName;
+    if (_currentProjectName.isEmpty())
+        return;
+
+    auto success = _mw->fileLoader->writeSQLiteProject(_currentProjectName,
+                                                       _saveRawData);
+    if (!success)
+        _currentProjectName = "";
 }
 
-void ProjectSaveWorker::_savePeakGroupInSqlite(shared_ptr<PeakGroup> group,
-                                               QString fileName)
+void ProjectSaveWorker::_savePeakGroupInSqlite(shared_ptr<PeakGroup> group)
 {
     if (group == nullptr)
         return;
 
-    if (!_mw->fileLoader->sqliteProjectIsOpen() && !fileName.isEmpty()) {
-        _saveSqliteProject(fileName);
+    if (!_mw->fileLoader->sqliteProjectIsOpen()) {
+        _saveSqliteProject();
     } else {
         auto tableName = QString::fromStdString(group->tableName());
         _mw->fileLoader->updateGroup(group.get(), tableName);

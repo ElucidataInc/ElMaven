@@ -17,6 +17,7 @@
 class Adduct;
 class Compound;
 class Connection;
+class MavenParameters;
 class mzSample;
 class PeakGroup;
 class Scan;
@@ -87,6 +88,8 @@ public:
      * is preferable when there is a need to write multiple peak groups.
      * @param groups A vector of pointers to PeakGroup objects to be saved.
      * @param tableName An optional parameter to save table name for groups.
+     * @param mp Global parameters that may be needed for obtaining certain
+     * information.
      */
     void saveGroups(const vector<PeakGroup*>& groups,
                     const string& tableName="");
@@ -114,7 +117,8 @@ public:
      * @param group The peak group whose peaks need to be saved.
      * @param databaseId A unique ID for the group (as saved in the database).
      */
-    void saveGroupPeaks(PeakGroup* group, const int databaseId);
+    void saveGroupPeaks(PeakGroup* group,
+                        const int databaseId);
 
     /**
      * @brief Save compounds linked to a given set of groups.

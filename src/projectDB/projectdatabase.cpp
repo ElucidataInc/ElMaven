@@ -7,10 +7,12 @@
 #include "cursor.h"
 #include "datastructures/adduct.h"
 #include "masscutofftype.h"
+#include "EIC.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
+#include "PeakDetector.h"
 #include "projectversioning.h"
 #include "Scan.h"
 #include "schema.h"
@@ -233,12 +235,10 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
 
-    auto expectedMz = 0.0f;
-    if (group->hasCompoundLink())
-        expectedMz = group->getExpectedMz(group->getCompound()->charge());
+    auto expectedMz = group->getExpectedMz(group->parameters()->ionizationMode);
     groupsQuery->bind(":expected_mz", expectedMz);
 
-    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff()); // do we need this anymore?
+    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
     groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
@@ -315,12 +315,19 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     return lastInsertedGroupId;
 }
 
-void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
+void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
+                                     const int databaseId)
 {
     if (!_connection->prepare(CREATE_PEAKS_TABLE)->execute()) {
         cerr << "Error: failed to create peaks table" << endl;
         return;
     }
+
+    vector<EIC*> eics;
+    if (_saveRawData && group->hasSlice())
+        eics = PeakDetector::pullEICs(&group->getSlice(),
+                                      group->samples,
+                                      group->parameters().get());
 
     auto peaksQuery = _connection->prepare(
         "INSERT INTO peaks                      \
@@ -405,6 +412,31 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
         peaksQuery->bind(":local_max_flag", p.localMaxFlag);
         peaksQuery->bind(":from_blank_sample", p.fromBlankSample);
         peaksQuery->bind(":label", string(1, p.label));
+
+        if (_saveRawData && !eics.empty()) {
+            auto iter = find_if(begin(eics), end(eics), [&](EIC* eic) {
+                            return (p.getSample() == eic->getSample());
+                        });
+            if (iter != end(eics)) {
+                EIC* eic = *iter;
+                stringstream rts;
+                stringstream ins;
+                rts << setprecision(4) << fixed;
+                ins << setprecision(2) << fixed;
+
+                // write comma-delimited RT and intensity values
+                for (int i = 0; i < eic->rt.size(); ++i) {
+                    rts << eic->rt[i] << ",";
+                    ins << eic->intensity[i] << ",";
+                }
+                string rtString = rts.str();
+                string inString = ins.str();
+                rtString = rtString.substr(0, rtString.size() - 1);
+                inString = inString.substr(0, inString.size() - 1);
+                peaksQuery->bind(":eic_rt", rtString);
+                peaksQuery->bind(":eic_intensity", inString);
+            }
+        }
 
         if (!peaksQuery->execute())
             cerr << "Error: failed to write peak" << endl;

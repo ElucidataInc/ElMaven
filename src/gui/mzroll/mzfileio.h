@@ -155,9 +155,13 @@ Q_OBJECT
          * database. This database also becomes the currently open project.
          * @param filename String representing absolute path of the file to be
          * treated as a SQLite database.
+         * @param saveRawData Passing `true` here would create new project files
+         * that store peak EIC and spectra data. This is a project level flag,
+         * and once set cannot be changed.
          * @return true if the write operation was successful, false otherwise.
          */
-        bool writeSQLiteProject(QString filename);
+        bool writeSQLiteProject(const QString filename,
+                                const bool saveRawData = false);
 
         /**
          * @brief Create a `ProjectDatabase` instance for the given filename.

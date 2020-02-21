@@ -729,7 +729,7 @@ void ProjectDockWidget::setLastOpenedProject(QString filename)
     _lastOpenedProject = filename;
 }
 
-void ProjectDockWidget::saveProjectAsSQLite()
+void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
 {
     QSettings* settings = _mainwindow->getSettings();
 
@@ -753,7 +753,7 @@ void ProjectDockWidget::saveProjectAsSQLite()
     if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
         fileName = fileName + ".emDB";
 
-    _mainwindow->threadSave(fileName);
+    _mainwindow->threadSave(fileName, saveRawData);
 }
 
 void ProjectDockWidget::saveSQLiteProject()
@@ -786,11 +786,8 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         QMessageBox::No | QMessageBox::Yes,
         QMessageBox::Yes
     );
-    if (reply == QMessageBox::Yes) {
+    if (reply == QMessageBox::Yes)
         saveSQLiteProject();
-    } else {
-        _mainwindow->autosaveWorker->deleteCurrentProject();
-    }
 
     // if an existing project is being saved, stall before clearing the session
     while(_mainwindow->autosaveWorker->isRunning());

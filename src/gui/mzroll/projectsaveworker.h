@@ -47,22 +47,18 @@ protected:
 
 private:
     /**
-     * @brief Write project data into given file as a SQLite database.
-     * @details If the file is already a project DB, all project tables are
-     * deleted and created anew.
-     * @param filename Name of the file to be saved as SQLite project on disk.
+     * @brief Write project data into the currently set emDB file name. If the
+     * file already exists, all project tables are deleted and created anew.
      */
-    void _saveSqliteProject(const QString fileName);
+    void _saveSqliteProject();
 
     /**
      * @brief Save or update the information of a peak group in the current
      * emDB project.
      * @param group Shared pointer to the `PeakGroup` object which will be
      * saved, or updated.
-     * @param filename A string path for filename of the SQLite project to be
-     * created (only if it does not exist already).
      */
-    void _savePeakGroupInSqlite(shared_ptr<PeakGroup> group, QString fileName);
+    void _savePeakGroupInSqlite(shared_ptr<PeakGroup> group);
 };
 
 class TempProjectSaveWorker : public ProjectSaveWorker

@@ -41,8 +41,10 @@ public Q_SLOTS:
     /**
      * @brief Bring up a file dialog and allow the user to save current session
      * as an emDB project.
+     * @param saveRawData Whether the emDB should be saved with raw EIC and
+     * spectra for peaks. `false` by default.
      */
-    void saveProjectAsSQLite();
+    void saveProjectAsSQLite(const bool saveRawData = false);
 
     /**
      * @brief Update saved data in the currently open emDB project. If no

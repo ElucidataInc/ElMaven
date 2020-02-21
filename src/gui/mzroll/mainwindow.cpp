@@ -908,7 +908,7 @@ void MainWindow::explicitSave()
     saveProject(true);
 }
 
-void MainWindow::threadSave(QString filename)
+void MainWindow::threadSave(const QString filename, const bool saveRawData)
 {
     QFileInfo fileInfo(filename);
     setWindowTitle(programName
@@ -918,7 +918,8 @@ void MainWindow::threadSave(QString filename)
                    + fileInfo.fileName());
 
     autosaveWorker->deleteCurrentProject();
-    saveWorker->saveProject(filename);
+    _latestUserProjectName = filename;
+    saveWorker->saveProject(filename, saveRawData);
 }
 
 void MainWindow::saveProject(bool explicitSave)
@@ -1021,6 +1022,7 @@ void MainWindow::saveProject(bool explicitSave)
         QMessageBox *msgBox = new QMessageBox(this);
         msgBox->setText("Please wait. Your project is being saved…");
         msgBox->setStandardButtons(QMessageBox::NoButton);
+        msgBox->setModal(true);
         msgBox->open();
 
         autosaveWorker->deleteCurrentProject();
@@ -2672,15 +2674,21 @@ void MainWindow::createMenus() {
     QAction* saveProjectAsSQLite = new QAction(tr("Save project as…"),
                                                this);
     saveProjectAsSQLite->setShortcut(tr("Ctrl+Shift+S"));
-    connect(saveProjectAsSQLite,
-            SIGNAL(triggered()),
-            projectDockWidget,
-            SLOT(saveProjectAsSQLite()));
-    connect(saveProjectAsSQLite, &QAction::triggered, [this]()
-    {
+    connect(saveProjectAsSQLite, &QAction::triggered, [this]() {
+        projectDockWidget->saveProjectAsSQLite();
         this->analytics->hitEvent("Project Save", "emDB");
     });
     fileMenu->addAction(saveProjectAsSQLite);
+
+    // add option to save database with raw data
+    QAction* saveProjectWithRaw = new QAction(tr("Save project with raw data…"),
+                                              this);
+    saveProjectWithRaw->setShortcut(tr("Ctrl+Alt+S"));
+    connect(saveProjectWithRaw, &QAction::triggered, [this]() {
+        projectDockWidget->saveProjectAsSQLite(true);
+        this->analytics->hitEvent("Project Save", "emDB (with raw data)");
+    });
+    fileMenu->addAction(saveProjectWithRaw);
 
     QAction* saveSettings = new QAction("Save Settings", this);
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
