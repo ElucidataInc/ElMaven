@@ -677,6 +677,18 @@ QByteArray PollyIntegration::redirectionUiEndpoint()
     return result;
 }
 
+QString PollyIntegration::getProjectUrl(QString projectId)
+{
+    QString command2 = "getProjectUrl";
+    QList<QByteArray> resultAndError = runQtProcess(command2,
+                                                    QStringList() << projectId);
+    if (_hasError(resultAndError))
+        return "";
+
+    QByteArray result = resultAndError.at(0);
+    return QString(result).trimmed();
+}
+
 QString PollyIntegration::getComponentEndpoint(QString componentId,
                                                QString runId,
                                                QString datetimestamp)

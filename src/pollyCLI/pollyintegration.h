@@ -117,6 +117,13 @@ public:
     QByteArray redirectionUiEndpoint();
 
     /**
+     * @brief Given a Polly project's ID, obtain its UI endpoint.
+     * @param projectId A string storing a unique project ID.
+     * @return A string storing the URL directing to Polly project.
+     */
+    QString getProjectUrl(QString projectId);
+
+    /**
      * @brief Obtain a redirection URL for a given component and run ID.
      * @param componentId The component ID for which URL will be fetched.
      * @param runId The run ID that will be replaced within the URL.

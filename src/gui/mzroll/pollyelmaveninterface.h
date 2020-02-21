@@ -114,6 +114,11 @@ class PollyElmavenInterfaceDialog : public QDialog,
 
 public:
 
+    enum class SendMode {
+        PollyApp,
+        PollyProject
+    };
+
     /**
      * @brief Constructor for the dialog.
      * @param mw A pointer to the main window of the application, used to create
@@ -237,6 +242,12 @@ private:
     QMap<PollyApp, QUrl> _redirectionUrlMap;
 
     /**
+     * @brief A URL that will open the Polly project to which the last session
+     * data upload was made.
+     */
+    QUrl _projectRedirectionUrl;
+
+    /**
      * @brief Project ID to which all uploads will be happening.
      */
     QString _pollyProjectId;
@@ -270,6 +281,11 @@ private:
      * prepared for upload was valid or not.
      */
     bool _lastCohortFileWasValid;
+
+    /**
+     * @brief Stores which mode the dialog is currently set to be in.
+     */
+    SendMode _selectedMode;
 
     /**
      * @brief A worker thread that allows separating blocking operations from
@@ -307,6 +323,15 @@ private:
     QStringList _prepareFilesToUpload(QDir qdir, QString datetimestamp);
 
     /**
+     * @brief Creates an emDB session file and JSON files for all peak tables,
+     * to be uploaded to a Polly project.
+     * @param datetimestamp A string which will be prepended to file-names as a
+     * way of time-stamping them.
+     * @return A list of file-names that were created.
+     */
+    QStringList _prepareSessionFiles(QString datetimestamp);
+
+    /**
      * @brief Creates a redirection URL based on the current state of the
      * dialog.
      * @param datetimestamp A timestamp string that will be used to generate a
@@ -315,8 +340,15 @@ private:
      * to.
      * @return Redirection URL as a QString.
      */
-    QString _getRedirectionUrl(QString datetimestamp,
-                               QString uploadProjectIdThread);
+    QString _getAppRedirectionUrl(QString datetimestamp,
+                                  QString uploadProjectIdThread);
+
+    /**
+     * @brief Creates a redirection URL for the given Polly project ID.
+     * @param projectId The unique ID to which a URL is needed.
+     * @return A URL as a QString.
+     */
+    QString _getProjectRedirectionUrl(QString projectId);
 
     /**
      * @brief Get project ID for the currently selected or newly entered project
@@ -428,9 +460,15 @@ private Q_SLOTS:
 
     /**
      * @brief Open a URL in desktop environment's browser that takes the user to
-     * a Polly interface where they can proceed with the analysis.
+     * a Polly application's interface where they can proceed with the analysis.
      */
-    void _goToPolly();
+    void _goToPollyApp();
+
+    /**
+     * @brief Open a URL in desktop environment's browser that takes the user to
+     * the Polly project where they can proceed with their analysis.
+     */
+    void _goToPollyProject();
 
     /**
      * @brief Log-out of Polly for the currently logged in user.
@@ -455,6 +493,13 @@ private Q_SLOTS:
      * revised.
      */
     void _reviseGroupOptions(QString tableName);
+
+    /**
+     * @brief Switch for the currently selected mode of data upload. This will
+     * either be sending files for a specific Polly application or only to a
+     * Polly project.
+     */
+    void _changeMode();
 };
 
 #endif

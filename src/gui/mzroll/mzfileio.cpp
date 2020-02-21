@@ -846,6 +846,46 @@ bool mzFileIO::writeSQLiteProject(QString filename)
     return false;
 }
 
+bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
+{
+    vector<mzSample*> sampleSet = _mainwindow->getSamples();
+    if (sampleSet.size() == 0)
+        return false;
+
+    auto version = _mainwindow->appVersion().toStdString();
+    auto sessionDb = new ProjectDatabase(filename.toStdString(), version);
+    if (sessionDb) {
+        sessionDb->deleteAll();
+        sessionDb->saveSettings(_settingsMap);
+        sessionDb->saveSamples(sampleSet);
+        sessionDb->saveAlignment(sampleSet);
+
+        vector<PeakGroup*> groupVector;
+        set<Compound*> compoundSet;
+        int topLevelGroupCount = 0;
+        auto allTablesList = _mainwindow->getPeakTableList();
+        allTablesList.push_back(_mainwindow->bookmarkedPeaks);
+        for (const auto& peakTable : allTablesList) {
+            for (PeakGroup* group : peakTable->getGroups()) {
+                topLevelGroupCount++;
+                groupVector.push_back(group);
+                if (group->getCompound())
+                    compoundSet.insert(group->getCompound());
+            }
+            string tableName = peakTable->titlePeakTable
+                                        ->text().toStdString();
+            sessionDb->saveGroups(groupVector, tableName);
+            groupVector.clear();
+        }
+        sessionDb->saveCompounds(compoundSet);
+        qDebug() << "finished writing to project" << filename;
+        sessionDb->vacuum();
+        return true;
+    }
+    qDebug() << "cannot write to closed project" << filename;
+    return false;
+}
+
 QString mzFileIO::openSQLiteProject(QString filename)
 {
     if (_currentProject)

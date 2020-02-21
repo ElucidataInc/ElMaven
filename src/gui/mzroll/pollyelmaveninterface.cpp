@@ -8,6 +8,7 @@
 #include "loginform.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
+#include "mzfileio.h"
 #include "pollyelmaveninterface.h"
 #include "pollywaitdialog.h"
 #include "projectdockwidget.h"
@@ -52,11 +53,18 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                 "}");
     workflowMenu->setCurrentRow(int(PollyApp::FirstView));
     gotoPollyButton->setVisible(false);
+    gotoPollyButtonAlt->setVisible(false);
 
     groupSetCombo->addItem("All Groups");
+    groupSetComboAlt->addItem("All Groups");
     groupSetCombo->addItem("Only Good Groups");
+    groupSetComboAlt->addItem("Only Good Groups");
     groupSetCombo->addItem("Exclude Bad Groups");
+    groupSetComboAlt->addItem("Exclude Bad Groups");
     groupSetCombo->setCurrentIndex(0);
+    groupSetComboAlt->setCurrentIndex(0);
+
+    _selectedMode = SendMode::PollyApp;
 
     // init worker thread
     _worker = new EPIWorkerThread(_pollyIntegration);
@@ -67,14 +75,78 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
             this,
             SLOT(_changePage()));
+    connect(peakTableCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            peakTableComboAlt,
+            &QComboBox::setCurrentIndex);
+    connect(peakTableComboAlt,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            peakTableCombo,
+            &QComboBox::setCurrentIndex);
+    connect(groupSetCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            groupSetComboAlt,
+            &QComboBox::setCurrentIndex);
+    connect(groupSetComboAlt,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            groupSetCombo,
+            &QComboBox::setCurrentIndex);
     connect(newProjectRadio,
-            SIGNAL(clicked(bool)),
-            SLOT(_enableNewProjectUi()));
+            &QRadioButton::toggled,
+            this,
+            &PollyElmavenInterfaceDialog::_enableNewProjectUi);
+    connect(newProjectRadio,
+            &QRadioButton::toggled,
+            newProjectRadioAlt,
+            &QRadioButton::setChecked);
+    connect(newProjectRadioAlt,
+            &QRadioButton::toggled,
+            newProjectRadio,
+            &QRadioButton::setChecked);
+    connect(newProjectEntry,
+            &QLineEdit::textChanged,
+            [this](QString text) {
+                int position = newProjectEntryAlt->cursorPosition();
+                newProjectEntryAlt->setText(text);
+                newProjectEntryAlt->setCursorPosition(position);
+            });
+    connect(newProjectEntryAlt,
+            &QLineEdit::textChanged,
+            [this](QString text) {
+                int position = newProjectEntry->cursorPosition();
+                newProjectEntry->setText(text);
+                newProjectEntry->setCursorPosition(position);
+            });
     connect(existingProjectRadio,
-            SIGNAL(clicked(bool)),
-            SLOT(_enableExistingProjectUi()));
-    connect(gotoPollyButton, SIGNAL(clicked(bool)), SLOT(_goToPolly()));
+            &QRadioButton::toggled,
+            this,
+            &PollyElmavenInterfaceDialog::_enableExistingProjectUi);
+    connect(existingProjectRadio,
+            &QRadioButton::toggled,
+            existingProjectRadioAlt,
+            &QRadioButton::setChecked);
+    connect(existingProjectRadioAlt,
+            &QRadioButton::toggled,
+            existingProjectRadio,
+            &QRadioButton::setChecked);
+    connect(existingProjectCombo,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            existingProjectComboAlt,
+            &QComboBox::setCurrentIndex);
+    connect(existingProjectComboAlt,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            existingProjectCombo,
+            &QComboBox::setCurrentIndex);
+    connect(gotoPollyButton,
+            &QPushButton::clicked,
+            this,
+            &PollyElmavenInterfaceDialog::_goToPollyApp);
+    connect(gotoPollyButtonAlt,
+            &QPushButton::clicked,
+            this,
+            &PollyElmavenInterfaceDialog::_goToPollyProject);
     connect(uploadButton, SIGNAL(clicked(bool)), SLOT(_uploadDataToPolly()));
+    connect(uploadButtonAlt, SIGNAL(clicked(bool)), SLOT(_uploadDataToPolly()));
     connect(this,
             SIGNAL(uploadFinished(bool)),
             SLOT(_performPostUploadTasks(bool)));
@@ -118,6 +190,10 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
+    connect(sendModeTab,
+            &QTabWidget::currentChanged,
+            this,
+            &PollyElmavenInterfaceDialog::_changeMode);
 }
 
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -292,7 +368,25 @@ void PollyElmavenInterfaceDialog::_changePage()
     startupDataLoad();
 }
 
-void PollyElmavenInterfaceDialog::_goToPolly()
+void PollyElmavenInterfaceDialog::_changeMode()
+{
+    int index = sendModeTab->currentIndex();
+
+    QString tabText = sendModeTab->tabText(index);
+    _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                          "SendModeChanged",
+                                          tabText);
+
+    if (index == 0) {
+        // send to a Polly app
+        _selectedMode = SendMode::PollyApp;
+    } else {
+        // send only to Polly project
+        _selectedMode = SendMode::PollyProject;
+    }
+}
+
+void PollyElmavenInterfaceDialog::_goToPollyApp()
 {
     QString appName = "";
     if (_selectedApp == PollyApp::FirstView) {
@@ -309,19 +403,33 @@ void PollyElmavenInterfaceDialog::_goToPolly()
     QDesktopServices::openUrl(_redirectionUrlMap[_selectedApp]);
 }
 
+void PollyElmavenInterfaceDialog::_goToPollyProject()
+{
+    _mainwindow->getAnalytics()->hitEvent("PollyDialog",
+                                          "DirectedToProject");
+
+    QDesktopServices::openUrl(_projectRedirectionUrl);
+}
+
 void PollyElmavenInterfaceDialog::_enableNewProjectUi()
 {
     newProjectEntry->setEnabled(true);
+    newProjectEntryAlt->setEnabled(true);
     existingProjectCombo->setEnabled(false);
+    existingProjectComboAlt->setEnabled(false);
     existingProjectRadio->setChecked(false);
+    existingProjectRadioAlt->setChecked(false);
     QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
 {
     existingProjectCombo->setEnabled(true);
+    existingProjectComboAlt->setEnabled(true);
     newProjectEntry->setEnabled(false);
+    newProjectEntryAlt->setEnabled(false);
     newProjectRadio->setChecked(false);
+    newProjectRadioAlt->setChecked(false);
     QCoreApplication::processEvents();
 }
 
@@ -383,11 +491,15 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
     if (!_uploadInProgress) {
         statusUpdate->setStyleSheet("QLabel { color : green;}");
         statusUpdate->clear();
+        statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
+        statusUpdateAlt->clear();
     }
     usernameLabel->setText("");
     uploadButton->setEnabled(false);
+    uploadButtonAlt->setEnabled(false);
     existingProjectCombo->clear();
 
+    _worker->wait();
     _worker->setMethodToRun(EPIWorkerThread::RunMethod::AuthenticateAndFetchData);
     _worker->start();
 
@@ -450,19 +562,26 @@ void PollyElmavenInterfaceDialog::_resetUiElements()
         return;
 
     peakTableCombo->clear();
+    peakTableComboAlt->clear();
 
-    newProjectRadio->setChecked(true);
     newProjectEntry->setEnabled(true);
+    newProjectRadio->setChecked(true);
+    newProjectEntryAlt->setEnabled(true);
+    newProjectRadioAlt->setChecked(true);
     newProjectEntry->clear();
+    newProjectEntryAlt->clear();
 
     existingProjectRadio->setChecked(false);
-    existingProjectCombo->setEnabled(false);
+    existingProjectRadioAlt->setChecked(false);
     existingProjectCombo->clear();
+    existingProjectComboAlt->clear();
 
     uploadButton->setEnabled(true);
+    uploadButtonAlt->setEnabled(true);
     _showPollyButtonIfUrlExists();
 
     statusUpdate->clear();
+    statusUpdateAlt->clear();
     QCoreApplication::processEvents();
 }
 
@@ -491,6 +610,7 @@ void PollyElmavenInterfaceDialog::_populateProjects()
     QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
         existingProjectCombo->addItem(_projectNameIdMap[key].toString());
+        existingProjectComboAlt->addItem(_projectNameIdMap[key].toString());
     }
 }
 
@@ -530,6 +650,9 @@ void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
         stackedWidget->setCurrentWidget(pollyForm);
         gotoPollyButton->setDefault(true);
     }
+
+    // TODO: how do we handle licensing data for direct Polly upload
+    gotoPollyButtonAlt->setDefault(true);
 }
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
@@ -546,6 +669,12 @@ void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
         gotoPollyButton->setVisible(false);
     } else if (!_uploadInProgress) {
         gotoPollyButton->setVisible(true);
+    }
+
+    if (_projectRedirectionUrl.isEmpty()) {
+        gotoPollyButtonAlt->setVisible(false);
+    } else {
+        gotoPollyButtonAlt->setVisible(true);
     }
 }
 
@@ -565,23 +694,29 @@ void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
             allBad = false;
     }
     auto model = dynamic_cast<QStandardItemModel*>(groupSetCombo->model());
+    auto modelAlt = dynamic_cast<QStandardItemModel*>(groupSetComboAlt->model());
 
     // if any group is good, enable "Only Good Groups"
     auto item = model->item(1, 0);
+    auto itemAlt = modelAlt->item(1, 0);
     if (anyGood) {
         item->setEnabled(true);
+        itemAlt->setEnabled(true);
     } else {
         item->setEnabled(false);
+        itemAlt->setEnabled(false);
     }
 
     // if all groups are bad, disable "Exclude Bad Groups"
     item = model->item(2, 0);
+    itemAlt = modelAlt->item(2, 0);
     if (allBad) {
         item->setEnabled(false);
+        itemAlt->setEnabled(false);
     } else {
         item->setEnabled(true);
+        itemAlt->setEnabled(true);
     }
-
 }
 
 void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
@@ -595,6 +730,7 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
                    || _selectedApp == PollyApp::QuantFit) {
             peakTableCombo->addItem(tableName);
         }
+        peakTableComboAlt->addItem(tableName);
         _tableNameMapping[tableName] = table;
     }
 }
@@ -605,12 +741,20 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     gotoPollyButton->setVisible(false);
     uploadButton->setEnabled(false);
     peakTableCombo->setEnabled(false);
+    peakTableComboAlt->setEnabled(false);
     groupSetCombo->setEnabled(false);
+    groupSetComboAlt->setEnabled(false);
     projectOptions->setEnabled(false);
     workflowMenu->setEnabled(false);
+    sendModeTab->setEnabled(false);
+    projectOptionsAlt->setEnabled(false);
+    uploadButtonAlt->setEnabled(false);
+    gotoPollyButtonAlt->setVisible(false);
 
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
-    if (_selectedApp == PollyApp::FirstView) {
+    if (_selectedMode == SendMode::PollyProject) {
+        _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
+    } else if (_selectedApp == PollyApp::FirstView) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
     } else if (_selectedApp == PollyApp::PollyPhi) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
@@ -620,13 +764,17 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 
     statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Connecting…");
+    statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
+    statusUpdateAlt->setText("Connecting…");
     QCoreApplication::processEvents();
     // check for active internet connection
     ErrorStatus response = _pollyIntegration->activeInternet();
     if (response == ErrorStatus::Failure ||
         response == ErrorStatus::Error) {
         statusUpdate->setText("No internet access.");
+        statusUpdateAlt->setText("No internet access.");
         uploadButton->setEnabled(true);
+        uploadButtonAlt->setEnabled(true);
         return;
     }
 
@@ -640,6 +788,8 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 
     statusUpdate->setStyleSheet("QLabel {color : green; }");
     statusUpdate->setText("Preparing files…");
+    statusUpdateAlt->setStyleSheet("QLabel {color : green; }");
+    statusUpdateAlt->setText("Preparing files…");
     QCoreApplication::processEvents();
 
     // create a temporary directory to store polly files
@@ -665,10 +815,17 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     datetimestamp.replace(" ", "_");
     datetimestamp.replace(":", "-");
 
-    QStringList filenames = _prepareFilesToUpload(qdir, datetimestamp);
+    QStringList filenames;
+    if (_selectedMode == SendMode::PollyProject) {
+        filenames = _prepareSessionFiles(datetimestamp);
+    } else {
+        filenames = _prepareFilesToUpload(qdir, datetimestamp);
+    }
     if (filenames.isEmpty()) {
         statusUpdate->setStyleSheet("QLabel { color : red;}");
         statusUpdate->setText("File preparation failed.");
+        statusUpdateAlt->setStyleSheet("QLabel { color : red;}");
+        statusUpdateAlt->setText("File preparation failed.");
         _loadingDialog->close();
         QCoreApplication::processEvents();
         emit uploadFinished(false);
@@ -677,12 +834,15 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 
     statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Sending files to Polly…");
+    statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
+    statusUpdateAlt->setText("Sending files to Polly…");
     QCoreApplication::processEvents();
 
     _pollyProjectId = _getProjectId();
     if (_pollyProjectId.isEmpty()) {
         emit uploadFinished(false);
         statusUpdate->clear();
+        statusUpdateAlt->clear();
         return;
     }
 
@@ -692,10 +852,14 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
         response2 == ErrorStatus::Error) {
         statusUpdate->setStyleSheet("QLabel {color : red;}");
         statusUpdate->setText("Internet connection interrupted");
+        statusUpdateAlt->setStyleSheet("QLabel {color : red;}");
+        statusUpdateAlt->setText("Internet connection interrupted");
         uploadButton->setEnabled(true);
+        uploadButtonAlt->setEnabled(true);
         return;
     }
 
+    _worker->wait();
     _worker->setMethodToRun(EPIWorkerThread::RunMethod::UploadFiles);
     _worker->setUploadArgs(qdir, filenames, datetimestamp, _pollyProjectId);
     _worker->start();
@@ -751,16 +915,21 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
     QCoreApplication::processEvents();
     QString redirectionUrl = "";
 
-    if (!patchId.isEmpty()) {
-        redirectionUrl = _getRedirectionUrl(datetimestamp,
-                                            uploadProjectIdThread);
-        qDebug() << "redirection_url -" << redirectionUrl;
+    if (!patchId.isEmpty() && _selectedMode == SendMode::PollyProject) {
+        redirectionUrl = _getProjectRedirectionUrl(uploadProjectIdThread);
+        _projectRedirectionUrl = QUrl(redirectionUrl);
+    } else if (!patchId.isEmpty()) {
+        redirectionUrl = _getAppRedirectionUrl(datetimestamp,
+                                               uploadProjectIdThread);
         _redirectionUrlMap[_selectedApp] = QUrl(redirectionUrl);
     }
 
     if (!redirectionUrl.isEmpty()) {
+        qDebug() << "Redirection URL:" << redirectionUrl;
+
         _performPostUploadTasks(true);
         statusUpdate->clear();
+        statusUpdateAlt->clear();
         _showPollyButtonIfUrlExists();
 
         // send an email to the user, this is a way of persisting their URLs
@@ -769,20 +938,25 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
                                        "project - \"%1\"").arg(project);
         QString emailContent = QString("<a href='%1'></a>").arg(redirectionUrl);
         QString appname = "";
-        switch (_selectedApp) {
-        case PollyApp::FirstView:
-            appname = "firstview";
-            break;
-        case PollyApp::PollyPhi:
-            appname = "pollyphi";
-            break;
-        case PollyApp::QuantFit:
-            appname = "quantfit";
-            break;
-        default:
-            break;
+        if (_selectedMode == SendMode::PollyProject) {
+            appname = "project";
+        } else {
+            switch (_selectedApp) {
+            case PollyApp::FirstView:
+                appname = "firstview";
+                break;
+            case PollyApp::PollyPhi:
+                appname = "pollyphi";
+                break;
+            case PollyApp::QuantFit:
+                appname = "quantfit";
+                break;
+            default:
+                break;
+            }
         }
 
+        _worker->wait();
         _worker->setMethodToRun(EPIWorkerThread::RunMethod::SendEmail);
         _worker->setEmailArgs(usernameLabel->text(),
                               emailSubject,
@@ -794,8 +968,9 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
     }
 }
 
-QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
-                                                        QString uploadProjectIdThread)
+QString
+PollyElmavenInterfaceDialog::_getAppRedirectionUrl(QString datetimestamp,
+                                                   QString uploadProjectIdThread)
 {
     QString redirectionUrl = "";
 
@@ -856,6 +1031,12 @@ QString PollyElmavenInterfaceDialog::_getRedirectionUrl(QString datetimestamp,
     }
 
     return redirectionUrl;
+}
+
+QString
+PollyElmavenInterfaceDialog::_getProjectRedirectionUrl(QString projectId)
+{
+    return _pollyIntegration->getProjectUrl(projectId);
 }
 
 QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
@@ -966,6 +1147,148 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
     return filenames;
 }
 
+QStringList
+PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
+{
+    QStringList filenames;
+
+    // check for no peak tables
+    if (peakTableComboAlt->currentIndex() == -1) {
+        _showErrorMessage("Error",
+                          "No peak tables available. Either there are "
+                          "no peak tables in the current session or "
+                          "the existing ones are not suitable for "
+                          "the selected Polly app.",
+                          QMessageBox::Warning);
+        return filenames;
+    }
+
+    auto peakTable = _tableNameMapping[peakTableComboAlt->currentText()];
+    if (peakTable->getGroups().isEmpty()) {
+        _showErrorMessage("Error",
+                          "The selected peak table does not have any "
+                          "peak-groups. Cancelling upload.",
+                          QMessageBox::Warning);
+        return filenames;
+    }
+
+    if (groupSetComboAlt->currentIndex() == 0) {
+        peakTable->wholePeakSet();
+    } else if (groupSetComboAlt->currentIndex() == 1) {
+        peakTable->goodPeakSet();
+    } else if (groupSetComboAlt->currentIndex() == 2) {
+        peakTable->excludeBadPeakSet();
+    }
+
+    QString tableName = TableDockWidget::getTitleForId(peakTable->tableId);
+    tableName.replace(" ", "_"); // replace spaces with underscores
+    QString jsonFilename = _writeableTempDir
+                           + QDir::separator()
+                           + datetimestamp
+                           + "_"
+                           + tableName
+                           + ".json";
+    peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
+    filenames.append(jsonFilename);
+
+    QCoreApplication::processEvents();
+
+    QString groupCsvFilename = datetimestamp
+                               + "_"
+                               + tableName
+                               + "_groups"
+                               + ".csv";
+    peakTable->treeWidget->selectAll();
+    peakTable->prepareDataForPolly(_writeableTempDir,
+                                   "Groups Summary Matrix Format "
+                                   "Comma Delimited (*.csv)",
+                                    groupCsvFilename);
+    filenames.append(_writeableTempDir
+                     + QDir::separator()
+                     + groupCsvFilename);
+
+    QCoreApplication::processEvents();
+
+    QString peakCsvFilename = datetimestamp
+                              + "_"
+                              + tableName
+                              + "_peaks"
+                              + ".csv";
+    peakTable->treeWidget->selectAll();
+    peakTable->prepareDataForPolly(_writeableTempDir,
+                                   "Peaks Detailed Format "
+                                   "Comma Delimited (*.csv)",
+                                    peakCsvFilename);
+    filenames.append(_writeableTempDir
+                     + QDir::separator()
+                     + peakCsvFilename);
+
+    QCoreApplication::processEvents();
+
+    if (filenames.isEmpty()) {
+        _showErrorMessage("Error",
+                          "Unable to prepare files for selected peak table. "
+                          "Cancelling upload.",
+                          QMessageBox::Warning);
+        return filenames;
+    }
+
+    // write a CSV file for each compound DB
+    auto databases = DB.getDatabaseNames();
+    for (auto& elem : databases) {
+        auto compoundCount = elem.second;
+        if (compoundCount <= 0)
+            continue;
+
+        QString compoundDbName = QString::fromStdString(elem.first);
+        QString compoundDbNameCopy = compoundDbName;
+        compoundDbNameCopy.replace(" ", "_");
+        QString compoundDbFilename = _writeableTempDir
+                                     + QDir::separator()
+                                     + datetimestamp
+                                     + "_"
+                                     + compoundDbNameCopy
+                                     + "_compound_db.csv";
+        _mainwindow->ligandWidget->saveCompoundList(compoundDbFilename,
+                                                    compoundDbName);
+        filenames.append(compoundDbFilename);
+    }
+
+    // write a CSV file for cohort mapping (if available)
+    QString sampleCohortFilename = _writeableTempDir
+                                   + QDir::separator()
+                                   + datetimestamp
+                                   + "_cohort_mapping.csv";
+    _mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFilename);
+    if (_pollyIntegration->validSampleCohort(sampleCohortFilename))
+        filenames.append(sampleCohortFilename);
+
+    QCoreApplication::processEvents();
+
+    // write an emDB file for the entire session
+    QString emdbFilename = _writeableTempDir
+                           + QDir::separator()
+                           + datetimestamp
+                           + "_"
+                           + "session.emDB";
+    if (_mainwindow->fileLoader->writeSQLiteProjectForPolly(emdbFilename)) {
+        filenames.append(emdbFilename);
+    } else {
+        _showErrorMessage("Error",
+                          "Unable to generate session (emDB) file. "
+                          "Cancelling upload.",
+                          QMessageBox::Warning);
+        QDir dir(_writeableTempDir);
+        for (auto filename : filenames) {
+            dir.remove(filename);
+        }
+        filenames.clear();
+    }
+
+    QCoreApplication::processEvents();
+    return filenames;
+}
+
 void PollyElmavenInterfaceDialog::_logout()
 {
     usernameLabel->setText("");
@@ -983,17 +1306,26 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
 {
     _uploadInProgress = false;
     uploadButton->setEnabled(true);
+    uploadButtonAlt->setEnabled(true);
     peakTableCombo->setEnabled(true);
+    peakTableComboAlt->setEnabled(true);
     groupSetCombo->setEnabled(true);
+    groupSetComboAlt->setEnabled(true);
     projectOptions->setEnabled(true);
+    projectOptionsAlt->setEnabled(true);
     workflowMenu->setEnabled(true);
+    sendModeTab->setEnabled(true);
     statusUpdate->setEnabled(true);
+    statusUpdateAlt->setEnabled(true);
     if (uploadSuccessful) {
         statusUpdate->setStyleSheet("QLabel { color : green; }");
+        statusUpdateAlt->setStyleSheet("QLabel { color : green; }");
     } else {
         statusUpdate->setStyleSheet("QLabel { color : red; }");
+        statusUpdateAlt->setStyleSheet("QLabel { color : red; }");
     }
     statusUpdate->clear();
+    statusUpdateAlt->clear();
 }
 
 MainWindow* PollyElmavenInterfaceDialog::getMainWindow()
