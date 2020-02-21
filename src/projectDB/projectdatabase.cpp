@@ -21,6 +21,7 @@ ProjectDatabase::ProjectDatabase(const string& dbFilename,
                                  const string& version,
                                  const bool saveRawData)
 {
+    _setSaveRawData(dbFilename, saveRawData);
     _connection = new Connection(dbFilename);
 
     // figure out whether this database needs upgrade
@@ -61,8 +62,6 @@ ProjectDatabase::ProjectDatabase(const string& dbFilename,
 
         _setVersion(requiredDbVersion);
     }
-
-    _saveRawData = saveRawData;
 }
 
 ProjectDatabase::~ProjectDatabase()
@@ -2059,6 +2058,11 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     return mp;
 }
 
+bool ProjectDatabase::hasRawDataSaved()
+{
+    return _saveRawData;
+}
+
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
     int maxSampleId = -1;
     for (auto sample : samples)
@@ -2170,4 +2174,35 @@ void ProjectDatabase::_setVersion(int version)
     auto query = _connection->prepare("PRAGMA user_version = "
                                       + to_string(version));
     query->execute();
+}
+
+void ProjectDatabase::_setSaveRawData(const string& filePath,
+                                      const bool saveRawData)
+{
+    if (saveRawData) {
+        _saveRawData = true;
+        return;
+    }
+
+    bool fileAlreadyExists = false;
+    if (boost::filesystem::exists(boost::filesystem::path(filePath)))
+        fileAlreadyExists = true;
+
+    if (!fileAlreadyExists) {
+        _saveRawData = false;
+        return;
+    }
+
+    Connection connection(filePath);
+    auto firstPeakQuery = connection.prepare("SELECT * FROM peaks LIMIT 1");
+    while (firstPeakQuery->next()) {
+        string eicRtValues = firstPeakQuery->stringValue("eic_rt");
+        string eicIntensityValues = firstPeakQuery->stringValue("eic_intensity");
+        // TODO: also check for availability of spectra
+        if (!eicRtValues.empty() && !eicIntensityValues.empty()) {
+            _saveRawData = true;
+            return;
+        }
+    }
+    _saveRawData = false;
 }

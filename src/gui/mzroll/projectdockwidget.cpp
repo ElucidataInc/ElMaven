@@ -753,6 +753,9 @@ void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
     if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
         fileName = fileName + ".emDB";
 
+    if (QFile::exists(fileName))
+        QFile::remove(fileName);
+
     _mainwindow->threadSave(fileName, saveRawData);
 }
 

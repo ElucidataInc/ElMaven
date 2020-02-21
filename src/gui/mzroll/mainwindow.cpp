@@ -871,6 +871,10 @@ QString MainWindow::_getNewProjectFilename()
             projectName = filename;
         }
     }
+
+    if (QFile::exists(projectName))
+        QFile::remove(projectName);
+
     return projectName;
 }
 

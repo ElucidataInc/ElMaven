@@ -820,11 +820,6 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         qDebug() << "closing the current project…";
         closeSQLiteProject();
 
-        // if file already exists, delete it before opening a new one
-        QFile projectFile(filename);
-        if (projectFile.exists())
-            projectFile.remove();
-
         qDebug() << "creating new project to save…";
         auto version = _mainwindow->appVersion().toStdString();
         _currentProject = new ProjectDatabase(filename.toStdString(),
@@ -923,7 +918,6 @@ QString mzFileIO::openSQLiteProject(QString filename)
     }
 
     auto version = _mainwindow->appVersion().toStdString();
-    // TODO: check for raw data save-ability when opening existing DB as well
     _currentProject = new ProjectDatabase(openedFilename.toStdString(),
                                           version);
     return openedFilename;

@@ -431,6 +431,13 @@ public:
     MavenParameters fromMaptoParameters(map<string, variant> settingsMap,
                                         const MavenParameters *super);
 
+    /* @brief Check whether this project file contains raw EIC or spectral data
+     * saved within.
+     * @return A boolean, which if `true` means that the project has been
+     * configured to save EIC and spectra data for peaks.
+     */
+    bool hasRawDataSaved();
+
 private:
     /**
      * @brief _connection A Connection object mediating connection with a SQLite
@@ -525,6 +532,21 @@ private:
      * @param version The integer version to set for database.
      */
     void _setVersion(int version);
+
+    /**
+     * @brief Sets the internal `_saveRawData` flag, by checking if the project
+     * path already exists on filesystem and contains non-empty raw EIC and
+     * spectra values for the first peak (and therefore all peaks). If the given
+     * parameter `saveRawData` is `true`, then the project is set to save raw
+     * data anyways.
+     * @details This method should be called to set the internal flag, before a
+     * connection is created, otherwise the filePath check will always evaluate
+     * to true.
+     * @param filePath Path of file, which will be checked for existence.
+     * @param _saveRawData Whether the EIC and spectral information should be
+     * saved for peaks.
+     */
+    void _setSaveRawData(const string& filePath, const bool saveRawData);
 };
 
 #endif // PROJECTDATABASE_H
