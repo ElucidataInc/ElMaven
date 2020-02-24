@@ -792,6 +792,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE samples ADD COLUMN mass_analyzer TEXT;"
         "ALTER TABLE samples ADD COLUMN detector TEXT;"
 
+        "ALTER TABLE user_settings ADD COLUMN alignment_algorithm INTEGER;"
+
         "COMMIT;"
     }
 };

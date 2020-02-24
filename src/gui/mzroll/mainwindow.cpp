@@ -431,7 +431,6 @@ using namespace mzUtils;
 
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
-	alignmentDialog->setMainWindow(this);
 	connect(alignmentDialog->alignButton, SIGNAL(clicked()), SLOT(Align()));
 	connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
                        SLOT(UndoAlignment()));

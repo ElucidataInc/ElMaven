@@ -15,11 +15,6 @@
 #include "Scan.h"
 #include "schema.h"
 
-#define BINT(x) boost::get<int>(x)
-#define BFLOAT(x) boost::get<float>(x)
-#define BDOUBLE(x) boost::get<double>(x)
-#define BSTRING(x) boost::get<string>(x)
-
 ProjectDatabase::ProjectDatabase(const string& dbFilename,
                                  const string& version)
 {
@@ -740,7 +735,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :identification_rt_window         \
                      , :search_adducts                   \
                      , :adduct_search_window             \
-                     , :adduct_percent_correlation       )");
+                     , :adduct_percent_correlation       \
+                     , :alignment_algorithm              )");
     return cursor;
 }
 
@@ -846,6 +842,28 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":main_window_charge", BINT(settingsMap.at("mainWindowCharge")));
     settingsQuery->bind(":main_window_peak_quantitation", BINT(settingsMap.at("mainWindowPeakQuantitation")));
     settingsQuery->bind(":main_window_mass_resolution", BDOUBLE(settingsMap.at("mainWindowMassResolution")));
+
+    // alignment settings, using the same key as DB column name
+    settingsQuery->bind(":alignment_algorithm", BINT(settingsMap.at("alignment_algorithm")));
+    settingsQuery->bind(":alignment_good_peak_count", BINT(settingsMap.at("alignment_good_peak_count")));
+    settingsQuery->bind(":alignment_limit_group_count", BINT(settingsMap.at("alignment_limit_group_count")));
+    settingsQuery->bind(":alignment_peak_grouping_window", BINT(settingsMap.at("alignment_peak_grouping_window")));
+    settingsQuery->bind(":alignment_min_peak_intensity", BDOUBLE(settingsMap.at("alignment_min_peak_intensity")));
+    settingsQuery->bind(":alignment_min_signal_noise_ratio", BINT(settingsMap.at("alignment_min_signal_noise_ratio")));
+    settingsQuery->bind(":alignment_min_peak_width", BINT(settingsMap.at("alignment_min_peak_width")));
+    settingsQuery->bind(":alignment_peak_detection", BINT(settingsMap.at("alignment_peak_detection")));
+    settingsQuery->bind(":poly_fit_num_iterations", BINT(settingsMap.at("poly_fit_num_iterations")));
+    settingsQuery->bind(":poly_fit_polynomial_degree", BINT(settingsMap.at("poly_fit_polynomial_degree")));
+    settingsQuery->bind(":obi_warp_reference_sample", BSTRING(settingsMap.at("obi_warp_reference_sample")));
+    settingsQuery->bind(":obi_warp_show_advance_params", BINT(settingsMap.at("obi_warp_show_advance_params")));
+    settingsQuery->bind(":obi_warp_score", BSTRING(settingsMap.at("obi_warp_score")));
+    settingsQuery->bind(":obi_warp_response", BDOUBLE(settingsMap.at("obi_warp_response")));
+    settingsQuery->bind(":obi_warp_bin_size", BDOUBLE(settingsMap.at("obi_warp_bin_size")));
+    settingsQuery->bind(":obi_warp_gap_init", BDOUBLE(settingsMap.at("obi_warp_gap_init")));
+    settingsQuery->bind(":obi_warp_gap_extend", BDOUBLE(settingsMap.at("obi_warp_gap_extend")));
+    settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
+    settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
+    settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
 }
 
 void
@@ -1501,6 +1519,29 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
     settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
 
+    // alignment settings, using the same key as DB column name
+    settingsMap["alignment_algorithm"] = settingsQuery->integerValue("alignment_algorithm");
+    settingsMap["alignment_good_peak_count"] = settingsQuery->integerValue("alignment_good_peak_count");
+    settingsMap["alignment_limit_group_count"] = settingsQuery->integerValue("alignment_limit_group_count");
+    settingsMap["alignment_peak_grouping_window"] = settingsQuery->integerValue("alignment_peak_grouping_window");
+    settingsMap["alignment_min_peak_intensity"] = settingsQuery->doubleValue("alignment_min_peak_intensity");
+    settingsMap["alignment_min_signal_noise_ratio"] = settingsQuery->integerValue("alignment_min_signal_noise_ratio");
+    settingsMap["alignment_min_peak_width"] = settingsQuery->integerValue("alignment_min_peak_width");
+    settingsMap["alignment_peak_detection"] = settingsQuery->integerValue("alignment_peak_detection");
+    settingsMap["poly_fit_num_iterations"] = settingsQuery->integerValue("poly_fit_num_iterations");
+    settingsMap["poly_fit_polynomial_degree"] = settingsQuery->integerValue("poly_fit_polynomial_degree");
+    settingsMap["obi_warp_reference_sample"] = settingsQuery->stringValue("obi_warp_reference_sample");
+    settingsMap["obi_warp_show_advance_params"] = settingsQuery->integerValue("obi_warp_show_advance_params");
+    settingsMap["obi_warp_score"] = settingsQuery->stringValue("obi_warp_score");
+    settingsMap["obi_warp_response"] = settingsQuery->doubleValue("obi_warp_response");
+    settingsMap["obi_warp_bin_size"] = settingsQuery->doubleValue("obi_warp_bin_size");
+    settingsMap["obi_warp_gap_init"] = settingsQuery->doubleValue("obi_warp_gap_init");
+    settingsMap["obi_warp_gap_extend"] = settingsQuery->doubleValue("obi_warp_gap_extend");
+    settingsMap["obi_warp_factor_diag"] = settingsQuery->doubleValue("obi_warp_factor_diag");
+    settingsMap["obi_warp_factor_gap"] = settingsQuery->doubleValue("obi_warp_factor_gap");
+    settingsMap["obi_warp_no_standard_normal"] = settingsQuery->integerValue("obi_warp_no_standard_normal");
+    settingsMap["obi_warp_local"] = settingsQuery->integerValue("obi_warp_local");
+
     return settingsQuery->stringValue("domain");
 }
 
@@ -1839,6 +1880,28 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["minPeakWidth"] = static_cast<int>(mp->minNoNoiseObs);
     settingsMap["minGoodPeakCount"] = mp->minGoodGroupCount;
     settingsMap["peakClassifierFile"] = string(); // does this even change?
+
+    // alignment settings do not apply to single groups (yet)
+    settingsMap["alignment_algorithm"]= 0;
+    settingsMap["alignment_good_peak_count"]= 0;
+    settingsMap["alignment_limit_group_count"]= 0;
+    settingsMap["alignment_peak_grouping_window"]= 0;
+    settingsMap["alignment_min_peak_intensity"]= 0.0;
+    settingsMap["alignment_min_signal_noise_ratio"]= 0;
+    settingsMap["alignment_min_peak_width"]= 0;
+    settingsMap["alignment_peak_detection"]= 0;
+    settingsMap["poly_fit_num_iterations"]= 0;
+    settingsMap["poly_fit_polynomial_degree"]= 0;
+    settingsMap["obi_warp_reference_sample"]= string();
+    settingsMap["obi_warp_show_advance_params"]= 0;
+    settingsMap["obi_warp_score"]= string();
+    settingsMap["obi_warp_response"]= 0.0;
+    settingsMap["obi_warp_bin_size"]= 0.0;
+    settingsMap["obi_warp_gap_init"]= 0.0;
+    settingsMap["obi_warp_gap_extend"]= 0.0;
+    settingsMap["obi_warp_factor_diag"]= 0.0;
+    settingsMap["obi_warp_no_standard_normal"]= 0;
+    settingsMap["obi_warp_local"]= 0;
 
     settingsMap["mainWindowSelectedDbName"] = string(); // not-necessary for groups
     settingsMap["mainWindowCharge"] = mp->ionizationMode; // always 1 for now

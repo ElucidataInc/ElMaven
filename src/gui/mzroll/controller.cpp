@@ -6,6 +6,7 @@
 #include <QGroupBox>
 #include <QSpinBox>
 
+#include "alignmentdialog.h"
 #ifndef Q_OS_LINUX
 #include "autoupdater.h"
 #endif
@@ -255,6 +256,7 @@ void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap
             _mw->ligandWidget->setDatabase(QString(value.c_str()));
     }
 
+    _mw->alignmentDialog->updateUiFromValues(settingsMap);
     updateUi();
     emit _mw->fileLoader->appSettingsUpdated();
 }

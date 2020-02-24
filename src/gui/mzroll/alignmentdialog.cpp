@@ -9,13 +9,15 @@
 #include "mainwindow.h"
 #include "mavenparameters.h"
 #include "mzAligner.h"
+#include "mzfileio.h"
 #include "mzSample.h"
 #include "Scan.h"
 
-AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
+AlignmentDialog::AlignmentDialog(MainWindow* parent) : QDialog(parent) {
         setupUi(this);
         setModal(false);
         setWindowTitle("Alignment");
+    setMainWindow(parent);
 
 	workerThread = NULL;
 	workerThread = new BackgroundPeakUpdate(this);
@@ -28,6 +30,9 @@ AlignmentDialog::AlignmentDialog(QWidget *parent) : QDialog(parent) {
         connect(showAdvanceParams, SIGNAL(toggled(bool)), this, SLOT(showAdvanceParameters(bool)));
 	connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
 	connect(samplesBox, &QComboBox::currentTextChanged, this, &AlignmentDialog::refSampleChanged);
+
+    inputInitialValuesAlignmentDialog();
+    intialSetup();
 }
 
 AlignmentDialog::~AlignmentDialog()
@@ -53,9 +58,85 @@ void AlignmentDialog::setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThrea
                 alignAlgo->setEnabled(true);
                 alignButton->setEnabled(true);
                 UndoAlignment->setEnabled(true);
+                saveValuesForUi();
                 QCoreApplication::processEvents();
                 _mw->mavenParameters->allgroups.clear();
             });
+}
+
+void AlignmentDialog::updateUiFromValues(map<string, variant> settings)
+{
+    alignAlgo->setCurrentIndex(BINT(settings.at("alignment_algorithm")));
+
+    samplesBox->setCurrentText(QString::fromStdString(BSTRING(settings.at("obi_warp_reference_sample"))));
+    showAdvanceParams->setChecked(BINT(settings.at("obi_warp_show_advance_params")));
+    scoreObi->setCurrentText(QString::fromStdString(BSTRING(settings.at("obi_warp_score"))));
+    responseObiWarp->setValue(BDOUBLE(settings.at("obi_warp_response")));
+    binSizeObiWarp->setValue(BDOUBLE(settings.at("obi_warp_bin_size")));
+    gapInit->setValue(BDOUBLE(settings.at("obi_warp_gap_init")));
+    gapExtend->setValue(BDOUBLE(settings.at("obi_warp_gap_extend")));
+    factorDiag->setValue(BDOUBLE(settings.at("obi_warp_factor_diag")));
+    factorGap->setValue(BDOUBLE(settings.at("obi_warp_factor_gap")));
+    noStdNormal->setChecked(BINT(settings.at("obi_warp_no_standard_normal")));
+    local->setChecked(BINT(settings.at("obi_warp_local")));
+
+    maxIterations->setValue(BINT(settings.at("poly_fit_num_iterations")));
+    polynomialDegree->setValue(BINT(settings.at("poly_fit_polynomial_degree")));
+    minGoodPeakCount->setValue(BINT(settings.at("alignment_good_peak_count")));
+    limitGroupCount->setValue(BINT(settings.at("alignment_limit_group_count")));
+    groupingWindow->setValue(BINT(settings.at("alignment_peak_grouping_window")));
+    minGroupIntensity->setValue(BDOUBLE(settings.at("alignment_min_peak_intensity")));
+    minSN->setValue(BINT(settings.at("alignment_min_signal_noise_ratio")));
+    minPeakWidth->setValue(BINT(settings.at("alignment_min_peak_width")));
+    peakDetectionAlgo->setCurrentIndex(BINT(settings.at("alignment_peak_detection")));
+}
+
+void AlignmentDialog::saveValuesForUi()
+{
+    _mw->fileLoader->insertSettingForSave("alignment_algorithm",
+                                          variant(alignAlgo->currentIndex()));
+
+    _mw->fileLoader->insertSettingForSave("obi_warp_reference_sample",
+                                          variant(samplesBox->currentText().toStdString()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_show_advance_params",
+                                          variant(static_cast<int>(showAdvanceParams->isChecked())));
+    _mw->fileLoader->insertSettingForSave("obi_warp_score",
+                                          variant(scoreObi->currentText().toStdString()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_response",
+                                          variant(responseObiWarp->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_bin_size",
+                                          variant(binSizeObiWarp->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_gap_init",
+                                          variant(gapInit->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_gap_extend",
+                                          variant(gapExtend->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_factor_diag",
+                                          variant(factorDiag->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_factor_gap",
+                                          variant(factorGap->value()));
+    _mw->fileLoader->insertSettingForSave("obi_warp_no_standard_normal",
+                                          variant(static_cast<int>(noStdNormal->isChecked())));
+    _mw->fileLoader->insertSettingForSave("obi_warp_local",
+                                          variant(static_cast<int>(local->isChecked())));
+
+    _mw->fileLoader->insertSettingForSave("poly_fit_num_iterations",
+                                          variant(maxIterations->value()));
+    _mw->fileLoader->insertSettingForSave("poly_fit_polynomial_degree",
+                                          variant(polynomialDegree->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_good_peak_count",
+                                          variant(minGoodPeakCount->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_limit_group_count",
+                                          variant(limitGroupCount->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_peak_grouping_window",
+                                          variant(groupingWindow->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_min_peak_intensity",
+                                          variant(minGroupIntensity->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_min_signal_noise_ratio",
+                                          variant(minSN->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_min_peak_width",
+                                          variant(minPeakWidth->value()));
+    _mw->fileLoader->insertSettingForSave("alignment_peak_detection",
+                                          variant(peakDetectionAlgo->currentIndex()));
 }
 
 void AlignmentDialog::samplesAligned(bool status)
@@ -98,8 +179,22 @@ void AlignmentDialog::setMainWindow(MainWindow* mw)
 void AlignmentDialog::show()
 {
 	_mw->getAnalytics()->hitScreenView("AlignmentDialog");
-    inputInitialValuesAlignmentDialog();
-	intialSetup();
+
+    auto lastItem = samplesBox->currentText();
+    samplesBox->clear();
+    samplesBox->addItem("Select Randomly",
+                        QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
+    auto selectedSamples = _mw->getVisibleSamples();
+    sort(selectedSamples.begin(), selectedSamples.end(), mzSample::compSampleSort);
+    for(auto sample: selectedSamples)
+    {
+        samplesBox->addItem(sample->sampleName.c_str(),
+                            QVariant(QVariant::fromValue(static_cast<void*>(sample))));
+    }
+    if (samplesBox->findText(lastItem) != -1)
+        samplesBox->setCurrentText(lastItem);
+
+    saveValuesForUi();
 	QDialog::exec();
 }
 
@@ -139,18 +234,6 @@ void AlignmentDialog::intialSetup()
 	algoChanged();
 	minIntensity->setValue(_mw->mavenParameters->minIntensity);
 	maxIntensity->setValue(_mw->mavenParameters->maxIntensity);
-
-    samplesBox->clear();
-    samplesBox->addItem("Select Randomly",
-						QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
-    auto selectedSamples = _mw->getVisibleSamples();
-    sort(selectedSamples.begin(), selectedSamples.end(), mzSample::compSampleSort);
-    for(auto sample: selectedSamples)
-    {
-        samplesBox->addItem(sample->sampleName.c_str(),
-                            QVariant(QVariant::fromValue(static_cast<void*>(sample))));
-    }
-
 }
 
 void AlignmentDialog::restorDefaultValues(bool checked)
@@ -168,6 +251,7 @@ void AlignmentDialog::restorDefaultValues(bool checked)
 	restoreDefaultObiWarpParams->setChecked(false);
         initPenalty->setEnabled(false);
         labelInitPenalty->setEnabled(false);
+    saveValuesForUi();
 }
 
 void AlignmentDialog::showAdvanceParameters(bool checked)
@@ -202,6 +286,7 @@ void AlignmentDialog::algoChanged()
     } else {
         stackedWidget->setCurrentIndex(1);
     }
+    saveValuesForUi();
 }
 
 void AlignmentDialog::setDatabase()

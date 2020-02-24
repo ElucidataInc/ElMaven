@@ -2,6 +2,7 @@
 #define ALIGNDIALOG_H
 
 #include "stable.h"
+#include "projectdatabase.h"
 #include "ui_alignmentdialog.h"
 
 class BackgroundPeakUpdate;
@@ -13,12 +14,14 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
 	Q_OBJECT
 
 	public:
-		AlignmentDialog(QWidget *parent);
+        AlignmentDialog(MainWindow* parent);
 		~AlignmentDialog();
 		void setMainWindow(MainWindow* mw);
                 void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread);
 		MainWindow* _mw;
         BackgroundPeakUpdate* workerThread;
+        void updateUiFromValues(map<string, variant> settings);
+        void saveValuesForUi();
 
     Q_SIGNALS:
         void changeRefSample(mzSample* sample);
