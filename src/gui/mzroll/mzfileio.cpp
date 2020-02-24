@@ -911,8 +911,16 @@ void mzFileIO::_beginSQLiteProjectLoad()
 {
     emit updateStatusString("Loading compounds…");
     auto compounds = _currentProject->loadCompounds();
-    for (auto compound : compounds)
+    QRegularExpression re("(.*)\\s\\(\\d+\\)");
+    for (auto compound : compounds) {
+        QRegularExpressionMatch match =
+            re.match(QString::fromStdString(compound->name));
+        if (match.hasMatch()) {
+            string nameWithoutPrefix = match.captured(1).toStdString();
+            compound->name = nameWithoutPrefix;
+        }
         DB.addCompound(compound);
+    }
 
     emit updateStatusString("Loading user settings…");
     auto settings = _currentProject->loadSettings();
@@ -1039,15 +1047,9 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
         if (group->getCompound() && !group->getCompound()->db.empty()) {
-            auto matches = DB.findSpeciesByName(group->getCompound()->name,
-                                                group->getCompound()->db);
-            if (matches.size()) {
-                group->setCompound(matches.at(0));
-            } else {
-                group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id,
-                                                             group->getCompound()->name,
-                                                             group->getCompound()->db));
-            }
+            group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id,
+                                                         group->getCompound()->name,
+                                                         group->getCompound()->db));
             dbNames.push_back(QString::fromStdString(group->getCompound()->db));
         }
 
