@@ -14,17 +14,20 @@ class Peak;
 class Scan;
 class EIC;
 class MassCutoff;
+class Adduct;
 
 using namespace std;
 
 class PeakGroup{
+    private:
+        Adduct* _adduct;
 
     private:
         mzSlice _slice;
         bool _sliceSet;
 
     public:
-        enum GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };     //group types
+        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
         enum QType	   {AreaTop=0,
                         Area=1,
                         Height=2,
@@ -56,12 +59,15 @@ class PeakGroup{
 
         PeakGroup* parent;
 
-        // have to do this since `GroupType` enum also has an Adduct.
-        // In future use "enum class" instead. Also from MAVEN (upstream).
-        class Adduct* adduct;
+        /**
+         * @brief This parent group represents a group for the parent (primary)
+         * ion, from which this adduct group would have formed.
+         */
+        PeakGroup* parentIon;
 
         vector<Peak> peaks;
         vector<PeakGroup> children;
+        vector<PeakGroup> childAdducts;
         vector<PeakGroup> childrenBarPlot;
         vector<PeakGroup> childrenIsoWidget;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been
@@ -208,7 +214,7 @@ class PeakGroup{
 
         inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
 
-        Compound* getCompound();
+        Compound* getCompound() const;
 
         void setCompound(Compound* compound);
 
@@ -269,7 +275,12 @@ class PeakGroup{
          * @method setParent
          * @param  p         []
          */
-        inline void setParent(PeakGroup* p) {parent=p;}
+        inline void setParent(PeakGroup* p)
+        {
+            parent = p;
+            if (parent != nullptr)
+                _type = GroupType::Isotope;
+        }
 
         /**
          * [setLabel ]
@@ -277,6 +288,20 @@ class PeakGroup{
          * @param  label    []
          */
         void setLabel(char label);
+
+        /**
+         * @brief Set the adduct form for this `PeakGroup`.
+         * @details If the adduct is a type of parent ion, then this group's
+         * `_type` attribute is set to `GroupType::Adduct`.
+         * @param adduct Pointer to an `Adduct` object to be assigned.
+         */
+        void setAdduct(Adduct* adduct);
+
+        /**
+         * @brief Get the adduct form for this `PeakGroup`.
+         * @return Pointer to the `Adduct` object set for this group.
+         */
+        Adduct* getAdduct() const;
 
         /**
          * [ppmDist ]
@@ -337,14 +362,14 @@ class PeakGroup{
          * @method isIsotope
          * @return []
          */
-        inline bool isIsotope() const { return _type == Isotope; }
+        inline bool isIsotope() const { return _type == GroupType::Isotope; }
 
         /**
          * [isAdduct ]
          * @method isAdduct
          * @return []
          */
-        inline bool isAdduct() const {  return _type == Adduct; }
+        inline bool isAdduct() const {  return _type == GroupType::Adduct; }
 
         /**
          * [summary ]

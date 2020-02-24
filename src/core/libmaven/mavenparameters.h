@@ -163,6 +163,11 @@ class MavenParameters
         float minFragMatch;
         string scoringAlgo;
 
+        // to allow adduct matching
+        bool searchAdducts;
+        float adductSearchWindow;
+        float adductPercentCorrelation;
+
         // Peak Group Rank
         int qualityWeight;
         int intensityWeight;
@@ -293,7 +298,14 @@ class MavenParameters
 
         std::map<string, string>& getSettings();
 
+        std::vector<Adduct*> getDefaultAdductList();
+        inline std::vector<Adduct*> getChosenAdductList()
+            { return _chosenAdducts; }
+        inline void setChosenAdductList(std::vector<Adduct*> chosenAdducts)
+            { _chosenAdducts = chosenAdducts; }
+
     private:
+        vector<Adduct*> _chosenAdducts;
         char* defaultSettingsData;
         string lastUsedSettingsPath;
         std::map<string, string> mavenSettings;

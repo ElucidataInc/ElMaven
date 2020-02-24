@@ -32,6 +32,7 @@
 class QAction;
 class QMenu;
 class QTextEdit;
+class AdductWidget;
 class MainWindow;
 class Database;
 class Compound;
@@ -82,6 +83,11 @@ public Q_SLOTS:
      */
     void markAsDone(Compound* compound);
 
+    /**
+     * @brief Obtain the adduct widget owned by this ligand widget.
+     * @return Pointer to an `AdductWidget`.
+     */
+    inline AdductWidget* getAdductWidget() { return adductWidget; }
 
 Q_SIGNALS:
     void urlChanged(QString url);
@@ -102,11 +108,13 @@ private:
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
     QToolButton *libraryButton;
+    QToolButton* btnAdducts;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
     QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
 
     MainWindow* _mw;
+    AdductWidget* adductWidget;
     QString filterString;
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
     QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);

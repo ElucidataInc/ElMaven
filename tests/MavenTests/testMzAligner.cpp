@@ -64,7 +64,8 @@ void TestMzAligner::testObiWarp()
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
+                                                            "compounds");
     peakDetector.processSlices(slices, "compounds");
 
     for(PeakGroup grp: mavenparameters->allgroups) {

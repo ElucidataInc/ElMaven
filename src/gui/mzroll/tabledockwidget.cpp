@@ -760,7 +760,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
             return group.getCompound()->type() == Compound::Type::PRM;
         });
     bool ddaGroupExists = ddaGroupAt != end(allgroups);
-    bool includeSetNamesLines = true;
+    bool includeSetNamesLines = false;
 
     auto reportType = CSVReports::ReportType::GroupReport;
     char flag;

@@ -1,7 +1,9 @@
 #include "Compound.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "groupFiltering.h"
 #include "mavenparameters.h"
+#include "mzSample.h"
 #include "PeakGroup.h"
 
 GroupFiltering::GroupFiltering(MavenParameters *mavenParameters)
@@ -31,6 +33,7 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
         // only filter for MS2 for groups having targets
         if (_mavenParameters->matchFragmentationFlag
             && peakgroups[i].getCompound() != nullptr
+            && !(peakgroups[i].isAdduct())
             && filterByMS2(peakgroups[i])) {
             peakgroups.erase(peakgroups.begin() + i);
             continue;

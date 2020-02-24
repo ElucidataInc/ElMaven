@@ -1,6 +1,7 @@
 #include "csvreports.h"
 #include <boost/lexical_cast.hpp>
 #include "Compound.h"
+#include "datastructures/adduct.h"
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
 #include "constants.h"
@@ -92,6 +93,7 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                             << "medMz"
                             << "medRt"
                             << "maxQuality"
+                            << "adductName"
                             << "isotopeLabel"
                             << "compound"
                             << "compoundId"
@@ -265,12 +267,15 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     char label[2];
     sprintf(label, "%c", group->label);
 
+    string adductName = "";
+    if (group->getAdduct() != nullptr)
+        adductName = group->getAdduct()->getName();
+
     _reportStream << label << SEP << parentGroup->groupId << SEP << _groupId
                   << SEP << group->goodPeakCount << fixed << SEP
                   << setprecision(6) << group->meanMz << SEP << setprecision(3)
                   << group->meanRt << SEP << setprecision(6)
-                  << group->maxQuality << SEP << tagString;
-
+                  << group->maxQuality << SEP << adductName << SEP << tagString;
     string compoundName = "";
     string compoundID = "";
     string formula = "";
@@ -543,7 +548,7 @@ class CSVReportFixture
         mavenparameters->baseline_dropTopX = 80;
     }
 
-    vector<PeakGroup> _getTargettedGroupsFromProcessCompounds()
+    vector<PeakGroup> _getTargetedGroupsFromProcessCompounds()
     {
         const char* loadCompoundDB = "bin/methods/KNOWNS.csv";
         database.loadCompoundCSVFile(loadCompoundDB);
@@ -557,7 +562,7 @@ class CSVReportFixture
         return _mavenparameters->allgroups;
     }
 
-    vector<PeakGroup> _getUntargettedGroups()
+    vector<PeakGroup> _getUntargetedGroups()
     {
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
@@ -582,17 +587,17 @@ class CSVReportFixture
         delete _mavenparameters;
     }
 
-    void targettedGroup()
+    void targetedGroup()
     {
-        _allgroups = _getTargettedGroupsFromProcessCompounds();
+        _allgroups = _getTargetedGroupsFromProcessCompounds();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
         detectIsotopes(_isotopeGroups);
     }
 
-    void untargettedGroup()
+    void untargetedGroup()
     {
-        _allgroups = _getUntargettedGroups();
+        _allgroups = _getUntargetedGroups();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
         detectIsotopes(_isotopeGroups);
@@ -653,11 +658,11 @@ class CSVReportFixture
     }
 };
 
-TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
+TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targeted Groups")
 {
     SUBCASE("Testing Group File")
     {
-        targettedGroup();
+        targetedGroup();
         auto sample = samples();
         auto mavenparameter = mavenparameters();
         string groupReport = "groupReport.csv";
@@ -677,7 +682,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
 
         ifstream inputGroupFile("groupReport.csv");
         ifstream savedGroupFile(
-            "tests/test-libmaven/test_TargettedGroupReport.csv");
+            "tests/test-libmaven/test_TargetedGroupReport.csv");
         string headerInput;
         getline(inputGroupFile, headerInput);
         getline(inputGroupFile, headerInput);
@@ -690,6 +695,8 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
             cnt++;
             string input;
             getline(inputGroupFile, input);
+            if (input.empty())
+                continue;
 
             if (input.size() > 0) {
                 vector<string> inputValues;
@@ -705,6 +712,9 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
                 while (!savedGroupFile.eof()) {
                     string saved;
                     getline(savedGroupFile, saved);
+                    if (saved.empty())
+                        continue;
+
                     vector<string> savedValues;
                     mzUtils::splitNew(saved, ",", savedValues);
 
@@ -716,17 +726,20 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
                         /*epsilon value has to be a greater term i.e 15% as
                           inputValue[12] is parts per millions. Thus, it may
                           show a more deviation that normal */
-                        string2float(inputValues[12])
-                            == doctest::Approx(string2float(savedValues[12]))
+                        string2float(inputValues[13])
+                            == doctest::Approx(string2float(savedValues[13]))
                                    .epsilon(0.15)
-                        && inputValues[8] == savedValues[8]) {
+                        && inputValues[9] == savedValues[9]) {
                         double inputFloat;
                         double savedFloat;
                         for (int i = 3;
                              i < static_cast<int>(inputValues.size());
                              i++) {
-                            if (i == 8 || i == 9 || i == 10) {
+                            if (i == 9 || i == 10 || i == 11) {
                                 REQUIRE(inputValues[i] == savedValues[i]);
+                            } else if (i == 7) {
+                                // adducts
+                                REQUIRE (inputValues[i] == savedValues[i]);
                             } else {
                                 inputFloat = string2float(inputValues[i]);
                                 savedFloat = string2float(savedValues[i]);
@@ -747,7 +760,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
 
     SUBCASE("Testing Peak File")
     {
-        targettedGroup();
+        targetedGroup();
         string peakReport = "peakReport.csv";
         auto sample = samples();
         auto mavenparameter = mavenparameters();
@@ -769,7 +782,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
 
         ifstream inputPeakFile("peakReport.csv");
         ifstream savedPeakFile(
-            "tests/test-libmaven/test_TargettedPeakReport.csv");
+            "tests/test-libmaven/test_TargetedPeakReport.csv");
 
         string headerInput;
         getline(inputPeakFile, headerInput);
@@ -833,7 +846,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
 
     SUBCASE("Testing write for polly")
     {
-        targettedGroup();
+        targetedGroup();
         string pollyFile = "polly.csv";
         auto sample = samples();
         auto mavenparameter = mavenparameters();
@@ -893,9 +906,9 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
         remove("polly.csv");
     }
 
-    SUBCASE("Testing Untargetted Group File")
+    SUBCASE("Testing Untargeted Group File")
     {
-        untargettedGroup();
+        untargetedGroup();
         auto sample = samples();
         auto mavenparameter = mavenparameters();
         string groupReport = "groupReport.csv";
@@ -914,7 +927,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
         }
         ifstream inputGroupFile("groupReport.csv");
         ifstream savedGroupFile(
-            "tests/test-libmaven/test_untargettedGroupReport.csv");
+            "tests/test-libmaven/test_untargetedGroupReport.csv");
         string headerInput;
         getline(inputGroupFile, headerInput);
         getline(inputGroupFile, headerInput);
@@ -928,6 +941,8 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
             cnt++;
             string input;
             getline(inputGroupFile, input);
+            if (input.empty())
+                continue;
 
             if (input.size() > 0) {
                 vector<string> inputValues;
@@ -943,6 +958,9 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
                 while (!savedGroupFile.eof()) {
                     string saved;
                     getline(savedGroupFile, saved);
+                    if (saved.empty())
+                        continue;
+
                     vector<string> savedValues;
                     mzUtils::splitNew(saved, ",", savedValues);
                     if (string2float(inputValues[4])
@@ -953,9 +971,13 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
                         && inputValues[3] == savedValues[3]) {
                         double inputFloat;
                         double savedFloat;
+                        // TODO: why not use column names instead of indexes
                         for (size_t i = 3; i < inputValues.size(); i++) {
-                            if (i == 8 || i == 9) {
+                            if (i == 9 || i == 10) {
                                 continue;
+                            } else if (i == 7) {
+                                // adducts
+                                REQUIRE (inputValues[i] == savedValues[i]);
                             } else {
                                 inputFloat = string2float(inputValues[i]);
                                 savedFloat = string2float(savedValues[i]);
@@ -974,9 +996,9 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
         remove("groupReport.csv");
     }
 
-    SUBCASE("Testing Untargetted Peak File")
+    SUBCASE("Testing Untargeted Peak File")
     {
-        untargettedGroup();
+        untargetedGroup();
         string peakReport = "peakReport.csv";
         auto sample = samples();
         auto mavenparameter = mavenparameters();
@@ -997,7 +1019,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targetted Groups")
         }
         ifstream inputPeakFile("peakReport.csv");
         ifstream savedPeakFile(
-            "tests/test-libmaven/test_untargettedPeakReport.csv");
+            "tests/test-libmaven/test_untargetedPeakReport.csv");
 
         string headerInput;
         getline(inputPeakFile, headerInput);

@@ -17,6 +17,7 @@ class QCustomPlot;
 class QDoubleSpinBox;
 class QSpinBox;
 
+class Adduct;
 class SRMList;
 class Controller;
 class VideoPlayer;
@@ -32,7 +33,6 @@ class SpectraWidget;
 class GroupRtWidget;
 class AlignmentVizAllGroupsWidget;
 class IsotopicPlots;
-class AdductWidget;
 class GettingStarted;
 class LigandWidget;
 class PathwayWidget;
@@ -114,7 +114,7 @@ public:
 	SRMList *srmList;
     map<string, Compound*> annotation;
 	
-    VideoPlayer* vidPlayer;
+	VideoPlayer* vidPlayer;
 	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
@@ -128,7 +128,6 @@ public:
     QCustomPlot *sampleRtVizPlot;
 	QCustomPlot *alignmentVizAllGroupsPlot;
 	MassCalcWidget *massCalcWidget;
-	AdductWidget *adductWidget;
 	GettingStarted *gettingstarted;
 	LigandWidget *ligandWidget;
 	IsotopeWidget *isotopeWidget;

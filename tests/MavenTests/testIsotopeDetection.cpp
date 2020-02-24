@@ -60,7 +60,8 @@ void TestIsotopeDetection::testgetIsotopes() {
 
     maventests::database.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
+                                                            "compounds");
     peakDetector.processSlices(slices, "compounds");
     PeakGroup* parentgroup = &mavenparameters->allgroups[0];
 
@@ -136,7 +137,8 @@ void TestIsotopeDetection::testpullIsotopes() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds, "compounds");
+    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
+                                                            "compounds");
     peakDetector.processSlices(slices, "compounds");
     
     PeakGroup& parent = mavenparameters->allgroups[0];

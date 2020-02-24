@@ -15,6 +15,7 @@
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "gallerywidget.h"
@@ -168,7 +169,7 @@ using namespace mzUtils;
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
-	
+
 
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
@@ -184,16 +185,6 @@ using namespace mzUtils;
     readSettings();
 	QString dataDir = ".";
 	unloadableFiles.reserve(50);
-
-	QList<QString> dirs;
-	dirs << dataDir << QApplication::applicationDirPath()
-		 << QApplication::applicationDirPath() + "/../Resources/";
-
-	//find location of DATA
-	Q_FOREACH (QString d, dirs){
-		QFile test(d+"/ADDUCTS.csv");
-		if (test.exists()) {dataDir=d; settings->setValue("dataDir", dataDir); break;}
-	}
 
 	setWindowTitle(programName + " " + STR(EL_MAVEN_VERSION));
 
@@ -220,11 +211,6 @@ using namespace mzUtils;
 	QString commonFragments = dataDir + "/" + "FRAGMENTS.csv";
 	if (QFile::exists(commonFragments))
 		DB.loadFragments(commonFragments.toStdString());
-
-	QString commonAdducts = dataDir + "/" + "ADDUCTS.csv";
-	if (QFile::exists(commonAdducts))
-		DB.loadFragments(commonAdducts.toStdString());
-
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
@@ -324,7 +310,6 @@ using namespace mzUtils;
     sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
-	adductWidget = new AdductWidget(this);
 	gettingstarted = new GettingStarted(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
@@ -403,7 +388,6 @@ using namespace mzUtils;
 	ligandWidget->setVisible(true);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
-	adductWidget->setVisible(false);
 
 	isotopeWidget->setVisible(false);
 	massCalcWidget->setVisible(false);
@@ -484,7 +468,6 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, adductWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, covariantsPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, fragPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, scatterDockWidget, Qt::Horizontal);
@@ -1287,7 +1270,8 @@ void MainWindow::setIonizationModeLabel() {
 	
 	ionizationModeLabel->setText(ionMode);
 
-	isotopeWidget->setCharge(mode);
+    isotopeWidget->setCharge(mode);
+    ligandWidget->getAdductWidget()->selectAdductsForCurrentPolarity();
 	setTotalCharge();
 }
 
@@ -4193,8 +4177,6 @@ void MainWindow::getLinks(Peak* peak) {
 		covariantsPanel->setInfo(subset);
 	if (subset.size() && galleryDockWidget->isVisible())
 		galleryWidget->addEicPlots(subset);
-	if (adductWidget->isVisible())
-		adductWidget->setPeak(peak);
 }
 
 

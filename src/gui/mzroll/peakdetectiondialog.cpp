@@ -42,6 +42,9 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
+    settings.insert("searchAdducts", QVariant::fromValue(pd->searchAdducts));
+    settings.insert("adductSearchWindow", QVariant::fromValue(pd->adductSearchWindow));
+    settings.insert("adductPercentCorrelation", QVariant::fromValue(pd->adductPercentCorrelation));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -171,6 +174,18 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SIGNAL(valueChanged(double)),
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
+        connect(searchAdducts,
+                &QCheckBox::toggled,
+                [this](const bool checked)
+                {
+                    QString state = checked? "On" : "Off";
+                    this->mainwindow
+                        ->getAnalytics()
+                        ->hitEvent("Peak Detection",
+                                   "Adduct Detection Swtiched",
+                                   state);
+                    _setAdductWindowState();
+                });
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
@@ -225,10 +240,13 @@ void PeakDetectionDialog::dbSearchClicked()
     if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        QString dbName = compoundDatabase->currentText();
+        searchAdducts->setEnabled(true);
         toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
+        featureOptions->setChecked(true);
+        searchAdducts->setChecked(false);
+        searchAdducts->setEnabled(false);
     }
     toggleFragmentation();
 }
@@ -249,9 +267,12 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbSearch->setChecked(false);
+        searchAdducts->setChecked(false);
+        searchAdducts->setEnabled(false);
         toggleFragmentation();
     } else {
         dbSearch->setChecked(true);
+        searchAdducts->setEnabled(true);
     }
     toggleFragmentation();
 }
@@ -374,14 +395,35 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         refreshCompoundDatabases();
 
+        /**
+         * Getting the database present and updating in the dropdown of the
+         * peak detection windows
+         */
+        map<string, int>::iterator itr;
+        map<string, int> dbnames = DB.getDatabaseNames();
+
+        // Storing this value so that we can set it back after multiple DB name
+        // changes. The enabled/disabled state will still be managed later once.
+        bool fragmentationWasEnabled = matchFragmentationOptions->isChecked();
+
+        // Clearing so that old value is not appended with the new values
+        compoundDatabase->clear();
+        for (itr = dbnames.begin(); itr != dbnames.end(); itr++) {
+            string db = (*itr).first;
+            if (!db.empty()) compoundDatabase->addItem(QString(db.c_str()));
+        }
+        matchFragmentationOptions->setChecked(fragmentationWasEnabled);
+
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
         compoundDatabase->setCurrentIndex(
             compoundDatabase->findText(selectedDB));
-        
+
         //match fragmentation only enabled during targeted detection with NIST library
         toggleFragmentation();
+
+        _setAdductWindowState();
 
         QDialog::exec();
     }
@@ -434,6 +476,17 @@ void PeakDetectionDialog::toggleFragmentation()
     } else {
         matchFragmentationOptions->setChecked(false);
         matchFragmentationOptions->setEnabled(false);
+    }
+}
+
+void PeakDetectionDialog::_setAdductWindowState()
+{
+    if (searchAdducts->isChecked()) {
+        adductSearchWindow->setEnabled(true);
+        adductPercentCorrelation->setEnabled(true);
+    } else {
+        adductSearchWindow->setEnabled(false);
+        adductPercentCorrelation->setEnabled(false);
     }
 }
 

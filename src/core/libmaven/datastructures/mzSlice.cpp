@@ -1,3 +1,4 @@
+#include "adduct.h"
 #include "mzSlice.h"
 #include "Compound.h"
 #include "masscutofftype.h"
@@ -11,7 +12,8 @@ mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
 	rtmax = maxRt;
     mz = (maxMz + minMz) / 2.0f;
     rt = (maxRt + minRt) / 2.0f;
-	compound = NULL;
+    compound = nullptr;
+    adduct = nullptr;
 	ionCount = 0;
 }
 
@@ -19,21 +21,26 @@ mzSlice::mzSlice(string filterLine)
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
 	compound = NULL;
-	srmId = filterLine;
+    srmId = filterLine;
+    adduct = nullptr;
 }
 
 mzSlice::mzSlice()
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
-	compound = NULL;
+    compound = NULL;
+    adduct = nullptr;
 }
 
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
-	
-    //Calculating the mzmin and mzmax
-    if (!this->compound->formula().empty() || this->compound->neutralMass != 0.0f)
-	{
+    // calculating the mzmin and mzmax
+    if (this->adduct != nullptr && !this->compound->formula().empty()) {
+        auto mass = MassCalculator::computeNeutralMass(compound->formula());
+        auto adjustedMass = adduct->computeAdductMz(mass);
+        mzmin = adjustedMass - compoundMassCutoffWindow->massCutoffValue(adjustedMass);
+        mzmax = adjustedMass + compoundMassCutoffWindow->massCutoffValue(adjustedMass);
+    } else if (!this->compound->formula().empty() || this->compound->neutralMass != 0.0f) {
         //Computing the mass if the formula is given
         double mass = this->compound->adjustedMass(charge);
 		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);

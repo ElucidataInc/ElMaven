@@ -1,5 +1,7 @@
 #include "PeakGroup.h"
 #include "Compound.h"
+#include "datastructures/adduct.h"
+#include "datastructures/mzSlice.h"
 #include "mzSample.h"
 #include "EIC.h"
 #include "Scan.h"
@@ -63,15 +65,16 @@ PeakGroup::PeakGroup()  {
     maxMz=0;
 
     parent = NULL;
+    parentIon = nullptr;
 
     // TODO: MAVEN (upstream) strikes again. Why was it commented out?
-    adduct = NULL;
+    _adduct = NULL;
 
     isFocused=false;
     label=0;    //classification label
 
     goodPeakCount=0;
-    _type = None;
+    _type = GroupType::None;
     _sliceSet = false;
 
     changePValue=0;
@@ -102,7 +105,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
-    adduct = o.adduct;
+    _adduct = o.getAdduct();
 
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
@@ -138,6 +141,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxMz=o.maxMz;
 
     parent = o.parent;
+    parentIon = o.parentIon;
     setSlice(o.getSlice());
 
     srmId=o.srmId;
@@ -171,6 +175,10 @@ void PeakGroup::copyChildren(const PeakGroup& o) {
     for(unsigned int i=0; i < children.size(); i++ ) children[i].parent = this;
     for(unsigned int i=0; i < childrenBarPlot.size(); i++ )
         childrenBarPlot[i].parent = this;
+
+    childAdducts = o.childAdducts;
+    for (auto& adductGroup : childAdducts)
+        adductGroup.parent = this;
 }
 
 void PeakGroup::clear() {
@@ -203,7 +211,7 @@ bool PeakGroup::hasCompoundLink() const
     return false;
 }
 
-Compound* PeakGroup::getCompound()
+Compound* PeakGroup::getCompound() const
 {
     if (hasSlice()) {
         return _slice.compound;
@@ -560,12 +568,15 @@ double PeakGroup::getExpectedMz(int charge) {
         return expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass > 0) {
-        if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
+        if (!_slice.compound->formula().empty() && _adduct != nullptr) {
+            auto mass =
+                MassCalculator::computeNeutralMass(_slice.compound->formula());
+            mz = _adduct->computeAdductMz(mass);
+        } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
             mz = _slice.compound->mass;
         }
-
         return mz;
     }
     else if (hasSlice() && _slice.compound != NULL && _slice.compound->mass == 0 && _slice.compound->productMz > 0) {
@@ -780,6 +791,8 @@ string PeakGroup::getName() {
     string tag;
     //compound is assigned in case of targeted search
     if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name;
+    // add name of external charged species fused with adduct
+    if (_adduct != nullptr) tag +=  " | " + _adduct->getName();
     //add isotopic label
     if (!tagString.empty()) tag += " | " + tagString;
     //add SRM ID for MS/MS data 
@@ -869,7 +882,9 @@ Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
 
 void PeakGroup::matchFragmentation(float ppmTolerance, string scoringAlgo)
 {
-    if (this->getCompound() == NULL || ms2EventCount == 0) return;
+    if (this->getCompound() == nullptr
+        || this->isAdduct()
+        || ms2EventCount == 0) return;
 
     fragMatchScore = getCompound()->scoreCompoundHit(&fragmentationPattern,
                                                      ppmTolerance);
@@ -911,4 +926,21 @@ void PeakGroup::setSelectedSamples(vector<mzSample*> vsamples){
             samples.push_back(vsamples[i]);
         }
     }
+}
+
+void PeakGroup::setAdduct(Adduct* adduct)
+{
+    _adduct = adduct;
+    if (_adduct != nullptr
+        && _adduct->getName() != MassCalculator::MinusHAdduct->getName()
+        && _adduct->getName() != MassCalculator::PlusHAdduct->getName()) {
+        _type = GroupType::Adduct;
+    }
+}
+
+Adduct* PeakGroup::getAdduct() const
+{
+    if (isIsotope())
+        return parent->getAdduct();
+    return _adduct;
 }

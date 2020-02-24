@@ -1,3 +1,5 @@
+#include "datastructures/adduct.h"
+#include "datastructures/mzSlice.h"
 #include "EIC.h"
 #include "Peak.h"
 #include "PeakGroup.h"
@@ -931,7 +933,10 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     {
         PeakGroup grp;
         grp.groupId = i;
-        grp.setSlice(*slice);
+        if (slice) {
+            grp.setSlice(*slice);
+            grp.setAdduct(slice->adduct);
+        }
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }

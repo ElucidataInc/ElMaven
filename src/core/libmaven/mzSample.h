@@ -845,44 +845,6 @@ class Reaction
     bool reversable;
 };
 
-class Adduct
-{
-
-  public:
-    Adduct()
-    {
-        isParent = false;
-        mass = 0;
-        charge = 1;
-        nmol = 1;
-    }
-
-    Adduct(string name, float mass, int charge, int nmol){
-        this->name=name;
-        this->mass=mass;
-        this->charge=charge;
-        this->nmol=nmol;
-    }
-
-    string name;
-    int nmol;
-    float mass;
-    float charge;
-    bool isParent;
-
-    //given adduct mass compute parent ion mass
-    inline float computeParentMass(float mz)
-    {
-        return (mz * abs(charge) - mass) / nmol;
-    }
-
-    //given perent compute adduct mass
-    inline float computeAdductMass(float pmz)
-    {
-        return (pmz * nmol + mass) / abs(charge);
-    }
-};
-
 /**
  * @class ChargedSpecies
  * @ingroup libmaven

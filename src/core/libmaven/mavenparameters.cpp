@@ -46,6 +46,11 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 
         limitGroupCount = INT_MAX;
 
+        // to allow adduct matching
+        searchAdducts = false;
+        adductSearchWindow = 0.1f;
+        adductPercentCorrelation = 90.0f;
+
         // peak detection
         eic_smoothingWindow = 10;
         eic_smoothingAlgorithm = 0;
@@ -204,6 +209,19 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
         maxNaturalAbundanceErr = atof(value);
 }
 
+std::vector<Adduct*> MavenParameters::getDefaultAdductList()
+{
+    vector<Adduct*> adductList;
+    if (ionizationMode > 0) {
+        adductList.push_back(MassCalculator::PlusHAdduct);
+    } else if (ionizationMode < 0) {
+        adductList.push_back(MassCalculator::MinusHAdduct);
+    } else {
+        adductList.push_back(MassCalculator::ZeroMassAdduct);
+    }
+    return adductList;
+}
+
 void  MavenParameters::setPeakDetectionSettings(const char* key, const char* value)
 {
     if(key[0] == '\0' || value[0] == '\0')
@@ -285,6 +303,15 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if(strcmp(key, "limitGroupsPerCompound") == 0 )
         eicMaxGroups = atof(value);
+
+    if(strcmp(key, "searchAdducts") == 0 )
+        searchAdducts = atof(value);
+
+    if(strcmp(key, "adductSearchWindow") == 0 )
+        adductSearchWindow = atof(value);
+
+    if(strcmp(key, "adductPercentCorrelation") == 0 )
+        adductPercentCorrelation = atof(value);
 
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);

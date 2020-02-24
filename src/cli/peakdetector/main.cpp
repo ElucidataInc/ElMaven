@@ -79,30 +79,31 @@ int main(int argc, char *argv[]) {
     //align samples
     if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag) {
         peakdetectorCLI->peakDetector->alignSamples((int)peakdetectorCLI->alignMode);
-    }
+	}
 
 
-    //process compound list
-    if (peakdetectorCLI->mavenParameters->compounds.size() && !peakdetectorCLI->mavenParameters->processAllSlices) {
-        vector<mzSlice*> slices = peakdetectorCLI->peakDetector->processCompounds(
-            peakdetectorCLI->mavenParameters->compounds, "compounds");
-        peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
-        if (peakdetectorCLI->mavenParameters->pullIsotopesFlag) {
-            peakdetectorCLI->peakDetector->pullAllIsotopes();
-        }
-        delete_all(slices);
-    }
+	//process compound list
+	if (peakdetectorCLI->mavenParameters->compounds.size() && !peakdetectorCLI->mavenParameters->processAllSlices) {
+        vector<mzSlice*> slices =
+            peakdetectorCLI->peakDetector->processCompounds(peakdetectorCLI->mavenParameters->compounds,
+                                                            "compounds");
+		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
+		if (peakdetectorCLI->mavenParameters->pullIsotopesFlag) {
+			peakdetectorCLI->peakDetector->pullAllIsotopes();
+		}
+		delete_all(slices);
+	}
 
-    //process all mass slices
-    if (peakdetectorCLI->mavenParameters->processAllSlices == true) {
-        peakdetectorCLI->mavenParameters->matchRtFlag = false;
-        peakdetectorCLI->peakDetector->processMassSlices();
-    }
+	//process all mass slices
+	if (peakdetectorCLI->mavenParameters->processAllSlices == true) {
+		peakdetectorCLI->mavenParameters->matchRtFlag = false;
+		peakdetectorCLI->peakDetector->processMassSlices();
+	}
 
-    //write report
-    if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
-        peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
-    }
+	//write report
+	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
+		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
+	}
     else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
         log.info() << "No peaks found. Please try again with different "
                       "parameters."

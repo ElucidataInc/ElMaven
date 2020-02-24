@@ -1,6 +1,7 @@
 #include "Compound.h"
 #include "classifierNeuralNet.h"
 #include "constants.h"
+#include "datastructures/adduct.h"
 #include "EIC.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
@@ -37,20 +38,24 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
         return;
     if (parentgroup->getCompound()->formula().empty() == true)
         return;
+    if (parentgroup->getAdduct() != nullptr
+        && !parentgroup->getAdduct()->isParent()) {
+        return;
+    }
     if (_mavenParameters->samples.size() == 0)
         return;
 
     string formula = parentgroup->getCompound()->formula(); //parent formula
     int charge = _mavenParameters->getCharge(parentgroup->getCompound());//generate isotope list for parent mass
 
-    vector<Isotope> masslist = MassCalculator::computeIsotopes(
-        formula,
-        charge,
-        _C13Flag,
-        _N15Flag,
-        _S34Flag,
-        _D2Flag
-    );
+    vector<Isotope> masslist =
+        MassCalculator::computeIsotopes(formula,
+                                        charge,
+                                        _C13Flag,
+                                        _N15Flag,
+                                        _S34Flag,
+                                        _D2Flag,
+                                        parentgroup->getAdduct());
 
     map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 
@@ -328,7 +333,7 @@ void IsotopeDetection::childStatistics(
     child.tagString = isotopeName;
     child.groupId = parentgroup->groupId;
     child.parent = parentgroup;
-    child.setType(PeakGroup::Isotope);
+    child.setType(PeakGroup::GroupType::Isotope);
     child.groupStatistics();
 
     // we now have the RT limits for the isotopic group

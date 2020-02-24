@@ -104,6 +104,7 @@ class Database {
 	set<Compound*> findSpeciesByMass(float mz, MassCutoff *massCutoff);
 	vector<Compound*> findSpeciesByName(string name, string dbname);
 	vector<Compound*> findSpeciesById(string id, string dbName);
+    Adduct* findAdductByName(string name);
 
 	void loadRetentionTimes(QString method);
 	void saveRetentionTime(Compound* c, float rt, QString method);

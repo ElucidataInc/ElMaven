@@ -5,6 +5,7 @@
 #include "Compound.h"
 #include "connection.h"
 #include "cursor.h"
+#include "datastructures/adduct.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
@@ -203,7 +204,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":expected_abundance", group->expectedAbundance);
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
-    groupsQuery->bind(":type", group->type());
+    groupsQuery->bind(":type", static_cast<int>(group->type()));
     groupsQuery->bind(":srm_id", group->srmId);
 
     groupsQuery->bind(":ms2_event_count", group->ms2EventCount);
@@ -228,7 +229,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":fragmentation_num_matches",
                       group->fragMatchScore.numMatches);
 
-    groupsQuery->bind(":adduct_name", group->adduct ? group->adduct->name : "");
+    groupsQuery->bind(":adduct_name", group->getAdduct()
+                                          ? group->getAdduct()->getName() : "");
 
     groupsQuery->bind(":compound_id",
                       group->getCompound() ? group->getCompound()->id : "");
@@ -687,7 +689,10 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :main_window_mass_resolution      \
                       , :must_have_fragmentation          \
                       , :identification_match_rt          \
-                      , :identification_rt_window         )");
+                      , :identification_rt_window         \
+                      , :search_adducts                   \
+                      , :adduct_search_window             \
+                      , :adduct_percent_correlation       )");
 
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
@@ -762,6 +767,9 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":match_rt", BINT(settingsMap.at("matchRt")));
     settingsQuery->bind(":compound_rt_window", BDOUBLE(settingsMap.at("compoundRtWindow")));
     settingsQuery->bind(":limit_groups_per_compound", BINT(settingsMap.at("limitGroupsPerCompound")));
+    settingsQuery->bind(":search_adducts", BINT(settingsMap.at("searchAdducts")));
+    settingsQuery->bind(":adduct_search_window", BDOUBLE(settingsMap.at("adductSearchWindow")));
+    settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
 
     settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
@@ -924,7 +932,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         group->fragMatchScore.numMatches =
             groupsQuery->doubleValue("fragmentation_num_matches");
 
-        group->setType(PeakGroup::GroupType(groupsQuery->integerValue("type")));
+        group->setType(static_cast<PeakGroup::GroupType>(groupsQuery->integerValue("type")));
         group->searchTableName = groupsQuery->stringValue("table_name");
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
@@ -937,22 +945,19 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
         if (!srmId.empty())
             group->setSrmId(srmId);
 
-        if (!adductName.empty())
-            group->adduct = _findAdductByName(adductName);
+        if (!adductName.empty()) {
+            group->setAdduct(_findAdductByName(adductName));
+        } else {
+            group->setAdduct(nullptr);
+        }
 
         if (!compoundId.empty()) {
             Compound* compound = _findSpeciesByIdAndName(compoundId,
                                                          compoundName,
                                                          compoundDB);
-            if (compound) {
+            if (compound)
                 group->setCompound(compound);
-            } else {
-                group->tagString = compoundName
-                                  + " | "
-                                  + adductName
-                                  + " | id="
-                                  + compoundId;
-            }
+
         } else if (!compoundName.empty() && !compoundDB.empty()) {
             vector<Compound*> matches = _findSpeciesByName(compoundName,
                                                            compoundDB);
@@ -1355,6 +1360,9 @@ map<string, variant> ProjectDatabase::loadSettings()
         settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
         settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
         settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
+        settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
+        settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
+        settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
 
         settingsMap["matchFragmentation"] = settingsQuery->doubleValue("match_fragmentation");
         settingsMap["minFragMatchScore"] = variant(settingsQuery->integerValue("min_frag_match_score"));
@@ -1610,15 +1618,9 @@ void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
     }
 }
 
-Adduct* ProjectDatabase::_findAdductByName(string id)
+Adduct* ProjectDatabase::_findAdductByName(string name)
 {
-    if (id == "[M+H]+")
-        return MassCalculator::PlusHAdduct;
-    else if (id == "[M-H]-")
-        return MassCalculator::MinusHAdduct;
-    else if (id == "[M]")
-        return MassCalculator::ZeroMassAdduct;
-    return nullptr;
+    return new Adduct(name, 0, 0, 0.0f);
 }
 
 Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,

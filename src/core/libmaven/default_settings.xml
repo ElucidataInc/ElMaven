@@ -19,6 +19,9 @@
         <compoundRtWindow>1</compoundRtWindow>
         <matchRt>0</matchRt>
         <limitGroupsPerCompound>10</limitGroupsPerCompound>
+        <searchAdducts>0</searchAdducts>
+        <adductSearchWindow>0.5</adductSearchWindow>
+        <adductPercentCorrelation>90.0</adductPercentCorrelation>
         <matchFragmentation>0</matchFragmentation>
         <fragmentTolerance>20</fragmentTolerance>
         <minFragMatch>3</minFragMatch>

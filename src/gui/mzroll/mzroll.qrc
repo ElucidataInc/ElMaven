@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>images/adducts.png</file>
         <file>images/copyCSV.png</file>
         <file>images/zoomOutNode.png</file>
         <file>images/compound.png</file>
@@ -103,6 +104,7 @@
         <file>images/alignmentButton.png</file>
         <file>databases/KNOWNS.csv</file>
         <file>databases/SRM2.csv</file>
+        <file>databases/Adducts/ADDUCTS.csv</file>
         <file>videos/PollyPhi-Workflow.mp4</file>
         <file>images/quant.png</file>
         <file>images/quantSelected.png</file>

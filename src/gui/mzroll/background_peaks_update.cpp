@@ -9,6 +9,7 @@
 #include <QJsonObject>
 
 #include "Compound.h"
+#include "adductdetection.h"
 #include "alignmentdialog.h"
 #include "common/analytics.h"
 #include "csvreports.h"
@@ -258,7 +259,8 @@ void BackgroundPeakUpdate::align() {
 
 void BackgroundPeakUpdate::alignUsingDatabase() {
 
-    vector<mzSlice*> slices = peakDetector->processCompounds(mavenParameters->compounds, "compounds");
+    vector<mzSlice*> slices =
+        peakDetector->processCompounds(mavenParameters->compounds, "compounds");
         processSlices(slices, "compounds");
 
 
@@ -276,6 +278,19 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
             && mavenParameters->pullIsotopesFlag) {
                 Q_EMIT(updateProgressBar("Calculating Isotopes", 1, 100));
         }
+
+        if (mavenParameters->searchAdducts) {
+            mavenParameters->allgroups = AdductDetection::findAdducts(
+                mavenParameters->allgroups,
+                mavenParameters->getChosenAdductList(),
+                peakDetector);
+
+            // we remove adducts for which parent ion's RT is too different
+            AdductDetection::filterAdducts(mavenParameters->allgroups,
+                                           mavenParameters);
+            emit (updateProgressBar("Filtering out false adducts…", 0, 0));
+        }
+
         writeCSVRep(setName);
 }
 
@@ -286,14 +301,16 @@ void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int progr
 }
 
 void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
-                                            string setName) {
-        if (set.size() == 0)
-                return;
+                                            string setName)
+{
+    if (set.size() == 0)
+            return;
 
-        Q_EMIT(updateProgressBar("Processing Compounds", 0, 0));
-        vector<mzSlice*> slices = peakDetector->processCompounds(set, setName);
-        processSlices(slices, setName);
-        delete_all(slices);
+    Q_EMIT(updateProgressBar("Processing Compounds", 0, 0));
+
+    vector<mzSlice*> slices = peakDetector->processCompounds(set, setName);
+    processSlices(slices, setName);
+    delete_all(slices);
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
@@ -321,9 +338,7 @@ void BackgroundPeakUpdate::completeStop() {
 
 void BackgroundPeakUpdate::computePeaks() {
 
-    if (mavenParameters->compounds.size() == 0)
-                return;
-    processCompounds(mavenParameters->compounds, "compounds");
+        processCompounds(mavenParameters->compounds, "groups");
 }
 
 /**

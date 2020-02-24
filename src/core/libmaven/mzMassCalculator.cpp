@@ -1,3 +1,4 @@
+#include "datastructures/adduct.h"
 #include "mzMassCalculator.h"
 #include "constants.h"
 #include "Compound.h"
@@ -11,10 +12,12 @@ using namespace mzUtils;
 using namespace std;
 
 MassCalculator::IonizationType MassCalculator::ionizationType = MassCalculator::ESI;
-Adduct* MassCalculator::PlusHAdduct  = new Adduct("[M-H]+",  PROTON_MASS , 1, 1);
-Adduct* MassCalculator::MinusHAdduct = new Adduct("[M-H]-", -PROTON_MASS, -1, 1);
-Adduct* MassCalculator::ZeroMassAdduct = new Adduct("[M]",0 ,1, 1);
+
 ElementMass MassCalculator::elementMass;
+
+Adduct* MassCalculator::PlusHAdduct = new Adduct("[M+H]+", 1, 1, PROTON_MASS);
+Adduct* MassCalculator::MinusHAdduct = new Adduct("[M-H]-", 1, -1, -PROTON_MASS);
+Adduct* MassCalculator::ZeroMassAdduct = new Adduct("[M]", 1, 1, 0.0f);
 
 double MassCalculator::getElementMass(string elmnt) {
     double val_atome(0);
@@ -96,14 +99,13 @@ double MassCalculator::computeMass(string formula, int charge) {
     return adjustMass(mass, charge);
 }
 
-vector<Isotope> MassCalculator::computeIsotopes(
-    string formula,
-    int charge,
-    bool C13Flag,
-    bool N15Flag,
-    bool S34Flag,
-    bool D2Flag
-)
+vector<Isotope> MassCalculator::computeIsotopes(string formula,
+                                                int charge,
+                                                bool C13Flag,
+                                                bool N15Flag,
+                                                bool S34Flag,
+                                                bool D2Flag,
+                                                Adduct* adduct)
 {
     map<string, int> atoms = getComposition(formula);
     int CatomCount = atoms[C_STRING_ID];
@@ -189,7 +191,11 @@ vector<Isotope> MassCalculator::computeIsotopes(
         int s = x.S34;
         int d = x.H2;
 
-        isotopes[i].mass = adjustMass(isotopes[i].mass,charge);
+        if (adduct != nullptr) {
+            isotopes[i].mass = adduct->computeAdductMz(isotopes[i].mass);
+        } else {
+            isotopes[i].mass = adjustMass(isotopes[i].mass,charge);
+        }
 
         isotopes[i].abundance =
             mzUtils::nchoosek(CatomCount, c) *

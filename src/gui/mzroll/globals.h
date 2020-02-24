@@ -57,15 +57,16 @@ Q_DECLARE_METATYPE(UserNote*)
 Q_DECLARE_METATYPE(mzSlice)
 
 enum itemType {
-		SampleType=4999,
-		PeakGroupType,
-		CompoundType,
-		ScanType,
-		EICType,
-		PeakType,
-		PathwayType,
-		mzSliceType, 
-		mzLinkType
+    SampleType=4999,
+    PeakGroupType,
+    CompoundType,
+    ScanType,
+    EICType,
+    PeakType,
+    PathwayType,
+    mzSliceType,
+    mzLinkType,
+    AdductType
 };
 
 #endif
