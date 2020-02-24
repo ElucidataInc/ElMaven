@@ -1048,6 +1048,9 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targeted Groups")
                 while (!savedPeakFile.eof()) {
                     string saved;
                     getline(savedPeakFile, saved);
+                    if (saved.empty())
+                        continue;
+
                     vector<string> savedValues;
                     mzUtils::splitNew(saved, ",", savedValues);
 
