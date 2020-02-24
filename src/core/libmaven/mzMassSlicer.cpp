@@ -603,9 +603,12 @@ void MassSlices::adjustSlices()
         float highestIntensity = 0.0f;
         float mzAtHighestIntensity = 0.0f;
         for (auto eic : eics) {
-            if (eic->maxIntensity > highestIntensity) {
-                highestIntensity = eic->maxIntensity;
-                mzAtHighestIntensity = eic->mzAtMaxIntensity;
+            size_t size = eic->intensity.size();
+            for (int i = 0; i < size; ++i) {
+                if (eic->spline[i] > highestIntensity) {
+                    highestIntensity = eic->spline[i];
+                    mzAtHighestIntensity = eic->mz[i];
+                }
             }
         }
         float cutoff = mavenParameters->massCutoffMerge
