@@ -1098,8 +1098,18 @@ void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
     } else {
         this->_userLabel = 'g';
     }
-
     _predictionProbability = probability;
+
+    if (parent != nullptr && tagString == "C12 PARENT") {
+        parent->setPredictedLabel(label, probability);
+        return;
+    }
+    for (auto& child : children) {
+        if (child.tagString == "C12 PARENT"
+            && child._predictedLabel != label
+            && child._predictionProbability != probability)
+            child.setPredictedLabel(label, probability);
+    }
 }
 
 void PeakGroup::setPredictionInference(const multimap<float, string>& inference)
