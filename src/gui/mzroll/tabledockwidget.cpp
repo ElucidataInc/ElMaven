@@ -3161,6 +3161,8 @@ PeakTableDockWidget::~PeakTableDockWidget() {
 void PeakTableDockWidget::destroy()
 {
   TableDockWidget::deleteAll(false);
+  _mainwindow->getCorrelationTable()->clearCorrelation();
+  _mainwindow->getCorrelationTable()->setVisible(false);
   cleanUp();
   deleteLater();
   _mainwindow->removePeaksTable(this);
