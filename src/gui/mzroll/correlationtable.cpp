@@ -97,7 +97,8 @@ void CorrelationTable::_populateTable()
     auto addItemToTable = [this](int groupId,
                                  string name,
                                  float delMz,
-                                 float correlation) {
+                                 float correlation,
+                                 bool isReference = false) {
         QString item1 = QString::number(groupId);
         QString item2 = QString::fromStdString(name);
         QString item3 = QString::number(delMz, 'f', 4);
@@ -110,13 +111,20 @@ void CorrelationTable::_populateTable()
         item->setTextAlignment(0, Qt::AlignRight);
         item->setTextAlignment(2, Qt::AlignRight);
         item->setTextAlignment(3, Qt::AlignRight);
+        if (isReference) {
+            item->setBackground(0, QBrush(QColor(255, 200, 0, 100)));
+            item->setBackground(1, QBrush(QColor(255, 200, 0, 100)));
+            item->setBackground(2, QBrush(QColor(255, 200, 0, 100)));
+            item->setBackground(3, QBrush(QColor(255, 200, 0, 100)));
+        }
         ui->treeWidget->addTopLevelItem(item);
     };
 
     addItemToTable(_referenceGroup->groupId,
                    _referenceGroup->getName(),
                    0.0f,
-                   1.0f);
+                   1.0f,
+                   true);
 
     for (auto& elem : _correlatedGroups) {
         auto& group = elem.first;
