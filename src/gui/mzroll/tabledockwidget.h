@@ -361,6 +361,7 @@ protected:
   int _labeledGroups;
   int _targetedGroups;
   int _nextGroupId;
+  QList<QTreeWidgetItem*> _cycleBuffer;
 
   /**
    * @brief A map storing the unique ID of all tables mapping to their titles.
@@ -382,7 +383,6 @@ signals:
 
 private:
   MultiSelectComboBox *_legend;
-  QList<QTreeWidgetItem*> _cycleBuffer;
   bool _cycleInProgress;
 
   QPalette pal;

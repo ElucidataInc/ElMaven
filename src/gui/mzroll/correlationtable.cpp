@@ -9,6 +9,14 @@ CorrelationTable::CorrelationTable(QWidget *parent) :
 {
     ui->setupUi(this);
     _referenceGroup = nullptr;
+
+    connect(ui->treeWidget,
+            &QTreeWidget::itemSelectionChanged,
+            [this] {
+                int currentGroupId =
+                    ui->treeWidget->currentItem()->text(0).toInt();
+                emit groupIdSelected(currentGroupId);
+            });
 }
 
 CorrelationTable::~CorrelationTable()
@@ -50,6 +58,23 @@ void CorrelationTable::clearCorrelation()
 
     _correlatedGroups.clear();
     _populateTable();
+}
+
+void CorrelationTable::selectGroupId(int groupId)
+{
+    auto wasBlocked = ui->treeWidget->blockSignals(true);
+    QTreeWidgetItemIterator itr(ui->treeWidget);
+    while (*itr) {
+        auto *item = (*itr);
+        if (item->text(0).toInt() == groupId) {
+            ui->treeWidget->setCurrentItem(item);
+            ui->treeWidget->scrollTo(ui->treeWidget->currentIndex(),
+                                     QAbstractItemView::PositionAtCenter);
+            break;
+        }
+        ++itr;
+    }
+    ui->treeWidget->blockSignals(wasBlocked);
 }
 
 void CorrelationTable::_populateTable()

@@ -1478,7 +1478,8 @@ TableDockWidget::_peakTableGroupedBySubsets() {
 void TableDockWidget::hideEvent(QHideEvent* event)
 {
   QDockWidget::hideEvent(event);
-  _mainwindow->getCorrelationTable()->setVisible(false);
+  if (_mainwindow->getCorrelationTable()->currentTable() == this)
+    _mainwindow->getCorrelationTable()->setVisible(false);
 }
 
 void TableDockWidget::showEvent(QShowEvent* event)
@@ -1489,8 +1490,14 @@ void TableDockWidget::showEvent(QShowEvent* event)
 
 void TableDockWidget::_refreshCycleBuffer()
 {
-  if (_cycleInProgress)
+  if (treeWidget->topLevelItemCount() == 0)
     return;
+
+  if (_cycleInProgress) {
+    int currentGroupId = treeWidget->currentItem()->text(1).toInt();
+    _mainwindow->getCorrelationTable()->selectGroupId(currentGroupId);
+    return;
+  }
 
   auto selectedGroup = getSelectedGroup();
   if (selectedGroup == nullptr)
@@ -1505,6 +1512,7 @@ void TableDockWidget::_refreshCycleBuffer()
   }
   _mainwindow->getCorrelationTable()->setVisible(true);
   _mainwindow->getCorrelationTable()->setReferencePeakGroup(selectedGroup);
+  _mainwindow->getCorrelationTable()->setCurrentTable(this);
 
   QTreeWidgetItemIterator itr(treeWidget);
   while (*itr) {
@@ -1526,6 +1534,9 @@ void TableDockWidget::_refreshCycleBuffer()
     }
     ++itr;
   }
+
+  int currentGroupId = treeWidget->currentItem()->text(1).toInt();
+  _mainwindow->getCorrelationTable()->selectGroupId(currentGroupId);
 }
 
 shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup() {
@@ -3150,6 +3161,25 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
           _mainwindow->getEicWidget(),
           &EicWidget::unSetPeakTableGroup);
 
+  // selections in correlation table will trigger selection in this table
+  connect(_mainwindow->getCorrelationTable(),
+          &CorrelationTable::groupIdSelected,
+          [this] (int groupId) {
+            if (_mainwindow->getCorrelationTable()->currentTable() == this) {
+              auto wasBlocked = treeWidget->blockSignals(true);
+              for (auto item : _cycleBuffer) {
+                if (item->text(1).toInt() == groupId) {
+                  treeWidget->setCurrentItem(item);
+                  treeWidget->scrollTo(treeWidget->currentIndex(),
+                                       QAbstractItemView::PositionAtCenter);
+                  showSelectedGroup();
+                  break;
+                }
+              }
+              treeWidget->blockSignals(wasBlocked);
+            }
+          });
+
   deletionDialog = new PeakTableDeletionDialog(this);
 }
 
@@ -3161,8 +3191,10 @@ PeakTableDockWidget::~PeakTableDockWidget() {
 void PeakTableDockWidget::destroy()
 {
   TableDockWidget::deleteAll(false);
-  _mainwindow->getCorrelationTable()->clearCorrelation();
-  _mainwindow->getCorrelationTable()->setVisible(false);
+  if (_mainwindow->getCorrelationTable()->currentTable() == this) {
+    _mainwindow->getCorrelationTable()->clearCorrelation();
+    _mainwindow->getCorrelationTable()->setVisible(false);
+  }
   cleanUp();
   deleteLater();
   _mainwindow->removePeaksTable(this);
