@@ -5,10 +5,29 @@
 #include "mainwindow.h"
 #include "ui_infodialog.h"
 
+// function that hides a widget by fading it out
+void fadeOut(QWidget* parent, QWidget* widget)
+{
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(parent);
+    widget->setGraphicsEffect(effect);
+    QPropertyAnimation *animation = new QPropertyAnimation(effect,
+                                                           "opacity");
+    animation->setDuration(500);
+    animation->setStartValue(1);
+    animation->setEndValue(0);
+    animation->setEasingCurve(QEasingCurve::OutBack);
+    QTimer::singleShot(3000, [animation, widget] {
+        animation->start(QPropertyAnimation::DeleteWhenStopped);
+        QObject::connect(animation, SIGNAL(finished()), widget, SLOT(hide()));
+    });
+}
+
 InfoDialog::InfoDialog(MainWindow* parent) :
     QDialog(parent),
     ui(new Ui::InfoDialog)
 {
+    _mw = parent;
+
     ui->setupUi(this);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -25,23 +44,7 @@ InfoDialog::InfoDialog(MainWindow* parent) :
     }
     ui->signInLabel->hide();
 
-    // lambda that hides a widget by fading it out
-    auto fadeOut = [this](QWidget* widget) {
-        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
-        widget->setGraphicsEffect(effect);
-        QPropertyAnimation *animation = new QPropertyAnimation(effect,
-                                                               "opacity");
-        animation->setDuration(500);
-        animation->setStartValue(1);
-        animation->setEndValue(0);
-        animation->setEasingCurve(QEasingCurve::OutBack);
-        QTimer::singleShot(3000, [animation, widget] {
-            animation->start(QPropertyAnimation::DeleteWhenStopped);
-            connect(animation, SIGNAL(finished()), widget, SLOT(hide()));
-        });
-    };
-
-    connect(ui->signInButton, &QPushButton::clicked, [this, tracker, fadeOut] {
+    connect(ui->signInButton, &QPushButton::clicked, [this, tracker] {
         if (ui->signInButton->text() == "Sign out") {
             tracker->updateUser("Name", "");
             tracker->updateUser("Email", "");
@@ -55,37 +58,11 @@ InfoDialog::InfoDialog(MainWindow* parent) :
             ui->signInLabel->setStyleSheet("QLabel { color: black; }");
             ui->signInLabel->show();
             ui->signInLabel->setText("Sign-out successful.");
-            fadeOut(ui->signInLabel);
+            fadeOut(this, ui->signInLabel);
 
             return;
         }
-
-        auto name = ui->nameEntry->text();
-        auto email = ui->emailEntry->text();
-        QRegularExpression emailPattern("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~"
-                                        "-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-                                        "{0,61}[a-zA-Z0-9])?(?:\\.[a-zA"
-                                        "-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-"
-                                        "zA-Z0-9])?)*$");
-        auto match = emailPattern.match(email);
-        if (match.hasMatch()) {
-            tracker->updateUser("Name", name);
-            tracker->updateUser("Email", email);
-            ui->nameEntry->setDisabled(true);
-            ui->emailEntry->setDisabled(true);
-            ui->signInButton->setDefault(false);
-            ui->signInButton->setText("Sign out");
-
-            ui->signInLabel->show();
-            ui->signInLabel->setStyleSheet("QLabel { color: green; }");
-            ui->signInLabel->setText("Sign-in successful!");
-            fadeOut(ui->signInLabel);
-        } else {
-            ui->signInLabel->show();
-            ui->signInLabel->setStyleSheet("QLabel { color: red; }");
-            ui->signInLabel->setText("Please enter valid email ID.");
-            fadeOut(ui->signInLabel);
-        }
+        _updateForm(true);
     });
     connect(ui->docButton, &QPushButton::clicked, [this, tracker] {
         QDesktopServices::openUrl(QUrl("https://resources.elucidata.io/elmaven/"
@@ -113,4 +90,47 @@ InfoDialog::InfoDialog(MainWindow* parent) :
 InfoDialog::~InfoDialog()
 {
     delete ui;
+}
+
+void InfoDialog::_updateForm(bool buttonClicked)
+{
+    auto name = ui->nameEntry->text();
+    auto email = ui->emailEntry->text();
+    QRegularExpression emailPattern("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~"
+                                    "-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                                    "{0,61}[a-zA-Z0-9])?(?:\\.[a-zA"
+                                    "-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-"
+                                    "zA-Z0-9])?)*$");
+    auto match = emailPattern.match(email);
+    if (match.hasMatch()) {
+        auto tracker = _mw->getUsageTracker();
+        tracker->updateUser("Name", name);
+        tracker->updateUser("Email", email);
+        ui->nameEntry->setDisabled(true);
+        ui->emailEntry->setDisabled(true);
+        ui->signInButton->setDefault(false);
+        ui->signInButton->setText("Sign out");
+
+        if (buttonClicked) {
+            ui->signInLabel->show();
+            ui->signInLabel->setStyleSheet("QLabel { color: green; }");
+            ui->signInLabel->setText("Sign-in successful!");
+            fadeOut(this, ui->signInLabel);
+        }
+    } else if (buttonClicked) {
+        ui->signInLabel->show();
+        ui->signInLabel->setStyleSheet("QLabel { color: red; }");
+        ui->signInLabel->setText("Please enter valid email ID.");
+        fadeOut(this, ui->signInLabel);
+    }
+}
+
+void InfoDialog::showEvent(QShowEvent *)
+{
+    auto tracker = _mw->getUsageTracker();
+    auto name = tracker->userAttribute("Name").toString();
+    auto email = tracker->userAttribute("Email").toString();
+    ui->nameEntry->setText(name);
+    ui->emailEntry->setText(email);
+    _updateForm();
 }

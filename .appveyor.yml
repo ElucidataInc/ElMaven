@@ -21,6 +21,8 @@ environment:
     secure: uYWVMV2S2RDPMKNuTmncDT75vWfYPwJfHQjog7UO2C0OdtWNuYzxDZnlEvIC/KSA
   MIXPANEL_TOKEN:
     secure: z3ZI9fB/7hbyMhWdZv9HVMdAqGGB2GmtIeqGPxCOiSNjfLwQIVsNtuOFxSTC3Pty
+  UPDATE_REPO_URL:
+    secure: JDDxl2ZAdBCu+BvfRCt4jkbEnCctwtGBoTdA3l74mwRS5LDPRyEfGxOyrxK43rbwhHaYk5w/7iIrP0vxFYiM9vYjBSsSlO3s/TWiprifBrg=
 
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -70,6 +72,9 @@ build_script:
               bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
               &{ bash -lc "lcov --summary /c/projects/ElMaven/lcov.info" 2>&1 | %{ "$_" } }
           } else {
+              # export encoded update repository URL
+              $env:UPDATE_REPO_URL_BASE64 = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($env:UPDATE_REPO_URL))
+
               echo "Compiling in release mode with debug information ..."
               qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=warn_off NOTESTS=yes
               # have to wrap this in a script block to make sure exit code is
@@ -221,11 +226,11 @@ after_build:
           echo "Updating version string in config file ..."
           cd $PARENT_DIR
           if ( Get-Command "python.exe" -ErrorAction SilentlyContinue ) {
-              python.exe update_version.py $ELMAVEN_VERSION
+              python.exe update_version.py $ELMAVEN_VERSION $env:UPDATE_REPO_URL
           } elseif ( Get-Command "python2.7.exe" -ErrorAction SilentlyContinue ) {
-              python2.7.exe update_version.py $ELMAVEN_VERSION
+              python2.7.exe update_version.py $ELMAVEN_VERSION $env:UPDATE_REPO_URL
           } elseif ( Get-Command "python3.6.exe" -ErrorAction SilentlyContinue ) {
-              python3.6.exe update_version.py $ELMAVEN_VERSION
+              python3.6.exe update_version.py $ELMAVEN_VERSION $env:UPDATE_REPO_URL
           } else {
               echo 'Unable to find python.'
               exit 1
@@ -235,10 +240,24 @@ after_build:
               exit 1
           }
 
+          if ( Test-Path env:APPVEYOR_REPO_TAG_NAME ) {
+              # create update repository for this release
+              echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+              $env:ELMAVEN_UPDATES = "repository"
+              cd $PARENT_DIR
+              mkdir "$PARENT_DIR\$env:ELMAVEN_UPDATES"
+              repogen.exe -p packages -i com.vendor.product "$PARENT_DIR\$env:ELMAVEN_UPDATES"
+              if ( $? -eq $false ) {
+                  echo 'Failed to create update archive for release.'
+                  exit 1
+              }
+              Move-Item -Path "$PARENT_DIR\$env:ELMAVEN_UPDATES" -Destination "$PARENT_DIR\..\$env:ELMAVEN_UPDATES"
+          }
+
           # create installer
           echo "Creating installer ..."
           cd $PARENT_DIR
-          binarycreator -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
+          binarycreator --offline-only -r extras.qrc -c config\config.xml -p packages\ $env:INSTALLER > $null
           if ( $? -eq $false ) {
               echo 'Make sure binarycreator is in system path'
               exit 1
@@ -251,6 +270,8 @@ after_build:
 artifacts:
     - path: $(INSTALLER).exe
       name: $(INSTALLER)
+    - path: "$(ELMAVEN_UPDATES)"
+      name: "Updates"
 
 
 deploy:
@@ -272,6 +293,18 @@ deploy:
       folder: "Windows"
       set_public: true
       artifact: $(INSTALLER).exe
+
+    - provider: S3
+      access_key_id: $(AWS_ACCESS_KEY)
+      secret_access_key: $(AWS_SECRET_KEY)
+      region: us-west-2
+      bucket: "elmaven-installers"
+      folder: "windows-updates"
+      unzip: true
+      set_public: true
+      artifact: "Updates"
+      on:
+          APPVEYOR_REPO_TAG: true        # deploy to release updates on tag push only
 
 
 on_success:

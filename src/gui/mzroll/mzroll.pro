@@ -72,6 +72,10 @@ mac {
     }
 }
 
+CONFIG(release, debug|release) {
+    DEFINES += "UPDATE_REPO_URL_BASE64=$$(UPDATE_REPO_URL_BASE64)"
+}
+
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
@@ -160,12 +164,12 @@ FORMS = forms/settingsform.ui  \
         forms/awsbucketcredentialsdialog.ui \
         forms/samplertwidget.ui \
         forms/isotopeplotdockwidget.ui \
-        forms/gettingstarted.ui \
         forms/pollywaitdialog.ui \
         forms/peaktabledeletiondialog.ui \
         forms/isotopedialog.ui \
         forms/infodialog.ui \
-        forms/adductwidget.ui
+        forms/adductwidget.ui \
+        forms/updatedialog.ui
 
 HEADERS += stable.h \
            globals.h \
@@ -235,7 +239,6 @@ HEADERS += stable.h \
            controller.h \
            numeric_treewidgetitem.h \
            isotopeplotdockwidget.h \
-           gettingstarted.h \
            pollywaitdialog.h \
            peaktabledeletiondialog.h \
            notificator.h \
@@ -243,8 +246,9 @@ HEADERS += stable.h \
            $$top_srcdir/crashhandler/elmavexceptionhandler.h \
            videoplayer.h \
            isotopedialog.h \
-           adductwidget.h
-
+           adductwidget.h \
+           autoupdater.h \
+           updatedialog.h
 
 SOURCES += mainwindow.cpp  \
            database.cpp \
@@ -312,14 +316,14 @@ SOURCES += mainwindow.cpp  \
            controller.cpp \
            numeric_treewidgetitem.cpp \
            isotopeplotdockwidget.cpp \
-           gettingstarted.cpp \
            pollywaitdialog.cpp \
            peaktabledeletiondialog.cpp \
            notificator.cpp \
            videoplayer.cpp \
            isotopedialog.cpp \
-           adductwidget.cpp
-
+           adductwidget.cpp \
+           autoupdater.cpp \
+           updatedialog.cpp
 
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp

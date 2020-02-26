@@ -197,12 +197,12 @@ private:
     QTemporaryFile* _fPtr;
     unsigned int _retries;
     QString indexFileURL;
-    Logger *_log;
 
     QPair<ErrorStatus, QMap<QString, QStringList>> _fetchAppLicense();
     bool _checkForIndexFile();
     bool validCohorts(QStringList cohorts);
     bool _hasError(QList<QByteArray>);
+    Logger* _log();
 };
 
 #endif // POLLYINTEGRATION_H

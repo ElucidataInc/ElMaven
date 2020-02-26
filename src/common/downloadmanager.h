@@ -26,6 +26,7 @@ public:
 
 private:
     void download(bool async=true);
+    Logger* _log();
 
 private slots:
     void dataAvailable();
@@ -41,7 +42,6 @@ private:
     QNetworkReply* _reply;
     QUrl _url;
     QByteArray _data;
-    Logger* _log;
 };
 
 #endif // DOWNLOADMANAGER_H

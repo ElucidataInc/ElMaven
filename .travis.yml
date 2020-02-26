@@ -84,6 +84,9 @@ script:
         # export private DSN as base64 encoded string (helps with stringification)
         export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
 
+        # export encoded update repository URL
+        export UPDATE_REPO_URL_BASE64=`echo $UPDATE_REPO_URL | base64`
+
         qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=separate_debug_info NOTESTS=yes
         make -j4;
       fi
@@ -133,7 +136,7 @@ after_success:
     fi
 
     export PACKAGING_REPO=elmaven-packaging
-    git clone https://github.com/ElucidataInc/elmaven-packaging.git
+    git clone -q https://github.com/ElucidataInc/elmaven-packaging.git
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
       cd $PACKAGING_REPO
@@ -141,6 +144,7 @@ after_success:
       # define variables
       PARENT_DIR=$PWD
       BREAKPAD_TOOLS=$PWD/breakpad_tools/
+      INSTALLER_TOOLS_DIR=$PWD/qt_ifw_tools/mac
       ELMAVEN_BIN="$PARENT_DIR/../bin/"
       BIN="$PARENT_DIR/bin/"
       NODE_MAC="$PARENT_DIR/node_mac/"
@@ -221,18 +225,32 @@ after_success:
       echo "Updating version string in config file ..."
       cd $PARENT_DIR
 
-      python update_version.py $ELMAVEN_VERSION
+      python update_version.py $ELMAVEN_VERSION $UPDATE_REPO_URL
 
       if [ $? != 0 ]; then
         echo "Failed to update version in config file."
         exit 1
       fi
 
+      if [ "$TRAVIS_TAG" != "" ]; then
+        # create update repository for this release
+        echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+        export ELMAVEN_UPDATES="repository"
+        cd $PARENT_DIR
+        mkdir "$PARENT_DIR/$ELMAVEN_UPDATES"
+        $INSTALLER_TOOLS_DIR/repogen -p packages -i com.vendor.product "$PARENT_DIR/$ELMAVEN_UPDATES"
+        if [ $? != 0 ]; then
+          echo "Failed to create update archive for release."
+          exit 1
+        fi
+        mv "$PARENT_DIR/$ELMAVEN_UPDATES" "$PARENT_DIR/../"
+      fi
+
       # create installer
       echo "Creating installer ..."
       cd $PARENT_DIR
 
-      ./binarycreator --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
+      ./binarycreator --offline-only --ignore-translations -r extras.qrc -c config/config.xml -p packages/ $INSTALLER
 
       if [ $? != 0 ]; then
         echo "Failed to create installer. Make sure binarycreator is in system path."
@@ -270,7 +288,7 @@ after_success:
 
       # S3 provider requires the file(s) for deployment to be in a directory
       mkdir $ELMAVEN_BRANCH
-      cp "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
+      mv "$PACKAGING_REPO/$INSTALLER.zip" $ELMAVEN_BRANCH
     fi
 
 
@@ -297,4 +315,17 @@ deploy:
     local_dir: $ELMAVEN_BRANCH
     on:
       all_branches: true
+      condition: $TRAVIS_OS_NAME = "osx"
+
+  - provider: s3
+    skip_cleanup: true
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    region: us-west-2
+    bucket: "elmaven-installers"
+    upload-dir: "mac-updates"
+    acl: public_read
+    local_dir: $ELMAVEN_UPDATES
+    on:
+      tags: true
       condition: $TRAVIS_OS_NAME = "osx"

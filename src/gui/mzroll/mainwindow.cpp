@@ -19,7 +19,6 @@
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "gallerywidget.h"
-#include "gettingstarted.h"
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
@@ -65,6 +64,7 @@
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 #include "treemap.h"
+#include "updatedialog.h"
 #include "videoplayer.h"
 
 #ifdef WIN32
@@ -134,9 +134,10 @@ void MainWindow::setValue(int value)
 using namespace mzUtils;
 
  MainWindow::MainWindow(Controller* controller, QWidget *parent) :
-     _controller(controller),
-		QMainWindow(parent) {
-	connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
+    _controller(controller),
+    QMainWindow(parent)
+{
+    connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
 
@@ -310,7 +311,7 @@ using namespace mzUtils;
     sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
 	pathwayWidget = new PathwayWidget(this);
-	gettingstarted = new GettingStarted(this);
+	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
 
@@ -751,6 +752,21 @@ MainWindow::~MainWindow()
 	analytics->sessionEnd();
     delete mavenParameters;
     delete _usageTracker;
+}
+
+void MainWindow::promptUpdate(QString version)
+{
+    qDebug() << "New release"
+             << QString("v%1").arg(version)
+             << "available.";
+
+    // prompt for update after 15 seconds
+    QTimer::singleShot(15000, [this] {
+        UpdateDialog prompt(this);
+        prompt.exec();
+        if (prompt.updateAllowed())
+            emit updateAllowed();
+    });
 }
 
 void MainWindow::sendPeaksGA()
@@ -2710,26 +2726,22 @@ void MainWindow::createMenus() {
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
 
-	QAction* start = helpMenu->addAction("Getting Started");
-	connect(start,SIGNAL(triggered(bool)), gettingstarted, SLOT(show()));
-
 	signalMapper->setMapping(doc, 1);
 	signalMapper->setMapping(tutorial, 2);
 	signalMapper->setMapping(faq, 3);
 
-	connect(signalMapper, SIGNAL(mapped(int)), this, SLOT(openURL(int)));
+    connect(signalMapper,
+            QOverload<int>::of(&QSignalMapper::mapped),
+            [this] (int choice) {
+                map<int,QUrl> URL{
+                    {1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
+                    {2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
+                    {3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
+                };
+                QDesktopServices::openUrl(URL[choice]);
+            });
 
 	menuBar()->show();
-}
-
-void MainWindow::openURL(int choice)
-{
-	map<int,QUrl> URL{
-		{1, QUrl("https://github.com/ElucidataInc/ElMaven/wiki")},
-		{2, QUrl("https://www.youtube.com/channel/UCZYVM0I1zqRgkGTdIlQZ9Yw/videos")},
-		{3, QUrl("https://elucidatainc.github.io/ElMaven/faq/")}
-	};
-	QDesktopServices::openUrl(URL[choice]);
 }
 
 QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,

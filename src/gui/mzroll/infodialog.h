@@ -17,8 +17,14 @@ public:
     explicit InfoDialog(MainWindow *parent = nullptr);
     ~InfoDialog();
 
+protected:
+    void showEvent(QShowEvent *);
+
 private:
     Ui::InfoDialog *ui;
+    MainWindow* _mw;
+
+    void _updateForm(bool buttonClicked = false);
 };
 
 #endif // INFODIALOG_H
