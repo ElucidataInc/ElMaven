@@ -31,9 +31,12 @@ public:
      * @param event A string denoting a meaningful action taken by the user.
      * @param properties Optional map of event properties that provide
      * additional context to the given event.
+     * @param waitForFinish Makes this a blocking call by not returning until
+     * Mixpanel confirms that the event has been registered.
      */
     void trackEvent(const QString& event,
-                    QMap<QString, QVariant> properties) const;
+                    QMap<QString, QVariant> properties,
+                    bool waitForFinish = false) const;
 
     /**
      * @brief Update (or insert) the details of a user. Only one attribute is
@@ -102,8 +105,12 @@ private:
      * acceptable by Mixpanel's HTTP spec.
      * @param isEventRequest Boolean that denotes whether the request is for
      * event tracking or user update. True by default.
+     * @param waitForFinish Stalls current thread to make sure that the method
+     * returns only when the server responds that it has received this request.
      */
-    void _httpRequest(QByteArray data, bool isEventRequest = true) const;
+    void _httpRequest(QByteArray data,
+                      bool isEventRequest = true,
+                      bool waitForFinish = false) const;
 };
 
 #endif // MIXPANEL_H
