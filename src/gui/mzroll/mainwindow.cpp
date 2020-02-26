@@ -974,17 +974,21 @@ void MainWindow::saveProject(bool explicitSave)
 
         // if no projects were saved or opened
         if (_latestUserProjectName.isEmpty()) {
-            QString message = "Would you like to save your data for this "
-                              "session as a project, before you quit?";
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this,
-                                          "Save as project",
-                                          message,
-                                          QMessageBox::Yes
-                                              | QMessageBox::No
-                                              | QMessageBox::Cancel,
-                                          QMessageBox::Yes);
-            if (reply == QMessageBox::Cancel) {
+            QMessageBox confirmation;
+            confirmation.setWindowTitle("Save as project");
+            confirmation.setText("Would you like to save your data for this "
+                                 "session as a project, before you quit?");
+            QPushButton* cancelButton = confirmation.addButton(tr("Cancel"),
+                                                         QMessageBox::ActionRole);
+            QPushButton* noButton = confirmation.addButton(tr("No"),
+                                                     QMessageBox::RejectRole);
+            QPushButton* yesButton = confirmation.addButton(tr("Yes"),
+                                                      QMessageBox::AcceptRole);
+            confirmation.setDefaultButton(yesButton);
+            confirmation.setEscapeButton(cancelButton);
+            confirmation.exec();
+
+            if (confirmation.clickedButton() == cancelButton) {
                 settings->setValue("closeEvent", 0);
                 return;
             }
@@ -992,7 +996,7 @@ void MainWindow::saveProject(bool explicitSave)
             // remove timestamp autosave file in any case
             fileLoader->closeSQLiteProject();
             QFile::remove(_currentProjectName);
-            if (reply == QMessageBox::No)
+            if (confirmation.clickedButton() == noButton)
                 return;
 
             _currentProjectName = "";
@@ -1005,23 +1009,35 @@ void MainWindow::saveProject(bool explicitSave)
 
             analytics->hitEvent("Project Save", "emDB");
         } else {
-            QMessageBox msgBox;
-            QString message = "Please choose the project file to save your "
-                              "progress for this session.";
-            msgBox.setText(message);
-            QPushButton* cancelButton = msgBox.addButton(tr("Cancel"),
+            QMessageBox confirmation;
+            confirmation.setText("Would you like to save changes made to this "
+                                 "session before you quit?");
+            confirmation.setWindowTitle("Save as project");
+            QPushButton* cancelButton = confirmation.addButton(tr("Cancel"),
                                                          QMessageBox::ActionRole);
-            QPushButton* newButton = msgBox.addButton(tr("Save in new"),
-                                                      QMessageBox::ActionRole);
-            QPushButton* saveButton = msgBox.addButton(tr("Save in current"),
-                                                       QMessageBox::ActionRole);
-            msgBox.setDefaultButton(saveButton);
-            msgBox.setEscapeButton(cancelButton);
-            msgBox.exec();
-            if (msgBox.clickedButton() == cancelButton) {
+            QPushButton* noButton = confirmation.addButton(tr("No"),
+                                                     QMessageBox::RejectRole);
+            QPushButton* yesButton = confirmation.addButton(tr("Yes"),
+                                                      QMessageBox::AcceptRole);
+            confirmation.setDefaultButton(yesButton);
+            confirmation.setEscapeButton(cancelButton);
+            confirmation.exec();
+            if (confirmation.clickedButton() == cancelButton) {
                 settings->setValue("closeEvent", 0);
                 return;
+            } else if (confirmation.clickedButton() == noButton) {
+                return;
             }
+
+            QMessageBox msgBox;
+            msgBox.setText("Please choose the project file to save your "
+                           "progress for this session.");
+            QPushButton* saveButton = msgBox.addButton(tr("Save in current"),
+                                                       QMessageBox::AcceptRole);
+            QPushButton* newButton = msgBox.addButton(tr("Save in new"),
+                                                      QMessageBox::AcceptRole);
+            msgBox.setDefaultButton(saveButton);
+            msgBox.exec();
 
             // remove current project file only if it was created by autosave
             if (this->timestampFileExists) {
