@@ -940,7 +940,7 @@ void PeakGroup::setAdduct(Adduct* adduct)
 
 Adduct* PeakGroup::getAdduct() const
 {
-    if (isIsotope())
+    if (isIsotope() && parent != nullptr)
         return parent->getAdduct();
     return _adduct;
 }
