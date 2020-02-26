@@ -805,7 +805,7 @@ void ProjectDockWidget::savePeakGroupInSQLite(PeakGroup* group,
             && !filename.isEmpty()) {
         saveSQLiteProject(filename);
     } else {
-        auto tableName = QString::fromStdString(group->searchTableName);
+        auto tableName = QString::fromStdString(group->tableName());
         _mainwindow->fileLoader->updateGroup(group, tableName);
     }
 }

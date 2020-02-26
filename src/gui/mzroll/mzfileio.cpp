@@ -1057,15 +1057,15 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
             group->setAdduct(DB.findAdductByName(group->getAdduct()->getName()));
 
         // assign group to bookmark table if none exists
-        if (group->searchTableName.empty())
-            group->searchTableName = "Bookmark Table";
+        if (group->tableName().empty())
+            group->setTableName("Bookmark Table");
 
         // find appropriate tables and populate them
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
         TableDockWidget* table = nullptr;
         for (auto t : allTablesList)
-            if (t->windowTitle().toStdString() == group->searchTableName)
+            if (t->windowTitle().toStdString() == group->tableName())
                 table = t;
 
         if (table)

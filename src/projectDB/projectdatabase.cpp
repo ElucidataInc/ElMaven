@@ -933,7 +933,7 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
             groupsQuery->doubleValue("fragmentation_num_matches");
 
         group->setType(static_cast<PeakGroup::GroupType>(groupsQuery->integerValue("type")));
-        group->searchTableName = groupsQuery->stringValue("table_name");
+        group->setTableName(groupsQuery->stringValue("table_name"));
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
         string compoundId = groupsQuery->stringValue("compound_id");
@@ -1494,7 +1494,7 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
     if (!group)
         return;
 
-    string tableName = group->searchTableName;
+    string tableName = group->tableName();
     vector<int> selectedGroups;
     selectedGroups.push_back(group->groupId);
     for (const auto& child : group->children)

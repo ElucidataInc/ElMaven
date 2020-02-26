@@ -26,6 +26,8 @@ class PeakGroup{
         mzSlice _slice;
         bool _sliceSet;
 
+        string _tableName;
+
     public:
         enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
         enum QType	   {AreaTop=0,
@@ -74,9 +76,6 @@ class PeakGroup{
                                     //used for peak detection
         string srmId;
         string tagString;
-
-        // Stores the name of Peak Table this group belongs to.
-        string searchTableName;
 
         /** classification label */
         char label;
@@ -607,5 +606,17 @@ class PeakGroup{
          * are marked as selected.
         */
         void setSelectedSamples(vector<mzSample*> vsamples);
+
+        /**
+         * @brief Obtain the name of peak-table this group belongs to.
+         * @return A string containing peak-table name.
+         */
+        string tableName() const;
+
+        /**
+         * @brief Set the peak-table (name) in which this group is listed.
+         * @param tableName A string containing peak-table name.
+         */
+        void setTableName(string tableName);
 };
 #endif

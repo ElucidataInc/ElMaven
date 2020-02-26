@@ -465,7 +465,7 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
       _targetedGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups.back();
-      g.searchTableName = this->titlePeakTable->text().toStdString();
+      g.setTableName(this->titlePeakTable->text().toStdString());
       for (unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
         allgroups[i].setGroupIdForChildren();
