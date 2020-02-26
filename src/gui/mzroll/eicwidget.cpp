@@ -313,6 +313,11 @@ void EicWidget::_drawSelectionLine(float rtMin, float rtMax) {
     if (_selectionLine->scene() != scene())
         scene()->addItem(_selectionLine);
 
+    if (rtMin < _minX)
+        rtMin = _minX;
+    if (rtMax > _maxX)
+        rtMax = _maxX;
+
     QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
     _selectionLine->setPen(pen);
     _selectionLine->setZValue(1000);
