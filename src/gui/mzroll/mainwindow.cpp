@@ -1062,10 +1062,13 @@ void MainWindow::saveProject(bool explicitSave)
             }
         }
 
-        QMessageBox msgBox(this);
-        msgBox.setText("Please wait. Your project is being saved…");
-        msgBox.setStandardButtons(QMessageBox::NoButton);
-        msgBox.open();
+        // creating a persistent message box, which will be cleared when
+        // the application exits anyway
+        QMessageBox *msgBox = new QMessageBox(this);
+        msgBox->setText("Please wait. Your project is being saved…");
+        msgBox->setStandardButtons(QMessageBox::NoButton);
+        msgBox->open();
+
         this->autosave->saveProjectWorker();
     } else if (explicitSave) {
         _currentProjectName = _getProjectFilenameFromProjectDockWidget();
