@@ -660,13 +660,15 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                               return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
-  bool includeSetNamesLines = true;
+  bool includeSetNamesLines = false;
 
   auto reportType = CSVReports::ReportType::GroupReport;
   if (sFilterSel == groupsSCSV) {
     reportType = CSVReports::ReportType::GroupReport;
+    includeSetNamesLines = true;
   } else if (sFilterSel == groupsSTAB) {
     reportType = CSVReports::ReportType::GroupReport;
+    includeSetNamesLines = true;
   } else if (sFilterSel == peaksCSV) {
     reportType = CSVReports::ReportType::PeakReport;
   } else if (sFilterSel == peaksTAB) {
