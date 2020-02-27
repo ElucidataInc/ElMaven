@@ -313,6 +313,11 @@ void EicWidget::_drawSelectionLine(float rtMin, float rtMax) {
     if (_selectionLine->scene() != scene())
         scene()->addItem(_selectionLine);
 
+    if (rtMin < _minX)
+        rtMin = _minX;
+    if (rtMax > _maxX)
+        rtMax = _maxX;
+
     QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
     _selectionLine->setPen(pen);
     _selectionLine->setZValue(1000);
@@ -1094,7 +1099,7 @@ void EicWidget::replot(PeakGroup* group)
 	setSelectedGroup(group);
 	setTitle();
 
-    if (group != nullptr && !group->searchTableName.empty()) {
+    if (group != nullptr && !group->tableName().empty()) {
         float rtMin = group->minRt;
         float rtMax = group->maxRt;
         addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);

@@ -199,7 +199,7 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
     sendBoostSignal("Peak Detection",0,1);
 
     // process goodslices
-    processSlices(massSlices.slices, "allslices");
+    processSlices(massSlices.slices, "groups");
 
     // identify features with known targets
     identifyFeatures(identificationSet);

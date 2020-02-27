@@ -940,7 +940,19 @@ void PeakGroup::setAdduct(Adduct* adduct)
 
 Adduct* PeakGroup::getAdduct() const
 {
-    if (isIsotope())
+    if (isIsotope() && parent != nullptr)
         return parent->getAdduct();
     return _adduct;
+}
+
+string PeakGroup::tableName() const
+{
+    return _tableName;
+}
+
+void PeakGroup::setTableName(string tableName)
+{
+    _tableName = tableName;
+    for (auto& child : children)
+        child.setTableName(tableName);
 }

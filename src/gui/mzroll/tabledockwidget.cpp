@@ -465,7 +465,7 @@ PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
       _targetedGroups++;
     if (allgroups.size() > 0) {
       PeakGroup &g = allgroups.back();
-      g.searchTableName = this->titlePeakTable->text().toStdString();
+      g.setTableName(this->titlePeakTable->text().toStdString());
       for (unsigned int i = 0; i < allgroups.size(); i++) {
         allgroups[i].groupId = i + 1;
         allgroups[i].setGroupIdForChildren();
@@ -660,13 +660,15 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                               return group.getCompound()->type() == Compound::Type::PRM;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
-  bool includeSetNamesLines = true;
+  bool includeSetNamesLines = false;
 
   auto reportType = CSVReports::ReportType::GroupReport;
   if (sFilterSel == groupsSCSV) {
     reportType = CSVReports::ReportType::GroupReport;
+    includeSetNamesLines = true;
   } else if (sFilterSel == groupsSTAB) {
     reportType = CSVReports::ReportType::GroupReport;
+    includeSetNamesLines = true;
   } else if (sFilterSel == peaksCSV) {
     reportType = CSVReports::ReportType::PeakReport;
   } else if (sFilterSel == peaksTAB) {
@@ -2497,11 +2499,8 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
 
     int initialSize = peakTable->allgroups.size();
     int finalSize = allgroups.size() + initialSize;
-    for (auto group : allgroups) {
-        group.groupId = ++initialSize;
-        group.setGroupIdForChildren();
-        peakTable->allgroups.append(group);
-    }
+    for (auto group : allgroups)
+        peakTable->addPeakGroup(&group);
 
     deleteAll();
     peakTable->showAllGroups();
