@@ -1021,14 +1021,6 @@ void MainWindow::saveProject(bool explicitSave)
             }
         }
 
-        // creating a persistent message box, which will be cleared when
-        // the application exits anyway
-        QMessageBox *msgBox = new QMessageBox(this);
-        msgBox->setText("Please wait. Your project is being saved…");
-        msgBox->setStandardButtons(QMessageBox::NoButton);
-        msgBox->setModal(true);
-        msgBox->open();
-
         autosaveWorker->deleteCurrentProject();
         saveWorker->saveProject(projectName);
     } else if (explicitSave) {
@@ -2627,6 +2619,14 @@ void MainWindow::closeEvent(QCloseEvent* event)
     this->saveProject();
 
     writeSettings();
+
+    // creating a persistent message box, which will be cleared when
+    // the application exits anyway
+    QMessageBox *msgBox = new QMessageBox(this);
+    msgBox->setText("Please wait. A project save is in progress…");
+    msgBox->setStandardButtons(QMessageBox::NoButton);
+    msgBox->setModal(true);
+    msgBox->open();
 
     // wait until autosave has finished
     while(saveWorker->isRunning())
