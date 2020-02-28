@@ -370,7 +370,9 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
                      , :label                   \
                      , :peak_spline_area        \
                      , :eic_rt                  \
-                     , :eic_intensity           )");
+                     , :eic_intensity           \
+                     , :spectrum_mz             \
+                     , :spectrum_intensity      )");
 
     for (Peak p : group->peaks) {
         peaksQuery->bind(":group_id", databaseId);
@@ -434,6 +436,29 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
                 inString = inString.substr(0, inString.size() - 1);
                 peaksQuery->bind(":eic_rt", rtString);
                 peaksQuery->bind(":eic_intensity", inString);
+            }
+        }
+
+        // spectrum at peak apex
+        if (_saveRawData) {
+            Scan* scan = p.getSample()->getScan(p.scan);
+            if (scan != nullptr) {
+                stringstream mzs;
+                stringstream ins;
+                mzs << setprecision(6);
+                ins << setprecision(2);
+
+                // write comma-delimited m/z and intensity values
+                for(int i = 0; i < scan->nobs(); ++i) {
+                    mzs << scan->mz[i] << ",";
+                    ins << scan->intensity[i] << ",";
+                }
+                string mzString = mzs.str();
+                string inString = ins.str();
+                mzString = mzString.substr(0, mzString.size() - 1);
+                inString = inString.substr(0, inString.size() - 1);
+                peaksQuery->bind(":spectrum_mz", mzString);
+                peaksQuery->bind(":spectrum_intensity", inString);
             }
         }
 
@@ -2198,8 +2223,12 @@ void ProjectDatabase::_setSaveRawData(const string& filePath,
     while (firstPeakQuery->next()) {
         string eicRtValues = firstPeakQuery->stringValue("eic_rt");
         string eicIntensityValues = firstPeakQuery->stringValue("eic_intensity");
-        // TODO: also check for availability of spectra
-        if (!eicRtValues.empty() && !eicIntensityValues.empty()) {
+        string spectrumMzValues = firstPeakQuery->stringValue("spectrum_mz");
+        string spectrumIntensityValues = firstPeakQuery->stringValue("spectrum_intensity");
+        if (!eicRtValues.empty()
+            && !eicIntensityValues.empty()
+            && !spectrumMzValues.empty()
+            && !spectrumIntensityValues.empty()) {
             _saveRawData = true;
             return;
         }

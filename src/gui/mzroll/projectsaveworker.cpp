@@ -48,6 +48,8 @@ void ProjectSaveWorker::_saveSqliteProject()
     if (_currentProjectName.isEmpty())
         return;
 
+    while (_mw->fileLoader->sqliteDbSaveInProgress());
+
     auto success = _mw->fileLoader->writeSQLiteProject(_currentProjectName,
                                                        _saveRawData);
     if (!success)
@@ -58,6 +60,8 @@ void ProjectSaveWorker::_savePeakGroupInSqlite(shared_ptr<PeakGroup> group)
 {
     if (group == nullptr)
         return;
+
+    while (_mw->fileLoader->sqliteDbSaveInProgress());
 
     if (!_mw->fileLoader->sqliteProjectIsOpen()) {
         _saveSqliteProject();
