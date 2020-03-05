@@ -578,7 +578,6 @@ void EicWidget::addEICLines(bool showSpline,
             brush.setStyle(Qt::SolidPattern);
             line->setFillPath(true);
         }
-
         line->setZValue(zValue);
         line->setFillPath(true);
         line->setEIC(eic);
@@ -594,7 +593,6 @@ void EicWidget::addEICLines(bool showSpline,
         line->addPoint(QPointF(toX(rt), toY(intensity)));
     };
 
-    // display each stored EIC
     for (unsigned int i = 0; i < eicParameters->eics.size(); i++) {
         EIC* eic = eicParameters->eics[i];
         if (eic->size() == 0)
@@ -635,7 +633,7 @@ void EicWidget::addEICLines(bool showSpline,
 
             if (showEic) {
                 if (overlayingIntegratedArea) {
-                    if (rtMin > 0.0f && eic->rt[j] <= rtMin) {
+                    if (rtMin > 0.0f && eic->rt[j] < rtMin) {
                         addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
                         int nextIdx = j + 1;
                         if (nextIdx < eic->size() && eic->rt[nextIdx] > rtMin) {
@@ -644,7 +642,7 @@ void EicWidget::addEICLines(bool showSpline,
                                      eic->intensity[nextIdx]);
                         }
                     }
-                    if (rtMax > 0.0f && eic->rt[j] >= rtMax) {
+                    if (rtMax > 0.0f && eic->rt[j] > rtMax) {
                         int prevIdx = j - 1;
                         if (prevIdx > 0 && eic->rt[prevIdx] < rtMax) {
                             addPoint(lineEicRight,
@@ -653,7 +651,7 @@ void EicWidget::addEICLines(bool showSpline,
                         }
                         addPoint(lineEicRight, eic->rt[j], eic->intensity[j]);
                     }
-                    if (eic->rt[j] > rtMin && eic->rt[j] < rtMax) {
+                    if (eic->rt[j] >= rtMin && eic->rt[j] <= rtMax) {
                         // TODO: ensure visual and integrated area match
                         addPoint(lineEic, eic->rt[j], eic->intensity[j]);
                     }
@@ -1300,7 +1298,7 @@ void EicWidget::_clearBarPlot()
 }
 
 void EicWidget::addBarPlot(PeakGroup* group) {
-	//qDebug <<" EicWidget::addBarPlot(PeakGroup* group )";
+   // qDebug() <<" EicWidget::addBarPlot(PeakGroup* group )";
     if (group == NULL || _areaIntegration)
 		return;
 	if (_barplot == NULL)
@@ -2079,10 +2077,10 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//qDebug <<"EicWidget::setSelectedGroup(PeakGroup* group ) ";
 	if (_frozen || group == NULL)
 		return;
-	if (_showBarPlot)
-		addBarPlot(group);
+        if (_showBarPlot)
+                addBarPlot(group);
 	if (_showBoxPlot)
-		addBoxPlot(group);
+                addBoxPlot(group);
 	//addFitLine(group);
     eicParameters->setDisplayedGroup(group);
     eicParameters->setSelectedGroup(group);
@@ -2256,32 +2254,26 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
     if (samples.size() <= 0 ) return;
 
     //clear MS2 events list
-	mw->fragPanel->clearTree();
-    
-	int count = 0;
+    mw->fragPanel->clearTree();
+
+    int count = 0;
     for (auto const& sample : samples) {
-		if (sample->ms1ScanCount() == 0) continue;
+        if (sample->ms1ScanCount() == 0) continue;
         for (auto const& scan : sample->scans) {
-            if (scan->mslevel == 2 &&
-				scan->precursorMz >= mzmin &&
-				scan->precursorMz <= mzmax) {
-
+            if (scan->mslevel == 2 && scan->precursorMz >= mzmin
+                && scan->precursorMz <= mzmax) {
                 mw->fragPanel->addScanItem(scan);
-                if (scan->rt < eicParameters->_slice.rtmin || 
-					scan->rt > eicParameters->_slice.rtmax) {
-					continue;
-				}
+                if (scan->rt < eicParameters->_slice.rtmin
+                    || scan->rt > eicParameters->_slice.rtmax) {
+                    continue;
+                }
 
-        		QColor color = QColor::fromRgbF(sample->color[0],
-												sample->color[1],
-												sample->color[2],
-												1);
-                EicPoint* p  = new EicPoint(toX(scan->rt),
-											toY(10),
-											NULL,
-											getMainWindow());
+                QColor color = QColor::fromRgbF(
+                    sample->color[0], sample->color[1], sample->color[2], 1);
+                EicPoint* p =
+                    new EicPoint(toX(scan->rt), toY(10), NULL, getMainWindow());
                 p->setPointShape(EicPoint::TRIANGLE_UP);
-                p->forceFillColor(true);;
+                p->forceFillColor(true);
                 p->setScan(scan);
                 p->setSize(30);
                 p->setColor(color);
