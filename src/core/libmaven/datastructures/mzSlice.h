@@ -41,6 +41,7 @@ class mzSlice
         float rtmax;
         float ionCount;
         Compound *compound;
+        Compound *precursor;
         Adduct* adduct;
         Isotope isotope;
         string srmId;

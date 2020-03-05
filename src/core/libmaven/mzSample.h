@@ -392,10 +392,19 @@ public:
     * @param mslevel MS Level. MS Level is 1 for MS data and 2 for MS/MS data
     * @param eicType Type of EIC (max or sum)
     * @param filterline selected filterline
+    * @param precursorMz When creating MS2 EIC, only DIA scans whose isolation
+    * window contains precursor's m/z will be used for constructing the EIC.
     * @return EIC class object
     * @see EIC
     */
-    EIC *getEIC(float mzmin, float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
+    EIC *getEIC(float mzmin,
+                float mzmax,
+                float rtmin,
+                float rtmax,
+                int mslevel,
+                int eicType,
+                string filterline,
+                float precursorMz = -1.0f);
 
     /**
     * @brief Get EIC based on srmId

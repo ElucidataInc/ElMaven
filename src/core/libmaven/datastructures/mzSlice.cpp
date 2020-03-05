@@ -14,6 +14,7 @@ mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
     mz = (maxMz + minMz) / 2.0f;
     rt = (maxRt + minRt) / 2.0f;
     compound = nullptr;
+    precursor = nullptr;
     adduct = nullptr;
     isotope = Isotope();
 	ionCount = 0;
@@ -23,6 +24,7 @@ mzSlice::mzSlice(string filterLine)
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
 	compound = NULL;
+    precursor = nullptr;
     srmId = filterLine;
     adduct = nullptr;
 }
@@ -31,6 +33,7 @@ mzSlice::mzSlice()
 {
 	mzmin = mzmax = rtmin = rtmax = mz = rt = ionCount = 0;
     compound = NULL;
+    precursor = nullptr;
     adduct = nullptr;
 }
 

@@ -261,7 +261,15 @@ class EIC
     * @param
     * @return bool true if EIC is pulled. false otherwise
     */
-    bool makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline);
+    bool makeEICSlice(mzSample *sample,
+                      float mzmin,
+                      float mzmax,
+                      float rtmin,
+                      float rtmax,
+                      int mslevel,
+                      int eicType,
+                      string filterline,
+                      float precursorMz = -1.0f);
 
     void getRTMinMaxPerScan();
 

@@ -457,7 +457,7 @@ void SpectraWidget::setScanTitle()
         _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity,
                                                                'f',
                                                                1));
-        _titleText += tr("<b>Isolation Window:</b> %1  ").arg(QString::number(_currentScan->isolationWindow,
+        _titleText += tr("<b>Isolation Window:</b> %1  ").arg(QString::number(_currentScan->isolationWindow(),
                                                                 'f',
                                                                 1));
     }
