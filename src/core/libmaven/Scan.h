@@ -25,6 +25,12 @@ There are multiple m/z and intenstities in one scan
 class Scan
 {
   public:
+    enum class MsType {
+        MS1,
+        DDA,
+        DIA
+    };
+
     Scan(mzSample *sample, int scannum, int mslevel, float rt, float precursorMz, int polarity);
 
     void deepcopy(Scan *b);
@@ -205,10 +211,7 @@ class Scan
     float precursorIntensity;
     int precursorCharge;
     int precursorScanNum;
-    /**
-     * @brief precursor mass resolution for fragmentation event
-     */
-    float isolationWindow;
+
     float productMz;
     float collisionEnergy;
 
@@ -218,6 +221,12 @@ class Scan
     string filterLine;
     mzSample *sample; /**< sample corresponding to the scan */
     int polarity; /**< +1 for positively charged, -1 for negatively charged, 0 for neutral*/
+
+    void setIsolationWindow(const float window);
+    float isolationWindow() const { return _isolationWindow; }
+    float swathWindowMin() { return _swathWindowMin; }
+    float swathWindowMax() { return _swathWindowMax; }
+    MsType msType();
 
     /**
      * @brief compare total intensity of two scans
@@ -241,6 +250,19 @@ class Scan
 
   private:
     float parentPeakIntensity;
+
+    /**
+     * @brief precursor mass resolution for fragmentation event
+     */
+    float _isolationWindow;
+
+    float _swathWindowMin;
+    float _swathWindowMax;
+
+    /**
+     * @brief Type of MS data, stored by this scan.
+     */
+    MsType _msType;
 
     struct BrotherData
     {

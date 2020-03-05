@@ -567,7 +567,7 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
 
         Scan* scan =
             new Scan(this, scannum++, mslevel, rt, precursorMz, scanpolarity);
-        scan->isolationWindow = precursorIsolationWindow;
+        scan->setIsolationWindow(precursorIsolationWindow);
         scan->productMz = productMz;
         scan->filterLine = spectrumId;
         scan->intensity = intsVector;
@@ -978,7 +978,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, const int& scannum)
     xml_node precursor = scan.child("precursorMz");
     if (precursor) {
         _scan->precursorMz = string2float(scan.child_value("precursorMz"));
-        _scan->isolationWindow = 1.0f;
+        _scan->setIsolationWindow(1.0f);
 
         for (xml_attribute attr = precursor.first_attribute(); attr;
              attr = attr.next_attribute()) {
@@ -989,7 +989,7 @@ void mzSample::parseMzXMLScan(const xml_node& scan, const int& scannum)
             else if (strncasecmp(attr.name(), "precursorScanNum", 15) == 0)
                 _scan->precursorScanNum = string2integer(attr.value());
             else if (strncasecmp(attr.name(), "windowWideness", 13) == 0)
-                _scan->isolationWindow = string2float(attr.value());
+                _scan->setIsolationWindow(string2float(attr.value()));
         }
     }
 
@@ -1359,7 +1359,8 @@ EIC* mzSample::getEIC(float mzmin,
                       float rtmax,
                       int mslevel,
                       int eicType,
-                      string filterline)
+                      string filterline,
+                      float precursorMz)
 {
     // Adjusting the Retension Time so that it matches with the sample
     // retension time
@@ -1389,9 +1390,15 @@ EIC* mzSample::getEIC(float mzmin,
         return e;
     }
 
-    bool success = e->makeEICSlice(
-        this, mzmin, mzmax, rtmin, rtmax, mslevel, eicType, filterline);
-
+    bool success = e->makeEICSlice(this,
+                                   mzmin,
+                                   mzmax,
+                                   rtmin,
+                                   rtmax,
+                                   mslevel,
+                                   eicType,
+                                   filterline,
+                                   precursorMz);
     if (!success) {
         return e;
     }

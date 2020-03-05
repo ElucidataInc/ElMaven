@@ -1477,7 +1477,8 @@ void MainWindow::setPathwayFocus(Pathway* p) {
 	}
 }
 
-void MainWindow::setCompoundFocus(Compound*c) {
+void MainWindow::setCompoundFocus(Compound* c, float fragmentMz)
+{
 	if (c == NULL)
 		return;
 		
@@ -1517,21 +1518,25 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-        eicWidget->setCompound(c);
-        shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
-		if (isotopeWidget && isotopeWidget->isVisible()) {
-			isotopeWidget->setCompound(c);
-			isotopeWidget->setPeakGroupAndMore(selectedGroup);
-        } else if (isotopeWidget
-                   && isotopePlot
-                   && isotopePlot->isVisible()
-                   && selectedGroup
-                   && selectedGroup->getCompound() != NULL) {
-            isotopeWidget->updateIsotopicBarplot(selectedGroup);
-        }
+        if (fragmentMz > 0.0f) {
+            eicWidget->setFragment(c, fragmentMz);
+        } else {
+            eicWidget->setCompound(c);
+            shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
+            if (isotopeWidget && isotopeWidget->isVisible()) {
+                isotopeWidget->setCompound(c);
+                isotopeWidget->setPeakGroupAndMore(selectedGroup);
+            } else if (isotopeWidget
+                       && isotopePlot
+                       && isotopePlot->isVisible()
+                       && selectedGroup
+                       && selectedGroup->getCompound() != NULL) {
+                isotopeWidget->updateIsotopicBarplot(selectedGroup);
+            }
 
-		if (fragSpectraWidget->isVisible())
-			fragSpectraWidget->overlayPeakGroup(selectedGroup);
+            if (fragSpectraWidget->isVisible())
+                fragSpectraWidget->overlayPeakGroup(selectedGroup);
+        }
     }
 
     if (fragPanel->isVisible())

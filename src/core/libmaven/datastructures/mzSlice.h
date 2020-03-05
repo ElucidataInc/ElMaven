@@ -39,6 +39,7 @@ class mzSlice
         float rtmax;
         float ionCount;
         Compound *compound;
+        Compound *precursor;
         Adduct* adduct;
         string srmId;
 

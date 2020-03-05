@@ -404,16 +404,13 @@ void LigandWidget::showTable() {
             parent->setText(4, QString::fromStdString(compound->note()));
         }
 
-        if (compound->fragmentMzValues().size()) {
-            QStringList mzList;
-            auto mzValues = compound->fragmentMzValues();
-            for(unsigned int i=0; i < mzValues.size();i++) {
-                mzList << QString::number(mzValues[i],'f',2);
+        if (!compound->fragmentMzValues().empty()) {
+            for (unsigned int i=0; i < compound->fragmentMzValues().size(); ++i) {
+                addItem(parent,
+                        "Fragment",
+                        to_string(compound->fragmentMzValues()[i]));
             }
-            QTreeWidgetItem* child = addItem(parent,"Fragments", mzValues[0]);
-            child->setText(1,mzList.join(";"));
         }
-
 
         /*for(int i=0; i <compound->category.size(); i++ ) {
                 QTreeWidgetItem *item = new QTreeWidgetItem(parent, PathwayType);
@@ -552,13 +549,22 @@ void LigandWidget::showLigand() {
 
     qDebug() << "LigandWidget::showLigand()";
     Q_FOREACH(QTreeWidgetItem* item, treeWidget->selectedItems() ) {
-            QVariant v = item->data(0,Qt::UserRole);
-            Compound*  c =  v.value<Compound*>();
-            if (c)  _mw->setCompoundFocus(c);
-			if (c)   matchFragmentation();
+        QVariant v = item->data(0,Qt::UserRole);
+        Compound* compound =  v.value<Compound*>();
+        if (compound) {
+            _mw->setCompoundFocus(compound);
+            matchFragmentation();
+        } else if (item->parent() != nullptr && item->text(0) == "Fragment") {
+            QVariant v = item->parent()->data(0, Qt::UserRole);
+            Compound* precursorCompound =  v.value<Compound*>();
+            if (precursorCompound == nullptr)
+                continue;
 
+            _mw->setCompoundFocus(precursorCompound, item->text(1).toFloat());
+        }
     }
 }
+
 void LigandWidget::fetchRemoteCompounds()
 {
     qDebug() << "fetchRemoteCompounds()";

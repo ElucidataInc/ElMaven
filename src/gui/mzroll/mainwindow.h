@@ -333,7 +333,7 @@ public Q_SLOTS:
 	void UndoAlignment();
 	void spectaFocused(Peak* _peak);
 	bool checkCompoundExistance(Compound* c);
-	void setCompoundFocus(Compound* c);
+    void setCompoundFocus(Compound* c, float fragmentMz = -1.0f);
 	void setPathwayFocus(Pathway* p);
 	void showFragmentationScans(float pmz);
 	QString groupTextExport(PeakGroup* group);

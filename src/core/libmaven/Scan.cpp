@@ -17,7 +17,10 @@ Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursor
     this->centroided = 0;
 	this->precursorCharge = 0;
 	this->precursorIntensity = 0;
-    this->isolationWindow = 1;
+    this->_isolationWindow = 1.0f;
+    this->_msType = MsType::MS1;
+    this->_swathWindowMin = 0.0f;
+    this->_swathWindowMax = 0.0f;
 }
 
 void Scan::deepcopy(Scan* b) {
@@ -38,8 +41,7 @@ void Scan::deepcopy(Scan* b) {
     this->filterLine = b->filterLine;
     this->setPolarity( b->getPolarity() );
     this->originalRt = b->originalRt;
-    this->isolationWindow = b->isolationWindow;
-
+    this->setIsolationWindow(b->isolationWindow());
 }
 
 int Scan::findHighestIntensityPos(float _mz, MassCutoff *massCutoff) {
@@ -611,7 +613,7 @@ double Scan::getPrecursorPurity(float ppm)
     if (this->sample == 0 ) return 0;
 
     //extract isolated window
-    vector<mzPoint> isolatedSegment = this->getIsolatedRegion(this->isolationWindow);
+    vector<mzPoint> isolatedSegment = this->getIsolatedRegion(_isolationWindow);
     if (isolatedSegment.size() == 0) return 0;
 
     //get last full scan
@@ -636,4 +638,22 @@ double Scan::getPrecursorPurity(float ppm)
     } else {
         return 0;
     }
+}
+
+void Scan::setIsolationWindow(const float window)
+{
+    _isolationWindow = window;
+    if (_isolationWindow > 1.0f) {
+        // this assumption is okay, right?
+        _msType = MsType::DIA;
+        _swathWindowMin = precursorMz - (isolationWindow() / 2.0f);
+        _swathWindowMax = precursorMz + (isolationWindow() / 2.0f);
+    } else {
+        _msType = MsType::DDA;
+    }
+}
+
+Scan::MsType Scan::msType()
+{
+    return _msType;
 }
