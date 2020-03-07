@@ -1356,3 +1356,160 @@ void EIC::normalizeIntensityPerScan(float scale)
         }
     }
 }
+
+vector<EIC*> EIC::peakSegments(int smoothingWindow)
+{
+    vector<EIC*> segments;
+
+    // TODO: this width should be calculated over the entire MS1 spectrum
+    int averagePeakWidth = 3;
+    if (!peaks.empty()) {
+        averagePeakWidth = accumulate(next(begin(peaks)),
+                                      end(peaks),
+                                      peaks.at(0).width,
+                                      [](int sum, Peak& p) {
+                                          return sum + p.width;
+                                      });
+        averagePeakWidth /= peaks.size();
+    }
+    averagePeakWidth = 15; // temporarily using this constant
+
+    auto markers = _regionalPeakMarkers(smoothingWindow);
+    for (auto& region : markers) {
+        auto result = _eicSegment(region.first, region.second);
+        int offset = result.first;
+        EIC* segment = result.second;
+        if (segment == nullptr)
+            continue;
+
+        segment->getPeakPositions(smoothingWindow);
+        if (segment->peaks.empty())
+            continue;
+
+        // we want our EIC segment to contain, at most, one peak
+        sort(begin(segment->peaks), end(segment->peaks), Peak::compQuality);
+        while(segment->peaks.size() > 1)
+            segment->peaks.pop_back();
+
+        // translate segment's positions to positions on this EIC
+        Peak peak = segment->peaks.at(0);
+        int peakTop = peak.pos + offset;
+        if (peakTop < 0 || peakTop >= rt.size())
+            continue;
+
+        int peakLeft = -1;
+        int peakRight = -1;
+        for (int i = peakTop; i > 0; --i) {
+            if (peakTop - i < (averagePeakWidth / 2))
+                continue;
+            if (spline[i - 1] >= spline[i]) {
+                peakLeft = i;
+                break;
+            }
+        }
+        for (int i = peakTop; i < rt.size() - 1; i++) {
+            if (i - peakTop < (averagePeakWidth / 2))
+                continue;
+            if (spline[i] <= spline[i + 1]) {
+                peakRight = i;
+                break;
+            }
+        }
+        if (peakLeft < 0)
+            peakLeft = 0;
+        if (peakRight < 0)
+            peakRight = rt.size() - 1;
+        if (peakTop - peakLeft < 3)
+            continue;
+        if (peakRight - peakTop < 3)
+            continue;
+
+        // the peak segment will be made as wide as the average peak
+        delete segment;
+        result = _eicSegment(rt[peakLeft], rt[peakRight]);
+        segment = result.second;
+        segment->peaks.push_back(peak);
+        segment->computeSpline(smoothingWindow);
+        segment->computeBaseline();
+        segment->getPeakStatistics();
+        segments.push_back(segment);
+    }
+
+    return segments;
+}
+
+pair<size_t, EIC*> EIC::_eicSegment(float start, float end)
+{
+    if (end - start <= 0.0f)
+        return {0, nullptr};
+
+    size_t offset = 0;
+    EIC* segment = new EIC();
+    segment->sampleName = this->sampleName;
+    segment->sample = this->sample;
+    segment->mzmin = this->mzmin;
+    segment->mzmax = this->mzmax;
+    segment->totalIntensity = 0.0f;
+    segment->maxIntensity = 0.0f;
+    for (size_t i = 0; i < rt.size(); ++i) {
+        if (rt[i] < start)
+            continue;
+        if (rt[i] > end)
+            break;
+
+        if (offset == 0)
+            offset = i;
+
+        segment->scannum.push_back(this->scannum[i]);
+        segment->rt.push_back(this->rt[i]);
+        segment->intensity.push_back(this->intensity[i]);
+        segment->mz.push_back(this->mz[i]);
+        segment->totalIntensity += this->intensity[i];
+        if (segment->intensity.back() > segment->maxIntensity) {
+            segment->maxIntensity = segment->intensity.back();
+            segment->rtAtMaxIntensity = segment->rt.back();
+            segment->mzAtMaxIntensity = segment->mz.back();
+        }
+    }
+
+    if (segment->scannum.size() < 3)
+        return {offset, nullptr};
+
+    segment->getRTMinMaxPerScan();
+    segment->normalizeIntensityPerScan(sample->getNormalizationConstant());
+    return {offset, segment};
+}
+
+vector<pair<float, float>> EIC::_regionalPeakMarkers(int smoothingWindow)
+{
+    vector<pair<float, float>> markers;
+    float start = 0.0f;
+    bool searching = false;
+    int margin = 1;
+
+    mzUtils::SavGolSmoother smoother(smoothingWindow, smoothingWindow, 4);
+    vector<float> smoothed = smoother.Smooth(intensity);
+    for (size_t i = margin; i < rt.size() - margin; ++i) {
+        if (smoothed[i] > 0.0f
+            && smoothed[i - 1] < smoothed[i]
+            && searching == false) {
+            start = rt[i];
+            searching = true;
+        } else if (searching == true) {
+            if (smoothed[i] <= 0.0f) {
+                markers.push_back(make_pair(start, rt[i - 1]));
+                searching = false;
+                continue;
+            } else if (smoothed[i - 1] > smoothed[i]
+                       && smoothed[i] < smoothed[i + 1]
+                       && smoothed[i] >= 0) {
+                markers.push_back(make_pair(start, rt[i]));
+                start = rt[i + 1];
+                searching = true;
+                ++i;
+            }
+        }
+    }
+
+    return markers;
+}

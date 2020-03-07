@@ -211,7 +211,17 @@ class Peak {
          * @param  b               []
          * @return []
          */
-        static bool compSampleOrder(const Peak& a, const Peak& b ); 
+        static bool compSampleOrder(const Peak& a, const Peak& b );
+
+        /**
+         * @brief Checks whether the second peak has higher quality than the
+         * first one.
+         * @param a First peak.
+         * @param b Second peak.
+         * @return `true` if the second peak has higher quality, `false`
+         * otherwise.
+         */
+        static bool compQuality(const Peak& a, const Peak& b );
 
         /**
          * [overlap ]

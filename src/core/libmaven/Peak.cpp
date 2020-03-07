@@ -258,3 +258,8 @@ bool Peak::compMz(const Peak& a, const Peak& b ) {
 bool Peak::compArea(const Peak& a, const Peak& b ) { 
     return b.peakAreaFractional < a.peakAreaFractional; 
 }
+
+bool Peak::compQuality(const Peak& a, const Peak& b )
+{
+    return b.quality < a.quality;
+}
