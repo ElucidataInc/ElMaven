@@ -1009,6 +1009,105 @@ namespace mzUtils {
         return buf.vec;
     }
 
+    vector<double> filterSignal(const vector<double>& signal,
+                                const vector<double>& filter)
+    {
+        NimbleDSP::RealFirFilter<double> firFilter(filter);
+        firFilter.filtOperation = NimbleDSP::ONE_SHOT_TRIM_TAILS;
+
+        NimbleDSP::RealVector<double> buf(signal);
+        buf = firFilter.conv(buf, false);
+        return buf.vec;
+    }
+
+    vector<double> derivative(const vector<double>& signal,
+                              const int order)
+    {
+        NimbleDSP::RealVector<double> buf(signal);
+        for (int i = 1; i <= order; ++i)
+            buf = buf.diff();
+        return buf.vec;
+    }
+
+    float idealSlopeValue(vector<double> signal)
+    {
+        if (signal.empty())
+            return 0.0f;
+
+        float maxIntensity = 0.0f;
+        int top = 0;
+        for (size_t i = 0; i < signal.size(); ++i) {
+            if (maxIntensity < signal.at(i)) {
+                top = i;
+                maxIntensity = signal.at(i);
+            }
+        }
+
+        // TODO: use modified derivative, used by Hiller et al. (2009)
+        auto derivative = mzUtils::derivative(signal);
+
+        float sumOfAbsIntensities = 0.0f;
+
+        // the left ideal slope is the sum of all positive values (from the
+        // first derivative), up to the peak's top position
+        float leftIdealSlope = 0.0f;
+        for (size_t i = 0; i < top; ++i) {
+            sumOfAbsIntensities += abs(derivative.at(i));
+            if (derivative.at(i) > 0)
+                leftIdealSlope += derivative.at(i);
+        }
+
+        // the right ideal slope is the sum of absolute of all negative values
+        // (from the first derivative), after the peak's top position
+        float rightIdealSlope = 0.0f;
+        for (size_t i = top; i < derivative.size(); ++i) {
+            sumOfAbsIntensities += abs(derivative.at(i));
+            if (derivative.at(i) < 0)
+                rightIdealSlope += abs(derivative.at(i));
+        }
+
+        // the overall ideal slope
+        return (leftIdealSlope + rightIdealSlope) / sumOfAbsIntensities;
+    }
+
+    float sharpnessValue(vector<double> signal)
+    {
+        if (signal.empty())
+            return 0.0f;
+
+        float maxIntensity = 0.0f;
+        int top = 0;
+        for (size_t i = 0; i < signal.size(); ++i) {
+            if (maxIntensity < signal.at(i)) {
+                top = i;
+                maxIntensity = signal.at(i);
+            }
+        }
+
+        // the left sharpness is supposed to be the maximum sharpness score for
+        // the left half of a bi-gaussian peak
+        float leftSharpness = 0.0f;
+        for (int i = 0; i < top; ++i) {
+             float sharpness = (maxIntensity - signal.at(i))
+                               / static_cast<float>(top - i)
+                               / sqrtf(maxIntensity);
+             if (sharpness > leftSharpness)
+                 leftSharpness = sharpness;
+        }
+
+        // the right sharpness is supposed to be the maximum sharpness score for
+        // the right half of a bi-gaussian peak
+        float rightSharpness = 0.0f;
+        for (int i = top + 1; i < signal.size(); ++i) {
+            float sharpness = (maxIntensity - signal.at(i))
+                              / static_cast<float>(i - top)
+                              / sqrtf(maxIntensity);
+            if (sharpness > rightSharpness)
+                 rightSharpness = sharpness;
+        }
+        return (leftSharpness + rightSharpness) / 2.0f;
+    }
+
     chrono::time_point<chrono::high_resolution_clock> startTimer()
     {
         return chrono::high_resolution_clock::now();

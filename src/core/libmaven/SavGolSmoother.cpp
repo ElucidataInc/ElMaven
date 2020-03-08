@@ -113,7 +113,7 @@ namespace mzUtils
         intensities->insert(intensities->begin(), mvect_temp_y.begin(), mvect_temp_y.end()) ;
     }
 
-    std::vector<float> SavGolSmoother::Smooth(std::vector<float>& intensities)
+    std::vector<float> SavGolSmoother::Smooth(const std::vector<float>& intensities)
     {
         int size = (int) intensities.size() ;
         mvect_temp_y.resize(size);

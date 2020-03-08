@@ -681,6 +681,16 @@ namespace mzUtils
         my_vector.clear();
     }
 
+        std::vector<double> filterSignal(const std::vector<double>& signal,
+                                         const std::vector<double>& filter);
+
+        std::vector<double> derivative(const std::vector<double>& signal,
+                                       const int order = 1);
+
+        float idealSlopeValue(vector<double> signal);
+
+        float sharpnessValue(vector<double> signal);
+
     /**
      * @brief Zeroth-order modified bessel function of the first kind.
      * @param x Argument for the modified bessel function.
