@@ -681,6 +681,16 @@ namespace mzUtils
         my_vector.clear();
     }
 
+        std::vector<double> filterSignal(const std::vector<double>& signal,
+                                         const std::vector<double>& filter);
+
+        std::vector<double> derivative(const std::vector<double>& signal,
+                                       const int order = 1);
+
+        float idealSlopeValue(vector<double> signal);
+
+        float sharpnessValue(vector<double> signal);
+
     /**
      * @brief Removes elements at given indexes from a vector. Please note, that
      * this function will disturb the order of elements in the vector being

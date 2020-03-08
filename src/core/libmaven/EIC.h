@@ -279,7 +279,8 @@ class EIC
     void clearEICContents();
     void interpolate();
 
-    vector<EIC*> peakSegments(int smoothingWindow);
+    vector<pair<size_t, size_t>> modelPeakRegions(int smoothingWindow,
+                                                  float sigma) const;
 
     /**
          * [size ]
@@ -405,7 +406,12 @@ class EIC
                               const float p,
                               const int numIterations=10);
 
-    pair<size_t, EIC*> _eicSegment(float start, float end);
-    vector<pair<float, float>> _regionalPeakMarkers(int smoothingWindow);
+    vector<double> _intensitySegment(size_t start, size_t stop) const;
+
+    vector<pair<size_t, size_t>> _peakRegions(int smoothingWindow) const;
+
+    vector<pair<size_t, size_t>>
+    _refineModelRegions(vector<pair<size_t, size_t>> regions,
+                        int averagePeakWidth) const;
 };
 #endif //MZEIC_H

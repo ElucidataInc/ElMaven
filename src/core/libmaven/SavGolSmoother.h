@@ -39,6 +39,6 @@ namespace mzUtils
         void SetOptions(int num_left, int num_right, int order) ;
         ~SavGolSmoother() ;
         void Smooth(std::vector<float> *mzs, std::vector<float> *intensities) ;
-        std::vector<float> Smooth(std::vector<float>& intensities);
+        std::vector<float> Smooth(const std::vector<float> &intensities);
     };
 }
