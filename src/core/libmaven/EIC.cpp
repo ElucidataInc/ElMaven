@@ -1375,146 +1375,23 @@ void EIC::normalizeIntensityPerScan(float scale)
     }
 }
 
-vector<pair<size_t, size_t>> EIC::modelPeakRegions(int smoothingWindow,
-                                                   float sigma) const
-{
-    // "currently this value should be enough for LC", why?
-    float halfPoint = 10.0f;
-    size_t filterSize = 2 * static_cast<size_t>(halfPoint) + 1;
-    vector<float> filter;
-    for (int i = 0; i < filterSize; i++) {
-        float coeff = (1 - powf((-halfPoint + i) / sigma, 2.0f))
-                       * exp(-0.5 * powf((-halfPoint + i) / sigma, 2.0f));
-        filter.push_back(coeff);
-    }
-
-    vector<pair<size_t, size_t>> modelRegions;
-    auto peakRegions = _peakRegions(smoothingWindow);
-    for (size_t i = 0; i < peakRegions.size(); i++) {
-        float sum = 0.0f;
-        for (int j = -1 * halfPoint; j <= halfPoint; j++) {
-            if (i + j < 0 || i + j > peakRegions.size() - 1) {
-                continue;
-            } else {
-                auto signal = _intensitySegment(peakRegions.at(i + j).first,
-                                                peakRegions.at(i + j).second);
-                auto sharpness = mzUtils::sharpnessValue(signal);
-                sum += sharpness * filter[static_cast<size_t>(j + halfPoint)];
-            }
-        }
-
-        // these zero sum regions do not contain any "model" peaks
-        if (sum == 0.0f)
-            continue;
-
-        auto signal = _intensitySegment(peakRegions.at(i).first,
-                                        peakRegions.at(i).second);
-        if (signal.empty())
-            continue;
-
-        // regions must not be too noisy
-        float idealSlope = mzUtils::idealSlopeValue(signal);
-        // TODO: increase threshold when, derivative method is replaced.
-        if (isnan(idealSlope) || idealSlope < 0.9)
-            continue;
-
-        modelRegions.push_back(peakRegions.at(i));
-    }
-
-    // TODO: temporarily using a constant for average peak width
-    // TODO: this width should be calculated over the data spectrum
-    return _refineModelRegions(modelRegions, 16);
-}
-
-vector<pair<size_t, size_t>>
-EIC::_refineModelRegions(vector<pair<size_t, size_t>> regions,
-                         int averagePeakWidth) const
-{
-    vector<pair<size_t, size_t>> refinedRegions;
-    for (auto& region : regions) {
-        auto signal = _intensitySegment(region.first, region.second);
-        size_t peakTop = distance(begin(signal),
-                                  max_element(begin(signal), end(signal)));
-        if (peakTop < 0 || peakTop >= signal.size())
-            continue;
-
-        // translate top position in segment to a position on this EIC
-        peakTop += region.first;
-
-        size_t peakLeft = 0;
-        for (size_t i = peakTop; i > 0; --i) {
-            if (peakTop - i < (averagePeakWidth / 2))
-                continue;
-            if (intensity[i - 1] >= intensity[i]) {
-                peakLeft = i;
-                break;
-            }
-        }
-        size_t peakRight = signal.size() - 1;
-        for (size_t i = peakTop; i < intensity.size() - 1; ++i) {
-            if (i - peakTop < (averagePeakWidth / 2))
-                continue;
-            if (intensity[i] <= intensity[i + 1]) {
-                peakRight = i;
-                break;
-            }
-        }
-
-        if (peakTop - peakLeft < 3)
-            continue;
-        if (peakRight - peakTop < 3)
-            continue;
-
-        // if this segment already exists (probably the last one), we ignore it
-        auto finalSegment = make_pair(peakLeft, peakRight);
-        if (!refinedRegions.empty() && finalSegment == refinedRegions.back())
-            continue;
-
-        // the final segment should now be as wide as the average peak
-        refinedRegions.push_back(finalSegment);
-    }
-    return refinedRegions;
-}
-
-vector<double> EIC::_intensitySegment(size_t start, size_t stop) const
+vector<double> EIC::intensitySegment(size_t start,
+                                     size_t stop,
+                                     bool baselineCorrect) const
 {
     if (start >= stop || stop >= intensity.size())
         return {};
 
-    return vector<double>(begin(intensity) + start,
-                          begin(intensity) + stop + 1);
-}
+    auto segment = vector<double>(begin(intensity) + start,
+                                  begin(intensity) + stop + 1);
 
-vector<pair<size_t, size_t>> EIC::_peakRegions(int smoothingWindow) const
-{
-    vector<pair<size_t, size_t>> markers;
-    size_t start = 0;
-    bool searching = false;
-    int margin = 1;
-
-    mzUtils::SavGolSmoother smoother(smoothingWindow, smoothingWindow, 4);
-    vector<float> smoothed = smoother.Smooth(intensity);
-    for (size_t i = margin; i < rt.size() - margin; ++i) {
-        if (smoothed[i] > 0.0f
-            && smoothed[i - 1] < smoothed[i]
-            && searching == false) {
-            start = i;
-            searching = true;
-        } else if (searching == true) {
-            if (smoothed[i] <= 0.0f) {
-                markers.push_back(make_pair(start, i - 1));
-                searching = false;
-                continue;
-            } else if (smoothed[i - 1] > smoothed[i]
-                       && smoothed[i] < smoothed[i + 1]
-                       && smoothed[i] >= 0.0f) {
-                markers.push_back(make_pair(start, i));
-                start = i + 1;
-                searching = true;
-                ++i;
-            }
+    if (baselineCorrect && baseline != nullptr) {
+        for (size_t i = start; i <= stop; ++i) {
+            size_t segIndex = i - start;
+            float newValue = segment[segIndex] - baseline[i];
+            segment[segIndex] = newValue >= 0.0f ? newValue : 0.0f;
         }
     }
 
-    return markers;
+    return segment;
 }
