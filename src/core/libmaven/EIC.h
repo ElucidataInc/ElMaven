@@ -279,8 +279,9 @@ class EIC
     void clearEICContents();
     void interpolate();
 
-    vector<pair<size_t, size_t>> modelPeakRegions(int smoothingWindow,
-                                                  float sigma) const;
+    vector<double> intensitySegment(size_t start,
+                                    size_t stop,
+                                    bool baselineCorrect = false) const;
 
     /**
          * [size ]
@@ -405,13 +406,5 @@ class EIC
     void _computeAsLSBaseline(const float lambda,
                               const float p,
                               const int numIterations=10);
-
-    vector<double> _intensitySegment(size_t start, size_t stop) const;
-
-    vector<pair<size_t, size_t>> _peakRegions(int smoothingWindow) const;
-
-    vector<pair<size_t, size_t>>
-    _refineModelRegions(vector<pair<size_t, size_t>> regions,
-                        int averagePeakWidth) const;
 };
 #endif //MZEIC_H

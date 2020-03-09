@@ -111,7 +111,8 @@ SOURCES = base64.cpp \
           svmPredictor.cpp \
           zlib.cpp \
           adductdetection.cpp \
-          spectrallibexport.cpp
+          spectrallibexport.cpp \
+          deconvolution.cpp
 
 HEADERS += constants.h \
            base64.h \
@@ -158,4 +159,5 @@ HEADERS += constants.h \
            groupFeatures.h \
            svmPredictor.h \
            adductdetection.h \
-           spectrallibexport.h
+           spectrallibexport.h \
+           deconvolution.h
