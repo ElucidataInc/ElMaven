@@ -1386,11 +1386,8 @@ vector<double> EIC::intensitySegment(size_t start,
                                   begin(intensity) + stop + 1);
 
     if (baselineCorrect && baseline != nullptr) {
-        for (size_t i = start; i <= stop; ++i) {
-            size_t segIndex = i - start;
-            float newValue = segment[segIndex] - baseline[i];
-            segment[segIndex] = newValue >= 0.0f ? newValue : 0.0f;
-        }
+        for (size_t i = start; i <= stop; ++i)
+            segment[i - start] = fmaxf(segment[i - start] - baseline[i], 0.0f);
     }
 
     return segment;
