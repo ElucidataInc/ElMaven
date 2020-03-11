@@ -22,6 +22,17 @@ namespace Deconvolution
         ABCDE
     };
 
+    struct SignalVector {
+        Pattern pattern;
+        size_t leftBound;
+        size_t rightBound;
+        vector<double> twoLeft;
+        vector<double> oneLeft;
+        vector<double> target;
+        vector<double> oneRight;
+        vector<double> twoRight;
+    };
+
     vector<pair<size_t, size_t>> modelPeakRegions(EIC *eic,
                                                   int smoothingWindow,
                                                   float sigma,
@@ -32,10 +43,12 @@ namespace Deconvolution
                        bool hasOneRight,
                        bool hasTwoRight);
 
-    pair<Pattern, vector<vector<float>>>
-    convolutedSignals(pair<size_t, size_t> roi,
-                      vector<pair<size_t, size_t>> regions,
-                      EIC* eic);
+    SignalVector convolutedSignals(const pair<size_t, size_t>& roi,
+                                   const vector<pair<size_t, size_t>>& regions,
+                                   const EIC *eic);
+
+    vector<float> execute(SignalVector convoluted,
+                          vector<double> trueChromatogram);
 };
 
 #endif // DECONVOLUTION_H
