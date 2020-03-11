@@ -69,7 +69,7 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                                    2,
                                    mp->eicType,
                                    mp->filterline,
-                                   slice->precursor->mass);
+                                   slice->precursor->adjustedMass(mp->charge));
             } else if (c && c->precursorMz() > 0 && c->productMz() > 0) {
                 e = sample->getEIC(c->precursorMz(),
                                    c->collisionEnergy(),
