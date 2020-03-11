@@ -1246,7 +1246,7 @@ TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
 
     QToolButton* btnTable = addDockWidgetButton(sideBar,
                                                 panel,
-                                                QIcon(rsrcPath + "/featuredetect.png"),
+                                                QIcon(rsrcPath + "/Peak Table.png"),
                                                 "");
 
     groupTables.push_back(panel);

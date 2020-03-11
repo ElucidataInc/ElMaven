@@ -84,7 +84,7 @@ void ScatterPlot::setupToolBar() {
     connect(btnDelete,SIGNAL(clicked()),this,SLOT(deleteGroup()));
 
     btnPeakTable = new QToolButton(toolBar);
-    btnPeakTable->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
+    btnPeakTable->setIcon(QIcon(rsrcPath + "/Peak Table.png"));
     btnPeakTable->setToolTip("Show Peaks Table");
     btnPeakTable->setCheckable(true);
     connect(btnPeakTable,SIGNAL(clicked()),this,SLOT(showPeakTable()));

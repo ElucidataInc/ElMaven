@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/adducts.png</file>
-        <file>images/copyCSV.png</file>
         <file>images/zoomOutNode.png</file>
         <file>images/compound.png</file>
         <file>images/exportpdf.png</file>
@@ -13,7 +12,6 @@
         <file>images/unknown_ion.png</file>
         <file>images/blank sample.png</file>
         <file>images/hide.png</file>
-        <file>images/isotopeIcon.png</file>
         <file>images/findcompound.png</file>
         <file>images/gallery.png</file>
         <file>images/spreadsheet.png</file>
@@ -26,7 +24,6 @@
         <file>images/zoomin.png</file>
         <file>images/flip.png</file>
         <file>images/exportxml.png</file>
-        <file>images/spectra.png</file>
         <file>images/fragSpectra.png</file>
         <file>images/fragmentationEvents.png</file>
         <file>images/groupRtViz.png</file>
@@ -35,22 +32,18 @@
         <file>images/merge.png</file>
         <file>images/success.png</file>
         <file>images/exportpng.png</file>
-        <file>images/checkuncheck.png</file>
         <file>images/next.png</file>
         <file>images/zoomOutEdge.png</file>
         <file>images/fileopen.png</file>
         <file>images/isotope.png</file>
-        <file>images/flowerplot.png</file>
         <file>images/exportcsv.png</file>
         <file>images/JSON.png</file>
-        <file>images/POLLY.png</file>
         <file>images/notification.png</file>
         <file>images/bug.png</file>
         <file>images/export.png</file>
         <file>images/negative_ion.png</file>
         <file>images/positive_ion.png</file>
         <file>images/zoomout.png</file>
-        <file>images/fileprint.png</file>
         <file>images/good.png</file>
         <file>images/bad.png</file>
         <file>images/note.png</file>
@@ -90,7 +83,6 @@
         <file>images/isotopeplot.png</file>
         <file>images/R.png</file>
         <file>images/icon.png</file>
-        <file>images/setupload.png</file>
         <file>images/aboutPolly.png</file>
         <file>images/loading.gif</file>
         <file>images/splash.png</file>
@@ -110,7 +102,17 @@
         <file>images/librarymanager.png</file>
         <file>images/toleranceSyncLock.png</file>
         <file>images/toleranceSyncUnlock.png</file>
-        <file>images/support.png</file>
         <file>images/exportMetadataTemplate.png</file>
+        <file>images/copyCSV.png</file>
+        <file>images/isotopeIcon.png</file>
+        <file>images/support.png</file>
+        <file>images/fileprint.png</file>
+        <file>images/POLLY.png</file>
+        <file>images/spectra.png</file>
+        <file>images/Peak Table.png</file>
+        <file>images/Delete Group.png</file>
+        <file>images/setupload.png</file>
+        <file>images/checkuncheck.png</file>
+        <file>images/flowerplot.png</file>
     </qresource>
 </RCC>

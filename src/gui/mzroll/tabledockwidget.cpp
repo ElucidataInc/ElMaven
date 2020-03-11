@@ -2215,7 +2215,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnHeatmapelete") {
 
     QToolButton *btnHeatmapelete = new QToolButton(parent);
-    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/delete.png"));
+    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
     btnHeatmapelete->setToolTip("Delete Group");
     connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteGroups()));
     return btnHeatmapelete;
