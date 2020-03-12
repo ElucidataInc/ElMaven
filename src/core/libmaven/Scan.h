@@ -31,7 +31,13 @@ class Scan
         DIA
     };
 
-    Scan(mzSample *sample, int scannum, int mslevel, float rt, float precursorMz, int polarity);
+    Scan(mzSample *sample,
+         int scannum,
+         int mslevel,
+         float rt,
+         float precursorMz,
+         int polarity,
+         MsType msType = MsType::MS1);
 
     void deepcopy(Scan *b);
 

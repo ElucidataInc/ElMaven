@@ -1563,7 +1563,7 @@ void MainWindow::setCompoundFocus(Compound* compound,
 
     if (eicWidget->isVisible() && samples.size() > 0) {
         if (fragmentMz > 0.0f) {
-            eicWidget->setFragment(compound, fragmentMz);
+            eicWidget->showFragment(c, fragmentMz);
         } else {
             eicWidget->setCompound(compound, isotope, adduct);
             shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();

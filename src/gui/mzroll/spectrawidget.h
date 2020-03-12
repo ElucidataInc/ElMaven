@@ -78,7 +78,8 @@ public:
                     void drawAnnotations(); //TODO: Sahil, Added while merging spectrawidget
                     void clearScans();
 
-
+                signals:
+                    void mzBarSelected(float);
 
         private:
                     EICLogic* eicparameters;

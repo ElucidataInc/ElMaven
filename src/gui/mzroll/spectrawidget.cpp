@@ -283,6 +283,17 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
         overlaySpectralHit(_spectralHit);
         resetZoom();
     }
+
+    disconnect(this,
+               &SpectraWidget::mzBarSelected,
+               mainwindow->getEicWidget(),
+               nullptr);
+    connect(this,
+            &SpectraWidget::mzBarSelected,
+            mainwindow->getEicWidget(),
+            [this, c](float fragmentMz) {
+                mainwindow->getEicWidget()->showFragment(c, fragmentMz);
+            });
 }
 
 void SpectraWidget::overlaySpectralHit(SpectralHit& hit)
@@ -920,11 +931,16 @@ void SpectraWidget::setMzFocus(float mz)
 			mainwindow->massCalcWidget->setMass(bestMz);
 		}
 
-	} else if (_currentScan->mslevel == 2 && _currentScan->precursorMz > 0) {
+    } else if (_currentScan->mslevel == 2) {
+        if (_currentScan->precursorMz > 0
+            && _currentScan->msType() == Scan::MsType::DDA) {
 			float bestMz = _currentScan->precursorMz;
 			mainwindow->setMzValue(bestMz);
-			mainwindow->massCalcWidget->setMass(bestMz);
-
+            mainwindow->massCalcWidget->setMass(bestMz);
+        } else if (_currentScan->precursorMz > 0
+                   && _currentScan->msType() == Scan::MsType::DIA) {
+            emit mzBarSelected(mz);
+        }
 	} else if (!_currentScan->filterLine.empty()) {
 		float mzmin = mz - massCutoff->massCutoffValue(mz);
 		float mzmax = mz + massCutoff->massCutoffValue(mz);
