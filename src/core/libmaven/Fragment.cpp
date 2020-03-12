@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Fragment::Fragment() {
+Fragment::Fragment(MsType msType) {
     precursorMz = 0;
     polarity = 1;
     scanNum = 0;
@@ -15,13 +15,15 @@ Fragment::Fragment() {
     consensus = NULL;
     precursorCharge = 0;
     purity = 0;
+    _msType = msType;
 }
 
 // build fragment based on MS2 scan
 Fragment::Fragment(Scan* scan,
                    float minFractionalIntensity,
                    float minSigNoiseRatio,
-                   int maxFragmentSize)
+                   int maxFragmentSize,
+                   MsType msType)
 {
     this->precursorMz = scan->precursorMz;
     this->collisionEnergy = scan->collisionEnergy;
@@ -43,6 +45,7 @@ Fragment::Fragment(Scan* scan,
     this->rt = scan->rt;
     //TODO: why use hard-coded PPM value? use user set PPM
     this->purity = scan->getPrecursorPurity(10.0);
+    _msType = msType;
 }
 
 //make a copy of Fragment.
@@ -60,6 +63,7 @@ Fragment::Fragment(Fragment* other)
     this->precursorCharge= other->precursorCharge;
     this->purity = other->purity;
     this->rt = other->rt;
+    this->_msType = other->msType();
 }
 
 Fragment& Fragment::operator=(const Fragment& f)  {
@@ -75,6 +79,7 @@ Fragment& Fragment::operator=(const Fragment& f)  {
     this->precursorCharge= f.precursorCharge;
     this->purity = f.purity;
     this->rt = f.rt;
+    this->_msType = f.msType();
     return *this;
 }
 

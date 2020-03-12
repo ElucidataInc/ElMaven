@@ -84,15 +84,21 @@ struct FragmentationMatchScore {
     }
 };
 
-class Fragment { 
+class Fragment {
 
-    public: 
-        Fragment();
+    public:
+        enum class MsType {
+            DDA,
+            DIA
+        };
+
+        Fragment(MsType msType = MsType::DDA);
         
         Fragment(Scan* scan,
                  float minFractionalIntensity,
                  float minSigNoiseRatio,
-                 int maxFragmentSize);
+                 int maxFragmentSize,
+                 MsType msType = MsType::DDA);
 
         Fragment(Fragment* other);
 
@@ -176,9 +182,14 @@ class Fragment {
 
         inline unsigned int nobs() { return mzValues.size(); }
 
+        MsType msType() const { return _msType; }
+
         static bool compPrecursorMz(const Fragment* a, const Fragment* b);
         bool operator<(const Fragment* b) const;
         bool operator==(const Fragment* b) const;
+
+    private:
+        MsType _msType;
 };
 
 #endif

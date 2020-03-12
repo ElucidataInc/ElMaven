@@ -4,7 +4,13 @@
 #include "constants.h"
 #include "SavGolSmoother.h"
 
-Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursorMz, int polarity) {
+Scan::Scan(mzSample* sample,
+           int scannum,
+           int mslevel,
+           float rt,
+           float precursorMz,
+           int polarity,
+           MsType msType) {
     this->sample = sample;
     this->rt = rt;
     this->originalRt = rt;
@@ -18,7 +24,7 @@ Scan::Scan(mzSample* sample, int scannum, int mslevel, float rt, float precursor
 	this->precursorCharge = 0;
 	this->precursorIntensity = 0;
     this->_isolationWindow = 1.0f;
-    this->_msType = MsType::MS1;
+    this->_msType = msType;
     this->_swathWindowMin = 0.0f;
     this->_swathWindowMax = 0.0f;
 }
@@ -42,6 +48,7 @@ void Scan::deepcopy(Scan* b) {
     this->setPolarity( b->getPolarity() );
     this->originalRt = b->originalRt;
     this->setIsolationWindow(b->isolationWindow());
+    this->_msType = b->msType();
 }
 
 int Scan::findHighestIntensityPos(float _mz, MassCutoff *massCutoff) {

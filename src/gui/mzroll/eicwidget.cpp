@@ -1739,7 +1739,7 @@ void EicWidget::setMzSlice(float mz1, float mz2) {
 	setMzSlice(x);
 }
 
-void EicWidget::setFragment(Compound* precursor, float fragmentMz)
+void EicWidget::showFragment(Compound* precursor, float fragmentMz)
 {
     if (precursor == nullptr)
         return;
@@ -1751,35 +1751,20 @@ void EicWidget::setFragment(Compound* precursor, float fragmentMz)
     if (samples.empty())
         return;
 
-    // user specified ionization mode
+    auto mp = getMainWindow()->mavenParameters;
     int ionizationMode = samples[0]->getPolarity();
-    ionizationMode = getMainWindow()->mavenParameters->ionizationMode;
+    ionizationMode = mp->ionizationMode;
 
-    MassCutoff* massCutoff = getMainWindow()->getUserMassCutoff();
-    float minmz = fragmentMz - massCutoff->massCutoffValue(fragmentMz);
-    float maxmz = fragmentMz + massCutoff->massCutoffValue(fragmentMz);
+    MassCutoff massCutoff;
+    massCutoff.setMassCutoffAndType(mp->fragmentTolerance, "ppm");
+    float minmz = fragmentMz - massCutoff.massCutoffValue(fragmentMz);
+    float maxmz = fragmentMz + massCutoff.massCutoffValue(fragmentMz);
     float rtmin = eicParameters->_slice.rtmin;
     float rtmax = eicParameters->_slice.rtmax;
-
-    if (_autoZoom && precursor->expectedRt > 0.0f) {
-        rtmin = precursor->expectedRt - 2.0f;
-        rtmax = precursor->expectedRt + 2.0f;
-    }
 
     mzSlice slice(minmz, maxmz, rtmin, rtmax);
     slice.precursor = precursor;
     setMzSlice(slice);
-
-    if (precursor->expectedRt > 0) {
-        setFocusLine(precursor->expectedRt);
-        selectGroupNearRt(precursor->expectedRt);
-    } else {
-        // remove previous focusline
-        if (_focusLine && _focusLine->scene())
-            scene()->removeItem(_focusLine);
-        getMainWindow()->mavenParameters->setPeakGroup(nullptr);
-        resetZoom();
-    }
 }
 
 void EicWidget::groupPeaks() {
