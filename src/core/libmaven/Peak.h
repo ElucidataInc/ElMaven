@@ -135,7 +135,7 @@ class Peak {
          * @method getSample
          * @return []
          */
-        inline mzSample* getSample() { return sample; }
+        inline mzSample* getSample() const { return sample; }
 
         /**
          * [hasSample ]

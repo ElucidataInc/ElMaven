@@ -485,10 +485,16 @@ class mzSample
     inline const unsigned int ms1ScanCount() { return _numMS1Scans; }
 
     /**
-     * @brief Get the number of MS2 level scans detected in this sample.
-     * @return MS2 scan count as unsigned int.
+     * @brief Get the number of MS2 (DDA) level scans detected in this sample.
+     * @return DDA MS/MS scan count as unsigned int.
      */
     inline const unsigned int ms2ScanCount() { return _numMS2Scans; }
+
+    /**
+     * @brief Get the number of MS2 (DIA) level scans detected in this sample.
+     * @return DIA MS/MS scan count as unsigned int.
+     */
+    inline const unsigned int diaScanCount() { return _numDIAScans; }
 
     /**
      * @brief Obtain the unique sample ID for the sample.
@@ -738,6 +744,7 @@ class mzSample
     int _id;
     unsigned int _numMS1Scans;
     unsigned int _numMS2Scans;
+    unsigned int _numDIAScans;
 
     void sampleNaming(const char *filename);
     void checkSampleBlank(const char *filename);

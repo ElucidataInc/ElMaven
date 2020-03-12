@@ -25,6 +25,7 @@ mzSample::mzSample() : _setName(""), injectionOrder(0)
     _id = -1;
     _numMS1Scans = 0;
     _numMS2Scans = 0;
+    _numDIAScans = 0;
     maxMz = maxRt = 0;
     minMz = minRt = 0;
     isBlank = false;
@@ -89,14 +90,20 @@ void mzSample::addScan(Scan* s)
 
     if (s->mslevel == 1)
         ++_numMS1Scans;
-    if (s->mslevel == 2)
+    if (s->mslevel == 2 && s->msType() == Scan::MsType::DDA)
         ++_numMS2Scans;
+    if (s->mslevel == 2 && s->msType() == Scan::MsType::DIA)
+        ++_numDIAScans;
 
     scans.push_back(s);
     s->scannum = scans.size() - 1;
 
-    //recalculate precursorMz of MS2 scans
-    if (s->mslevel == 2 && _numMS1Scans > 0) {
+    // recalculate precursorMz of MS2 scans
+    // TODO: MS2 scans may be present at the beginning of mzML files, in which
+    // case `Scan::getLastFullScan` may not work as it is. Fix this.
+    if (s->mslevel == 2
+        && _numMS1Scans > 0
+        && s->msType() == Scan::MsType::DDA) {
         float ppm = 10;
         s->recalculatePrecursorMz(ppm);
     }

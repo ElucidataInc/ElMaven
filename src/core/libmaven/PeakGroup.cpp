@@ -1,11 +1,16 @@
+#include <numeric>
+
 #include "PeakGroup.h"
 #include "Compound.h"
 #include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
+#include "deconvolution.h"
 #include "mzSample.h"
 #include "EIC.h"
 #include "Scan.h"
 #include "mavenparameters.h"
+#include "RealVector.h"
+#include "masscutofftype.h"
 #include "mzSample.h"
 #include "mzMassCalculator.h"
 
@@ -873,7 +878,7 @@ vector<Scan*> PeakGroup::getFragmentationEvents()
     return matchedScans;
 }
 
-void PeakGroup::computeFragPattern(float productPpmTolr)
+void PeakGroup::_computeDdaFragPattern(float productPpmTolr)
 {
     vector<Scan*> ms2Events = getFragmentationEvents();
     if (ms2Events.size() == 0) return;
@@ -898,6 +903,128 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     fragment.consensus->sortByMz();
     fragmentationPattern = fragment.consensus;
     ms2EventCount = ms2Events.size();
+}
+
+void PeakGroup::computeFragPattern(float productPpmTolr)
+{
+    bool hasDiaSamples = false;
+    bool hasDdaSamples = false;
+    for (auto& peak : peaks) {
+        if (peak.getSample()->diaScanCount() > 0)
+            hasDiaSamples = true;
+        if (peak.getSample()->ms2ScanCount() > 0)
+            hasDdaSamples = true;
+    }
+    if (hasDiaSamples) {
+        _computeDiaFragPattern(productPpmTolr);
+    } else if (hasDdaSamples) {
+        _computeDdaFragPattern(productPpmTolr);
+    }
+}
+
+void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
+{
+    auto compound = getCompound();
+    if (compound == nullptr)
+        return;
+
+    Fragment fragment;
+    auto precursorMz = compound->adjustedMass(compound->charge);
+    MassCutoff massCutoff;
+    massCutoff.setMassCutoffAndType(productPpmTolr, "ppm");
+
+    for (const auto& peak : peaks) {
+        Fragment* peakFragmentProfile = new Fragment;
+        NimbleDSP::RealVector<float> rtValues;
+        NimbleDSP::RealVector<float> intensityValues;
+
+        for (const auto expFragMz : compound->fragmentMzValues) {
+            // set min/max m/z to cover one fragment at a time
+            float mzMin = expFragMz - massCutoff.massCutoffValue(expFragMz);
+            float mzMax = expFragMz + massCutoff.massCutoffValue(expFragMz);
+
+            // set RT range will be peak-top's RT ± 1.5 * width
+            float peakWidth = peak.rtmax - peak.rtmin;
+            float rtMin = peak.rt - peakWidth * 1.5f;
+            float rtMax = peak.rt + peakWidth * 1.5f;
+
+            // fetch MS/MS EIC of the fragment's slice
+            EIC* eic = peak.getSample()->getEIC(mzMin,
+                                                mzMax,
+                                                rtMin,
+                                                rtMax,
+                                                2,
+                                                EIC::SUM,
+                                                "",
+                                                precursorMz);
+
+            // TODO: Let the user decide the parameters here
+            auto fragmentRegions = Deconvolution::modelPeakRegions(eic,
+                                                                   5,
+                                                                   0.001,
+                                                                   10);
+            if (fragmentRegions.empty())
+                continue;
+
+            // deconvolute the EIC and get the signal closest to peak's RT
+            float fragmentMz = 0.0f;
+            float fragmentRt = 0.0f;
+            float rtDiff = numeric_limits<float>::max();
+            pair<size_t, size_t> regionOfInterest;
+            for (const auto& region : fragmentRegions) {
+                auto signal = eic->intensitySegment(region.first,
+                                                    region.second,
+                                                    true);
+                size_t peakTop = distance(begin(signal),
+                                          max_element(begin(signal),
+                                                      end(signal)));
+                if (eic->rt[region.first + peakTop] - peak.rt < rtDiff) {
+                    regionOfInterest = region;
+                    fragmentMz = eic->mz[region.first + peakTop];
+                    fragmentRt = eic->rt[region.first + peakTop];
+                    rtDiff = eic->rt[region.first + peakTop] - peak.rt;
+                }
+            }
+            auto convoluted = Deconvolution::convolutedSignals(regionOfInterest,
+                                                               fragmentRegions,
+                                                               eic);
+            auto chromatogram = eic->intensitySegment(convoluted.leftBound,
+                                                      convoluted.rightBound,
+                                                      true);
+            vector<float> fragmentSignal = Deconvolution::execute(convoluted,
+                                                                  chromatogram);
+
+            // corrected area of its signal is the fragment's "pure" intensity
+            float fragmentIntensity = accumulate(begin(fragmentSignal),
+                                                 end(fragmentSignal),
+                                                 0.0f);
+
+            // store fragment's values
+            peakFragmentProfile->mzValues.push_back(fragmentMz);
+            peakFragmentProfile->intensityValues.push_back(fragmentIntensity);
+            rtValues.vec.push_back(fragmentRt);
+            intensityValues.vec.push_back(fragmentIntensity);
+        }
+        if (intensityValues.vec.empty() || rtValues.vec.empty())
+            continue;
+
+        peakFragmentProfile->obscount = vector<int>(intensityValues.size(), 1);
+        peakFragmentProfile->rt = rtValues.mean();
+
+        // TODO: is it okay to calculate purity base on area as intensity?
+        peakFragmentProfile->purity = peak.peakAreaCorrected
+                                      / intensityValues.sum();
+
+        fragment.addBrotherFragment(peakFragmentProfile);
+
+        // TODO: this is wrong, temporarily using this to evade group fitlering
+        ++ms2EventCount;
+    }
+
+    // build a consensus spectrum across all peaks
+    fragment.buildConsensus(productPpmTolr);
+    fragment.consensus->sortByMz();
+    fragmentationPattern = fragment.consensus;
 }
 
 Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)

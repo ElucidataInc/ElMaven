@@ -648,5 +648,8 @@ class PeakGroup{
         string _tableName;
         shared_ptr<MavenParameters> _parameters;
         IntegrationType _integrationType;
+
+        void _computeDdaFragPattern(float productPpmTolr);
+        void _computeDiaFragPattern(float productPpmTolr);
 };
 #endif

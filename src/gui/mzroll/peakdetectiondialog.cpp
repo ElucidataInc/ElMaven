@@ -492,12 +492,28 @@ void PeakDetectionDialog::toggleFragmentation()
     auto iter = find_if(begin(samples),
                         end(samples),
                         [](mzSample* s) {
-                           return ((s->ms1ScanCount() > 0)
-                                   && (s->ms2ScanCount() > 0));
+                            bool hasMs1 = s->ms1ScanCount() > 0;
+                            bool hasDda = s->ms2ScanCount() > 0;
+                            bool hasDia = s->diaScanCount() > 0;
+                            return (hasMs1 && hasDda)
+                                   || (hasMs1 && hasDia);
                         });
-    bool foundDda = iter != end(samples);
+    bool hasFragmentation = iter != end(samples);
+    if (hasFragmentation && featureOptions->isChecked()) {
+        mustHaveMs2->setEnabled(true);
+    } else {
+        mustHaveMs2->setEnabled(false);
+        mustHaveMs2->setChecked(false);
+    }
 
-    if (foundDda && DB.isSpectralLibrary(selectedDbName.toStdString())) {
+    QString selectedDbName = "";
+    if (dbSearch->isChecked()) {
+        selectedDbName = compoundDatabase->currentText();
+    } else if (featureOptions->isChecked()) {
+        selectedDbName = identificationDatabase->currentText();
+    }
+
+    if (hasFragmentation && DB.isSpectralLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
