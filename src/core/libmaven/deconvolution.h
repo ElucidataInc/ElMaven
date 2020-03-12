@@ -38,11 +38,6 @@ namespace Deconvolution
                                                   float sigma,
                                                   int averagePeakWidth);
 
-    Pattern getPattern(bool hasOneLeft,
-                       bool hasTwoLeft,
-                       bool hasOneRight,
-                       bool hasTwoRight);
-
     SignalVector convolutedSignals(const pair<size_t, size_t>& roi,
                                    const vector<pair<size_t, size_t>>& regions,
                                    const EIC *eic);

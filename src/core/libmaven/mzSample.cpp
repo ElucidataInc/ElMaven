@@ -1,15 +1,15 @@
 #include "mzSample.h"
+#include "EIC.h"
+#include "Matrix.h"
+#include "Scan.h"
 #include "base64.h"
 #include "datastructures/mzSlice.h"
-#include "statistics.h"
-#include "mzUtils.h"
-#include "mzPatterns.h"
-#include "mzFit.h"
 #include "masscutofftype.h"
+#include "mzFit.h"
 #include "mzMassCalculator.h"
-#include "Matrix.h"
-#include "EIC.h"
-#include "Scan.h"
+#include "mzPatterns.h"
+#include "mzUtils.h"
+#include "statistics.h"
 
 #include <MavenException.h>
 
@@ -26,6 +26,7 @@ mzSample::mzSample() : _setName(""), injectionOrder(0)
     _numMS1Scans = 0;
     _numMS2Scans = 0;
     _msMsType = MsMsType::None;
+    _numDIAScans = 0;
     maxMz = maxRt = 0;
     minMz = minRt = 0;
     isBlank = false;
@@ -95,14 +96,19 @@ void mzSample::addScan(Scan* s)
 
     if (s->mslevel == 1)
         ++_numMS1Scans;
-    if (s->mslevel == 2)
+    if (s->mslevel == 2 && s->msType() == Scan::MsType::DDA)
         ++_numMS2Scans;
+    if (s->mslevel == 2 && s->msType() == Scan::MsType::DIA)
+        ++_numDIAScans;
 
     scans.push_back(s);
     s->scannum = scans.size() - 1;
 
-    //recalculate precursorMz of MS2 scans
-    if (s->mslevel == 2 && _numMS1Scans > 0) {
+    // recalculate precursorMz of MS2 scans
+    // TODO: MS2 scans may be present at the beginning of mzML files, in which
+    // case `Scan::getLastFullScan` may not work as it is. Fix this.
+    if (s->mslevel == 2 && _numMS1Scans > 0
+        && s->msType() == Scan::MsType::DDA) {
         float ppm = 10;
         s->recalculatePrecursorMz(ppm);
     }
@@ -374,13 +380,14 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         map<string, string> activationParams = mzML_cvParams(activationNode);
         float collisionEnergy = 0.0f;
         if (activationParams.count("collision energy"))
-            collisionEnergy = string2float(activationParams["collision energy"]);
+            collisionEnergy =
+                string2float(activationParams["collision energy"]);
 
-        for (xml_node binaryDataArray = binaryDataArrayList.child("binaryDataArray");
+        for (xml_node binaryDataArray =
+                 binaryDataArrayList.child("binaryDataArray");
              binaryDataArray;
              binaryDataArray =
                  binaryDataArray.next_sibling("binaryDataArray")) {
-
             map<string, string> attr = mzML_cvParams(binaryDataArray);
 
             int precision = 64;
@@ -388,8 +395,8 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
                 precision = 32;
 
             bool decompress = false;
-            if(attr.count("zlib compression"))
-                decompress=true;
+            if (attr.count("zlib compression"))
+                decompress = true;
 
             if (attr.count("positive scan")) {
                 scanPolarity = 1;
@@ -399,10 +406,8 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
 
             string binaryDataStr =
                 binaryDataArray.child("binary").child_value();
-            vector<float> binaryData = base64::decodeBase64(binaryDataStr,
-                                                             precision / 8,
-                                                             false,
-                                                             decompress);
+            vector<float> binaryData = base64::decodeBase64(
+                binaryDataStr, precision / 8, false, decompress);
 
             if (attr.count("time array")) {
                 timeVector = binaryData;
@@ -433,9 +438,8 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
 
                 scan->collisionEnergy = collisionEnergy;
                 if (scan->collisionEnergy > 0.0f) {
-                    scan->filterLine = chromatogramId
-                                       + " CE: "
-                                       + to_string(collisionEnergy);
+                    scan->filterLine =
+                        chromatogramId + " CE: " + to_string(collisionEnergy);
                 } else {
                     scan->filterLine = chromatogramId;
                 }
@@ -479,15 +483,15 @@ int mzSample::getSampleNoChromatogram(const string& chromatogramId)
         return -1;
 }
 
-void mzSample::cleanFilterLine(string &filterline) {
-
+void mzSample::cleanFilterLine(string& filterline)
+{
     string filterRegex;
     regex rx;
     for (const string& filterId : filterChromatogram) {
         filterRegex = filterId + "\ *\=\ *[0-9]*\.?[0-9]+";
         rx = filterRegex;
         filterline = std::regex_replace(filterline, rx, "");
-	}
+    }
 }
 
 void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
@@ -586,16 +590,14 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
                 precision = 32;
 
             bool decompress = false;
-            if(attr.count("zlib compression"))
-                decompress=true;
+            if (attr.count("zlib compression"))
+                decompress = true;
 
             string binaryDataStr =
                 binaryDataArray.child("binary").child_value();
             if (!binaryDataStr.empty()) {
-                vector<float> binaryData = base64::decodeBase64(binaryDataStr,
-                                                                 precision / 8,
-                                                                 false,
-                                                                 decompress);
+                vector<float> binaryData = base64::decodeBase64(
+                    binaryDataStr, precision / 8, false, decompress);
                 if (attr.count("m/z array")) {
                     mzVector = binaryData;
                 }
@@ -890,7 +892,8 @@ vector<float> mzSample::parsePeaksFromMzXML(const xml_node& scan)
         // if the data is been compressed in zlib format this part will
         // take care.
         bool decompress = false;
-        if (strncasecmp(peaks.attribute("compressionType").value(), "zlib", 4) == 0) {
+        if (strncasecmp(peaks.attribute("compressionType").value(), "zlib", 4)
+            == 0) {
             decompress = true;
         }
 
@@ -1080,9 +1083,9 @@ void mzSample::calculateMzRtRange()
             float mz = currentScan->mz[i];
             totalIntensity += intensity;
             if (mz < minMz && mz > 0)
-                minMz = mz; //sanity check must be greater > 0
+                minMz = mz;  // sanity check must be greater > 0
             if (mz > maxMz && mz < 1e9)
-                maxMz = mz; //sanity check m/z over a billion
+                maxMz = mz;  // sanity check m/z over a billion
             if (intensity < minIntensity)
                 minIntensity = intensity;
             if (intensity > maxIntensity)
@@ -1090,7 +1093,7 @@ void mzSample::calculateMzRtRange()
             nobs++;
         }
     }
-    //sanity check
+    // sanity check
     if (minRt <= 0)
         minRt = 0;
     if (maxRt >= 1e4)
@@ -1186,8 +1189,7 @@ EIC* mzSample::getEIC(float precursorMz,
             continue;
         if (precursorMz != 0.0f && abs(scan->precursorMz - precursorMz) > amuQ1)
             continue;
-        if (collisionEnergy != 0.0f
-            && scan->collisionEnergy != 0.0f
+        if (collisionEnergy != 0.0f && scan->collisionEnergy != 0.0f
             && abs(scan->collisionEnergy - collisionEnergy) > 0.5) {
             continue;
         }
@@ -1238,9 +1240,8 @@ EIC* mzSample::getEIC(float precursorMz,
                 eicIntensity = static_cast<float>(sumIntensity);
                 eicFilterline = scan->filterLine;
             } else {
-                eicMz = accumulate(begin(mzValues),
-                                   end(mzValues),
-                                   0.0) / mzValues.size();
+                eicMz = accumulate(begin(mzValues), end(mzValues), 0.0)
+                        / mzValues.size();
                 eicIntensity = 0.0f;
                 eicFilterline = scan->filterLine;
             }
@@ -1348,14 +1349,13 @@ EIC* mzSample::getEIC(float precursorMz,
 
         auto precursorDeltas = filterlinePrecursorDeltas.at(filterline);
         auto productDeltas = filterlineProductDeltas.at(filterline);
-        if (precursorDeltas.size() > 0
-            && productDeltas.size() > 0) {
-            auto meanPrecursorDelta = accumulate(begin(precursorDeltas),
-                                                 end(precursorDeltas),
-                                                 0.0) / precursorDeltas.size();
-            auto meanProductDelta = accumulate(begin(precursorDeltas),
-                                               end(precursorDeltas),
-                                               0.0) / productDeltas.size();
+        if (precursorDeltas.size() > 0 && productDeltas.size() > 0) {
+            auto meanPrecursorDelta =
+                accumulate(begin(precursorDeltas), end(precursorDeltas), 0.0)
+                / precursorDeltas.size();
+            auto meanProductDelta =
+                accumulate(begin(precursorDeltas), end(precursorDeltas), 0.0)
+                / productDeltas.size();
             float deltaScore = hypotf(meanPrecursorDelta, meanProductDelta);
             if (deltaScore < bestDeltaScore) {
                 eic = eicAlt;
@@ -1432,9 +1432,8 @@ EIC* mzSample::getEIC(string srm, int eicType)
                     eicMz = static_cast<float>(sumMz / sumIntensity);
                     eicIntensity = static_cast<float>(sumIntensity);
                 } else {
-                    eicMz = accumulate(begin(mzValues),
-                                       end(mzValues),
-                                       0.0) / mzValues.size();
+                    eicMz = accumulate(begin(mzValues), end(mzValues), 0.0)
+                            / mzValues.size();
                     eicIntensity = 0.0f;
                 }
                 break;
@@ -1695,20 +1694,10 @@ float mzSample::correlation(float mzMin1,
                             int eicType,
                             string filterline)
 {
-    EIC* e1 = getEIC(mzMin1,
-                     mzMax1,
-                     rtMin,
-                     rtMax,
-                     msLevel,
-                     eicType,
-                     filterline);
-    EIC* e2 = getEIC(mzMin2,
-                     mzMax2,
-                     rtMin,
-                     rtMax,
-                     msLevel,
-                     eicType,
-                     filterline);
+    EIC* e1 =
+        getEIC(mzMin1, mzMax1, rtMin, rtMax, msLevel, eicType, filterline);
+    EIC* e2 =
+        getEIC(mzMin2, mzMax2, rtMin, rtMax, msLevel, eicType, filterline);
     float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
     delete (e1);
     delete (e2);
@@ -1752,7 +1741,7 @@ int mzSample::parseCDF(const char* filename, int is_verbose)
 
     if (MS_ERROR
         == ms_read_global(
-               cdf, &admin_data, &sample_data, &test_data, &raw_global_data)) {
+            cdf, &admin_data, &sample_data, &test_data, &raw_global_data)) {
         fprintf(stderr, "\nopen_cdf_ms: ms_read_global failed!");
         ms_init_global(
             TRUE, &admin_data, &sample_data, &test_data, &raw_global_data);
@@ -1837,13 +1826,13 @@ int mzSample::parseCDF(const char* filename, int is_verbose)
         ms_init_per_scan(FALSE, &raw_data, NULL);
         raw_data.scan_no = (long)scan;
         double mass_pt, inty_pt = 0.0;
-            /* init */  // naman The scope can be reduced.
+        /* init */  // naman The scope can be reduced.
 
         if (MS_ERROR
             == ms_read_per_scan(
-                   cdf,
-                   &raw_data,
-                   NULL)) { /* free allocated memory before leaving */
+                cdf,
+                &raw_data,
+                NULL)) { /* free allocated memory before leaving */
             fprintf(
                 stderr, "\nreadchro: ms_read_per_scan failed (scan %d)!", scan);
             ms_init_per_scan(TRUE, &raw_data, NULL);

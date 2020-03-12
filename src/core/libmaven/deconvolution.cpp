@@ -129,30 +129,30 @@ Deconvolution::modelPeakRegions(EIC* eic,
     return _refineModelRegions(eic, modelRegions, averagePeakWidth);
 }
 
-Deconvolution::Pattern Deconvolution::getPattern(bool hasOneLeft,
-                                                 bool hasTwoLeft,
-                                                 bool hasOneRight,
-                                                 bool hasTwoRight)
+Deconvolution::Pattern _getPattern(bool hasOneLeft,
+                                   bool hasTwoLeft,
+                                   bool hasOneRight,
+                                   bool hasTwoRight)
 {
     if (!hasOneLeft && !hasTwoLeft && !hasOneRight && !hasTwoRight)
-        return Pattern::C;
+        return Deconvolution::Pattern::C;
     if (hasOneLeft && !hasTwoLeft && !hasOneRight && !hasTwoRight)
-        return Pattern::BC;
+        return Deconvolution::Pattern::BC;
     if (!hasOneLeft && !hasTwoLeft && hasOneRight && !hasTwoRight)
-        return Pattern::CD;
+        return Deconvolution::Pattern::CD;
     if (hasOneLeft && !hasTwoLeft && hasOneRight && !hasTwoRight)
-        return Pattern::BCD;
+        return Deconvolution::Pattern::BCD;
     if (hasOneLeft && hasTwoLeft && !hasOneRight && !hasTwoRight)
-        return Pattern::ABC;
+        return Deconvolution::Pattern::ABC;
     if (!hasOneLeft && !hasTwoLeft && hasOneRight && hasTwoRight)
-        return Pattern::CDE;
+        return Deconvolution::Pattern::CDE;
     if (hasOneLeft && hasTwoLeft && hasOneRight && !hasTwoRight)
-        return Pattern::ABCD;
+        return Deconvolution::Pattern::ABCD;
     if (hasOneLeft && !hasTwoLeft && hasOneRight && hasTwoRight)
-        return Pattern::BCDE;
+        return Deconvolution::Pattern::BCDE;
     if (hasOneLeft && hasTwoLeft && hasOneRight && hasTwoRight)
-        return Pattern::ABCDE;
-    return Pattern::C;
+        return Deconvolution::Pattern::ABCDE;
+    return Deconvolution::Pattern::C;
 }
 
 Deconvolution::SignalVector
@@ -260,10 +260,10 @@ Deconvolution::convolutedSignals(const pair<size_t, size_t> &roi,
     }
     convoluted.leftBound = leftBound;
     convoluted.rightBound = rightBound;
-    convoluted.pattern = getPattern(hasOneLeft,
-                                    hasTwoLeft,
-                                    hasOneRight,
-                                    hasTwoRight);
+    convoluted.pattern = _getPattern(hasOneLeft,
+                                     hasTwoLeft,
+                                     hasOneRight,
+                                     hasTwoRight);
     return convoluted;
 }
 
