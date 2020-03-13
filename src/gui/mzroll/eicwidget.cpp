@@ -628,15 +628,16 @@ void EicWidget::addEICLines(bool showSpline,
             if (eic->rt[j] > eicParameters->getMzSlice().rtmax)
                 continue;
 
-            if (showSpline)
+            if (showSpline){
                 addPoint(lineSpline, eic->rt[j], eic->spline[j]);
+            }
 
             if (showEic) {
                 if (overlayingIntegratedArea) {
                     if (rtMin > 0.0f && eic->rt[j] < rtMin) {
                         addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
                         int nextIdx = j + 1;
-                        if (nextIdx < eic->size() && eic->rt[nextIdx] > rtMin) {
+                        if (nextIdx < eic->size() && eic->rt[nextIdx] >= rtMin) {
                             addPoint(lineEicLeft,
                                      eic->rt[nextIdx],
                                      eic->intensity[nextIdx]);
@@ -644,7 +645,7 @@ void EicWidget::addEICLines(bool showSpline,
                     }
                     if (rtMax > 0.0f && eic->rt[j] > rtMax) {
                         int prevIdx = j - 1;
-                        if (prevIdx > 0 && eic->rt[prevIdx] < rtMax) {
+                        if (prevIdx > 0 && eic->rt[prevIdx] <= rtMax) {
                             addPoint(lineEicRight,
                                      eic->rt[prevIdx],
                                      eic->intensity[prevIdx]);

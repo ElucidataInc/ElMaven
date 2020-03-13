@@ -42,7 +42,7 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
 
         auto compound = parentGroup.getCompound();
         for (const auto adduct : adductsList) {
-            if(parentGroup.getAdduct()){
+            if (parentGroup.getAdduct()) {
                 if (*adduct == *(parentGroup.getAdduct()))
                     continue;
             }
