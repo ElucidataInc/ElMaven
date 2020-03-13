@@ -306,11 +306,16 @@ void MassSlices::_reduceSlices()
         if (mzUtils::almostEqual(firstSlice->ionCount, -1.0f))
             continue;
 
+        // we will use this to terminate large shifts in slices, where they
+        // might end up losing their original information completely
+        auto originalMax = firstSlice->mzmax;
+
         for (auto second = next(first); second != end(slices); ++second) {
             auto secondSlice = *second;
 
             // stop iterating if the rest of the slices are too far
-            if (firstSlice->mzmax < secondSlice->mzmin)
+            if (originalMax < secondSlice->mzmin
+                || firstSlice->mzmax < secondSlice->mzmin)
                 break;
 
             if (mzUtils::almostEqual(secondSlice->ionCount, -1.0f))
