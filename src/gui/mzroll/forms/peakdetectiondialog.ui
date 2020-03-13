@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>843</width>
-    <height>685</height>
+    <width>795</width>
+    <height>619</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="sizeIncrement">
    <size>
@@ -20,6 +26,21 @@
    <string>Peak Detection</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
@@ -63,8 +84,20 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <property name="verticalSpacing">
+          <property name="leftMargin">
            <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
           </property>
           <item row="4" column="0">
            <widget class="QLabel" name="label_scoringAlgo">
@@ -193,8 +226,20 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <property name="verticalSpacing">
+          <property name="leftMargin">
            <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
           </property>
           <item row="0" column="2">
            <widget class="QLabel" name="label_17">
@@ -423,8 +468,20 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <property name="verticalSpacing">
+          <property name="leftMargin">
            <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
           </property>
           <item row="3" column="0">
            <widget class="QCheckBox" name="matchRt">
@@ -587,6 +644,21 @@
           <string>Group Filtering</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <property name="leftMargin">
+           <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
+          </property>
           <item row="0" column="0" colspan="4">
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="4" column="0">
