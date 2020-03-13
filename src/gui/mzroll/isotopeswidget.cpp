@@ -676,5 +676,7 @@ QString IsotopeWidget::groupTextEport(PeakGroup *group)
 
 void IsotopeWidget::refreshForCurrentPeak()
 {
+    if (_mw->mavenParameters->_group)
+        isotopeParameters->_group = _mw->mavenParameters->_group;
     computeIsotopes(isotopeParameters->_formula);
 }

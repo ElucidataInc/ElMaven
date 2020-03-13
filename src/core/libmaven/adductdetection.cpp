@@ -42,9 +42,10 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
 
         auto compound = parentGroup.getCompound();
         for (const auto adduct : adductsList) {
-            if (*adduct == *(parentGroup.getAdduct()))
-                continue;
-
+            if (parentGroup.getAdduct()) {
+                if (*adduct == *(parentGroup.getAdduct()))
+                    continue;
+            }
             if (SIGN(adduct->getCharge()) != SIGN(mp->ionizationMode))
                 continue;
 

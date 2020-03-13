@@ -66,6 +66,7 @@
 #include "treemap.h"
 #include "updatedialog.h"
 #include "videoplayer.h"
+#include "eiclogic.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -1377,14 +1378,21 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 
 PeakGroup* MainWindow::bookmarkPeakGroup()
 {
-    if (eicWidget && (eicWidget->getParameters()->displayedGroup() != NULL)) {
-       return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
+    if(eicWidget != nullptr && eicWidget->getParameters() != nullptr){
+        if (eicWidget->getParameters()->displayedGroup() != nullptr){
+            return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
+        }
+        else
+        {
+            PeakGroup* peakgroup;
+            return peakgroup;
+        }
     }
 }
 
 PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
 {
-	if ( bookmarkedPeaks == NULL ) return NULL;
+    if ( bookmarkedPeaks == NULL ) return NULL;
 	//TODO: User feedback when group is rejected
 	if (group->peakCount() == 0) return NULL;
 
