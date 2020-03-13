@@ -9,7 +9,9 @@ class PollyIntegration;
 class MainWindow;
 class PeakDetectionSettings;
 class OptionsDialogSettings;
+#ifndef Q_OS_LINUX
 class AutoUpdater;
+#endif
 
 class Controller:  public QObject
 {
@@ -18,7 +20,9 @@ public:
     Controller();
     ~Controller();
     MainWindow* getMainWindow() { return _mw; }
+#ifndef Q_OS_LINUX
     AutoUpdater* getUpdater() { return _updater; }
+#endif
     PollyIntegration* iPolly;
 
 public Q_SLOTS:
@@ -31,7 +35,9 @@ public Q_SLOTS:
 private:
     MainWindow* _mw;
     DownloadManager* _dlManager;
+#ifndef Q_OS_LINUX
     AutoUpdater* _updater;
+#endif
 
     void _updateMavenParameters(const QString& key, const QVariant& value);
 

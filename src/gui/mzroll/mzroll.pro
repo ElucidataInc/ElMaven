@@ -325,6 +325,11 @@ SOURCES += mainwindow.cpp  \
            autoupdater.cpp \
            updatedialog.cpp
 
+linux {
+    SOURCES -= autoupdater.cpp
+    HEADERS -= autoupdater.h
+}
+
 contains (DEFINES,EMBEDHTTPSERVER) {
     SOURCES += remotespectrahandler.cpp
     HEADERS += remotespectrahandler.h

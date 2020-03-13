@@ -6,8 +6,10 @@
 #include <QGroupBox>
 #include <QSpinBox>
 
-#include <common/downloadmanager.h>
+#ifndef Q_OS_LINUX
 #include "autoupdater.h"
+#endif
+#include <common/downloadmanager.h>
 #include "controller.h"
 #include "isotopedialog.h"
 #include "ligandwidget.h"
@@ -39,6 +41,7 @@ Controller::Controller()
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();
 
+#ifndef Q_OS_LINUX
     _updater = new AutoUpdater();
     connect(_updater,
             &AutoUpdater::updateAvailable,
@@ -51,6 +54,7 @@ Controller::Controller()
 
     qDebug() << "Checking for updates…";
     _updater->start();
+#endif
 }
 
 Controller::~Controller()
