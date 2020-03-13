@@ -405,6 +405,7 @@ void PlotDockWidget::addToolBar() {
     toolBar = new QToolBar(mainWidget);
 	toolBar->setFloatable(true);
 	toolBar->setMovable(true);
+    toolBar->setIconSize(QSize(24, 24));
 }
 
 

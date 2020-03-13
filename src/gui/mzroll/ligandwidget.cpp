@@ -46,6 +46,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
+  toolBar->setIconSize(QSize(24, 24));
 
   databaseSelect = new QComboBox(toolBar);
   databaseSelect->setObjectName(QString::fromUtf8("databaseSelect"));

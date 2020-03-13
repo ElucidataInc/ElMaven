@@ -48,6 +48,7 @@ SpectralHitsDockWidget::SpectralHitsDockWidget(MainWindow* mw, QString title) {
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
     QToolButton *btnLoad = new QToolButton(toolBar);
     btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
