@@ -2215,7 +2215,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnHeatmapelete") {
 
     QToolButton *btnHeatmapelete = new QToolButton(parent);
-    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/delete.png"));
+    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
     btnHeatmapelete->setToolTip("Delete Group");
     connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteGroups()));
     return btnHeatmapelete;
@@ -2256,6 +2256,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
+  toolBar->setIconSize(QSize(24, 24));
 
   QWidgetAction *titlePeakTable =
       new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
@@ -2340,6 +2341,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
+  toolBar->setIconSize(QSize(24, 24));
   btnMerge = new QToolButton(toolBar);
   btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
   btnMerge->setToolTip("Merge Groups With");
@@ -2712,6 +2714,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
   toolBar->setMovable(false);
+  toolBar->setIconSize(QSize(24, 24));
 
   QWidgetAction *titlePeakTable =
       new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");

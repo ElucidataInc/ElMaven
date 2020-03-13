@@ -1246,7 +1246,7 @@ TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
 
     QToolButton* btnTable = addDockWidgetButton(sideBar,
                                                 panel,
-                                                QIcon(rsrcPath + "/featuredetect.png"),
+                                                QIcon(rsrcPath + "/Peak Table.png"),
                                                 "");
 
     groupTables.push_back(panel);
@@ -2918,6 +2918,7 @@ void MainWindow::createToolBars() {
 	QToolBar *toolBar = new QToolBar(this);
 	toolBar->setObjectName("mainToolBar");
 	toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
@@ -3138,6 +3139,7 @@ void MainWindow::createToolBars() {
 
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
+    sideBar->setIconSize(QSize(24, 24));
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
 												  projectDockWidget,
@@ -3792,7 +3794,8 @@ QWidget* MainWindow::eicWidgetController() {
 
 	QToolBar *toolBar = new QToolBar(this);
 	toolBar->setFloatable(false);
-	toolBar->setMovable(false);
+    toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
 	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");

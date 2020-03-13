@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
     qApp->setOrganizationName("ElucidataInc");
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
+    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG

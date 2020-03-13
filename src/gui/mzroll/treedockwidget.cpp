@@ -456,6 +456,7 @@ void TreeDockWidget::setQQQToolBar() {
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
     amuQ1 = new QDoubleSpinBox(toolBar);
     amuQ1->setRange(0.001, 2.0);

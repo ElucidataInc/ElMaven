@@ -56,6 +56,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
     QToolButton* exportMetadataButton = new QToolButton(toolBar);
     // TODO: Replace this icon with something more appropriate

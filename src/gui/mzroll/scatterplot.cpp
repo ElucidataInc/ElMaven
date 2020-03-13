@@ -55,6 +55,7 @@ void ScatterPlot::setupToolBar() {
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
     QToolButton *bntResetZoom = new QToolButton(toolBar);
     bntResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
@@ -84,7 +85,7 @@ void ScatterPlot::setupToolBar() {
     connect(btnDelete,SIGNAL(clicked()),this,SLOT(deleteGroup()));
 
     btnPeakTable = new QToolButton(toolBar);
-    btnPeakTable->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
+    btnPeakTable->setIcon(QIcon(rsrcPath + "/Peak Table.png"));
     btnPeakTable->setToolTip("Show Peaks Table");
     btnPeakTable->setCheckable(true);
     connect(btnPeakTable,SIGNAL(clicked()),this,SLOT(showPeakTable()));
