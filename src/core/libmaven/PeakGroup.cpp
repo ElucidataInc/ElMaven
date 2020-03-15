@@ -1010,11 +1010,6 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
 
         peakFragmentProfile->obscount = vector<int>(intensityValues.size(), 1);
         peakFragmentProfile->rt = rtValues.mean();
-
-        // TODO: is it okay to calculate purity base on area as intensity?
-        peakFragmentProfile->purity = peak.peakAreaCorrected
-                                      / intensityValues.sum();
-
         fragment.addBrotherFragment(peakFragmentProfile);
 
         // TODO: this is wrong, temporarily using this to evade group fitlering
