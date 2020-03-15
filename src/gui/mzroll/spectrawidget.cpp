@@ -507,7 +507,12 @@ void SpectraWidget::setGroupTitle()
     
     _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(meanMz, 'f', 4));
     
-    _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity, 'f', 2));
+    if (_currentScan != nullptr
+        && _currentScan->msType() == Scan::MsType::DDA) {
+        _titleText += tr("<b>Purity:</b> %1  ").arg(QString::number(purity,
+                                                                    'f',
+                                                                    2));
+    }
 
     setTitle(_titleText);
     mainwindow->fragSpectraDockWidget->setWindowTitle("Fragmentation spectra: " + compoundName);
