@@ -80,8 +80,6 @@ void AdductWidget::selectAdductsForCurrentPolarity()
             // to be unselected
             (*it)->setCheckState(0, Qt::Checked);
             (*it)->setDisabled(true);
-        } else {
-            (*it)->setDisabled(false);
         }
         ++it;
     }
