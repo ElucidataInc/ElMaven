@@ -729,7 +729,21 @@ class PeakGroup
     IntegrationType _integrationType;
 
     void _updateType();
+    /**
+     * @brief Generate a consensus fragmentation profile for this group,
+     * assuming the rules for DDA mode of acquisition.
+     * @param productPpmTolr The m/z tolerance that should be used to
+     * distinguish individual fragments.
+     */
     void _computeDdaFragPattern(float productPpmTolr);
+
+    /**
+     * @brief Generate a consensus fragmentation profile for this group,
+     * assuming the rules for DIA mode of acquisition.
+     * @param productPpmTolr The m/z tolerance that should be used to
+     * centroid MS/MS spectra (for deconvolution) as well as distinguish
+     * individual fragments
+     */
     void _computeDiaFragPattern(float productPpmTolr);
 };
 #endif

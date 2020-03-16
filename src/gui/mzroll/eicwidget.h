@@ -159,6 +159,12 @@ public Q_SLOTS:
      */
     void setSensitiveToTolerance(bool sensitive);
 
+    /**
+     * @brief Show MS/MS EIC for a fragment given it's precursor.
+     * @param precursor The parent compound whose fragment EIC needs to be
+     * drawn.
+     * @param fragmentMz The m/z of a fragment originating from precursor.
+     */
     void showFragment(Compound* precursor, float fragmentMz);
 
 protected:

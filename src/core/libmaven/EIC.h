@@ -279,6 +279,19 @@ class EIC
     void clearEICContents();
     void interpolate();
 
+    /**
+     * @brief Get a partial segment of the intensity vector of this EIC.
+     * @details The parameters to arguments `start` and `stop` should obey
+     * obvious limits (not being less than zero, not being more than total size,
+     * etc.) and stop should be greater than size. Both the bounds are included
+     * within the resulting segment.
+     * @param start Start position on intensity vector.
+     * @param stop Stop position on intensity vector.
+     * @param baselineCorrect If `true`, will subtract respective baseline value
+     * from each intensity value.
+     * @return A vector of `double` values storing a portion of this EIC's
+     * intensity values.
+     */
     vector<double> intensitySegment(size_t start,
                                     size_t stop,
                                     bool baselineCorrect = false) const;

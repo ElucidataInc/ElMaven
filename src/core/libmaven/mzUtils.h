@@ -683,22 +683,83 @@ namespace mzUtils
         my_vector.clear();
     }
 
+        /**
+         * @brief Apply a digital FIR filter to a signal.
+         * @param signal The 1D signal to be filtered.
+         * @param filter A 1D filter to be applied to the signal.
+         * @return 1D output for the filtered signal.
+         */
         std::vector<double> filterSignal(const std::vector<double>& signal,
                                          const std::vector<double>& filter);
+
+        /**
+         * @brief Apply a digital FIR filter to a signal.
+         * @param signal The 1D signal to be filtered.
+         * @param filter A 1D filter to be applied to the signal.
+         * @return 1D output for the filtered signal.
+         */
 
         std::vector<float> filterSignal(const std::vector<float>& signal,
                                         const std::vector<float>& filter);
 
+        /**
+         * @brief Calculates the nth order derivative of the given signal.
+         * @param signal The 1D signal whose difference needs to be computed.
+         * @param order Number of times the difference operation will be
+         * repeated. After each iteration, the resulting signal loses 1 element
+         * in size.
+         * @return 1D output representing the nth order derivative of signal.
+         * The size of this output is signal's size - `order`.
+         */
         std::vector<double> derivative(const std::vector<double>& signal,
                                        const int order = 1);
 
+        /**
+         * @brief Calculates the nth order derivative of the given signal.
+         * @param signal The 1D signal whose difference needs to be computed.
+         * @param order Number of times the difference operation will be
+         * repeated. After each iteration, the resulting signal loses 1 element
+         * in size.
+         * @return 1D output representing the nth order derivative of signal.
+         * The size of this output is signal's size - `order`.
+         */
         std::vector<float> derivative(const std::vector<float>& signal,
                                       const int order = 1);
 
+        /**
+         * @brief The ideal slope of a signal measures its consistency in terms
+         * of following a proper bi-gaussian trend - i.e., no spikes in either
+         * of its edges.
+         * @param signal A 1D signal whose ideal slope needs to be calculated.
+         * @return The ideal slope of the signal.
+         */
         float idealSlopeValue(vector<double> signal);
+
+        /**
+         * @brief The ideal slope of a signal measures its consistency in terms
+         * of following a proper bi-gaussian trend - i.e., no spikes in either
+         * of its edges.
+         * @param signal A 1D signal whose ideal slope needs to be calculated.
+         * @return The ideal slope of the signal.
+         */
         float idealSlopeValue(vector<float> signal);
 
+        /**
+         * @brief The sharpness of a slope hints its symmetry while considering
+         * its surrounding noise/peaks. This value can help resolve between two
+         * adjacent multiplexed signals.
+         * @param signal A 1D signal whose sharpnes needs to be calculated.
+         * @return The sharpness value of the signal.
+         */
         float sharpnessValue(vector<double> signal);
+
+        /**
+         * @brief The sharpness of a slope hints its symmetry while considering
+         * its surrounding noise/peaks. This value can help resolve between two
+         * adjacent multiplexed signals.
+         * @param signal A 1D signal whose sharpnes needs to be calculated.
+         * @return The sharpness value of the signal.
+         */
         float sharpnessValue(vector<float> signal);
 
     /**
