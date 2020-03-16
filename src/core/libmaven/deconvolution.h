@@ -35,7 +35,6 @@ namespace Deconvolution
 
     vector<pair<size_t, size_t>> modelPeakRegions(EIC *eic,
                                                   int smoothingWindow,
-                                                  float sigma,
                                                   int averagePeakWidth);
 
     SignalVector convolutedSignals(const pair<size_t, size_t>& roi,
