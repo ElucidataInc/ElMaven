@@ -73,21 +73,10 @@ _refineModelRegions(EIC *eic,
 vector<pair<size_t, size_t>>
 Deconvolution::modelPeakRegions(EIC* eic,
                                 int smoothingWindow,
-                                float sigma,
                                 int averagePeakWidth)
 {
     if (eic->size() == 0)
         return {};
-
-    // "currently this value should be enough for LC", why?
-    float halfPoint = 10.0f;
-    size_t filterSize = 2 * static_cast<size_t>(halfPoint) + 1;
-    vector<float> filter;
-    for (int i = 0; i < filterSize; i++) {
-        float coeff = (1 - powf((-halfPoint + i) / sigma, 2.0f))
-                       * exp(-0.5 * powf((-halfPoint + i) / sigma, 2.0f));
-        filter.push_back(coeff);
-    }
 
     // this will destructively modify the peaks within the EIC,
     // but then we intend to find better peaks, so it should be fine
@@ -95,35 +84,19 @@ Deconvolution::modelPeakRegions(EIC* eic,
     if (eic->peaks.empty())
         return {};
 
-    vector<pair<size_t, size_t>> peakRegions;
     sort(begin(eic->peaks), end(eic->peaks), Peak::compRt);
-    for (const auto& peak : eic->peaks) {
-        if (peak.width < 3)
-            continue;
-
-        peakRegions.push_back(make_pair(peak.minpos, peak.maxpos));
-    }
-
     vector<pair<size_t, size_t>> modelRegions;
-    for (size_t i = 0; i < peakRegions.size(); i++) {
-        float sum = 0.0f;
-        for (int j = -1 * halfPoint; j <= halfPoint; j++) {
-            if (i + j < 0 || i + j > peakRegions.size() - 1) {
-                continue;
-            } else {
-                auto signal = eic->intensitySegment(peakRegions.at(i + j).first,
-                                                    peakRegions.at(i + j).second,
-                                                    true);
-                auto sharpness = mzUtils::sharpnessValue(signal);
-                sum += sharpness * filter[static_cast<size_t>(j + halfPoint)];
-            }
-        }
+    for (const auto& peak : eic->peaks) {
+        auto signal = eic->intensitySegment(peak.minpos, peak.maxpos, true);
+        auto sharpness = mzUtils::sharpnessValue(signal);
+        if (sharpness > 0.0f)
+            modelRegions.push_back(make_pair(peak.minpos, peak.maxpos));
 
-        // these zero sum regions do not contain any "model" peaks
-        if (sum == 0.0f)
-            continue;
-
-        modelRegions.push_back(peakRegions.at(i));
+        // TODO: right now we are allowing any region with non-zero sharpness
+        // value to be a candidate, but to be correct there should be
+        // interpolation (Stein, 1999) followed by application of second
+        // derivative filter (Hiller, 2009), then all maxima would be considered
+        // as model components
     }
 
     return _refineModelRegions(eic, modelRegions, averagePeakWidth);
