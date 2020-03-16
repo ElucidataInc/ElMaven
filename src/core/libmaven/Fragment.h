@@ -86,6 +86,9 @@ struct FragmentationMatchScore {
 
 class Fragment {
 
+    /**
+     * @brief Types of fragments resulting from different acquisition methods.
+     */
     public:
         enum class MsType {
             DDA,
@@ -182,6 +185,11 @@ class Fragment {
 
         inline unsigned int nobs() { return mzValues.size(); }
 
+        /**
+         * @brief Obtain the type of acquisition method responsible for the
+         * generation of this fragmentation profile.
+         * @return A `Fragment::MsType` identifier.
+         */
         MsType msType() const { return _msType; }
 
         static bool compPrecursorMz(const Fragment* a, const Fragment* b);

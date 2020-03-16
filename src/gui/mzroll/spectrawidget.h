@@ -81,6 +81,10 @@ public:
                     void clearScans();
 
                 signals:
+                    /**
+                     * @brief Emitted when any of the selectable bars on spectra
+                     * is clicked.
+                     */
                     void mzBarSelected(float);
 
         private:

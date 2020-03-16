@@ -25,6 +25,10 @@ There are multiple m/z and intenstities in one scan
 class Scan
 {
   public:
+    /**
+     * @brief The MsType enum defines types, which instances of this class can
+     * exist in, depending on what type of information is stored within a scan.
+     */
     enum class MsType {
         MS1,
         DDA,
@@ -228,10 +232,42 @@ class Scan
     mzSample *sample; /**< sample corresponding to the scan */
     int polarity; /**< +1 for positively charged, -1 for negatively charged, 0 for neutral*/
 
+    /**
+     * @brief Set the size of the precursor window from which this MS/MS scan
+     * orignates.
+     * @details Depending on the isolation window, this scan is assumed to be of
+     * DDA type, if `window` is less than or equal to 1.0 and of type SWATH if
+     * greater than that. Its internal type identifier is changed accordingly.
+     * @param window Size of the isolation window for this MS/MS scan.
+     */
     void setIsolationWindow(const float window);
+
+    /**
+     * @brief Obtain the size of the precursor window from which this MS/MS
+     * scan originates. If this is a plain MS scan, then the resulting value is
+     * meaningless.
+     * @return A `float` representing the size of this scan's isolation window.
+     */
     float isolationWindow() const { return _isolationWindow; }
+
+    /**
+     * @brief The lower limit of this scan's SWATH window.
+     * @return A `float` storing this scan's lower SWATH window in m/z
+     * dimension, if this is an MS/MS scan. Otherwise, 0.0 is returned.
+     */
     float swathWindowMin() { return _swathWindowMin; }
+
+    /**
+     * @brief The upper limit of this scan's SWATH window.
+     * @return A `float` storing this scan's upper SWATH window in m/z
+     * dimension, if this is an MS/MS scan. Otherwise, 0.0 is returned.
+     */
     float swathWindowMax() { return _swathWindowMax; }
+
+    /**
+     * @brief Obtain the type of information stored within this scan.
+     * @return A `Scan::MsType` value.
+     */
     MsType msType();
 
     /**

@@ -39,7 +39,7 @@ class mzSlice
         float rtmax;
         float ionCount;
         Compound *compound;
-        Compound *precursor;
+        Compound *precursor; // precursor compound for a MSn level slice
         Adduct* adduct;
         string srmId;
 
