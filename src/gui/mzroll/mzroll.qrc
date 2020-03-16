@@ -46,7 +46,6 @@
         <file>images/zoomout.png</file>
         <file>images/good.png</file>
         <file>images/bad.png</file>
-        <file>images/note.png</file>
         <file>images/molecule.png</file>
         <file>images/averageSpectra.png</file>
         <file>images/markgood.png</file>
@@ -114,5 +113,6 @@
         <file>images/setupload.png</file>
         <file>images/checkuncheck.png</file>
         <file>images/flowerplot.png</file>
+        <file>images/note.png</file>
     </qresource>
 </RCC>
