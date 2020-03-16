@@ -1666,6 +1666,7 @@ void MainWindow::open()
     // TODO: temporarily added for informing user, remove after a few releases
     if (!_versionRecordExists()) {
         QMessageBox msgBox;
+        msgBox.setWindowTitle("El-MAVEN");
         msgBox.setText("El-MAVEN is now capable of reading files containing "
                        "zlib compressed data. Please feel free to load such "
                        "files, if you have any.");
