@@ -114,5 +114,6 @@
         <file>images/flowerplot.png</file>
         <file>images/note.png</file>
         <file>images/resetzoom.png</file>
+        <file>images/unmark.png</file>
     </qresource>
 </RCC>
