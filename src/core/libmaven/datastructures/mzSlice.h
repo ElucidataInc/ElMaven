@@ -129,6 +129,26 @@ class mzSlice
         }
 
         /**
+         * @brief Check equality of two slices
+         * @param b The slice being compared against this one.
+         * @return `true` if all attributes of this slice equal the other one,
+         * `false` otherwise.
+         */
+        bool operator==(const mzSlice &b) const
+        {
+            return (mzmin == b.mzmin
+                    && mzmax == b.mzmax
+                    && rtmin == b.rtmin
+                    && rtmax == b.rtmax
+                    && ionCount == b.ionCount
+                    && compound == b.compound
+                    && adduct == b.adduct
+                    && srmId == b.srmId
+                    && mz == b.mz
+                    && rt == b.rt);
+        }
+
+        /**
         * @brief Calculate mzmin and mzmax of mzSlice using mass accuracy (in ppm)
         * @details mzmin and mzmax of an mzSlice are calculated using compound m/z
         * and mass accuracy (in ppm). Compound m/z is being calculated using formula
