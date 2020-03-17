@@ -20,7 +20,6 @@
         <file>images/zoomInNode.png</file>
         <file>images/filter.png</file>
         <file>images/splines.png</file>
-        <file>images/resetzoom.png</file>
         <file>images/zoomin.png</file>
         <file>images/flip.png</file>
         <file>images/exportxml.png</file>
@@ -114,5 +113,6 @@
         <file>images/checkuncheck.png</file>
         <file>images/flowerplot.png</file>
         <file>images/note.png</file>
+        <file>images/resetzoom.png</file>
     </qresource>
 </RCC>
