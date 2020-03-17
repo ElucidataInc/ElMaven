@@ -384,6 +384,7 @@ void PollyElmavenInterfaceDialog::_changeMode()
         // send only to Polly project
         _selectedMode = SendMode::PollyProject;
     }
+    _hideFormIfNotLicensed();
 }
 
 void PollyElmavenInterfaceDialog::_goToPollyApp()
@@ -646,13 +647,12 @@ void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
     if (!_licenseMap.value(_selectedApp)) {
         stackedWidget->setCurrentWidget(advertBox);
         demoButton->setDefault(true);
-    } else {
+    } else if (_selectedMode == SendMode::PollyApp) {
         stackedWidget->setCurrentWidget(pollyForm);
         gotoPollyButton->setDefault(true);
+    } else if (_selectedMode == SendMode::PollyProject) {
+        gotoPollyButtonAlt->setDefault(true);
     }
-
-    // TODO: how do we handle licensing data for direct Polly upload
-    gotoPollyButtonAlt->setDefault(true);
 }
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()

@@ -2212,6 +2212,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnBad->setToolTip("Mark selected group as bad");
     connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
     return btnBad;
+  } else if (btnName == "btnUnmark") {
+    QToolButton *btnUnmark = new QToolButton(parent);
+    btnUnmark->setIcon(QIcon(rsrcPath + "/unmark.png"));
+    btnUnmark->setToolTip("Unmark selected group from good/bad");
+    connect(btnUnmark, SIGNAL(clicked()), td, SLOT(unmarkGroup()));
+    return btnUnmark;
   } else if (btnName == "btnHeatmapelete") {
 
     QToolButton *btnHeatmapelete = new QToolButton(parent);
@@ -2274,7 +2280,10 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnBad =
+      new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnUnmark =
+      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
@@ -2288,6 +2297,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnSwitchView);
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
+  toolBar->addAction(btnUnmark);
   toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
 
@@ -2371,11 +2381,13 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnBad =
+      new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnUnmark =
+      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
   QWidget *spacer = new QWidget();
@@ -2385,6 +2397,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnSwitchView);
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
+  toolBar->addAction(btnUnmark);
   toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
   toolBar->addWidget(btnMerge);
@@ -2730,11 +2743,13 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad = new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnBad =
+      new TableToolBarWidgetAction(toolBar, this, "btnBad");
+  QWidgetAction *btnUnmark =
+      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
   QWidget *spacer = new QWidget();
@@ -2744,6 +2759,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnSwitchView);
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
+  toolBar->addAction(btnUnmark);
   toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
 

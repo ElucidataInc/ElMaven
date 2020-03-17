@@ -86,21 +86,22 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
     if (_reportStream.is_open()) {
         QStringList groupReportcolnames;
 
-        groupReportcolnames << "label"
-                            << "metaGroupId"
-                            << "groupId"
-                            << "goodPeakCount"
-                            << "medMz"
-                            << "medRt"
-                            << "maxQuality"
-                            << "adductName"
-                            << "isotopeLabel"
-                            << "compound"
-                            << "compoundId"
-                            << "formula"
-                            << "expectedRtDiff"
-                            << "ppmDiff"
-                            << "parent";
+        groupReportcolnames     << "label"
+                                << "metaGroupId"
+                                << "groupId"
+                                << "goodPeakCount"
+                                << "medMz"
+                                << "medRt"
+                                << "maxQuality";
+        if (!_pollyExport)
+            groupReportcolnames << "adductName";
+        groupReportcolnames     << "isotopeLabel"
+                                << "compound"
+                                << "compoundId"
+                                << "formula"
+                                << "expectedRtDiff"
+                                << "ppmDiff"
+                                << "parent";
 
         // if this is a PRM report, add PRM specific columns
         if (prmReport && !_pollyExport) {
@@ -275,7 +276,11 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                   << SEP << group->goodPeakCount << fixed << SEP
                   << setprecision(6) << group->meanMz << SEP << setprecision(3)
                   << group->meanRt << SEP << setprecision(6)
-                  << group->maxQuality << SEP << adductName << SEP << tagString;
+                  << group->maxQuality;
+    if (!_pollyExport)
+        _reportStream << SEP << adductName;
+    _reportStream << SEP << tagString;
+
     string compoundName = "";
     string compoundID = "";
     string formula = "";

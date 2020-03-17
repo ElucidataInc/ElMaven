@@ -340,6 +340,9 @@
               <property name="text">
                <string>Upload</string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -727,6 +730,9 @@
          <widget class="QPushButton" name="uploadButtonAlt">
           <property name="text">
            <string>Upload</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
           </property>
          </widget>
         </item>

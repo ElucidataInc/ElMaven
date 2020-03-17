@@ -80,9 +80,13 @@ void AdductWidget::selectAdductsForCurrentPolarity()
             // to be unselected
             (*it)->setCheckState(0, Qt::Checked);
             (*it)->setDisabled(true);
-        } else {
+        } else if (SIGN(adduct->getCharge()) != SIGN(_mw->getIonizationMode())
+                   && adduct->isParent()
+                   && !_mw->getVisibleSamples().empty()) {
+            (*it)->setCheckState(0, Qt::Unchecked);
             (*it)->setDisabled(false);
         }
+
         ++it;
     }
     _mw->mavenParameters->setChosenAdductList(getSelectedAdducts());

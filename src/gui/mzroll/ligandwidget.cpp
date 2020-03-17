@@ -112,10 +112,9 @@ LigandWidget::LigandWidget(MainWindow* mw)
           set.insert( DB.compoundsDB[i]->db.c_str() );
   }
 
-  QIcon icon(rsrcPath + "/dbsearch.png");
   QSetIterator<QString> i(set);
   while (i.hasNext())
-      databaseSelect->addItem(icon,i.next());
+      databaseSelect->addItem(i.next());
 
   QDirIterator adductItr(":/databases/Adducts/");
 
@@ -146,12 +145,10 @@ void LigandWidget::setDatabaseNames() {
                 set.insert( DB.compoundsDB[i]->db.c_str() );
 	}
 
-        QIcon icon(rsrcPath + "/dbsearch.png");
-        QSetIterator<QString> i(set);
-        int pos=0;
+    QSetIterator<QString> i(set);
 	while (i.hasNext()) { 
                 //databaseSelect->insertItem(pos++, i.next());
-                databaseSelect->addItem(icon,i.next());
+                databaseSelect->addItem(i.next());
 	}
 	connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
 	connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), _mw->alignmentDialog, SLOT(setDatabase(QString)));    

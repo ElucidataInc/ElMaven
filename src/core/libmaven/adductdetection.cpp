@@ -50,6 +50,16 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
                 continue;
 
             mzSlice* slice = createSliceForCompoundAdduct(compound, adduct, mp);
+
+            auto foundAt = find_if(begin(slices),
+                                   end(slices),
+                                   [slice](mzSlice* other) {
+                                       return *other == *slice;
+                                   });
+            if (foundAt != end(slices)) {
+                delete slice;
+                continue;
+            }
             slices.push_back(slice);
         }
     }
