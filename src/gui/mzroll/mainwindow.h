@@ -264,6 +264,15 @@ public:
     void saveProjectForFilename(QList<shared_ptr<PeakGroup> > groupsToBeSaved);
 
 	void loadPollySettings(QString fileName);
+
+    /**
+     * @brief Obtain the currently "active" table, being browsed, in the main
+     * window. By default, the "Bookmark Table" is the active (set upon its
+     * creation) table until a new one is created.
+     * @return Pointer to the `TableDockWidget` recognized as the active table.
+     */
+    TableDockWidget* activeTable();
+
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();
@@ -443,6 +452,13 @@ public Q_SLOTS:
      */
     PeakEditor* peakEditor() const { return _peakEditor; }
 
+    /**
+     * @brief Tells main window to recognize the given table as the "active"
+     * one.
+     * @param table Pointer to a `TableDockWidget` object.
+     */
+    void setActiveTable(TableDockWidget* table);
+
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
@@ -535,6 +551,12 @@ private:
 
     Mixpanel* _usageTracker;
     InfoDialog* _infoDialog;
+
+    /**
+     * @brief The table currently being browsed by the user. Defaults to the
+     * "Bookmark Table".
+     */
+    TableDockWidget* _activeTable;
 
     QString _getNewProjectFilename();
     QString _getProjectFilenameFromProjectDockWidget();

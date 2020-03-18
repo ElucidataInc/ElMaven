@@ -89,6 +89,14 @@ Q_OBJECT
         void insertSettingForSave(const string key, const variant var);
 
         /**
+         * @brief Obtain the currently saved value for the given setting.
+         * @param key The name of the setting whose value is needed.
+         * @return A variant storing the value for the given setting, if
+         * available in current project, an empty string otherwise.
+         */
+        variant querySavedSetting(const string key) const;
+
+        /**
          * @brief Check whether the filename ends with a ".mzroll" extension.
          * @param filename String name of the file to be checked.
          * @return true if the filename ends with ".mzroll" extension, false

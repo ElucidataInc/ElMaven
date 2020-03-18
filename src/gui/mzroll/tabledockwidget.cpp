@@ -1686,7 +1686,7 @@ void TableDockWidget::focusInEvent(QFocusEvent *event) {
   if (event->gotFocus()) {
     pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
     setPalette(pal);
-    updateCompoundWidget();
+    _mainwindow->setActiveTable(this);
   }
 }
 

@@ -261,7 +261,8 @@
                                               , search_adducts                   INTEGER \
                                               , adduct_search_window             REAL    \
                                               , adduct_percent_correlation       REAL    \
-                                              , alignment_algorithm              INTEGER );"
+                                              , alignment_algorithm              INTEGER \
+                                              , active_table_name                TEXT    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

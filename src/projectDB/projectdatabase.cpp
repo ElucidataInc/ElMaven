@@ -799,7 +799,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :search_adducts                   \
                      , :adduct_search_window             \
                      , :adduct_percent_correlation       \
-                     , :alignment_algorithm              )");
+                     , :alignment_algorithm              \
+                     , :active_table_name                )");
     return cursor;
 }
 
@@ -927,6 +928,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
     settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
     settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
+    settingsQuery->bind(":active_table_name", BSTRING(settingsMap.at("activeTableName")));
 }
 
 void
@@ -1605,6 +1607,8 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["obi_warp_no_standard_normal"] = settingsQuery->integerValue("obi_warp_no_standard_normal");
     settingsMap["obi_warp_local"] = settingsQuery->integerValue("obi_warp_local");
 
+    settingsMap["activeTableName"] = settingsQuery->stringValue("active_table_name");
+
     return settingsQuery->stringValue("domain");
 }
 
@@ -1970,6 +1974,9 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["mainWindowCharge"] = mp->ionizationMode; // always 1 for now
     settingsMap["mainWindowPeakQuantitation"] = mp->peakQuantitation;
     settingsMap["mainWindowMassResolution"] = mp->compoundMassCutoffWindow->getMassCutoff();
+
+    // active table is a session-level setting only
+    settingsMap["activeTableName"] = string();
 
     return settingsMap;
 }

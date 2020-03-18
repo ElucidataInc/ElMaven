@@ -327,6 +327,7 @@ using namespace mzUtils;
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
+    setActiveTable(bookmarkedPeaks);
 
     sampleRtWidget = new SampleRtWidget(this);
     sampleRtWidget->setWidget(sampleRtVizPlot);
@@ -530,7 +531,6 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(spectraLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
-    connect(fileLoader,SIGNAL(projectLoaded()),bookmarkedPeaks, SLOT(showAllGroups()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(projectLoaded()), this,SLOT(deleteCrashFileTables()));
@@ -1187,10 +1187,16 @@ TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
 	groupTablesButtons[panel]=btnTable;
 	sideBar->addWidget(btnTable);
 
+    // every new table becomes the active table on creation
+    setActiveTable(panel);
+
 	return panel;
 }
 
 void MainWindow::removePeaksTable(TableDockWidget* panel) {
+    if (panel == _activeTable)
+        setActiveTable(bookmarkedPeaks);
+
 	//Merged with Maven776 - Kiran
     if (groupTablesButtons.contains(panel)) {
 		QAction* tableAction = sideBar->addWidget(groupTablesButtons[panel]) ;
@@ -2613,6 +2619,23 @@ void MainWindow::writeSettings() {
 	qDebug() << "Settings saved to " << settings->fileName();
 }
 
+void MainWindow::setActiveTable(TableDockWidget *table)
+{
+    if (table != nullptr && settings->value("closeEvent") == 0) {
+        auto tableName = TableDockWidget::getTitleForId(table->tableId);
+        qDebug() << "active table:" << tableName;
+        fileLoader->insertSettingForSave("activeTableName",
+                                         variant(tableName.toStdString()));
+        table->updateCompoundWidget();
+    }
+    _activeTable = table;
+}
+
+TableDockWidget* MainWindow::activeTable()
+{
+    return _activeTable;
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     settings->setValue("closeEvent", 1);
@@ -3307,6 +3330,26 @@ void MainWindow::_postProjectLoadActions()
         bookmarkedPeaks->setVisible(true);
 
     _updateEMDBProgressBar(5, 5);
+
+    auto tableName = QString::fromStdString(
+        BSTRING(fileLoader->querySavedSetting("activeTableName")));
+    if (!tableName.isEmpty()) {
+        auto foundAt = find_if(begin(groupTables),
+                               end(groupTables),
+                               [tableName](TableDockWidget* table) {
+                                   return TableDockWidget::getTitleForId(table->tableId) == tableName;
+                               });
+        if (foundAt != end(groupTables)) {
+            setActiveTable(*foundAt);
+            ligandWidget->setDatabase(tableName);
+        } else {
+            setActiveTable(bookmarkedPeaks);
+        }
+    } else {
+        setActiveTable(bookmarkedPeaks);
+    }
+    if (_activeTable != nullptr)
+        _activeTable->setFocus();
 }
 
 void MainWindow::_handleUnrecognizedProjectVersion(QString projectFilename)
