@@ -2626,7 +2626,6 @@ void MainWindow::setActiveTable(TableDockWidget *table)
 {
     if (table != nullptr && settings->value("closeEvent") == 0) {
         auto tableName = TableDockWidget::getTitleForId(table->tableId);
-        qDebug() << "active table:" << tableName;
         fileLoader->insertSettingForSave("activeTableName",
                                          variant(tableName.toStdString()));
         table->updateCompoundWidget();
@@ -3351,8 +3350,6 @@ void MainWindow::_postProjectLoadActions()
     if (bookmarkedPeaks->topLevelGroupCount() > 0)
         bookmarkedPeaks->setVisible(true);
 
-    _updateEMDBProgressBar(5, 5);
-
     auto tableName = QString::fromStdString(
         BSTRING(fileLoader->querySavedSetting("activeTableName")));
     if (!tableName.isEmpty()) {
@@ -3363,7 +3360,15 @@ void MainWindow::_postProjectLoadActions()
                                });
         if (foundAt != end(groupTables)) {
             setActiveTable(*foundAt);
-            ligandWidget->setDatabase(tableName);
+
+            // set the current database to the one used for this table
+            QString dbName = tableName;
+            QRegularExpression re("(.+) (?:\\(\\d+\\))");
+            QRegularExpressionMatch match = re.match(tableName);
+            qDebug() << match;
+            if (match.hasMatch())
+                dbName = match.captured(1);
+            ligandWidget->setDatabase(dbName);
         } else {
             setActiveTable(bookmarkedPeaks);
         }
@@ -3372,6 +3377,8 @@ void MainWindow::_postProjectLoadActions()
     }
     if (_activeTable != nullptr)
         _activeTable->setFocus();
+
+    _updateEMDBProgressBar(5, 5);
 }
 
 void MainWindow::_handleUnrecognizedProjectVersion(QString projectFilename)
