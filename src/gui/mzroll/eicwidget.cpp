@@ -77,6 +77,8 @@ EicWidget::EicWidget(QWidget *p) {
     _ignoreTolerance = false;
     _ignoreMouseReleaseEvent = false;
     _selectionLine = nullptr;
+
+    setStyleSheet("QWidget { border: none; }");
 }
 
 EicWidget::~EicWidget() {

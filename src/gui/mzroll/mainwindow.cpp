@@ -2969,6 +2969,11 @@ void MainWindow::createToolBars() {
 	toolBar->setObjectName("mainToolBar");
 	toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
+    QString style = "";
+    style += "QToolBar { background:    white;               }";
+    style += "QToolBar { border:        none;                }";
+    style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    toolBar->setStyleSheet(style);
 
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
@@ -3193,6 +3198,11 @@ void MainWindow::createToolBars() {
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
     sideBar->setIconSize(QSize(24, 24));
+    QString sideStyle = "";
+    sideStyle += "QToolBar { background:  white;               }";
+    sideStyle += "QToolBar { border:      none;                }";
+    sideStyle += "QToolBar { border-left: 1px solid lightgray; }";
+    sideBar->setStyleSheet(sideStyle);
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
 												  projectDockWidget,
@@ -3889,6 +3899,11 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
+    QString style = "";
+    style += "QToolBar { background:    white;               }";
+    style += "QToolBar { border:        none;                }";
+    style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
 	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");
