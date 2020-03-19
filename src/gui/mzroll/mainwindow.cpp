@@ -2641,6 +2641,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
     settings->setValue("closeEvent", 1);
     this->saveProject();
 
+    if (settings->value("closeEvent").toInt() == 0) {
+        event->ignore();
+        return;
+    }
+
     writeSettings();
 
     // creating a persistent message box, which will be cleared when
@@ -2654,11 +2659,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
     // wait until autosave has finished
     while(saveWorker->isRunning())
         QApplication::processEvents();
-
-    if (settings->value("closeEvent").toInt() == 0) {
-        event->ignore();
-        return;
-    }
 
     event->accept();
 }
