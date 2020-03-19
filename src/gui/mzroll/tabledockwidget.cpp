@@ -69,6 +69,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
+  setDefaultStyle();
 
   viewType = groupView;
   maxPeaks = 0; //Maximum Number of Peaks in a Group
@@ -2004,6 +2005,20 @@ int TableDockWidget::lastTableId()
   return -1;
 }
 
+void TableDockWidget::setDefaultStyle(bool isActive)
+{
+    QString style = "";
+    style += "QLabel       { margin:        0px 6px;             }";
+    style += "QToolBar     { background:    white;               }";
+    style += "QToolBar     { border:        none;                }";
+    style += "QToolBar     { border-bottom: 1px solid lightgray; }";
+    style += "QTreeView    { border:        none;                }";
+    if (isActive) {
+        style += "QToolBar { background:    #ebeafa;             }";
+    }
+    setStyleSheet(style);
+}
+
 QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   if (btnName == "titlePeakTable") {
 
@@ -2011,7 +2026,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QFont font;
     font.setPointSize(14);
     td->titlePeakTable->setFont(font);
-    td->setStyleSheet("QLabel { margin: 0px 6px; }");
 
     td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
 

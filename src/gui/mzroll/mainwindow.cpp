@@ -286,6 +286,7 @@ using namespace mzUtils;
     statusBar()->addPermanentWidget(progressBar);
 
     _loadProgressDialog = nullptr;
+    _activeTable = nullptr;
 
 	QToolButton *btnBugs = new QToolButton(this);
 	btnBugs->setIcon(QIcon(rsrcPath + "/bug.png"));
@@ -2630,7 +2631,15 @@ void MainWindow::setActiveTable(TableDockWidget *table)
                                          variant(tableName.toStdString()));
         table->updateCompoundWidget();
     }
+
+    // set highlighting for previous active and new active
+    if (_activeTable != nullptr) {
+        _activeTable->setDefaultStyle();
+    }
     _activeTable = table;
+    if (_activeTable != nullptr) {
+        _activeTable->setDefaultStyle(true);
+    }
 }
 
 TableDockWidget* MainWindow::activeTable()
