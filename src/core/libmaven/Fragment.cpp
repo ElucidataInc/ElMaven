@@ -64,6 +64,7 @@ Fragment::Fragment(Fragment* other)
     this->purity = other->purity;
     this->rt = other->rt;
     this->_msType = other->msType();
+    this->_rtRegions = other->rtRegions();
 }
 
 Fragment& Fragment::operator=(const Fragment& f)  {
@@ -80,6 +81,7 @@ Fragment& Fragment::operator=(const Fragment& f)  {
     this->purity = f.purity;
     this->rt = f.rt;
     this->_msType = f.msType();
+    this->_rtRegions = f.rtRegions();
     return *this;
 }
 
@@ -192,20 +194,31 @@ void Fragment::buildConsensus(float productPpmTolr)
     consensusFrag->sortByMz();
 
     for (auto brother : brothers) {
-        vector<int> ranks = compareRanks(brother, consensusFrag, productPpmTolr); 
+        vector<int> ranks = compareRanks(brother, consensusFrag, productPpmTolr);
 
+        auto rtRegions = brother->rtRegions();
         for (unsigned int j = 0; j < ranks.size(); j++) {
             int posA = ranks[j];	
             float mzB = brother->mzValues[j];
             float intB = brother->intensityValues[j];
+
+            pair<float, float> rtRegionB = {0.0f, 0.0f};
+            if (!rtRegions.empty())
+                rtRegionB = rtRegions.at(j);
+
             if (posA >= 0) {
                 //sum intensities for m/z within ppm tolerance
                 consensusFrag->intensityValues[posA] += intB;
                 consensusFrag->obscount[posA] += 1;
+
+                if (!rtRegions.empty()) {
+                    auto& thisRegion = consensusFrag->_rtRegions[posA];
+                    thisRegion.first = min(thisRegion.first, rtRegionB.first);
+                    thisRegion.second = max(thisRegion.second, rtRegionB.second);
+                }
             } else if (posA == -1) {
                 //new entry if m/z does not fall within ppm tolerance of existing m/z
-                consensusFrag->mzValues.push_back(mzB);
-                consensusFrag->intensityValues.push_back(intB);
+                consensusFrag->insertFragment(mzB, intB, rtRegionB);
                 consensusFrag->obscount.push_back(1);
             }
         }
@@ -570,6 +583,15 @@ FragmentationMatchScore Fragment::scoreMatch(Fragment* other, float productPpmTo
     s.weightedDotProduct = mzWeightedDotProduct(ranks, b);
 
     return s;
+}
+
+void Fragment::insertFragment(float mz,
+                              float intensity,
+                              pair<float, float> ms2RtRegion)
+{
+    mzValues.push_back(mz);
+    intensityValues.push_back(intensity);
+    _rtRegions.push_back(ms2RtRegion);
 }
 
 bool Fragment::compPrecursorMz(const Fragment* a, const Fragment* b) {

@@ -192,12 +192,35 @@ class Fragment {
          */
         MsType msType() const { return _msType; }
 
+        /**
+         * @brief Obtain pairs of start and end regions, that if non-empty
+         * should each denote the RT range of a fragment peak's chromatographic
+         * span. The pairs should store RT range for corresponding items in
+         * `mzValues` vector.
+         * @return A vector of pairs of floating point RT values.
+         */
+        vector<std::pair<float, float>> rtRegions() const { return _rtRegions; }
+
+        /**
+         * @brief Insert values representing one fragment of this fragmentation
+         * spectra.
+         * @param mz The m/z value for the fragment.
+         * @param intensity The intensity of the particular fragment.
+         * @param ms2RtRegion Optionally, a pair of RT values can be provided
+         * as the region of this fragment's chromatographic span, if such
+         * information is available (as it would be, in case of DIA data).
+         */
+        void insertFragment(float mz,
+                            float intensity,
+                            std::pair<float, float> ms2RtRegion = {0.0f, 0.0f});
+
         static bool compPrecursorMz(const Fragment* a, const Fragment* b);
         bool operator<(const Fragment* b) const;
         bool operator==(const Fragment* b) const;
 
     private:
         MsType _msType;
+        vector<std::pair<float, float>> _rtRegions;
 };
 
 #endif
