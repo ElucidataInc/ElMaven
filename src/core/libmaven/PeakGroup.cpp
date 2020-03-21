@@ -987,6 +987,10 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
             if (regionOfInterest.first == 0 && regionOfInterest.second == 0)
                 continue;
 
+            // region of peak in RT
+            auto rtRegion = make_pair(eic->rt[regionOfInterest.first],
+                                      eic->rt[regionOfInterest.second]);
+
             auto convoluted = Deconvolution::convolutedSignals(regionOfInterest,
                                                                fragmentRegions,
                                                                eic);
@@ -1002,8 +1006,9 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
                                                  0.0f);
 
             // store fragment's values
-            peakFragmentProfile->mzValues.push_back(fragmentMz);
-            peakFragmentProfile->intensityValues.push_back(fragmentIntensity);
+            peakFragmentProfile->insertFragment(fragmentMz,
+                                                fragmentIntensity,
+                                                rtRegion);
             rtValues.vec.push_back(fragmentRt);
             intensityValues.vec.push_back(fragmentIntensity);
         }
