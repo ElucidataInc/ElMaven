@@ -968,8 +968,8 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
             // deconvolute the EIC and get the signal closest to peak's RT
             float fragmentMz = 0.0f;
             float fragmentRt = 0.0f;
-            float rtDiff = numeric_limits<float>::max();
-            pair<size_t, size_t> regionOfInterest;
+            float rtDiff = 0.05; // TODO: this default should be set by the user
+            pair<size_t, size_t> regionOfInterest = {0, 0};
             for (const auto& region : fragmentRegions) {
                 auto signal = eic->intensitySegment(region.first,
                                                     region.second,
@@ -977,13 +977,16 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
                 size_t peakTop = distance(begin(signal),
                                           max_element(begin(signal),
                                                       end(signal)));
-                if (eic->rt[region.first + peakTop] - peak.rt < rtDiff) {
+                if (fabs(eic->rt[region.first + peakTop] - peak.rt) < rtDiff) {
                     regionOfInterest = region;
                     fragmentMz = eic->mz[region.first + peakTop];
                     fragmentRt = eic->rt[region.first + peakTop];
                     rtDiff = eic->rt[region.first + peakTop] - peak.rt;
                 }
             }
+            if (regionOfInterest.first == 0 && regionOfInterest.second == 0)
+                continue;
+
             auto convoluted = Deconvolution::convolutedSignals(regionOfInterest,
                                                                fragmentRegions,
                                                                eic);
