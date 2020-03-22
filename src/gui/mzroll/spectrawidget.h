@@ -82,10 +82,10 @@ public:
 
                 signals:
                     /**
-                     * @brief Emitted when any of the selectable bars on spectra
-                     * is clicked.
+                     * @brief Emitted when any of the selectable fragment bars
+                     * on spectra is clicked.
                      */
-                    void mzBarSelected(float);
+                    void fragmentSelected(float);
 
         private:
                     EICLogic* eicparameters;
