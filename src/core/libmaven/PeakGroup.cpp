@@ -158,6 +158,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     _sliceSet = o.hasSlice();
     tagString = o.tagString;
 
+    setTableName(o.tableName());
+
     changeFoldRatio = o.changeFoldRatio;
     changePValue    = o.changePValue;
     peaks = o.peaks;

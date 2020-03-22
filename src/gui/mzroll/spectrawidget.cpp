@@ -285,11 +285,11 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
     }
 
     disconnect(this,
-               &SpectraWidget::mzBarSelected,
+               &SpectraWidget::fragmentSelected,
                mainwindow->getEicWidget(),
                nullptr);
     connect(this,
-            &SpectraWidget::mzBarSelected,
+            &SpectraWidget::fragmentSelected,
             mainwindow->getEicWidget(),
             [this, c](float fragmentMz) {
                 mainwindow->getEicWidget()->showFragment(c, fragmentMz);
@@ -944,7 +944,7 @@ void SpectraWidget::setMzFocus(float mz)
             mainwindow->massCalcWidget->setMass(bestMz);
         } else if (_currentScan->precursorMz > 0
                    && _currentScan->msType() == Scan::MsType::DIA) {
-            emit mzBarSelected(mz);
+            emit fragmentSelected(mz);
         }
 	} else if (!_currentScan->filterLine.empty()) {
 		float mzmin = mz - massCutoff->massCutoffValue(mz);
