@@ -19,8 +19,6 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
-#include "note.h"
-#include "noteswidget.h"
 #include "peakFiltering.h"
 #include "plot_axes.h"
 #include "point.h"
@@ -47,7 +45,6 @@ EicWidget::EicWidget(QWidget *p) {
 	_barplot = NULL;
 	_boxplot = NULL;
 	_focusLine = NULL;
-	_statusText = NULL;
 
 	autoZoom(true);
 	showPeaks(true);
@@ -57,7 +54,6 @@ EicWidget::EicWidget(QWidget *p) {
 	showBaseLine(true);
 	showTicLine(false);
 	showBicLine(false); //TODO: find what this is
-    showNotes(false); //TODO: find what this is
 	showBarPlot(true);
 	showBoxPlot(false);
     automaticPeakGrouping(true);
@@ -83,7 +79,6 @@ EicWidget::EicWidget(QWidget *p) {
     _ignoreMouseReleaseEvent = false;
     _selectionLine = nullptr;
 
-	connect(scene(), SIGNAL(selectionChanged()), SLOT(selectionChangedAction()));
     connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGalleryToEics);
 
 }
@@ -269,19 +264,6 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	if (selScan != NULL) { 
         //setFocusLine(selScan->rt);
         Q_EMIT(scanChanged(selScan)); //TODO: Sahil, added while merging eicwidget
-	}
-}
-
-void EicWidget::selectionChangedAction() {
-	//qDebug <<" EicWidget::selectionChangedAction()";
-	QList<QGraphicsItem*> items = scene()->selectedItems();
-	if (items.size()) {
-		if (QGraphicsPixmapItem *note =
-				qgraphicsitem_cast<QGraphicsPixmapItem *>(items[0])) {
-			QVariant v = note->data(0);
-			int noteid = v.value<int>();
-			getMainWindow()->notesDockWidget->showNote(noteid);
-		}
 	}
 }
 
@@ -1059,9 +1041,6 @@ void EicWidget::clearPlot() {
 	if (_focusLine && _focusLine->scene()) {
 		scene()->removeItem(_focusLine);
 	}
-	if (_statusText && _statusText->scene()) {
-		scene()->removeItem(_statusText);
-	}
     _eraseSelectionLine();
 	scene()->clear();
 	scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
@@ -1119,9 +1098,6 @@ void EicWidget::replot(PeakGroup* group)
         addMergedEIC();
     if (_focusLineRt >0)
         setFocusLine(_focusLineRt);
-    //get notes that fall withing this mzrange
-    if (_showNotes)
-        getNotes(eicParameters->_slice.mzmin,eicParameters->_slice.mzmax);
     if (_showMS2Events && eicParameters->_slice.mz > 0) 
         addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
 
@@ -1797,110 +1773,6 @@ void EicWidget::print(QPaintDevice* printer) {
 	render(&painter);
 }
 
-void EicWidget::addNote() {
-	//qDebug <<"EicWidget::addNote() ";
-	QPointF pos = _lastClickPos;
-	float rt = invX(pos.x());
-	float intensity = invY(pos.y());
-	QString text;
-	addNote(rt, intensity, text);
-}
-
-void EicWidget::addNote(Peak* peak) {
-	//qDebug <<"EicWidget::addNote(Peak* peak) ";
-	QString text;
-	addNote(peak->rt, peak->peakIntensity, text);
-}
-
-void EicWidget::addNote(float rt, float intensity, QString text) {
-	//qDebug <<"EicWidget::addNote(float rt, float intensity, QString text) ";
-
-	if (text.isEmpty()) {
-		bool ok;
-		text = QInputDialog::getText(this, tr("Add Note"), tr("Note:"),
-				QLineEdit::Normal, "Your note", &ok);
-		if (!ok)
-			return;
-	}
-
-	QSettings* settings = getMainWindow()->getSettings();
-	QString link = settings->value("data_server_url").toString();
-
-	if (!text.isEmpty() && !link.isEmpty()) {
-		QUrl url(link);
-		QUrlQuery query;
-
-		query.addQueryItem("action", "addnote");
-
-		if (eicParameters->_slice.compound) {
-                        if (!eicParameters->_slice.compound->name().empty())
-				query.addQueryItem("compound_name",
-                                                QString(eicParameters->_slice.compound->name().c_str()));
-
-                        if (!eicParameters->_slice.compound->id().empty())
-				query.addQueryItem("compound_id",
-                                                QString(eicParameters->_slice.compound->id().c_str()));
-		}
-
-		if (!eicParameters->_slice.srmId.empty())
-			query.addQueryItem("srm_id",
-					QString(eicParameters->_slice.srmId.c_str()));
-		query.addQueryItem("mz",
-				QString::number(
-						eicParameters->_slice.mzmin
-								+ (eicParameters->_slice.mzmax
-										- eicParameters->_slice.mzmin) / 2, 'f',
-						6));
-		query.addQueryItem("mzmin",
-				QString::number(eicParameters->_slice.mzmin, 'f', 6));
-		query.addQueryItem("mzmax",
-				QString::number(eicParameters->_slice.mzmax, 'f', 6));
-		query.addQueryItem("rt", QString::number(rt, 'f', 6));
-		query.addQueryItem("intensity", QString::number(intensity, 'f', 2));
-		query.addQueryItem("title", text);
-		url.setQuery(query);
-		QDesktopServices::openUrl(url);
-
-	}
-	getNotes(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
-}
-
-void EicWidget::updateNote(Note* note) {
-	//qDebug <<"EicWidget::updateNote(Note* note) ";
-	if (note == NULL)
-		return;
-	//getMainWindow()->notesDockWidgeth->updateNote(Note* note);
-}
-
-void EicWidget::getNotes(float mzmin, float mzmax) {
-	//qDebug <<"EicWidget::getNotes(float mzmin, float mzmax) ";
-
-	QSettings* settings = getMainWindow()->getSettings();
-
-	if (getMainWindow()->notesDockWidget->isVisible() == false)
-		return;
-	QList<UserNote*> notes = getMainWindow()->notesDockWidget->getNotes(mzmin,
-			mzmax);
-	Q_FOREACH( UserNote* usernote, notes ){
-
-	float xpos = toX(usernote->rt);
-	float ypos = toY(usernote->intensity);
-	if ( ypos < 10 ) ypos=10;
-	if ( ypos > scene()->height()) ypos=scene()->height()+10;
-	if ( xpos < 10 ) xpos=10;
-	if ( xpos > scene()->width()) xpos=scene()->width()-10;
-
-	Note* note = new Note(usernote);
-
-	if ( settings->contains("data_server_url"))
-	note->setRemoteNoteLink(usernote,settings->value("data_server_url").toString());
-
-	note->setStyle(Note::showNoteIcon);
-	scene()->addItem(note);
-	note->setPos(xpos,ypos);
-}
-}
-
 void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
 	//qDebug <<"EicWidget::contextMenuEvent(QContextMenuEvent * event) ";
 
@@ -2176,28 +2048,6 @@ void EicWidget::keyReleaseEvent(QKeyEvent *e)
         break;
     }
     e->accept();
-}
-
-void EicWidget::setStatusText(QString text) {
-	//qDebug <<"EicWidget::setStatusText(QString text) ";
-	if (_statusText == NULL) {
-		_statusText = new Note(text, 0, scene());
-		_statusText->setExpanded(true);
-		_statusText->setFlag(QGraphicsItem::ItemIsSelectable, false);
-		_statusText->setFlag(QGraphicsItem::ItemIsFocusable, false);
-		_statusText->setFlag(QGraphicsItem::ItemIsMovable, false);
-		_statusText->setZValue(2000);
-	}
-
-	if (_statusText->scene() != scene())
-		scene()->addItem(_statusText);
-	_statusText->setHtml(text);
-	_statusText->setTimeoutTime(10);
-
-	QRectF size = _statusText->boundingRect();
-	_statusText->setPos(scene()->width() - size.width() - 5,
-			scene()->height() - size.height() - 5);
-
 }
 
 void EicWidget::markGroupGood()

@@ -9,7 +9,6 @@ class EIC;
 class EICLogic;
 class EicLine;
 class EicPoint;
-class Note;
 class BoxPlot;
 class BarPlot;
 class PeakGroup;
@@ -76,10 +75,6 @@ public Q_SLOTS:
 	void replotForced();
 	void print(QPaintDevice* printer);
 	void showPeakArea(Peak*);
-	void addNote();
-	void addNote(Peak* p);
-	void addNote(float x, float y, QString text);
-	void updateNote(Note*);
 	void saveRetentionTime();
 	void setGalleryToEics();
 
@@ -106,9 +101,6 @@ public Q_SLOTS:
 	}
 	void showBaseLine(bool f) {
 		_showBaseline = f;
-	}
-	void showNotes(bool f) {
-		_showNotes = f;
 	}
     void showMergedEIC(bool f) { 
 		_showMergedEIC=f;
@@ -148,15 +140,13 @@ public Q_SLOTS:
 		_showBoxPlot = f;
 	}
 
-	void setStatusText(QString text);
 	void autoZoom(bool f) {
 		_autoZoom = f;
 	}
 
 	void markGroupGood();
 	void markGroupBad();
-	void copyToClipboard();
-	void selectionChangedAction();
+        void copyToClipboard();
 	void freezeView(bool freeze);
     void unSetPeakTableGroup(PeakGroup*);
 
@@ -220,7 +210,6 @@ private:
 
 	BarPlot* _barplot;
 	BoxPlot* _boxplot;
-	Note* _statusText;
 
 	bool _showEIC;
 	bool _showSpline;
@@ -229,7 +218,6 @@ private:
 	bool _showTicLine;
     bool _showBicLine; //TODO: Sahil Added while mergin eicWidget
 	bool _showMergedEIC;
-	bool _showNotes;
 	bool _showPeaks;
     bool _showEICLines; //TODO: Sahil Added while mergin eicWidget
 	bool _autoZoom;
@@ -276,9 +264,6 @@ private:
 
 	MainWindow* getMainWindow();		//return parent
 	void zoomPeakGroup(PeakGroup* group);
-
-	//function to add and remove notes
-	void getNotes(float mzmin, float mzmax);
 
     void _drawSelectionLine(float rtMin, float rtMax);
     void _eraseSelectionLine();

@@ -4,7 +4,6 @@
 #include "stable.h"
 
 class TableDockWidget;
-class Note;
 class PeakGroup;
 class Peak;
 class Scan;
@@ -80,11 +79,8 @@ class PlotScene : public QGraphicsScene
 	QGraphicsRectItem *selectionRect;
 	QGraphicsLineItem* vline;
 	QGraphicsLineItem* hline;
-	QGraphicsTextItem*  ylabel;
-	QGraphicsTextItem*  xlabel;
-	Note* xValueLabel;
-	Note* yValueLabel;
-
+        QGraphicsTextItem*  ylabel;
+        QGraphicsTextItem*  xlabel;
 	bool _mousePressed;
 	bool _mouseReleased;
 

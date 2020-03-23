@@ -205,12 +205,10 @@ HEADERS += stable.h \
            treedockwidget.h  \
            heatmap.h  \
            treemap.h  \
-           note.h  \
            suggest.h \
            animationcontrol.h \
            alignmentdialog.h \
            scatterplot.h \
-           noteswidget.h \
            gallerywidget.h \
            QHistogramSlider.h \
            qdownloader.h \
@@ -283,12 +281,10 @@ SOURCES += mainwindow.cpp  \
            line.cpp  \
            heatmap.cpp \
            treemap.cpp \
-           note.cpp  \
            suggest.cpp \
            animationcontrol.cpp\
            alignmentdialog.cpp\
            scatterplot.cpp \
-           noteswidget.cpp \
            gallerywidget.cpp \
            QHistogramSlider.cpp \
            qdownloader.cpp \

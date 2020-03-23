@@ -55,7 +55,6 @@ class HeatMap;
 class ScatterPlot;
 class TreeMap;
 class SuggestPopup;
-class NotesWidget;
 class GalleryWidget;
 class mzFileIO;
 class ProjectDockWidget;
@@ -146,7 +145,6 @@ public:
 	QDockWidget *treeMapDockWidget;
 	QDockWidget *galleryDockWidget;
 	LogWidget *logWidget;
-	NotesWidget *notesDockWidget;
 	ProjectDockWidget *projectDockWidget;
 	SpectraMatching *spectraMatchingForm;
 	PeptideFragmentationWidget *peptideFragmentation;

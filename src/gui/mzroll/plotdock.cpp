@@ -2,7 +2,6 @@
 #include "datastructures/mzSlice.h"
 #include "globals.h"
 #include "mzSample.h"
-#include "note.h"
 #include "plotdock.h"
 #include "Scan.h"
 
@@ -12,8 +11,6 @@ PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {
 	hline = new QGraphicsLineItem(); hline->hide();	hline->setPen(QPen(Qt::DotLine));
 	ylabel = new QGraphicsTextItem(); ylabel->hide(); ylabel->setFont(QFont("Helvetica",10)); ylabel->setRotation(-90);
 	xlabel = new QGraphicsTextItem(); xlabel->hide(); xlabel->setFont(QFont("Helvetica",10));
-	xValueLabel   = new Note("", hline, this);  xValueLabel->setExpanded(true); xValueLabel->hide();
-	yValueLabel   = new Note("", vline, this);  yValueLabel->setExpanded(true); yValueLabel->hide();
     // New Variables Initialisation - Kiran
 	logBase=10;
     logX=false;
@@ -33,8 +30,6 @@ void PlotScene::clear() {
 	if(hline && hline->scene() == this) removeItem(hline);
 	if(ylabel && ylabel->scene() == this) removeItem(ylabel);
 	if(xlabel && xlabel->scene() == this) removeItem(xlabel);
-	if(xValueLabel && xValueLabel->scene() == this) removeItem(xValueLabel);
-	if(yValueLabel && yValueLabel->scene() == this) removeItem(yValueLabel);
 	if(selectionRect && selectionRect->scene() == this) removeItem(selectionRect);
 	QGraphicsScene::clear();
 }
