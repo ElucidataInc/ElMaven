@@ -143,11 +143,18 @@ void AlignmentDialog::intialSetup()
     samplesBox->clear();
     samplesBox->addItem("Select Randomly",
 						QVariant(QVariant::fromValue(static_cast<void*>(nullptr))));
+    vector<mzSample*> selectedSample;
     for(auto sample: _mw->samples) {
         if(sample->isSelected)
-            samplesBox->addItem(sample->sampleName.c_str(),
-								QVariant(QVariant::fromValue(static_cast<void*>(sample))));
+            selectedSample.push_back(sample);
     }
+    sort(selectedSample.begin(), selectedSample.end(), mzSample::compSampleSort);
+    for(auto sample: selectedSample)
+    {
+        samplesBox->addItem(sample->sampleName.c_str(),
+                            QVariant(QVariant::fromValue(static_cast<void*>(sample))));
+    }
+
 }
 
 void AlignmentDialog::restorDefaultValues(bool checked)
