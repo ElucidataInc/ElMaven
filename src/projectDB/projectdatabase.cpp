@@ -323,10 +323,16 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
     }
 
     vector<EIC*> eics;
-    if (_saveRawData && group->hasSlice())
-        eics = PeakDetector::pullEICs(&group->getSlice(),
+    if (_saveRawData && group->hasSlice()) {
+        mzSlice eicSlice = group->getSlice();
+        if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
+            eicSlice.rtmin = max(group->minRt - 2.0f, 0.0f);
+        if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
+            eicSlice.rtmax = group->maxRt + 2.0f;
+        eics = PeakDetector::pullEICs(&eicSlice,
                                       group->samples,
                                       group->parameters().get());
+    }
 
     auto peaksQuery = _connection->prepare(
         "INSERT INTO peaks                      \
@@ -465,6 +471,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
         if (!peaksQuery->execute())
             cerr << "Error: failed to write peak" << endl;
     }
+    mzUtils::delete_all(eics);
 }
 
 void ProjectDatabase::saveCompounds(const vector<PeakGroup>& groups)
