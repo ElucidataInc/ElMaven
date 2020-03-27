@@ -213,8 +213,19 @@ bool Databases::addCompound(Compound* c) {
         for(unsigned int i = 0; i < compoundsDB.size(); i++) {
             Compound* currentCompound = compoundsDB[i];
             if ( currentCompound->db() == c->db() && currentCompound->id() == c->id()) {
-                currentCompound = c;
+                currentCompound->setId(c->id());
+                currentCompound->setName(c->name());
+                currentCompound->setFormula(c->formula());
+                currentCompound->setSrmId(c->srmId());
+                currentCompound->setExpectedRt(c->expectedRt());
+                currentCompound->setCharge(c->charge());
+                currentCompound->setMass(c->mass());
+                currentCompound->setPrecursorMz(c->precursorMz());
+                currentCompound->setProductMz(c->productMz());
+                currentCompound->setCollisionEnergy (c->collisionEnergy());
+                currentCompound->category = c->category;
                 matched = true;
+
             }
         }
 
