@@ -3,8 +3,8 @@
 #include "constants.h"
 #include "mzMassCalculator.h"
 #include "mzUtils.h"
-#include "dtUtils.h"
 #include "Scan.h"
+#include "utilities.h"
 
 
 using namespace mzUtils;
@@ -56,7 +56,7 @@ bool Compound::operator == (const Compound& rhs) const
             && almostEqual(_productMz, rhs._productMz)
             && almostEqual(_collisionEnergy, rhs._collisionEnergy)
             && almostEqual(logP, rhs.logP)
-            && virtualFragmentation == virtualFragmentation
+            && virtualFragmentation == rhs.virtualFragmentation
             && isDecoy == rhs.isDecoy
             && ionizationMode == rhs.ionizationMode
             && _db == rhs._db
@@ -463,7 +463,8 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
     SUBCASE("Testing ScoreCompoundHit"){
         Compound a("C00166", "UTP" ,
                    "C9H15N2O14P3", 1, 14.81);
-        Scan* scan = new Scan(samples[0], 2, 0, 0.782, 0, 0);
+        auto mzSamples = samples();
+        Scan* scan = new Scan(mzSamples[0], 2, 0, 0.782, 0, 0);
         Fragment fragment(scan, 0.12, 0.15, 3);
         FragmentationMatchScore f = a.scoreCompoundHit(&fragment, 5, false);
         REQUIRE(f.fractionMatched == 0);
