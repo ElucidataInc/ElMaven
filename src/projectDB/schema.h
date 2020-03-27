@@ -84,6 +84,7 @@
                                       , label                   INTEGER                           \
                                       , peak_spline_area        REAL                              \
                                       , eic_rt                  TEXT                              \
+                                      , eic_original_rt         TEXT                              \
                                       , eic_intensity           TEXT                              \
                                       , spectrum_mz             TEXT                              \
                                       , spectrum_intensity      TEXT                              );"

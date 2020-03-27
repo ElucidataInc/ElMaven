@@ -376,6 +376,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
                      , :label                   \
                      , :peak_spline_area        \
                      , :eic_rt                  \
+                     , :eic_original_rt         \
                      , :eic_intensity           \
                      , :spectrum_mz             \
                      , :spectrum_intensity      )");
@@ -427,20 +428,28 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
             if (iter != end(eics)) {
                 EIC* eic = *iter;
                 stringstream rts;
+                stringstream orts;
                 stringstream ins;
                 rts << setprecision(4) << fixed;
+                orts << setprecision(4) << fixed;
                 ins << setprecision(2) << fixed;
 
                 // write comma-delimited RT and intensity values
                 for (int i = 0; i < eic->rt.size(); ++i) {
                     rts << eic->rt[i] << ",";
                     ins << eic->intensity[i] << ",";
+
+                    auto scannum = eic->scannum[i];
+                    orts << eic->sample->scans[scannum]->originalRt << ",";
                 }
                 string rtString = rts.str();
+                string ortString = orts.str();
                 string inString = ins.str();
                 rtString = rtString.substr(0, rtString.size() - 1);
+                ortString = ortString.substr(0, ortString.size() - 1);
                 inString = inString.substr(0, inString.size() - 1);
                 peaksQuery->bind(":eic_rt", rtString);
+                peaksQuery->bind(":eic_original_rt", ortString);
                 peaksQuery->bind(":eic_intensity", inString);
             }
         }

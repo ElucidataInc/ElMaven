@@ -796,6 +796,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE user_settings ADD COLUMN alignment_algorithm INTEGER;"
 
         "ALTER TABLE peaks ADD COLUMN eic_rt TEXT;"
+        "ALTER TABLE peaks ADD COLUMN eic_original_rt TEXT;"
         "ALTER TABLE peaks ADD COLUMN eic_intensity TEXT;"
         "ALTER TABLE peaks ADD COLUMN spectrum_mz TEXT;"
         "ALTER TABLE peaks ADD COLUMN spectrum_intensity TEXT;"
