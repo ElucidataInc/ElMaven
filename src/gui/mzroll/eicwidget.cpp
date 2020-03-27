@@ -593,10 +593,6 @@ void EicWidget::addEICLines(bool showSpline,
         line->addPoint(QPointF(toX(rt), toY(intensity)));
     };
 
-    PeakGroup* peakgroup = NULL;
-    if (eicParameters->displayedGroup())
-        peakgroup = eicParameters->displayedGroup();
-
     for (unsigned int i = 0; i < eicParameters->eics.size(); i++) {
         EIC* eic = eicParameters->eics[i];
         if (eic->size() == 0)
@@ -604,28 +600,6 @@ void EicWidget::addEICLines(bool showSpline,
         if (eic->sample != NULL && eic->sample->isSelected == false)
             continue;
         if (eic->maxIntensity <= 0)
-            continue;
-
-        /*
-         * This is done to ensure only those EICs of the samples
-         * are displayed which have the corresponding peaks.
-         * Specially, for the cases where replotting of isotopes
-         * are required.
-         */
-        bool plotEic = true;
-        if (peakgroup) {
-            for (auto peak : peakgroup->peaks) {
-                if (peak.getSample() != eic->sample) {
-                    //eic of sample should not be plotted
-                     plotEic = false;
-                } else {
-                    plotEic = true;
-                    break;
-                }
-            }
-        }
-
-        if(plotEic == false)
             continue;
 
         EicLine* lineEic = new EicLine(0, scene());

@@ -10,6 +10,7 @@
 #include "Peak.h"
 #include "peakFiltering.h"
 #include "PeakGroup.h"
+#include "PeakDetector.h"
 #include "Scan.h"
 
 IsotopeDetection::IsotopeDetection(
@@ -63,6 +64,122 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
 
 }
 
+map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
+{
+
+    map<string,PeakGroup> isotopes;
+    auto samples = _mavenParameters->samples;
+
+    for(size_t i = 0; i < masslist.size(); i++)
+    {
+        Isotope& x = masslist[i];
+        string isotopeName = x.name;
+        double isotopeMass = x.mass;
+        float mzmin = isotopeMass -_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+        float mzmax = isotopeMass +_mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
+        double expectedAbundance = x.abundance;
+
+        mzSlice slice(mzmin,
+                      mzmax,
+                      0.0f,
+                      numeric_limits<float>::max());
+
+        auto eics = PeakDetector::pullEICs(&slice, samples, _mavenParameters);
+
+        for(auto eic : eics)
+        {
+            Peak* parentPeak = parentgroup->getPeak(eic->getSample());
+            float rt = parentgroup->medianRt();
+            float rtmin = parentgroup->minRt;
+            float rtmax = parentgroup->maxRt;
+
+            if (parentPeak) {
+                rt = parentPeak->rt;
+                rtmin = parentPeak->rtmin;
+                rtmax = parentPeak->rtmax;
+            }
+
+            float isotopePeakIntensity = 0;
+            float parentPeakIntensity = 0;
+
+            if (parentPeak) {
+                parentPeakIntensity = parentPeak->peakIntensity;
+                Scan* scan = parentPeak->getScan();
+                std::pair<float, float> isotope = getIntensity(scan, mzmin, mzmax);
+                isotopePeakIntensity = isotope.first;
+                rt = isotope.second;
+            }
+
+            if (isotopePeakIntensity == 0 || rt == 0) continue;
+
+            if (filterIsotope(x, isotopePeakIntensity, parentPeakIntensity, eic->getSample(), parentgroup))
+                continue;
+
+            eic->setSmootherType(
+                (EIC::SmootherType)
+                    _mavenParameters->eic_smoothingAlgorithm);
+            eic->setBaselineSmoothingWindow(_mavenParameters->baseline_smoothingWindow);
+            eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
+            eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
+            eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
+            auto allPeaks = eic->peaks;
+
+            //Set peak quality
+            if (_mavenParameters->clsf->hasModel()) {
+                for(Peak& peak: allPeaks)
+                    peak.quality = _mavenParameters->clsf->scorePeak(peak);
+            }
+
+            //filter isotopic peaks
+            bool isIsotope = true;
+            PeakFiltering peakFiltering(_mavenParameters, isIsotope);
+            peakFiltering.filter(allPeaks);
+
+            delete(eic);
+            // find nearest peak as long as it is within RT window
+            float maxRtDiff=_mavenParameters->maxIsotopeScanDiff * _mavenParameters->avgScanTime;
+            //why are we even doing this calculation, why not have the parameter be in units of RT?
+            Peak* nearestPeak = NULL;
+            float d = FLT_MAX;
+            for (unsigned int i = 0; i < allPeaks.size(); i++) {
+                Peak& x = allPeaks[i];
+                float dist = abs(x.rt - rt);
+                if (dist > maxRtDiff)
+                    continue;
+                if (dist < d) {
+                    d = dist;
+                    nearestPeak = &x;
+                }
+            }
+
+            //delete (nearestPeak);
+            if (nearestPeak) { //if nearest peak is present
+                if (isotopes.count(isotopeName) == 0) { //label the peak of isotope
+                    PeakGroup g;
+                    g.meanMz = isotopeMass; //This get's updated in groupStatistics function
+                    g.expectedMz = isotopeMass;
+                    g.tagString = isotopeName;
+                    g.expectedAbundance = expectedAbundance;
+                    g.isotopeC13count = x.C13;
+                    g.setSelectedSamples(parentgroup->samples);
+
+                    // create a slice for this group; RT will be updated later
+                    mzSlice childSlice(mzmin,
+                                       mzmax,
+                                       0.0f,
+                                       numeric_limits<float>::max());
+                    g.setSlice(childSlice);
+                    isotopes[isotopeName] = g;
+                }
+                isotopes[isotopeName].addPeak(*nearestPeak); //add nearestPeak to isotope peak list
+            }
+            vector<Peak>().swap(allPeaks);
+        }
+    }
+    return isotopes;
+}
+
+/*
 map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist)
 {
     //iterate over samples to find properties for parent's isotopes.
@@ -181,6 +298,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentgroup, vec
     }
     return isotopes;
 }
+*/
 
 bool IsotopeDetection::filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup)
 {    
