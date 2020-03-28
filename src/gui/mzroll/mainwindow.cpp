@@ -1473,8 +1473,8 @@ void MainWindow::setCompoundFocus(Compound*c) {
         qDebug() << "setCompoundFocus:" << c->name().c_str() << " " << charge << " "
                         << c->expectedRt();
 
-        float mz = c->mass();
-        if (!c->formula().empty())
+        float mz = c->mz();
+        if (!c->formula().empty() || c->neutralMass() != 0.0f)
 		mz = c->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 
@@ -1891,7 +1891,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
             QString eventLabel = "MS1";
             if (loadedCompounds[0]->precursorMz() > 0
                 && (loadedCompounds[0]->productMz() > 0
-                    || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
+                    || loadedCompounds[0]->fragmentMzValues().size() > 0)) {
                 eventLabel = DB.isSpectralLibrary(dbName) ? "MS2 (PRM)"
                                                       : "MS2 (MRM)";
             }
@@ -2005,7 +2005,15 @@ void MainWindow::_warnIfNISTPolarityMismatch()
         return;
 
     int samplePolarity = sample->getPolarity();
-    int dbPolarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    Compound::IonizationMode polarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    int dbPolarity = 0;
+    if (polarity == Compound::IonizationMode::Positive)
+        dbPolarity = 1;
+    else if (polarity == Compound::IonizationMode::Negative)
+        dbPolarity = -1;
+    else
+        dbPolarity = 0;
+
     if (samplePolarity != dbPolarity) {
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Polarity Mismatch"));

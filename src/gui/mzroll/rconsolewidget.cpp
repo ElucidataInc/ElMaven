@@ -266,7 +266,7 @@ void RconsoleWidget::exportGroupsToTable()
         auto prmGroupAt = find_if(begin(groups),
                                   end(groups),
                                   [] (PeakGroup* group) {
-                                      return group->getCompound()->type() == Compound::Type::PRM;
+                                      return group->getCompound()->type() == Compound::Type::MS2;
                                   });
         bool prmGroupExists = prmGroupAt != end(groups);
 

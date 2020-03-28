@@ -11,14 +11,14 @@ class Fragment;
 
 using namespace std;
 
+/**
+ *@brief  -   class to represent a compound
+ *@detail  -  class Compound representing a compound. It will hold variable to
+ *discribe a compound and also PeakGroup object it will belong to in addition
+ *to other required functions for other operation
+ */
 class Compound{
 
-    /**
-     *@brief  -   class to represent a compound
-     *@detail  -  class Compound representing a compound. It will hold variable to
-     *discribe a compound and also PeakGroup object it will belong to in addition
-     *to other required functions for other operation
-     */
     private:
 
         /**
@@ -57,7 +57,7 @@ class Compound{
         /**
          *@param   -  mass of this compund
         */
-        float _mass;
+        float _mz;
 
         /**
          *@param  -  QQQ parent ion  mz value
@@ -83,12 +83,85 @@ class Compound{
 
         float _neutralMass;
 
+        /**
+         * @brief Categories of this compound. For e.g., amino acids, nucleic
+         * acids, peptide, etc.
+         */
+        vector<string> _category;
+
+        /**
+         * @brief Vector of m/z values of fragments generated from this compund.
+         */
+        vector<float> _fragmentMzValues;
+
+        /**
+         * @brief Vector of intensities of fragments generated from this
+         * compund.
+         */
+        vector<float> _fragmentIntensities;
+
+        /**
+         * @brief Collection of indices of fragment values mapping to its
+         * ionisation type information.
+         */
+        map<int, string> _fragmentIonTypes;
+
+        /**
+         * @brief A simple string in form of a line notation for describing the
+         * structure of chemical species using short ASCII strings.
+         */
+        string _smileString;
+
+        float _logP; // TODO: find out what value this is.
+
+        // TODO: from MAVEN (upstream), find out what this is
+        bool _virtualFragmentation;
+
+        /**
+         * @brief A note containing any miscellaneous details for this compound.
+         */
+        string _note;
+
+        // TODO: from MAVEN (upstream) decoy compound?
+        bool _isDecoy;
+
+        /** QQQ mapping */
+        string _method_id;   /**@param  -  TODO*/
+
+        /**
+         * TODO
+         */
+        int _transition_id;
+
+        /**
+         *@param -  kegg_id-    Kyoto Encyclopedia of
+         *Genes and Genomes id
+         */
+        string _kegg_id;
+
+        /**
+         *@param  -  pubchem_id -    PubChem id
+         */
+        string _pubchem_id;
+
+        /**
+         *@param  -  hmdb_id-    Human Metabolome Database id
+         */
+        string _hmdb_id;
+
+
     public:
         enum class Type {
             MS1,
             MRM,
-            PRM,
+            MS2,
             UNKNOWN
+        };
+
+        enum class IonizationMode{
+            Positive,
+            Negative,
+            Neutral
         };
 
         /**
@@ -100,6 +173,8 @@ class Compound{
 
 
         ~Compound(){};
+
+        IonizationMode ionizationMode;
 
         /**
          * @brief Getters and Setters for 
@@ -115,6 +190,19 @@ class Compound{
 
         void setFormula(string formula);
 
+        /**
+         * @brief Filters an arbitrary string and gets rid of any characters
+         * that are not allowed to be part of a small molecule formula.
+         * @details It should be noted that this is only a filter and not a
+         * parser of any sort. This function can be used to strip a possible
+         * formula string to a form which is equivalent to how El-MAVEN
+         * currently understands a checmical formula. The parsing scheme in
+         * `MassCalculator::getComposition` can be used as a guide.
+         * @param formulaString Any arbitrary string.
+         * @return A string stripped of all non-chemical characters.
+         */
+        static string filterFormula(string formulaString);
+
         string formula();
 
         void setAlias(string alias);
@@ -129,9 +217,9 @@ class Compound{
 
         int charge();
 
-        void setMass(float mass);
+        void setMz(float mass);
 
-        float mass();
+        float mz();
 
         void setPrecursorMz(float precursorMz);
 
@@ -157,98 +245,69 @@ class Compound{
 
         float neutralMass();
 
-        /**
-         * @brief Categories of this compound. For e.g., amino acids, nucleic
-         * acids, peptide, etc.
-         */
-        vector<string> category;
+        void setCategory(vector<string> category);
 
-        /**
-         * @brief Vector of m/z values of fragments generated from this compund.
-         */
-        vector<float>fragmentMzValues;
+        vector<string> category();
 
-        /**
-         * @brief Vector of intensities of fragments generated from this
-         * compund.
-         */
-        vector<float>fragmentIntensities;
+        void setFragmentMzValues(vector<float> mzValues);
 
-        /**
-         * @brief Collection of indices of fragment values mapping to its
-         * ionisation type information.
-         */
-        map<int, string>fragmentIonTypes;
+        vector<float> fragmentMzValues();
 
-        /**
-         * @brief A simple string in form of a line notation for describing the
-         * structure of chemical species using short ASCII strings.
-         */
-        string smileString;
+        void setFragmentIntensities(vector<float> intensities);
 
-        // TODO: from MAVEN (upstream). Can this be derived somehow.
-        // Also maybe use an enum.
-        int ionizationMode;
+        vector<float> fragmentIntensities();
 
+        void setFragmentIonTypes(map<int, string> types);
 
-        float logP; // TODO: find out what value this is.
+        map<int, string> fragmentIonTypes();
 
-        // TODO: from MAVEN (upstream), find out what this is
-        bool virtualFragmentation;
+        void setSmileString(string smileString);
 
-        /**
-         * @brief A note containing any miscellaneous details for this compound.
-         */
-        string note;
+        string smileString();
 
-        // TODO: from MAVEN (upstream) decoy compound?
-        bool isDecoy;
+        void setLogP(float logP);
 
-        /**
-        *@param  -   Reaction represents simple compound reaction
-        *Check Reaction class in mzSample.h
-        */
+        float logP();
 
-        vector<Reaction*>reactions;
+        void setVirtualFragmentation(bool isVirtual);
 
-        // TODO: from MAVEN (upstream), find out what this is
-        string adductString;
+        bool virtualFragmentation();
 
-        /** QQQ mapping */
-        string method_id;   /**@param  -  TODO*/
+        void setNote(string note);
 
+        string note();
 
-        /**
-         * TODO
-         */
-        int transition_id;
+        void setIsDecoy(bool isDecoy);
 
+        bool isDecoy();
 
-        /**
-         *@param -  kegg_id-    Kyoto Encyclopedia of
-         *Genes and Genomes id
-         */
-        string kegg_id;
+        void setMethod_id(string id);
 
-        /**
-         *@param  -  pubchem_id -    PubChem id
-         */
-        string pubchem_id;
+        string method_id();
 
-        /**
-         *@param  -  hmdb_id-    Human Metabolome Database id
-         */
-        string hmdb_id;
+        void setTransition_id(int id);
 
+        int transition_id();
+
+        void setKegg_id(string id);
+
+        string kegg_id();
+
+        void setPubchem_id(string id);
+
+        string pubchem_id();
+
+        void setHmdb_id(string id);
+
+        string hmdb_id();
 
         bool operator == (const Compound& rhs) const;
 
-        void operator = (const Compound& rhs);
-
+        Compound* operator = (const Compound& rhs);
 
         /**
          * @brief Get the type of this compound, whether it can be used for
-         * targeted analysis of MS (level 1), SRM, MRM or PRM datasets.
+         * targeted analysis of MS (level 1), SRM, MRM or MS2 datasets.
          * @return Type of the compound as a `Compound::Type` enum.
          */
         Type type() const;
@@ -263,14 +322,9 @@ class Compound{
         float adjustedMass(int charge);
 
         /**
-         *@brief add reaction of this compound
-         */
-        void addReaction(Reaction* r) { reactions.push_back(r); }
-
-        /**
          *@brief   -  utility function to compare compound by mass
          */
-        static bool compMass(const Compound* a, const Compound* b )      { return(a->_mass < b->_mass);       }
+        static bool compMass(const Compound* a, const Compound* b )      { return(a->_mz < b->_mz);       }
 
         /**
          *@brief  -   utility function to compare compound by name for sorting purpose
@@ -281,12 +335,5 @@ class Compound{
          *@brief  -  utility function to compare compound by formula for sorting purpose
          */
         static bool compFormula(const Compound* a, const Compound* b ) { return(a->_formula < b->_formula); }
-
-        /**
-         *@brief   -  utility function to compare compound by number of reactions
-         *it is involved in
-         */
-        static bool compReactionCount(const Compound* a, const Compound* b ) { return(a->reactions.size() < b->reactions.size()); }
-
 };
 #endif

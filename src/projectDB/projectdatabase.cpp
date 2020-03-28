@@ -417,7 +417,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
 
     for (Compound* c : seenCompounds) {
         stringstream categories;
-        for (string s : c->category) {
+        auto category = c->category();
+        for (string s : category) {
             categories << s.c_str() << ";";
         }
         string catStr = categories.str();
@@ -426,15 +427,18 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         stringstream fragMz;
         stringstream fragIntensity;
         stringstream fragIonType;
-        size_t numFragments = c->fragmentMzValues.size();
+        size_t numFragments = c->fragmentMzValues().size();
         if (numFragments != 0
-            && (numFragments == c->fragmentIntensities.size())
-            && (numFragments == c->fragmentIonTypes.size())) {
+            && (numFragments == c->fragmentIntensities().size())
+            && (numFragments == c->fragmentIonTypes().size())) {
+            auto fragmentMzValues = c->fragmentMzValues();
+            auto fragmentIonTypes = c->fragmentIonTypes();
+            auto fragmentIntensities = c->fragmentIntensities();
             for (size_t i = 0; i < numFragments - 1; ++i) {
                 // presumption: all three containers are of the same size
-                auto mz = c->fragmentMzValues[i];
-                auto intensity = c->fragmentIntensities[i];
-                auto ionType = c->fragmentIonTypes[i];
+                auto mz = fragmentMzValues[i];
+                auto intensity = fragmentIntensities[i];
+                auto ionType = fragmentIonTypes[i];
 
                 fragMz << fixed << setprecision(10) << mz << ";";
                 fragIntensity << fixed << setprecision(10) << intensity << ";";
@@ -442,37 +446,45 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
             }
             fragMz << fixed
                    << setprecision(10)
-                   << c->fragmentMzValues.back();
+                   << fragmentMzValues.back();
             fragIntensity << fixed
                           << setprecision(10)
-                          << c->fragmentIntensities.back();
-            fragIonType << c->fragmentIonTypes.rbegin()->second;
+                          << fragmentIntensities.back();
+            fragIonType << fragmentIonTypes.rbegin()->second;
         }
 
         compoundsQuery->bind(":compound_id", c->id());
         compoundsQuery->bind(":db_name", c->db());
         compoundsQuery->bind(":name", c->name());
         compoundsQuery->bind(":formula", c->formula());
-        compoundsQuery->bind(":smile_string", c->smileString);
+        compoundsQuery->bind(":smile_string", c->smileString());
         compoundsQuery->bind(":srm_id", c->srmId());
 
-        compoundsQuery->bind(":mass", c->mass());
+        compoundsQuery->bind(":mass", c->mz());
         compoundsQuery->bind(":charge", c->charge());
         compoundsQuery->bind(":expected_rt", c->expectedRt());
         compoundsQuery->bind(":precursor_mz", c->precursorMz());
         compoundsQuery->bind(":product_mz", c->productMz());
 
         compoundsQuery->bind(":collision_energy", c->collisionEnergy());
-        compoundsQuery->bind(":log_p", c->logP);
-        compoundsQuery->bind(":virtual_fragmentation", c->virtualFragmentation);
-        compoundsQuery->bind(":ionization_mode", c->ionizationMode);
+        compoundsQuery->bind(":log_p", c->logP());
+        compoundsQuery->bind(":virtual_fragmentation", c->virtualFragmentation());
+
+        int ionizationMode;
+        if(c->ionizationMode == Compound::IonizationMode::Positive)
+            ionizationMode = +1;
+        else if(c->ionizationMode == Compound::IonizationMode::Negative)
+            ionizationMode = -1;
+        else
+            ionizationMode = 0;
+        compoundsQuery->bind(":ionization_mode", ionizationMode);
 
         compoundsQuery->bind(":category", catStr);
         compoundsQuery->bind(":fragment_mzs", fragMz.str());
         compoundsQuery->bind(":fragment_intensity", fragIntensity.str());
         compoundsQuery->bind(":fragment_ion_types", fragIonType.str());
 
-        compoundsQuery->bind(":note", c->note);
+        compoundsQuery->bind(":note", c->note());
         if (!compoundsQuery->execute())
             cerr << "Error: failed to save compound " << c->name() << endl;
     }
@@ -1136,9 +1148,9 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
 
         if (formula.empty()) {
             if (mass > 0)
-                compound->setMass ( mass);
+                compound->setMz( mass);
         } else {
-            compound->setMass
+            compound->setMz
                     (static_cast<float>(mcalc.computeNeutralMass(formula)));
         }
 
@@ -1146,14 +1158,23 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         compound->setProductMz (compoundsQuery->floatValue("product_mz"));
         compound->setCollisionEnergy
                 (compoundsQuery->floatValue("collision_energy"));
-        compound->smileString = compoundsQuery->stringValue("smile_string");
-        compound->logP = compoundsQuery->floatValue("log_p");
-        compound->ionizationMode = compoundsQuery->floatValue("ionization_mode");
-        compound->note = compoundsQuery->stringValue("note");
+        compound->setSmileString (compoundsQuery->stringValue("smile_string"));
+        compound->setLogP (compoundsQuery->floatValue("log_p"));
+
+        int ionizationMode;
+        ionizationMode = compoundsQuery->floatValue("ionization_mode");
+        if (ionizationMode > 0)
+            compound->ionizationMode = Compound::IonizationMode::Positive;
+        else if (ionizationMode < 0)
+            compound->ionizationMode = Compound::IonizationMode::Negative;
+        else
+            compound->ionizationMode = Compound::IonizationMode::Neutral;
+
+        compound->setNote (compoundsQuery->stringValue("note"));
 
         // mark compound as decoy if names contains DECOY string
         if (compound->name().find("DECOY") != string::npos)
-            compound->isDecoy = true;
+            compound->setIsDecoy (true);
 
         // lambda function to split a string using given delimiters
         auto split = [](string str, const char delim) {
@@ -1166,31 +1187,39 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         };
 
         string categories = compoundsQuery->stringValue("category");
+        vector<string> categoryVect;
         for (auto category : split(categories, ';')) {
             if (!category.empty())
-                compound->category.push_back(category);
+                categoryVect.push_back(category);
         }
+        compound->setCategory(categoryVect);
 
         string fragmentMzValues = compoundsQuery->stringValue("fragment_mzs");
+        vector<float> mzValues;
         for (string fragMz : split(fragmentMzValues, ';')) {
             if (!fragMz.empty())
-                compound->fragmentMzValues.push_back(stof(fragMz));
+                mzValues.push_back(stof(fragMz));
         }
+        compound->setFragmentMzValues(mzValues);
 
         string fragmentIntensities =
                 compoundsQuery->stringValue("fragment_intensity");
+        vector<float> intensities;
         for (string fragIntensity : split(fragmentIntensities, ';')) {
             if (!fragIntensity.empty())
-                compound->fragmentIntensities.push_back(stof(fragIntensity));
+                intensities.push_back(stof(fragIntensity));
         }
+        compound->setFragmentIntensities(intensities);
 
         vector<string> fragmentIonTypes =
             split(compoundsQuery->stringValue("fragment_ion_types"), ';');
+        map<int, string> ionTypes;
         for (size_t i = 0; i < fragmentIonTypes.size(); ++i) {
             string fragIonType = fragmentIonTypes[i];
             if (!fragIonType.empty())
-                compound->fragmentIonTypes[i] = fragIonType;
+                ionTypes[i] = fragIonType;
         }
+        compound->setFragmentIonTypes(ionTypes);
 
         _compoundIdMap[compound->id()  + compound->name() + compound->db()] = compound;
         compounds.push_back(compound);

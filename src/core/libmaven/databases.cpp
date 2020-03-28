@@ -142,17 +142,18 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
             mz = MassCalculator::computeMass(formula, charge);
         
         
-        compound->setMass(mz);
+        compound->setMz(mz);
         compound->setDb  (dbname);
         compound->setExpectedRt(rt);
         compound->setPrecursorMz (precursormz);
         compound->setProductMz( productmz);
         compound->setCollisionEnergy (collisionenergy);
-        compound->note = note;
+        compound->setNote(note);
 
+        vector<string> category;
         for(unsigned int i=0; i < categorylist.size(); i++) 
-            compound->category.push_back(categorylist[i]);
-        
+            category.push_back(categorylist[i]);
+        compound->setCategory(category);
         return compound;
     }
 
@@ -207,25 +208,13 @@ bool Databases::addCompound(Compound* c) {
         compoundIdMap[c->id()] = c;
         compoundsDB.push_back(c);
         compoundAdded = true;
-    } else { 
+    } else {
         //compound exists with the same name, match database
         bool matched = false;
         for(unsigned int i = 0; i < compoundsDB.size(); i++) {
-            Compound* currentCompound = compoundsDB[i];
-            if ( currentCompound->db() == c->db() && currentCompound->id() == c->id()) {
-                currentCompound->setId(c->id());
-                currentCompound->setName(c->name());
-                currentCompound->setFormula(c->formula());
-                currentCompound->setSrmId(c->srmId());
-                currentCompound->setExpectedRt(c->expectedRt());
-                currentCompound->setCharge(c->charge());
-                currentCompound->setMass(c->mass());
-                currentCompound->setPrecursorMz(c->precursorMz());
-                currentCompound->setProductMz(c->productMz());
-                currentCompound->setCollisionEnergy (c->collisionEnergy());
-                currentCompound->category = c->category;
+            if ( compoundsDB[i]->db() == c->db() && compoundsDB[i]->id() == c->id()) {
+                compoundsDB[i] = c;
                 matched = true;
-
             }
         }
 

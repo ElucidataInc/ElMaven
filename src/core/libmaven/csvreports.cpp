@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "utilities.h"
+#include "testUtils.h"
 #include "csvreports.h"
 #include <boost/lexical_cast.hpp>
 #include "Compound.h"
@@ -104,7 +104,7 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                                 << "ppmDiff"
                                 << "parent";
 
-        // if this is a PRM report, add PRM specific columns
+        // if this is a MS2 report, add MS2 specific columns
         if (prmReport && !_pollyExport) {
             groupReportcolnames << "ms2EventCount"
                                 << "fragNumIonsMatched"
@@ -300,15 +300,14 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                     (double)group->getExpectedMz(charge),
                     (double)group->meanMz,
                     getMavenParameters()->massCutoffMerge);
-            } 
-            else {
+            } else {
                 ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
                                                   (double) group->meanMz,
                                                   getMavenParameters()->massCutoffMerge);
             }
         }
         else {
-            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mass(), (double) group->meanMz,getMavenParameters()->massCutoffMerge);
+            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mz(), (double) group->meanMz,getMavenParameters()->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff();
         // TODO: Added this while merging this file
@@ -332,11 +331,11 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     }
 
     if (group->getCompound()
-        && group->getCompound()->type() == Compound::Type::PRM
+        && group->getCompound()->type() == Compound::Type::MS2
         && !_pollyExport) {
         auto groupToWrite = group;
 
-        // if this is a C12 PARENT, then all PRM attributes should be taken from
+        // if this is a C12 PARENT, then all MS2  attributes should be taken from
         // its parent group.
         if (group->tagString.find("C12 PARENT") != std::string::npos)
             groupToWrite = group->parent;

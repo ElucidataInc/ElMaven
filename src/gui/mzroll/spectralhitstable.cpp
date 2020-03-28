@@ -971,7 +971,7 @@ void SpectralHitsDockWidget::integrateMS1() {
                Compound* cpd = new Compound(peptideId.toStdString(),hit->getProteinIds().toStdString(),string(),hit->charge);
                cpd->setExpectedRt(hit->rt);
                cpd->setPrecursorMz (hit->precursorMz);
-               cpd->setMass(hit->precursorMz);
+               cpd->setMz(hit->precursorMz);
                peptideCompoundMap[peptideId]=cpd;
            }
            peptideMap[peptideId] = slice;

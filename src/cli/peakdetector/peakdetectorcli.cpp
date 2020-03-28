@@ -740,14 +740,14 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
                     charpolarity = "-";
 
                 QStringList category;
-
-                for (int i = 0; i < compound->category.size(); i++) {
-                    category << QString(compound->category[i].c_str());
+                auto categoryVect = compound->category();
+                for (int i = 0; i < categoryVect.size(); i++) {
+                    category << QString(categoryVect[i].c_str());
                 }
 
                 out << charpolarity << SEP;
                 out << QString(compound->name().c_str()) << SEP;
-                out << compound->mass() << SEP;
+                out << compound->mz() << SEP;
                 out << compound->charge() << SEP;
                 out << compound->precursorMz() << SEP;
                 out << compound->collisionEnergy() << SEP;
@@ -1256,7 +1256,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
                 [](PeakGroup& group) {
                     if (!group.getCompound())
                         return false;
-                    return group.getCompound()->type() == Compound::Type::PRM;
+                    return group.getCompound()->type() == Compound::Type::MS2;
                 });
     bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
 

@@ -563,11 +563,11 @@ double PeakGroup::getExpectedMz(int charge) {
         && hasSlice()
         && _slice.compound != NULL
         && !_slice.compound->formula().empty()
-        && _slice.compound->mass() > 0
+        && _slice.compound->mz() > 0
         ) {
         return expectedMz;
     }
-    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mass() > 0) {
+    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mz() > 0) {
         if (!_slice.compound->formula().empty() && _adduct != nullptr) {
             auto mass =
                 MassCalculator::computeNeutralMass(_slice.compound->formula());
@@ -575,11 +575,11 @@ double PeakGroup::getExpectedMz(int charge) {
         } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass() != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
-            mz = _slice.compound->mass();
+            mz = _slice.compound->mz();
         }
         return mz;
     }
-    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mass() == 0 && _slice.compound->productMz() > 0) {
+    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mz() == 0 && _slice.compound->productMz() > 0) {
         mz = _slice.compound->productMz();
         return mz;
     }

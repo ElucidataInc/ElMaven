@@ -657,7 +657,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                             end(allgroups),
                             [] (PeakGroup& group) {
                               if (group.getCompound() == nullptr) return false;
-                              return group.getCompound()->type() == Compound::Type::PRM;
+                              return group.getCompound()->type() == Compound::Type::MS2;
                             });
   bool prmGroupExists = prmGroupAt != end(allgroups);
   bool includeSetNamesLines = false;
@@ -759,7 +759,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         find_if(begin(allgroups), end(allgroups), [](PeakGroup& group) {
             if (!group.getCompound())
                 return false;
-            return group.getCompound()->type() == Compound::Type::PRM;
+            return group.getCompound()->type() == Compound::Type::MS2;
         });
     bool ddaGroupExists = ddaGroupAt != end(allgroups);
     bool includeSetNamesLines = false;

@@ -436,7 +436,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                 int charge = mavenParameters->getCharge(compound);
                 mz = compound->adjustedMass(charge);
             } else {
-                mz = compound->mass();
+                mz = compound->mz();
             }
             if (mzUtils::withinXMassCutoff(mz,
                                            group.meanMz,

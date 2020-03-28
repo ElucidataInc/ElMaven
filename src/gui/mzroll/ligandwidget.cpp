@@ -226,12 +226,14 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname) {
 
     Compound* compound = new Compound(id,name,formula,charge);
     compound->setExpectedRt(rt);
-    compound->setMass(mz);
+    compound->setMz(mz);
     compound->setDb (dbname);
     compound->setPrecursorMz(precursormz);
     compound->setProductMz(productmz);
     compound->setCollisionEnergy(collisionenergy);
-    for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
+    vector<string> category;
+    for(int i=0; i < categorylist.size(); i++) category.push_back(categorylist[i]);
+    compound->setCategory(category);
     DB.addCompound(compound);
 
 }
@@ -300,9 +302,10 @@ void LigandWidget::showMatches(QString needle) {
                           << compound->id().c_str()
                           << compound->formula().c_str();
 
-                    if( compound->category.size()) {
-                        for(int i=0; i < compound->category.size(); i++) {
-                            stack << compound->category[i].c_str();
+                    if( compound->category().size()) {
+                        auto category = compound->category();
+                        for(int i=0; i < category.size(); i++) {
+                            stack << category[i].c_str();
                         }
                     }
 
@@ -325,13 +328,10 @@ void LigandWidget::updateCurrentItemData() {
     Compound*  c =  v.value<Compound*>();
     if(!c) return;
 
-    QString mass = QString::number(c->mass());
+    QString mass = QString::number(c->mz());
     QString rt = QString::number(c->expectedRt());
     item->setText(1,mass);
     item->setText(2,rt);
-
-    item->setIcon(0,QIcon());
-
 }
 
 
@@ -360,12 +360,12 @@ void LigandWidget::showTable() {
         float precursorMz = compound->precursorMz();
         float productMz = compound->productMz();
 
-        if (compound->formula().length()) {
+        if (compound->formula().length() || compound->neutralMass() != 0.0f) {
             int charge = _mw->mavenParameters->getCharge(compound);
             mz = compound->adjustedMass(charge);
         } 
         else {
-            mz = compound->mass();
+            mz = compound->mz();
         }
 
         if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
@@ -383,7 +383,7 @@ void LigandWidget::showTable() {
             addItem(parent, "Charge", compound->charge());
         if (compound->formula().length())
             addItem(parent, "Formula", compound->formula().c_str());
-        if (compound->precursorMz() && compound->fragmentMzValues.size() == 0)
+        if (compound->precursorMz() && compound->fragmentMzValues().size() == 0)
             addItem(parent, "Precursor Mz", compound->precursorMz());
         if (compound->productMz())
             addItem(parent, "Product Mz", compound->productMz());
@@ -391,24 +391,26 @@ void LigandWidget::showTable() {
 
             addItem(parent, "Collision Energy", compound->collisionEnergy());
 
-        if(compound->category.size() > 0) {
+        if(compound->category().size() > 0) {
             QStringList catList;
-            for(unsigned int i=0; i<compound->category.size();i++) {
-                catList << compound->category[i].c_str();
+            auto category = compound->category();
+            for(unsigned int i=0; i < category.size();i++) {
+                catList << category[i].c_str();
             }
             parent->setText(3,catList.join(";"));
         }
 
-        if (!compound->note.empty()) {
-            parent->setText(4, QString::fromStdString(compound->note));
+        if (!compound->note().empty()) {
+            parent->setText(4, QString::fromStdString(compound->note()));
         }
 
-        if (compound->fragmentMzValues.size()) {
+        if (compound->fragmentMzValues().size()) {
             QStringList mzList;
-            for(unsigned int i=0; i<compound->fragmentMzValues.size();i++) {
-                mzList << QString::number(compound->fragmentMzValues[i],'f',2);
+            auto mzValues = compound->fragmentMzValues();
+            for(unsigned int i=0; i < mzValues.size();i++) {
+                mzList << QString::number(mzValues[i],'f',2);
             }
-            QTreeWidgetItem* child = addItem(parent,"Fragments",compound->fragmentMzValues[0]);
+            QTreeWidgetItem* child = addItem(parent,"Fragments", mzValues[0]);
             child->setText(1,mzList.join(";"));
         }
 
@@ -509,14 +511,14 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
             if (compound->charge() < 0) charpolarity = "-";
 
             QStringList category;
-
-            for(int i=0; i < compound->category.size(); i++) {
-                category << QString(compound->category[i].c_str());
+            auto categoryVect = compound->category();
+            for(int i=0; i < categoryVect.size(); i++) {
+                category << QString(categoryVect[i].c_str());
             }
 
             out << charpolarity << SEP;
             out << QString(compound->name().c_str()) << SEP;
-            out << compound->mass() << SEP;
+            out << compound->mz() << SEP;
             out << compound->charge() << SEP;
             out << compound->precursorMz()  << SEP;
             out << compound->collisionEnergy() << SEP;
@@ -624,7 +626,7 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
                 if (remoteCompound !=NULL) {
 
                     if (!remoteCompound->formula().empty()) {
-                        remoteCompound->setMass(remoteCompound->adjustedMass(0));
+                        remoteCompound->setMz(remoteCompound->adjustedMass(0));
                     }
 
                     if (remoteCompound->name() == "Unknown") {
@@ -658,17 +660,17 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
                 remoteCompound->setFormula(xmltext.toStdString());
 
             else if (currentTag == "kegg_id")
-                remoteCompound->kegg_id = xmltext.toStdString();
+                remoteCompound->setKegg_id (xmltext.toStdString());
 
             else if (currentTag == "pubmed_id")
-                remoteCompound->pubchem_id = xmltext.toStdString();
+                remoteCompound->setPubchem_id (xmltext.toStdString());
 
             else if (currentTag == "hmdb_id")
-                remoteCompound->hmdb_id = xmltext.toStdString();
+                remoteCompound->setHmdb_id (xmltext.toStdString());
 
             else if (currentTag == "precursormz") {
                 remoteCompound->setPrecursorMz(xmltext.toDouble());
-                remoteCompound->setMass(remoteCompound->precursorMz());
+                remoteCompound->setMz(remoteCompound->precursorMz());
             }
             else if (currentTag == "productmz")
                 remoteCompound->setProductMz(xmltext.toDouble());
@@ -681,10 +683,10 @@ QList<Compound*> LigandWidget::parseXMLRemoteCompounds()
 
             else if (currentTag == "method_id") {
                 remoteCompound->setDb (remoteDBPrefix + xmltext.toStdString());
-                remoteCompound->method_id = xmltext.toStdString();
+                remoteCompound->setMethod_id (xmltext.toStdString());
 
             } else if (currentTag == "transition_id")
-                remoteCompound->transition_id = xmltext.toInt();
+                remoteCompound->setTransition_id (xmltext.toInt());
         }
     }
 
@@ -723,20 +725,21 @@ Compound* LigandWidget::getSelectedCompound() {
 void LigandWidget::matchFragmentation() {
     // New feature added - Merged with Maven776 - Kiran
 	Compound* c = getSelectedCompound();
-        if (!c or c->fragmentMzValues.size() == 0) return;
+        if (!c or c->fragmentMzValues().size() == 0) return;
 
     QStringList searchText;
-        int mzCount = c->fragmentMzValues.size();
-        int intsCount = c->fragmentIntensities.size();
+    int mzCount = c->fragmentMzValues().size();
+    int intsCount = c->fragmentIntensities().size();
 
     int charge = _mw->mavenParameters->getCharge(c); //user specified ionization mode
     float precursorMz = c->precursorMz();
     if (!c->formula().empty()) precursorMz = c->adjustedMass(charge);
-
+    auto mzValues = c->fragmentMzValues();
+    auto intensities = c->fragmentIntensities();
     for(int i=0; i < mzCount; i++ ) {
-                        float mz = c->fragmentMzValues[i];
+                        float mz = mzValues[i];
 			float ints = 0;
-                        if (i < intsCount) ints = c->fragmentIntensities[i];
+                        if (i < intsCount) ints = intensities[i];
 
             searchText  << tr("%1\t%2")
                 .arg(QString::number(mz,'f', 5))

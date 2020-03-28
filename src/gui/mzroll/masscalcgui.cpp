@@ -140,7 +140,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, MassCutoff *mas
     MassCalculator mcalc;
     QSet<Compound*>uniqset;
     Compound x("", "", "", 0);
-    x.setMass ( mz - 2);
+    x.setMz( mz - 2);
     vector<Compound*>::iterator itr = lower_bound(sortedcompounds.begin(),
                                                   sortedcompounds.end(),
                                                   &x,

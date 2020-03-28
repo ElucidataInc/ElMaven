@@ -1,6 +1,6 @@
 #include "json.hpp"
 #include "doctest.h"
-#include "utilities.h"
+#include "testUtils.h"
 #include "jsonReports.h"
 #include "Compound.h"
 #include "EIC.h"

@@ -58,8 +58,8 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCF() {
     int ionizationMode = +1;
     float ppmScale = 1e6;
 
-    float mzMin = compounds[0]->mass() - mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mass());
-    float mzMax = compounds[0]->mass() + mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mass());
+    float mzMin = compounds[0]->mz() - mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mz());
+    float mzMax = compounds[0]->mz() + mavenparameters->compoundMassCutoffWindow->massCutoffValue(compounds[0]->mz());
 
     slice->calculateMzMinMax(mavenparameters->compoundMassCutoffWindow, ionizationMode);
 
@@ -74,7 +74,7 @@ void TestMzSlice::testCalculateMzMaxMinWithNOCFNOMass() {
     vector<Compound*> compounds = TestUtils::getFaltyCompoudDataBase();
     mzSlice* slice = new mzSlice();
     slice->compound = compounds[1];
-    compounds[1]->setMass (0);
+    compounds[1]->setMz(0);
     MavenParameters* mavenparameters = new MavenParameters();
     mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,"ppm");
     int ionizationMode = +1;

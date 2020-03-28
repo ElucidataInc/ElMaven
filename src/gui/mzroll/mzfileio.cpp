@@ -189,9 +189,11 @@ PK$PEAK: m/z int. rel.int.
                Compound* cpd = new Compound( id.toStdString(), name.toStdString(), formula.toStdString(), charge);
                cpd->setPrecursorMz(precursor);
                cpd->setDb(dbname);
-               cpd->fragmentMzValues = mzs;
-               cpd->fragmentIntensities = intest;
-			   Q_FOREACH (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
+               cpd->setFragmentMzValues(mzs);
+               cpd->setFragmentIntensities(intest);
+               vector<string> category;
+               Q_FOREACH (QString cat, compound_class) { category.push_back(cat.toStdString()); }
+                           cpd->setCategory(category);
                DB.addCompound(cpd);
                compoundCount++;
             }
@@ -300,7 +302,7 @@ int mzFileIO::loadPepXML(QString fileName) {
 				    formula.toStdString(),
 				    charge);
 
-                    cpd->setMass(precursorMz);
+                    cpd->setMz(precursorMz);
                     cpd->setPrecursorMz(precursorMz);
                     cpd->setDb(dbname);
 		    DB.addCompound(cpd);

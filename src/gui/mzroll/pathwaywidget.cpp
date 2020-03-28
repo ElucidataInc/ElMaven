@@ -399,16 +399,6 @@ void PathwayWidget::expandOnCompound(Compound* c) {
 
 vector<string> PathwayWidget::getCompoundReactions(Compound* c0, int depth) {
 	vector<string> rids;
-	if (c0 == NULL)
-		return rids;
-
-	//cerr << depth << " getCompoundReactions() compound=" << c0->name << " reactions=" <<  c0->reactions.size() << endl;
-	if (c0->reactions.size() == 0)
-		return rids;
-
-	for (int i = 0; i < c0->reactions.size() && i < 20; i++) {
-		rids.push_back(c0->reactions[i]->id);
-	}
 	return rids;
 }
 

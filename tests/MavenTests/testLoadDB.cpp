@@ -46,7 +46,7 @@ void TestLoadDB::testExtractCompoundfromEachLineNormal() {
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
     Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(TestUtils::floatCompare(compound->mass(), 588.07523818) && \
+    QVERIFY(TestUtils::floatCompare(compound->mz(), 588.07523818) && \
     TestUtils::floatCompare(compound->expectedRt(), 14.14) && \
     TestUtils::floatCompare(compound->charge(), -1) && \
     name.compare(compound->name()) == 0 && \
@@ -74,7 +74,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithNoMz() {
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
     Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(TestUtils::floatCompare(compound->mass(), 589.082238 - 1.007) && \
+    QVERIFY(TestUtils::floatCompare(compound->mz(), 589.082238 - 1.007) && \
     TestUtils::floatCompare(compound->expectedRt(), 14.14) && \
     TestUtils::floatCompare(compound->charge(), -1) && \
     name.compare(compound->name()) == 0 && \
@@ -125,7 +125,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithExpRTandRT() {
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
     Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(TestUtils::floatCompare(compound->mass(), 589.082238 - 1.007) && \
+    QVERIFY(TestUtils::floatCompare(compound->mz(), 589.082238 - 1.007) && \
     TestUtils::floatCompare(compound->expectedRt(), 12.14) && \
     TestUtils::floatCompare(compound->charge(), -1) && \
     name.compare(compound->name()) == 0 && \
@@ -155,7 +155,7 @@ void TestLoadDB::testExtractCompoundfromEachLineWithCompoundField() {
     string filename = "/bin/methods/qe3_v11_2016_04_29.csv";
     Compound* compound = maventests::database.extractCompoundfromEachLine(fields, header, loadCount, filename);
 
-    QVERIFY(TestUtils::floatCompare(compound->mass(), 588.07523818) && \
+    QVERIFY(TestUtils::floatCompare(compound->mz(), 588.07523818) && \
     TestUtils::floatCompare(compound->expectedRt(), 14.14) && \
     TestUtils::floatCompare(compound->charge(), -1) && \
     compoundname.compare(compound->name()) == 0 && \
