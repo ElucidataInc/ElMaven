@@ -53,7 +53,8 @@ INCLUDEPATH +=  $$top_srcdir/3rdparty/pugixml/src/ \
                 $$top_srcdir/3rdparty/libsvm \
                 $$top_srcdir/3rdparty/NimbleDSP/src \
                 $$top_srcdir/3rdparty/doctest       \
-                $$top_srcdir/3rdparty/json
+                $$top_srcdir/3rdparty/json      \
+                $$top_srcdir/tests/test-libmaven
 
 QMAKE_LFLAGS += -L$$top_builddir/libs
 

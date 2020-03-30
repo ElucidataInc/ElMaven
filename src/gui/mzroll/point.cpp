@@ -318,11 +318,9 @@ void EicPoint::setClipboardToIsotopes() {
 
 void EicPoint::linkCompound() {
     if (_group &&_group->getCompound() != NULL )  {
-            //link group to compound
-            _group->getCompound()->setPeakGroup(*_group);
 
             //update compound retention time
-            if (_peak) _group->getCompound()->expectedRt=_peak->rt;
+            if (_peak) _group->getCompound()->setExpectedRt(_peak->rt);
 
             //log information about retention time change
            // _mw->getEicWidget()->addNote(_peak->peakMz,_peak->peakIntensity, "Compound Link");

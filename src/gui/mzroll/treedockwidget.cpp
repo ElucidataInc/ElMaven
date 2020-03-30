@@ -73,7 +73,7 @@ void TreeDockWidget::setInfo(vector<mzSlice*>& slices) {
 
 			if (x) { 
 				addCompound(x, parent);
-				parent->setText(0, tr("%1 %2").arg(QString(x->name.c_str()), tag ));
+                                parent->setText(0, tr("%1 %2").arg(QString(x->name().c_str()), tag ));
 			}
 	}
 }
@@ -180,8 +180,7 @@ void TreeDockWidget::unlinkGroup() {
 
     MainWindow* mainwindow = (MainWindow*)parentWidget();
 
-	if (cpd) { 
-		cpd->unlinkGroup(); 
+        if (cpd) {
     	mainwindow->setCompoundFocus(cpd);
 	} else if (group && group->parent) {
 		PeakGroup* parentGroup = group->parent;
@@ -197,10 +196,7 @@ void TreeDockWidget::unlinkGroup() {
 					treeWidget->removeItemWidget(item,0); delete(item);
 					group->deletePeaks();
 					group->deleteChildren();
-					if (group->hasCompoundLink() && group->getCompound()->getPeakGroup() == group ) {
-							group->getCompound()->unlinkGroup();
-							cerr << "Unlinking compound" << group << endl;
-					}
+
 					break;
 
 			}
@@ -380,14 +376,10 @@ QTreeWidgetItem* TreeDockWidget::addCompound(Compound* c, QTreeWidgetItem* paren
 
         if (!item) return NULL;
 
-        QString id = QString(c->name.c_str());
+        QString id = QString(c->name().c_str());
         item->setText(0,id);
     item->setData(0, Qt::UserRole,QVariant::fromValue(c));
 
-        if ( c->hasGroup() ){
-                        PeakGroup* group = c->getPeakGroup();
-                        if (group != NULL) addPeakGroup(group,item);
-        }
     return item;
 }
 
@@ -533,7 +525,7 @@ void TreeDockWidget::manualAnnotation(QTreeWidgetItem * item) {
     connect(matchCompoundMenu, SIGNAL(triggered(QAction*)), SLOT(annotateCompound(QAction*)));
 
     for (unsigned int i=0; i< matchedCompounds.size(); i++) {
-        QAction* action = matchCompoundMenu->addAction(QString::fromStdString(matchedCompounds[i]->name));
+        QAction* action = matchCompoundMenu->addAction(QString::fromStdString(matchedCompounds[i]->name()));
     }
 
 
@@ -557,7 +549,7 @@ void TreeDockWidget::annotateCompound(QAction* action) {
 
     Q_FOREACH(Compound* compound, _mainWindow->srmList->compoundsDB) {
 
-        if(compoundName == compound->name) {
+        if(compoundName == compound->name()) {
             _mainWindow->annotation[srmId] = compound;
         }
     }

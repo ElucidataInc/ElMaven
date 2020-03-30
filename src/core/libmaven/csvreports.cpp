@@ -1,3 +1,5 @@
+#include "doctest.h"
+#include "testUtils.h"
 #include "csvreports.h"
 #include <boost/lexical_cast.hpp>
 #include "Compound.h"
@@ -6,7 +8,6 @@
 #include "classifierNeuralNet.h"
 #include "constants.h"
 #include "databases.h"
-#include "doctest.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
@@ -103,7 +104,7 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                                 << "ppmDiff"
                                 << "parent";
 
-        // if this is a PRM report, add PRM specific columns
+        // if this is a MS2 report, add MS2 specific columns
         if (prmReport && !_pollyExport) {
             groupReportcolnames << "ms2EventCount"
                                 << "fragNumIonsMatched"
@@ -289,12 +290,9 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     float ppmDist = 0;
 
     if (group->getCompound() != NULL) {
-        compoundName =
-            _sanitizeString(group->getCompound()->name.c_str()).toStdString();
-        compoundID =
-            _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str())
-                      .toStdString();
+        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
+        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
         if (!group->getCompound()->formula().empty()) {
             int charge = getMavenParameters()->getCharge(group->getCompound());
             if (group->parent != NULL) {
@@ -303,16 +301,13 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                     (double)group->meanMz,
                     getMavenParameters()->massCutoffMerge);
             } else {
-                ppmDist = mzUtils::massCutoffDist(
-                    (double)group->getCompound()->adjustedMass(charge),
-                    (double)group->meanMz,
-                    getMavenParameters()->massCutoffMerge);
+                ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
+                                                  (double) group->meanMz,
+                                                  getMavenParameters()->massCutoffMerge);
             }
-        } else {
-            ppmDist =
-                mzUtils::massCutoffDist((double)group->getCompound()->mass,
-                                        (double)group->meanMz,
-                                        getMavenParameters()->massCutoffMerge);
+        }
+        else {
+            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mz(), (double) group->meanMz,getMavenParameters()->massCutoffMerge);
         }
         expectedRtDiff = group->expectedRtDiff();
         // TODO: Added this while merging this file
@@ -336,11 +331,11 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     }
 
     if (group->getCompound()
-        && group->getCompound()->type() == Compound::Type::PRM
+        && group->getCompound()->type() == Compound::Type::MS2
         && !_pollyExport) {
         auto groupToWrite = group;
 
-        // if this is a C12 PARENT, then all PRM attributes should be taken from
+        // if this is a C12 PARENT, then all MS2  attributes should be taken from
         // its parent group.
         if (group->tagString.find("C12 PARENT") != std::string::npos)
             groupToWrite = group->parent;
@@ -380,12 +375,9 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     string compoundID = "";
     string formula = "";
     if (group->getCompound() != NULL) {
-        compoundName =
-            _sanitizeString(group->getCompound()->name.c_str()).toStdString();
-        compoundID =
-            _sanitizeString(group->getCompound()->id.c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str())
-                      .toStdString();
+        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
+        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using
         // untargeted detection,
@@ -489,10 +481,8 @@ void CSVReports::writeDataForPolly(const std::string& file,
                 _reportStream << ",";
 
                 string compoundName = "";
-                if (child.getCompound() != NULL)
-                    compoundName =
-                        _sanitizeString(child.getCompound()->name.c_str())
-                            .toStdString();
+                if(child.getCompound() != NULL)
+                    compoundName = _sanitizeString(child.getCompound()->name().c_str()).toStdString();
                 else
                     compoundName = std::to_string(child.meanMz) + "@"
                                    + std::to_string(child.meanRt);
@@ -506,164 +496,7 @@ void CSVReports::writeDataForPolly(const std::string& file,
 
 ///////////////////////////Test Cases//////////////////////////////
 
-class CSVReportFixture
-{
-    private:
-    vector<mzSample*> _samples;
-    vector<PeakGroup> _allgroups;
-    MavenParameters* _mavenparameters;
-    std::list<PeakGroup> _isotopeGroups;
-    Databases database;
-
-    void _makeSampleList()
-    {
-        auto sample1 = new mzSample();
-        auto sample2 = new mzSample();
-        auto sample3 = new mzSample();
-        auto sample4 = new mzSample();
-        sample1->loadSample("bin/methods/091215_120i.mzXML");
-        sample2->loadSample("bin/methods/091215_120M.mzXML");
-        sample3->loadSample("bin/methods/091215_240i.mzXML");
-        sample4->loadSample("bin/methods/091215_240M.mzXML");
-
-        _samples.push_back(sample1);
-        _samples.push_back(sample2);
-        _samples.push_back(sample3);
-        _samples.push_back(sample4);
-    }
-
-    void _loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
-                                   MavenParameters* mavenparameters)
-    {
-        ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-        string loadmodel = "bin/default.model";
-        clsf->loadModel(loadmodel);
-        mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10,
-                                                                        "ppm");
-        mavenparameters->clsf = clsf;
-        mavenparameters->ionizationMode = -1;
-        mavenparameters->matchRtFlag = true;
-        mavenparameters->compoundRTWindow = 1;
-        mavenparameters->samples = samplesToLoad;
-        mavenparameters->eic_smoothingWindow = 10;
-        mavenparameters->eic_smoothingAlgorithm = 1;
-        mavenparameters->amuQ1 = 0.25;
-        mavenparameters->amuQ3 = 0.30;
-        mavenparameters->baseline_smoothingWindow = 5;
-        mavenparameters->baseline_dropTopX = 80;
-    }
-
-    vector<PeakGroup> _getTargetedGroupsFromProcessCompounds()
-    {
-        const char* loadCompoundDB = "bin/methods/KNOWNS.csv";
-        database.loadCompoundCSVFile(loadCompoundDB);
-        vector<Compound*> compounds = database.getCompoundsSubset("KNOWNS");
-        _loadSamplesAndParameters(_samples, _mavenparameters);
-        PeakDetector peakDetector;
-        peakDetector.setMavenParameters(_mavenparameters);
-        vector<mzSlice*> slices =
-            peakDetector.processCompounds(compounds, "compounds");
-        peakDetector.processSlices(slices, "compounds");
-        return _mavenparameters->allgroups;
-    }
-
-    vector<PeakGroup> _getUntargetedGroups()
-    {
-        _loadSamplesAndParameters(_samples, _mavenparameters);
-        PeakDetector peakDetector;
-        peakDetector.setMavenParameters(_mavenparameters);
-        peakDetector.processMassSlices();
-        return _mavenparameters->allgroups;
-    }
-
-    public:
-    CSVReportFixture()
-    {
-        _mavenparameters = new MavenParameters();
-        _makeSampleList();
-    }
-
-    ~CSVReportFixture()
-    {
-        delete _samples[0];
-        delete _samples[1];
-        delete _samples[2];
-        delete _samples[3];
-        delete _mavenparameters;
-    }
-
-    void targetedGroup()
-    {
-        _allgroups = _getTargetedGroupsFromProcessCompounds();
-        for (size_t i = 0; i < _allgroups.size(); i++)
-            _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
-    }
-
-    void untargetedGroup()
-    {
-        _allgroups = _getUntargetedGroups();
-        for (size_t i = 0; i < _allgroups.size(); i++)
-            _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
-    }
-    /**
-     * @brief detectIsotopes Detects isotopes in the group.
-     * @param isotopeGroups  List of peakGroups.
-     */
-    void detectIsotopes(list<PeakGroup> isotopeGroups)
-    {
-        for (auto it = isotopeGroups.begin(); it != isotopeGroups.end(); it++) {
-            PeakGroup& parent = *it;
-            IsotopeDetection isotopeDetection(mavenparameters(),
-                                              IsotopeDetection::PeakDetection,
-                                              mavenparameters()->C13Labeled_BPE,
-                                              mavenparameters()->N15Labeled_BPE,
-                                              mavenparameters()->S34Labeled_BPE,
-                                              mavenparameters()->D2Labeled_BPE);
-            isotopeDetection.pullIsotopes(&parent);
-            _isotopeGroups.push_back(parent);
-        }
-    }
-
-    /**
-     * @brief samples Returns vector of samples loaded.
-     * @return
-     */
-    vector<mzSample*> samples()
-    {
-        return _samples;
-    }
-
-    /**
-     * @brief allgroups Returns all peakgroups of the mavenparameters.
-     * @return
-     */
-    vector<PeakGroup> allgroups()
-    {
-        return _allgroups;
-    }
-
-    /**
-     * @brief mavenparameters   Returns MavenParameters
-     * @return
-     */
-    MavenParameters* mavenparameters()
-    {
-        return _mavenparameters;
-    }
-
-    /**
-     * @brief mavenparameters   Returns isotopesGroups
-     * @return
-     */
-    std::list<PeakGroup> isotopeGroup()
-    {
-        return _isotopeGroups;
-    }
-};
-
-TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targeted Groups")
+TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 {
     SUBCASE("Testing Group File")
     {
@@ -1041,7 +874,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::splitNew(input, ",", inputValues);
+                mzUtils::split(input, ',', inputValues);
 
                 if (cnt > 1) {
                     savedPeakFile.clear();
@@ -1057,7 +890,7 @@ TEST_CASE_FIXTURE(CSVReportFixture, "Testing Targeted Groups")
                         continue;
 
                     vector<string> savedValues;
-                    mzUtils::splitNew(saved, ",", savedValues);
+                    mzUtils::split(saved, ',', savedValues);
 
                     if (string2float(inputValues[16])
                             == doctest::Approx(string2float(savedValues[16]))

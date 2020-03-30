@@ -187,11 +187,13 @@ PK$PEAK: m/z int. rel.int.
         if(line.startsWith("//",Qt::CaseInsensitive) && !name.isEmpty()) {
             if (!name.isEmpty()) { //insert new compound
                Compound* cpd = new Compound( id.toStdString(), name.toStdString(), formula.toStdString(), charge);
-               cpd->precursorMz=precursor;
-               cpd->db=dbname;
-               cpd->fragmentMzValues = mzs;
-               cpd->fragmentIntensities = intest;
-			   Q_FOREACH (QString cat, compound_class) { cpd->category.push_back(cat.toStdString()); }
+               cpd->setPrecursorMz(precursor);
+               cpd->setDb(dbname);
+               cpd->setFragmentMzValues(mzs);
+               cpd->setFragmentIntensities(intest);
+               vector<string> category;
+               Q_FOREACH (QString cat, compound_class) { category.push_back(cat.toStdString()); }
+                           cpd->setCategory(category);
                DB.addCompound(cpd);
                compoundCount++;
             }
@@ -300,9 +302,9 @@ int mzFileIO::loadPepXML(QString fileName) {
 				    formula.toStdString(),
 				    charge);
 
-		    cpd->mass=precursorMz;
-		    cpd->precursorMz=precursorMz;
-		    cpd->db=dbname;
+                    cpd->setMz(precursorMz);
+                    cpd->setPrecursorMz(precursorMz);
+                    cpd->setDb(dbname);
 		    DB.addCompound(cpd);
 
                 } else if (xml.name() == "mod_aminoacid_mass" ) {
@@ -914,10 +916,10 @@ void mzFileIO::_beginSQLiteProjectLoad()
     QRegularExpression re("(.*)\\s\\(\\d+\\)");
     for (auto compound : compounds) {
         QRegularExpressionMatch match =
-            re.match(QString::fromStdString(compound->name));
+            re.match(QString::fromStdString(compound->name()));
         if (match.hasMatch()) {
             string nameWithoutPrefix = match.captured(1).toStdString();
-            compound->name = nameWithoutPrefix;
+            compound->setName (nameWithoutPrefix);
         }
         DB.addCompound(compound);
     }
@@ -1046,11 +1048,11 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     auto groupCount = 0;
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
-        if (group->getCompound() && !group->getCompound()->db.empty()) {
-            group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id,
-                                                         group->getCompound()->name,
-                                                         group->getCompound()->db));
-            dbNames.push_back(QString::fromStdString(group->getCompound()->db));
+        if (group->getCompound() && !group->getCompound()->db().empty()) {
+            group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id(),
+                                                         group->getCompound()->name(),
+                                                         group->getCompound()->db()));
+            dbNames.push_back(QString::fromStdString(group->getCompound()->db()));
         }
 
         if (group->getAdduct() != nullptr)
@@ -1243,9 +1245,9 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     } else if (!compoundId.empty()) {
         Compound* c = nullptr;
 
-        if (group->getCompound() && !group->getCompound()->name.empty()) {
+        if (group->getCompound() && !group->getCompound()->name().empty()) {
             c = DB.findSpeciesByIdAndName(compoundId,
-                                          group->getCompound()->name,
+                                          group->getCompound()->name(),
                                           DB.ANYDATABASE);
         } else if (!compoundDB.empty()) {
             vector<Compound*> matches = DB.findSpeciesById(compoundId, compoundDB);

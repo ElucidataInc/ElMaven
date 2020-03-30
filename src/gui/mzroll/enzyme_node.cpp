@@ -111,11 +111,11 @@ void EnzymeNode::hoverEnterEvent(QGraphicsSceneHoverEvent* event) {
 		QStringList products;
 
 		for( unsigned int j=0; j < r->reactants.size(); j++ ) {
-				if(r->reactants[j] != NULL) reactants << QString(r->reactants[j]->name.c_str());
+                                if(r->reactants[j] != NULL) reactants << QString(r->reactants[j]->name().c_str());
 		}
 
 		for( unsigned int j=0; j < r->products.size(); j++ )  {
-				if(r->products[j] != NULL) products << QString(r->products[j]->name.c_str());
+                                if(r->products[j] != NULL) products << QString(r->products[j]->name().c_str());
 		}
 		QString direction(" => ");
 		if ( r->reversable ) direction = " &lt;=&gt; ";

@@ -1,5 +1,6 @@
 #include "json.hpp"
 #include "doctest.h"
+#include "testUtils.h"
 #include "jsonReports.h"
 #include "Compound.h"
 #include "EIC.h"
@@ -63,13 +64,13 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
 
     filename << ",\n" << "\"compound\": { " ;
 
-    string compoundID = grp.getCompound()->id;
+    string compoundID = grp.getCompound()->id();
     filename << "\"compoundId\": "<< _sanitizeJSONstring(compoundID) ;
-    string compoundName = grp.getCompound()->name;
+    string compoundName = grp.getCompound()->name();
     filename << ",\n" << "\"compoundName\": "<< _sanitizeJSONstring(compoundName);
     string formula = grp.getCompound()->formula();
     filename << ",\n" << "\"formula\": "<< _sanitizeJSONstring(formula);
-    filename << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt;
+    filename << ",\n" << "\"expectedRt\": " << grp.getCompound()->expectedRt();
     filename << ",\n" << "\"expectedMz\": " << mz ;
     filename << ",\n" << "\"srmID\": " << _sanitizeJSONstring(grp.srmId) ;
     filename << ",\n" << "\"tagString\": " << _sanitizeJSONstring(grp.tagString) ;
@@ -188,17 +189,16 @@ void JSONReports::_writeEIC(PeakGroup& grp, ofstream& filename, mzSample* sample
 
     //TODO: Refactor the code :Sahil
     if (grp.hasCompoundLink()) {
-        if (!grp.srmId.empty()) {
-            //MS-MS case 1
+        if ( !grp.srmId.empty() ) { //MS-MS case 1
             eic = (sample)->getEIC(grp.srmId, _mavenParameters->eicType);
-        } else if((grp.getCompound()->precursorMz > 0) & (grp.getCompound()->productMz > 0)) {
-            //MS-MS case 2
+        }
+        else if((grp.getCompound()->precursorMz() > 0) & (grp.getCompound()->productMz() > 0)) { //MS-MS case 2
             //TODO: this is a problem -- amuQ1 and amuQ3 that were used to generate the peakgroup are not stored anywhere
             //will use mainWindow->MavenParameters for now but those values may have changed between generation and export
-            eic =(sample)->getEIC(grp.getCompound()->precursorMz, grp.getCompound()->collisionEnergy, grp.getCompound()->productMz, _mavenParameters->eicType,
-                                  _mavenParameters->filterline, _mavenParameters->amuQ1, _mavenParameters->amuQ3);
-        } else {
-            //MS1 case
+            eic =(sample)->getEIC(grp.getCompound()->precursorMz(), grp.getCompound()->collisionEnergy(), grp.getCompound()->productMz(),_mavenParameters->eicType,
+                               _mavenParameters->filterline, _mavenParameters->amuQ1, _mavenParameters->amuQ3);
+        }
+       else {//MS1 case
             //TODO: same problem here: need the ppm that was used, or the slice object
             //for mz could rely on same computation being done way above
             //redoing it only for code clarity
@@ -309,147 +309,15 @@ string JSONReports::_sanitizeJSONstring(string s)
 
 ////////////////////////////////////////TestCASES////////////////////////////////////////////
 
-class JsonReportsFixture{
-
-    private:
-            vector<mzSample*> _samples;
-            vector <PeakGroup> _allgroups;
-            MavenParameters* _mavenparameters;
-            Databases _database;
-
-            /**
-             * @brief _makeSampleList Initialises the vector of the samples
-             * to be loaded.
-             */
-            void _makeSampleList()
-            {
-                auto sample1 = new mzSample();
-                auto sample2 = new mzSample();
-                auto sample3 = new mzSample();
-                auto sample4 = new mzSample();
-                sample1->loadSample("bin/methods/091215_120i.mzXML");
-                sample2->loadSample("bin/methods/091215_120M.mzXML");
-                sample3->loadSample("bin/methods/091215_240i.mzXML");
-                sample4->loadSample("bin/methods/091215_240M.mzXML");
-                _samples.push_back(sample1);
-                _samples.push_back(sample2);
-                _samples.push_back(sample3);
-                _samples.push_back(sample4);
-
-            }
-
-            /**
-             * @brief Loads sample and initialises the maven parameters.
-             * @param samplesToLoad Vector of sample datasets to be loaded.
-             * @param mavenparameters Object of MavenParameter class, stores
-             * various parameters needed.
-             */
-            void _loadSamplesAndParameters(vector<mzSample*>& samplesToLoad,
-                                         MavenParameters* mavenparameters)
-            {
-
-                ClassifierNeuralNet* clsf = new ClassifierNeuralNet();
-                string loadmodel = "bin/default.model";
-                clsf->loadModel(loadmodel);
-                mavenparameters->compoundMassCutoffWindow->setMassCutoffAndType(10, "ppm");
-                mavenparameters->clsf = clsf;
-                mavenparameters->ionizationMode = -1;
-                mavenparameters->matchRtFlag = true;
-                mavenparameters->compoundRTWindow = 1;
-                mavenparameters->samples = samplesToLoad;
-                mavenparameters->eic_smoothingWindow = 10;
-                mavenparameters->eic_smoothingAlgorithm = 1;
-                mavenparameters->amuQ1 = 0.25;
-                mavenparameters->amuQ3 = 0.30;
-                mavenparameters->baseline_smoothingWindow = 5;
-                mavenparameters->baseline_dropTopX = 80;
-            }
-
-            /**
-             * @brief _getGroupsFromProcessCompounds Process the compounds
-             * to give the peakgroups.
-             * @return Vector of groups thus formed.
-             */
-            vector<PeakGroup> _getGroupsFromProcessCompounds()
-            {
-                const char* loadCompoundDB = "bin/methods/KNOWNS.csv";
-                _database.loadCompoundCSVFile(loadCompoundDB);
-                vector<Compound*> compounds =
-                    _database.getCompoundsSubset("KNOWNS");
-
-                _loadSamplesAndParameters(_samples, _mavenparameters);
-
-                PeakDetector peakDetector;
-                peakDetector.setMavenParameters(_mavenparameters);
-
-                vector<mzSlice*> slices =
-                    peakDetector.processCompounds(compounds, "compounds");
-                peakDetector.processSlices(slices, "compounds");
-
-                return _mavenparameters->allgroups;
-            }
-
-    public:
-            /**
-             * @brief JsonReportsFixture No parameter constructor.
-             * @details The constructor calls other member functions to
-             * initialise the vector of sample, sets the mavenparametrs
-             * and form the peakgroups.
-             */
-            JsonReportsFixture()
-            {
-                _mavenparameters = new MavenParameters();
-                _makeSampleList();
-                _allgroups = _getGroupsFromProcessCompounds();
-
-            }
-
-
-            /**
-             * @brief Destructor deletes the initialised data members.
-             */
-            ~JsonReportsFixture()
-            {
-                delete _samples[0];
-                delete _samples[1];
-                delete _samples[2];
-                delete _samples[3];
-                delete _mavenparameters;
-            }
-
-            /**
-             * @brief samples Returns vector of samples loaded.
-             * @return
-             */
-            vector<mzSample*> samples()
-            {
-                return _samples;
-            }
-
-            /**
-             * @brief allgroups Returns all peakgroups of the mavenparameters.
-             * @return
-             */
-            vector<PeakGroup> allgroups()
-            {
-                return _allgroups;
-            }
-            MavenParameters* mavenparameters()
-            {
-                return _mavenparameters;
-            }
-
-};
-
 /**
  *@brief Defines the test cases to test JSONReports class.
  * @details Generates the json file by calling the correspoding
  * functions of the Json class. Compare it against the already
  * saved Jsonfile in "tests/test-libmaven" directory.
  */
-TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
+TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
 {
-
+    targetedGroup();
     string jsonFilename = "test.json";
     JSONReports* jsonReports = new JSONReports(mavenparameters(), false);
     auto samplesUsed = samples();
@@ -472,9 +340,9 @@ TEST_CASE_FIXTURE(JsonReportsFixture,"Test writing to the JSON file")
             if (rootInput["groups"][input]["meanMz"].get<double>() ==
                     doctest::Approx(rootSaved["groups"][s]["meanMz"].get<double>())
                 && rootInput["groups"][input]["meanRt"].get<double>() ==
-                    doctest::Approx(rootSaved["groups"][s]["meanRt"].get<double>())
+                       doctest::Approx(rootSaved["groups"][s]["meanRt"].get<double>())
                 && rootInput["groups"][input]["compound"]["compoundName"].get<string>() ==
-                    rootSaved["groups"][s]["compound"]["compoundName"].get<string>()) {
+                       rootSaved["groups"][s]["compound"]["compoundName"].get<string>()) {
                 saved = s;
                 break;
             }

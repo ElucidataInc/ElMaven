@@ -136,23 +136,24 @@ Compound* Databases::extractCompoundfromEachLine(vector<string>& fields, map<str
     if ( mz > 0 || !formula.empty() || precursormz > 0) {
         Compound* compound = new Compound(id,name,formula,charge);
 
-        compound->expectedRt = rt;
+        compound->setExpectedRt (rt);
 
         if (mz == 0)
             mz = MassCalculator::computeMass(formula, charge);
         
         
-        compound->mass = mz;
-        compound->db = dbname;
-        compound->expectedRt = rt;
-        compound->precursorMz = precursormz;
-        compound->productMz = productmz;
-        compound->collisionEnergy = collisionenergy;
-        compound->note = note;
+        compound->setMz(mz);
+        compound->setDb  (dbname);
+        compound->setExpectedRt(rt);
+        compound->setPrecursorMz (precursormz);
+        compound->setProductMz( productmz);
+        compound->setCollisionEnergy (collisionenergy);
+        compound->setNote(note);
 
+        vector<string> category;
         for(unsigned int i=0; i < categorylist.size(); i++) 
-            compound->category.push_back(categorylist[i]);
-        
+            category.push_back(categorylist[i]);
+        compound->setCategory(category);
         return compound;
     }
 
@@ -203,28 +204,16 @@ bool Databases::addCompound(Compound* c) {
     bool compoundAdded = false;
 
     //new compound id .. insert into compound list
-    if (!compoundIdMap.count(c->id)) {
-        compoundIdMap[c->id] = c;
+    if (!compoundIdMap.count(c->id())) {
+        compoundIdMap[c->id()] = c;
         compoundsDB.push_back(c);
         compoundAdded = true;
-    } else { 
+    } else {
         //compound exists with the same name, match database
         bool matched = false;
         for(unsigned int i = 0; i < compoundsDB.size(); i++) {
-            Compound* currentCompound = compoundsDB[i];
-            if ( currentCompound->db == c->db && currentCompound->id == c->id) { 
-                //compound from the same database
-                currentCompound->id = c->id;
-                currentCompound->name = c->name;
-                currentCompound->setFormula(c->formula());
-                currentCompound->srmId = c->srmId;
-                currentCompound->expectedRt = c->expectedRt;
-                currentCompound->charge = c->charge;
-                currentCompound->mass = c->mass;
-                currentCompound->precursorMz = c->precursorMz;
-                currentCompound->productMz = c->productMz;
-                currentCompound->collisionEnergy = c->collisionEnergy;
-                currentCompound->category = c->category;
+            if ( compoundsDB[i]->db() == c->db() && compoundsDB[i]->id() == c->id()) {
+                compoundsDB[i] = c;
                 matched = true;
             }
         }
@@ -240,7 +229,7 @@ bool Databases::addCompound(Compound* c) {
 vector<Compound*> Databases::getCompoundsSubset(string dbname) {
 	vector<Compound*> subset;
 	for (unsigned int i=0; i < compoundsDB.size(); i++ ) {
-	    if (compoundsDB[i]->db == dbname) {
+        if (compoundsDB[i]->db() == dbname) {
 		    subset.push_back(compoundsDB[i]);
 		}
 	}

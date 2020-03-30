@@ -1107,8 +1107,8 @@ void EicWidget::replot(PeakGroup* group)
     }
 	showAllPeaks();
 
-	if (group && group->getCompound() != NULL && group->getCompound()->expectedRt > 0)
-			_focusLineRt = group->getCompound()->expectedRt;
+        if (group && group->getCompound() != NULL && group->getCompound()->expectedRt() > 0)
+                        _focusLineRt = group->getCompound()->expectedRt();
 	else _focusLineRt = 0;
 
     if (_showCubicSpline)
@@ -1145,7 +1145,7 @@ void EicWidget::setTitle() {
     if (eicParameters->displayedGroup() != NULL) {
         tagString = QString(eicParameters->displayedGroup()->getName().c_str());
 	} else if (eicParameters->_slice.compound != NULL) {
-		tagString = QString(eicParameters->_slice.compound->name.c_str());
+                tagString = QString(eicParameters->_slice.compound->name().c_str());
 	} else if (!eicParameters->_slice.srmId.empty()) {
 		tagString = QString(eicParameters->_slice.srmId.c_str());
 	}
@@ -1215,8 +1215,8 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 	if (group == NULL)
 		return;
 
-	if (group->getCompound() != NULL and group->getCompound()->expectedRt > 0)
-		_focusLineRt = group->getCompound()->expectedRt;
+        if (group->getCompound() != NULL and group->getCompound()->expectedRt() > 0)
+                _focusLineRt = group->getCompound()->expectedRt();
 	else _focusLineRt = 0;
 
 	if (group->peaks.size() > 0) {
@@ -1600,11 +1600,11 @@ void EicWidget::setCompound(Compound* c)
 	MassCutoff* massCutoff=getMainWindow()->getUserMassCutoff(); 
 	float mz = 0;
 
-    if (!c->formula().empty() || c->neutralMass != 0.0f) {
+        if (!c->formula().empty() || c->neutralMass() != 0.0f) {
 		int charge = getMainWindow()->mavenParameters->getCharge(c);
 		mz = c->adjustedMass(charge);
 	} else {
-		mz = c->mass;
+                mz = c->mz();
 	}
 
 	cerr<<"massCutoffValue   eicWidget\n";
@@ -1614,9 +1614,9 @@ void EicWidget::setCompound(Compound* c)
 	float rtmax = eicParameters->_slice.rtmax;
 
 	if (_autoZoom) {
-		if (c->expectedRt > 0) {
-			rtmin = c->expectedRt - 2;
-			rtmax = c->expectedRt + 2;
+                if (c->expectedRt() > 0) {
+                        rtmin = c->expectedRt() - 2;
+                        rtmax = c->expectedRt() + 2;
 		}
 	}
 	//clock_gettime(CLOCK_REALTIME, &tE);
@@ -1624,8 +1624,8 @@ void EicWidget::setCompound(Compound* c)
 
 	mzSlice slice(minmz, maxmz, rtmin, rtmax);
 	slice.compound = c;
-	if (!c->srmId.empty())
-		slice.srmId = c->srmId;
+        if (!c->srmId().empty())
+                slice.srmId = c->srmId();
     setMzSlice(slice);
     emit compoundSet(c);
 
@@ -1634,9 +1634,9 @@ void EicWidget::setCompound(Compound* c)
 
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++)
 		eicParameters->peakgroups[i].setCompound(c);
-	if (c->expectedRt > 0) {
-		setFocusLine(c->expectedRt);
-		selectGroupNearRt(c->expectedRt);
+        if (c->expectedRt() > 0) {
+                setFocusLine(c->expectedRt());
+                selectGroupNearRt(c->expectedRt());
 	}
 	else {
 		//remove previous focusline
@@ -1657,11 +1657,11 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 			|| slice.compound != eicParameters->_slice.compound) {
 		eicParameters->_slice = slice;
 		if (slice.compound) {
-			if (slice.compound->precursorMz != 0
-					&& slice.compound->productMz != 0) {
-				eicParameters->_slice.mzmin = slice.compound->precursorMz;
-				eicParameters->_slice.mzmax = slice.compound->productMz;
-				eicParameters->_slice.mz = slice.compound->precursorMz;
+                        if (slice.compound->precursorMz() != 0
+                                        && slice.compound->productMz() != 0) {
+                                eicParameters->_slice.mzmin = slice.compound->precursorMz();
+                                eicParameters->_slice.mzmax = slice.compound->productMz();
+                                eicParameters->_slice.mz = slice.compound->precursorMz();
 				eicParameters->_slice.compound = slice.compound;
 				eicParameters->_slice.srmId = slice.srmId;
 			}
@@ -1833,13 +1833,13 @@ void EicWidget::addNote(float rt, float intensity, QString text) {
 		query.addQueryItem("action", "addnote");
 
 		if (eicParameters->_slice.compound) {
-			if (!eicParameters->_slice.compound->name.empty())
+                        if (!eicParameters->_slice.compound->name().empty())
 				query.addQueryItem("compound_name",
-						QString(eicParameters->_slice.compound->name.c_str()));
+                                                QString(eicParameters->_slice.compound->name().c_str()));
 
-			if (!eicParameters->_slice.compound->id.empty())
+                        if (!eicParameters->_slice.compound->id().empty())
 				query.addQueryItem("compound_id",
-						QString(eicParameters->_slice.compound->id.c_str()));
+                                                QString(eicParameters->_slice.compound->id().c_str()));
 		}
 
 		if (!eicParameters->_slice.srmId.empty())
@@ -2108,7 +2108,7 @@ void EicWidget::saveRetentionTime() {
 
 	QPointF pos = _lastClickPos;
 	float rt = invX(pos.x());
-    eicParameters->displayedGroup()->getCompound()->expectedRt = rt;
+    eicParameters->displayedGroup()->getCompound()->setExpectedRt(rt);
 
     DB.saveRetentionTime(eicParameters->displayedGroup()->getCompound(), rt,
 			"user_method");

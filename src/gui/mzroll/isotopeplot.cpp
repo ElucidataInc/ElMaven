@@ -138,7 +138,7 @@ void IsotopePlot::showBars() {
 
     title = new QCPTextElement(_mw->customPlot);
 
-    title->setText(_isotopes[0].getCompound()->name.c_str());
+    title->setText(_isotopes[0].getCompound()->name().c_str());
     title->setFont(QFont("Helvetica", 12, QFont::Bold));
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 

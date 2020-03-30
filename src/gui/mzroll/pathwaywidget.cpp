@@ -138,7 +138,7 @@ void PathwayWidget::hideEmpty() {
 		Node* o = e->sourceNode(); if (o == enz) e->destNode();
 		if (o->isMetabolite() ) {
 			Compound* c = ((MetaboliteNode*) o)->getCompound();
-			if (c && !c->hasGroup() ) {o->hide(); e->hide();}
+                        if (c ) {o->hide(); e->hide();}
 		}
 	}
 }
@@ -205,12 +205,11 @@ void PathwayWidget::checkCompoundExistance() {
 	if (! n->isMetabolite() || ! n->isVisible() ) continue;
 	Compound* c = ((MetaboliteNode*) n)->getCompound();
 
-	if ( c == NULL || c->groupUnlinked()) {
+        if ( c == NULL) {
 		continue;
 	} else if (_forceUpdate == true ) {
-		c->clearGroup();
 		checkList.push_back(c);
-	} else if (! c->hasGroup() ) {
+        } else {
 		checkList.push_back(c);
 	}
 }
@@ -299,7 +298,7 @@ void PathwayWidget::showConnectedNodes(Node* n, int depth) {
 		Compound* c = ((MetaboliteNode*) n)->getCompound();
 	}
 
-	if (c!= NULL && cofactorCheck(c->id.c_str())) continue;
+        if (c!= NULL && cofactorCheck(c->id().c_str())) continue;
 	if (n->edges().size() > 20 ) continue;
 	n->setVisible(true);
 	showConnectedNodes(n,depth+1); 	// recurse
@@ -319,7 +318,7 @@ void PathwayWidget::setCompound(Compound* c) {
 	if (c == _focusedCompound)
 		return;
 
-	QString compoundName = QString(c->name.c_str());
+        QString compoundName = QString(c->name().c_str());
 	QString pathwayId = "CUSTOM_" + compoundName;
 	if (setPathway(pathwayId) == true) {
 		_pathwayId = pathwayId;
@@ -335,15 +334,15 @@ void PathwayWidget::setCompound(Compound* c) {
 	}
 }
 
-	if (c->db == "KNOWNS") {
-		QString compoundId = QString(c->id.c_str());
+        if (c->db() == "KNOWNS") {
+                QString compoundId = QString(c->id().c_str());
 		QStringList list = compoundId.split("|");
 		if (list.size() > 1)
 			compoundId = list[0];
 		string id = compoundId.toStdString();
 		for (int i = 0; i < DB.compoundsDB.size(); i++) {
-			if (DB.compoundsDB[i]->db == "KEGG"
-					&& DB.compoundsDB[i]->id == id) {
+                        if (DB.compoundsDB[i]->db() == "KEGG"
+                                        && DB.compoundsDB[i]->id() == id) {
 				c = DB.compoundsDB[i];
 				break;
 			}
@@ -360,8 +359,8 @@ void PathwayWidget::setCompound(Compound* c) {
 	clear();
 
 	//set title
-    QString title = QString(c->name.c_str()) + " "
-                    + QString(c->formula().c_str());
+        QString title = QString(c->name().c_str()) + " "
+                        + QString(c->formula().c_str());
 	setTitle(title);
 
 	//get reactions
@@ -382,7 +381,7 @@ void PathwayWidget::expandOnCompound(Compound* c) {
 	vector<string> rids = getCompoundReactions(c);
 	addReactions(rids);
 
-	Node* n = locateNode(c->id.c_str());
+        Node* n = locateNode(c->id().c_str());
 	if (n)
 		centerOn(n);
 	checkCompoundExistance();
@@ -400,16 +399,6 @@ void PathwayWidget::expandOnCompound(Compound* c) {
 
 vector<string> PathwayWidget::getCompoundReactions(Compound* c0, int depth) {
 	vector<string> rids;
-	if (c0 == NULL)
-		return rids;
-
-	//cerr << depth << " getCompoundReactions() compound=" << c0->name << " reactions=" <<  c0->reactions.size() << endl;
-	if (c0->reactions.size() == 0)
-		return rids;
-
-	for (int i = 0; i < c0->reactions.size() && i < 20; i++) {
-		rids.push_back(c0->reactions[i]->id);
-	}
 	return rids;
 }
 
@@ -422,12 +411,12 @@ void PathwayWidget::setTitle(Reaction* r) {
 
 	for (unsigned int j = 0; j < r->reactants.size(); j++) {
 		if (r->reactants[j] != NULL)
-			reactants << QString(r->reactants[j]->name.c_str());
+                        reactants << QString(r->reactants[j]->name().c_str());
 	}
 
 	for (unsigned int j = 0; j < r->products.size(); j++) {
 		if (r->products[j] != NULL)
-			products << QString(r->products[j]->name.c_str());
+                        products << QString(r->products[j]->name().c_str());
 	}
 	QString direction(" => ");
 	if (r->reversable)
@@ -444,26 +433,16 @@ void PathwayWidget::setCompoundFocus(Compound* c) {
 		return;
 	_focusedCompound = c;
 
-    QString title = QString(c->name.c_str()) + ": "
-                    + QString(c->formula().c_str());
+        QString title = QString(c->name().c_str()) + ": "
+                        + QString(c->formula().c_str());
 	setTitle(title);
 
 	c = _focusedCompound;
-	if (c->hasGroup()) {
-		mw->setPeakGroup(c->getPeakGroup());
-		vector<mzSample*> samples = mw->getVisibleSamples(); //get list of visibleSamples
 
-		//if(mw->peaksPanel->isVisible() ) mw->peaksPanel->setInfo(c->getPeakGroup());
-
-	} else {
-		if (mw->getEicWidget()->isVisible()) {
-			mw->getEicWidget()->setCompound(c);
-		}
-	}
 }
 
 void PathwayWidget::setCompoundSelected(Compound* c) {
-	Node* n = locateNode(c->id.c_str());
+        Node* n = locateNode(c->id().c_str());
 	if (n)
 		centerOn(n);
 }
@@ -495,51 +474,7 @@ void PathwayWidget::updateCompoundConcentrations() {
 	Q_FOREACH(Node* n, nodelist){
 	if (!n->isMetabolite()) continue;
 	MetaboliteNode* m = (MetaboliteNode*) n;
-	if (m->getCompound() == NULL || ! m->getCompound()->hasGroup() ) continue;
-	PeakGroup* group = m->getCompound()->getPeakGroup();
-
-	int visibleSamplesCount = samples.size();
-
-	QVector<float> vp(visibleSamplesCount,0);	//non labeled conncentations
-	QVector<float> vl(visibleSamplesCount,0);//labeled concentrations
-	QVector<float> vt(visibleSamplesCount,0);//total concentration (labeled + not labeled);
-	QVector<float> cf(visibleSamplesCount,0);
-
-	//parent group
-	vector<float> pvalues = group->getOrderedIntensityVector(samples,PeakGroup::AreaTop);
-	for(int j=0; j <pvalues.size();j++) vp[j] = pvalues[j];
-
-	for(int i=0; i < group->childCount(); i++ ) {
-		PeakGroup& isotope = group->children[i];
-		vector<float> values = isotope.getOrderedIntensityVector(samples,PeakGroup::AreaTop);
-		//cerr << isotope.tagString << " " << isotope.expectedAbundance << endl;
-
-		for(int j=0; j < values.size(); j++ ) vt[j] += values[j];
-
-		if ( isotope.tagString == "C12 PARENT") {
-			for(int j=0; j < values.size(); j++ ) vp[j] = values[j];
-		} else if ( isotope.isIsotope() ) {	//labeled forms
-			for(int j=0; j < values.size(); j++ ) vl[j] +=values[j];
-			for(int j=0; j < values.size(); j++ ) cf[j] += isotope.expectedAbundance;
-		}
-	}
-
-	//corect for natural abundance
-	for(int j=0; j < visibleSamplesCount; j++ ) {vl[j] = vl[j]-(vt[j]*cf[j]); if (vl[j]<0) vl[j]=0;}
-
-	//total concentraion labeled + unlabaled
-	for(int j=0; j<visibleSamplesCount; j++ ) vt[j] = vp[j]+vl[j];
-
-	//fill in blanks.. set values to previous values
-	for(int j=1; j<visibleSamplesCount; j++ ) {
-		if (vt[j]==0 && vt[j-1]>0 ) {vt[j]=vt[j-1]; vp[j]=vp[j-1]; vl[j]=vl[j-1];}
-	}
-
-	if ( visibleSamplesCount ) {
-		n->setConcentrations(vt);
-		n->setLabeledConcentrations(vl);
-		n->setInitConcentration(vt[0]);
-	}
+        if (m->getCompound() == NULL) continue;
 }
 
 	setupAnimationMatrix();
@@ -575,7 +510,7 @@ MetaboliteNode* PathwayWidget::addMetabolite(QString id, Compound* c) {
 		n->setNote(id);
 		if (c) {
 			n->setCompound(c);
-			n->setNote(c->name.c_str());
+                        n->setNote(c->name().c_str());
 		}
 		if (cofactorCheck(id))
 			n->setCofactor(true);
@@ -653,7 +588,7 @@ EnzymeNode* PathwayWidget::addReaction(Reaction* r) {
 		Compound* c = r->reactants[i];
 		if (!c)
 			continue;
-		MetaboliteNode* n = addMetabolite(c->id.c_str(), c);
+                MetaboliteNode* n = addMetabolite(c->id().c_str(), c);
 		if (n) {
 			Edge* e = addEdge(n, enzyme, r->id, r);
 			e->setReversable(r->reversable);
@@ -664,7 +599,7 @@ EnzymeNode* PathwayWidget::addReaction(Reaction* r) {
 		Compound* c = r->products[i];
 		if (!c)
 			continue;
-		MetaboliteNode* n = addMetabolite(c->id.c_str(), c);
+                MetaboliteNode* n = addMetabolite(c->id().c_str(), c);
 		if (n) {
 			Edge* e = addEdge(enzyme, n, r->id, r);
 			e->setReversable(r->reversable);
@@ -721,7 +656,7 @@ bool PathwayWidget::saveLayout() {
 
 	if ( n->isMetabolite() ) {
 		Compound* c = ((MetaboliteNode*) n)->getCompound();
-		if (c) id = QString(c->id.c_str());
+                if (c) id = QString(c->id().c_str());
 	}
 
 	query.addBindValue(_pathwayId);
@@ -1028,8 +963,8 @@ void PathwayWidget::loadModelFile(QString filename) {
 					c = new Compound(id.toStdString(), name.toStdString(),
 							formula.toStdString(), charge);
 				}
-				c->charge = charge;
-				c->expectedRt = expectedRt;
+                                c->setCharge(charge);
+                                c->setExpectedRt (expectedRt);
 				cmap[id] = c;
 				currentId = id;
 				MetaboliteNode* n = addMetabolite(id, c);
@@ -1185,9 +1120,9 @@ void PathwayWidget::saveModelFile(QString filename) {
 			stream.writeAttribute("ycoord",QString::number(node->pos().y()));
 		}
 
-        if (c) {
-            stream.writeAttribute("formula", c->formula().c_str());
-			stream.writeAttribute("expectedRt",QString::number(c->expectedRt));
+		if (c) {
+                stream.writeAttribute("formula",c->formula().c_str());
+                stream.writeAttribute("expectedRt",QString::number(c->expectedRt()));
 			//stream.writeAttribute("name",c->name.c_str());
 		}
 
@@ -1229,14 +1164,14 @@ void PathwayWidget::saveModelFile(QString filename) {
 			for( unsigned int j=0; j < r->reactants.size(); j++ ) {
 				if(r->reactants[j] != NULL) {
 					stream.writeStartElement("reactant");
-					stream.writeAttribute("id",r->reactants[j]->id.c_str());
+                                        stream.writeAttribute("id",r->reactants[j]->id().c_str());
 					stream.writeEndElement();
 				}
 			}
 			for( unsigned int j=0; j < r->products.size(); j++ ) {
 				if(r->products[j] != NULL) {
 					stream.writeStartElement("product");
-					stream.writeAttribute("id",r->products[j]->id.c_str());
+                                        stream.writeAttribute("id",r->products[j]->id().c_str());
 					stream.writeEndElement();
 				}
 			}
@@ -1771,12 +1706,12 @@ void PathwayWidget::showAtomTrasformations() {
 }
 
 void PathwayWidget::showAtomTrasformations(Compound* c, int atomNumber) {
-	qDebug() << "showAtomTrasformations() " << c->id.c_str() << " "
+        qDebug() << "showAtomTrasformations() " << c->id().c_str() << " "
 			<< atomNumber << " RPAIRS=" << rpairs.size();
 
 	if (!c)
 		return;
-	QString compoundId(c->id.c_str());
+        QString compoundId(c->id().c_str());
 	if (!nodelist.contains(compoundId))
 		return;
 	Node* sourceNode = nodelist[compoundId];

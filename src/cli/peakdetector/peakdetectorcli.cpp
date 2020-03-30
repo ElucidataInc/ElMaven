@@ -734,28 +734,28 @@ int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
                 Compound* compound = mavenParameters->compounds[i];
 
                 QString charpolarity;
-                if (compound->charge > 0)
+                if (compound->charge() > 0)
                     charpolarity = "+";
-                if (compound->charge < 0)
+                if (compound->charge() < 0)
                     charpolarity = "-";
 
                 QStringList category;
-
-                for (int i = 0; i < compound->category.size(); i++) {
-                    category << QString(compound->category[i].c_str());
+                auto categoryVect = compound->category();
+                for (int i = 0; i < categoryVect.size(); i++) {
+                    category << QString(categoryVect[i].c_str());
                 }
 
                 out << charpolarity << SEP;
-                out << QString(compound->name.c_str()) << SEP;
-                out << compound->mass << SEP;
-                out << compound->charge << SEP;
-                out << compound->precursorMz << SEP;
-                out << compound->collisionEnergy << SEP;
-                out << compound->productMz << SEP;
-                out << compound->expectedRt << SEP;
-                out << compound->id.c_str() << SEP;
+                out << QString(compound->name().c_str()) << SEP;
+                out << compound->mz() << SEP;
+                out << compound->charge() << SEP;
+                out << compound->precursorMz() << SEP;
+                out << compound->collisionEnergy() << SEP;
+                out << compound->productMz() << SEP;
+                out << compound->expectedRt() << SEP;
+                out << compound->id().c_str() << SEP;
                 out << compound->formula().c_str() << SEP;
-                out << compound->srmId.c_str() << SEP;
+                out << compound->srmId().c_str() << SEP;
                 out << category.join(";") << SEP;
                 out << "\n";
             }
@@ -1256,7 +1256,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
                 [](PeakGroup& group) {
                     if (!group.getCompound())
                         return false;
-                    return group.getCompound()->type() == Compound::Type::PRM;
+                    return group.getCompound()->type() == Compound::Type::MS2;
                 });
     bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
 

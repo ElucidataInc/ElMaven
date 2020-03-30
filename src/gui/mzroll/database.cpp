@@ -51,9 +51,9 @@ void Database::removeDatabase(string dbName)
     auto iter = begin(compoundsDB);
     while (iter < end(compoundsDB)) {
         auto compound = *iter;
-        if (compound->db == dbName) {
-            compoundIdenticalCount.erase(compound->id + compound->name + dbName);
-            compoundIdNameDbMap.erase(compound->id + compound->name + dbName);
+        if (compound->db() == dbName) {
+            compoundIdenticalCount.erase(compound->id() + compound->name() + dbName);
+            compoundIdNameDbMap.erase(compound->id() + compound->name() + dbName);
             iter = compoundsDB.erase(iter);
             delete compound;
         } else {
@@ -118,44 +118,44 @@ bool Database::addCompound(Compound* newCompound)
 
     // existing compound, change its name according to the number of
     // compounds with the same ID
-    if (compoundIdenticalCount.count(newCompound->id
-                                     + newCompound->name
-                                     + newCompound->db)) {
-        int loadOrder = compoundIdenticalCount.at(newCompound->id
-                                                  + newCompound->name
-                                                  + newCompound->db);
+    if (compoundIdenticalCount.count(newCompound->id()
+                                     + newCompound->name()
+                                     + newCompound->db())) {
+        int loadOrder = compoundIdenticalCount.at(newCompound->id()
+                                                  + newCompound->name()
+                                                  + newCompound->db());
 
         // return false if any of the compounds having the same ID are the
         // exact same in all aspects.
-        auto originalName = newCompound->name;
+        auto originalName = newCompound->name();
         for (int i = 0; i < loadOrder; ++i) {
             string nameWithSuffix = originalName;
             if (i != 0)
                 nameWithSuffix = originalName + " (" + to_string(i) + ")";
 
-            newCompound->name = nameWithSuffix;
-            Compound* possibleCopy = compoundIdNameDbMap[newCompound->id
+            newCompound->setName (nameWithSuffix);
+            Compound* possibleCopy = compoundIdNameDbMap[newCompound->id()
                                                          + nameWithSuffix
-                                                         + newCompound->db];
+                                                         + newCompound->db()];
             if (possibleCopy != nullptr && *newCompound == *possibleCopy)
                 return false;
 
-            newCompound->name = originalName;
+            newCompound->setName (originalName);
         }
 
-        newCompound->name = originalName + " (" + to_string(loadOrder) + ")";
-        compoundIdenticalCount[newCompound->id
+        newCompound->setName (originalName + " (" + to_string(loadOrder) + ")");
+        compoundIdenticalCount[newCompound->id()
                                + originalName
-                               + newCompound->db] = ++loadOrder;
+                               + newCompound->db()] = ++loadOrder;
     } else {
-        compoundIdenticalCount[newCompound->id
-                               + newCompound->name
-                               + newCompound->db] = 1;
+        compoundIdenticalCount[newCompound->id()
+                               + newCompound->name()
+                               + newCompound->db()] = 1;
     }
 
-    compoundIdNameDbMap[newCompound->id
-                        + newCompound->name
-                        + newCompound->db] = newCompound;
+    compoundIdNameDbMap[newCompound->id()
+                        + newCompound->name()
+                        + newCompound->db()] = newCompound;
     compoundsDB.push_back(newCompound);
     return true;
 }
@@ -176,7 +176,7 @@ void Database::loadSpecies(string db) {
 			string formula = query.value(2).toString().toStdString();
 			int charge = query.value(3).toInt();
 			Compound* compound = new Compound(id,name,formula,charge);
-			compound->db =  query.value(4).toString().toStdString();
+                        compound->setDb (query.value(4).toString().toStdString());
 			addCompound(compound);
 		}
 }
@@ -185,16 +185,16 @@ set<Compound*> Database::findSpeciesByMass(float mz, MassCutoff *massCutoff) {
 	set<Compound*>uniqset;
 
     Compound x("find", "", "",0);
-    x.mass = mz-massCutoff->massCutoffValue(mz);
+    x.setMz(mz-massCutoff->massCutoffValue(mz));
     deque<Compound*>::iterator itr = lower_bound(
             compoundsDB.begin(),compoundsDB.end(),
             &x, Compound::compMass );
 
     for(;itr != compoundsDB.end(); itr++ ) {
         Compound* c = *itr;
-        if (c->mass > mz+1) break;
+        if (c->mz() > mz+1) break;
 
-        if ( mzUtils::massCutoffDist(c->mass,mz,massCutoff) < massCutoff->getMassCutoff() ) {
+        if ( mzUtils::massCutoffDist(c->mz(),mz,massCutoff) < massCutoff->getMassCutoff() ) {
 			if (uniqset.count(c)) continue;
             uniqset.insert(c);
         }
@@ -237,7 +237,7 @@ Molecule2D* Database::getMolecularCoordinates(QString id) {
 vector<Compound*> Database::findSpeciesByName(string name, string dbname) {
 		vector<Compound*> set;
 		for(unsigned int i=0; i < compoundsDB.size(); i++ ) {
-				if (compoundsDB[i]->name == name && compoundsDB[i]->db == dbname) {
+                                if (compoundsDB[i]->name() == name && compoundsDB[i]->db() == dbname) {
 					set.push_back(compoundsDB[i]);
 				}
 		}
@@ -247,7 +247,7 @@ vector<Compound*> Database::findSpeciesByName(string name, string dbname) {
 vector<Compound*> Database::findSpeciesById(string id, string dbName) {
     vector<Compound*> matches;
     for (auto compound : compoundsDB) {
-        if (compound->id == id && compound->db == dbName) {
+        if (compound->id() == id && compound->db() == dbName) {
             matches.push_back(compound);
         }
     }
@@ -309,9 +309,9 @@ void Database::loadReactions(string db) {
                                                              "",
                                                              ANYDATABASE);
 
-			if ( c != NULL && r != NULL && seenSpeciesReactions.count(c->id + r->id) == 0 ) {
-				seenSpeciesReactions[ c->id + r->id ]=true;
-				c->reactions.push_back(r);
+                        vector<Reaction*> reactions;
+                        if ( c != NULL && r != NULL && seenSpeciesReactions.count(c->id() + r->id) == 0 ) {
+                                seenSpeciesReactions[ c->id() + r->id ]=true;
 			}
 
 			if ( c != NULL && r != NULL && species_type == "R" )  r->addReactant(c,stoch);
@@ -355,7 +355,7 @@ void Database::saveRetentionTime(Compound* c, float rt, QString method) {
      QSqlQuery query(ligandDB);
 
 	query.prepare("insert into knowns_times values (?,?,?)");
-	query.addBindValue(QString(c->id.c_str()));
+        query.addBindValue(QString(c->id().c_str()));
 	query.addBindValue(method);
 	query.addBindValue(QString::number(rt,'f',4) );
 
@@ -378,7 +378,7 @@ void Database::loadRetentionTimes(QString method) {
 		float rt = query.value(1).toDouble();
         //Updated while merging with Maven776 - Kiran
                 Compound* c = findSpeciesByIdAndName(cid, "", ANYDATABASE);
-		if (c) c->expectedRt = rt;
+                if (c) c->setExpectedRt (rt);
 	}
 }
 
@@ -430,7 +430,7 @@ vector<string> Database::getCompoundReactions(string compound_id) {
 vector<Compound*> Database::getCompoundsSubset(string dbname) {
 	vector<Compound*> subset;
 	for (unsigned int i=0; i < compoundsDB.size(); i++ ) {
-			if (compoundsDB[i]->db == dbname) {
+                        if (compoundsDB[i]->db() == dbname) {
 					subset.push_back(compoundsDB[i]);
 			}
 	}
@@ -443,7 +443,7 @@ vector<Compound*> Database::getKnowns() {
 
 map<string,int> Database::getDatabaseNames() {
 	map<string,int>dbnames;
-	for (unsigned int i=0; i < compoundsDB.size(); i++ ) dbnames[ compoundsDB[i]->db ]++;
+        for (unsigned int i=0; i < compoundsDB.size(); i++ ) dbnames[ compoundsDB[i]->db() ]++;
 	return dbnames;
 }
 
@@ -484,11 +484,11 @@ int Database::loadNISTLibrary(QString filepath,
         if (line.startsWith("NAME:", Qt::CaseInsensitive) || stream.atEnd()) {
             // before reading the next record or ending stream, save the
             // compound created from last record
-            if (currentCompound and !currentCompound->name.empty()) {
+            if (currentCompound and !currentCompound->name().empty()) {
                 if (!currentCompound->formula().empty()) {
                     auto formula = currentCompound->formula();
                     auto exactMass = MassCalculator::computeMass(formula, 0);
-                    currentCompound->mass = exactMass;
+                    currentCompound->setMz(exactMass);
                 }
                 if (addCompound(currentCompound))
                     ++compoundCount;
@@ -503,7 +503,7 @@ int Database::loadNISTLibrary(QString filepath,
                                                name.toStdString(),
                                                "",
                                                0);
-                currentCompound->db = dbName;
+                currentCompound->setDb (dbName);
                 capturePeaks = false;
             }
         }
@@ -512,81 +512,79 @@ int Database::loadNISTLibrary(QString filepath,
             continue;
 
         if (line.startsWith("MW:", Qt::CaseInsensitive)) {
-            currentCompound->mass = line.mid(3, line.length())
+            currentCompound->setMz(line.mid(3, line.length())
                                         .simplified()
-                                        .toDouble();
+                                        .toDouble());
         } else if (line.startsWith("CE:", Qt::CaseInsensitive)) {
-            currentCompound->collisionEnergy = line.mid(3, line.length())
+            currentCompound->setCollisionEnergy (line.mid(3, line.length())
                                                    .simplified()
-                                                   .toDouble();
+                                                   .toDouble());
         } else if (line.startsWith("ID:", Qt::CaseInsensitive)) {
             QString id = line.mid(3, line.length()).simplified();
             if (!id.isEmpty())
-                currentCompound->id = id.toStdString();
+                currentCompound->setId(id.toStdString());
         } else if (line.startsWith("LOGP:", Qt::CaseInsensitive)) {
-            currentCompound->logP = line.mid(5, line.length())
-                                        .simplified()
-                                        .toDouble();
+            currentCompound->setLogP (line.mid(5, line.length())
+                                         .simplified()
+                                         .toDouble());
         } else if (line.startsWith("RT:", Qt::CaseInsensitive)) {
-            currentCompound->expectedRt = line.mid(3, line.length())
+            currentCompound->setExpectedRt (line.mid(3, line.length())
                                               .simplified()
-                                              .toDouble();
+                                              .toDouble());
         } else if (line.startsWith("SMILE:", Qt::CaseInsensitive)) {
             QString smileString = line.mid(7, line.length()).simplified();
             if (!smileString.isEmpty())
-                currentCompound->smileString = smileString.toStdString();
+                currentCompound->setSmileString (smileString.toStdString());
         } else if (line.startsWith("SMILES:", Qt::CaseInsensitive)) {
             QString smileString = line.mid(8, line.length()).simplified();
             if (!smileString.isEmpty())
-                currentCompound->smileString = smileString.toStdString();
+                currentCompound->setSmileString (smileString.toStdString());
         } else if (line.startsWith("PRECURSORMZ:", Qt::CaseInsensitive)) {
-            currentCompound->precursorMz = line.mid(13, line.length())
+            currentCompound->setPrecursorMz ( line.mid(13, line.length())
                                                .simplified()
-                                               .toDouble();
+                                               .toDouble());
         } else if (line.startsWith("EXACTMASS:", Qt::CaseInsensitive)) {
-            currentCompound->mass = line.mid(10, line.length())
+            currentCompound->setMz( line.mid(10, line.length())
                                         .simplified()
-                                        .toDouble();
-        } else if (line.startsWith("ADDUCT:", Qt::CaseInsensitive)) {
-            currentCompound->adductString = line.mid(8, line.length())
-                                                .simplified()
-                                                .toStdString();
+                                        .toDouble());
         } else if (line.startsWith("FORMULA:", Qt::CaseInsensitive)) {
             QString formula = line.mid(9, line.length()).simplified();
             formula.replace("\"", "", Qt::CaseInsensitive);
             if (!formula.isEmpty())
-                currentCompound->setFormula(formula.toStdString());
+                currentCompound->setFormula (formula.toStdString());
         } else if (line.startsWith("MOLECULE FORMULA:", Qt::CaseInsensitive)) {
             QString formula = line.mid(17, line.length()).simplified();
             formula.replace("\"", "", Qt::CaseInsensitive);
             if (!formula.isEmpty())
                 currentCompound->setFormula(formula.toStdString());
         } else if (line.startsWith("CATEGORY:", Qt::CaseInsensitive)) {
-            currentCompound->category.push_back(line.mid(10, line.length())
+            auto category = currentCompound->category();
+            category.push_back(line.mid(10, line.length())
                                                     .simplified()
                                                     .toStdString());
+            currentCompound->setCategory(category);
         } else if (line.startsWith("TAG:", Qt::CaseInsensitive)) {
             if (line.contains("VIRTUAL", Qt::CaseInsensitive))
-                currentCompound->virtualFragmentation = true;
+                currentCompound->setVirtualFragmentation(true);
         } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONMODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONIZATION:", Qt::CaseInsensitive)) {
             if (line.contains("NEG", Qt::CaseInsensitive))
-                currentCompound->ionizationMode = -1;
+                currentCompound->ionizationMode = Compound::IonizationMode::Negative;
             if (line.contains("POS", Qt::CaseInsensitive))
-                currentCompound->ionizationMode = +1;
+                currentCompound->ionizationMode = Compound::IonizationMode::Positive;
         } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)) {
             QString comment = line.mid(8, line.length()).simplified();
             if (comment.contains(formulaMatch)) {
-                currentCompound->setFormula(formulaMatch.capturedTexts()
-                                                        .at(1)
-                                                        .toStdString());
+                currentCompound->setFormula (formulaMatch.capturedTexts()
+                                                       .at(1)
+                                                       .toStdString());
             }
             if (comment.contains(retentionTimeMatch)) {
-                currentCompound->expectedRt = retentionTimeMatch.capturedTexts()
+                currentCompound->setExpectedRt (retentionTimeMatch.capturedTexts()
                                                                 .at(1)
                                                                 .simplified()
-                                                                .toDouble();
+                                                                .toDouble());
             }
         } else if (line.startsWith("NUM PEAKS:", Qt::CaseInsensitive)
                    || line.startsWith("NUMPEAKS:", Qt::CaseInsensitive)) {
@@ -597,13 +595,19 @@ int Database::loadNISTLibrary(QString filepath,
                 double mz = mzIntensityPair.at(0).toDouble();
                 double in = mzIntensityPair.at(1).toDouble();
                 if (mz >= 0.0 && in >= 0.0) {
-                    currentCompound->fragmentMzValues.push_back(mz);
-                    currentCompound->fragmentIntensities.push_back(in);
+                    auto mzValues = currentCompound->fragmentMzValues();
+                    mzValues.push_back(mz);
+                    currentCompound->setFragmentMzValues(mzValues);
+                    auto intensities = currentCompound->fragmentIntensities();
+                    intensities.push_back(in);
+                    currentCompound->setFragmentIntensities(intensities);
 
-                    int fragIdx = currentCompound->fragmentMzValues.size() - 1;
+                    int fragIdx = currentCompound->fragmentMzValues().size() - 1;
                     if (mzIntensityPair.size() >= 3) {
-                        currentCompound->fragmentIonTypes[fragIdx] =
+                        auto ionTypes = currentCompound->fragmentIonTypes();
+                        ionTypes[fragIdx] =
                             mzIntensityPair.at(2).toStdString();
+                        currentCompound->setFragmentIonTypes(ionTypes);
                     }
                 }
             }
@@ -650,12 +654,12 @@ int Database::loadMascotLibrary(QString filepath,
                                           specIter->getTITLE(),
                                           "",
                                           charge);
-        compound->expectedRt = specIter->getRTINSECONDS().first / 60.0f;
-        compound->mass = specIter->getPEPMASS().first;
-        compound->precursorMz = compound->mass;
-        compound->smileString = specIter->getSMILES();
-        compound->ionizationMode = specIter->getIONMODE() == "negative" ? -1
-                                                                        : 1;
+        compound->setExpectedRt ( specIter->getRTINSECONDS().first / 60.0f);
+        compound->setMz(specIter->getPEPMASS().first);
+        compound->setPrecursorMz(compound->mz());
+        compound->setSmileString (specIter->getSMILES());
+        compound->ionizationMode = specIter->getIONMODE() == "negative" ? Compound::IonizationMode::Negative
+                                                                        : Compound::IonizationMode::Positive;
 
         // create spectra
         vector<float> fragmentMzValues;
@@ -666,10 +670,10 @@ int Database::loadMascotLibrary(QString filepath,
             fragmentMzValues.push_back(fragPair->first);
             fragmentInValues.push_back(fragPair->second);
         }
-        compound->fragmentMzValues = fragmentMzValues;
-        compound->fragmentIntensities = fragmentInValues;
+        compound->setFragmentMzValues (fragmentMzValues);
+        compound->setFragmentIntensities (fragmentInValues);
 
-        compound->db = mzUtils::cleanFilename(filepath.toStdString());
+        compound->setDb( mzUtils::cleanFilename(filepath.toStdString()));
         addCompound(compound);
 
         if (signal) {
@@ -686,7 +690,7 @@ int Database::loadMascotLibrary(QString filepath,
 bool Database::isSpectralLibrary(string dbName) {
     auto compounds = getCompoundsSubset(dbName);
     if (compounds.size() > 0) {
-        return compounds.at(0)->type() == Compound::Type::PRM;
+        return compounds.at(0)->type() == Compound::Type::MS2;
     }
     return false;
 }
@@ -874,25 +878,28 @@ int Database::loadCompoundCSVFile(string filename)
         if ( mz > 0 || ! formula.empty() || precursormz > 0 || mass > 0.0f) {
             Compound* compound = new Compound(id,name,formula,charge);
 
-            compound->expectedRt = rt;
+            compound->setExpectedRt(rt);
 
-            if (mass != 0.0f)
-                compound->neutralMass = mass;
+            if(mass != 0)
+                compound->setNeutralMass(mass);
 
-            if (mz == 0 && !formula.empty()) {
+            if (mz == 0 && !formula.empty())
                 mz = MassCalculator::computeMass(formula,charge);
-            } else if (mass != 0.0f) {
+            else if (mass != 0.0f) {
                 mz = MassCalculator::adjustMass(mass, charge);
             }
 
-            compound->mass = mz;
-            compound->db = dbname;
-            compound->expectedRt=rt;
-            compound->precursorMz=precursormz;
-            compound->productMz=productmz;
-            compound->collisionEnergy=collisionenergy;
-            compound->note = note;
-            for(int i=0; i < categorylist.size(); i++) compound->category.push_back(categorylist[i]);
+            compound->setMz(mz);
+            compound->setDb(dbname);
+            compound->setExpectedRt(rt);
+            compound->setPrecursorMz (precursormz);
+            compound->setProductMz(productmz);
+            compound->setCollisionEnergy(collisionenergy);
+            compound->setNote(note);
+            auto category = compound->category();
+            for(int i=0; i < categorylist.size(); i++)
+                category.push_back(categorylist[i]);
+            compound->setCategory(category);
             if (addCompound(compound))
                 loadCount++;
         } else {

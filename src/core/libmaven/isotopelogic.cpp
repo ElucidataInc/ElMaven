@@ -14,9 +14,9 @@ void IsotopeLogic::userChangedFormula() {
 
 	_group = NULL;
 
-    tempCompound->setFormula(_formula);
-    tempCompound->name = "Unknown_" + tempCompound->formula();
-	tempCompound->id = "unknown";
+    tempCompound->setFormula  (_formula);
+    tempCompound->setName  ("Unknown_" + _formula);
+    tempCompound->setId  ("unknown");
 	_compound = tempCompound;
 }
 

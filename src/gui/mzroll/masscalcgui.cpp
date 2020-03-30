@@ -93,11 +93,11 @@ void MassCalcWidget::showTable()
 
         QString compoundName="";
         if (c != nullptr)
-            compoundName = QString(c->name.c_str());
+            compoundName = QString(c->name().c_str());
 
         QString databaseName="";
         if(c != nullptr)
-            databaseName = QString(c->db.c_str());
+            databaseName = QString(c->db().c_str());
 
         if (database->currentIndex() != 0
             && database->currentText() != databaseName)
@@ -140,7 +140,7 @@ QSet<Compound*> MassCalcWidget::findMathchingCompounds(float mz, MassCutoff *mas
     MassCalculator mcalc;
     QSet<Compound*>uniqset;
     Compound x("", "", "", 0);
-    x.mass = mz - 2;
+    x.setMz( mz - 2);
     vector<Compound*>::iterator itr = lower_bound(sortedcompounds.begin(),
                                                   sortedcompounds.end(),
                                                   &x,
@@ -203,8 +203,8 @@ void MassCalcWidget::setPeakGroup(PeakGroup* grp) {
                                                  fragPpm->value());
         }
 
-        if (cpd->expectedRt > 0)
-            m->rtDiff = grp->meanRt - cpd->expectedRt;
+        if (cpd->expectedRt() > 0)
+            m->rtDiff = grp->meanRt - cpd->expectedRt();
     }
     showTable();
 }
@@ -278,8 +278,8 @@ void MassCalcWidget::_showInfo()
         float rtmax = eicSlice.rtmax;
         mzSlice slice(minmz, maxmz, rtmin, rtmax);
         slice.compound = selectedCompound;
-        if (!selectedCompound->srmId.empty())
-            slice.srmId = selectedCompound->srmId;
+        if (!selectedCompound->srmId().empty())
+            slice.srmId = selectedCompound->srmId();
 
         _mw->searchText->setText(QString::number(slice.mz, 'f', 8));
         _mw->getEicWidget()->setMzSlice(slice);

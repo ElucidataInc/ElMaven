@@ -77,7 +77,7 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
     double B = (double)_mavenParameters->intensityWeight / 10;
     double C = (double)_mavenParameters->deltaRTWeight / 10;
 
-    if (compound != NULL && compound->expectedRt > 0)
+    if (compound != NULL && compound->expectedRt() > 0)
     {
         if (_mavenParameters->deltaRtCheckFlag)
         {
@@ -87,7 +87,7 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
             return true;
     }
 
-    if (!_mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt <= 0)
+    if (!_mavenParameters->deltaRtCheckFlag || compound == NULL || compound->expectedRt() <= 0)
     {
         peakgroup.groupRank = pow((1.1 - peakgroup.maxQuality), A) * (1 / (pow(log(peakgroup.maxIntensity + 1), B)));
     }

@@ -40,17 +40,17 @@ bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge
         auto adjustedMass = adduct->computeAdductMz(mass);
         mzmin = adjustedMass - compoundMassCutoffWindow->massCutoffValue(adjustedMass);
         mzmax = adjustedMass + compoundMassCutoffWindow->massCutoffValue(adjustedMass);
-    } else if (!this->compound->formula().empty() || this->compound->neutralMass != 0.0f) {
+    } else if (!this->compound->formula().empty() || this->compound->neutralMass() != 0.0f) {
         //Computing the mass if the formula is given
         double mass = this->compound->adjustedMass(charge);
 		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
 		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}
-	else if (this->compound->mass > 0)
+    else if (this->compound->mz() > 0)
 	{
 		// Mass already present in the compound DB then using
 		// it to find the mzmin and mzmax
-		double mass = this->compound->mass;
+        double mass = this->compound->mz();
 		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
 		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
 	}
@@ -71,10 +71,10 @@ void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
 	//window then only calculate the rt min and max else set
 	//it in such a way that it will look in all the rt values
 	//possible
-	if (matchRtFlag && this->compound->expectedRt > 0)
+    if (matchRtFlag && this->compound->expectedRt() > 0)
 	{
-		this->rtmin = this->compound->expectedRt - compoundRTWindow;
-		this->rtmax = this->compound->expectedRt + compoundRTWindow;
+        this->rtmin = this->compound->expectedRt() - compoundRTWindow;
+        this->rtmax = this->compound->expectedRt() + compoundRTWindow;
 	}
 	else
 	{
@@ -89,8 +89,8 @@ void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
 void mzSlice::setSRMId()
 {
 	//TODO: Why is SRM id used for
-	if (!this->compound->srmId.empty())
+    if (!this->compound->srmId().empty())
 	{
-		this->srmId = this->compound->srmId;
+        this->srmId = this->compound->srmId();
 	}
 }

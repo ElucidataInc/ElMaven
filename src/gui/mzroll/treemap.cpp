@@ -351,7 +351,7 @@ void TreeMap::renderLeaf(TreemapItem *item, const double *surface)
 
 		QString tooltip;
 		if ( group && group->getCompound() != NULL ) {
-			tooltip = QString(group->getCompound()->name.c_str());
+                        tooltip = QString(group->getCompound()->name().c_str());
 		}
 		tooltip += "<br>" + QString::number(item->TmiGetSize());
 		rect->setToolTip(tooltip);

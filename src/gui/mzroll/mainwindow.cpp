@@ -1207,16 +1207,16 @@ void MainWindow::setUrl(Compound* c) {
 			"http://www.ncbi.nlm.nih.gov/sites/entrez?db=pccompound&term=";
 
 	QString url;
-	if (c->db == "MetaCyc") {
-		url = biocycURL + tr("=%1").arg(c->id.c_str());
-	} else if (c->db == "KEGG") {
-		url = keggURL + tr("%1").arg(c->id.c_str());
+        if (c->db() == "MetaCyc") {
+                url = biocycURL + tr("=%1").arg(c->id().c_str());
+        } else if (c->db() == "KEGG") {
+                url = keggURL + tr("%1").arg(c->id().c_str());
 		//} else if ( c->id.c_str() != "") {
 		//  url = keggURL+tr("%1").arg(c->id.c_str());
 	} else {
-		url = pubChemURL + tr("%1").arg(c->name.c_str());
+                url = pubChemURL + tr("%1").arg(c->name().c_str());
 	}
-	QString link(c->name.c_str());
+        QString link(c->name().c_str());
 	setUrl(url, link);
 }
 
@@ -1410,7 +1410,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
         double C = (double) mavenParameters->deltaRTWeight/10;
 
         if (mavenParameters->deltaRtCheckFlag && group->getCompound() != NULL && 
-            group->getCompound()->expectedRt > 0) {
+            group->getCompound()->expectedRt() > 0) {
             group->groupRank = pow(rtDiff, 2*C)
                                * pow((1.1 - group->maxQuality), A)
                                * (1 /( pow(log(group->maxIntensity + 1), B)));
@@ -1470,11 +1470,11 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	// if (getIonizationMode())
 	// 	charge = getIonizationMode(); //user specified ionization mode
 	charge = mavenParameters->getCharge(c);
-	qDebug() << "setCompoundFocus:" << c->name.c_str() << " " << charge << " "
-			<< c->expectedRt;
+        qDebug() << "setCompoundFocus:" << c->name().c_str() << " " << charge << " "
+                        << c->expectedRt();
 
-    float mz = c->mass;
-    if (!c->formula().empty() || c->neutralMass != 0.0f)
+        float mz = c->mz();
+        if (!c->formula().empty() || c->neutralMass() != 0.0f)
 		mz = c->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 
@@ -1508,7 +1508,7 @@ void MainWindow::setCompoundFocus(Compound*c) {
     if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
-    QString compoundName(c->name.c_str());
+    QString compoundName(c->name().c_str());
     setPeptideSequence(compoundName);
 
 	/*
@@ -1872,7 +1872,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
     deque<Compound*> compoundsDB = DB.getCompoundsDB();
     for (int i = 0; i < compoundsDB.size(); i++) {
         Compound* currentCompound = compoundsDB[i];
-        if (currentCompound->db == dbName) {
+        if (currentCompound->db() == dbName) {
             reloading = true;
             break;
         }
@@ -1889,9 +1889,9 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
         vector<Compound*> loadedCompounds = DB.getCompoundsSubset(dbName);
         if (!loadedCompounds.empty()) {
             QString eventLabel = "MS1";
-            if (loadedCompounds[0]->precursorMz > 0
-                && (loadedCompounds[0]->productMz > 0
-                    || loadedCompounds[0]->fragmentMzValues.size() > 0)) {
+            if (loadedCompounds[0]->precursorMz() > 0
+                && (loadedCompounds[0]->productMz() > 0
+                    || loadedCompounds[0]->fragmentMzValues().size() > 0)) {
                 eventLabel = DB.isSpectralLibrary(dbName) ? "MS2 (PRM)"
                                                       : "MS2 (MRM)";
             }
@@ -2005,7 +2005,15 @@ void MainWindow::_warnIfNISTPolarityMismatch()
         return;
 
     int samplePolarity = sample->getPolarity();
-    int dbPolarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    Compound::IonizationMode polarity = DB.getCompoundsSubset(dbName)[0]->ionizationMode;
+    int dbPolarity = 0;
+    if (polarity == Compound::IonizationMode::Positive)
+        dbPolarity = 1;
+    else if (polarity == Compound::IonizationMode::Negative)
+        dbPolarity = -1;
+    else
+        dbPolarity = 0;
+
     if (samplePolarity != dbPolarity) {
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Polarity Mismatch"));
@@ -3414,7 +3422,7 @@ void MainWindow::setPeakGroup(PeakGroup* group) {
 		if (fragSpectraDockWidget->isVisible()) {
 			fragSpectraWidget->overlayPeakGroup(group);
 		}
-        QString compoundName(group->getCompound()->name.c_str());
+        QString compoundName(group->getCompound()->name().c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->getCompound());
         }
@@ -3669,8 +3677,8 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 	float expectedRt = -1;
 
 	if (group->hasCompoundLink()) {
-		compoundName = "\"" + QString(group->getCompound()->name.c_str()) + "\"";
-		expectedRt = group->getCompound()->expectedRt;
+                compoundName = "\"" + QString(group->getCompound()->name().c_str()) + "\"";
+                expectedRt = group->getCompound()->expectedRt();
 	}
 
 	if (compoundName.isEmpty() && group->srmId.length()) {
@@ -4208,7 +4216,7 @@ void MainWindow::getLinks(Peak* peak) {
 		QSet<Compound*> compunds = massCalcWidget->findMathchingCompounds(
 				links[i].mz2, massCutoff, mavenParameters->getCharge());
 		if (compunds.size() > 0)
-			Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name; break;}
+                        Q_FOREACH( Compound*c, compunds){ links[i].note += " |" + c->name(); break;}
 	}
 
 	vector<mzLink> subset;
@@ -4322,10 +4330,10 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
 	}
 
-    int numberofCarbons = 0;
-    if (group->getCompound() && !group->getCompound()->formula().empty()) {
-        map<string, int> composition = MassCalculator::getComposition(
-            group->getCompound()->formula());
+	int numberofCarbons = 0;
+        if (group->getCompound() && !group->getCompound()->formula().empty()) {
+		map<string, int> composition = MassCalculator::getComposition(
+                                group->getCompound()->formula());
 		numberofCarbons = composition["C"];
 	}
 	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
@@ -4377,10 +4385,10 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 		}
 	}
 
-    int numberofCarbons = 0;
-    if (group->getCompound() && !group->getCompound()->formula().empty()) {
-        map<string, int> composition = MassCalculator::getComposition(
-            group->getCompound()->formula());
+	int numberofCarbons = 0;
+        if (group->getCompound() && !group->getCompound()->formula().empty()) {
+		map<string, int> composition = MassCalculator::getComposition(
+                                group->getCompound()->formula());
 		numberofCarbons = composition["C"];
 	}
 

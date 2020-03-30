@@ -134,7 +134,7 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
                               [] (PeakGroup& group) {
                                   if (group.getCompound())
                                     return (group.getCompound()->type()
-                                            == Compound::Type::PRM);
+                                            == Compound::Type::MS2);
                                   return false;
                               });
     bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
