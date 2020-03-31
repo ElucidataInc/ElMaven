@@ -233,6 +233,25 @@ class Scan
     int polarity; /**< +1 for positively charged, -1 for negatively charged, 0 for neutral*/
 
     /**
+     * @brief Set the limits of the m/z range covered by this scan.
+     * @param lower The lower m/z limit for this scan.
+     * @param upper The upper m/z limit for this scan.
+     */
+    void setScanWindow(const float lower, const float upper);
+
+    /**
+     * @brief Obtain the lower limit for this scan's m/z range.
+     * @return A floating point value.
+     */
+    float scanWindowLowerBound() const { return _scanWindowLowerBound; }
+
+    /**
+     * @brief Obtain the upper limit for this scan's m/z range.
+     * @return A floating point value.
+     */
+    float scanWindowUpperBound() const { return _scanWindowUpperBound; }
+
+    /**
      * @brief Set the size of the precursor window from which this MS/MS scan
      * orignates.
      * @details Depending on the isolation window, this scan is assumed to be of
@@ -298,6 +317,8 @@ class Scan
      */
     float _isolationWindow;
 
+    float _scanWindowLowerBound;
+    float _scanWindowUpperBound;
     float _swathWindowMin;
     float _swathWindowMax;
 
