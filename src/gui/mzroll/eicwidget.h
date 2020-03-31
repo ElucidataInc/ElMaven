@@ -62,8 +62,8 @@ public Q_SLOTS:
     void addCubicSpline(); //TODO: Sahil Added while merging eicWidget
     EicLine* addBaseLine(EIC* eic, double zValue = 0.0);
 	void addTicLine();
-	void addMergedEIC();
-	void setFocusLine(float rt);
+    void addMergedEIC();
+    void setFocusLine(float rt, QColor color = Qt::red);
 	void addFocusLine(PeakGroup*);
     void addBarPlot(shared_ptr<PeakGroup>);
     void addBoxPlot(shared_ptr<PeakGroup>);
