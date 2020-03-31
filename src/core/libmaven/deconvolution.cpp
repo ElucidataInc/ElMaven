@@ -6,74 +6,8 @@
 
 using namespace Eigen;
 
-/**
- * @brief Local helper method that ensures that model peak regions are of at
- * least average width.
- * @details Consequently, some regions might end up sharing some left or right
- * boundaries (or maybe even overlap), with other regions. This makes them a
- * candidate for deconvolution.
- */
 vector<pair<size_t, size_t>>
-_refineModelRegions(EIC *eic,
-                    vector<pair<size_t, size_t>> regions,
-                    int averagePeakWidth)
-{
-    vector<pair<size_t, size_t>> refinedRegions;
-    for (auto& region : regions) {
-        auto signal = eic->intensitySegment(region.first, region.second, true);
-        size_t peakTop = distance(begin(signal),
-                                  max_element(begin(signal), end(signal)));
-        if (peakTop < 0 || peakTop >= signal.size())
-            continue;
-
-        size_t peakLeft = 0;
-        for (size_t i = peakTop; i > 0; --i) {
-            if (peakTop - i < (averagePeakWidth / 2))
-                continue;
-            if (signal[i - 1] >= signal[i]) {
-                peakLeft = i;
-                break;
-            }
-        }
-        size_t peakRight = signal.size() - 1;
-        for (size_t i = peakTop; i < signal.size() - 1; ++i) {
-            if (i - peakTop < (averagePeakWidth / 2))
-                continue;
-            if (signal[i] <= signal[i + 1]) {
-                peakRight = i;
-                break;
-            }
-        }
-
-        // translate peak boundaries to positions on parent EIC
-        peakLeft += region.first;
-        peakRight += region.first;
-
-        // if this segment already exists (probably the last one), we ignore it
-        auto finalSegment = make_pair(peakLeft, peakRight);
-        if (!refinedRegions.empty() && finalSegment == refinedRegions.back())
-            continue;
-
-        signal = eic->intensitySegment(peakLeft, peakRight, true);
-        if (signal.empty())
-            continue;
-
-        // peak regions must not be too noisy
-        auto idealSlope = mzUtils::idealSlopeValue(signal);
-        // TODO: increase threshold when, derivative method is replaced.
-        if (isnan(idealSlope) || idealSlope < 0.90)
-            continue;
-
-        // the final segment should now be as wide as the average peak
-        refinedRegions.push_back(finalSegment);
-    }
-    return refinedRegions;
-}
-
-vector<pair<size_t, size_t>>
-Deconvolution::modelPeakRegions(EIC* eic,
-                                int smoothingWindow,
-                                int averagePeakWidth)
+Deconvolution::modelPeakRegions(EIC* eic, int smoothingWindow)
 {
     if (eic->size() == 0)
         return {};
@@ -88,18 +22,34 @@ Deconvolution::modelPeakRegions(EIC* eic,
     vector<pair<size_t, size_t>> modelRegions;
     for (const auto& peak : eic->peaks) {
         auto signal = eic->intensitySegment(peak.minpos, peak.maxpos, true);
+        if (signal.empty())
+            continue;
+
         auto sharpness = mzUtils::sharpnessValue(signal);
-        if (sharpness > 0.0f)
-            modelRegions.push_back(make_pair(peak.minpos, peak.maxpos));
+        if (sharpness <= 0.0f)
+            continue;
 
         // TODO: right now we are allowing any region with non-zero sharpness
         // value to be a candidate, but to be correct there should be
         // interpolation (Stein, 1999) followed by application of second
         // derivative filter (Hiller, 2009), then all maxima would be considered
         // as model components
+
+        // peak regions must not be too noisy
+        auto idealSlope = mzUtils::idealSlopeValue(signal);
+        // TODO: increase threshold when, derivative method is replaced.
+        if (isnan(idealSlope) || idealSlope < 0.90)
+            continue;
+
+        // if this segment already exists (probably the last one), we ignore it
+        pair<size_t, size_t> region = make_pair(peak.minpos, peak.maxpos);
+        if (!modelRegions.empty() && region == modelRegions.back())
+            continue;
+
+        modelRegions.push_back(region);
     }
 
-    return _refineModelRegions(eic, modelRegions, averagePeakWidth);
+    return modelRegions;
 }
 
 Deconvolution::Pattern _getPattern(bool hasOneLeft,

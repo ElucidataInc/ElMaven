@@ -60,13 +60,11 @@ namespace Deconvolution
      * @param smoothingWindow The smoothing window for Savitzky-Golay filter
      * that will be applied on the EIC's total signal, before searching for
      * local maxima.
-     * @param averagePeakWidth The average width of a peak sensed for the data.
      * @return A vector of pairs of indexes which denote regions in the given
      * EIC that can be considered to as "model" peaks.
      */
     vector<pair<size_t, size_t>> modelPeakRegions(EIC *eic,
-                                                  int smoothingWindow,
-                                                  int averagePeakWidth);
+                                                  int smoothingWindow);
 
     /**
      * @brief Given a region of interest (ROI), and its surrounding regions of

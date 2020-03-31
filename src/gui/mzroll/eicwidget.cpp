@@ -1105,7 +1105,7 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
             auto pos =
                 fragPattern.findClosestHighestIntensityPos(fragMz, fragTolr);
             auto rtRegions = fragPattern.rtRegions();
-            if (!rtRegions.empty()) {
+            if (pos != -1 && !rtRegions.empty()) {
                 rtMin = rtRegions.at(pos).first;
                 rtMax = rtRegions.at(pos).second;
             }
