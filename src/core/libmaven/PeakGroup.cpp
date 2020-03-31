@@ -931,7 +931,7 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
         return;
 
     Fragment fragment(Fragment::MsType::DIA);
-    auto precursorMz = compound->adjustedMass(compound->charge);
+    auto precursorMz = compound->adjustedMass(compound->charge());
     MassCutoff massCutoff;
     massCutoff.setMassCutoffAndType(productPpmTolr, "ppm");
 
@@ -940,7 +940,7 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
         NimbleDSP::RealVector<float> rtValues;
         NimbleDSP::RealVector<float> intensityValues;
 
-        for (const auto expFragMz : compound->fragmentMzValues) {
+        for (const auto expFragMz : compound->fragmentMzValues()) {
             // set min/max m/z to cover one fragment at a time
             float mzMin = expFragMz - massCutoff.massCutoffValue(expFragMz);
             float mzMax = expFragMz + massCutoff.massCutoffValue(expFragMz);
