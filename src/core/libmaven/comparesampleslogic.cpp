@@ -6,6 +6,16 @@
 CompareSamplesLogic::CompareSamplesLogic() {
 }
 
+int CompareSamplesLogic::countBelow(vector<float>& y, float ymax)
+{
+    vector<float> temp = y;
+    sort(temp.begin(), temp.end());
+    auto itr = lower_bound(temp.begin(), temp.end(), ymax);
+    int lb = itr-temp.begin();
+    return lb;
+
+}
+
 void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 		StatisticsVector<float>& groupB) {
 	int n1 = groupA.size();

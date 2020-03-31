@@ -110,13 +110,13 @@ namespace mzUtils
     double randDouble(double low, double high);
 
     /**
-     * @brief strcasecmp_withNumbers Compares the alphanumeric strings.
+     * @brief compareStringsWithNumbers Compares the alphanumeric strings.
      * @param a First string to be compared against another string.
      * @param b Second string.
      * @return A boolean variable indicating if the two strings are equal
      * or not.
      */
-    bool strcasecmp_withNumbers(const std::string& a, const std::string& b);
+    bool compareStringsWithNumbers(const std::string& a, const std::string& b);
 
     /**
      * @brief removeSpecialcharFromStartEnd Removes the ' "" ' or ' / ' from
@@ -226,12 +226,11 @@ namespace mzUtils
            ns      number of samples in the input data
            nsr     width (in samples) of the gaussian for which
                    amplitude > 0.5*max amplitude
-           data    1-D array[ns] of data to smooth
 
     Output:
         data    1-D array[ns] of smoothed data
     ****************************************************************/
-    void gaussian1d_smoothing(int ns, int nsr, float* data);
+    void  gaussian1d_smoothing(int ns, int nsr, float* data);
 
     /**
      * [smoothAverage ]
@@ -308,35 +307,7 @@ namespace mzUtils
      */
     float median(vector<float> y);
 
-    /**
-     * @brief median Calculates the median of array of float integers.
-     * @param y Array of float integers.
-     * @param n size of array "y".
-     * @return Returns calculated median.
-     */
-    float median(float* y, int n);
-
-    /**
-     * @brief kth_smallest  Finds the kth smallest floating point
-     * integer.
-     * @param a Array of floating point integer.
-     * @param n Size of array "a".
-     * @param k Smallest value needed to be found
-     * @return
-     */
-    float kth_smallest(float a[], int n, int k);
-
-
     vector<float> quantileDistribution(vector<float> y);
-
-    /**
-     * @brief countBelow Calculates the number of elements in the vector
-     * smaller than ymax.
-     * @param y Vector of floating point integers.
-     * @param ymax  Pivot value.
-     * @return
-     */
-    int countBelow(vector<float>& y, float ymax);
 
     /**
      * @brief correlation Calculates correlation between two floating
@@ -460,15 +431,15 @@ namespace mzUtils
      * @param c Seperator.
      * @param v Output. Vector of string
      */
-    void split(const string& s, const string& c, vector<string>& v);
+    vector<string> split(const string& str, const string& sep);
 
     /**
-     * @brief compareStr  Checks if s1 contains s2.
+     * @brief contains  Checks if s1 contains s2.
      * @param s1    string.
      * @param s2    string.
      * @return      Return s1, if it contains else an empty string.
      */
-    string compareStr(string s1, string s2);
+    bool contains(const string& first, const string& second, const bool ignoreCase = true);
 
     /**
      * @brief cleanFilename Gives the name of the file, removing the extension

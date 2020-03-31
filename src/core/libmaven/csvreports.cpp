@@ -538,7 +538,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::split(input, ",", inputValues);
+                inputValues = mzUtils::split(input, ",");
                 if (cnt > 1) {
                     savedGroupFile.clear();
                     savedGroupFile.seekg(0, ios::beg);
@@ -554,7 +554,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                         continue;
 
                     vector<string> savedValues;
-                    mzUtils::split(saved, ",", savedValues);
+                    savedValues = mzUtils::split(saved, ",");
 
                     if (string2float(inputValues[4])
                             == doctest::Approx(string2float(savedValues[4]))
@@ -636,7 +636,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::split(input, ",", inputValues);
+                inputValues = mzUtils::split(input, ",");
 
                 if (cnt > 1) {
                     savedPeakFile.clear();
@@ -649,9 +649,9 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                     string saved;
                     getline(savedPeakFile, saved);
                     vector<string> savedValues;
-                    mzUtils::split(saved, ",", savedValues);
+                    savedValues = mzUtils::split(saved, ",");
                     if (string2float(inputValues[8])
-                            == doctest::Approx(string2float(savedValues[8]))
+                            == doctest::Approx(string2float(savedValues[8])).epsilon(0.3)
                         && string2float(inputValues[12])
                                == doctest::Approx(string2float(savedValues[12]))
                         && inputValues[2] == savedValues[2]) {
@@ -715,7 +715,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::split(input, ",", inputValues);
+                inputValues = mzUtils::split(input, ",");
 
                 if (cnt > 1) {
                     savedPeakFile.clear();
@@ -728,7 +728,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                     string saved;
                     getline(savedPeakFile, saved);
                     vector<string> savedValues;
-                    mzUtils::split(saved, ",", savedValues);
+                    savedValues = mzUtils::split(saved, ",");
 
                     if (inputValues[1] == savedValues[1]
                         && inputValues[2] == savedValues[2]) {
@@ -784,7 +784,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::split(input, ",", inputValues);
+                inputValues = mzUtils::split(input, ",");
                 if (cnt > 1) {
                     savedGroupFile.clear();
                     savedGroupFile.seekg(0, ios::beg);
@@ -800,7 +800,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                         continue;
 
                     vector<string> savedValues;
-                    mzUtils::split(saved, ",", savedValues);
+                    savedValues = mzUtils::split(saved, ",");
                     if (string2float(inputValues[4])
                             == doctest::Approx(string2float(savedValues[4]))
                         && string2float(inputValues[5])
@@ -874,7 +874,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
 
             if (input.size() > 0) {
                 vector<string> inputValues;
-                mzUtils::split(input, ",", inputValues);
+                inputValues = mzUtils::split(input, ",");
 
                 if (cnt > 1) {
                     savedPeakFile.clear();
@@ -890,7 +890,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                         continue;
 
                     vector<string> savedValues;
-                    mzUtils::split(saved, ",", savedValues);
+                    savedValues = mzUtils::split(saved, ",");
 
                     if (string2float(inputValues[16])
                             == doctest::Approx(string2float(savedValues[16]))

@@ -118,15 +118,15 @@ string mzSample::getFileName(const string& filename)
 
 void mzSample::loadAnySample(string filename)
 {
-    if (compareStr(filename, "mzCSV") != " ") {
+    if (contains(filename, "mzCSV") == true) {
         parseMzCSV(filename.c_str());
-    } else if (compareStr(filename, "mzdata") != " " ) {
+    } else if (contains(filename, "mzdata") == true ) {
         parseMzData(filename.c_str());
-    } else if (compareStr(filename, "mzxml") != " ") {
+    } else if (contains(filename, "mzxml") == true) {
         parseMzXML(filename.c_str());
-    } else if (compareStr(filename, "mzml") != " ") {
+    } else if (contains(filename, "mzml") == true) {
         parseMzML(filename.c_str());
-    } else if (compareStr(filename, "cdf") != " ") {
+    } else if (contains(filename, "cdf") == true) {
         parseCDF(filename.c_str(), 1);
     } else {
         parseMzData(filename.c_str());
@@ -208,7 +208,7 @@ void mzSample::parseMzCSV(const char* filename)
     while (getline(myfile, line)) {
         lineNum++;
         vector<string> fields;
-        mzUtils::split(line, ",", fields);
+        fields = mzUtils::split(line, ",");
         if (fields.size() >= 5 && lineNum > 1) {
             ss.clear();
 

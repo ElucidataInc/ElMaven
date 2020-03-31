@@ -50,15 +50,15 @@ namespace mzUtils {
 
     std::string makeLowerCase(string &str)
     {
-        for (size_t i = 0; i != str.length(); ++i) {
-            str[i] = std::tolower(str[i]);
-        }
+        transform(str.begin(), str.end(), str.begin(), ::tolower);
         return str;
     }
 
-    void split(const string& str, const string& sep, vector<string>& result)
+    vector<string> split(const string& str, const string& sep)
     {
+        vector<string> result;
         boost::split(result, str, boost::is_any_of(sep));
+        return result;
     }
 
     void removeSpecialcharFromStartEnd(vector<string>& fields)
@@ -73,16 +73,21 @@ namespace mzUtils {
         }
     }
 
-    string compareStr(const string str1,const string str2)
+    bool contains(const string& first,
+                  const string& second,
+                  const bool ignoreCase)
     {
-        string s = str1;
-        string p = str2;
-        transform(s.begin(), s.end(), s.begin(), ::tolower);
-        transform(p.begin(), p.end(), p.begin(), ::tolower);
-        if(boost::algorithm::contains(s, p))
-            return str1;
+        string s = first;
+        string p = second;
+        if (ignoreCase == true) {
+            transform(s.begin(), s.end(), s.begin(), ::tolower);
+            transform(p.begin(), p.end(), p.begin(), ::tolower);
+        }
+
+        if (boost::algorithm::contains(s, p))
+            return true;
         else
-            return " ";
+            return false;
     }
 
     void smoothAverage(float *input, float* result, int smoothWindowLen,
@@ -226,38 +231,6 @@ namespace mzUtils {
         return (median);
     }
 
-    float median(float* y, int n) {
-        if (n == 0)
-            return(0.0);
-        if (n == 1)
-            return(y[0]);
-        if (n == 2)
-            return((y[0] + y[1])/2);
-
-        float* tmpy = new float[n];
-        memcpy(tmpy, y, n*sizeof(float));
-        sort(tmpy, tmpy + n);
-
-        int i = n / 2;
-        float median = 0.0;
-
-        if (n == i * 2)
-            median = (tmpy[i-1] + tmpy[i]) / 2.;
-        else
-            median = tmpy[i];
-
-        delete[] tmpy;
-        return (median);
-    }
-
-    float kth_smallest(float a[], int n, int k)
-    {
-        float* tmpy = new float[n];
-        memcpy(tmpy, a, n*sizeof(float));
-        sort(tmpy, tmpy + n);
-        return(a[k-1]);
-    }
-
     int string2integer(const std::string& s)
     {
         std::istringstream i(s);
@@ -381,16 +354,6 @@ namespace mzUtils {
         float t_test = (meanA - meanB) / sqrt(((stdA * stdA) / n1) +
                                               ((stdB * stdB) / n2));
         return t_test;
-    }
-
-   int countBelow(vector<float>& y, float ymax)
-    {
-        vector<float> temp = y;
-        sort(temp.begin(), temp.end());
-        auto itr = lower_bound(temp.begin(), temp.end(), ymax);
-        int lb = itr-temp.begin();
-        return lb;
-
     }
 
     bool fileExists(string strFilename)
@@ -848,7 +811,7 @@ namespace mzUtils {
     }
 
 
-    bool strcasecmp_withNumbers(const std::string& a, const std::string& b ) {
+    bool compareStringsWithNumbers(const std::string& a, const std::string& b ) {
         if (a.empty())
             return true;
         if (b.empty())
@@ -859,7 +822,7 @@ namespace mzUtils {
             return false;
         if (!std::isdigit(a[0]) && !std::isdigit(b[0])) {
             if (std::toupper(a[0]) == std::toupper(b[0]))
-                return strcasecmp_withNumbers(a.substr(1), b.substr(1));
+                return compareStringsWithNumbers(a.substr(1), b.substr(1));
             return (std::toupper(a[0]) < std::toupper(b[0]));
         }
 
@@ -876,7 +839,7 @@ namespace mzUtils {
         std::string anew, bnew;
         std::getline(issa, anew);
         std::getline(issb, bnew);
-        return (strcasecmp_withNumbers(anew, bnew));
+        return (compareStringsWithNumbers(anew, bnew));
     }
 
     double besseli0(const double x)
@@ -1058,15 +1021,15 @@ TEST_SUITE("Testing mzUtils functions")
     {
         string str = "Hello,this,is,to,test,function";
         string sep = ",";
-        vector<string> v;
-        mzUtils::split(str, sep, v);
-        REQUIRE(v.size() == 6);
-        REQUIRE(v[0] == "Hello");
-        REQUIRE(v[1] == "this");
-        REQUIRE(v[2] == "is");
-        REQUIRE(v[3] == "to");
-        REQUIRE(v[4] == "test");
-        REQUIRE(v[5] == "function");
+        vector<string> result;
+        result = mzUtils::split(str, sep);
+        REQUIRE(result.size() == 6);
+        REQUIRE(result[0] == "Hello");
+        REQUIRE(result[1] == "this");
+        REQUIRE(result[2] == "is");
+        REQUIRE(result[3] == "to");
+        REQUIRE(result[4] == "test");
+        REQUIRE(result[5] == "function");
     }
 
     TEST_CASE("Testing converting to Lower case")
@@ -1091,8 +1054,7 @@ TEST_SUITE("Testing mzUtils functions")
     TEST_CASE("Testing Compare strings")
     {
         string str = "mzCSVFile";
-        string res = mzUtils::compareStr(str, "mzCSV");
-        REQUIRE(res == "mzCSVFile");
+        REQUIRE(mzUtils::contains(str, "mzCSV") == true);
     }
 
     TEST_CASE("Testing Smooth Average")
@@ -1153,56 +1115,20 @@ TEST_SUITE("Testing mzUtils functions")
 
     TEST_CASE("Testing Medians")
     {
-        SUBCASE("Testing array of floats")
-        {
-            float *input = new float[10];
-            input[0] = 10.002;
-            input[1] = 15.001;
-            input[2] = 22.002;
-            input[3] = 42.229;
-            input[4] = 28.992;
-            input[5] = 11.09;
-            input[6] = 12.091;
-            input[7] = 33.082;
-            input[8] = 12.234;
-            input[9] = 43.998;
-            float res = mzUtils::median(input, 10);
-            REQUIRE(doctest::Approx(res) == 18.5015);
-        }
+        vector<float> input;
+        input.push_back(10.002);
+        input.push_back(15.001);
+        input.push_back(22.002);
+        input.push_back(42.229);
+        input.push_back(28.992);
+        input.push_back(11.09);
+        input.push_back(12.091);
+        input.push_back(33.082);
+        input.push_back(12.234);
+        input.push_back(43.998);
+        float res = mzUtils::median(input);
+        REQUIRE(doctest::Approx(res) == 18.5015f);
 
-        SUBCASE("Testing vectors of floats")
-        {
-            vector<float> input;
-            input.push_back(10.002);
-            input.push_back(15.001);
-            input.push_back(22.002);
-            input.push_back(42.229);
-            input.push_back(28.992);
-            input.push_back(11.09);
-            input.push_back(12.091);
-            input.push_back(33.082);
-            input.push_back(12.234);
-            input.push_back(43.998);
-            float res = mzUtils::median(input);
-            REQUIRE(doctest::Approx(res) == 18.5015f);
-        }
-    }
-
-    TEST_CASE("Testing kthSmallest ")
-    {
-        float *input = new float[10];
-        input[0] = 10.002;
-        input[1] = 15.001;
-        input[2] = 22.002;
-        input[3] = 42.229;
-        input[4] = 28.992;
-        input[5] = 11.09;
-        input[6] = 12.091;
-        input[7] = 33.082;
-        input[8] = 12.234;
-        input[9] = 43.998;
-        float res = mzUtils::kth_smallest(input, 10, 3);
-        REQUIRE(doctest::Approx(res) == 22.002);
     }
 
     TEST_CASE("Testinng Convert Datatypes")
@@ -1330,24 +1256,6 @@ TEST_SUITE("Testing mzUtils functions")
 
         float res = mzUtils::ttest(groupA, groupB);
         REQUIRE( doctest::Approx(res) == -0.758955);
-    }
-
-    TEST_CASE("Testing countBelow")
-    {
-        StatisticsVector<float> groupA;
-        groupA.push_back(10.002);
-        groupA.push_back(15.001);
-        groupA.push_back(22.002);
-        groupA.push_back(42.229);
-        groupA.push_back(28.992);
-        groupA.push_back(11.09);
-        groupA.push_back(12.091);
-        groupA.push_back(33.082);
-        groupA.push_back(12.234);
-        groupA.push_back(43.998);
-
-        int res = mzUtils::countBelow(groupA, 22.002);
-        REQUIRE(res == 5);
     }
 
     TEST_CASE("Testing fileExists")
@@ -1512,7 +1420,7 @@ TEST_SUITE("Testing mzUtils functions")
     {
         string str1 = "7648";
         string str2 = "7648";
-        bool res = mzUtils::strcasecmp_withNumbers(str1, str2);
+        bool res = mzUtils::compareStringsWithNumbers(str1, str2);
         REQUIRE(res == true);
     }
 
