@@ -231,7 +231,7 @@ void EicWidget::integrateRegion(float rtMin, float rtMax)
     getMainWindow()->isotopeWidget->setPeakGroupAndMore(integratedGroup, true);
 }
 
-void EicWidget::setFocusLine(float rt)
+void EicWidget::setFocusLine(float rt, QColor color)
 {
     // qDebug <<" EicWidget::setFocusLine(float rt)";
     _focusLineRt = rt;
@@ -240,9 +240,9 @@ void EicWidget::setFocusLine(float rt)
     if (_focusLine->scene() != scene())
         scene()->addItem(_focusLine);
 
-    QPen pen(Qt::red, 2, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
+    QPen pen(color, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
     _focusLine->setPen(pen);
-    _focusLine->setLine(toX(rt), toY(_minY), toX(rt), toY(_maxY));
+    _focusLine->setLine(toX(rt), 0, toX(rt), height());
 }
 
 void EicWidget::setScan(Scan* scan)
@@ -1118,12 +1118,15 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         showAllPeaks();
     }
 
-    if (_plottingMs2 && eicParameters->_slice.precursor != nullptr
-        && eicParameters->_slice.precursor->expectedRt() > 0.0f) {
-        _focusLineRt = eicParameters->_slice.precursor->expectedRt();
+    if (_plottingMs2 && group != nullptr) {
+        _focusLineRt = group->meanRt;
+        if (_focusLineRt > 0)
+            setFocusLine(_focusLineRt, Qt::black);
     } else if (group && group->getCompound() != nullptr
                && group->getCompound()->expectedRt() > 0) {
         _focusLineRt = group->getCompound()->expectedRt();
+        if (_focusLineRt > 0)
+            setFocusLine(_focusLineRt);
     } else {
         _focusLineRt = 0;
     }

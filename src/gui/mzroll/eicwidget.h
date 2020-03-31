@@ -71,7 +71,7 @@ class EicWidget : public QGraphicsView
     EicLine* addBaseLine(EIC* eic, double zValue = 0.0);
     void addTicLine();
     void addMergedEIC();
-    void setFocusLine(float rt);
+    void setFocusLine(float rt, QColor color = Qt::red);
     void addFocusLine(PeakGroup*);
     void addParentRtLine(shared_ptr<PeakGroup> group);
     void addBarPlot(shared_ptr<PeakGroup>);
