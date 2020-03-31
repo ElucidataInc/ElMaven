@@ -961,9 +961,7 @@ void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
                                                 precursorMz);
 
             // TODO: Let the user decide the parameters here
-            auto fragmentRegions = Deconvolution::modelPeakRegions(eic,
-                                                                   5,
-                                                                   10);
+            auto fragmentRegions = Deconvolution::modelPeakRegions(eic, 5);
             if (fragmentRegions.empty())
                 continue;
 

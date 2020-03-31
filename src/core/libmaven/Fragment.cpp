@@ -39,6 +39,7 @@ Fragment::Fragment(Scan* scan,
             j++) {
         this->mzValues.push_back(mzarray[j].second);
         this->intensityValues.push_back(mzarray[j].first);
+        this->_rtRegions.push_back(make_pair(0.0f, 0.0f));
     }
     this->obscount = vector<int>(this->mzValues.size(), 1);
     this->consensus = NULL;
@@ -211,11 +212,9 @@ void Fragment::buildConsensus(float productPpmTolr)
                 consensusFrag->intensityValues[posA] += intB;
                 consensusFrag->obscount[posA] += 1;
 
-                if (!rtRegions.empty()) {
-                    auto& thisRegion = consensusFrag->_rtRegions[posA];
-                    thisRegion.first = min(thisRegion.first, rtRegionB.first);
-                    thisRegion.second = max(thisRegion.second, rtRegionB.second);
-                }
+                auto& thisRegion = consensusFrag->_rtRegions[posA];
+                thisRegion.first = min(thisRegion.first, rtRegionB.first);
+                thisRegion.second = max(thisRegion.second, rtRegionB.second);
             } else if (posA == -1) {
                 //new entry if m/z does not fall within ppm tolerance of existing m/z
                 consensusFrag->insertFragment(mzB, intB, rtRegionB);
@@ -319,11 +318,14 @@ void Fragment::sortByIntensity()
     vector<int> order = intensityOrderDesc();
     vector<float> a(mzValues.size());
     vector<float> b(intensityValues.size());
+    vector<pair<float, float>> tempRtRegions(_rtRegions.size());
     vector<int> c(obscount.size());
     map<int, string> d;
     for(unsigned int i = 0; i < order.size(); i++) {
         b[i] = intensityValues[order[i]];
         a[i] = mzValues[order[i]];
+        if (order[i] < tempRtRegions.size())
+            tempRtRegions[i] = _rtRegions[order[i]];
         if(order[i] < obscount.size())
             c[i] = obscount[order[i]];
         if (annotations.count(order[i]) > 0)
@@ -332,6 +334,7 @@ void Fragment::sortByIntensity()
 
     mzValues = a;
     intensityValues = b;
+    _rtRegions = tempRtRegions;
     obscount = c;
     annotations = d;
 }	
@@ -341,18 +344,22 @@ void Fragment::sortByMz()
     vector<int> order = mzSortIncreasing();
     vector<float> tempMz(mzValues.size());
     vector<float> tempIntensity(intensityValues.size());
+    vector<pair<float, float>> tempRtRegions(_rtRegions.size());
     vector<int> tempObscount(obscount.size());
     map<int, string> tempAnnotations;
 
     for(unsigned int i = 0; i < order.size(); i++) {
         tempIntensity[i] = intensityValues[order[i]];
         tempMz[i] = mzValues[order[i]];
+        if (order[i] < tempRtRegions.size())
+            tempRtRegions[i] = _rtRegions[order[i]];
         tempObscount[i] = obscount[order[i]];
         if (annotations.count(order[i]) > 0) tempAnnotations[i] = annotations[order[i]];
     };
 
     mzValues = tempMz;
     intensityValues = tempIntensity;
+    _rtRegions = tempRtRegions;
     obscount = tempObscount;
     annotations = tempAnnotations;
 }	
