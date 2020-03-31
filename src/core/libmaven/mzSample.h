@@ -855,12 +855,35 @@ class mzSample
     vector<double> polynomialAlignmentTransformation;  // parameters for
                                                        // polynomial transform
 
+    /**
+     * @brief Get the limits of m/z range scanned at first MS level. This simply
+     * returns the scan window for the first MS1 scan for this sample - since
+     * they are all assumed to have the same scan range.
+     * @return A pair of floating point values, where the first value is the
+     * lower limit of MS1 scans and the second value is the upper limit of MS1
+     * scans.
+     */
+    pair<float, float> msScanWindow() const;
+
+    /**
+     * @brief Get the variable SWATH windows (if this sample contains DIA MS/MS
+     * scans), set during the acquisition process.
+     * @return A set of pairs of floating point values. Each pair represents a
+     * SWATH window, where the first value is its lower bound and the second
+     * value is its upper bound.
+     */
+    set<pair<float, float>> swathWindows() const
+    {
+        return _swathWindows;
+    }
+
     private:
     int _id;
     unsigned int _numMS1Scans;
     unsigned int _numMS2Scans;
     MsMsType _msMsType;
     unsigned int _numDIAScans;
+    set<pair<float, float>> _swathWindows;
 
     void sampleNaming(const char* filename);
     void checkSampleBlank(const char* filename);

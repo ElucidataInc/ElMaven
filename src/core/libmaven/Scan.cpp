@@ -25,6 +25,8 @@ Scan::Scan(mzSample* sample,
 	this->precursorIntensity = 0;
     this->_isolationWindow = 1.0f;
     this->_msType = msType;
+    this->_scanWindowLowerBound = 0.0f;
+    this->_scanWindowUpperBound = 0.0f;
     this->_swathWindowMin = 0.0f;
     this->_swathWindowMax = 0.0f;
 }
@@ -47,6 +49,7 @@ void Scan::deepcopy(Scan* b) {
     this->filterLine = b->filterLine;
     this->setPolarity( b->getPolarity() );
     this->originalRt = b->originalRt;
+    this->setScanWindow(b->scanWindowLowerBound(), b->scanWindowUpperBound());
     this->setIsolationWindow(b->isolationWindow());
     this->_msType = b->msType();
 }
@@ -647,6 +650,12 @@ double Scan::getPrecursorPurity(float ppm)
     }
 }
 
+void Scan::setScanWindow(const float lower, const float upper)
+{
+    _scanWindowLowerBound = lower;
+    _scanWindowUpperBound = upper;
+}
+
 void Scan::setIsolationWindow(const float window)
 {
     _isolationWindow = window;
@@ -655,7 +664,7 @@ void Scan::setIsolationWindow(const float window)
         _msType = MsType::DIA;
         _swathWindowMin = precursorMz - (isolationWindow() / 2.0f);
         _swathWindowMax = precursorMz + (isolationWindow() / 2.0f);
-    } else {
+    } else if (window > 0.0f) {
         _msType = MsType::DDA;
     }
 }

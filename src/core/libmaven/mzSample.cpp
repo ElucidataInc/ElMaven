@@ -98,8 +98,11 @@ void mzSample::addScan(Scan* s)
         ++_numMS1Scans;
     if (s->mslevel == 2 && s->msType() == Scan::MsType::DDA)
         ++_numMS2Scans;
-    if (s->mslevel == 2 && s->msType() == Scan::MsType::DIA)
+    if (s->mslevel == 2 && s->msType() == Scan::MsType::DIA) {
+        _swathWindows.insert(make_pair(s->swathWindowMin(),
+                                       s->swathWindowMax()));
         ++_numDIAScans;
+    }
 
     scans.push_back(s);
     s->scannum = scans.size() - 1;
@@ -188,6 +191,12 @@ void mzSample::loadSample(string filename)
 
     // Checking if a sample is blank or not
     checkSampleBlank(filename.c_str());
+
+    // TODO: remove later; adding for benchmarking purposes
+    auto ms1Window = msScanWindow();
+    cerr << "MS Window: " << ms1Window.first << " " << ms1Window.second << endl;
+    for (const auto& window : _swathWindows)
+        cerr << "SWATH Window: " << window.first << " " << window.second << endl;
 }
 
 void mzSample::parseMzCSV(const char* filename)
@@ -535,6 +544,20 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
             rt = string2float(rtStr) / 60.0f;
         }
 
+        float scanWindowLowerBound = 0.0f;
+        float scanWindowUpperBound = 0.0f;
+        xml_node scanWindowNode =
+            scanNode.first_element_by_path("scanWindowList/scanWindow");
+        map<string, string> scanWindowAttr = mzML_cvParams(scanWindowNode);
+        if (scanWindowAttr.count("scan window lower limit")) {
+            string mzStr = scanWindowAttr["scan window lower limit"];
+            scanWindowLowerBound = string2float(mzStr);
+        }
+        if (scanWindowAttr.count("scan window upper limit")) {
+            string mzStr = scanWindowAttr["scan window upper limit"];
+            scanWindowUpperBound = string2float(mzStr);
+        }
+
         if (scanAttr.count("filter string")) {
             spectrumId = scanAttr["filter string"];
         }
@@ -560,8 +583,8 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
         if (string2float(precursorIsolationStrUpper) > 0.0f)
             precursorIsolationWindow +=
                 string2float(precursorIsolationStrUpper);
-        if (precursorIsolationWindow <= 0.0f)
-            precursorIsolationWindow = 1.0f;
+        if (precursorIsolationWindow < 0.0f)
+            precursorIsolationWindow = 0.0f;
 
         string productMzStr =
             spectrum.first_element_by_path("product/isolationWindow/cvParam")
@@ -609,6 +632,7 @@ void mzSample::parseMzMLSpectrumList(const xml_node& spectrumList)
 
         Scan* scan =
             new Scan(this, scannum++, mslevel, rt, precursorMz, scanpolarity);
+        scan->setScanWindow(scanWindowLowerBound, scanWindowUpperBound);
         scan->setIsolationWindow(precursorIsolationWindow);
         scan->productMz = productMz;
         scan->filterLine = spectrumId;
@@ -2046,6 +2070,17 @@ void mzSample::applyPolynomialTransform()
         // newrt << endl;
         scans[i]->rt = newrt;
     }
+}
+
+pair<float, float> mzSample::msScanWindow() const
+{
+    for (const auto scan : scans) {
+        if (scan->msType() == Scan::MsType::MS1) {
+            return make_pair(scan->scanWindowLowerBound(),
+                             scan->scanWindowUpperBound());
+        }
+    }
+    return make_pair(0.0f, 0.0f);
 }
 
 mzLink::mzLink()
