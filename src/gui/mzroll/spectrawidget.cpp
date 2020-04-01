@@ -921,15 +921,22 @@ void SpectraWidget::addAxes()
 }
 
 float SpectraWidget::toY(float y, float scale, float offset)
-{ 
-    float height = scene()->height();
-    return(height - (((y - _minY) / (_maxY - _minY) * height) * scale) + offset);
-}
-
-float SpectraWidget::invY(float y)
 {
     float height = scene()->height();
-    return  -1 * ((y - height) / scene()->height() * (_maxY - _minY) + _minY);
+    return height - ((y - _minY) / (_maxY - _minY) * height * scale) + offset;
+}
+
+float SpectraWidget::invY(float y, float scale, float offset)
+{
+    // NOTE: The conversion in this function is lossy. Calling `invY` on the
+    // return value of `toY` will not give back the original intensity value:
+    // invY(toY(y)) != y. This is because the actual coordinates of the widget's
+    // scene has less precision than intensity (or even mz) values. A range of
+    // intensity values will map to the same geometric y-coordinate. This effect
+    // gets exaggerated for fragmentation matching which uses even less vertical
+    // space per spectra.
+    float height = scene()->height();
+    return ((height - y + offset) * (_maxY - _minY) / height / scale) + _minY;
 }
 
 void SpectraWidget::mousePressEvent(QMouseEvent *event)
@@ -1072,7 +1079,13 @@ void SpectraWidget::mouseMoveEvent(QMouseEvent* event)
     int nearestPos = findNearestMz(pos);
     if (nearestPos >= 0) {
 		_nearestCoord = QPointF(_currentScan->mz[nearestPos], _currentScan->intensity[nearestPos]);
-		drawArrow(_currentScan->mz[nearestPos], _currentScan->intensity[nearestPos], invX(pos.x()), invY(pos.y()));
+        float ycoord = invY(pos.y());
+        if (_showOverlay)
+            ycoord = invY(pos.y(), 0.45, -scene()->height() / 2.0);
+        drawArrow(_currentScan->mz[nearestPos],
+                  _currentScan->intensity[nearestPos],
+                  invX(pos.x()),
+                  ycoord);
     } else {
         _vnote->hide(); _note->hide(); _varrow->hide(); _arrow->hide();
     }
@@ -1086,15 +1099,17 @@ int SpectraWidget::findNearestMz(QPointF pos)
     float mzmin = invX(pos.x() - 50);
     float mzmax = invX(pos.x() + 50);
     float ycoord = invY(pos.y());
-    int best = -1;
+    if (_showOverlay)
+        ycoord = invY(pos.y(), 0.45, -scene()->height() / 2.0);
 
+    int best = -1;
 	vector<int> matches = _currentScan->findMatchingMzs(mzmin,mzmax);
     if (matches.size() > 0) {
-        float dist = FLT_MAX;
+        float dist = numeric_limits<float>::max();
         for(int i = 0; i < matches.size(); i++) {
             int p = matches[i];
-                        float d = sqrt(SQUARE(_currentScan->intensity[p] - ycoord) +
-                                SQUARE(_currentScan->mz[p] - mz));
+            float d = hypotf(_currentScan->intensity[p] - ycoord,
+                             _currentScan->mz[p] - mz);
             if (d < dist) { best = p; dist = d; }
         }
     }

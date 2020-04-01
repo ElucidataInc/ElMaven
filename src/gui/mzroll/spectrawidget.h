@@ -138,7 +138,7 @@ public:
                     float toX(float x)  { return( (x-_minX)/(_maxX-_minX) * scene()->width()); }
                     float toY(float y, float scale = 1.0, float offset = 0);
                     float invX(float x) { return (x/scene()->width())  * (_maxX-_minX) + _minX; }
-                    float invY(float y);
+                    float invY(float y, float scale = 1.0f, float offset = 0.0f);
 
                     int findNearestMz(QPointF pos);
                     void drawArrow(float mz1, float int1, float mz2, float ints2);
