@@ -706,7 +706,11 @@ void SpectraWidget::drawGraph()
     } else
         setScanTitle();
 
+    // TODO: show Y-axis correctly for both reference and observed spectra,
+    // hiding Y-axis until then
+    _drawYAxis = false;
     addAxes();
+    _drawYAxis = true;
 }
 
 void SpectraWidget::findBounds(bool checkX, bool checkY)
