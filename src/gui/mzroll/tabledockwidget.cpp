@@ -1117,82 +1117,100 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
   updateCompoundWidget();
 }
 
-void TableDockWidget::deleteGroups() {
+void TableDockWidget::deleteGroups()
+{
+    if (treeWidget->selectedItems().size() == 0) {
+        return;
+    }
 
-  QList<PeakGroup *> selectedGroups;
-  QTreeWidgetItem *nextItem;
+    PeakGroup* group = nullptr;
+    vector<QTreeWidgetItem*> toDelete;
+    auto selectedItems = treeWidget->selectedItems();
+    QTreeWidgetItem* nextItem = treeWidget->itemBelow(selectedItems.last());
 
-  if (treeWidget->selectedItems().size() == 0) {
-    return;
-  }
+    Q_FOREACH(QTreeWidgetItem* item, selectedItems)
+    {
+        if(item){
+            auto v = item->data(0, Qt::UserRole);
+            group = v.value<PeakGroup*>();
 
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      nextItem = treeWidget->itemBelow(item);
-      QVariant v = item->data(0, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group != NULL) {
-        PeakGroup *parentGroup = group->parent;
-        int childrenNum = -1;
-        if (parentGroup == NULL) {
-            // top level item
-            if (nextItem) {
-                QVariant vc = nextItem->data(0, Qt::UserRole);
-                PeakGroup *groupc = vc.value<PeakGroup *>();
-            	if (groupc->isIsotope())
-            		nextItem = nextItem->parent();
-            }
-            deleteGroup(group);
-        } else if (parentGroup && parentGroup->childCount()) {
-            // this a child item
-            childrenNum = parentGroup->childCount();
-            if (parentGroup->deleteChild(group)) {
-                QTreeWidgetItem *parentItem = item->parent();
-                if (parentItem) {
-                    parentItem->removeChild(item);
-                    delete (item);
+            if (group != NULL){
+                auto parentGroup = group->parent;
+                int childrenNum = -1;
+                if(parentGroup == NULL){
+                    item ->setHidden(true);
+                    if(group->children.size() > 0)
+                        _labeledGroups--;
+                    if(group->getCompound())
+                        _targetedGroups--;
+                    toDelete.push_back(item);
+                } else if (parentGroup &&
+                           parentGroup->childCount()){
+                    // this a child item
+                    childrenNum = parentGroup->childCount();
+                    if (parentGroup->deleteChild(group)) {
+                        QTreeWidgetItem* parentItem = item->parent();
+                        if (parentItem) {
+                            parentItem->removeChild(item);
+                            toDelete.push_back(item);
+                            // once a child is deleted, the pointers storing the
+                            // location of memory blocks of child `PeakGroup`
+                            // objects, may no longer be valid, therefore we
+                            // update them.
+                            for (int i = 0; i < parentItem->childCount(); ++i) {
+                                QTreeWidgetItem* child = parentItem->child(i);
+                                if (!child)
+                                    continue;
 
-                    // once a child is deleted, the pointers storing the
-                    // location of memory blocks of child `PeakGroup` objects,
-                    // may no longer be valid, therefore we update them.
-                    for (int i = 0; i < parentItem->childCount(); ++i) {
-                        QTreeWidgetItem* child = parentItem->child(i);
-                        if (!child)
-                            continue;
-
-                        auto name = child->text(1).toStdString();
-                        auto childGroupIter =
-                            find_if(begin(parentGroup->children),
-                                    end(parentGroup->children),
-                                    [&](PeakGroup& g) {
-                                        return g.getName() == name;
-                                    });
-                        if (childGroupIter != end(parentGroup->children)) {
-                            auto& childGroup = *childGroupIter;
-                            child->setData(0,
-                                           Qt::UserRole,
-                                           QVariant::fromValue(&childGroup));
+                                auto name = child->text(1).toStdString();
+                                auto childGroupIter =
+                                    find_if(begin(parentGroup->children),
+                                            end(parentGroup->children),
+                                            [&](PeakGroup& g) {
+                                                return g.getName() == name;
+                                            });
+                                if (childGroupIter
+                                    != end(parentGroup->children)) {
+                                    auto& childGroup = *childGroupIter;
+                                    child->setData(
+                                        0,
+                                        Qt::UserRole,
+                                        QVariant::fromValue(&childGroup));
+                                }
+                            }
                         }
+                    }
+                }else if (parentGroup != NULL){
+                    if (childrenNum == parentGroup->childCount()) {
+                        item->setHidden(true);
+                        if (group->children.size() > 0)
+                            _labeledGroups--;
+                        if (group->getCompound())
+                            _targetedGroups--;
+                        toDelete.push_back(item);
                     }
                 }
             }
         }
-        if (parentGroup != NULL) {
-        	if (childrenNum == parentGroup->childCount()) {
-            	deleteGroup(group);
-            	nextItem = treeWidget->itemBelow(item->parent());
+        int pos = -1;
+        for (int i = 0; i < allgroups.size(); i++) {
+            if (&allgroups[i] == group) {
+                pos = i;
+                break;
             }
         }
-      }
+        allgroups.erase(allgroups.begin() + pos);
     }
-  }
-  if (nextItem)
-    treeWidget->setCurrentItem(nextItem, 0);
-  _mainwindow->getEicWidget()->replotForced();
-  showSelectedGroup();
-  _mainwindow->getEicWidget()->addPeakPositions();
 
-  return;
+    if(nextItem){
+        treeWidget->setCurrentItem(nextItem);
+    }
+
+    Q_FOREACH (QTreeWidgetItem* item, toDelete) {
+        delete(item);
+    }
+
+    return;
 }
 
 void TableDockWidget::setClipboard() {
