@@ -378,7 +378,7 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit)
         int y = toY((hitIntensity / maxIntensity) * _maxY, SCALE);
 
         QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, toY(0), 0);
-        pos > 0 ? line->setPen(bluepen) : line->setPen(redpen);
+        pos >= 0 ? line->setPen(bluepen) : line->setPen(redpen);
         scene()->addItem(line);
         _items.push_back(line);
 
@@ -522,7 +522,7 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
 {
     float _focusedMz = _focusCoord.x();
 
-    QPen slineColor(sampleColor, 2);
+    QPen slineColor(sampleColor, 1);
     EicLine* sline = new EicLine(NULL, scene());
     sline->setColor(sampleColor);
     sline->setPen(slineColor);
@@ -532,9 +532,6 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
         QBrush slineFill(sampleColor);
         sline->setFillPath(true);
         sline->setBrush(slineFill);
-    } else {
-        sline->setClosePath(false);
-        sline->setFillPath(false);
     }
 
     float SCALE = 1.0;
@@ -545,8 +542,8 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
     }
 
     int yzero = toY(0, SCALE, OFFSET);
-    sline->addPoint(toX(_maxX),yzero);
-    sline->addPoint(toX(_minX),yzero);
+    sline->addPoint(toX(_maxX), yzero + 1);
+    sline->addPoint(toX(_minX), yzero + 1);
     
     for (int j = 0; j < scan->nobs(); j++) {
         if ( scan->mz[j] < _minX  || scan->mz[j] > _maxX ) continue;
@@ -554,21 +551,29 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
         int y = toY(scan->intensity[j], SCALE, OFFSET);
 
         if (_profileMode) {
-               sline->addPoint(x, y);
+            sline->addPoint(x, y);
         } else {
-                sline->addPoint(x, yzero);
-                sline->addPoint(x, y);
+            QPen pen(sampleColor, 2);
+            QGraphicsLineItem* line = new QGraphicsLineItem(x, y,
+                                                            x, yzero,
+                                                            nullptr);
+            scene()->addItem(line);
+            line->setPen(pen);
+            _items.push_back(line);
         }
 
         if (!mzUtils::almostEqual(_focusedMz, 0.0f)
             && abs(scan->mz[j] - _focusedMz) < 0.005) {
             QPen redpen(Qt::red, 3);
-            QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, yzero, 0);
+            QGraphicsLineItem* line = new QGraphicsLineItem(x, y,
+                                                            x, yzero,
+                                                            nullptr);
             scene()->addItem(line);
             line->setPen(redpen);
             _items.push_back(line);
         }
     }
+    scene()->update();
 }
 
 void SpectraWidget::drawScanSet(vector<Scan*>& scanset) {
