@@ -469,6 +469,7 @@ void SpectraWidget::clearGraph() {
         if(_items[i] != NULL) delete(_items[i]); _items[i]=NULL;
     }
     _items.clear();
+    _scanPeaks.clear();
     scene()->setSceneRect(10,10,this->width()-10, this->height()-10);
 }
 
@@ -598,6 +599,8 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
         if ( scan->mz[j] < _minX  || scan->mz[j] > _maxX ) continue;
         int x = toX(scan->mz[j]);
         int y = toY(scan->intensity[j], SCALE, OFFSET);
+        if (scan == _currentScan)
+            _scanPeaks[j] = make_pair(x, y);
 
         if (_profileMode) {
             sline->addPoint(x, y);
@@ -960,7 +963,7 @@ void SpectraWidget::mouseReleaseEvent(QMouseEvent *event)
     int deltaX = _mouseEndPos.x() - _mouseStartPos.x();
     float deltaXfrac = (float) deltaX / (width() + 1);
 
-    auto nearest = findNearestMz(_mouseEndPos);
+    auto nearest = findNearestPeakPos(_mouseEndPos);
     if (mainwindow->massCalcWidget->isVisible())
         mainwindow->massCalcWidget->setMass(_currentScan->mz[nearest]);
 
@@ -1076,7 +1079,7 @@ void SpectraWidget::mouseMoveEvent(QMouseEvent* event)
     }
 
 
-    int nearestPos = findNearestMz(pos);
+    int nearestPos = findNearestPeakPos(pos);
     if (nearestPos >= 0) {
 		_nearestCoord = QPointF(_currentScan->mz[nearestPos], _currentScan->intensity[nearestPos]);
         float ycoord = invY(pos.y());
@@ -1093,27 +1096,21 @@ void SpectraWidget::mouseMoveEvent(QMouseEvent* event)
 
 }
 
-int SpectraWidget::findNearestMz(QPointF pos)
+int SpectraWidget::findNearestPeakPos(QPointF pos)
 {
-    float mz = invX(pos.x());
-    float mzmin = invX(pos.x() - 50);
-    float mzmax = invX(pos.x() + 50);
-    float ycoord = invY(pos.y());
-    if (_showOverlay)
-        ycoord = invY(pos.y(), 0.45, -scene()->height() / 2.0);
-
-    int best = -1;
-	vector<int> matches = _currentScan->findMatchingMzs(mzmin,mzmax);
-    if (matches.size() > 0) {
-        float dist = numeric_limits<float>::max();
-        for(int i = 0; i < matches.size(); i++) {
-            int p = matches[i];
-            float d = hypotf(_currentScan->intensity[p] - ycoord,
-                             _currentScan->mz[p] - mz);
-            if (d < dist) { best = p; dist = d; }
+    float nearestPos = -1;
+    float leastDist = numeric_limits<float>::max();
+    for (const auto& elem : _scanPeaks) {
+        auto peakIndex = elem.first;
+        auto& coordinates = elem.second;
+        float dist = hypotf(coordinates.first - pos.x(),
+                            coordinates.second - pos.y());
+        if (dist < leastDist) {
+            nearestPos = peakIndex;
+            leastDist = dist;
         }
     }
-    return best;
+    return nearestPos;
 }
 
 void SpectraWidget::drawArrow(float mz1, float intensity1, float mz2, float intensity2)

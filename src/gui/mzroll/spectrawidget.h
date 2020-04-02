@@ -95,6 +95,13 @@ public:
                     Scan* _avgScan;
                     vector<Scan*>_scanset;
 
+                    /**
+                     * @brief Maps peak positions of the current scan being
+                     * displayed to x-y coordinates. This can be used for a
+                     * precise estimation of peaks closest to a scene position.
+                     */
+                    map<int, pair<float, float>> _scanPeaks;
+
                     vector<mzLink> links;
                     bool  _drawXAxis;
                     bool  _drawYAxis;
@@ -140,7 +147,7 @@ public:
                     float invX(float x) { return (x/scene()->width())  * (_maxX-_minX) + _minX; }
                     float invY(float y, float scale = 1.0f, float offset = 0.0f);
 
-                    int findNearestMz(QPointF pos);
+                    int findNearestPeakPos(QPointF pos);
                     void drawArrow(float mz1, float int1, float mz2, float ints2);
 
                     void setDrawXAxis(bool flag) { _drawXAxis = flag; }
