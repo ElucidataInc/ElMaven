@@ -202,7 +202,6 @@ HEADERS += stable.h \
            peakdetectiondialog.h \
            pollyelmaveninterface.h \
            comparesamplesdialog.h \
-           traindialog.h \
            tabledockwidget.h  \
            treedockwidget.h  \
            heatmap.h  \
@@ -282,7 +281,6 @@ SOURCES += mainwindow.cpp  \
            peakdetectiondialog.cpp \
            pollyelmaveninterface.cpp \
            comparesamplesdialog.cpp \
-           traindialog.cpp \
            line.cpp  \
            heatmap.cpp \
            treemap.cpp \
