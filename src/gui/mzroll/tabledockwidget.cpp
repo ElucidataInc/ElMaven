@@ -1440,8 +1440,13 @@ void TableDockWidget::printPdfReport() {
     qDebug() << "PrinterState:" << printer.printerState();
   }
 
+  QList<PeakGroup *> selected;
   // PDF report only for selected groups
-  QList<PeakGroup *> selected = getSelectedGroups();
+  if(peakTableSelection == peakTableSelectionType::Selected)
+    selected = getSelectedGroups();
+  else{
+    selected = getGroups();
+  }
 
   for (int i = 0; i < selected.size(); i++) {
     PeakGroup *grp = selected[i];
@@ -2088,8 +2093,23 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QToolButton *btnPDF = new QToolButton(parent);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
     btnPDF->setToolTip("Generate PDF Report");
-    connect(btnPDF, SIGNAL(clicked()), td, SLOT(printPdfReport()));
-    connect(btnPDF, SIGNAL(clicked()), td, SLOT(showNotification()));
+    btnPDF->setMenu(new QMenu("Export Groups"));
+    btnPDF->setPopupMode(QToolButton::InstantPopup);
+    QAction *exportSelected =
+        btnPDF->menu()->addAction(tr("Export selected groups"));
+    QAction *exportAll =
+        btnPDF->menu()->addAction(tr("Export all groups"));
+
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+
+
     return btnPDF;
   } else if (btnName == "btnX") {
 
