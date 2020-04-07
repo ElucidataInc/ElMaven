@@ -5,6 +5,7 @@
 #include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "deconvolution.h"
+#include "fragmentdetection.h"
 #include "mzSample.h"
 #include "EIC.h"
 #include "Scan.h"
@@ -176,8 +177,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedBadByCloudModel = o.markedBadByCloudModel;
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
-    _tableName = o.tableName();
-
+    setFragmentGroups(o.fragmentGroups());
     copyChildren(o);
     _parameters = make_shared<MavenParameters>(*(o.parameters().get()));
     _integrationType = o.integrationType();
@@ -918,115 +918,10 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
             hasDdaSamples = true;
     }
     if (hasDiaSamples) {
-        _computeDiaFragPattern(productPpmTolr);
+        FragmentDetection::findFragments(this);
     } else if (hasDdaSamples) {
         _computeDdaFragPattern(productPpmTolr);
     }
-}
-
-void PeakGroup::_computeDiaFragPattern(float productPpmTolr)
-{
-    auto compound = getCompound();
-    if (compound == nullptr)
-        return;
-
-    Fragment fragment(Fragment::MsType::DIA);
-    auto precursorMz = compound->adjustedMass(compound->charge());
-    MassCutoff massCutoff;
-    massCutoff.setMassCutoffAndType(productPpmTolr, "ppm");
-
-    for (const auto& peak : peaks) {
-        Fragment* peakFragmentProfile = new Fragment(Fragment::MsType::DIA);
-        NimbleDSP::RealVector<float> rtValues;
-        NimbleDSP::RealVector<float> intensityValues;
-
-        for (const auto expFragMz : compound->fragmentMzValues()) {
-            // set min/max m/z to cover one fragment at a time
-            float mzMin = expFragMz - massCutoff.massCutoffValue(expFragMz);
-            float mzMax = expFragMz + massCutoff.massCutoffValue(expFragMz);
-
-            // set RT range will be peak-top's RT ± 1.5 * width
-            float peakWidth = peak.rtmax - peak.rtmin;
-            float rtMin = peak.rt - peakWidth * 1.5f;
-            float rtMax = peak.rt + peakWidth * 1.5f;
-
-            // fetch MS/MS EIC of the fragment's slice
-            EIC* eic = peak.getSample()->getEIC(mzMin,
-                                                mzMax,
-                                                rtMin,
-                                                rtMax,
-                                                2,
-                                                EIC::SUM,
-                                                "",
-                                                precursorMz);
-
-            // TODO: Let the user decide the parameters here
-            auto fragmentRegions = Deconvolution::modelPeakRegions(eic, 5);
-            if (fragmentRegions.empty())
-                continue;
-
-            // deconvolute the EIC and get the signal closest to peak's RT
-            float fragmentMz = 0.0f;
-            float fragmentRt = 0.0f;
-            float rtDiff = 0.05; // TODO: this default should be set by the user
-            pair<size_t, size_t> regionOfInterest = {0, 0};
-            for (const auto& region : fragmentRegions) {
-                auto signal = eic->intensitySegment(region.first,
-                                                    region.second,
-                                                    true);
-                size_t peakTop = distance(begin(signal),
-                                          max_element(begin(signal),
-                                                      end(signal)));
-                if (fabs(eic->rt[region.first + peakTop] - peak.rt) < rtDiff) {
-                    regionOfInterest = region;
-                    fragmentMz = eic->mz[region.first + peakTop];
-                    fragmentRt = eic->rt[region.first + peakTop];
-                    rtDiff = eic->rt[region.first + peakTop] - peak.rt;
-                }
-            }
-            if (regionOfInterest.first == 0 && regionOfInterest.second == 0)
-                continue;
-
-            // region of peak in RT
-            auto rtRegion = make_pair(eic->rt[regionOfInterest.first],
-                                      eic->rt[regionOfInterest.second]);
-
-            auto convoluted = Deconvolution::convolutedSignals(regionOfInterest,
-                                                               fragmentRegions,
-                                                               eic);
-            auto chromatogram = eic->intensitySegment(convoluted.leftBound,
-                                                      convoluted.rightBound,
-                                                      true);
-            vector<float> fragmentSignal = Deconvolution::execute(convoluted,
-                                                                  chromatogram);
-
-            // corrected area of its signal is the fragment's "pure" intensity
-            float fragmentIntensity = accumulate(begin(fragmentSignal),
-                                                 end(fragmentSignal),
-                                                 0.0f);
-
-            // store fragment's values
-            peakFragmentProfile->insertFragment(fragmentMz,
-                                                fragmentIntensity,
-                                                rtRegion);
-            rtValues.vec.push_back(fragmentRt);
-            intensityValues.vec.push_back(fragmentIntensity);
-        }
-        if (intensityValues.vec.empty() || rtValues.vec.empty())
-            continue;
-
-        peakFragmentProfile->obscount = vector<int>(intensityValues.size(), 1);
-        peakFragmentProfile->rt = rtValues.mean();
-        fragment.addBrotherFragment(peakFragmentProfile);
-
-        // TODO: this is wrong, temporarily using this to evade group fitlering
-        ++ms2EventCount;
-    }
-
-    // build a consensus spectrum across all peaks
-    fragment.buildConsensus(productPpmTolr);
-    fragment.consensus->sortByMz();
-    fragmentationPattern = fragment.consensus;
 }
 
 Scan* PeakGroup::getAverageFragmentationScan(float productPpmTolr)
@@ -1125,4 +1020,9 @@ void PeakGroup::setTableName(string tableName)
     _tableName = tableName;
     for (auto child : children)
         child->setTableName(tableName);
+}
+
+void PeakGroup::setFragmentGroups(const vector<PeakGroup> &groups)
+{
+    _fragmentGroups = groups;
 }

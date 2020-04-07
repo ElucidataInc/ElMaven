@@ -710,8 +710,8 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
     vector<mzSample*> samples = mainwindow->getSamples();
     //TODO Sabu: This has to be taken care in a better way 
     if (samples.size() > 0) {
-        settings->setValue("avgScanTime", 
-                samples[0]->getAverageFullScanTime());
+        settings->setValue("avgScanTime",
+                samples[0]->getAverageScanTime());
     }
     // Time domain resolution(scans)
 }

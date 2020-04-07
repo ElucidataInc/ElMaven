@@ -640,6 +640,9 @@ class PeakGroup{
             return _integrationType;
         }
 
+        vector<PeakGroup> fragmentGroups() const { return _fragmentGroups; }
+        void setFragmentGroups(const vector<PeakGroup>& groups);
+
     private:
         Adduct* _adduct;
         mzSlice _slice;
@@ -649,6 +652,8 @@ class PeakGroup{
         shared_ptr<MavenParameters> _parameters;
         IntegrationType _integrationType;
 
+        vector<PeakGroup> _fragmentGroups;
+
         /**
          * @brief Generate a consensus fragmentation profile for this group,
          * assuming the rules for DDA mode of acquisition.
@@ -656,14 +661,5 @@ class PeakGroup{
          * distinguish individual fragments.
          */
         void _computeDdaFragPattern(float productPpmTolr);
-
-        /**
-         * @brief Generate a consensus fragmentation profile for this group,
-         * assuming the rules for DIA mode of acquisition.
-         * @param productPpmTolr The m/z tolerance that should be used to
-         * centroid MS/MS spectra (for deconvolution) as well as distinguish
-         * individual fragments
-         */
-        void _computeDiaFragPattern(float productPpmTolr);
 };
 #endif

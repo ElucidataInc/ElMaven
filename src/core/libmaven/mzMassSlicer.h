@@ -113,6 +113,19 @@ class MassSlices {
 	    void setMavenParameters(MavenParameters* mp) { mavenParameters = mp;}
         void stopSlicing();
 
+        /**
+         * @brief Set the MS level at which slices will be generated. If MS
+         * level is 2, for swath data, then precursor m/z should be provided,
+         * so that the correct SWATH window is used for scans.
+         * @param msLevel An integer specifying the MS level.
+         * @param precursorMz Optional m/z of precursor ion, whose SWATH window
+         * will be used for creating slices, if data is DIA.
+         */
+        void setMsLevel(int msLevel, float precursorMz = 0.0f) {
+            _msLevel = msLevel;
+            _precursorMz = precursorMz;
+        }
+
     private:
         unsigned int _maxSlices;
         float _minRt;
@@ -123,6 +136,8 @@ class MassSlices {
         float _minIntensity;
         int _minCharge;
         int _maxCharge;
+        int _msLevel;
+        float _precursorMz;
         MassCutoff *massCutoff;
 
         vector<mzSample*> samples;

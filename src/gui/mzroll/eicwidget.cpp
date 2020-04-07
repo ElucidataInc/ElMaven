@@ -1660,8 +1660,8 @@ void EicWidget::setMzSlice(const mzSlice& slice)
 {
     eicParameters->setDisplayedGroup(nullptr);
     eicParameters->setSelectedGroup(nullptr);
-    eicParameters->_slice.precursor = slice.precursor;
-    if (eicParameters->_slice.precursor == nullptr) {
+    eicParameters->_slice.precursorMz = slice.precursorMz;
+    if (eicParameters->_slice.isMsMsSlice()) {
         _plottingMs2 = false;
     } else {
         _plottingMs2 = true;
@@ -1810,7 +1810,7 @@ void EicWidget::showFragment(Compound* precursor, float fragmentMz)
                                   - massCutoff.massCutoffValue(fragmentMz);
     eicParameters->_slice.mzmax = fragmentMz
                                   + massCutoff.massCutoffValue(fragmentMz);
-    eicParameters->_slice.precursor = precursor;
+    eicParameters->_slice.precursorMz = precursor->adjustedMass(mp->charge);
 
     _plottingMs2 = true;
     cleanup();

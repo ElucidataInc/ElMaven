@@ -18,6 +18,8 @@ MassSlices::MassSlices()
     _maxRt=FLT_MAX; _maxMz=FLT_MAX; _maxIntensity=FLT_MAX;
     _minCharge=0; _maxCharge=INT_MAX;
     massCutoff=NULL;
+    _msLevel = 1;
+    _precursorMz = -1.0f;
 }
 
 MassSlices::~MassSlices() { delete_all(slices); cache.clear(); }
@@ -94,12 +96,14 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
         rtWindow = accumulate(begin(samples),
                               end(samples),
                               0.0f,
-                              [rtStep](float sum, mzSample* sample) {
-                                  return sum + (sample->getAverageFullScanTime()
-                                                * rtStep);
+                              [rtStep, this](float sum, mzSample* sample) {
+                                  return sum
+                                         + (sample->getAverageScanTime(_msLevel)
+                                            * rtStep);
                               }) / static_cast<float>(samples.size());
     }
-    cerr << "RT window used: " << rtWindow << endl;
+    if (_msLevel == 1)
+        cerr << "RT window used: " << rtWindow << endl;
 
     sendSignal("Status", 0 , 1);
 
@@ -135,8 +139,13 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
 
             currentScans++;
 
-            if (scan->mslevel != 1)
+            if (scan->mslevel != _msLevel)
                 continue;
+            if (scan->msType() == Scan::MsType::DIA
+                && (_precursorMz < scan->swathWindowMin()
+                    || _precursorMz > scan->swathWindowMax())) {
+                continue;
+            }
 
             // Checking if RT is in the given min to max RT range
             if (_maxRt && !isBetweenInclusive(scan->rt, _minRt, _maxRt))
@@ -169,6 +178,7 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
                 s->ionCount = intensity;
                 s->rt = scan->rt;
                 s->mz = mz;
+                s->precursorMz = _precursorMz;
                 slices.push_back(s);
             }
 
@@ -186,7 +196,8 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
         }
     }
 
-    cerr << "Found " << slices.size() << " slices" << endl;
+    if (_msLevel == 1)
+        cerr << "Found " << slices.size() << " slices" << endl;
 
     // before reduction sort by mz first then by rt
     sort(begin(slices),
@@ -199,16 +210,19 @@ void MassSlices::algorithmB(MassCutoff* massCutoff, int rtStep )
          });
     _reduceSlices();
 
-    cerr << "Reduced to " << slices.size() << " slices" << endl;
+    if (_msLevel == 1)
+        cerr << "Reduced to " << slices.size() << " slices" << endl;
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
     _mergeSlices(massCutoff, rtWindow);
     adjustSlices();
 
-    cerr << "After final merging and adjustments, "
-         << slices.size()
-         << " slices remain"
-         << endl;
+    if (_msLevel == 1) {
+        cerr << "After final merging and adjustments, "
+             << slices.size()
+             << " slices remain"
+             << endl;
+    }
     sendSignal("Mass slicing done.", 1 , 1);
 }
 
@@ -534,16 +548,18 @@ pair<bool, bool> MassSlices::_compareSlices(vector<mzSample*>& samples,
                                       mzMax,
                                       rtMin,
                                       rtMax,
+                                      _msLevel,
                                       1,
-                                      1,
-                                      "");
+                                      "",
+                                      _precursorMz);
             auto comparisonEic = sample->getEIC(comparisonMzMin,
                                                 comparisonMzMax,
                                                 comparisonRtMin,
                                                 comparisonRtMax,
+                                                _msLevel,
                                                 1,
-                                                1,
-                                                "");
+                                                "",
+                                                _precursorMz);
             eicValues.push_back({eic->maxIntensity,
                                  eic->rtAtMaxIntensity,
                                  eic->mzAtMaxIntensity});
@@ -605,9 +621,15 @@ void MassSlices::adjustSlices()
         auto eics = PeakDetector::pullEICs(slice,
                                            mavenParameters->samples,
                                            mavenParameters);
+        int numZeroEics = 0;
         float highestIntensity = 0.0f;
         float mzAtHighestIntensity = 0.0f;
         for (auto eic : eics) {
+            if (almostEqual(eic->maxIntensity, 0.0f)) {
+                ++numZeroEics;
+                continue;
+            }
+
             size_t size = eic->intensity.size();
             for (int i = 0; i < size; ++i) {
                 if (eic->spline[i] > highestIntensity) {
@@ -616,15 +638,28 @@ void MassSlices::adjustSlices()
                 }
             }
         }
-        float cutoff = mavenParameters->massCutoffMerge
-                                      ->massCutoffValue(mzAtHighestIntensity);
-        slice->mzmin =  mzAtHighestIntensity - cutoff;
-        slice->mzmax =  mzAtHighestIntensity + cutoff;
-        slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
+        if (numZeroEics == eics.size()) {
+            // this slice has no data
+            slice->ionCount = -1.0f;
+        } else {
+            float cutoff = mavenParameters->massCutoffMerge
+                                          ->massCutoffValue(mzAtHighestIntensity);
+            slice->mzmin =  mzAtHighestIntensity - cutoff;
+            slice->mzmax =  mzAtHighestIntensity + cutoff;
+            slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
+        }
 
         delete_all(eics);
 
         ++progressCount;
         sendSignal("Adjusting slices…", progressCount, slices.size());
     }
+
+    // remove empty slices
+    slices.erase(remove_if(slices.begin(),
+                           slices.end(),
+                           [](mzSlice* slice) {
+                               return (slice->ionCount == -1.0f);
+                           }),
+                 slices.end());
 }

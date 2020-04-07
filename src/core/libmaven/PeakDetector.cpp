@@ -2,6 +2,7 @@
 #include "datastructures/adduct.h"
 #include "classifierNeuralNet.h"
 #include "datastructures/mzSlice.h"
+#include "fragmentdetection.h"
 #include "obiwarp.h"
 #include "PeakDetector.h"
 #include "EIC.h"
@@ -11,6 +12,7 @@
 #include "mzAligner.h"
 #include "constants.h"
 #include "classifier.h"
+#include "masscutofftype.h"
 #include "mzMassSlicer.h"
 #include "peakFiltering.h"
 #include "groupFiltering.h"
@@ -61,7 +63,7 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
 
             if (!slice->srmId.empty()) {
                 e = sample->getEIC(slice->srmId, mp->eicType);
-            } else if (slice->precursor != nullptr) {
+            } else if (slice->isMsMsSlice()) {
                 e = sample->getEIC(slice->mzmin,
                                    slice->mzmax,
                                    slice->rtmin,
@@ -69,7 +71,7 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                                    2,
                                    mp->eicType,
                                    mp->filterline,
-                                   slice->precursor->adjustedMass(mp->charge));
+                                   slice->precursorMz);
             } else if (c && c->precursorMz() > 0 && c->productMz() > 0) {
                 e = sample->getEIC(c->precursorMz(),
                                    c->collisionEnergy(),
@@ -325,11 +327,11 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                             mp,
                             PeakGroup::IntegrationType::Automated);
         GroupFiltering groupFiltering(mavenParameters, slice);
-        groupFiltering.filter(peakgroups);
+        if (!slice->isMsMsSlice())
+            groupFiltering.filter(peakgroups);
 
         // sort groups according to their rank
-        std::sort(peakgroups.begin(), peakgroups.end(),
-                  PeakGroup::compRank);
+        std::sort(peakgroups.begin(), peakgroups.end(), PeakGroup::compRank);
 
         for (unsigned int j = 0; j < peakgroups.size(); j++) {
             // check for duplicates	and append group
@@ -346,8 +348,6 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
             break;
 
         mzSlice* slice = slices[s];
-        Compound *compound = slice->compound;
-
         vector<EIC*> eics = pullEICs(slice,
                                      mavenParameters->samples,
                                      mavenParameters);
@@ -384,7 +384,9 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                 eicMaxIntensity = max;
         }
 
-        if (eicMaxIntensity < mavenParameters->minGroupIntensity) {
+        // MS/MS peaks can have relatively very low intensities
+        if (!slice->isMsMsSlice()
+            && eicMaxIntensity < mavenParameters->minGroupIntensity) {
             delete_all(eics);
             continue;
         }
@@ -408,7 +410,9 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
             zeroStatus = false;
         }
 
-        if (mavenParameters->showProgressFlag && s % 10 == 0) {
+        if (mavenParameters->showProgressFlag
+            && s % 10 == 0
+            && !setName.empty()) {
             string progressText = "Found "
                                   + to_string(mavenParameters->allgroups.size())
                                   + " "

@@ -18,6 +18,7 @@
 #include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
+#include "fragmentdetection.h"
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
@@ -215,7 +216,7 @@ using namespace mzUtils;
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
-
+    FragmentDetection::parameters = mavenParameters;
 
     QString clsfModelFilename;
     QString weightsFile;

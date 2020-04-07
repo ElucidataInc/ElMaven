@@ -99,7 +99,7 @@ public:
 	 * @param  slices        [pointer to vector of pointer to mzSlice]
 	 * @param  setName       [name of set]
 	 */
-        void processSlices(std::vector<mzSlice*>&slices, std::string setName);
+    void processSlices(std::vector<mzSlice*>&slices, std::string setName = "");
 
 	/**
 	 * @brief Filter groups on the basis of user-defined parameters
