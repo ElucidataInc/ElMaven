@@ -27,7 +27,9 @@ class PeakGroup{
             Programmatic,
             Inherit
         };
-        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
+
+        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5, Fragment };
+
         enum QType	   {AreaTop=0,
                         Area=1,
                         Height=2,
@@ -642,6 +644,7 @@ class PeakGroup{
 
         vector<PeakGroup> fragmentGroups() const { return _fragmentGroups; }
         void setFragmentGroups(const vector<PeakGroup>& groups);
+        const PeakGroup* nearestFragmentGroup(const float mz) const;
 
     private:
         Adduct* _adduct;

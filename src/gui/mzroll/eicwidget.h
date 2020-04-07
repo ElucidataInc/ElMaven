@@ -159,12 +159,23 @@ public Q_SLOTS:
     void setSensitiveToTolerance(bool sensitive);
 
     /**
-     * @brief Show MS/MS EIC for a fragment given it's precursor.
-     * @param precursor The parent compound whose fragment EIC needs to be
-     * drawn.
-     * @param fragmentMz The m/z of a fragment originating from precursor.
+     * @brief Show MS/MS EIC for a given pair of precursor and fragment masses.
+     * @param precursorMz The precursor m/z value which will be used to dive
+     * into the correct MS/MS isolation window..
+     * @param fragmentMz The m/z whose MS/MS EIC is needed to be displayed.
      */
-    void showFragment(Compound* precursor, float fragmentMz);
+    void showMsMsEic(float precursorMz, float fragmentMz);
+
+    /**
+     * @brief Display the MS/MS EIC for a fragment belonging to the currently
+     * selected precursor peak-group.
+     * @details This m/z value will be used to search for the nearest fragment
+     * group contained in the precursor peak-group, and is not therefore
+     * guaranteed to give a correct slice if a non-existent fragment m/z is
+     * passed as an argument.
+     * @param fragmentMz The m/z of the fragment that needs to be displayed.
+     */
+    void showFragmentForSelectedGroup(float fragmentMz);
 
 protected:
 	void moved(QMouseEvent *event);

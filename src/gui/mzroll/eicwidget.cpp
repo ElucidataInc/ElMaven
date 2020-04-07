@@ -1082,15 +1082,11 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         float rtMin = group->minRt;
         float rtMax = group->maxRt;
         if (_plottingMs2) {
-            auto fragPattern = group->fragmentationPattern;
-            auto fragMz = eicParameters->_slice.mz;
-            auto fragTolr = getMainWindow()->mavenParameters->fragmentTolerance;
-            auto pos = fragPattern.findClosestHighestIntensityPos(fragMz,
-                                                                  fragTolr);
-            auto rtRegions = fragPattern.rtRegions();
-            if (pos != -1 && !rtRegions.empty()) {
-                rtMin = rtRegions.at(pos).first;
-                rtMax = rtRegions.at(pos).second;
+            auto fragmentMz = eicParameters->_slice.mz;
+            auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
+            if (fragmentGroup != nullptr) {
+                rtMin = fragmentGroup->minRt;
+                rtMax = fragmentGroup->maxRt;
             }
         }
         addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);
@@ -1141,7 +1137,7 @@ void EicWidget::setTitle() {
 	QString tagString;
 
     if (_plottingMs2) {
-        tagString = "🄵";
+        tagString = "[F]";
     } else if (eicParameters->displayedGroup() != NULL) {
         tagString = QString(eicParameters->displayedGroup()->getName().c_str());
 	} else if (eicParameters->_slice.compound != NULL) {
@@ -1662,9 +1658,9 @@ void EicWidget::setMzSlice(const mzSlice& slice)
     eicParameters->setSelectedGroup(nullptr);
     eicParameters->_slice.precursorMz = slice.precursorMz;
     if (eicParameters->_slice.isMsMsSlice()) {
-        _plottingMs2 = false;
-    } else {
         _plottingMs2 = true;
+    } else {
+        _plottingMs2 = false;
     }
 
 	if (slice.mzmin != eicParameters->_slice.mzmin
@@ -1787,9 +1783,9 @@ void EicWidget::setMzSlice(float mz1, float mz2) {
 	setMzSlice(x);
 }
 
-void EicWidget::showFragment(Compound* precursor, float fragmentMz)
+void EicWidget::showMsMsEic(float precursorMz, float fragmentMz)
 {
-    if (precursor == nullptr)
+    if (precursorMz <= 0.0f)
         return;
 
     if (getMainWindow()->sampleCount() == 0)
@@ -1800,9 +1796,6 @@ void EicWidget::showFragment(Compound* precursor, float fragmentMz)
         return;
 
     auto mp = getMainWindow()->mavenParameters;
-    int ionizationMode = samples[0]->getPolarity();
-    ionizationMode = mp->ionizationMode;
-
     MassCutoff massCutoff;
     massCutoff.setMassCutoffAndType(mp->fragmentTolerance, "ppm");
     eicParameters->_slice.mz = fragmentMz;
@@ -1810,18 +1803,43 @@ void EicWidget::showFragment(Compound* precursor, float fragmentMz)
                                   - massCutoff.massCutoffValue(fragmentMz);
     eicParameters->_slice.mzmax = fragmentMz
                                   + massCutoff.massCutoffValue(fragmentMz);
-    eicParameters->_slice.precursorMz = precursor->adjustedMass(mp->charge);
+    eicParameters->_slice.precursorMz = precursorMz;
 
     _plottingMs2 = true;
     cleanup();
     computeEICs();
+    replot(nullptr);
+}
+
+void EicWidget::showFragmentForSelectedGroup(float fragmentMz)
+{
+    if (getMainWindow()->sampleCount() == 0)
+        return;
+
+    vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+    if (samples.empty())
+        return;
 
     auto precursorGroup = getSelectedGroup();
-    if (precursorGroup != nullptr) {
-        replot(new PeakGroup(*precursorGroup));
-    } else {
-        replot(nullptr);
-    }
+    if (precursorGroup == nullptr)
+        return;
+
+    precursorGroup = new PeakGroup(*precursorGroup);
+    const PeakGroup* fragmentGroup =
+        precursorGroup->nearestFragmentGroup(fragmentMz);
+    if (fragmentGroup == nullptr)
+        return;
+
+    auto fragmentSlice = fragmentGroup->getSlice();
+    eicParameters->_slice.mz = fragmentSlice.mz;
+    eicParameters->_slice.mzmin = fragmentSlice.mzmin;
+    eicParameters->_slice.mzmax = fragmentSlice.mzmax;
+    eicParameters->_slice.precursorMz = precursorGroup->getSlice().mz;
+
+    _plottingMs2 = true;
+    cleanup();
+    computeEICs();
+    replot(precursorGroup);
 }
 
 void EicWidget::groupPeaks() {
@@ -2018,12 +2036,26 @@ void EicWidget::selectGroupNearRt(float rt) {
 void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
 {
     if (_frozen)
-        return;
+		return;
 
-    if (_showBarPlot && !_plottingMs2)
-        addBarPlot(group);
-    if (_showBoxPlot && !_plottingMs2)
-        addBoxPlot(group);
+    if (_plottingMs2) {
+        float fragmentMz = eicParameters->_slice.mz;
+        auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
+        if (fragmentGroup != nullptr) {
+            // make a non-const copy
+            auto fragmentGroupCopy = new PeakGroup(*fragmentGroup);
+            if (_showBarPlot)
+                addBarPlot(fragmentGroupCopy);
+            if (_showBoxPlot)
+                addBoxPlot(fragmentGroupCopy);
+            delete fragmentGroupCopy;
+        }
+    } else {
+        if (_showBarPlot)
+            addBarPlot(group);
+        if (_showBoxPlot)
+            addBoxPlot(group);
+    }
 
     eicParameters->setDisplayedGroup(group);
     eicParameters->setSelectedGroup(group);
