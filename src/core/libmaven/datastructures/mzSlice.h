@@ -41,7 +41,7 @@ class mzSlice
         float rtmax;
         float ionCount;
         Compound *compound;
-        Compound *precursor; // precursor compound for a MSn level slice
+        float precursorMz; // precursor m/z for an MSn level slice
         Adduct* adduct;
         Isotope isotope;
         string srmId;
@@ -67,6 +67,7 @@ class mzSlice
         */
         mzSlice();
 
+        bool isMsMsSlice() { return precursorMz > 0.0f; }
 
         /**
         * @brief Compare total intensity (ion count) of two mzSlices

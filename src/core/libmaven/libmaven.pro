@@ -118,7 +118,8 @@ SOURCES = base64.cpp \
           zlib.cpp \
           spectrallibexport.cpp \
           datastructures/isotope.cpp \
-          deconvolution.cpp
+          deconvolution.cpp \
+          fragmentdetection.cpp
 
 HEADERS += constants.h \
            base64.h \
@@ -162,4 +163,5 @@ HEADERS += constants.h \
            svmPredictor.h \
            spectrallibexport.h \
            datastructures/isotope.h \
-           deconvolution.h
+           deconvolution.h \
+           fragmentdetection.h

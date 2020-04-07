@@ -720,7 +720,7 @@ vector<mzSample*> MavenParameters::getVisibleSamples() {
 
 void MavenParameters::setAverageScanTime() {
         if (samples.size() > 0)
-                avgScanTime = samples[0]->getAverageFullScanTime();
+                avgScanTime = samples[0]->getAverageScanTime();
 }
 
 //TODO: a member of the class is called 'charge'. Rename the function

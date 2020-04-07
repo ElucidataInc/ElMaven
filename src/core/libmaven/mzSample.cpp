@@ -1135,9 +1135,8 @@ float mzSample::getMaxRt(const vector<mzSample*>& samples)
     return maxRt;
 }
 
-float mzSample::getAverageFullScanTime()
+float mzSample::getAverageScanTime(int msLevel)
 {
-    // float mzSample::getAverageFullScanTime() const {
     float s = 0;
     int n = 0;
     Scan* lscan = NULL;
@@ -1146,7 +1145,7 @@ float mzSample::getAverageFullScanTime()
         return 0;
 
     for (unsigned int i = 1; i < scans.size(); i++) {
-        if (scans[i]->mslevel == 1) {
+        if (scans[i]->mslevel == msLevel) {
             tscan = scans[i];
             if (lscan) {
                 s += tscan->rt - lscan->rt;

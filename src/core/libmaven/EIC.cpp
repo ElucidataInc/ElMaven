@@ -1263,9 +1263,6 @@ bool EIC::makeEICSlice(mzSample* sample,
                 || precursorMz > scan->swathWindowMax()) {
                 continue;
             }
-
-            // we always accumulate DIA spectra along m/z axis
-            eicType = static_cast<int>(EIC::SUM);
         }
 
         eicMz = 0;

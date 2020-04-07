@@ -18,6 +18,7 @@
 #include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
+#include "fragmentdetection.h"
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
@@ -363,6 +364,18 @@ MainWindow::MainWindow(Controller* controller, QWidget* parent)
 #endif
     }
 
+    QString ligandDbFilename =
+        pathwaysFolder + "/"
+        + settings->value("ligandDbFilename").value<QString>();
+    if (QFile::exists(ligandDbFilename)) {
+        DB.connect(ligandDbFilename.toStdString());
+        DB.loadAll();
+    }
+
+    QString commonFragments = dataDir + "/" + "FRAGMENTS.csv";
+    if (QFile::exists(commonFragments))
+        DB.loadFragments(commonFragments.toStdString());
+
     clsf = new ClassifierNeuralNet();  // clsf = new ClassifierNaiveBayes();
     mavenParameters =
         new MavenParameters(QString(QStandardPaths::writableLocation(
@@ -370,6 +383,7 @@ MainWindow::MainWindow(Controller* controller, QWidget* parent)
                                     + QDir::separator() + "lastRun.xml")
                                 .toStdString());
     _massCutoffWindow = new MassCutoff();
+    FragmentDetection::parameters = mavenParameters;
 
     QString clsfModelFilename;
     QString weightsFile;

@@ -510,6 +510,7 @@ void PeakDetectionDialog::toggleFragmentation()
         return (s->ms1ScanCount() > 0 && s->ms2ScanCount() > 0
                 && (s->msMsType() == mzSample::MsMsType::DDA
                     || s->msMsType() == mzSample::MsMsType::DIA));
+        s
     });
     bool hasFragmentation = iter != end(samples);
     if (hasFragmentation && featureOptions->isChecked()) {
@@ -731,7 +732,7 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings)
     vector<mzSample*> samples = mainwindow->getSamples();
     // TODO Sabu: This has to be taken care in a better way
     if (samples.size() > 0) {
-        settings->setValue("avgScanTime", samples[0]->getAverageFullScanTime());
+        settings->setValue("avgScanTime", samples[0]->getAverageScanTime());
     }
     // Time domain resolution(scans)
 }

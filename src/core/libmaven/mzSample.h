@@ -295,10 +295,12 @@ class mzSample
     void calculateMzRtRange();
 
     /**
-     * @brief Average time difference between scans
-     * @return Average scan time
+     * @brief Obtain the average time difference between scans.
+     * @param msLevel Optional parameter to specify which MS level's average
+     * scan time is required.
+     * @return A float representing time difference in minutes.
      */
-    float getAverageFullScanTime();
+    float getAverageScanTime(int msLevel = 1);
 
     /**
      * @brief Map scan numbers to filterline
