@@ -291,8 +291,8 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
     connect(this,
             &SpectraWidget::fragmentSelected,
             mainwindow->getEicWidget(),
-            [this, c](float fragmentMz) {
-                mainwindow->getEicWidget()->showFragment(c, fragmentMz);
+            [this, c](float fragMz) {
+                mainwindow->getEicWidget()->showFragmentForSelectedGroup(fragMz);
             });
 }
 

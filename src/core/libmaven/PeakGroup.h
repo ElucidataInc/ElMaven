@@ -30,7 +30,7 @@ class PeakGroup
         Ghost
     };
 
-    enum class GroupType { None, Adduct, Isotope, Covariant };
+    enum class GroupType { None, Adduct, Isotope, Covariant, Fragment };
 
     enum QType {
         AreaTop = 0,
@@ -715,6 +715,7 @@ class PeakGroup
         return _fragmentGroups;
     }
     void setFragmentGroups(const vector<PeakGroup>& groups);
+    const PeakGroup* nearestFragmentGroup(const float mz) const;
 
     private:
     int _groupId;

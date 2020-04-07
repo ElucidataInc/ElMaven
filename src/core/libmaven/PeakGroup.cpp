@@ -1098,7 +1098,22 @@ void PeakGroup::setGroupId(int groupId)
     }
 }
 
-void PeakGroup::setFragmentGroups(const vector<PeakGroup> &groups)
+void PeakGroup::setFragmentGroups(const vector<PeakGroup>& groups)
 {
     _fragmentGroups = groups;
+    for (auto& group : _fragmentGroups)
+        group.setType(GroupType::Fragment);
+}
+
+const PeakGroup* PeakGroup::nearestFragmentGroup(const float mz) const
+{
+    const PeakGroup* nearestFragmentPeakGroup = nullptr;
+    float leastMzDiff = numeric_limits<float>::max();
+    for (const auto& group : _fragmentGroups) {
+        if (abs(group.meanMz - mz) < leastMzDiff) {
+            nearestFragmentPeakGroup = &group;
+            leastMzDiff = abs(group.meanMz - mz);
+        }
+    }
+    return nearestFragmentPeakGroup;
 }
