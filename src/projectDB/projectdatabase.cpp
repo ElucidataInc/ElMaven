@@ -95,6 +95,7 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
                       , :transform_a4   \
                       , :transform_a5   \
                       , :injection_time \
+                      , :polarity       \
                       , :manufacturer   \
                       , :model          \
                       , :ionisation     \
@@ -127,6 +128,7 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
 
         samplesQuery->bind(":injection_time",
                            static_cast<long>(s->injectionTime));
+        samplesQuery->bind(":polarity", s->getPolarity());
 
         if (s->instrumentInfo.count("msManufacturer")) {
             samplesQuery->bind(":manufacturer",

@@ -20,6 +20,7 @@
                                         , transform_a4   REAL                              \
                                         , transform_a5   REAL                              \
                                         , injection_time INTEGER                           \
+                                        , polarity       INTEGER                           \
                                         , manufacturer   TEXT                              \
                                         , model          TEXT                              \
                                         , ionisation     TEXT                              \

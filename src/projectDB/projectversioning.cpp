@@ -786,6 +786,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "BEGIN TRANSACTION;"
 
         "ALTER TABLE samples ADD COLUMN injection_time INTEGER;"
+        "ALTER TABLE samples ADD COLUMN polarity INTEGER;"
         "ALTER TABLE samples ADD COLUMN manufacturer TEXT;"
         "ALTER TABLE samples ADD COLUMN model TEXT;"
         "ALTER TABLE samples ADD COLUMN ionisation TEXT;"
