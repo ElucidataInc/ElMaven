@@ -9,6 +9,7 @@
 #include "masscutofftype.h"
 #include "EIC.h"
 #include "mavenparameters.h"
+#include "masscutofftype.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
@@ -325,10 +326,22 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
     vector<EIC*> eics;
     if (_saveRawData && group->hasSlice()) {
         mzSlice eicSlice = group->getSlice();
-        if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
-            eicSlice.rtmin = max(group->minRt - 2.0f, 0.0f);
-        if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
-            eicSlice.rtmax = group->maxRt + 2.0f;
+        float rtPadding = 2.0f;
+        if (group->sliceIsZero()) {
+            // this group came from an old emDB with missing slice information
+            MassCutoff* cutoff = group->parameters()->compoundMassCutoffWindow;
+            auto mzDelta = cutoff->massCutoffValue(group->meanMz);
+            float mzMin = group->meanMz - mzDelta;
+            float mzMax = group->meanMz + mzDelta;
+            float rtMin = max(group->minRt - rtPadding, 0.0f);
+            float rtMax = group->maxRt + rtPadding;
+            eicSlice = mzSlice(mzMin, mzMax, rtMin, rtMax);
+        } else {
+            if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
+                eicSlice.rtmin = max(group->minRt - rtPadding, 0.0f);
+            if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
+                eicSlice.rtmax = group->maxRt + rtPadding;
+        }
         eics = PeakDetector::pullEICs(&eicSlice,
                                       group->samples,
                                       group->parameters().get());
