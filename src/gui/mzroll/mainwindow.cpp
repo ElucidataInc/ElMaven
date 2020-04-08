@@ -1197,9 +1197,6 @@ TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
 }
 
 void MainWindow::removePeaksTable(TableDockWidget* panel) {
-    if (panel == _activeTable)
-        setActiveTable(bookmarkedPeaks);
-
 	//Merged with Maven776 - Kiran
     if (groupTablesButtons.contains(panel)) {
 		QAction* tableAction = sideBar->addWidget(groupTablesButtons[panel]) ;
@@ -1207,6 +1204,11 @@ void MainWindow::removePeaksTable(TableDockWidget* panel) {
 	}
 	if (groupTables.contains(panel))
 		groupTables.removeAll(panel);
+
+    // allow queued deletion of table to finish
+    QCoreApplication::processEvents();
+    if (panel == _activeTable)
+        setActiveTable(bookmarkedPeaks);
 }
 
 void MainWindow::removeAllPeakTables()
