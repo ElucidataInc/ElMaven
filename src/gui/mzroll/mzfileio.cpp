@@ -776,11 +776,15 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
     set<Compound*> compoundSet;
     if (_currentProject) {
         _currentProject->deleteTableGroups(tableName.toStdString());
+        MavenParameters* mp = _mainwindow->mavenParameters;
         for (auto group : groups) {
             // assuming all groups are parent groups.
             groupVector.push_back(group);
-            if (group->getCompound())
-                compoundSet.insert(group->getCompound());
+            if (group->hasCompoundLink()) {
+                auto compound = group->getCompound();
+                compound->setCharge(mp->getCharge(compound));
+                compoundSet.insert(compound);
+            }
         }
         _currentProject->saveGroups(groupVector, tableName.toStdString());
         _currentProject->saveCompounds(compoundSet);
@@ -864,8 +868,11 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
                 groupVector.push_back(group.get());
-                if (group->hasCompoundLink())
-                    compoundSet.insert(group->getCompound());
+                if (group->hasCompoundLink()) {
+                    auto compound = group->getCompound();
+                    compound->setCharge(group->parameters()->getCharge(compound));
+                    compoundSet.insert(compound);
+                }
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
@@ -910,8 +917,11 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
                 groupVector.push_back(group.get());
-                if (group->hasCompoundLink())
-                    compoundSet.insert(group->getCompound());
+                if (group->hasCompoundLink()) {
+                    auto compound = group->getCompound();
+                    compound->setCharge(group->parameters()->getCharge(compound));
+                    compoundSet.insert(compound);
+                }
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
