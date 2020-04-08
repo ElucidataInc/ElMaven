@@ -834,13 +834,12 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         auto currentName = QString::fromStdString(_currentProject->projectName());
         auto currentPath = QString::fromStdString(_currentProject->projectPath());
         auto currentFilename = currentPath + QDir::separator() + currentName;
-        qDebug() << currentFilename;
-        qDebug() << filename;
         if (currentFilename == filename)
             projectIsAlreadyOpen = true;
     }
+    auto projectFileExists = QFile::exists(filename);
 
-    if (projectIsAlreadyOpen) {
+    if (projectIsAlreadyOpen && projectFileExists) {
         qDebug() << "saving in existing project…";
     } else {
         qDebug() << "closing the current project…";
