@@ -779,6 +779,7 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
         MavenParameters* mp = _mainwindow->mavenParameters;
         for (auto group : groups) {
             // assuming all groups are parent groups.
+            group->setMetaGroupIdForChildren();
             groupVector.push_back(group);
             if (group->hasCompoundLink()) {
                 auto compound = group->getCompound();
@@ -866,6 +867,7 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
+                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
@@ -915,6 +917,7 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
+                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
