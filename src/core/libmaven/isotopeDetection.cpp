@@ -249,7 +249,9 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
     float rt = 0;
     mzSample* sample = scan->getSample();
 
-    for (int i = scan->scannum - 2; i < scan->scannum + 2; i++) {
+    for (int i = scan->scannum - _mavenParameters->maxIsotopeScanDiff;
+         i < scan->scannum + _mavenParameters->maxIsotopeScanDiff;
+         i++) {
         Scan* s = sample->getScan(i);
 
         // Filter out MS2 scans when obtaining isotope peak intensities.
