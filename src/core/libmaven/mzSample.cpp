@@ -1524,11 +1524,42 @@ float mzSample::correlation(float mz1,
 {
     float ppm1 = massCutoff->massCutoffValue(mz1);
     float ppm2 = massCutoff->massCutoffValue(mz2);
-    int mslevel = 1;
-    EIC* e1 = mzSample::getEIC(
-        mz1 - ppm1, mz1 + ppm1, rt1, rt2, mslevel, eicType, filterline);
-    EIC* e2 = mzSample::getEIC(
-        mz2 - ppm2, mz2 + ppm1, rt1, rt2, mslevel, eicType, filterline);
+    int msLevel = 1;
+    return correlation(mz1 - ppm1,
+                       mz1 + ppm1,
+                       mz2 - ppm2,
+                       mz2 + ppm2,
+                       rt1,
+                       rt2,
+                       msLevel,
+                       eicType,
+                       filterline);
+}
+
+float mzSample::correlation(float mzMin1,
+                            float mzMax1,
+                            float mzMin2,
+                            float mzMax2,
+                            float rtMin,
+                            float rtMax,
+                            int msLevel,
+                            int eicType,
+                            string filterline)
+{
+    EIC* e1 = getEIC(mzMin1,
+                     mzMax1,
+                     rtMin,
+                     rtMax,
+                     msLevel,
+                     eicType,
+                     filterline);
+    EIC* e2 = getEIC(mzMin2,
+                     mzMax2,
+                     rtMin,
+                     rtMax,
+                     msLevel,
+                     eicType,
+                     filterline);
     float correlation = mzUtils::correlation(e1->intensity, e2->intensity);
     delete (e1);
     delete (e2);
