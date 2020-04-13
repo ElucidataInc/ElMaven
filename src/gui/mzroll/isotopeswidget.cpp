@@ -541,20 +541,6 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 			}
 			isotopeInfo += groupInfo.join("\t") + "\n";
 		}
-		if (_mw->mavenParameters->pullIsotopesFlag && _mw->mavenParameters->isotopeC13Correction)
-		{
-			isotopeInfo += "Natural Abundance\n";
-			for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++)
-			{
-				QStringList groupInfo;
-				groupInfo << tag + " | " + QString(isotopes[i]->tagString.c_str());
-				for (unsigned int j = 0; j < vsamples.size(); j++)
-				{
-					groupInfo << QString::number(MM(j, k), 'f', 2);
-				}
-				isotopeInfo += groupInfo.join("\t") + "\n";
-			}
-		}
 
 		_mw->setStatusText("Clipboard set to isotope summary");
 	}

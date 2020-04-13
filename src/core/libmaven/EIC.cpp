@@ -580,6 +580,35 @@ void EIC::findPeakBounds(Peak &peak)
     peak.splinemaxpos = srb;
 }
 
+void EIC::adjustPeakBounds(Peak& peak, float rtMin, float rtMax)
+{
+    unsigned int leftBound = numeric_limits<unsigned int>::max();
+    unsigned int rightBound = 0;
+    for (size_t i = 0; i < rt.size(); ++i) {
+        if (rt[i] < rtMin)
+            continue;
+        if (rt[i] > rtMax)
+            break;
+        if (i < leftBound)
+            leftBound = i;
+        rightBound = i;
+    }
+
+    // find maximum point in the span from min to max position
+    peak.pos = 0;
+    float highestIntensity = 0.0f;
+    for (size_t k = leftBound; k < rightBound && k < intensity.size(); ++k) {
+        if (intensity[k] > highestIntensity && mz[k] > 0) {
+            peak.pos = k;
+            highestIntensity = intensity[k];
+        }
+    }
+    peak.minpos = leftBound;
+    peak.maxpos = rightBound;
+    peak.splineminpos = leftBound;
+    peak.splinemaxpos = rightBound;
+}
+
 void EIC::getPeakDetails(Peak &peak)
 {
     unsigned int N = intensity.size();

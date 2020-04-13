@@ -112,7 +112,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
             eic->setBaselineDropTopX(_mavenParameters->baseline_dropTopX);
             eic->setFilterSignalBaselineDiff(_mavenParameters->isotopicMinSignalBaselineDifference);
             eic->getPeakPositions(_mavenParameters->eic_smoothingWindow);
-            vector<Peak> allPeaks = eic->peaks;
+            vector<Peak>& allPeaks = eic->peaks;
 
             // assign peak quality
             if (_mavenParameters->clsf->hasModel()) {
@@ -138,13 +138,19 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                 }
             }
 
-            // TODO: force integration over entire RT range of parent peak, if
-            // user enables the relevant setting
-            delete(eic);
-
-            //delete (nearestPeak);
-            if (nearestPeak == nullptr)
+            if (nearestPeak == nullptr) {
+                delete eic;
                 continue;
+            }
+
+            if (_mavenParameters->linkIsotopeRtRange) {
+                eic->adjustPeakBounds(*nearestPeak,
+                                      parentPeak->rtmin,
+                                      parentPeak->rtmax);
+                eic->getPeakDetails(*nearestPeak);
+            }
+            Peak isotopePeak = *nearestPeak;
+            delete(eic);
 
             // label the peak of isotope
             if (isotopeGroups.count(isotopeName) == 0) {
@@ -164,7 +170,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                 childGroup.setCompound(parentGroup->getCompound());
                 isotopeGroups[isotopeName] = childGroup;
             }
-            isotopeGroups[isotopeName].addPeak(*nearestPeak);
+            isotopeGroups[isotopeName].addPeak(isotopePeak);
         }
     }
     return isotopeGroups;
@@ -299,7 +305,6 @@ void IsotopeDetection::childStatistics(
                        qualityWeight,
                        intensityWeight,
                        deltaRTWeight);
-
 }
 
 bool IsotopeDetection::filterLabel(string isotopeName)
