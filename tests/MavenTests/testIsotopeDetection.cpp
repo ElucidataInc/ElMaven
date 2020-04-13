@@ -74,6 +74,7 @@ void TestIsotopeDetection::testgetIsotopes() {
     bool S34Flag = false;
     bool D2Flag = true;
 
+    mavenparameters->linkIsotopeRtRange = false;
     IsotopeDetection isotopeDetection(
         mavenparameters,
         IsotopeDetection::PeakDetection,
@@ -95,19 +96,19 @@ void TestIsotopeDetection::testgetIsotopes() {
     map<string, PeakGroup> isotopes = isotopeDetection.getIsotopes(parentgroup, masslist);
 
     //number of isotopes found
-    QVERIFY(isotopes.size() == 4);
-    //TODO: failing test case. Fix underlying bug and uncomment it
-    //QVERIFY(isotopes["C12 PARENT"].meanMz == parentgroup->meanMz);
+    QCOMPARE(isotopes.size(), 6);
+    // meanMz should be very close to that of parent group
+    QCOMPARE(isotopes["C12 PARENT"].meanMz, parentgroup->meanMz);
     //tagstring has been populated
-    QVERIFY(isotopes["C13-label-2"].tagString == "C13-label-2");
+    QCOMPARE(isotopes["C13-label-2"].tagString, "C13-label-2");
     //number of peaks for a label are consistent
-    QVERIFY(isotopes["D2-label-1"].peaks.size() == 2);
+    QCOMPARE(isotopes["D2-label-1"].peaks.size(), 1);
     //intensity of label is consistent
-    QVERIFY(floor(isotopes["D2-label-1"].getPeak(samplesToLoad[1])->peakIntensity) == 89733);
+    QCOMPARE(floor(isotopes["D2-label-1"].getPeak(samplesToLoad[1])->peakIntensity), 89733);
     //scan number is populated and consistent 
-    QVERIFY(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->scan == 3490);
+    QCOMPARE(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->scan, 3490);
     //peak quality is populated and consistent
-    QVERIFY((isotopes["C13-label-2"].getPeak(samplesToLoad[1])->quality - 0.2) < 0.05);
+    QVERIFY(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->quality > 0.2);
 }
 
 void TestIsotopeDetection::testpullIsotopes() {
