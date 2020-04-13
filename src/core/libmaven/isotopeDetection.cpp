@@ -70,9 +70,9 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
     for (auto sample : _mavenParameters->samples) {
         for (Isotope& isotope : masslist) {
             string isotopeName = isotope.name;
-            double expectedAbundance = isotope.abundance;
+            float expectedAbundance = static_cast<float>(isotope.abundance);
 
-            double isotopeMass = isotope.mass;
+            float isotopeMass = static_cast<float>(isotope.mass);
             float mzDelta = _mavenParameters->compoundMassCutoffWindow->massCutoffValue(isotopeMass);
             float mzmin = isotopeMass - mzDelta;
             float mzmax = isotopeMass + mzDelta;
