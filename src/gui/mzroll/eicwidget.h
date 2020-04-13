@@ -33,6 +33,7 @@ public:
 	QString eicToTextBuffer(); //TODO: Sahil Added while merging eicwidget
 	void addPeakPositions();
 	void setBarplotPosition(PeakGroup* group);
+        void renderPdf(PeakGroup* group, QPainter* painter);
 
 public Q_SLOTS:
 	void setMzSlice(float mz1, float mz2 = 0.0);

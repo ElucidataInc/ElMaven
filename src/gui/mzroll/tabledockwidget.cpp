@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include <QHistogramSlider.h>
+#include <qtconcurrentrun.h>
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
@@ -106,6 +107,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
+  connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
 
   setupFiltersDialog();
 
@@ -1422,43 +1424,71 @@ void TableDockWidget::printPdfReport() {
   if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
     fileName = fileName + ".pdf";
 
-  QPrinter printer;
-  printer.setOutputFormat(QPrinter::PdfFormat);
-  printer.setOrientation(QPrinter::Landscape);
-  printer.setCreator("MAVEN Metabolics Analyzer");
-  printer.setOutputFileName(fileName);
+  QString title = "Saving PDF export for table…";
+  _mainwindow->setStatusText(title);
 
-  QPainter painter;
 
-  if (!painter.begin(&printer)) {
-    // failed to open file
-    qWarning("failed to open file, is it writable?");
-    return;
-  }
+  auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
+}
 
-  if (printer.printerState() != QPrinter::Active) {
-    qDebug() << "PrinterState:" << printer.printerState();
-  }
 
-  QList<PeakGroup *> selected;
-  // PDF report only for selected groups
-  if(peakTableSelection == peakTableSelectionType::Selected)
-    selected = getSelectedGroups();
-  else{
-    selected = getGroups();
-  }
+void TableDockWidget::renderPdf(QString fileName)
+{
+    //Setting printer.
+    QPrinter printer;
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOrientation(QPrinter::Landscape);
+    printer.setCreator("MAVEN Metabolics Analyzer");
+    printer.setOutputFileName(fileName);
+    printer.setResolution(50);
 
-  for (int i = 0; i < selected.size(); i++) {
-    PeakGroup *grp = selected[i];
-    _mainwindow->getEicWidget()->setPeakGroup(grp);
-    _mainwindow->getEicWidget()->render(&painter);
+    QPainter painter;
 
-    if (!printer.newPage()) {
-      qWarning("failed in flushing page to disk, disk full?");
-      return;
+    if (!painter.begin(&printer)) {
+        // failed to open file
+        qWarning("failed to open file, is it writable?");
+        return;
     }
-  }
-  painter.end();
+
+    if (printer.printerState() != QPrinter::Active) {
+        qDebug() << "PrinterState:" << printer.printerState();
+    }
+
+    QList<PeakGroup *> selected;
+    // PDF report only for selected groups
+    if(peakTableSelection == peakTableSelectionType::Selected)
+    selected = getSelectedGroups();
+    else{
+    selected = getGroups();
+    }
+
+    for (int i = 0; i < selected.size(); i++) {
+        PeakGroup *grp = selected[i];
+        _mainwindow->getEicWidget()->renderPdf(grp, &painter);
+
+        if(!printer.newPage())
+        {
+            qWarning("failed in flushing page to disk, disk full?");
+            return;
+        }
+
+   }
+   painter.end();
+   emit renderedPdf();
+}
+
+void TableDockWidget::pdfReadyNotification()
+{
+    QIcon icon = QIcon(":/images/notification.png");
+    QString title("");
+    QString message("Pdf is ready");
+
+    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
+                                                            title,
+                                                            message,
+                                                           this);
+    title = "Pdf is ready";
+    _mainwindow->setStatusText(title, true);
 }
 
 void TableDockWidget::showHeatMap() {

@@ -196,6 +196,8 @@ public Q_SLOTS:
   void showNextGroup();
 
   void printPdfReport();
+  void renderPdf(QString fileName);
+  void pdfReadyNotification();
 
   void updateTable();
   void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
@@ -267,6 +269,7 @@ protected:
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
   void UploadPeakBatch();
+  void renderedPdf();
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);

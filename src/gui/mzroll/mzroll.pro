@@ -7,6 +7,7 @@ DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
 QT += multimedia multimediawidgets network
+QT += concurrent widgets
 
 CONFIG += qt thread warn_off sql svg console precompile_header resources_big
 
