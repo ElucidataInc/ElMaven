@@ -1117,99 +1117,120 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
   updateCompoundWidget();
 }
 
-void TableDockWidget::deleteGroups()
+void TableDockWidget::deleteSelectedItems()
 {
-    if (treeWidget->selectedItems().size() == 0) {
-        return;
+    auto timerMain = mzUtils::startTimer();
+
+    // temporarily disconnect selection trigger
+    disconnect(treeWidget,
+               SIGNAL(itemSelectionChanged()),
+               this,
+               SLOT(showSelectedGroup()));
+
+    // extract selected items such that all parent items occur first
+    QList<QTreeWidgetItem*> selectedItems;
+    QTreeWidgetItem* nextItem = nullptr;
+    for (auto item : treeWidget->selectedItems()) {
+        if (item)
+            nextItem = treeWidget->itemBelow(item);
+        if (item->parent() == nullptr) {
+            selectedItems.prepend(item);
+        } else {
+            selectedItems.append(item);
+        }
     }
+    if (selectedItems.isEmpty())
+        return;
 
     PeakGroup* group = nullptr;
-    vector<QTreeWidgetItem*> toDelete;
-    auto selectedItems = treeWidget->selectedItems();
-    QTreeWidgetItem* nextItem = treeWidget->itemBelow(selectedItems.last());
+    set<QTreeWidgetItem*> itemsToDelete;
+    set<PeakGroup*> groupsToDelete;
 
-    Q_FOREACH(QTreeWidgetItem* item, selectedItems)
+    for (auto item : selectedItems)
     {
-        if(item){
-            auto v = item->data(0, Qt::UserRole);
-            group = v.value<PeakGroup*>();
+        if (item == nullptr)
+            continue;
 
-            if (group != NULL){
-                auto parentGroup = group->parent;
-                int childrenNum = -1;
-                if(parentGroup == NULL){
-                    item ->setHidden(true);
-                    if(group->children.size() > 0)
-                        _labeledGroups--;
-                    if(group->getCompound())
-                        _targetedGroups--;
-                    toDelete.push_back(item);
-                } else if (parentGroup &&
-                           parentGroup->childCount()){
-                    // this a child item
-                    childrenNum = parentGroup->childCount();
-                    if (parentGroup->deleteChild(group)) {
-                        QTreeWidgetItem* parentItem = item->parent();
-                        if (parentItem) {
-                            parentItem->removeChild(item);
-                            toDelete.push_back(item);
-                            // once a child is deleted, the pointers storing the
-                            // location of memory blocks of child `PeakGroup`
-                            // objects, may no longer be valid, therefore we
-                            // update them.
-                            for (int i = 0; i < parentItem->childCount(); ++i) {
-                                QTreeWidgetItem* child = parentItem->child(i);
-                                if (!child)
-                                    continue;
+        auto v = item->data(0, Qt::UserRole);
+        auto group = v.value<PeakGroup*>();
 
-                                auto name = child->text(1).toStdString();
-                                auto childGroupIter =
-                                    find_if(begin(parentGroup->children),
-                                            end(parentGroup->children),
-                                            [&](PeakGroup& g) {
-                                                return g.getName() == name;
-                                            });
-                                if (childGroupIter
-                                    != end(parentGroup->children)) {
-                                    auto& childGroup = *childGroupIter;
-                                    child->setData(
-                                        0,
-                                        Qt::UserRole,
-                                        QVariant::fromValue(&childGroup));
-                                }
-                            }
-                        }
-                    }
-                }else if (parentGroup != NULL){
-                    if (childrenNum == parentGroup->childCount()) {
-                        item->setHidden(true);
-                        if (group->children.size() > 0)
-                            _labeledGroups--;
-                        if (group->getCompound())
-                            _targetedGroups--;
-                        toDelete.push_back(item);
-                    }
+        if (group == nullptr)
+            continue;
+
+        auto parentGroup = group->parent;
+
+        if (parentGroup == nullptr){
+            if (!group->children.empty())
+                _labeledGroups--;
+            if (group->getCompound())
+                _targetedGroups--;
+            itemsToDelete.insert(item);
+            groupsToDelete.insert(group);
+        } else if (parentGroup && parentGroup->childCount() > 0) {
+            auto parentItem = item->parent();
+            if (parentItem == nullptr)
+                continue;
+            if (itemsToDelete.count(parentItem) > 0
+                || itemsToDelete.count(item) > 0) {
+                continue;
+            }
+
+            if (!parentGroup->deleteChild(group))
+                continue;
+
+            itemsToDelete.insert(item);
+
+            // once a child is deleted, the pointers storing the
+            // location of memory blocks of child `PeakGroup`
+            // objects, may no longer be valid, therefore we
+            // update them.
+            for (int i = 0; i < parentItem->childCount(); ++i) {
+                QTreeWidgetItem* child = parentItem->child(i);
+                if (!child)
+                    continue;
+
+                auto name = child->text(1).toStdString();
+                auto childGroupIter =
+                    find_if(begin(parentGroup->children),
+                            end(parentGroup->children),
+                            [&](PeakGroup& g) {
+                                return g.getName() == name;
+                            });
+                if (childGroupIter != end(parentGroup->children)) {
+                    auto& childGroup = *childGroupIter;
+                    child->setData(0,
+                                   Qt::UserRole,
+                                   QVariant::fromValue(&childGroup));
                 }
             }
         }
-        int pos = -1;
-        for (int i = 0; i < allgroups.size(); i++) {
-            if (&allgroups[i] == group) {
-                pos = i;
-                break;
-            }
-        }
-        allgroups.erase(allgroups.begin() + pos);
     }
+
+    if (!groupsToDelete.empty()) {
+        allgroups.erase(remove_if(begin(allgroups),
+                                  end(allgroups),
+                                  [groupsToDelete](PeakGroup& g) {
+                                      return groupsToDelete.count(&g) > 0;
+                                  }),
+                        end(allgroups));
+    }
+
+    // reconnect selection trigger
+    connect(treeWidget,
+            SIGNAL(itemSelectionChanged()),
+            this,
+            SLOT(showSelectedGroup()));
 
     if(nextItem){
         treeWidget->setCurrentItem(nextItem);
     }
 
-    Q_FOREACH (QTreeWidgetItem* item, toDelete) {
-        delete(item);
+    Q_FOREACH (QTreeWidgetItem* item, itemsToDelete) {
+        if(item)
+            delete(item);
     }
 
+    mzUtils::stopTimer(timerMain, "Deletion ends");
     return;
 }
 
@@ -1314,7 +1335,7 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
     QList<QTreeWidgetItem *> items = treeWidget->selectedItems();
     if (items.size() > 0) {
       cerr << items.size() << endl;
-      deleteGroups();
+      deleteSelectedItems();
     }
   } else if (e->key() == Qt::Key_G) {
 
@@ -2146,7 +2167,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QToolButton *btnHeatmapelete = new QToolButton(parent);
     btnHeatmapelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
     btnHeatmapelete->setToolTip("Delete Group");
-    connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteGroups()));
+    connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
     return btnHeatmapelete;
   } else if (btnName == "btnPDF") {
 

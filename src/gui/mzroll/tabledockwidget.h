@@ -235,7 +235,7 @@ public Q_SLOTS:
 
   void showConsensusSpectra();
 
-  virtual void deleteGroups();
+  virtual void deleteSelectedItems();
   virtual void deleteGroup(PeakGroup *groupX);
 
   void sortBy(int);
