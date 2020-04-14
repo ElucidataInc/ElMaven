@@ -822,8 +822,10 @@ void EIC::checkGaussianFit(Peak &peak)
         k++;
     }
     pair<float, float> res = mzUtils::gaussFit(pints);
-    peak.gaussFitSigma = res.first;
-    peak.gaussFitR2 = res.second;
+    if(res.first != FLT_MAX && res.second != FLT_MAX){
+        peak.gaussFitSigma = res.first;
+        peak.gaussFitR2 = res.second;
+    }
 }
 
 void EIC::getPeakStatistics()

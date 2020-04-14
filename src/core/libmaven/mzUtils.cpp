@@ -448,7 +448,7 @@ namespace mzUtils {
 
         //find best fit
         if (ycoord.size()<3){
-            pair<float, float> res = make_pair(0.0, 0.0);
+            pair<float, float> res = make_pair(FLT_MAX, FLT_MAX);
             return res;
         }
         vector<float>yobs = ycoord;
@@ -476,7 +476,7 @@ namespace mzUtils {
         int ittr = 0;
 
         if (greaterZeroCount <= 3 ){
-            pair<float, float> res = make_pair(0.0, 0.0);
+            pair<float, float> res = make_pair(FLT_MAX, FLT_MAX);
             return res;
         }
         while (!converged ) {
