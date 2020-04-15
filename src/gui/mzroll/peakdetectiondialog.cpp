@@ -51,6 +51,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("minFragMatchScore", QVariant::fromValue(pd->minFragMatchScore));
     settings.insert("fragmentTolerance", QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
+    settings.insert("fragAnnotationLimit", QVariant::fromValue(pd->fragAnnotationLimit));
 
     // group filtering settings
     settings.insert("peakQuantitation", QVariant::fromValue(pd->peakQuantitation));
@@ -481,13 +482,6 @@ void PeakDetectionDialog::refreshCompoundDatabases()
 
 void PeakDetectionDialog::toggleFragmentation()
 {
-    QString selectedDbName = "";
-    if (dbSearch->isChecked()) {
-        selectedDbName = compoundDatabase->currentText();
-    } else if (featureOptions->isChecked()) {
-        selectedDbName = identificationDatabase->currentText();
-    }
-
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples),
                         end(samples),

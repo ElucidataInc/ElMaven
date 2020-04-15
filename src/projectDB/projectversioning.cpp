@@ -779,7 +779,16 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN integration_type INTEGER;"
 
         "COMMIT;"
+    },
+    {
+        5,
+        "BEGIN TRANSACTION;"
+
+        "ALTER TABLE user_settings ADD COLUMN frag_annotation_limit  INTEGER;"
+
+        "COMMIT;"
     }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

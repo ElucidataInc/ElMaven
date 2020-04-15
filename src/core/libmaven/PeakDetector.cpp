@@ -423,6 +423,15 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
                                      mavenParameters->limitGroupCount));
         }
     }
+
+    // filter for the best spectral matches per unique group
+    if (mavenParameters->matchFragmentationFlag) {
+        sendBoostSignal("Filtering for best MS/MS annotations…", 0, 0);
+        GroupFiltering groupFiltering(mavenParameters);
+        groupFiltering.filterAllButSome(mavenParameters->allgroups,
+                                        GroupFiltering::FilterType::MsMsScore,
+                                        mavenParameters->fragAnnotationLimit);
+    }
 }
 
 void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)

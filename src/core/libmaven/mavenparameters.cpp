@@ -35,7 +35,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         scoringAlgo = "Hypergeometric Score";
         matchFragmentationFlag = false;
         mustHaveFragmentation = false;
-
+        fragAnnotationLimit = 1;
+        
         /*
         * Whenever we create an instance of this class, massCutoffType must be set for massCutoffMerge
         */
@@ -388,6 +389,9 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if (strcmp(key, "minFragMatchScore") == 0)
         minFragMatchScore = atof(value);
+
+    if (strcmp(key, "fragAnnotationLimit") == 0)
+        fragAnnotationLimit = atof(value);
 
     if(strcmp(key,"timeDomainResolution") == 0)
         rtStepSize = atof(value);

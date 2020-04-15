@@ -705,7 +705,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :identification_rt_window         \
                      , :search_adducts                   \
                      , :adduct_search_window             \
-                     , :adduct_percent_correlation       )");
+                     , :adduct_percent_correlation       \
+                     , :frag_annotation_limit            )");
     return cursor;
 }
 
@@ -791,6 +792,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
     settingsQuery->bind(":fragment_tolerance", BDOUBLE(settingsMap.at("fragmentTolerance")));
     settingsQuery->bind(":min_frag_match", BDOUBLE(settingsMap.at("minFragMatch")));
+    settingsQuery->bind(":frag_annotation_limit", BINT(settingsMap.at("fragAnnotationLimit")));
 
     settingsQuery->bind(":report_isotopes", BINT(settingsMap.at("reportIsotopes")));
 
@@ -1439,6 +1441,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["minFragMatchScore"] = variant(settingsQuery->doubleValue("min_frag_match_score"));
     settingsMap["fragmentTolerance"] = variant(settingsQuery->doubleValue("fragment_tolerance"));
     settingsMap["minFragMatch"] = variant(settingsQuery->integerValue("min_frag_match"));
+    settingsMap["fragAnnotationLimit"] = variant(settingsQuery->integerValue("frag_annotation_limit"));
 
     settingsMap["reportIsotopes"] = variant(settingsQuery->integerValue("report_isotopes"));
 
