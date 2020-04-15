@@ -67,7 +67,7 @@ class mzSlice
         */
         mzSlice();
 
-        bool isMsMsSlice() { return precursorMz > 0.0f; }
+        bool isMsMsSlice() const { return precursorMz > 0.0f; }
 
         /**
         * @brief Compare total intensity (ion count) of two mzSlices
