@@ -203,7 +203,12 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
-        compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
+        //TODO: Sahil - Kiran, Added while merging mainwindow
+        if (matchRt->isChecked()) {
+            compoundRTWindow->setEnabled(true);
+        } else {
+            compoundRTWindow->setEnabled(false);
+        }
 
         connect(classificationModelFilename,
                 SIGNAL(textChanged(QString)),
