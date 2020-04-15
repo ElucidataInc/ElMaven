@@ -26,10 +26,9 @@ class Compound{
         */
         string _id;
 
-        /**
-         *@param -  name of compound
-        */
         string _name;
+
+        string _originalName;
 
         /**
          *@param -  formula of compound
@@ -186,7 +185,16 @@ class Compound{
 
         void setName(string name);
 
+        /**
+         * Name of this compound. This name is modifiable, any number of times.
+         */
         string name();
+
+        /**
+         * Originally assigned name of this compound. This does not change once
+         * assigned during construction.
+         */
+        string originalName();
 
         void setFormula(string formula);
 

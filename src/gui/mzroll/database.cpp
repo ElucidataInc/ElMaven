@@ -127,7 +127,7 @@ bool Database::addCompound(Compound* newCompound)
 
         // return false if any of the compounds having the same ID are the
         // exact same in all aspects.
-        auto originalName = newCompound->name();
+        auto originalName = newCompound->originalName();
         for (int i = 0; i < loadOrder; ++i) {
             string nameWithSuffix = originalName;
             if (i != 0)
