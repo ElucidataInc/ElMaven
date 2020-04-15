@@ -762,8 +762,8 @@ void Database::loadFragments(string filename) {
 
 int Database::loadCompoundCSVFile(string filename)
 {
-    QFile myFile (QString(filename.c_str()));
-    if(!myFile.open(QFile::ReadOnly))
+    QFile file (QString(filename.c_str()));
+    if(!file.open(QFile::ReadOnly))
         return 0;
 
     string line;
@@ -772,7 +772,7 @@ int Database::loadCompoundCSVFile(string filename)
     int lineCount=0;
     map<string, int>header;
     static const string allHeadersarr[] = {"mz", "mass", "rt", "expectedrt", "charge", "formula", "id", "name",
-        "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity", "note"};
+                                           "compound", "precursormz", "productmz", "collisionenergy", "Q1", "Q3", "CE", "category", "polarity", "note"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -780,19 +780,10 @@ int Database::loadCompoundCSVFile(string filename)
     if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
     notFoundColumns.resize(0);
     invalidRows.clear();
-    //cerr << filename << " sep=" << sep << endl;
-    while(!myFile.atEnd()) {
-        //remove whitespace from the start and end
-        QString tempLine = myFile.readLine().trimmed();
-        if (tempLine.isEmpty()) continue;
 
-        string line = tempLine.toStdString();
-        if (!line.empty() && line[0] == '#') continue;
-        lineCount++;
-
-        vector<string>fields;
-        fields = mzUtils::split(line, sep);
-
+    auto getCompounds = [&](vector<string> allHeaders,
+                            vector<string> fields,
+                            int lineCount) {
         for(unsigned int i=0; i < fields.size(); i++ ) {
             int n = fields[i].length();
             if (n>2 && fields[i][0] == '"' && fields[i][n-1] == '"') {
@@ -812,9 +803,8 @@ int Database::loadCompoundCSVFile(string filename)
                     notFoundColumns.push_back(fields[i]);
                 }
             }
-            continue;
+            return;
         }
-
         string id, name, formula;
         string note;
         float rt=0;
@@ -857,7 +847,7 @@ int Database::loadCompoundCSVFile(string filename)
                 if(categorylist.size() == 0) categorylist.push_back(catstring);
                 //cerr << catstring << " ListSize=" << categorylist.size() << endl;
             }
-         }
+        }
 
         if ( header.count("polarity") && header["polarity"] <N)  {
             string x = fields[ header["polarity"]];
@@ -870,7 +860,6 @@ int Database::loadCompoundCSVFile(string filename)
             }
 
         }
-
 
         if (id.empty()&& !name.empty()) id=name;
         if (id.empty() && name.empty()) id="cmpd:" + integer2string(loadCount);
@@ -906,10 +895,36 @@ int Database::loadCompoundCSVFile(string filename)
             if (!name.empty())
                 id = name;
             invalidRows.push_back(id);
+        }   
+    };
+
+    while(!file.atEnd())
+    {
+        QString tempLine = file.readLine().trimmed();
+        if (tempLine.isEmpty()) continue;
+
+        string line = tempLine.toStdString();
+        if (!line.empty() && line[0] == '#') continue;
+        lineCount++;
+
+        if (tempLine.contains('\r')) {
+            vector<string> carriageSeparated;
+            mzUtils::split(line, '\r', carriageSeparated);
+            for(int i = 0; i < carriageSeparated.size(); i++){
+                vector<string>fields;
+                mzUtils::splitNew(carriageSeparated[i], sep, fields);
+                getCompounds(allHeaders, fields, i+1);
+            }
+        } else{
+            vector<string>fields;
+            mzUtils::splitNew(line, sep, fields);
+            getCompounds(allHeaders, fields, lineCount);
         }
     }
+
     sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);
-    //cerr << "Loading " << dbname << " " << loadCount << endl;
-    myFile.close();
+
+    loadCount = getCompoundsSubset(dbname).size();
     return loadCount;
+
 }
