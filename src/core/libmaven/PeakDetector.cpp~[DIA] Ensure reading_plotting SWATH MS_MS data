@@ -330,15 +330,15 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
         if (!slice->isMsMsSlice())
             groupFiltering.filter(peakgroups);
 
-        // sort groups according to their rank
-        std::sort(peakgroups.begin(), peakgroups.end(), PeakGroup::compRank);
-
-        for (unsigned int j = 0; j < peakgroups.size(); j++) {
-            // check for duplicates	and append group
-            if (j >= mavenParameters->eicMaxGroups)
-                break;
-            mavenParameters->allgroups.push_back(peakgroups[j]);
+        if (!slice->isMsMsSlice() && slice->compound != nullptr) {
+            groupFiltering.filterAllButSome(peakgroups,
+                                            GroupFiltering::FilterType::Rank,
+                                            mavenParameters->eicMaxGroups);
         }
+
+        mavenParameters->allgroups.insert(end(mavenParameters->allgroups),
+                                          begin(peakgroups),
+                                          end(peakgroups));
     };
 
     mavenParameters->allgroups.clear();

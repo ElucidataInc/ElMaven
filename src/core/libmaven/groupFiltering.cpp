@@ -1,3 +1,6 @@
+#include <unordered_map>
+#include <unordered_set>
+
 #include "Compound.h"
 #include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
@@ -254,4 +257,114 @@ bool GroupFiltering::quantileFilters(PeakGroup *group) {
         return true;
     }
     return false;
+}
+
+void GroupFiltering::filterAllButSome(vector<PeakGroup>& groups,
+                                      FilterType filter,
+                                      int limit)
+{
+    if (filter == FilterType::Rank) {
+        std::sort(begin(groups), end(groups), PeakGroup::compRank);
+        if (groups.size() > limit)
+            groups.erase(begin(groups) + limit, end(groups));
+    } else {
+        int charge = _mavenParameters->charge;
+        unordered_map<float, vector<PeakGroup*>> sameMzClusters;
+        for (auto& group : groups) {
+            float expectedMz = group.getExpectedMz(charge);
+            if (expectedMz == -1)
+                continue;
+
+            if (sameMzClusters.count(expectedMz) == 0)
+                sameMzClusters[expectedMz] = {};
+
+            // m/z should be exactly the same
+            sameMzClusters[expectedMz].push_back(&group);
+        }
+
+        unordered_set<PeakGroup*> groupsToDiscard;
+        float twoSeconds = 2.0f / 60.0f;
+        for (auto& elem : sameMzClusters) {
+            auto groupsWithSameMz = elem.second;
+            if (groupsWithSameMz.size() == 1
+                || groupsWithSameMz.size() <= limit) {
+                continue;
+            }
+
+            vector<vector<PeakGroup*>> sameRtSubClusters;
+            for (auto& thisGroup : groupsWithSameMz) {
+                if (thisGroup == nullptr)
+                    continue;
+
+                vector<PeakGroup*> subCluster;
+                subCluster.push_back(thisGroup);
+                for (auto& otherGroup : groupsWithSameMz) {
+                    if (otherGroup == nullptr || thisGroup == otherGroup)
+                        continue;
+
+                    if (fabs(thisGroup->meanRt - otherGroup->meanRt)
+                        <= twoSeconds) {
+                        subCluster.push_back(otherGroup);
+                        otherGroup = nullptr; // mark as already grouped
+                    }
+                }
+                sameRtSubClusters.push_back(subCluster);
+                thisGroup = nullptr; // mark as already grouped
+            }
+
+            for (auto& groupsWithSameMzRt : sameRtSubClusters) {
+                if (groupsWithSameMzRt.size() == 1
+                    || groupsWithSameMzRt.size() <= limit) {
+                    continue;
+                }
+
+                if (filter == FilterType::MzRt) {
+                    multimap<float, PeakGroup*> scoredGroups;
+                    for (auto& group : groupsWithSameMzRt) {
+                        float mzDiff = fabs(group->meanMz
+                                            - group->getExpectedMz(charge));
+                        float rtDiff = group->expectedRtDiff();
+                        if (rtDiff == -1.0f)
+                            rtDiff = 1000.0f; // high penalty for missing RT
+
+                        float errorScore = hypotf(mzDiff, rtDiff);
+                        scoredGroups.insert(make_pair(errorScore, group));
+                    }
+
+                    // this way we can iterate over the multi-map with an index
+                    size_t i = 0;
+                    for (auto& elem : scoredGroups) {
+                        if (i++ < limit)
+                            continue;
+                        groupsToDiscard.insert(elem.second);
+                    }
+                } else if (filter == FilterType::MsMsScore) {
+                    vector<PeakGroup*> groupsWithFragmentation;
+                    for (auto group : groupsWithSameMzRt) {
+                        if (group->ms2EventCount > 0)
+                            groupsWithFragmentation.push_back(group);
+                    }
+                    if (groupsWithFragmentation.size() <= limit)
+                        continue;
+
+                    sort(begin(groupsWithFragmentation),
+                         end(groupsWithFragmentation),
+                         [](PeakGroup* a, PeakGroup* b) {
+                             auto aScore = a->fragMatchScore.mergedScore;
+                             auto bScore = b->fragMatchScore.mergedScore;
+                             return aScore > bScore;
+                         });
+                    groupsToDiscard.insert(begin(groupsWithFragmentation)
+                                               + limit,
+                                           end(groupsWithFragmentation));
+                }
+            }
+        }
+        groups.erase(remove_if(begin(groups),
+                               end(groups),
+                               [groupsToDiscard](PeakGroup& group) {
+                                   return groupsToDiscard.count(&group) > 0;
+                               }),
+                     end(groups));
+    }
 }

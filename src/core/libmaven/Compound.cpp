@@ -1,17 +1,25 @@
-#include "doctest.h"
 #include "Compound.h"
+#include "Scan.h"
 #include "constants.h"
+#include "doctest.h"
 #include "mzMassCalculator.h"
 #include "mzUtils.h"
-#include "Scan.h"
 #include "testUtils.h"
-
 
 using namespace mzUtils;
 
-Compound::Compound(string id, string name, string formula, int charge,
-                   float expectedRt, float mass, string db, float precursorMz,
-                   float productMz, float collisionEnergy, string note) {
+Compound::Compound(string id,
+                   string name,
+                   string formula,
+                   int charge,
+                   float expectedRt,
+                   float mass,
+                   string db,
+                   float precursorMz,
+                   float productMz,
+                   float collisionEnergy,
+                   string note)
+{
     this->_id = id;
     this->_name = name;
     this->_originalName = name;
@@ -21,10 +29,12 @@ Compound::Compound(string id, string name, string formula, int charge,
     this->_db = db;
 
     /**
-    *@brief  -   calculate mass of compound by its formula and assign it to mass
-    *@see  - double MassCalculator::computeNeutralMass(string formula) in mzMassCalculator.cpp
-    */
-    this->_mz =  MassCalculator::computeNeutralMass(formula);
+     *@brief  -   calculate mass of compound by its formula and assign it to
+     *mass
+     *@see  - double MassCalculator::computeNeutralMass(string formula) in
+     *mzMassCalculator.cpp
+     */
+    this->_mz = MassCalculator::computeNeutralMass(formula);
     this->_neutralMass = MassCalculator::computeNeutralMass(_formula);
     this->_logP = 0;
     this->_srmId = "";
@@ -34,54 +44,40 @@ Compound::Compound(string id, string name, string formula, int charge,
     _virtualFragmentation = false;
     _isDecoy = false;
     ionizationMode = Compound::IonizationMode::Neutral;
-
 }
 
-bool Compound::operator == (const Compound& rhs) const
+bool Compound::operator==(const Compound& rhs) const
 {
-    return (_id == rhs._id
-            && _name == rhs._name
-            && _originalName == rhs._originalName
-            && _formula == rhs._formula
-            && _kegg_id == rhs._kegg_id
-            && _pubchem_id == rhs._pubchem_id
-            && _hmdb_id == rhs._hmdb_id
-            && _alias == rhs._alias
-            && _smileString == rhs._smileString
-            && _srmId == rhs._srmId
+    return (_id == rhs._id && _name == rhs._name
+            && _originalName == rhs._originalName && _formula == rhs._formula
+            && _kegg_id == rhs._kegg_id && _pubchem_id == rhs._pubchem_id
+            && _hmdb_id == rhs._hmdb_id && _alias == rhs._alias
+            && _smileString == rhs._smileString && _srmId == rhs._srmId
             && almostEqual(_expectedRt, rhs._expectedRt)
-            && _charge == rhs._charge
-            && almostEqual(_mz, rhs._mz)
+            && _charge == rhs._charge && almostEqual(_mz, rhs._mz)
             && _method_id == rhs._method_id
             && almostEqual(_precursorMz, rhs._precursorMz)
             && almostEqual(_productMz, rhs._productMz)
             && almostEqual(_collisionEnergy, rhs._collisionEnergy)
             && almostEqual(_logP, rhs._logP)
             && _virtualFragmentation == rhs._virtualFragmentation
-            && _isDecoy == rhs._isDecoy
-            && ionizationMode == rhs.ionizationMode
+            && _isDecoy == rhs._isDecoy && ionizationMode == rhs.ionizationMode
             && _db == rhs._db
             && _fragmentMzValues.size() == rhs._fragmentMzValues.size()
             && equal(begin(_fragmentMzValues),
                      end(_fragmentMzValues),
                      begin(rhs._fragmentMzValues),
-                     [](float a, float b) {
-                        return almostEqual(a, b);
-                     })
+                     [](float a, float b) { return almostEqual(a, b); })
             && _fragmentIntensities.size() == rhs._fragmentIntensities.size()
             && equal(begin(_fragmentIntensities),
                      end(_fragmentIntensities),
                      begin(rhs._fragmentIntensities),
-                     [](float a, float b) {
-                        return almostEqual(a, b);
-                     })
+                     [](float a, float b) { return almostEqual(a, b); })
             && _fragmentIonTypes == rhs._fragmentIonTypes
-            && _category == rhs._category
-            && type() == rhs.type());
+            && _category == rhs._category && type() == rhs.type());
 }
 
-
-Compound* Compound::operator = (const Compound& rhs)
+Compound* Compound::operator=(const Compound& rhs)
 {
     _id = rhs._id;
     _name = rhs._name;
@@ -112,20 +108,23 @@ Compound* Compound::operator = (const Compound& rhs)
     return this;
 }
 
-float Compound::adjustedMass(int charge) {
-     /**
-    *@return    -    total mass by formula minus loss of electrons' mass
-    *@see  -  double MassCalculator::computeMass(string formula, int charge) in mzMassCalculator.cpp
-    */
-     if (!_formula.empty()) {
+float Compound::adjustedMass(int charge)
+{
+    /**
+     *@return    -    total mass by formula minus loss of electrons' mass
+     *@see  -  double MassCalculator::computeMass(string formula, int charge) in
+     *mzMassCalculator.cpp
+     */
+    if (!_formula.empty()) {
         return MassCalculator::computeMass(_formula, charge);
-     } else if (_neutralMass != 0.0f) {
-         return MassCalculator::adjustMass(_neutralMass, charge);
-     }
-     return _mz;
+    } else if (_neutralMass != 0.0f) {
+        return MassCalculator::adjustMass(_neutralMass, charge);
+    }
+    return _mz;
 }
 
-Compound::Type Compound::type() const {
+Compound::Type Compound::type() const
+{
     bool hasFragMzs = _fragmentMzValues.size() > 0;
     bool hasFragInts = _fragmentIntensities.size() == _fragmentMzValues.size();
     if (hasFragMzs && hasFragInts)
@@ -149,37 +148,37 @@ FragmentationMatchScore Compound::scoreCompoundHit(Fragment* expFrag,
 {
     FragmentationMatchScore s;
 
-    if (_fragmentMzValues.size() == 0) return s;
+    if (_fragmentMzValues.size() == 0)
+        return s;
 
     Fragment libFrag;
     libFrag.precursorMz = _precursorMz;
     libFrag.mzValues = _fragmentMzValues;
     libFrag.intensityValues = _fragmentIntensities;
     libFrag.annotations = _fragmentIonTypes;
-    if (searchProton)  { //special case, check for loss or gain of protons
+    if (searchProton) {  // special case, check for loss or gain of protons
         int N = libFrag.mzValues.size();
-        for(int i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++) {
             libFrag.mzValues.push_back(libFrag.mzValues[i] + PROTON_MASS);
             libFrag.intensityValues.push_back(libFrag.intensityValues[i]);
-            libFrag.mzValues.push_back( libFrag.mzValues[i] - PROTON_MASS);
+            libFrag.mzValues.push_back(libFrag.mzValues[i] - PROTON_MASS);
             libFrag.intensityValues.push_back(libFrag.intensityValues[i]);
         }
     }
-    //theory fragmentation or library fragmentation = libFrag
-    //experimental data = expFrag
+    // theory fragmentation or library fragmentation = libFrag
+    // experimental data = expFrag
     libFrag.sortByIntensity();
     s = libFrag.scoreMatch(expFrag, productPpmTolr);
     return s;
 }
-
 
 string Compound::id() const
 {
     return this->_id;
 }
 
-
-void Compound::setId(string id){
+void Compound::setId(string id)
+{
     this->_id = id;
 }
 
@@ -198,22 +197,22 @@ string Compound::originalName() const
     return this->_originalName;
 }
 
-void Compound::setFormula(string formula) {
+void Compound::setFormula(string formula)
+{
     _formula = filterFormula(formula);
 }
 
 string Compound::filterFormula(string formulaString)
 {
-    string validChars = CHE_FORMULA_ALPHA_UPP
-                        + CHE_FORMULA_ALPHA_LOW
-                        + CHE_FORMULA_COFF;
-    formulaString.erase(remove_if(formulaString.begin(),
-                                  formulaString.end(),
-                                  [validChars] (const char& c) {
-                                      return (validChars.find(c)
-                                              == string::npos);
-                                  }),
-                        formulaString.end());
+    string validChars =
+        CHE_FORMULA_ALPHA_UPP + CHE_FORMULA_ALPHA_LOW + CHE_FORMULA_COFF;
+    formulaString.erase(
+        remove_if(formulaString.begin(),
+                  formulaString.end(),
+                  [validChars](const char& c) {
+                      return (validChars.find(c) == string::npos);
+                  }),
+        formulaString.end());
     return formulaString;
 }
 
@@ -221,7 +220,6 @@ string Compound::formula() const
 {
     return this->_formula;
 }
-
 
 void Compound::setAlias(string alias)
 {
@@ -233,7 +231,6 @@ string Compound::alias() const
     return this->_alias;
 }
 
-
 void Compound::setExpectedRt(float rt)
 {
     this->_expectedRt = rt;
@@ -244,7 +241,6 @@ float Compound::expectedRt() const
     return this->_expectedRt;
 }
 
-
 void Compound::setCharge(int charge)
 {
     this->_charge = charge;
@@ -254,7 +250,6 @@ int Compound::charge() const
 {
     return this->_charge;
 }
-
 
 void Compound::setMz(float mass)
 {
@@ -296,7 +291,6 @@ float Compound::collisionEnergy() const
     return this->_collisionEnergy;
 }
 
-
 void Compound::setDb(string db)
 {
     this->_db = db;
@@ -327,7 +321,8 @@ float Compound::neutralMass() const
     return _neutralMass;
 }
 
-void Compound::setCategory(vector<string> category){
+void Compound::setCategory(vector<string> category)
+{
     _category = category;
 }
 
@@ -336,7 +331,8 @@ vector<string> Compound::category() const
     return _category;
 }
 
-void Compound::setFragmentMzValues(vector<float> mzValues){
+void Compound::setFragmentMzValues(vector<float> mzValues)
+{
     _fragmentMzValues = mzValues;
 }
 
@@ -345,7 +341,8 @@ vector<float> Compound::fragmentMzValues() const
     return _fragmentMzValues;
 }
 
-void Compound::setFragmentIntensities(vector<float> intensities){
+void Compound::setFragmentIntensities(vector<float> intensities)
+{
     _fragmentIntensities = intensities;
 }
 
@@ -354,7 +351,8 @@ vector<float> Compound::fragmentIntensities() const
     return _fragmentIntensities;
 }
 
-void Compound::setFragmentIonTypes(map<int, string> types){
+void Compound::setFragmentIonTypes(map<int, string> types)
+{
     _fragmentIonTypes = types;
 }
 
@@ -363,7 +361,8 @@ map<int, string> Compound::fragmentIonTypes() const
     return _fragmentIonTypes;
 }
 
-void Compound::setSmileString(string smileString){
+void Compound::setSmileString(string smileString)
+{
     _smileString = smileString;
 }
 
@@ -372,34 +371,38 @@ string Compound::smileString() const
     return _smileString;
 }
 
-void Compound::setLogP(float logP){
+void Compound::setLogP(float logP)
+{
     _logP = logP;
 }
 
-float Compound:: logP() const
+float Compound::logP() const
 {
     return _logP;
 }
 
-void Compound::setVirtualFragmentation(bool isVirtual){
+void Compound::setVirtualFragmentation(bool isVirtual)
+{
     _virtualFragmentation = isVirtual;
 }
 
-bool Compound:: virtualFragmentation() const
+bool Compound::virtualFragmentation() const
 {
     return _virtualFragmentation;
 }
 
-void Compound:: setNote(string note){
+void Compound::setNote(string note)
+{
     _note = note;
 }
 
-string Compound:: note() const
+string Compound::note() const
 {
     return _note;
 }
 
-void Compound::setIsDecoy(bool isDecoy){
+void Compound::setIsDecoy(bool isDecoy)
+{
     _isDecoy = isDecoy;
 }
 
@@ -408,7 +411,8 @@ bool Compound::isDecoy() const
     return _isDecoy;
 }
 
-void Compound::setMethod_id(string id){
+void Compound::setMethod_id(string id)
+{
     _method_id = id;
 }
 
@@ -417,7 +421,8 @@ string Compound::method_id() const
     return _method_id;
 }
 
-void Compound::setTransition_id(int id){
+void Compound::setTransition_id(int id)
+{
     _transition_id = id;
 }
 
@@ -426,7 +431,8 @@ int Compound::transition_id() const
     return _transition_id;
 }
 
-void Compound::setKegg_id(string id){
+void Compound::setKegg_id(string id)
+{
     _kegg_id = id;
 }
 
@@ -435,7 +441,8 @@ string Compound::kegg_id() const
     return _kegg_id;
 }
 
-void Compound::setPubchem_id(string id){
+void Compound::setPubchem_id(string id)
+{
     _pubchem_id = id;
 }
 
@@ -444,13 +451,14 @@ string Compound::pubchem_id() const
     return _pubchem_id;
 }
 
-void Compound::setHmdb_id(string id){
+void Compound::setHmdb_id(string id)
+{
     _hmdb_id = id;
 }
 
 string Compound::hmdb_id() const
 {
-    return  _hmdb_id;
+    return _hmdb_id;
 }
 
 ostream& operator<<(ostream& os, const Compound& compound)
@@ -471,7 +479,8 @@ ostream& operator<<(ostream& os, const Compound& compound)
         ionizationMode = "Negative";
     }
 
-    os << "Compound {" << "\n\t"
+    os << "Compound {"
+       << "\n\t"
        << "id: " << compound.id() << "\n\t"
        << "name: " << compound.name() << "\n\t"
        << "original-name: " << compound.originalName() << "\n\t"
@@ -495,106 +504,112 @@ ostream& operator<<(ostream& os, const Compound& compound)
        << "ionization-mode: " << ionizationMode << "\n\t"
        << "database: " << compound.db() << "\n\t"
        << "fragment-mz-values: vector(size="
-           << compound.fragmentMzValues().size() << ")" << "\n\t"
+       << compound.fragmentMzValues().size() << ")"
+       << "\n\t"
        << "fragment-intensities: vector(size="
-           << compound.fragmentIntensities().size() << ")" << "\n\t"
+       << compound.fragmentIntensities().size() << ")"
+       << "\n\t"
        << "fragment-ion-types: vector(size="
-           << compound.fragmentIonTypes().size() << ")" << "\n\t"
-       << "category: vector(size="
-           << compound.category().size() << ")" << "\n\t"
+       << compound.fragmentIonTypes().size() << ")"
+       << "\n\t"
+       << "category: vector(size=" << compound.category().size() << ")"
+       << "\n\t"
        << "type: " << compoundType << "\n"
-       << "}" << "\n";
+       << "}"
+       << "\n";
     return os;
 }
 
-class Test_CompoundFixture: public SampleLoadingFixture{
-
+class Test_CompoundFixture : public SampleLoadingFixture
+{
     private:
-            void _initializeCompoundName(){
-                compoundName.push_back("dTTP");
-                compoundName.push_back("NADPH");
-                compoundName.push_back("CTP");
-                compoundName.push_back("dCTP");
-                compoundName.push_back("methionine");
-                compoundName.push_back("proline");
-                compoundName.push_back("glutamine");
-                compoundName.push_back("serine");
-                compoundName.push_back("alanine");
-                compoundName.push_back("lysine");
-            }
+    void _initializeCompoundName()
+    {
+        compoundName.push_back("dTTP");
+        compoundName.push_back("NADPH");
+        compoundName.push_back("CTP");
+        compoundName.push_back("dCTP");
+        compoundName.push_back("methionine");
+        compoundName.push_back("proline");
+        compoundName.push_back("glutamine");
+        compoundName.push_back("serine");
+        compoundName.push_back("alanine");
+        compoundName.push_back("lysine");
+    }
 
-            void _initializeCompoundFormula(){
-                compoundFormula.push_back("C10H17N2O14P3");
-                compoundFormula.push_back("C21H30N7O17P3");
-                compoundFormula.push_back("C9H16N3O14P3");
-                compoundFormula.push_back("C5H11NO2S");
-                compoundFormula.push_back("C5H9NO2");
-                compoundFormula.push_back("C5H10N2O3");
-                compoundFormula.push_back("C3H7NO3");
-                compoundFormula.push_back("C3H7NO2");
-                compoundFormula.push_back("C6H14N2O2");
-                compoundFormula.push_back("C9H16N3O13P3");
+    void _initializeCompoundFormula()
+    {
+        compoundFormula.push_back("C10H17N2O14P3");
+        compoundFormula.push_back("C21H30N7O17P3");
+        compoundFormula.push_back("C9H16N3O14P3");
+        compoundFormula.push_back("C5H11NO2S");
+        compoundFormula.push_back("C5H9NO2");
+        compoundFormula.push_back("C5H10N2O3");
+        compoundFormula.push_back("C3H7NO3");
+        compoundFormula.push_back("C3H7NO2");
+        compoundFormula.push_back("C6H14N2O2");
+        compoundFormula.push_back("C9H16N3O13P3");
+    }
 
-            }
+    void _initializeCopoundId()
+    {
+        compoundId.push_back("C00459");
+        compoundId.push_back("C00005");
+        compoundId.push_back("C00063");
+        compoundId.push_back("C00458");
+        compoundId.push_back("C00073");
+        compoundId.push_back("C00148");
+        compoundId.push_back("C00064");
+        compoundId.push_back("C00065");
+        compoundId.push_back("C00041");
+        compoundId.push_back("C00047");
+    }
 
-            void _initializeCopoundId(){
-                compoundId.push_back("C00459");
-                compoundId.push_back("C00005");
-                compoundId.push_back("C00063");
-                compoundId.push_back("C00458");
-                compoundId.push_back("C00073");
-                compoundId.push_back("C00148");
-                compoundId.push_back("C00064");
-                compoundId.push_back("C00065");
-                compoundId.push_back("C00041");
-                compoundId.push_back("C00047");
-            }
+    void _initializeCompoundExpectedRt()
+    {
+        compoundExpectedRt.push_back(14.94);
+        compoundExpectedRt.push_back(14.87);
+        compoundExpectedRt.push_back(14.9);
+        compoundExpectedRt.push_back(14.8);
+        compoundExpectedRt.push_back(1.5);
+        compoundExpectedRt.push_back(1.12);
+        compoundExpectedRt.push_back(1.1);
+        compoundExpectedRt.push_back(1);
+        compoundExpectedRt.push_back(1);
+        compoundExpectedRt.push_back(0.8);
+    }
 
-            void _initializeCompoundExpectedRt(){
-                compoundExpectedRt.push_back(14.94);
-                compoundExpectedRt.push_back(14.87);
-                compoundExpectedRt.push_back(14.9);
-                compoundExpectedRt.push_back(14.8);
-                compoundExpectedRt.push_back(1.5);
-                compoundExpectedRt.push_back(1.12);
-                compoundExpectedRt.push_back(1.1);
-                compoundExpectedRt.push_back(1);
-                compoundExpectedRt.push_back(1);
-                compoundExpectedRt.push_back(0.8);
-            }
-
-            void _initializeCompoundCharge(){
-
-                for(int i=0; i<10; i++){
-                    int charge = mzUtils::randInt(0, 2);
-                    compoundCharge.push_back(charge);
-                }
-            }
+    void _initializeCompoundCharge()
+    {
+        for (int i = 0; i < 10; i++) {
+            int charge = mzUtils::randInt(0, 2);
+            compoundCharge.push_back(charge);
+        }
+    }
 
     protected:
-                vector<string> compoundName;
-                vector<string> compoundFormula;
-                vector<string> compoundId;
-                vector<float> compoundExpectedRt;
-                vector<int> compoundCharge;
-    public:
-            Test_CompoundFixture()
-            {
-                _initializeCompoundName();
-                _initializeCompoundFormula();
-                _initializeCopoundId();
-                _initializeCompoundExpectedRt();
-                _initializeCompoundCharge();
-            }
+    vector<string> compoundName;
+    vector<string> compoundFormula;
+    vector<string> compoundId;
+    vector<float> compoundExpectedRt;
+    vector<int> compoundCharge;
 
+    public:
+    Test_CompoundFixture()
+    {
+        _initializeCompoundName();
+        _initializeCompoundFormula();
+        _initializeCopoundId();
+        _initializeCompoundExpectedRt();
+        _initializeCompoundCharge();
+    }
 };
 
-
-TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
-
-        SUBCASE("Testing GetterFunctions"){
-        for(int i=0; i<100; i++){
-
+TEST_CASE_FIXTURE(Test_CompoundFixture, "Testing Compound_Class")
+{
+    SUBCASE("Testing GetterFunctions")
+    {
+        for (int i = 0; i < 100; i++) {
             int name = mzUtils::randInt(0, 9);
             int formula = mzUtils::randInt(0, 9);
             int id = mzUtils::randInt(0, 9);
@@ -652,7 +667,7 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
             compound->setVirtualFragmentation(virtualFrag);
             REQUIRE(compound->virtualFragmentation() == virtualFrag);
 
-            auto logP = mzUtils::randFloat(0,50);
+            auto logP = mzUtils::randFloat(0, 50);
             compound->setLogP(logP);
             REQUIRE(compound->logP() == logP);
 
@@ -665,19 +680,19 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
             REQUIRE(getCategory[1] == "two");
 
             vector<float> mzValues;
-            for(int i = 0; i < 5; i++)
-                mzValues.push_back(mzUtils::randFloat(0,50));
+            for (int i = 0; i < 5; i++)
+                mzValues.push_back(mzUtils::randFloat(0, 50));
             compound->setFragmentMzValues(mzValues);
             auto getMzValues = compound->fragmentMzValues();
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
                 REQUIRE(getMzValues[i] == mzValues[i]);
 
             vector<float> intensities;
-            for(int i = 0; i < 5; i++)
-                intensities.push_back(mzUtils::randFloat(0,50));
+            for (int i = 0; i < 5; i++)
+                intensities.push_back(mzUtils::randFloat(0, 50));
             compound->setFragmentIntensities(intensities);
             auto getIntensities = compound->fragmentMzValues();
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
                 REQUIRE(getIntensities[i] == intensities[i]);
 
             map<int, string> ionTypes;
@@ -688,42 +703,41 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
         }
     }
 
-    SUBCASE("Testing compare functions"){
+    SUBCASE("Testing compare functions")
+    {
+        Compound* a = new Compound("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
 
-        Compound* a = new Compound("C00166", "UTP" ,
-                       "C9H15N2O14P3", 1, 14.81);
+        Compound* b = new Compound("C00175", "ZTP", "C9H15N2O15P3", 1, 14.91);
 
-        Compound* b = new Compound("C00175", "ZTP" ,
-                       "C9H15N2O15P3", 1, 14.91);
-
-        Compound* c = new Compound("C00166", "UTP" ,
-                       "C9H15N2O14P3", 1, 14.81);
+        Compound* c = new Compound("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
 
         REQUIRE(a->compName(a, b));
         REQUIRE(a->compMass(a, b));
         REQUIRE(a->compFormula(a, b));
     }
 
-    SUBCASE("Testing Adjusted Mass"){
-        Compound a("C00166", "UTP" ,
-                       "C9H15N2O14P3", 1, 14.81);
+    SUBCASE("Testing Adjusted Mass")
+    {
+        Compound a("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
 
         float mass = a.adjustedMass(1);
         REQUIRE(468.981 == doctest::Approx(mass));
     }
 
-
-    SUBCASE("Testing Assignment Operator"){
-        for(int i=0; i<100; i++){
+    SUBCASE("Testing Assignment Operator")
+    {
+        for (int i = 0; i < 100; i++) {
             int name = mzUtils::randInt(0, 9);
             int formula = mzUtils::randInt(0, 9);
             int id = mzUtils::randInt(0, 9);
             int rt = mzUtils::randInt(0, 9);
             int charge = mzUtils::randInt(0, 9);
 
-            Compound a(compoundId[id], compoundName[name],
-                           compoundFormula[formula], compoundCharge[charge],
-                           compoundExpectedRt[rt]);
+            Compound a(compoundId[id],
+                       compoundName[name],
+                       compoundFormula[formula],
+                       compoundCharge[charge],
+                       compoundExpectedRt[rt]);
 
             vector<string> category;
             category.push_back("amino acid");
@@ -738,10 +752,9 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
         }
     }
 
-
-    SUBCASE("Testing ScoreCompoundHit"){
-        Compound a("C00166", "UTP" ,
-                   "C9H15N2O14P3", 1, 14.81);
+    SUBCASE("Testing ScoreCompoundHit")
+    {
+        Compound a("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
         auto mzSamples = samples();
         Scan* scan = new Scan(mzSamples[0], 2, 0, 0.782, 0, 0);
         Fragment fragment(scan, 0.12, 0.15, 3);
@@ -751,19 +764,18 @@ TEST_CASE_FIXTURE( Test_CompoundFixture ,"Testing Compound_Class"){
         REQUIRE(f.mzFragError == 1000);
     }
 
-    SUBCASE("Testing type"){
-        Compound a("C00166", "UTP" , "C9H15N2O14P3",
-                         1, 14.81);
+    SUBCASE("Testing type")
+    {
+        Compound a("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
         Compound::Type T = a.type();
         REQUIRE(T == Compound::Type::MS1);
     }
 
-    SUBCASE("Testing equalsTo operator"){
-        Compound a("C00166", "UTP" ,
-                       "C9H15N2O14P3", 1, 14.81);
+    SUBCASE("Testing equalsTo operator")
+    {
+        Compound a("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
 
-        Compound b("C00166", "UTP" ,
-                       "C9H15N2O14P3", 1, 14.81);
-        REQUIRE( a == b);
+        Compound b("C00166", "UTP", "C9H15N2O14P3", 1, 14.81);
+        REQUIRE(a == b);
     }
 }
