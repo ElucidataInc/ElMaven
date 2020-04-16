@@ -14,8 +14,6 @@
  */
 namespace mzUtils {
 
-    const long double   Pi = 3.1415926535897932384626433832795028841968;
-
     int randInt(int low, int high)
     {
         default_random_engine generator;
@@ -61,7 +59,7 @@ namespace mzUtils {
         return result;
     }
 
-    void removeSpecialcharFromStartEnd(vector<string>& fields)
+    void removeSpecialCharFromStartEnd(vector<string>& fields)
     {
         for(size_t i = 0; i < fields.size(); i++) {
             int n = fields[i].length();
@@ -448,7 +446,8 @@ namespace mzUtils {
 
         //find best fit
         if (ycoord.size()<3){
-            pair<float, float> res = make_pair(FLT_MAX, FLT_MAX);
+            pair<float, float> res = make_pair(numeric_limits<float>::max(),
+                                               numeric_limits<float>::max());
             return res;
         }
         vector<float>yobs = ycoord;
@@ -476,14 +475,15 @@ namespace mzUtils {
         int ittr = 0;
 
         if (greaterZeroCount <= 3 ){
-            pair<float, float> res = make_pair(FLT_MAX, FLT_MAX);
+            pair<float, float> res = make_pair(FLT_MAX,
+                                               FLT_MAX);
             return res;
         }
         while (!converged ) {
             if ( ittr++ > 20 ) break;
             float Rsqr = 0;
             for(int i = 0; i < ysize; i++ ){
-                Rsqr += POW2(exp(-0.5*POW2(x[i]/s)) - yobs[i]);
+                Rsqr += SQUARE(exp(-0.5*SQUARE(x[i]/s)) - yobs[i]);
             }
 
             if ( Rsqr < minR || ittr == 0 ) { minR = Rsqr; min_s = s; }
@@ -586,7 +586,7 @@ namespace mzUtils {
     {
         if (x >= 2 && y >= 2 ) {
             //approximation
-            double result =  sqrt(2*Pi) * pow(x, x - 0.5) * pow(y, y - 0.5)/
+            double result =  sqrt(2*M_PI) * pow(x, x - 0.5) * pow(y, y - 0.5)/
                              pow(x + y,(x + y - 0.5));
             return result;
         }
@@ -1046,7 +1046,7 @@ TEST_SUITE("Testing mzUtils functions")
         vector<string> fields;
         fields.push_back(str1);
         fields.push_back(str2);
-        mzUtils::removeSpecialcharFromStartEnd(fields);
+        mzUtils::removeSpecialCharFromStartEnd(fields);
         REQUIRE(fields[0] == "Doctest");
         REQUIRE(fields[1] == "directory");
     }

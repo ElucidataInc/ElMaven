@@ -26,7 +26,7 @@ vector<Peak*> Classifier::removeRedundacy(vector<Peak*>&peaks) {
 
 			float rss = 0;
 			for (int k = 0; k < num_features; k++)
-				rss += POW2(A[k] - B[k]);
+                                rss += SQUARE(A[k] - B[k]);
 			rss /= num_features;
 			if (rss < 0.02) {
 				unique = false;

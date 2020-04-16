@@ -118,15 +118,15 @@ string mzSample::getFileName(const string& filename)
 
 void mzSample::loadAnySample(string filename)
 {
-    if (contains(filename, "mzCSV") == true) {
+    if (contains(filename, "mzCSV")) {
         parseMzCSV(filename.c_str());
-    } else if (contains(filename, "mzdata") == true ) {
+    } else if (contains(filename, "mzdata")) {
         parseMzData(filename.c_str());
-    } else if (contains(filename, "mzxml") == true) {
+    } else if (contains(filename, "mzxml")) {
         parseMzXML(filename.c_str());
-    } else if (contains(filename, "mzml") == true) {
+    } else if (contains(filename, "mzml")) {
         parseMzML(filename.c_str());
-    } else if (contains(filename, "cdf") == true) {
+    } else if (contains(filename, "cdf")) {
         parseCDF(filename.c_str(), 1);
     } else {
         parseMzData(filename.c_str());

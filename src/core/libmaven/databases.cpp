@@ -37,7 +37,7 @@ int Databases::loadCompoundCSVFile(string filename) {
         vector<string> fields;
         fields = mzUtils::split(line, sep);
 
-        mzUtils::removeSpecialcharFromStartEnd(fields);
+        mzUtils::removeSpecialCharFromStartEnd(fields);
 
         //Getting the heading from the csv File
         if (lineCount == 1) {

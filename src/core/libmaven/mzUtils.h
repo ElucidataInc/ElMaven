@@ -26,7 +26,7 @@
 #include <io.h>
 #endif
 
-#define POW2(x) ((x) * (x))
+#define SQUARE(x) ((x) * (x))
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
 #define SIGN(x) ((x < 0) ? -1 : 1)
@@ -124,7 +124,7 @@ namespace mzUtils
      * @param fields  Vector of strings. Special characters from string at
      * each index is removed.
      */
-    void removeSpecialcharFromStartEnd(vector<string>& fields);
+    void removeSpecialCharFromStartEnd(vector<string>& fields);
 
     /**
       PURPOSE:

@@ -148,14 +148,14 @@ void ClassifierNaiveBayes::classify(Peak&p) {
 
 		for (unsigned int ii = 0; ii < labels.size(); ii++)
 			if (labels[ii] == 'g') {
-				float rss = POW2(A[jj] - FEATURES[ii][jj]);
+                                float rss = SQUARE(A[jj] - FEATURES[ii][jj]);
 				distG.push_back(rss);
 				rssG += rss;
 			}
 
 		for (unsigned int ii = 0; ii < labels.size(); ii++)
 			if (labels[ii] == 'b') {
-				float rss = POW2(A[jj] - FEATURES[ii][jj]);
+                                float rss = SQUARE(A[jj] - FEATURES[ii][jj]);
 				distB.push_back(rss);
 				rssB += rss;
 			}
