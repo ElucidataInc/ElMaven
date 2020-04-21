@@ -1257,25 +1257,12 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     if (mavenParameters->samples.size() == 0)
         return;
 
-
-    auto ddaGroupAt =
-        find_if(begin(mavenParameters->allgroups),
-                end(mavenParameters->allgroups),
-                [](PeakGroup& group) {
-                    if (!group.getCompound())
-                        return false;
-                    return group.getCompound()->type() == Compound::Type::MS2;
-                });
-    bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
-
-    // Added to pass into csvreports file when merged with Maven776 - Kiran
-    // CLI exports the default Group Summary Matrix Format (without set Names)
-
     bool includeSetNamesLine = false;
-    
+    auto reportMode =
+        CSVReports::guessAcquisitionMode(mavenParameters->allgroups);
     csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
                                 mavenParameters->samples, quantitationType,  
-                                ddaGroupExists, includeSetNamesLine,
+                                reportMode, includeSetNamesLine,
                                 mavenParameters, pollyExport);
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {

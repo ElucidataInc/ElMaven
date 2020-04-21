@@ -90,6 +90,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     _sliceSet = false;
 
     _tableName = "";
+    _precursorGroup = nullptr;
 
     changePValue=0;
     changeFoldRatio=0;
@@ -177,6 +178,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedBadByCloudModel = o.markedBadByCloudModel;
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
+    _precursorGroup = o.precursorGroup();
     setFragmentGroups(o.fragmentGroups());
     copyChildren(o);
     _parameters = make_shared<MavenParameters>(*(o.parameters().get()));
@@ -1025,8 +1027,10 @@ void PeakGroup::setTableName(string tableName)
 void PeakGroup::setFragmentGroups(const vector<PeakGroup>& groups)
 {
     _fragmentGroups = groups;
-    for (auto& group : _fragmentGroups)
+    for (auto& group : _fragmentGroups) {
         group.setType(GroupType::Fragment);
+        group._precursorGroup = this;
+    }
 }
 
 const PeakGroup* PeakGroup::nearestFragmentGroup(const float mz) const

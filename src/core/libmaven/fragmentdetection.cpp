@@ -77,6 +77,21 @@ FragmentDetection::detectFragmentsTargeted(float precursorMz,
     detector.processSlices(slices);
     auto msMsGroups = parameters->allgroups;
 
+    auto nearestExpectedMz = [targetFragmentMzs] (float actualMz) {
+        float nearestMz = 0.0f;
+        float leastDiff = numeric_limits<float>::max();
+        for (float expectedMz : targetFragmentMzs) {
+            float diff = abs(expectedMz - actualMz);
+            if (diff < leastDiff) {
+                nearestMz = expectedMz;
+                leastDiff = diff;
+            }
+        }
+        return nearestMz;
+    };
+    for (auto& group : msMsGroups)
+        group.expectedMz = nearestExpectedMz(group.meanMz);
+
     // cleanup
     delete_all(slices);
     return msMsGroups;

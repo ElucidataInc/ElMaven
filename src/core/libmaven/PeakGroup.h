@@ -62,6 +62,7 @@ class PeakGroup{
         ~PeakGroup();
 
         PeakGroup* parent;
+        PeakGroup* precursorGroup() const { return _precursorGroup; }
 
         /**
          * @brief This parent group represents a group for the parent (primary)
@@ -650,11 +651,10 @@ class PeakGroup{
         Adduct* _adduct;
         mzSlice _slice;
         bool _sliceSet;
-
         string _tableName;
         shared_ptr<MavenParameters> _parameters;
         IntegrationType _integrationType;
-
+        PeakGroup* _precursorGroup;
         vector<PeakGroup> _fragmentGroups;
 
         /**

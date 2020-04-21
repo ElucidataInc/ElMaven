@@ -705,18 +705,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     return;
   }
 
- 
-  auto ms2GroupAt = find_if(begin(_topLevelGroups),
-                            end(_topLevelGroups),
-                            [] (shared_ptr<PeakGroup> group) {
-                              if (!group->hasCompoundLink())
-                                  return false;
-                              return (group->getCompound()->type()
-                                      == Compound::Type::MS2);
-                            });
-  bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
   bool includeSetNamesLines = false;
-
   auto reportType = CSVReports::ReportType::GroupReport;
   if (sFilterSel == groupsSCSV) {
     reportType = CSVReports::ReportType::GroupReport;
@@ -732,15 +721,19 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     reportType = CSVReports::ReportType::GroupReport;
   }
 
-  CSVReports csvreports(fileName.toStdString(),
-                        reportType,
-                        samples,
-                        _mainwindow->getUserQuantType(),
-                        ms2GroupExists,
-                        includeSetNamesLines,
-                        _mainwindow->mavenParameters);
-  QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
-  csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
+    auto reportMode =
+        CSVReports::guessAcquisitionMode(allgroups.toVector().toStdVector());
+    CSVReports* csvreports;
+    csvreports = new CSVReports(fileName.toStdString(),
+                                reportType,
+                                samples,
+                                _mainwindow->getUserQuantType(),
+                                reportMode,
+                                includeSetNamesLines,
+                                _mainwindow->mavenParameters);
+
+  QList<PeakGroup *> selectedGroups = getSelectedGroups();
+  csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
   for (auto group : _topLevelGroups) {
     if (selectedGroups.contains(group))
@@ -805,17 +798,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         return;
     }
 
-    auto ms2GroupAt = find_if(begin(_topLevelGroups),
-                              end(_topLevelGroups),
-                              [](shared_ptr<PeakGroup> group) {
-                                if (!group->hasCompoundLink())
-                                  return false;
-                                return (group->getCompound()->type()
-                                        == Compound::Type::MS2);
-                              });
-    bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
     bool includeSetNamesLines = false;
-
     auto reportType = CSVReports::ReportType::GroupReport;
     if (sFilterSel == groupsSCSV) {
         reportType = CSVReports::ReportType::GroupReport;
@@ -826,14 +809,17 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     } else if (sFilterSel == peaksTAB) {
         reportType = CSVReports::ReportType::PeakReport;
     }
-    CSVReports csvreports(fileName.toStdString(),
-                          reportType,
-                          samples,
-                          _mainwindow->getUserQuantType(),
-                          ms2GroupExists,
-                          includeSetNamesLines,
-                          _mainwindow->mavenParameters,
-                          true);
+    auto reportMode =
+        CSVReports::guessAcquisitionMode(allgroups.toVector().toStdVector());
+    CSVReports* csvreports;
+    csvreports = new CSVReports(fileName.toStdString(),
+                                reportType,
+                                samples,
+                                _mainwindow->getUserQuantType(),
+                                reportMode,
+                                includeSetNamesLines,
+                                _mainwindow->mavenParameters,
+                                true);
 
     QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
     csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));

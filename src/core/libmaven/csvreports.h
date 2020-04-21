@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 
+#include "Compound.h"
 #include "PeakGroup.h"
 
 using namespace std;
@@ -24,6 +25,35 @@ class CSVReports
          *file the user wants to create
          */
         enum class ReportType { GroupReport, PeakReport, PollyReport };
+        enum class AcquisitionMode { MS1, DDA, DIA };
+
+        /**
+         * @brief Given a list of PeakGroup objects, this static function can
+         * help in estimating which report format should be used, depending on
+         * the acquisition mode for their data.
+         * @param groups A vector of PeakGroup objects.
+         */
+        static AcquisitionMode guessAcquisitionMode(const vector<PeakGroup>& groups)
+        {
+            auto ms2GroupAt = find_if(begin(groups),
+                                      end(groups),
+                                      [](const PeakGroup& group) {
+                                          if (group.getCompound()) {
+                                            return (group.getCompound()->type()
+                                                    == Compound::Type::MS2);
+                                          }
+                                          return false;
+                                      });
+            if (ms2GroupAt != end(groups)) {
+                const PeakGroup& group = *ms2GroupAt;
+                if (group.fragmentGroups().empty()) {
+                    return AcquisitionMode::DDA;
+                } else {
+                    return AcquisitionMode::DIA;
+                }
+            }
+            return AcquisitionMode::MS1;
+        }
 
         /**
          *empty constructor
@@ -56,7 +86,7 @@ class CSVReports
                    ReportType reportType,
                    vector<mzSample*>& insamples,
                    PeakGroup::QType quantType = PeakGroup::AreaTop,
-                   bool prmReport = false,
+                   AcquisitionMode mode = AcquisitionMode::MS1,
                    bool includeSetNamesLine = false,
                    MavenParameters* mp = NULL,
                    bool pollyExport = false);
@@ -138,6 +168,7 @@ class CSVReports
          *for csv report
          */
         int _groupId;
+        int _metaGroupId;
 
         /**
          *@brief -   update string with escape sequence for
@@ -181,36 +212,19 @@ class CSVReports
         MavenParameters* mavenparameters;
         int selectionFlag; /**@param-  TODO*/
         bool _pollyExport;
-        bool _prmReport;
+        AcquisitionMode _acquisitionMode;
         bool _includeSetNamesLine;
 
         /**
          * @brief Write column name in output file for group report.
          */
         void _insertGroupReportColumnNamesintoCSVFile(string outputfile,
-                                                      bool prmReport,
                                                       bool includeSetNamesLine);
 
         /**
          * Write column name in output file for group report.
          */
         void _insertPeakReportColumnNamesintoCSVFile();
-
-        /**
-         * @brief - Relays the function for inserting isotopes to
-         * `insertAllIsotopes` by default. Optionally this method can be used to
-         * call `insertUserSelectedIsotopes` by passing a second boolean argument
-         * with `true` value.
-         */
-        void _insertIsotopes(PeakGroup* group,
-                             bool userSelectedIsotopesOnly = false);
-
-        /**
-         * @brief - Create a masslist with isotopes only currently selected by user
-         * (accessible through a global settings object) and then write the
-         * subgroups having these isotopes as tagrstrings, if they were found.
-         */
-        void _insertUserSelectedIsotopes(PeakGroup* group);
 
         void setTabDelimited()
         {
