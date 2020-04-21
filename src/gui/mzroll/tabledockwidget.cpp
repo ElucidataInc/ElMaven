@@ -109,6 +109,10 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setWidget(treeWidget);
   setupPeakTable();
 
+  ctrlZ = new QShortcut(this); // Initialize the object
+  ctrlZ->setKey(Qt::CTRL + Qt::Key_Z); // Set the key code
+  connect(ctrlZ, SIGNAL(activated()), this, SLOT(undoLabel()));
+
   connect(treeWidget,
           &QTreeWidget::itemClicked,
           this,
@@ -150,6 +154,8 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
 TableDockWidget::~TableDockWidget() {
   if (clusterDialog != NULL)
     delete clusterDialog;
+  if(ctrlZ)
+      delete ctrlZ;
 }
 
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
@@ -190,6 +196,23 @@ void TableDockWidget::setIntensityColName() {
   }
   _mainwindow->currentIntensityName = temp;
   header->setText(10, temp);
+}
+
+void TableDockWidget::undoLabel()
+{
+    auto groups = getSelectedGroups();
+    for(auto group : groups)
+    {
+        auto predictedLabel = group->predictedLabel();
+        float probability = group->predictionProbability();
+        auto id = undoBuffer[group->groupId];
+        group->setPredictedLabel(group->labelForString(id.first), id.second);
+
+        pair<string, float> updatedLabel = make_pair(group->labelToString(predictedLabel),
+                                                     probability);
+        undoBuffer[group->groupId] = updatedLabel;
+        updateTable();
+    }
 }
 
 void TableDockWidget::setupPeakTable() {
@@ -622,6 +645,11 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
 {
   if (group == nullptr)
     return nullptr;
+
+    auto label = group->labelToString(group->predictedLabel());
+    auto probability = group->predictionProbability();
+    pair<string, float> groupLabel = make_pair(label, probability);
+    undoBuffer[group->groupId] = groupLabel;
 
   auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
     shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*topLevelGroup);
