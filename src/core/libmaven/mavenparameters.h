@@ -271,6 +271,8 @@ class MavenParameters
         double overlapWeight;
         bool useOverlap;
 
+        bool peakMl;
+
 
         /*
          * @breif load user defined or default settings(Default_Settings.xml)
