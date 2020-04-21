@@ -1,17 +1,17 @@
 #define _STR(X) #X
 #define STR(X) _STR(X)
 
+#include "peakdetectorcli.h"
+#include "Compound.h"
 #include "common/analytics.h"
 #include "common/downloadmanager.h"
-#include "Compound.h"
-#include "csvparser.h"
 #include "common/logger.h"
-#include "mavenparameters.h"
+#include "csvparser.h"
 #include "masscutofftype.h"
+#include "mavenparameters.h"
 #include "mzAligner.h"
 #include "mzUtils.h"
 #include "obiwarp.h"
-#include "peakdetectorcli.h"
 #include "projectDB/projectdatabase.h"
 
 PeakDetectorCLI::PeakDetectorCLI(Logger* log,
@@ -49,15 +49,15 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log,
 #endif
 
 #ifdef Q_OS_MAC
-    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/peakdetector.app/Contents/
-    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/peakdetector.app/
-    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/
+    execDir.cdUp();  // <install_dir>/El-MAVEN/bin/peakdetector.app/Contents/
+    execDir.cdUp();  // <install_dir>/El-MAVEN/bin/peakdetector.app/
+    execDir.cdUp();  // <install_dir>/El-MAVEN/bin/
     execDirPath = execDir.absolutePath();
 #endif
 
-    clsfModelFilename = QString(execDirPath
-                                + QDir::separator()
-                                + QString("default.model")).toStdString();
+    clsfModelFilename =
+        QString(execDirPath + QDir::separator() + QString("default.model"))
+            .toStdString();
 }
 
 PeakDetectorCLI::~PeakDetectorCLI()
@@ -246,12 +246,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
             if (QFile::exists(QString::fromStdString(file))) {
                 filenames.push_back(file);
             } else {
-                _log->debug() << "Unable to locate sample file \""
-                              << file
-                              << "\", passed as parameter. Skipping."
-                              << std::flush;
+                _log->debug()
+                    << "Unable to locate sample file \"" << file
+                    << "\", passed as parameter. Skipping." << std::flush;
             }
-
         }
     }
 
@@ -274,9 +272,7 @@ void PeakDetectorCLI::processXML(const char* fileName)
         xml_document doc;
         doc.load_file(fileName, pugi::parse_minimal);
         if (string(doc.first_child().name()) == "Arguments") {
-            _log->info() << "Found config file "
-                         << fileName
-                         << ". Processing…"
+            _log->info() << "Found config file " << fileName << ". Processing…"
                          << std::flush;
             xml_node argsNode = doc.child("Arguments");
             xml_node optionsArgs = argsNode.child("OptionsDialogArguments");
@@ -295,8 +291,8 @@ void PeakDetectorCLI::processXML(const char* fileName)
         status = false;
         string errorMsg = "Error Loading file " + (string)fileName
                           + ". File not found. Can't process further.\n";
-        errorMsg = errorMsg
-                   + "To create a default file pass argument --defaultXml.\n";
+        errorMsg =
+            errorMsg + "To create a default file pass argument --defaultXml.\n";
         errorMsg = errorMsg
                    + "This will create a default file config.xml into the root "
                      "folder.\n";
@@ -342,8 +338,7 @@ void PeakDetectorCLI::_processOptionsArgsXML(xml_node& optionsArgs)
             mavenParameters->compoundMassCutoffWindow->setMassCutoffAndType(
                 atof(node.attribute("value").value()), "ppm");
         } else {
-            _log->error() << "Unknown config node: "
-                          << node.name()
+            _log->error() << "Unknown config node: " << node.name()
                           << std::flush;
         }
     }
@@ -416,12 +411,12 @@ void PeakDetectorCLI::_processPeaksArgsXML(xml_node& peaksArgs)
                 atof(node.attribute("value").value()), "ppm");
             mavenParameters->compoundMassCutoffWindow->setMassCutoffType("ppm");
 
-        // TODO -
-        // mavenParameters->compoundMassCutoffWindow
-        //                ->setMassCutoffAndType(atof(node.attribute("value")
-        //                                                .value()), "ppm");
-        // has to be removed later when <compoundMassCutoffWindow> attribute
-        // is added in test.xml file.
+            // TODO -
+            // mavenParameters->compoundMassCutoffWindow
+            //                ->setMassCutoffAndType(atof(node.attribute("value")
+            //                                                .value()), "ppm");
+            // has to be removed later when <compoundMassCutoffWindow> attribute
+            // is added in test.xml file.
 
         } else if (strcmp(node.name(), "minQuality") == 0) {
             mavenParameters->minQuality = atof(node.attribute("value").value());
@@ -486,8 +481,7 @@ void PeakDetectorCLI::_processPeaksArgsXML(xml_node& peaksArgs)
                 atof(node.attribute("value").value());
 
         } else {
-            _log->error() << "Unknown config node: "
-                          << node.name()
+            _log->error() << "Unknown config node: " << node.name()
                           << std::flush;
         }
     }
@@ -527,14 +521,12 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             if (QFile::exists(QString::fromStdString(sampleStr))) {
                 filenames.push_back(sampleStr);
             } else {
-                _log->debug() << "Unable to locate sample file \""
-                              << sampleStr
-                              << "\", specified in config file. Skipping."
-                              << std::flush;
+                _log->debug()
+                    << "Unable to locate sample file \"" << sampleStr
+                    << "\", specified in config file. Skipping." << std::flush;
             }
         } else {
-            _log->error() << "Unknown config node: "
-                          << node.name()
+            _log->error() << "Unknown config node: " << node.name()
                           << std::flush;
         }
     }
@@ -582,7 +574,7 @@ void PeakDetectorCLI::loadCompoundsFile()
     _log->info() << "Loading compound database…" << std::flush;
     int loadCount = _db.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
     auto compoundsDB = _db.compoundsDB();
-    vector<Compound*> v(compoundsDB.begin(),compoundsDB.end());
+    vector<Compound*> v(compoundsDB.begin(), compoundsDB.end());
     mavenParameters->compounds = v;
 
     // exit if db is empty
@@ -595,8 +587,9 @@ void PeakDetectorCLI::loadCompoundsFile()
     // check for invalid compounds
     vector<string> invalidRows = _db.invalidRows();
     if (invalidRows.size() > 0) {
-        string debugStr = "The following compounds had insufficient information "
-                          "for peak detection, and were not loaded:\n";
+        string debugStr =
+            "The following compounds had insufficient information "
+            "for peak detection, and were not loaded:\n";
         for (auto compoundID : invalidRows)
             debugStr += " - " + compoundID + "\n";
         _log->debug() << debugStr << std::flush;
@@ -618,23 +611,22 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
         try {
             sample->loadSample(filenames[i].c_str());
         } catch (const std::bad_alloc&) {
-            cerr << "MemoryError: " << "ran out of memory" << endl;
+            cerr << "MemoryError: "
+                 << "ran out of memory" << endl;
             mzUtils::delete_all(sample->scans);
         }
         if (!sample->scans.empty()) {
             sample->sampleName = mzUtils::cleanFilename(filenames[i]);
             sample->isSelected = true;
             mavenParameters->samples.push_back(sample);
-            _log->info() << "Loaded sample: "
-                         << sample->getSampleName()
+            _log->info() << "Loaded sample: " << sample->getSampleName()
                          << std::flush;
         } else {
             if (sample != NULL) {
                 delete sample;
                 sample = NULL;
             }
-            _log->info() << "Failed to load file: "
-                         << filenames[i]
+            _log->info() << "Failed to load file: " << filenames[i]
                          << std::flush;
         }
     }
@@ -648,15 +640,12 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
          mavenParameters->samples.end(),
          mzSample::compSampleSort);
 
-    _log->info() << "Loaded "
-                 << mavenParameters->samples.size()
-                 << " samples"
+    _log->info() << "Loaded " << mavenParameters->samples.size() << " samples"
                  << std::flush;
     cout << endl;
 
 #ifndef __APPLE__
-    cout << "Execution time (sample loading): "
-         << getTime() - startLoadingTime
+    cout << "Execution time (sample loading): " << getTime() - startLoadingTime
          << " seconds.\n";
 #endif
 }
@@ -668,24 +657,21 @@ void PeakDetectorCLI::alignSamples(const int& method)
         case 1: {
             cerr << "Starting OBI-WARP alignment" << std::endl;
             // TODO: move the hard coded values in  default_settings.xml and
-            // instead of using obi params make use mavenParameters to access all
-            // the values.
+            // instead of using obi params make use mavenParameters to access
+            // all the values.
             ObiParams params(
                 "cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
             Aligner mzAligner;
             mzAligner.alignWithObiWarp(
                 mavenParameters->samples, &params, mavenParameters);
-        }
-        break;
+        } break;
 
         case 2: {
             mavenParameters->writeCSVFlag = false;
             peakDetector->processFeatures();
 
             cerr << "Starting PolyFit alignment using "
-                 << mavenParameters->allgroups.size()
-                 << " groups"
-                 << endl;
+                 << mavenParameters->allgroups.size() << " groups" << endl;
 
             vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
             for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
@@ -695,8 +681,7 @@ void PeakDetectorCLI::alignSamples(const int& method)
             Aligner aligner;
             aligner.doAlignment(agroups);
             mavenParameters->writeCSVFlag = true;
-        }
-        break;
+        } break;
 
         default:
             break;
@@ -718,17 +703,15 @@ void PeakDetectorCLI::saveEmdb()
     if (_projectName.contains(".raw", Qt::CaseInsensitive))
         saveRawData = true;
 
-    _log->info() << "\nSaving project as \""
-                 << _projectName.toStdString() << "\"…"
-                 << std::flush;
+    _log->info() << "\nSaving project as \"" << _projectName.toStdString()
+                 << "\"…" << std::flush;
 
     if (mavenParameters->samples.size() == 0)
         return;
 
     auto version = string(STR(APPVERSION));
-    auto sessionDb = new ProjectDatabase(_projectName.toStdString(),
-                                         version,
-                                         saveRawData);
+    auto sessionDb =
+        new ProjectDatabase(_projectName.toStdString(), version, saveRawData);
     if (sessionDb) {
         shared_ptr<MavenParameters> mp(mavenParameters);
         auto settingsMap = sessionDb->fromParametersToMap(mp);
@@ -751,8 +734,7 @@ void PeakDetectorCLI::saveEmdb()
         _log->info() << "Finished saving emDB project." << std::flush;
         return;
     }
-    _log->error() << "Unable to open SQLite DB."
-                  << _projectName.toStdString()
+    _log->error() << "Unable to open SQLite DB." << _projectName.toStdString()
                   << std::flush;
 }
 
@@ -833,7 +815,6 @@ void PeakDetectorCLI::saveCSV(string setName)
 
     CSVReports* csvreports;
 
-
     if (mavenParameters->allgroups.size() == 0) {
         _log->info() << "Writing to CSV failed: no groups found." << std::flush;
         return;
@@ -845,25 +826,15 @@ void PeakDetectorCLI::saveCSV(string setName)
     if (mavenParameters->samples.size() == 0)
         return;
 
-
-    auto ddaGroupAt =
-        find_if(begin(mavenParameters->allgroups),
-                end(mavenParameters->allgroups),
-                [](PeakGroup& group) {
-                    if (!group.getCompound())
-                        return false;
-                    return group.getCompound()->type() == Compound::Type::MS2;
-                });
-    bool ddaGroupExists = ddaGroupAt != end(mavenParameters->allgroups);
-
-    // Added to pass into csvreports file when merged with Maven776 - Kiran
-    // CLI exports the default Group Summary Matrix Format (without set Names)
-
     bool includeSetNamesLine = false;
-    
-    csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
-                                mavenParameters->samples, quantitationType,  
-                                ddaGroupExists, includeSetNamesLine,
+    auto reportMode =
+        CSVReports::guessAcquisitionMode(mavenParameters->allgroups);
+    csvreports = new CSVReports(fileName,
+                                CSVReports::ReportType::GroupReport,
+                                mavenParameters->samples,
+                                quantitationType,
+                                reportMode,
+                                includeSetNamesLine,
                                 mavenParameters);
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
@@ -873,8 +844,7 @@ void PeakDetectorCLI::saveCSV(string setName)
 
     if (csvreports->getErrorReport() != "") {
         _log->info() << "Writing to CSV failed with error - "
-                     << csvreports->getErrorReport().toStdString()
-                     << "."
+                     << csvreports->getErrorReport().toStdString() << "."
                      << std::flush;
         return;
     }
@@ -882,8 +852,8 @@ void PeakDetectorCLI::saveCSV(string setName)
     _log->info() << "CSV output file: " << fileName << std::flush;
 
 #ifndef __APPLE__
-    cout << "\tExecution time (Saving CSV): "
-         << getTime() - startSavingCSV << " seconds.\n";
+    cout << "\tExecution time (Saving CSV): " << getTime() - startSavingCSV
+         << " seconds.\n";
 #endif
 }
 
@@ -892,10 +862,8 @@ void PeakDetectorCLI::reduceGroups()
     sort(mavenParameters->allgroups.begin(),
          mavenParameters->allgroups.end(),
          PeakGroup::compMz);
-    _log->info() << "Reducing "
-                 << mavenParameters->allgroups.size()
-                 << " groups…"
-                 << std::flush;
+    _log->info() << "Reducing " << mavenParameters->allgroups.size()
+                 << " groups…" << std::flush;
 
     // init deleteFlag
     for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++) {
@@ -948,15 +916,14 @@ void PeakDetectorCLI::reduceGroups()
     }
     mavenParameters->allgroups = allgroups_;
     _log->info() << "Done. Final group count: "
-                 << mavenParameters->allgroups.size()
-                 << std::flush;
+                 << mavenParameters->allgroups.size() << std::flush;
     cout << endl;
 }
 
 double get_wall_time()
 {
     struct timeval time;
-    if (gettimeofday(&time, nullptr)){
+    if (gettimeofday(&time, nullptr)) {
         //  Handle error
         return 0;
     }

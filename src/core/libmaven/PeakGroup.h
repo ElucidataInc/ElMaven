@@ -67,6 +67,10 @@ class PeakGroup
     ~PeakGroup();
 
     PeakGroup* parent;
+    PeakGroup* precursorGroup() const
+    {
+        return _precursorGroup;
+    }
 
     vector<Peak> peaks;
     vector<mzSample*> samples;  // this varibale will hold only those sample
@@ -734,6 +738,8 @@ class PeakGroup
     string _tableName;
     shared_ptr<MavenParameters> _parameters;
     IntegrationType _integrationType;
+    PeakGroup* _precursorGroup;
+    vector<PeakGroup> _fragmentGroups;
 
     void _updateType();
     /**
