@@ -227,7 +227,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) : QDialog(parent)
             minFragMatchScore->setMaximum(1000.0);
             minFragMatchScore->setSingleStep(5.0);
         }
-        minFragMatchScore = 0.0;
+        minFragMatchScore->setValue(0.0);
     });
 
     connect(quantileIntensity,

@@ -847,7 +847,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :parent_isotope_required          \
                      , :parent_adduct_required           \
                      , :peak_width_quantile              \
-                     , :frag_annotation_limit            )");
+                     , :frag_annotation_limit            \
+                     , :frag_scoring_algo                )");
     return cursor;
 }
 
@@ -984,6 +985,8 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
 
     settingsQuery->bind(":match_fragmentation",
                         BINT(settingsMap.at("matchFragmentation")));
+    settingsQuery->bind(":frag_scoring_algo",
+                        BINT(settingsMap.at("scoringAlgo")));
     settingsQuery->bind(":min_frag_match_score",
                         BDOUBLE(settingsMap.at("minFragMatchScore")));
     settingsQuery->bind(":fragment_tolerance",
@@ -1785,6 +1788,8 @@ string _nextSettingsRow(Cursor* settingsQuery,
 
     settingsMap["matchFragmentation"] =
         settingsQuery->integerValue("match_fragmentation");
+    settingsMap["scoringAlgo"] =
+        variant(settingsQuery->integerValue("frag_scoring_algo"));
     settingsMap["minFragMatchScore"] =
         variant(settingsQuery->doubleValue("min_frag_match_score"));
     settingsMap["fragmentTolerance"] =

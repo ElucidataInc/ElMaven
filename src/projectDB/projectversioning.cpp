@@ -1014,6 +1014,7 @@ namespace ProjectVersioning
          "ALTER TABLE peakgroups ADD COLUMN isotope_s34_count INTEGER;"
          "ALTER TABLE peakgroups ADD COLUMN isotope_h2_count INTEGER;"
          "ALTER TABLE user_settings ADD COLUMN frag_annotation_limit  INTEGER;"
+         "ALTER TABLE user_settings ADD COLUMN frag_scoring_algo     INTEGER;"
 
          "COMMIT;"}
 

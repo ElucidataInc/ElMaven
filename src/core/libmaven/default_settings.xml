@@ -29,6 +29,7 @@
         <minFragMatch>3</minFragMatch>
         <minFragMatchScore>0.00</minFragMatchScore>
         <fragAnnotationLimit>1</fragAnnotationLimit>
+        <scoringAlgo>0</scoringAlgo>
         <reportIsotopes>1</reportIsotopes>
         <filterIsotopesAgainstParent>1</filterIsotopesAgainstParent>
         <parentIsotopeRequired>1</parentIsotopeRequired>
