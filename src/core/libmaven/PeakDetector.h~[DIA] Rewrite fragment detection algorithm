@@ -26,6 +26,7 @@ class PeakGroup;
 class PeakDetector {
 public:
     boost::signals2::signal< void (const std::string&,unsigned int , int ) > boostSignal;
+    bool disableSignals;
 
 	PeakDetector();
 	PeakDetector(MavenParameters* mp);
@@ -45,7 +46,8 @@ public:
     
     void sendBoostSignal( const std::string& progressText, unsigned int completed_slices, int total_slices)
     {
-    boostSignal(progressText, completed_slices, total_slices);
+        if (!disableSignals)
+            boostSignal(progressText, completed_slices, total_slices);
     }
 
 

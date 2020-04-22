@@ -34,6 +34,7 @@ MassSlicer::MassSlicer(MavenParameters* mp) : _mavenParameters(mp)
     massCutoff = NULL;
     _msLevel = 1;
     _precursorMz = -1.0f;
+    disableSignals = false;
 }
 
 MassSlicer::~MassSlicer()
