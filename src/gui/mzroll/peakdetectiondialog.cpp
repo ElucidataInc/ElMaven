@@ -58,7 +58,9 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog)
     settings.insert("fragmentTolerance",
                     QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
-    settings.insert("fragAnnotationLimit", QVariant::fromValue(pd->fragAnnotationLimit));
+    settings.insert("fragAnnotationLimit",
+                    QVariant::fromValue(pd->fragAnnotationLimit));
+    settings.insert("scoringAlgo", QVariant::fromValue(pd->scoringAlgo));
 
     // group filtering settings
     settings.insert("peakQuantitation",
@@ -211,6 +213,22 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) : QDialog(parent)
             SIGNAL(valueChanged(double)),
             mainwindow->massCalcWidget->fragPpm,
             SLOT(setValue(double)));
+
+    connect(scoringAlgo, &QComboBox::currentTextChanged, [this]() {
+        this->mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                   "Frag matching algo changed",
+                                                   scoringAlgo->currentText());
+        if (scoringAlgo->currentIndex() == 0) {
+            // weighted dot-product
+            minFragMatchScore->setMaximum(1.0);
+            minFragMatchScore->setSingleStep(0.05);
+        } else {
+            // hypergeometric score
+            minFragMatchScore->setMaximum(1000.0);
+            minFragMatchScore->setSingleStep(5.0);
+        }
+        minFragMatchScore = 0.0;
+    });
 
     connect(quantileIntensity,
             SIGNAL(valueChanged(int)),
@@ -507,12 +525,6 @@ void PeakDetectionDialog::toggleFragmentation()
         s
     });
     bool hasFragmentation = iter != end(samples);
-    if (hasFragmentation && featureOptions->isChecked()) {
-        mustHaveMs2->setEnabled(true);
-    } else {
-        mustHaveMs2->setEnabled(false);
-        mustHaveMs2->setChecked(false);
-    }
 
     QString selectedDbName = "";
     if (dbSearch->isChecked()) {

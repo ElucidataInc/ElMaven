@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>580</height>
+    <height>631</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -618,6 +618,13 @@
             </property>
             <property name="value">
              <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+        <item row="6" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Limit compound annotation based on spectral match</string>
             </property>
            </widget>
           </item>
