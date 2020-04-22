@@ -784,7 +784,8 @@ map<int, string> dbVersionUpgradeScripts = {
         5,
         "BEGIN TRANSACTION;"
 
-        "ALTER TABLE user_settings ADD COLUMN frag_annotation_limit  INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN frag_annotation_limit INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN frag_scoring_algo     INTEGER;"
 
         "COMMIT;"
     }

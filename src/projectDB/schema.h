@@ -250,7 +250,8 @@
                                               , search_adducts                   INTEGER \
                                               , adduct_search_window             REAL    \
                                               , adduct_percent_correlation       REAL    \
-                                              , frag_annotation_limit            INTEGER );"
+                                              , frag_annotation_limit            INTEGER \
+                                              , frag_scoring_algo                INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

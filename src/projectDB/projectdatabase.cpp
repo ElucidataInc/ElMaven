@@ -706,7 +706,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :search_adducts                   \
                      , :adduct_search_window             \
                      , :adduct_percent_correlation       \
-                     , :frag_annotation_limit            )");
+                     , :frag_annotation_limit            \
+                     , :frag_scoring_algo                )");
     return cursor;
 }
 
@@ -789,6 +790,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
 
     settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
+    settingsQuery->bind(":frag_scoring_algo", BINT(settingsMap.at("scoringAlgo")));
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
     settingsQuery->bind(":fragment_tolerance", BDOUBLE(settingsMap.at("fragmentTolerance")));
     settingsQuery->bind(":min_frag_match", BDOUBLE(settingsMap.at("minFragMatch")));
@@ -1438,6 +1440,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
 
     settingsMap["matchFragmentation"] = settingsQuery->integerValue("match_fragmentation");
+    settingsMap["scoringAlgo"] = variant(settingsQuery->integerValue("frag_scoring_algo"));
     settingsMap["minFragMatchScore"] = variant(settingsQuery->doubleValue("min_frag_match_score"));
     settingsMap["fragmentTolerance"] = variant(settingsQuery->doubleValue("fragment_tolerance"));
     settingsMap["minFragMatch"] = variant(settingsQuery->integerValue("min_frag_match"));
