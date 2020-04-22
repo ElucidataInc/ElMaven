@@ -20,6 +20,7 @@ MassSlices::MassSlices()
     massCutoff=NULL;
     _msLevel = 1;
     _precursorMz = -1.0f;
+    disableSignals = false;
 }
 
 MassSlices::~MassSlices() { delete_all(slices); cache.clear(); }
@@ -28,7 +29,8 @@ void MassSlices::sendSignal(const string& progressText,
                 unsigned int completed_samples,
                 int total_samples)
 {
-    mavenParameters->sig(progressText, completed_samples, total_samples);
+    if (!disableSignals)
+        mavenParameters->sig(progressText, completed_samples, total_samples);
 }
 
 /**

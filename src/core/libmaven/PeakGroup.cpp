@@ -919,7 +919,7 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
         if (peak.getSample()->ms2ScanCount() > 0)
             hasDdaSamples = true;
     }
-    if (hasDiaSamples) {
+    if (hasDiaSamples && _fragmentGroups.empty()) {
         FragmentDetection::findFragments(this);
     } else if (hasDdaSamples) {
         _computeDdaFragPattern(productPpmTolr);

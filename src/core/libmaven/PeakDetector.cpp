@@ -23,10 +23,12 @@
 
 PeakDetector::PeakDetector() {
     mavenParameters = NULL;
+    disableSignals = false;
 }
 
 PeakDetector::PeakDetector(MavenParameters* mp) {
 	mavenParameters = mp;
+    disableSignals = false;
 }
 
 void PeakDetector::resetProgressBar() {
@@ -164,15 +166,8 @@ void PeakDetector::pullAllIsotopes() {
 }
 
 void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet) {
-    // init
-    // TODO: what is this doing?
-    // TODO: cant this be in background_peaks_update parameter setting function
     mavenParameters->showProgressFlag = true;
-    QTime timer;
-    timer.start();
-
-    // TODO: cant this be in background_peaks_update parameter setting function
-    mavenParameters->setAverageScanTime();  // find avgScanTime
+    mavenParameters->setAverageScanTime(); // find avgScanTime
 
     MassSlices massSlices;
     massSlices.setSamples(mavenParameters->samples);
@@ -180,39 +175,55 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
 
     massSlices.setMaxIntensity(mavenParameters->maxIntensity);
     massSlices.setMinIntensity(mavenParameters->minIntensity);
-    massSlices.setMaxRt	(mavenParameters->maxRt);
-    massSlices.setMinRt (mavenParameters->minRt);
-    massSlices.setMaxMz (mavenParameters->maxMz);
-    massSlices.setMinMz	(mavenParameters->minMz);
-    massSlices.algorithmB(mavenParameters->massCutoffMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
+    massSlices.setMaxRt(mavenParameters->maxRt);
+    massSlices.setMinRt(mavenParameters->minRt);
+    massSlices.setMaxMz(mavenParameters->maxMz);
+    massSlices.setMinMz(mavenParameters->minMz);
+    massSlices.algorithmB(mavenParameters->massCutoffMerge,
+                          mavenParameters->rtStepSize);
 
     if (massSlices.slices.size() == 0)
-        massSlices.algorithmA();  // if no slices present, perform algorithmA
-                                  // TODO WHY?!
+        massSlices.algorithmA();
 
     // sort the massslices based on their intensities to enurmerate good slices.
-    sort(massSlices.slices.begin(), massSlices.slices.end(),
+    sort(massSlices.slices.begin(),
+         massSlices.slices.end(),
          mzSlice::compIntensity);
 
-    if (massSlices.slices.size() == 0) {
-        //	Q_EMIT (updateProgressBar("Quiting! No good mass slices found",
-        //1, 1)); TODO: Fix Q_EMIT.
+    if (massSlices.slices.size() == 0)
         return;
-    }
 
-    sendBoostSignal("Peak Detection",0,1);
+    sendBoostSignal("Peak Detection", 0, 1);
 
     // process goodslices
     processSlices(massSlices.slices, "groups");
+
+    auto foundDiaSample = find_if(begin(mavenParameters->samples),
+                                  end(mavenParameters->samples),
+                                  [](mzSample* sample) {
+                                      return sample->diaScanCount() > 0;
+                                  });
+    if (foundDiaSample != end(mavenParameters->samples)) {
+        sendBoostSignal("Detecting fragments…", 0, 0);
+        for (size_t i = 0; i < mavenParameters->allgroups.size(); ++i) {
+            PeakGroup group = mavenParameters->allgroups.at(i);
+
+            disableSignals = true;
+            FragmentDetection::findFragments(&group);
+            disableSignals = false;
+
+            mavenParameters->allgroups.at(i) = group;
+            sendBoostSignal("Detecting fragments…",
+                            i + 1,
+                            mavenParameters->allgroups.size());
+        }
+    }
 
     // identify features with known targets
     identifyFeatures(identificationSet);
 
     // cleanup
     delete_all(massSlices.slices);
-
-    qDebug() << "processMassSlices() Done. ElepsTime=%1 msec"
-             << timer.elapsed();
 }
 
 /**

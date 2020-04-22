@@ -23,6 +23,8 @@ using namespace std;
 class MassSlices {
 
     public:
+        bool disableSignals;
+
         MassSlices();
         ~MassSlices();
 

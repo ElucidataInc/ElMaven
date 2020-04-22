@@ -21,11 +21,15 @@ FragmentDetection::detectFragmentsUntargeted(float precursorMz,
         return {};
 
     MassSlices slicing;
+    slicing.disableSignals = true;
     slicing.setSamples(parameters->samples);
     slicing.setMavenParameters(parameters);
     slicing.setMsLevel(2, precursorMz);
     slicing.setMinRt(precursorRt - rtDeviationLimit);
     slicing.setMaxRt(precursorRt + rtDeviationLimit);
+
+    // ignore fragments below this intensity
+    slicing.setMinIntensity(100.0f);
 
     MassCutoff massCutoff;
     massCutoff.setMassCutoffAndType(parameters->fragmentTolerance, "ppm");
@@ -77,6 +81,8 @@ FragmentDetection::detectFragmentsTargeted(float precursorMz,
     detector.processSlices(slices);
     auto msMsGroups = parameters->allgroups;
 
+    // lambda: finds the closest m/z value in `targetFragmentMzs`, for a
+    // given target m/z
     auto nearestExpectedMz = [targetFragmentMzs] (float actualMz) {
         float nearestMz = 0.0f;
         float leastDiff = numeric_limits<float>::max();
@@ -106,7 +112,7 @@ void FragmentDetection::findFragments(PeakGroup* precursor)
     auto msGroups = parameters->allgroups;
 
     // TODO: should come from the user
-    float fiveSeconds = 5 / 60.0f;
+    float fiveSeconds = 5.0f / 60.0f;
     vector<PeakGroup> groups;
     // TODO: group's mean mz and RT should work for most peaks but for those
     // that are further than the delta values, will not be captured.
