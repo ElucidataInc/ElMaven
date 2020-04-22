@@ -35,6 +35,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         scoringAlgo = "Hypergeometric Score";
         matchFragmentationFlag = false;
         mustHaveFragmentation = false;
+        scoringAlgo = "";
         fragAnnotationLimit = 1;
         
         /*
@@ -392,6 +393,13 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if (strcmp(key, "fragAnnotationLimit") == 0)
         fragAnnotationLimit = atof(value);
+
+    vector<string> fragMatchingAlgo = {
+        "Weighted Dot-product",
+        "Hypergeometric Score"
+    };
+    if (strcmp(key, "scoringAlgo") == 0)
+        scoringAlgo = fragMatchingAlgo.at(atoi(value));
 
     if(strcmp(key,"timeDomainResolution") == 0)
         rtStepSize = atof(value);

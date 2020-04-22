@@ -560,6 +560,86 @@ double Fragment::mzWeightedDotProduct(const vector<int>& X, Fragment* other)
     return (sqrt(dotP / (thisTIC * otherTIC))); //SIM
 }
 
+float Fragment::weightedDotProduct(Fragment* other, float fragmentTolerance)
+{
+    auto weightedDenseVector = [](Fragment* fragmentationProfile,
+                                  vector<int> ranks) {
+        double mzMin = 0.0;
+        double mzMax = 1600.0;
+        vector<float> denseVector(static_cast<size_t>(mzMax) * 5, 0.0f);
+
+        vector<double> intensities(begin(fragmentationProfile->intensityValues),
+                                   end(fragmentationProfile->intensityValues));
+        if (ranks.size() != intensities.size()) {
+            // why is it called "ranks" anyway?
+            cerr << "Warning: size of ranks vector does not match profile's "
+                    "observation count\n";
+            return denseVector;
+        }
+
+        // normalize intensity values and halve non-matching peaks
+        double maxIntensity = *(max_element(begin(intensities),
+                                            end(intensities)));
+        for (size_t i = 0; i < intensities.size(); ++i) {
+            double normalizedIntensity = intensities[i] / maxIntensity;
+            if (ranks.at(i) == -1)
+                normalizedIntensity /= 2.0;
+            intensities[i] = normalizedIntensity;
+        }
+
+        // rescale based on weights, to suppress the effect of fragments that
+        // have high relative abundance
+        double sumIntensity = accumulate(begin(intensities),
+                                         end(intensities),
+                                         0.0);
+        for (size_t i = 0; i < intensities.size(); ++i) {
+            double weight = 1.0
+                            / (1.0 + (intensities[i] / (sumIntensity - 0.5)));
+            intensities[i] = weight * intensities[i];
+        }
+
+        vector<float> mzValues(fragmentationProfile->mzValues);
+        for (size_t i = 0; i < mzValues.size(); ++i) {
+            if (mzValues[i] < mzMin || mzValues[i] > mzMax)
+                continue;
+
+            double ratio = (mzValues[i] - mzMin) / (mzMax - mzMin);
+            int bin = static_cast<size_t>(ratio * denseVector.size());
+            if (bin > 0 && bin < denseVector.size())
+                denseVector[bin] += static_cast<float>(intensities[i]);
+        }
+        return denseVector;
+    };
+
+    // non-matching peaks in actual spectra will be halved
+    auto ranksForThis = compareRanks(this, other, fragmentTolerance);
+    auto denseVectorForThis = weightedDenseVector(this, ranksForThis);
+    auto ranksForOther = vector<int>(other->mzValues.size(), 1);
+    auto denseVectorForOther = weightedDenseVector(other, ranksForOther);
+    float dotProduct = mzUtils::correlation(denseVectorForThis,
+                                            denseVectorForOther);
+
+    // calculate the ratio of actual number of matches
+    // to expected number of matches
+    int numMatches = 0;
+    for (int rank : ranksForThis) {
+        if (rank != -1)
+            ++numMatches;
+    }
+    float ratioOfMatches = static_cast<float>(numMatches)
+                           / static_cast<float>(ranksForOther.size());
+
+    // non-matching peaks in library spectra will be halved
+    ranksForThis = vector<int>(this->mzValues.size(), 1);
+    denseVectorForThis = weightedDenseVector(this, ranksForThis);
+    ranksForOther = compareRanks(other, this, fragmentTolerance);
+    denseVectorForOther = weightedDenseVector(other, ranksForOther);
+    float reverseDotProduct = mzUtils::correlation(denseVectorForOther,
+                                                   denseVectorForThis);
+
+    return (ratioOfMatches + dotProduct + reverseDotProduct) / 3.0f;
+}
+
 FragmentationMatchScore Fragment::scoreMatch(Fragment* other, float productPpmTolr)
 {
     FragmentationMatchScore s;
@@ -587,7 +667,7 @@ FragmentationMatchScore Fragment::scoreMatch(Fragment* other, float productPpmTo
     s.hypergeomScore  = hyperGeometricScore(s.numMatches, a->nobs(), b->nobs(), 100000) +
                         s.ticMatched; // ticMatch is tie breaker
     s.mvhScore = MVH(ranks, b);
-    s.weightedDotProduct = mzWeightedDotProduct(ranks, b);
+    s.weightedDotProduct = weightedDotProduct(b, productPpmTolr);
 
     return s;
 }

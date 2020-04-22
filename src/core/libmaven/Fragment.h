@@ -36,19 +36,19 @@ struct FragmentationMatchScore {
     }
 
     double getScoreByName(string scoringAlgorithm) {
-        if (scoringAlgorithm == "HyperGeomScore")
+        if (scoringAlgorithm == "Hypergeometric Score")
             return hypergeomScore;
         else if (scoringAlgorithm == "MVH")
             return mvhScore;
-        else if (scoringAlgorithm == "DotProduct")
+        else if (scoringAlgorithm == "Dot-product")
             return dotProduct;
-        else if (scoringAlgorithm == "SpearmanRank")
+        else if (scoringAlgorithm == "Spearman Rank")
             return spearmanRankCorrelation;
-        else if (scoringAlgorithm == "TICMatched")
+        else if (scoringAlgorithm == "TIC Matched")
             return ticMatched;
-        else if (scoringAlgorithm == "WeightedDotProduct")
+        else if (scoringAlgorithm == "Weighted Dot-product")
             return weightedDotProduct;
-        else if (scoringAlgorithm == "NumMatches")
+        else if (scoringAlgorithm == "Num Matches")
             return numMatches;
         else return hypergeomScore;
 
@@ -180,6 +180,20 @@ class Fragment {
         double MVH(const vector<int>& X, Fragment* other);
 
         double mzWeightedDotProduct(const vector<int>& X, Fragment* other);
+
+        /**
+         * @brief Calculates a fragmentation match score based on correlation
+         * of weighted (by abundance and presence/absence of match) intensity
+         * values of this profile vs. those of the `other` profile.
+         * @details See Tsugawa et. al., Nature Methods 2015.
+         * @param other Another `Fragment` object describing the profile against
+         * which this profile is being matched.
+         * @param fragmentTolerance A mass tolerance (in PPM) value to decide
+         * whether two peaks from different fragmentation spectra arise from the
+         * same mass.
+         * @return A fractional score between 0.0 and 1.0.
+         */
+        float weightedDotProduct(Fragment* other, float fragmentTolerance);
 
         FragmentationMatchScore scoreMatch(Fragment* other, float productPpmTolr);
 
