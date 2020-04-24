@@ -10,6 +10,7 @@
 #include "spectrawidget.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "numeric_treewidgetitem.h"
 
 using namespace std;
 
@@ -103,11 +104,14 @@ void MassCalcWidget::showTable()
             && database->currentText() != databaseName)
             continue;
 
+        double msMsScore =
+            match->fragScore.getScoreByName(_mw->mavenParameters->scoringAlgo);
+
         QString item1 = QString(match->name.c_str());
         QString item2 = compoundName;
         QString item3 = QString::number(match->rtDiff, 'f', 2);
         QString item4 = QString::number(match->diff, 'f', 2);
-        QString item5 = QString::number(match->fragScore.hypergeomScore, 'f', 3);
+        QString item5 = QString::number(msMsScore, 'f', 2);
         QString item6 = databaseName;
         QStringList rowItems = QStringList() << item1
                                              << item2
@@ -115,7 +119,7 @@ void MassCalcWidget::showTable()
                                              << item4
                                              << item5
                                              << item6;
-        QTreeWidgetItem *item = new QTreeWidgetItem(rowItems);
+        NumericTreeWidgetItem *item = new NumericTreeWidgetItem(p, rowItems);
         item->setData(0, Qt::UserRole, QVariant(i));
         p->addTopLevelItem(item);
     }
