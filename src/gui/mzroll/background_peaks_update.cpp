@@ -15,6 +15,7 @@
 #include "csvreports.h"
 #include "background_peaks_update.h"
 #include "database.h"
+#include "groupFiltering.h"
 #include "grouprtwidget.h"
 #include "isotopeDetection.h"
 #include "mainwindow.h"
@@ -235,6 +236,15 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
 
         if (runFunction == "alignUsingDatabase") align();
 
+        // filter for the best spectral matches per unique group
+        if (mavenParameters->matchFragmentationFlag) {
+            updateProgressBar("Filtering for best MS/MS annotations…", 0, 0);
+            GroupFiltering groupFiltering(mavenParameters);
+            groupFiltering.filterAllButSome(mavenParameters->allgroups,
+                                            GroupFiltering::FilterType::MsMsScore,
+                                            mavenParameters->fragAnnotationLimit);
+        }
+
         if (mavenParameters->showProgressFlag
             && mavenParameters->pullIsotopesFlag) {
                 Q_EMIT(updateProgressBar("Calculating Isotopes", 1, 100));
@@ -278,6 +288,15 @@ void BackgroundPeakUpdate::processMassSlices() {
         Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
         mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
         peakDetector->processMassSlices(mavenParameters->compounds);
+
+        // filter for the best spectral matches per unique group
+        if (mavenParameters->matchFragmentationFlag) {
+            updateProgressBar("Filtering for best MS/MS annotations…", 0, 0);
+            GroupFiltering groupFiltering(mavenParameters);
+            groupFiltering.filterAllButSome(mavenParameters->allgroups,
+                                            GroupFiltering::FilterType::MsMsScore,
+                                            mavenParameters->fragAnnotationLimit);
+        }
 
         align();
 
@@ -334,6 +353,10 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
                 S34Flag,
                 D2Flag);
 	isotopeDetection.pullIsotopes(parentgroup);
+
+    parentgroup->computeFragPattern(mavenParameters->fragmentTolerance);
+    parentgroup->matchFragmentation(mavenParameters->fragmentTolerance,
+                                    mavenParameters->scoringAlgo);
 }
 
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
@@ -354,6 +377,10 @@ void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                 S34Flag,
                 D2Flag);
         isotopeDetection.pullIsotopes(parentgroup);
+
+    parentgroup->computeFragPattern(mavenParameters->fragmentTolerance);
+    parentgroup->matchFragmentation(mavenParameters->fragmentTolerance,
+                                    mavenParameters->scoringAlgo);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {

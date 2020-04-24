@@ -911,6 +911,9 @@ void PeakGroup::_computeDdaFragPattern(float productPpmTolr)
 
 void PeakGroup::computeFragPattern(float productPpmTolr)
 {
+    if (!isMS1())
+        return;
+
     bool hasDiaSamples = false;
     bool hasDdaSamples = false;
     for (auto& peak : peaks) {

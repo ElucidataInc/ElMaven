@@ -258,7 +258,7 @@ void IsotopeWidget::computeIsotopes(string f)
 	if (isotopeParameters->_scan == NULL)
 		return;
 
-    if (isotopeParameters->_group) {
+    if (isotopeParameters->_group != nullptr) {
         populateByParentGroup(isotopes, parentMass);
     } else {
 		for (unsigned int i = 0; i < isotopes.size(); i++)
@@ -307,7 +307,7 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
     PeakGroup *parentGroup = isotopeParameters->_group.get();
     if (parentGroup->parent != nullptr)
         parentGroup = parentGroup->parent;
-    if (parentGroup == nullptr || parentGroup->isIsotope())
+    if (parentGroup == nullptr || parentGroup->isIsotope() || !parentGroup->hasCompoundLink())
 		return;
 	if (!isotopeParameters->_scan)
 		return;
