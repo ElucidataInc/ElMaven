@@ -1158,16 +1158,20 @@ EIC* mzSample::getEIC(float precursorMz,
         // calculate the weighted average(with intensities as weights)
         // while finding the eicMz for the whole EIC.
         case EIC::SUM: {
-            float n = 0;
+            double sumMz = 0.0;
+            double sumIntensity = 0.0;
             for (unsigned int k = 0; k < scan->nobs(); k++) {
                 if (abs(productMz - scan->mz[k]) > amuQ3)
                     continue;
-                eicIntensity += scan->intensity[k];
-                eicMz += (scan->mz[k]) * (scan->intensity[k]);
-                n += scan->intensity[k];
-            }
 
-            eicMz /= n;
+                double intensity = static_cast<double>(scan->intensity[k]);
+                sumIntensity += intensity;
+                sumMz += static_cast<double>(scan->mz[k]) * intensity;
+            }
+            if (sumIntensity != 0.0) {
+                eicMz = static_cast<float>(sumMz / sumIntensity);
+                eicIntensity = static_cast<float>(sumIntensity);
+            }
             break;
         }
 
@@ -1272,14 +1276,17 @@ EIC* mzSample::getEIC(string srm, int eicType)
             // calculate the weighted average(with intensities as weights)
             // while finding the eicMz for the whole EIC.
             case EIC::SUM: {
-                float n = 0;
+                double sumMz = 0.0;
+                double sumIntensity = 0.0;
                 for (unsigned int k = 0; k < scan->nobs(); k++) {
-                    eicIntensity += scan->intensity[k];
-                    eicMz += (scan->mz[k]) * (scan->intensity[k]);
-                    n += scan->intensity[k];
+                    double intensity = static_cast<double>(scan->intensity[k]);
+                    sumIntensity += intensity;
+                    sumMz += static_cast<double>(scan->mz[k]) * intensity;
                 }
-
-                eicMz /= n;
+                if (sumIntensity != 0.0) {
+                    eicMz = static_cast<float>(sumMz / sumIntensity);
+                    eicIntensity = static_cast<float>(sumIntensity);
+                }
                 break;
             }
 

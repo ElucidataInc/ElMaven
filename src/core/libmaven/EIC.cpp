@@ -1186,7 +1186,8 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
         //associated m/z is the weighted average(with intensities as weights)
         case EIC::SUM:
         {
-            float n = 0;
+            double sumMz = 0.0;
+            double sumIntensity = 0.0;
             for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
             {
                 if (scan->mz[scanIdx] < mzmin)
@@ -1194,11 +1195,14 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
                 if (scan->mz[scanIdx] > mzmax)
                     break;
 
-                eicIntensity += scan->intensity[scanIdx];
-                eicMz += scan->mz[scanIdx] * scan->intensity[scanIdx];
-                n += scan->intensity[scanIdx];
+                double intensity = static_cast<double>(scan->intensity[scanIdx]);
+                sumIntensity += intensity;
+                sumMz += static_cast<double>(scan->mz[scanIdx]) * intensity;
             }
-            eicMz /= n;
+            if (sumIntensity != 0.0) {
+                eicMz = static_cast<float>(sumMz / sumIntensity);
+                eicIntensity = static_cast<float>(sumIntensity);
+            }
             break;
         }
 
