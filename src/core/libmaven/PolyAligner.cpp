@@ -27,7 +27,7 @@ double PolyAligner::calculateR2(AlignmentStats* model) {
 
 	for(int i=0; i < N; i++ ) {
          double newrt = model->predict(subjVector[i]);
-		 R2 += POW2(refVector[i] - newrt);
+                 R2 += SQUARE(refVector[i] - newrt);
 	}
 	return sqrt(R2/N);
 }
@@ -41,7 +41,7 @@ double PolyAligner::countInliners(AlignmentStats* model, float zValueCutoff) {
 	for(int i=0; i < N; i++ ) {
 		 if(outlierVector[i] == true ) {
          	double newrt = model->predict(subjVector[i]);
-		 	residuals.push_back(POW2(refVector[i] - newrt));
+                        residuals.push_back(SQUARE(refVector[i] - newrt));
 		 }
 	}
 
@@ -131,8 +131,8 @@ AlignmentStats* PolyAligner::align(int degree) {
 				cerr << "Transform failed: " << ii << "\t" << x[ii] << "-> " << newrt << endl;
 				stats->transformedFailed++;
 			} else { 
-				stats->R_before += POW2(ref[ii] - x[ii]);
-				stats->R_after  += POW2(ref[ii] - newrt);
+                                stats->R_before += SQUARE(ref[ii] - x[ii]);
+                                stats->R_after  += SQUARE(ref[ii] - newrt);
 			}
 		}
 
@@ -158,7 +158,7 @@ void PolyAligner::calculateOutliers(int initDegree) {
 	StatisticsVector<float> distVector(N,0);
 	for(int i=0; i < N; i++ ) {
 		if(refVector[i]>0) {
-			distVector[i] = POW2(refVector[i] - stats->predict(subjVector[i]));
+                        distVector[i] = SQUARE(refVector[i] - stats->predict(subjVector[i]));
 		}
 	}
 

@@ -1059,8 +1059,8 @@ int SpectraWidget::findNearestMz(QPointF pos)
         float dist = FLT_MAX;
         for(int i = 0; i < matches.size(); i++) {
             int p = matches[i];
-			float d = sqrt(POW2(_currentScan->intensity[p] - ycoord) + 
-                                POW2(_currentScan->mz[p] - mz));
+                        float d = sqrt(SQUARE(_currentScan->intensity[p] - ycoord) +
+                                SQUARE(_currentScan->mz[p] - mz));
             if (d < dist) { best = p; dist = d; }
         }
     }

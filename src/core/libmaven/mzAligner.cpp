@@ -106,7 +106,7 @@ double Aligner::checkFit() {
 	double sumR2=0;
 	for(unsigned int i=0; i < allgroups.size(); i++ ) {
 		for(unsigned int j=0; j < allgroups[i]->peakCount(); j++ ) {
-			sumR2 += POW2(groupRt[i]-allgroups[i]->peaks[j].rt);
+                        sumR2 += SQUARE(groupRt[i]-allgroups[i]->peaks[j].rt);
                 }
         }
 	return sumR2;
@@ -214,7 +214,7 @@ void Aligner::Fit(int ideg) {
 				ref[n]=allgroups[j]->medianRt();
 				x[n]=p->rt; 
 
-                diff.push_back(POW2(x[n]-ref[n]));
+                diff.push_back(SQUARE(x[n]-ref[n]));
 				n++; 
 			}
 			if ( n == 0 ) continue;
@@ -229,7 +229,7 @@ void Aligner::Fit(int ideg) {
 
 			int removedCount=0;
 			for(int ii=0; ii < n; ii++ ) {
-                double deltaX = POW2(x[ii]-ref[ii]);
+                double deltaX = SQUARE(x[ii]-ref[ii]);
                 if(deltaX > cut) {
                     //cerr << deltaX << " " << x[ii] << " " << ref[ii] << " " << meanDiv << " " << stdDiv << endl;
 					x[ii]=0; 
@@ -244,7 +244,7 @@ void Aligner::Fit(int ideg) {
 
             //SORT AND ALIGN
 			double R_before=0;
-			for(int ii=0; ii < n; ii++)  R_before += POW2(ref[ii] - x[ii]);
+                        for(int ii=0; ii < n; ii++)  R_before += SQUARE(ref[ii] - x[ii]);
 
 			double R_after=0;   
             int transformedFailed=0;
@@ -264,7 +264,7 @@ void Aligner::Fit(int ideg) {
                     //cerr << "Polynomical transform failed! (A) " << x[ii] << "-->" << newrt <<  endl;
                     transformedFailed++;
 				}  else {
-					R_after  += POW2(ref[ii] - newrt);
+                                        R_after  += SQUARE(ref[ii] - newrt);
 				}
 			}
 

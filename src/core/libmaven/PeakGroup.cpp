@@ -294,10 +294,9 @@ float PeakGroup::meanRtW() {
 }
 
 float PeakGroup::medianRt() {
-    float * rts = new float[peaks.size()];
-    for(unsigned int i=0; i < peakCount(); i++ ) rts[i]=peaks[i].rt;
-    float medianValue = mzUtils::median(rts, peakCount());
-    delete[] rts;
+    vector<float> rts;
+    for(unsigned int i=0; i < peakCount(); i++ ) rts.push_back(peaks[i].rt);
+    float medianValue = mzUtils::median(rts);
     return medianValue;
 }
 

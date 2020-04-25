@@ -466,7 +466,7 @@ Version::Version(string version)
 
     // split on '.' character
     vector<string> versionVec;
-    mzUtils::split(version, '.', versionVec);
+    versionVec = mzUtils::split(version, ".");
 
     // get version numnbers
     _major = _minor = _patch = 0;

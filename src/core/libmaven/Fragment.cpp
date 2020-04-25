@@ -437,7 +437,7 @@ double Fragment::mzErr(const vector<int>& X, Fragment* other)
     double err = 0.0;
     for (unsigned int i = 0; i < X.size(); i++) {
         if (X[i] != -1) {
-            err += POW2(mzValues[i] - other->mzValues[X[i]]);
+            err += SQUARE(mzValues[i] - other->mzValues[X[i]]);
             errorChanged = true;
         }
     }

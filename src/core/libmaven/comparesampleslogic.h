@@ -21,7 +21,7 @@ public:
         void computeStats(PeakGroup* group, std::vector<mzSample*> sampleSet,
                         std::vector<mzSample*> sset1, std::vector<mzSample*> sset2,
 			float _missingValue);
-
+        int countBelow(std::vector<float>& y, float ymax);
 	StatisticsVector<float> rand_scores;
 	StatisticsVector<float> real_scores;
 

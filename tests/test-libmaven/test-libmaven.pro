@@ -16,12 +16,20 @@ QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 QMAKE_CXXFLAGS += -fopenmp
 
-INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  $$top_srcdir/3rdparty/pugixml/src $$top_srcdir/3rdparty/libneural $$top_srcdir/3rdparty/libpls \
-				$$top_srcdir/3rdparty/libcsvparser $$top_srcdir/src/cli/peakdetector $$top_srcdir/3rdparty/libdate $$top_srcdir/3rdparty/libcdfread \
+INCLUDEPATH +=  $$top_srcdir/src/core/libmaven      \
+                $$top_srcdir/3rdparty/pugixml/src   \
+                $$top_srcdir/3rdparty/libneural     \
+                $$top_srcdir/3rdparty/libpls        \
+                $$top_srcdir/3rdparty/libcsvparser  \
+                $$top_srcdir/src/cli/peakdetector   \
+                $$top_srcdir/3rdparty/libdate       \
+                $$top_srcdir/3rdparty/libcdfread    \
                 $$top_srcdir/3rdparty/obiwarp $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/3rdparty/Eigen $$top_srcdir/src/      \
                 $$top_srcdir/3rdparty/doctest       \
-                $$top_srcdir/3rdparty/json
+                $$top_srcdir/3rdparty/json          \
+                $$top_srcdir/3rdparty/NimbleDSP/src
+
 macx {
 
     DYLIBPATH = $$system(source ~/.bash_profile ; echo $LDFLAGS)
@@ -46,12 +54,15 @@ macx {
 
 # Input
 HEADERS += \
-    $$top_srcdir/src/core/libmaven/jsonReports.h        \
-    $$top_srcdir/src/core/libmaven/csvreports.h         \
-    $$top_srcdir/src/core/libmaven/Compound.h
- 
+    $$top_srcdir/src/core/libmaven/jsonReports.h    \
+    $$top_srcdir/src/core/libmaven/csvReports.h     \
+    $$top_srcdir/src/core/libmaven/Compound.h       \
+    $$top_srcdir/src/core/libmaven/mzUtils.h
+    
 SOURCES += \
     main.cpp \
-    $$top_srcdir/src/core/libmaven/jsonReports.cpp      \
-    $$top_srcdir/src/core/libmaven/csvreports.cpp       \
-    $$top_srcdir/src/core/libmaven/Compound.cpp
+    $$top_srcdir/src/core/libmaven/jsonReports.cpp  \
+    $$top_srcdir/src/core/libmaven/csvReports.cpp   \
+    $$top_srcdir/src/core/libmaven/Compound.cpp     \
+    $$top_srcdir/src/core/libmaven/mzUtils.cpp      \
+    $$top_srcdir/src/core/libmaven/zlib.cpp
