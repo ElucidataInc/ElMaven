@@ -27,6 +27,13 @@ GalleryWidget::GalleryWidget(MainWindow* mw)
     _boxH = 200;
     recursionCheck = false;
     _plotItems.clear();
+    _nItemsVisible = 1;
+    _indexItemVisible = 0;
+
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    horizontalScrollBar()->setEnabled(false);
+    setStyleSheet("QWidget { border: none; }");
 
     connect(mw->getEicWidget(),
             &EicWidget::eicUpdated,
@@ -38,23 +45,6 @@ GalleryWidget::~GalleryWidget()
 {
     if (scene() != NULL)
         delete (scene());
-}
-
-void GalleryWidget::addEicPlots(const mzSlice& slice)
-{
-    clear();
-    vector<mzSample*> samples = _mainWindow->getVisibleSamples();
-    if (samples.size() == 0)
-        return;
-
-    TinyPlot* plot = _addEicPlot(slice);
-    if (plot)
-        plot->setTitle(tr("m/z: %1 — %2").arg(slice.mzmin).arg(slice.mzmax));
-    if (plot)
-        plot->setData(0, QVariant::fromValue(slice));
-
-    if (_plotItems.size() > 0)
-        replot();
 }
 
 void GalleryWidget::addEicPlotsWithGroup(vector<EIC*> eics,
@@ -70,89 +60,53 @@ void GalleryWidget::addEicPlotsWithGroup(vector<EIC*> eics,
         if (eic == nullptr)
             continue;
 
+        Peak* samplePeak = nullptr;
+        if (group != nullptr) {
+            for (auto& peak : group->peaks) {
+                if (peak.getSample() == eic->sample) {
+                    samplePeak = &peak;
+                    break;
+                }
+            }
+        }
+
+        mzSlice& slice =
+            _mainWindow->getEicWidget()->getParameters()->getMzSlice();
+        if (group != nullptr)
+            slice = group->getSlice();
+
         QColor color = QColor::fromRgbF(eic->sample->color[0],
                                         eic->sample->color[1],
                                         eic->sample->color[2],
                                         1.0);
-
-        mzSlice& slice =
-            _mainWindow->getEicWidget()->getParameters()->getMzSlice();
+        float peakRtMin = -1.0f;
+        float peakRtMax = -1.0f;
+        if (samplePeak != nullptr) {
+            peakRtMin = samplePeak->rtmin;
+            peakRtMax = samplePeak->rtmax;
+        }
 
         TinyPlot* plot = new TinyPlot(nullptr, scene());
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
-        plot->addData(eic, slice.rtmin, slice.rtmax);
+        plot->addData(eic,
+                      slice.rtmin,
+                      slice.rtmax,
+                      group != nullptr,
+                      peakRtMin,
+                      peakRtMax);
         plot->addDataColor(color);
         plot->setData(0, QVariant::fromValue(slice));
         plot->setTitle(tr("%1 (m/z: %2 — %3)")
                            .arg(eic->sample->sampleName.c_str())
                            .arg(eic->mzmin)
                            .arg(eic->mzmax));
-        if (group) {
-            for (int j = 0; j < group->peakCount(); j++) {
-                if (group->peaks[j].getSample() == eic->getSample()) {
-                    plot->addPoint(group->peaks[j].rt,
-                                   group->peaks[j].peakIntensity);
-                }
-            }
-        }
         _plotItems << plot;
         scene()->addItem(plot);
     }
 
     if (_plotItems.size() > 0)
         replot();
-}
-
-TinyPlot* GalleryWidget::_addEicPlot(const mzSlice& slice)
-{
-    vector<mzSample*> samples = _mainWindow->getVisibleSamples();
-    if (samples.size() == 0)
-        return NULL;
-
-    vector<EIC*> eics = PeakDetector::pullEICs(&slice,
-                                               samples,
-                                               _mainWindow->mavenParameters);
-    TinyPlot* plot = _addEicPlot(eics);
-    delete_all(eics);
-    return plot;
-}
-
-TinyPlot* GalleryWidget::_addEicPlot(vector<EIC*>& eics)
-{
-    if (eics.size() == 0)
-        return NULL;
-
-    TinyPlot* plot = new TinyPlot(nullptr, nullptr);
-    plot->setWidth(_boxW);
-    plot->setHeight(_boxH);
-
-    sort(eics.begin(), eics.end(), EIC::compMaxIntensity);
-    int insertCount = 0;
-    for (EIC* eic : eics) {
-        if (!eic)
-            continue;
-        if (eic->maxIntensity == 0)
-            continue;
-        QColor color = QColor::fromRgbF(eic->sample->color[0],
-                                        eic->sample->color[1],
-                                        eic->sample->color[2],
-                                        1.0);
-
-        plot->addData(eic);
-        plot->addDataColor(color);
-        plot->setTitle(tr("m/z: %1 — %2").arg(eic->mzmin).arg(eic->mzmax));
-
-        insertCount++;
-    }
-    if (insertCount > 0) {
-        scene()->addItem(plot);
-        _plotItems << plot;
-        return plot;
-    } else {
-        delete (plot);
-        return NULL;
-    }
 }
 
 void GalleryWidget::replot()
@@ -168,23 +122,24 @@ void GalleryWidget::replot()
 
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
-    if (event->modifiers() != Qt::ControlModifier)
-        return QGraphicsView::wheelEvent(event);
+    if (_plotItems.size() == 0)
+        return;
 
-    if (event->delta() > 0) {
-        if (_boxH * 0.8 > 50) {
-            _boxH *= 0.8;
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->delta() > 0) {
+            _nItemsVisible = min(4, min(_plotItems.size(), _nItemsVisible + 1));
         } else {
-            _boxH = 50;
+            _nItemsVisible = max(1, _nItemsVisible - 1);
         }
+        replot();
     } else {
-        if (_boxH * 1.2 < height()) {
-            _boxH *= 1.2;
+        if (event->delta() > 0) {
+            _indexItemVisible = max(0, _indexItemVisible - 1);
         } else {
-            _boxH = height();
+            _indexItemVisible = min(_plotItems.size(), _indexItemVisible + 1);
         }
+        _ensureVisible(event->delta() < 0);
     }
-    replot();
 }
 
 void GalleryWidget::drawMap()
@@ -196,13 +151,10 @@ void GalleryWidget::drawMap()
     if (nItems == 0)
         return;
 
-    _boxW = width();
-    if (_boxH < 50)
-        _boxH = 50;
-    if (_boxH > height())
-        _boxH = height();
+    _boxW = viewport()->width();
+    _boxH = viewport()->height() / _nItemsVisible;
 
-    int sceneW = width();
+    int sceneW = _boxW;
     int sceneH = nItems * _boxH;
     setSceneRect(0, 0, sceneW, sceneH);
 
@@ -218,7 +170,17 @@ void GalleryWidget::drawMap()
     }
 
     scene()->update();
-    fitInView(0, 0, sceneW, _boxH, Qt::KeepAspectRatio);
+    _indexItemVisible = 0;
+    _ensureVisible();
+}
+
+void GalleryWidget::_ensureVisible(bool topToBottom)
+{
+    qreal y = _indexItemVisible * _boxH;
+    qreal yMargin = -1.0;
+    if (topToBottom)
+        yMargin = (_nItemsVisible - 1) * _boxH;
+    ensureVisible(0, y, _boxW, _boxH, 0, yMargin);
 }
 
 void GalleryWidget::mousePressEvent(QMouseEvent* event)

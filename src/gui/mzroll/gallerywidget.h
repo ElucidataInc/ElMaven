@@ -28,7 +28,6 @@ public Q_SLOTS:
         _plotItems.clear();
     }
 
-    void addEicPlots(const mzSlice& slice);
     void addEicPlotsWithGroup(vector<EIC*> eics, PeakGroup* grp);
     void copyImageToClipboard();
 
@@ -37,9 +36,10 @@ private:
     QList<QGraphicsItem*> _plotItems;
     int _boxW;
     int _boxH;
+    int _nItemsVisible;
+    int _indexItemVisible;
 
-    TinyPlot* _addEicPlot(vector<EIC*>& eics);
-    TinyPlot* _addEicPlot(const mzSlice &slice);
+    void _ensureVisible(bool topToBottom = true);
 
 protected:
     bool recursionCheck;

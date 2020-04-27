@@ -9,6 +9,7 @@ TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(p
 	//QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
 	//effect->setOffset(8); 
 	//setGraphicsEffect(effect);
+    _noPeakData = false;
 }
 
 
@@ -43,16 +44,46 @@ void TinyPlot::addData(EIC* eic) {
 }
 
 
-void TinyPlot::addData(EIC* eic,float rtmin, float rtmax) {
-    if(!eic) return;
-    QVector<QPointF>d;
-    for(int i=0; i<eic->size();i++) {
-        if(eic->rt[i] >= rtmin and eic->rt[i] <= rtmax ) {
+void TinyPlot::addData(EIC* eic,
+                       float rtMin,
+                       float rtMax,
+                       bool highlightRange,
+                       float peakRtMin,
+                       float peakRtMax)
+{
+    if (eic == nullptr)
+        return;
 
-            d<< QPointF( eic->rt[i], eic->intensity[i]);
+    QVector<QPointF> left;
+    QVector<QPointF> center;
+    QVector<QPointF> right;
+    for (int i = 0; i < eic->size(); ++i) {
+        if (eic->rt[i] < rtMin)
+            continue;
+        if (eic->rt[i] > rtMax)
+            break;
+
+        if (peakRtMin < 0.0f || peakRtMax < 0.0f) {
+            center << QPointF( eic->rt[i], eic->intensity[i]);
+            if (highlightRange)
+                _noPeakData = true;
+        } else {
+            if (eic->rt[i] < peakRtMin) {
+                left << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] > peakRtMax) {
+                right << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] == peakRtMin) {
+                left << QPointF( eic->rt[i], eic->intensity[i]);
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] == peakRtMax) {
+                right << QPointF( eic->rt[i], eic->intensity[i]);
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            } else {
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            }
         }
     }
-    data << d;
+    data << left << center << right;
 }
 
 QPointF TinyPlot::mapToPlot(float x,float y ) {
@@ -72,14 +103,15 @@ float TinyPlot::predictYValue(float fx) {
  
 
 void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{ 
-	
+{
 	if (_width <= 0 || _height <=0 ) return;
 	float nSeries=data.size();
 	_minXValue=_minYValue=FLT_MAX;
 	_maxXValue=_maxYValue=FLT_MIN;
 
-	if (nSeries == 0 ) return;
+    // TinyPlot will only be used for displaying EICs of singular peaks.
+    if (nSeries != 3)
+        return;
 
 	//find bounds
     for(int i=0; i < nSeries; i++ ) {
@@ -145,42 +177,35 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         int legendShift = fm.size(0,rightText,0,NULL).width();
         painter->setFont(font);
         painter->drawText(_width-legendShift-2,_fontH+1,rightText);
-	}
+    }
 
+    QColor colorSolid = colors.at(0);
+    QColor colorFaded = QColor::fromRgbF(colorSolid.redF(),
+                                         colorSolid.greenF(),
+                                         colorSolid.blueF(),
+                                         0.1);
+    for (int i = 0; i < nSeries; i++) {
+        auto color = colorSolid;
+        auto pen = QPen(color.darker());
+        if (i % 2 == 0 || _noPeakData) {
+            color = colorFaded;
+            pen = Qt::NoPen;
+        }
+        painter->setBrush(color);
+        painter->setPen(pen);
 
-	int nColors = colors.size();
-	if (nColors==0) colors << Qt::blue << Qt::red << Qt::yellow << Qt::green;
+        int nPoints = data[i].size();
+        QPolygonF path;
+        if (nPoints >= 1)
+            path << mapToPlot(data[i][0].x(), _minYValue);
+        for (int j = 0; j < nPoints; j++)
+            path << mapToPlot(data[i][j].x(), data[i][j].y());
 
-	for(int i=0; i < nSeries; i++ ) {
-		painter->setBrush(Qt::black);
-		painter->setPen(colors[ i % nColors ] );
+        // close path
+        if (nPoints >= 1)
+            path << mapToPlot(data[i][nPoints - 1].x(), _minYValue);
 
-		int nPoints = data[i].size();
-		QPolygonF path;
-		if (nPoints >= 1 ) path << mapToPlot(data[i][0].x(),_minYValue);
-		for(int j=0; j < nPoints; j++ ) {
-			path << mapToPlot(data[i][j].x(),data[i][j].y());
-		//	painter->drawEllipse(mapToPlot(data[i][j].x(), data[i][j].y()), 5,5);
-		}
-		//close path
-		if (nPoints >= 1 ) path << mapToPlot(data[i][nPoints-1].x(),_minYValue);
-		path << mapToPlot(_minXValue,_minYValue);
-
-		painter->setBrush( colors[ i % nColors ] );
-		if (_width > 20) painter->setPen(Qt::black);
-		painter->drawPolygon(path);
-	}
-
-    int pointSize = _height/30; if (pointSize<2) {pointSize=2;} if(pointSize>10) {pointSize=10;}
-	for(int i=0; i < points.size(); i++ ) {        
-		painter->setBrush(Qt::gray);
-        painter->drawEllipse(mapToPlot(points[i].x(),points[i].y()),pointSize,pointSize);
-	}
-
-	if ( _currentXCoord != 0 ) {
-		float x = _currentXCoord * (_maxXValue-_minXValue);
-		painter->setBrush(Qt::red);
-		painter->setPen(Qt::red);
-		painter->drawLine(mapToPlot(x,_minYValue),mapToPlot(x,_maxYValue));
-	}
+        path << mapToPlot(_minXValue, _minYValue);
+        painter->drawPolygon(path);
+    }
 }

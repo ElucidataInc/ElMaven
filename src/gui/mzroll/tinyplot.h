@@ -17,7 +17,12 @@ public:
 	void addData(QVector<float>&v);
 	void addData(std::vector<float>&v);
 	void addData(EIC* eic);
-    void addData(EIC* eic, float rtmin, float rtmax);
+    void addData(EIC* eic,
+                 float rtMin,
+                 float rtMax,
+                 bool highlightRange = false,
+                 float peakRtMin = -1.0f,
+                 float peakRtMax = -1.0f);
 	void addDataColor(QColor c);
 	void clearData() { data.clear(); _minYValue=_maxYValue=_minXValue=_maxXValue=0; }
 	void setCurrentXCoord(float x) { _currentXCoord=x; }
@@ -43,7 +48,8 @@ private:
 	int _width;
 	int _height;
 
-	float _minXValue, _minYValue, _maxXValue, _maxYValue;
+    bool _noPeakData;
+    float _minXValue, _minYValue, _maxXValue, _maxYValue;
 	float _currentXCoord;
 	QVector< QVector<QPointF> >data;
 	QVector<QColor> colors;
