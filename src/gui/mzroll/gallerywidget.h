@@ -15,47 +15,41 @@ class GalleryWidget : public QGraphicsView
 {
     Q_OBJECT
 
-		public:
-				GalleryWidget(MainWindow* mw);
-                ~GalleryWidget();
+public:
+    GalleryWidget(MainWindow* mw);
+    ~GalleryWidget();
 
-		public Q_SLOTS: 
-            void replot();
-			void clear() { scene()->clear(); plotitems.clear(); }
-			void addEicPlots(std::vector<PeakGroup*>& groups);
-			void addEicPlots(std::vector<Compound*>&compounds);
-			void addEicPlots(std::vector<mzSlice*>&slices);
-			void addEicPlots(std::vector<mzLink>&links);
-            void addIdividualEicPlots(std::vector<EIC*>& eics,PeakGroup* grp);
-			void fileGallery(const QString& dir);
+public Q_SLOTS:
+    void replot();
 
-			// new features added - kiran
-			void print();
-            void copyImageToClipboard();
-			
-		private:
-				MainWindow* mainwindow;
-				QList<QGraphicsItem*> plotitems;
-				int _rowSpacer;
-				int _colSpacer;
-				int _boxW;
-				int _boxH;
-				TinyPlot* addEicPlot(std::vector<EIC*>& eics);
-				TinyPlot* addEicPlot(mzSlice& slice);
+    void clear()
+    {
+        scene()->clear();
+        _plotItems.clear();
+    }
 
+    void addEicPlots(const mzSlice& slice);
+    void addEicPlotsWithGroup(vector<EIC*> eics, PeakGroup* grp);
+    void copyImageToClipboard();
 
-		protected:
-				void drawMap();
-				void resizeEvent ( QResizeEvent *event );
-				void wheelEvent(QWheelEvent *event);
-                void mousePressEvent(QMouseEvent *event);
-				void keyPressEvent(QKeyEvent *event);
-				bool recursionCheck;
+private:
+    MainWindow* _mainWindow;
+    QList<QGraphicsItem*> _plotItems;
+    int _boxW;
+    int _boxH;
 
-				// new features added - kiran
-				void contextMenuEvent(QContextMenuEvent * event);
+    TinyPlot* _addEicPlot(vector<EIC*>& eics);
+    TinyPlot* _addEicPlot(const mzSlice &slice);
 
+protected:
+    bool recursionCheck;
+
+    void drawMap();
+    void resizeEvent(QResizeEvent* event);
+    void wheelEvent(QWheelEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void keyPressEvent(QKeyEvent* event);
+    void contextMenuEvent(QContextMenuEvent* event);
 };
 
 #endif
-

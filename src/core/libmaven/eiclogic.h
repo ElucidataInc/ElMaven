@@ -5,12 +5,14 @@
 #include "PeakGroup.h"
 #include "standardincludes.h"
 
+class ClassifierNeuralNet;
 class Compound;
 class EIC;
 class mzSlice;
 class MassCutoff;
 class mzSample;
 class MavenParameters;
+class PeakFiltering;
 
 class EICLogic {
 public:
@@ -91,6 +93,14 @@ public:
 
         //associate compound names with peak groups
 	void associateNameWithPeakGroups();
+
+    // TODO: doc this
+    void editPeakRegionForSample(PeakGroup* group,
+                                 mzSample* paekSample,
+                                 float rtMin,
+                                 float rtMax,
+                                 ClassifierNeuralNet *clsf = nullptr,
+                                 PeakFiltering *peakFilter = nullptr);
 
 	mzSlice _slice;						// current slice
 	vector<EIC*> eics;				// vectors mass slices one from each sample

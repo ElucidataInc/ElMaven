@@ -26,7 +26,6 @@ class ScatterPlot: public PlotDockWidget  {
 				void contrastGroups();
                 void deleteGroup();
 				void showSelectedGroups(QPointF a, QPointF b);
-		        void showSelectedGroupGallery(QPointF from, QPointF to);
                 void setPlotTypeScatter() { plotType=SCATTERPLOT;  draw(); }
                 void setPlotTypeFlower() { plotType=FLOWRPLOT;    draw(); }
                 void setPlotTypePLS() { plotType=PLSPLOT;    draw(); }

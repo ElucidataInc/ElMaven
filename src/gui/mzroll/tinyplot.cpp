@@ -86,8 +86,8 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 		for(int j=0; j < data[i].size(); j++ ) {
 			if ( data[i][j].y() > _maxYValue ) { _maxYValue=data[i][j].y()*1.2; }
 			if ( data[i][j].y() < _minYValue ) { _minYValue=data[i][j].y()*0.8; }
-			if ( data[i][j].x() > _maxXValue ) { _maxXValue=data[i][j].x()*1.2; }
-			if ( data[i][j].x() < _minXValue ) { _minXValue=data[i][j].x()*0.8; }
+            if ( data[i][j].x() > _maxXValue ) { _maxXValue=data[i][j].x(); }
+            if ( data[i][j].x() < _minXValue ) { _minXValue=data[i][j].x(); }
 		}
 	}
 
@@ -98,54 +98,53 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         }
 	}
 
-
-	//qDebug() << QPointF(_minXValue,_maxXValue) << QPointF(_minYValue,_maxYValue);
-
-	painter->setPen(Qt::gray);   
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect());
-    QPen shadowPen(Qt::black); shadowPen.setWidth(2);
-	painter->setPen(shadowPen);
-	painter->drawLine(0,_height+2,_width+2,_height+2);
-	painter->drawLine(_width+2,2,_width+2,_height);
-
+    painter->setPen(Qt::gray);
+    painter->setBrush(Qt::NoBrush);
+    // not sure why this +4 is needed, but it's needed
+    painter->drawLine(0, _height, _width + 4, _height);
 
 	//title
 	if (!_title.isEmpty()) {
 		setToolTip(_title);
 		painter->setBrush(Qt::black);
 		painter->setPen(Qt::black);
-        float _fontH = ((float)_height)/10;
-
-        if (_fontH > 15) { _fontH = 15; }
-		if(_fontH > 3) {
-			QFont fontSmall("Helvetica",_fontH);
-			painter->setFont(fontSmall);
-            painter->drawText(5,_fontH+1,_title);
-		}
+        float _fontH = static_cast<float>(_height) / 10;
+        if (_fontH > 17) {
+            _fontH = 17;
+        }
+        if (_fontH < 11) {
+            _fontH = 11;
+        }
+        QFont fontSmall("Helvetica",_fontH);
+        painter->setFont(fontSmall);
+        painter->drawText(5, _fontH+1,_title);
 	}
 
 	if (maxPointIntensity) {
 		setToolTip(_title);
 		painter->setBrush(Qt::black);
 		painter->setPen(Qt::black);
-        float _fontH = ((float)_height)/10;
 
-        if (_fontH > 15) { _fontH = 15; }
-		if(_fontH > 3) {
+        float _fontH = static_cast<float>(_height) / 10;
+        if (_fontH > 17) {
+            _fontH = 17;
+        }
+        if (_fontH < 11) {
+            _fontH = 11;
+        }
 
-            int prec;
-            if (maxPointIntensity < 100) prec=1;
-            else if (maxPointIntensity < 10) prec=2;
-            else prec=0;
-
-            QString rightText = QString::number(maxPointIntensity,'f',prec);
-			QFont font("Helvetica",_fontH);
-            QFontMetrics fm( font );
-            int lagendShift = fm.size(0,rightText,0,NULL).width();
-			painter->setFont(font);
-            painter->drawText(_width-lagendShift-2,_fontH+1,rightText);
-		}
+        int prec = 0;
+        if (maxPointIntensity < 100) {
+            prec = 1;
+        } else if (maxPointIntensity < 10) {
+            prec = 2;
+        }
+        QString rightText = QString::number(maxPointIntensity, 'f', prec);
+        QFont font("Helvetica",_fontH);
+        QFontMetrics fm( font );
+        int legendShift = fm.size(0,rightText,0,NULL).width();
+        painter->setFont(font);
+        painter->drawText(_width-legendShift-2,_fontH+1,rightText);
 	}
 
 

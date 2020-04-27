@@ -128,6 +128,9 @@ class EIC
     */
     void getPeakWidth(Peak &peak);
 
+    // TODO: doc this
+    Peak peakForRegion(float rtMin, float rtMax);
+
     void setBaselineMode(BaselineMode b) { _baselineMode = b; }
 
     /**

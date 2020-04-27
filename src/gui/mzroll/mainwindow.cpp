@@ -4236,8 +4236,6 @@ void MainWindow::getLinks(Peak* peak) {
 	}
 	if (subset.size())
 		covariantsPanel->setInfo(subset);
-	if (subset.size() && galleryDockWidget->isVisible())
-		galleryWidget->addEicPlots(subset);
 }
 
 

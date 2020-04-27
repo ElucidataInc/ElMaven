@@ -69,7 +69,7 @@ public Q_SLOTS:
 	void addBoxPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
     void addMS2Events(float mzmin, float mzmax);
-	void integrateRegion(float rtmin, float rtmax);
+    void integrateRegion(float rtMin, float rtMax);
 	void recompute();
 	void replot(PeakGroup*);
 	void replot();

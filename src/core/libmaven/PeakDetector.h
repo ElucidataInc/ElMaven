@@ -125,9 +125,9 @@ public:
     std::vector<mzSlice*> processCompounds(std::vector<Compound*> set,
                                            std::string setName);
 
-    static std::vector<EIC*> pullEICs(mzSlice* slice,
-                                 std::vector<mzSample*>& samples,
-                                 MavenParameters* mp);
+    static std::vector<EIC*> pullEICs(const mzSlice *slice,
+                                      std::vector<mzSample*>& samples,
+                                      MavenParameters* mp);
 
     /**
      * @brief This method can be used to identify features found by performing
