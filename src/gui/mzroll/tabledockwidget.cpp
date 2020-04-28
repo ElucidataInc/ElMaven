@@ -220,7 +220,8 @@ void TableDockWidget::setupPeakTable() {
   QStringList colNames;
 
   // Add common coulmns to the Table
-  colNames << "Label"; // TODO: add this column conditionally
+  if(_mainwindow->mavenParameters->peakMl)
+    colNames << "Label";
   colNames << "#";
   colNames << "ID";
   colNames << "Observed m/z";
@@ -239,7 +240,8 @@ void TableDockWidget::setupPeakTable() {
     colNames << "Max quality";
     colNames << "MS2 score";
     colNames << "#MS2 events";
-    colNames << "Probability"; // TODO: add this column conditionally
+    if(_mainwindow->mavenParameters->peakMl)
+      colNames << "Probability"; // TODO: add this column conditionally
     colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -782,11 +784,22 @@ void TableDockWidget::showAllGroups() {
     if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
       if (!parents.contains(clusterId)) {
         parents[clusterId] = new QTreeWidgetItem(treeWidget);
-        parents[clusterId]->setText(1, QString("Cluster ") +
-                                           QString::number(clusterId));
-        parents[clusterId]->setText(
-            5, QString::number(group->meanRt, 'f', 2));
-        parents[clusterId]->setExpanded(true);
+        if(_mainwindow->mavenParameters->peakMl)
+        {
+            parents[clusterId]->setText(1, QString("Cluster ") +
+                                               QString::number(clusterId));
+            parents[clusterId]->setText(
+                6, QString::number(allgroups[i].meanRt, 'f', 2));
+            parents[clusterId]->setExpanded(true);
+        }
+        else
+        {
+            parents[clusterId]->setText(0, QString("Cluster ") +
+                                               QString::number(clusterId));
+            parents[clusterId]->setText(
+                5, QString::number(allgroups[i].meanRt, 'f', 2));
+            parents[clusterId]->setExpanded(true);
+        }
       }
       QTreeWidgetItem *parent = parents[clusterId];
       addRow(rowData, parent);
@@ -794,12 +807,15 @@ void TableDockWidget::showAllGroups() {
       addRow(rowData, nullptr);
     }
   }
-
   QScrollBar *vScroll = treeWidget->verticalScrollBar();
   if (vScroll) {
     vScroll->setSliderPosition(vScroll->maximum());
   }
-  treeWidget->sortByColumn(0, Qt::AscendingOrder);
+  if(_mainwindow->mavenParameters->peakMl)
+    treeWidget->sortByColumn(1, Qt::AscendingOrder);
+  else
+    treeWidget->sortByColumn(1, Qt::AscendingOrder);
+  
   treeWidget->setSortingEnabled(true);
   treeWidget->header()->setStretchLastSection(false);
   updateStatus();
@@ -3137,27 +3153,30 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   QWidget *spacer = new QWidget();
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-  MultiSelectComboBox *legend = new MultiSelectComboBox(this);
-  legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  auto labelsForLegend = TableDockWidget::labelsForLegend();
-  auto iconsForLegend = TableDockWidget::iconsForLegend();
-  for (const auto& label : labelsForLegend) {
-    auto type = labelsForLegend.key(label);
-    auto icon = iconsForLegend.value(type);
-    legend->addItem(icon, label);
-  }
-  legend->selectAll();
-  setLegend(legend);
-  connect(legend,
-          &MultiSelectComboBox::selectionChanged,
-          this,
-          &TableDockWidget::filterForSelectedLabels);
+
 
   toolBar->addAction(titlePeakTable);
   toolBar->addSeparator();
-  toolBar->addWidget(new QLabel("Labels"));
-  toolBar->addWidget(legend);
-  toolBar->addSeparator();
+  if(_mainwindow->mavenParameters->peakMl){
+      MultiSelectComboBox *legend = new MultiSelectComboBox(this);
+      legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+      auto labelsForLegend = TableDockWidget::labelsForLegend();
+      auto iconsForLegend = TableDockWidget::iconsForLegend();
+      for (const auto& label : labelsForLegend) {
+          auto type = labelsForLegend.key(label);
+          auto icon = iconsForLegend.value(type);
+          legend->addItem(icon, label);
+      }
+      legend->selectAll();
+      setLegend(legend);
+      connect(legend,
+              &MultiSelectComboBox::selectionChanged,
+              this,
+              &TableDockWidget::filterForSelectedLabels);
+        toolBar->addWidget(new QLabel("Labels"));
+        toolBar->addWidget(legend);
+        toolBar->addSeparator();
+  }
   toolBar->addAction(btnSwitchView);
   toolBar->addSeparator();
 
