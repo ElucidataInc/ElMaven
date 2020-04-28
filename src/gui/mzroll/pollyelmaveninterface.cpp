@@ -13,6 +13,7 @@
 #include "pollywaitdialog.h"
 #include "projectdockwidget.h"
 #include "tabledockwidget.h"
+#include "peakdetectiondialog.h"
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     : QDialog(mw), _mainwindow(mw), _loginform(nullptr)
@@ -78,8 +79,9 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
+    connect(this, SIGNAL(loginResponse()), _mainwindow->peakDetectionDialog, SLOT(loginSuccessful()));
+    connect(this, SIGNAL(loginUnsuccessful()), _mainwindow->peakDetectionDialog, SLOT(unsuccessfulLogin()));
 }
-
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
     qDebug() << "exiting PollyElmavenInterfaceDialog now....";
@@ -209,6 +211,31 @@ void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
     QCoreApplication::processEvents();
 }
 
+bool PollyElmavenInterfaceDialog::loginForPeakMl()
+{
+    int askForLogin = _pollyIntegration->askForLogin();
+    if (askForLogin == 1) {
+        try {
+            _callLoginForm(false);
+        } catch (...) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowModality(Qt::NonModal);
+            msgBox.setWindowTitle("Error in loading login form");
+            msgBox.exec();
+        }
+    }
+    return true;
+}
+
+void PollyElmavenInterfaceDialog::emitLoginReady()
+{
+    emit loginResponse();
+}
+void PollyElmavenInterfaceDialog::loginFormClosed()
+{
+    emit loginUnsuccessful();
+}
+
 void PollyElmavenInterfaceDialog::initialSetup()
 {
     int nodeStatus = _pollyIntegration->checkNodeExecutable();
@@ -222,7 +249,7 @@ void PollyElmavenInterfaceDialog::initialSetup()
     int askForLogin = _pollyIntegration->askForLogin();
     if (askForLogin == 1) {
         try {
-            _callLoginForm();
+            _callLoginForm(showPollyApps);
         } catch (...) {
             QMessageBox msgBox(this);
             msgBox.setWindowModality(Qt::NonModal);
@@ -254,9 +281,9 @@ void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::_callLoginForm()
+void PollyElmavenInterfaceDialog::_callLoginForm(bool showPollyApp)
 {
-    _loginform = new LoginForm(this);
+    _loginform = new LoginForm(this, showPollyApp);
     _loginform->setModal(true);
     _loginform->show();
 }
@@ -294,6 +321,7 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
         _loadingDialog->statusLabel->setText("Fetching user data…");
         usernameLabel->setText(username);
+        userName = username.toStdString();
         QCoreApplication::processEvents();
     } else if (status == "error") {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
@@ -480,7 +508,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     // redirect to login form if user credentials have not been saved
     int askForLogin = _pollyIntegration->askForLogin();
     if (askForLogin == 1) {
-        _callLoginForm();
+        _callLoginForm(showPollyApps);
         emit uploadFinished(false);
         return;
     }

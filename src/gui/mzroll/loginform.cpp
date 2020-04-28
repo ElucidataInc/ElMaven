@@ -10,7 +10,7 @@
 #include "ui_loginform.h"
 
 
-LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
+LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog, bool showPollyApp) :
     QDialog(),
     _aboutPolly(NULL),
     ui(new Ui::LoginForm)
@@ -18,6 +18,8 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
 {
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     _pollyintegration = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
+
+    _showPollyApp = showPollyApp;
     
     ui->setupUi(this);
     setWindowTitle("Sign in to Polly™");
@@ -43,6 +45,8 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog) :
                 ui->login_label->clear();
                 ui->pushButton->setEnabled(true);
             });
+    connect(this, SIGNAL(loginSuccessful()), _pollyelmaveninterfacedialog, SLOT(emitLoginReady()));
+    connect(this, SIGNAL(widgetClosed()), _pollyelmaveninterfacedialog, SLOT(loginFormClosed()));
 }
 
 LoginForm::~LoginForm()
@@ -51,14 +55,23 @@ LoginForm::~LoginForm()
     if (_aboutPolly) delete (_aboutPolly);
 }
 
+void LoginForm::closeEvent(QCloseEvent * event)
+{
+    emit widgetClosed();
+}
+
 void LoginForm::login(QString username, QString password)
 {
     ErrorStatus response = _pollyintegration->authenticateLogin(username, password);
     if (response == ErrorStatus::Success) {
         qDebug() << "Logged in, moving on now…";
         hide();
-        _pollyelmaveninterfacedialog->initialSetup();
-        _pollyelmaveninterfacedialog->show();
+        if (_showPollyApp) {
+            _pollyelmaveninterfacedialog->initialSetup();
+            _pollyelmaveninterfacedialog->show();
+        } else {
+            emit loginSuccessful();
+        }
     } else if (response == ErrorStatus::Failure) {
         QCoreApplication::processEvents();
         ui->login_label->setStyleSheet("QLabel {color : red; }");

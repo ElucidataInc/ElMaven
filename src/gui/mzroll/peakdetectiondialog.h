@@ -33,6 +33,9 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showInfo(QString text);
 				 void cancel();
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
+                 void getLoginForPeakMl();
+                 void loginSuccessful();
+                 void unsuccessfulLogin();
 
                  /**
                   * @brief Disables or enables certain UI elements, based on
@@ -67,6 +70,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                     void findPeaksClicked();
         public:
                 QString massCutoffType;
+                bool peakMlSet;
 
         protected:
                 virtual void closeEvent(QCloseEvent* event) override;

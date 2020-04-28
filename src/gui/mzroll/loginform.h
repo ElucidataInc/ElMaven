@@ -15,7 +15,7 @@ class LoginForm : public QDialog
     Q_OBJECT
 
 public:
-    LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog);
+    LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog, bool showPollyApp);
     ~LoginForm();
     PollyIntegration* _pollyintegration;
     PollyElmavenInterfaceDialog* _pollyelmaveninterfacedialog;
@@ -24,6 +24,11 @@ public:
     */
     AboutPolly* _aboutPolly;
     void cancel();
+    void closeEvent(QCloseEvent* event);
+
+Q_SIGNALS:
+    void loginSuccessful();
+    void widgetClosed();
 
 private slots:
     /**
@@ -41,6 +46,7 @@ private slots:
 
 private:
     Ui::LoginForm *ui;
+    bool _showPollyApp;
 };
 
 #endif // LOGINFORM_H
