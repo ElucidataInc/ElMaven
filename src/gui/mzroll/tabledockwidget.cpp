@@ -1230,6 +1230,8 @@ void TableDockWidget::deleteSelectedItems()
             delete(item);
     }
 
+    showAllGroups();
+
     mzUtils::stopTimer(timerMain, "Deletion ends");
     return;
 }
