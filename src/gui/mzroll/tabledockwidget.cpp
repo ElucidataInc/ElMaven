@@ -1632,7 +1632,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
   QAction *z3 = menu.addAction("Delete All Groups");
   connect(z3, SIGNAL(triggered()), SLOT(deleteAll()));
 
-  if (treeWidget->selectedItems().size() < 1) {
+  if (treeWidget->selectedItems().empty()) {
     // disable actions not relevant when nothing is selected
     z0->setEnabled(false);
   }

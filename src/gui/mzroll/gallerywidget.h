@@ -3,12 +3,10 @@
 
 #include "stable.h"
 
-class TinyPlot;
 class EIC;
-class mzLink;
+class MavenParameters;
+class mzSample;
 class PeakGroup;
-class mzSlice;
-class Compound;
 
 class GalleryWidget : public QGraphicsView
 {
@@ -17,6 +15,9 @@ class GalleryWidget : public QGraphicsView
 public:
     GalleryWidget(QWidget* parent);
     ~GalleryWidget();
+
+signals:
+    void plotIndexChanged(int);
 
 public Q_SLOTS:
     void replot();
@@ -27,7 +28,8 @@ public Q_SLOTS:
         _plotItems.clear();
     }
 
-    void addEicPlotsForGroup(PeakGroup* grp, vector<EIC*> eics);
+    void addEicPlots(PeakGroup* grp, MavenParameters* mp);
+    void showPlotFor(int index);
     void copyImageToClipboard();
 
 private:
@@ -35,9 +37,9 @@ private:
     int _boxW;
     int _boxH;
     int _nItemsVisible;
-    int _indexItemVisible;
+    int _indexOfVisibleItem;
 
-    void _ensureVisible(bool topToBottom = true);
+    void _ensureCurrentItemIsVisible(bool topToBottom = true);
 
 protected:
     bool recursionCheck;

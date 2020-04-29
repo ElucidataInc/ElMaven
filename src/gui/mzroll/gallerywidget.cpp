@@ -1,17 +1,14 @@
-#include "gallerywidget.h"
 #include "Compound.h"
+#include "datastructures/mzSlice.h"
 #include "EIC.h"
-#include "PeakDetector.h"
-#include "Scan.h"
-#include "eiclogic.h"
-#include "eicwidget.h"
+#include "gallerywidget.h"
 #include "globals.h"
-#include "mainwindow.h"
-#include "masscutofftype.h"
-#include "mavenparameters.h"
 #include "mzSample.h"
+#include "Peak.h"
+#include "PeakDetector.h"
+#include "PeakGroup.h"
+#include "Scan.h"
 #include "statistics.h"
-#include "tabledockwidget.h"
 #include "tinyplot.h"
 
 GalleryWidget::GalleryWidget(QWidget* parent)
@@ -27,12 +24,11 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     recursionCheck = false;
     _plotItems.clear();
     _nItemsVisible = 1;
-    _indexItemVisible = 0;
+    _indexOfVisibleItem = 0;
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     horizontalScrollBar()->setEnabled(false);
-    setStyleSheet("QWidget { border: none; }");
 }
 
 GalleryWidget::~GalleryWidget()
@@ -41,12 +37,14 @@ GalleryWidget::~GalleryWidget()
         delete (scene());
 }
 
-void GalleryWidget::addEicPlotsForGroup(PeakGroup* group, vector<EIC*> eics)
+void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
 {
     clear();
-    if (group == nullptr || group->hasSlice())
+    if (group == nullptr || !group->hasSlice())
         return;
 
+    const mzSlice& slice = group->getSlice();
+    vector<EIC*> eics = PeakDetector::pullEICs(&slice, group->samples, mp);
     sort(begin(eics), end(eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();
@@ -64,7 +62,6 @@ void GalleryWidget::addEicPlotsForGroup(PeakGroup* group, vector<EIC*> eics)
             }
         }
 
-        const mzSlice& slice = group->getSlice();
         QColor color = QColor::fromRgbF(eic->sample->color[0],
                                         eic->sample->color[1],
                                         eic->sample->color[2],
@@ -77,14 +74,14 @@ void GalleryWidget::addEicPlotsForGroup(PeakGroup* group, vector<EIC*> eics)
         }
 
         TinyPlot* plot = new TinyPlot(nullptr, scene());
-        plot->setWidth(_boxW);
-        plot->setHeight(_boxH);
         plot->addData(eic,
                       slice.rtmin,
                       slice.rtmax,
                       true,
                       peakRtMin,
                       peakRtMax);
+        plot->setWidth(_boxW);
+        plot->setHeight(_boxH);
         plot->addDataColor(color);
         plot->setData(0, QVariant::fromValue(slice));
         plot->setTitle(tr("%1 (m/z: %2 — %3)")
@@ -97,16 +94,16 @@ void GalleryWidget::addEicPlotsForGroup(PeakGroup* group, vector<EIC*> eics)
 
     if (_plotItems.size() > 0)
         replot();
+
+    delete_all(eics);
 }
 
 void GalleryWidget::replot()
 {
-    if (isVisible()) {
-        if (recursionCheck == false) {
-            recursionCheck = true;
-            drawMap();
-            recursionCheck = false;
-        }
+    if (recursionCheck == false) {
+        recursionCheck = true;
+        drawMap();
+        recursionCheck = false;
     }
 }
 
@@ -117,18 +114,20 @@ void GalleryWidget::wheelEvent(QWheelEvent* event)
 
     if (event->modifiers() == Qt::ControlModifier) {
         if (event->delta() > 0) {
-            _nItemsVisible = min(4, min(_plotItems.size(), _nItemsVisible + 1));
+            _nItemsVisible = min(4, min(_plotItems.size() - 1,
+                                        _nItemsVisible + 1));
         } else {
             _nItemsVisible = max(1, _nItemsVisible - 1);
         }
         replot();
     } else {
         if (event->delta() > 0) {
-            _indexItemVisible = max(0, _indexItemVisible - 1);
+            _indexOfVisibleItem = max(0, _indexOfVisibleItem - 1);
         } else {
-            _indexItemVisible = min(_plotItems.size(), _indexItemVisible + 1);
+            _indexOfVisibleItem = min(_plotItems.size() - 1,
+                                      _indexOfVisibleItem + 1);
         }
-        _ensureVisible(event->delta() < 0);
+        _ensureCurrentItemIsVisible(event->delta() < 0);
     }
 }
 
@@ -148,34 +147,38 @@ void GalleryWidget::drawMap()
     int sceneH = nItems * _boxH;
     setSceneRect(0, 0, sceneW, sceneH);
 
-    for (int i = 0; i < nItems; i++) {
-        QGraphicsItem* item = _plotItems[i];
-        int row = 0;
-        int col = i;
-        int xpos = row * _boxW;
-        int ypos = col * _boxH;
-        static_cast<TinyPlot*>(item)->setWidth(_boxW);
-        static_cast<TinyPlot*>(item)->setHeight(_boxH);
-        static_cast<TinyPlot*>(item)->setPos(xpos, ypos);
+    int col = 0;
+    for (int row = 0; row < nItems; ++row) {
+        int xpos = col * _boxW;
+        int ypos = row * _boxH;
+
+        TinyPlot* item = static_cast<TinyPlot*>(_plotItems[row]);
+        item->setWidth(_boxW);
+        item->setHeight(_boxH);
+
+        item->setPos(xpos, ypos);
     }
 
     scene()->update();
-    _indexItemVisible = 0;
-    _ensureVisible();
+    _indexOfVisibleItem = 0;
+    _ensureCurrentItemIsVisible();
 }
 
-void GalleryWidget::_ensureVisible(bool topToBottom)
+void GalleryWidget::_ensureCurrentItemIsVisible(bool topToBottom)
 {
-    qreal y = _indexItemVisible * _boxH;
+    qreal y = _indexOfVisibleItem * _boxH;
     qreal yMargin = -1.0;
     if (topToBottom)
         yMargin = (_nItemsVisible - 1) * _boxH;
     ensureVisible(0, y, _boxW, _boxH, 0, yMargin);
+    plotIndexChanged(_indexOfVisibleItem);
 }
 
-void GalleryWidget::resizeEvent(QResizeEvent* event)
+void GalleryWidget::showPlotFor(int index)
 {
-    replot();
+    int lastIndex = _indexOfVisibleItem;
+    _indexOfVisibleItem = index;
+    _ensureCurrentItemIsVisible(lastIndex - index < 0);
 }
 
 void GalleryWidget::copyImageToClipboard()
@@ -187,6 +190,11 @@ void GalleryWidget::copyImageToClipboard()
     render(&painter);
     painter.end();
     QApplication::clipboard()->setPixmap(image);
+}
+
+void GalleryWidget::resizeEvent(QResizeEvent* event)
+{
+    replot();
 }
 
 void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)

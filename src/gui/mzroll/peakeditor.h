@@ -3,6 +3,7 @@
 
 #include <QDialog>
 
+class GalleryWidget;
 class MainWindow;
 class PeakGroup;
 
@@ -23,8 +24,13 @@ public:
 private:
     Ui::PeakEditor* ui;
     MainWindow* _mw;
+    GalleryWidget* _gallery;
 
     void _populateSampleList(PeakGroup* group);
+
+private slots:
+    void _selectionChanged(QTreeWidgetItem* current,
+                           QTreeWidgetItem* previous);
 };
 
 #endif // PEAKEDITOR_H
