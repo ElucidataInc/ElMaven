@@ -126,6 +126,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         quantilePeakWidth = 0.0;
 
         peakMl = false;
+        peakMlModelType = "";
 
         //options dialog::peak grouping tab-widget
 	distXWeight = 1.0;

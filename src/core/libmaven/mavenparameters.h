@@ -271,7 +271,9 @@ class MavenParameters
         double overlapWeight;
         bool useOverlap;
 
+        //for enabling peak Ml curation
         bool peakMl;
+        string peakMlModelType;
 
 
         /*

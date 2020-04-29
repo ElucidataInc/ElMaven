@@ -44,6 +44,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
 
     //peakMl curation
     settings.insert("peakMlCuration", QVariant::fromValue(pd->peakMl));
+    settings.insert("modelTypes", QVariant::fromValue(pd->modelTypes));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -195,6 +196,11 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                     if(checked){
                         getLoginForPeakMl();
                     }
+                    else{
+                        peakMlSet = false;
+                        mainwindow->mavenParameters->peakMl = false;
+                        modelTypes->setEnabled(false);
+                    }
                 });
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
@@ -240,6 +246,9 @@ void PeakDetectionDialog::getLoginForPeakMl()
     if(notRequireLogin){
         peakMlSet = true;
         mainwindow->mavenParameters->peakMl = true;
+        mainwindow->mavenParameters->peakMlModelType =
+            modelTypes->currentText().toStdString();
+        modelTypes->setEnabled(true);
     }
 }
 
@@ -248,12 +257,16 @@ void PeakDetectionDialog::loginSuccessful()
     peakMlSet = true;
     peakMl->setChecked(true);
     mainwindow->mavenParameters->peakMl = true;
+    mainwindow->mavenParameters->peakMlModelType =
+        modelTypes->currentText().toStdString();
+    modelTypes->setEnabled(true);
 }
 
 void PeakDetectionDialog::unsuccessfulLogin()
 {
     peakMlSet = false;
     peakMl->setChecked(false);
+    modelTypes->setEnabled(false);
     if(mainwindow)
         mainwindow->mavenParameters->peakMl = false;
 }
@@ -387,6 +400,7 @@ void PeakDetectionDialog::show() {
     peakMl->setChecked(false);
     peakMlSet = false;
     mainwindow->mavenParameters->peakMl = false;
+    modelTypes->setEnabled(false);
 
     mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
