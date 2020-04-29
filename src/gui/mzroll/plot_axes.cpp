@@ -31,6 +31,7 @@ void Axes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     float fontsize = 8;
 	QFont font("Helvetica",8);
 	painter->setFont(font);
+    QFontMetrics fm(font);
 
     if (nticks == 0 ) nticks = 2;
     int x0 = margin;
@@ -55,18 +56,30 @@ void Axes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 
     if ( type == 0) { 	//X axes
         painter->drawLine(x0,Y0,x1,Y0);
-        for (int i=0; i <= ticks; i++ ) painter->drawLine(x0+ix*i,Y0-5,x0+ix*i,Y0+5);
-        for (int i=0; i <= ticks; i++ ) painter->drawText(x0+ix*i,Y0+10,QString::number(min+b*i,'f',2));
+        for (int i=0; i <= ticks; i++ )
+            painter->drawLine(x0 + ix * i, Y0 - 5, x0 + ix * i, Y0);
+        for (int i = 1; i <= ticks; ++i) {
+            auto value = QString::number(min + b * i,'f', 2);
+            int pixelsWide = fm.width(value);
+            painter->drawText(x0 + ix * i - (pixelsWide / 2), Y0 + 10, value);
+        }
     } else if ( type == 1 ) { //Y axes
         painter->drawLine(X0,y0,X0,y1);
-		for (int i=0; i <= ticks; i++ ) {
-			painter->drawLine(X0-5,y0+iy*i,X0+5,y0+iy*i);
-		}
+        for (int i=0; i <= ticks; i++ )
+            painter->drawLine(X0 - 5, y0 + iy * i, X0, y0 + iy * i);
 
-        for (int i=0; i <= ticks; i++ ) { 
-				QString value = QString::number(min+b*i,'g',2);
-				if ( max < 10000 ) { value = QString::number(min+b*i,'f',1); }
-				painter->drawText(X0+2,y0+iy*i,value);
+        for (int i = 1; i <= ticks; ++i) {
+            QString value = QString::number(min + b * i, 'g', 2);
+            if (max < 10000)
+                value = QString::number(min + b * i, 'f', 1);
+            int textWidth = fm.width(value);
+            int textHeight = fm.height();
+            painter->drawText(X0 + 2,
+                              y0 + iy * i - (textHeight / 2),
+                              textWidth,
+                              textHeight,
+                              Qt::AlignVCenter,
+                              value);
 		}
 
 		if(tickLinesFlag) {
