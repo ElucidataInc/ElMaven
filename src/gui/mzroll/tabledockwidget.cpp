@@ -1824,10 +1824,20 @@ void TableDockWidget::showConsensusSpectra() {
 }
 
 void TableDockWidget::markGroupGood() {
-  setGroupLabel('g');
+
   auto currentGroups = getSelectedGroups();
+  
   if (currentGroups.isEmpty())
       return;
+
+  for(auto group : currentGroups)
+  {
+    auto label = group->labelToString(group->predictedLabel());
+    auto probability = group->predictionProbability();
+    pair<string, float> groupLabel = make_pair(label, probability);
+    undoBuffer[group->groupId] = groupLabel;
+  }
+  setGroupLabel('g');
 
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
@@ -1835,11 +1845,20 @@ void TableDockWidget::markGroupGood() {
 }
 
 void TableDockWidget::markGroupBad() {
-  setGroupLabel('b');
   auto currentGroups = getSelectedGroups();
+
   if (currentGroups.isEmpty())
       return;
 
+  for(auto group : currentGroups)
+  {
+    auto label = group->labelToString(group->predictedLabel());
+    auto probability = group->predictionProbability();
+    pair<string, float> groupLabel = make_pair(label, probability);
+    undoBuffer[group->groupId] = groupLabel;
+  }
+  setGroupLabel('b');
+  
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
