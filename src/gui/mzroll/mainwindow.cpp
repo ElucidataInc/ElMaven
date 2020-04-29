@@ -18,7 +18,6 @@
 #include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
-#include "gallerywidget.h"
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
@@ -43,6 +42,7 @@
 #include "pathwaywidget.h"
 #include "peakdetectiondialog.h"
 #include "PeakDetector.h"
+#include "peakeditor.h"
 #include "Peptide.hpp"
 #include "peptidefragmentation.h"
 #include "pollyelmaveninterface.h"
@@ -316,14 +316,14 @@ using namespace mzUtils;
 
     _libraryManager = new LibraryManager(this);
     massCalcWidget = new MassCalcWidget(this);
-	covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
+    _peakEditor = new PeakEditor(this);
+    covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
 	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
 	fragPanel->setupScanListHeader();
 	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
-	galleryWidget = new GalleryWidget(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
     sampleRtWidget = new SampleRtWidget(this);
@@ -346,7 +346,6 @@ using namespace mzUtils;
 
     pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
-	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
 	scatterDockWidget = new ScatterPlot(this);
 	projectDockWidget = new ProjectDockWidget(this);
 	logWidget = new LogWidget(this, std::cout);
@@ -400,7 +399,6 @@ using namespace mzUtils;
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
-	galleryDockWidget->setVisible(false);
 	projectDockWidget->setVisible(true);
 	logWidget->setVisible(false);
 	// rconsoleDockWidget->setVisible(false);
@@ -472,7 +470,6 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, fragPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, scatterDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, bookmarkedPeaks, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, galleryDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, srmDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, logWidget, Qt::Horizontal);
 	// addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
@@ -497,7 +494,6 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
-	tabifyDockWidget(spectraDockWidget, galleryDockWidget);
 	tabifyDockWidget(spectraDockWidget, logWidget);
 	tabifyDockWidget(spectraDockWidget, fragSpectraDockWidget);
 	// tabifyDockWidget(rconsoleDockWidget, logWidget);
@@ -3207,7 +3203,6 @@ void MainWindow::createToolBars() {
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
     //QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
     QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
-    QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
     QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
     // QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
 
@@ -3221,8 +3216,6 @@ void MainWindow::createToolBars() {
 	//btnPathways->setShortcut(Qt::Key_F8);
 	btnBookmarks->setShortcut(Qt::Key_F9);
 	btnSRM->setShortcut(Qt::Key_F10);
-
-    connect(btnGallery, SIGNAL(clicked()), getEicWidget(), SLOT(setGalleryToEics()));
 
 	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
 			SLOT(setVisible(bool)));
@@ -3242,7 +3235,6 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnCovariants);
 	//sideBar->addWidget(btnPathways);
 	sideBar->addWidget(btnSRM);
-	sideBar->addWidget(btnGallery);
 	// sideBar->addWidget(btnRconsole);
 	sideBar->addSeparator();
 	sideBar->addWidget(btnBookmarks);

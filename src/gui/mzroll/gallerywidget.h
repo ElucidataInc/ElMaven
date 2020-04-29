@@ -4,7 +4,6 @@
 #include "stable.h"
 
 class TinyPlot;
-class MainWindow;
 class EIC;
 class mzLink;
 class PeakGroup;
@@ -16,7 +15,7 @@ class GalleryWidget : public QGraphicsView
     Q_OBJECT
 
 public:
-    GalleryWidget(MainWindow* mw);
+    GalleryWidget(QWidget* parent);
     ~GalleryWidget();
 
 public Q_SLOTS:
@@ -28,11 +27,10 @@ public Q_SLOTS:
         _plotItems.clear();
     }
 
-    void addEicPlotsWithGroup(vector<EIC*> eics, PeakGroup* grp);
+    void addEicPlotsForGroup(PeakGroup* grp, vector<EIC*> eics);
     void copyImageToClipboard();
 
 private:
-    MainWindow* _mainWindow;
     QList<QGraphicsItem*> _plotItems;
     int _boxW;
     int _boxH;
@@ -47,8 +45,6 @@ protected:
     void drawMap();
     void resizeEvent(QResizeEvent* event);
     void wheelEvent(QWheelEvent* event);
-    void mousePressEvent(QMouseEvent* event);
-    void keyPressEvent(QKeyEvent* event);
     void contextMenuEvent(QContextMenuEvent* event);
 };
 

@@ -1,7 +1,6 @@
 #include "comparesamplesdialog.h"
 #include "Compound.h"
 #include "eicwidget.h"
-#include "gallerywidget.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "mzSample.h"

@@ -9,7 +9,6 @@
 #include "classifierNeuralNet.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
-#include "gallerywidget.h"
 #include "globals.h"
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
@@ -78,9 +77,6 @@ EicWidget::EicWidget(QWidget *p) {
     _ignoreTolerance = false;
     _ignoreMouseReleaseEvent = false;
     _selectionLine = nullptr;
-
-    connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGalleryToEics);
-
 }
 
 EicWidget::~EicWidget() {
@@ -1083,7 +1079,6 @@ void EicWidget::replot(PeakGroup* group)
 
 	addAxes();
 	getMainWindow()->addToHistory(eicParameters->_slice);
-    emit eicUpdated();
 	scene()->update();
 }
 
@@ -1942,14 +1937,6 @@ void EicWidget::setSelectedGroup(PeakGroup* group) {
 PeakGroup* EicWidget::getSelectedGroup()
 {
     return (eicParameters->displayedGroup());
-}
-
-void EicWidget::setGalleryToEics() {
-	//todo fix spelling
-	if (getMainWindow()->galleryDockWidget->isVisible()) {
-        getMainWindow()->galleryWidget->addEicPlotsWithGroup(
-                eicParameters->eics, eicParameters->displayedGroup());
-	}
 }
 
 void EicWidget::saveRetentionTime() {

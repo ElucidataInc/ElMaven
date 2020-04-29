@@ -14,10 +14,9 @@
 #include "tabledockwidget.h"
 #include "tinyplot.h"
 
-GalleryWidget::GalleryWidget(MainWindow* mw)
+GalleryWidget::GalleryWidget(QWidget* parent)
 {
-    this->_mainWindow = mw;
-
+    setParent(parent);
     setScene(new QGraphicsScene(this));
     scene()->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
     setObjectName("Gallery");
@@ -34,11 +33,6 @@ GalleryWidget::GalleryWidget(MainWindow* mw)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     horizontalScrollBar()->setEnabled(false);
     setStyleSheet("QWidget { border: none; }");
-
-    connect(mw->getEicWidget(),
-            &EicWidget::eicUpdated,
-            this,
-            &GalleryWidget::replot);
 }
 
 GalleryWidget::~GalleryWidget()
@@ -47,10 +41,12 @@ GalleryWidget::~GalleryWidget()
         delete (scene());
 }
 
-void GalleryWidget::addEicPlotsWithGroup(vector<EIC*> eics,
-                                         PeakGroup* group)
+void GalleryWidget::addEicPlotsForGroup(PeakGroup* group, vector<EIC*> eics)
 {
     clear();
+    if (group == nullptr || group->hasSlice())
+        return;
+
     sort(begin(eics), end(eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();
@@ -61,20 +57,14 @@ void GalleryWidget::addEicPlotsWithGroup(vector<EIC*> eics,
             continue;
 
         Peak* samplePeak = nullptr;
-        if (group != nullptr) {
-            for (auto& peak : group->peaks) {
-                if (peak.getSample() == eic->sample) {
-                    samplePeak = &peak;
-                    break;
-                }
+        for (auto& peak : group->peaks) {
+            if (peak.getSample() == eic->sample) {
+                samplePeak = &peak;
+                break;
             }
         }
 
-        mzSlice& slice =
-            _mainWindow->getEicWidget()->getParameters()->getMzSlice();
-        if (group != nullptr)
-            slice = group->getSlice();
-
+        const mzSlice& slice = group->getSlice();
         QColor color = QColor::fromRgbF(eic->sample->color[0],
                                         eic->sample->color[1],
                                         eic->sample->color[2],
@@ -92,7 +82,7 @@ void GalleryWidget::addEicPlotsWithGroup(vector<EIC*> eics,
         plot->addData(eic,
                       slice.rtmin,
                       slice.rtmax,
-                      group != nullptr,
+                      true,
                       peakRtMin,
                       peakRtMax);
         plot->addDataColor(color);
@@ -183,43 +173,9 @@ void GalleryWidget::_ensureVisible(bool topToBottom)
     ensureVisible(0, y, _boxW, _boxH, 0, yMargin);
 }
 
-void GalleryWidget::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton) {
-        QGraphicsItem* item = itemAt(event->pos());
-        if (item != NULL) {
-            QVariant v = item->data(0);
-            Compound* compound = v.value<Compound*>();
-            if (compound != NULL && _mainWindow != NULL) {
-                _mainWindow->setCompoundFocus(compound);
-                return;
-            }
-
-            mzSlice slice = v.value<mzSlice>();
-            if (_mainWindow != NULL) {
-                _mainWindow->getEicWidget()->setMzSlice(slice);
-                return;
-            }
-        }
-    }
-}
-
 void GalleryWidget::resizeEvent(QResizeEvent* event)
 {
     replot();
-}
-
-void GalleryWidget::keyPressEvent(QKeyEvent* event)
-{
-    switch (event->key()) {
-    case Qt::Key_Right:
-        break;
-    case Qt::Key_Left:
-        break;
-    default:
-        QGraphicsView::keyPressEvent(event);
-    }
-    scene()->update();
 }
 
 void GalleryWidget::copyImageToClipboard()
@@ -244,6 +200,6 @@ void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
     QAction* print = menu.addAction("Print");
     connect(print, SIGNAL(triggered()), SLOT(print()));
 
-    QAction* selectedAction = menu.exec(event->globalPos());
+    menu.exec(event->globalPos());
     scene()->update();
 }

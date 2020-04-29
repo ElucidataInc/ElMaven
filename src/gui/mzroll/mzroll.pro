@@ -168,7 +168,8 @@ FORMS = forms/settingsform.ui  \
         forms/isotopedialog.ui \
         forms/infodialog.ui \
         forms/adductwidget.ui \
-        forms/updatedialog.ui
+        forms/updatedialog.ui \
+        forms/peakeditor.ui
 
 HEADERS += stable.h \
            globals.h \
@@ -244,7 +245,8 @@ HEADERS += stable.h \
            isotopedialog.h \
            adductwidget.h \
            autoupdater.h \
-           updatedialog.h
+           updatedialog.h \
+           peakeditor.h
 
 SOURCES += mainwindow.cpp  \
            database.cpp \
@@ -316,7 +318,8 @@ SOURCES += mainwindow.cpp  \
            isotopedialog.cpp \
            adductwidget.cpp \
            autoupdater.cpp \
-           updatedialog.cpp
+           updatedialog.cpp \
+           peakeditor.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

@@ -55,7 +55,7 @@ class HeatMap;
 class ScatterPlot;
 class TreeMap;
 class SuggestPopup;
-class GalleryWidget;
+class PeakEditor;
 class mzFileIO;
 class ProjectDockWidget;
 class SpectraMatching;
@@ -143,7 +143,6 @@ public:
 	QDockWidget *heatMapDockWidget;
 	QDockWidget *scatterDockWidget;
 	QDockWidget *treeMapDockWidget;
-	QDockWidget *galleryDockWidget;
 	LogWidget *logWidget;
 	ProjectDockWidget *projectDockWidget;
 	SpectraMatching *spectraMatchingForm;
@@ -152,7 +151,6 @@ public:
 	BookmarkTableDockWidget *bookmarkedPeaks;
 	SuggestPopup *suggestPopup;
 	HeatMap *heatmap;
-	GalleryWidget *galleryWidget;
 	ScatterPlot *scatterplot;
 	TreeMap *treemap;
 	SpectralHitsDockWidget *spectralHitsDockWidget;
@@ -446,6 +444,13 @@ public Q_SLOTS:
      */
     void updateTablePostAlignment();
 
+    /**
+     * @brief The peak-editor is a widget that will allow the user to edit the
+     * RT bounds of individual peaks in a peak-group.
+     * @return A pointer to the global peak-editor widget, owned by main window.
+     */
+    PeakEditor* peakEditor() const { return _peakEditor; }
+
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
@@ -525,6 +530,8 @@ private:
      * their libraries over different sessions.
      */
     LibraryManager* _libraryManager;
+
+    PeakEditor* _peakEditor;
 
         QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 

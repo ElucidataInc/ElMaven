@@ -1048,7 +1048,6 @@ void SpectralHitsDockWidget::integrateMS1() {
 
    }
 
-   _mainwindow->getBookmarkedPeaks()->align();
    _mainwindow->getBookmarkedPeaks()->setTableView(TableDockWidget::peakView);
    _mainwindow->getBookmarkedPeaks()->showAllGroups();
    _mainwindow->getBookmarkedPeaks()->show();

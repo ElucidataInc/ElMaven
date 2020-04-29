@@ -164,7 +164,6 @@ public Q_SLOTS:
 
   void showFocusedGroups();
   void clearFocusedGroups();
-  void unhideFocusedGroups();
 
   // output to csv file
   void exportGroupsToSpreadsheet();
@@ -241,10 +240,8 @@ public Q_SLOTS:
   virtual void deleteGroup(PeakGroup *groupX);
 
   void sortBy(int);
-  void align();
   void deleteAll();
   void clusterGroups();
-  void findMatchingCompounds();
   void showFiltersDialog();
   void filterPeakTable();
 
@@ -293,6 +290,8 @@ Q_SIGNALS:
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
+
+  void editSelectedPeakGroup();
 
 private:
   QPalette pal;
