@@ -29,8 +29,10 @@ public:
 	float getCurrentXCoord() { return _currentXCoord; }
 	void setWidth(int w)  { _width=w; }
 	void setHeight(int h) { _height=h; }
-	void setTitle(QString title) { _title=title; }
-	void addPoint(float x, float y) { points << QPointF(x,y); }
+    void setTitle(QString title) { _title=title; }
+    void setXBounds(float x1, float x2) { _minXValue = x1; _maxXValue = x2; }
+    void setYBounds(float y1, float y2) { _minYValue = y1; _maxYValue = y2; }
+    void addPoint(float x, float y) { points << QPointF(x,y); }
 	
 protected:
     QRectF boundingRect() const;

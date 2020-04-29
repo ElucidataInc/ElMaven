@@ -50,6 +50,11 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                < second->sample->getSampleOrder();
     });
 
+    float minIntensity = 0.0f;
+    float maxIntensity = 0.0f;
+    float minRt = slice.rtmin;
+    float maxRt = slice.rtmax;
+
     for (EIC* eic : eics) {
         if (eic == nullptr)
             continue;
@@ -68,10 +73,13 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                                         1.0);
         float peakRtMin = -1.0f;
         float peakRtMax = -1.0f;
-        if (samplePeak != nullptr) {
-            peakRtMin = samplePeak->rtmin;
-            peakRtMax = samplePeak->rtmax;
-        }
+        if (samplePeak == nullptr)
+            continue;
+
+        peakRtMin = samplePeak->rtmin;
+        peakRtMax = samplePeak->rtmax;
+        if (maxIntensity < samplePeak->peakIntensity)
+            maxIntensity = samplePeak->peakIntensity;
 
         TinyPlot* plot = new TinyPlot(nullptr, scene());
         plot->addData(eic,
@@ -92,8 +100,15 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         scene()->addItem(plot);
     }
 
-    if (_plotItems.size() > 0)
+    if (_plotItems.size() > 0) {
+        // make sure all plots are scaled into a single inclusive x-y plane
+        for (auto item : _plotItems) {
+            auto plot = static_cast<TinyPlot*>(item);
+            plot->setXBounds(minRt - 1.0f, maxRt + 1.0f);
+            plot->setYBounds(minIntensity, maxIntensity * 1.1f);
+        }
         replot();
+    }
 
     delete_all(eics);
 }

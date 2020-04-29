@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "EIC.h"
 #include "tinyplot.h"
 
@@ -84,6 +86,22 @@ void TinyPlot::addData(EIC* eic,
         }
     }
     data << left << center << right;
+
+    // find bounds
+    _minXValue = _minYValue = numeric_limits<float>::max();
+    _maxXValue = _maxYValue = numeric_limits<float>::min();
+    for(QVector<QPointF> shape : data) {
+        for (auto point : shape) {
+            if (point.y() > _maxYValue)
+                _maxYValue = point.y() * 1.2;
+            if (point.y() < _minYValue)
+                _minYValue = point.y() * 0.8;
+            if (point.x() > _maxXValue)
+                _maxXValue = point.x();
+            if (point.x() < _minXValue)
+                _minXValue = point.x();
+        }
+    }
 }
 
 QPointF TinyPlot::mapToPlot(float x,float y ) {
@@ -106,22 +124,10 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 {
 	if (_width <= 0 || _height <=0 ) return;
 	float nSeries=data.size();
-	_minXValue=_minYValue=FLT_MAX;
-	_maxXValue=_maxYValue=FLT_MIN;
 
     // TinyPlot will only be used for displaying EICs of singular peaks.
     if (nSeries != 3)
         return;
-
-	//find bounds
-    for(int i=0; i < nSeries; i++ ) {
-		for(int j=0; j < data[i].size(); j++ ) {
-			if ( data[i][j].y() > _maxYValue ) { _maxYValue=data[i][j].y()*1.2; }
-			if ( data[i][j].y() < _minYValue ) { _minYValue=data[i][j].y()*0.8; }
-            if ( data[i][j].x() > _maxXValue ) { _maxXValue=data[i][j].x(); }
-            if ( data[i][j].x() < _minXValue ) { _minXValue=data[i][j].x(); }
-		}
-	}
 
     float maxPointIntensity=0;
     for(int i=0; i < points.size(); i++ ) {        
