@@ -133,18 +133,18 @@ void TinyPlot::_addAxes(QPainter *painter)
                     0,
                     _minXValue,
                     _maxXValue,
-                    _width,
-                    _height,
+                    _width - _axesOffset,
+                    _height - _axesOffset,
                     0,
-                    _axesOffset,
+                    0,
                     7,
                     true);
     Axes::paintAxes(painter,
                     1,
                     _minYValue,
                     _maxYValue,
-                    _width,
-                    _height,
+                    _width - _axesOffset,
+                    _height - _axesOffset,
                     0,
                     _axesOffset,
                     5,
@@ -168,11 +168,6 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
             maxPointIntensity=points[i].y();
         }
 	}
-
-    painter->setPen(Qt::gray);
-    painter->setBrush(Qt::NoBrush);
-    // not sure why this +4 is needed, but it's needed
-    painter->drawLine(0, _height, _width + 4, _height);
 
 	//title
 	if (!_title.isEmpty()) {
