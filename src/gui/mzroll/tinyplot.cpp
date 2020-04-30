@@ -183,7 +183,7 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         }
         QFont fontSmall("Helvetica",_fontH);
         painter->setFont(fontSmall);
-        painter->drawText(5, _fontH+1,_title);
+        painter->drawText(_axesOffset + 6, _fontH+1,_title);
 	}
 
 	if (maxPointIntensity) {

@@ -92,10 +92,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         plot->setHeight(_boxH);
         plot->addDataColor(color);
         plot->setData(0, QVariant::fromValue(slice));
-        plot->setTitle(tr("%1 (m/z: %2 — %3)")
-                           .arg(eic->sample->sampleName.c_str())
-                           .arg(eic->mzmin)
-                           .arg(eic->mzmax));
         _plotItems << plot;
         scene()->addItem(plot);
     }
