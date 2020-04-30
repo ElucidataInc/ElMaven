@@ -115,10 +115,14 @@ QPointF TinyPlot::mapToPlot(float x, float y)
     if (_maxYValue == 0 && _minYValue == 0)
         return QPointF(xorigin, yorigin);
 
+    if (y > _maxYValue)
+        y = _maxYValue;
+
     float px = xorigin
                + (((x - _minXValue) / (_maxXValue - _minXValue))
                   * (_width - _axesOffset))
                + _axesOffset;
+
     float py = yorigin
                - (((y - _minYValue) / (_maxYValue - _minYValue))
                   * (_height - _axesOffset))

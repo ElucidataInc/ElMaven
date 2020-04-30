@@ -59,6 +59,11 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         if (eic == nullptr)
             continue;
 
+        QColor color = QColor::fromRgbF(eic->sample->color[0],
+                                        eic->sample->color[1],
+                                        eic->sample->color[2],
+                                        1.0);
+
         Peak* samplePeak = nullptr;
         for (auto& peak : group->peaks) {
             if (peak.getSample() == eic->sample) {
@@ -66,20 +71,14 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                 break;
             }
         }
-
-        QColor color = QColor::fromRgbF(eic->sample->color[0],
-                                        eic->sample->color[1],
-                                        eic->sample->color[2],
-                                        1.0);
         float peakRtMin = -1.0f;
         float peakRtMax = -1.0f;
-        if (samplePeak == nullptr)
-            continue;
-
-        peakRtMin = samplePeak->rtmin;
-        peakRtMax = samplePeak->rtmax;
-        if (maxIntensity < samplePeak->peakIntensity)
-            maxIntensity = samplePeak->peakIntensity;
+        if (samplePeak != nullptr) {
+            peakRtMin = samplePeak->rtmin;
+            peakRtMax = samplePeak->rtmax;
+            if (maxIntensity < samplePeak->peakIntensity)
+                maxIntensity = samplePeak->peakIntensity;
+        }
 
         TinyPlot* plot = new TinyPlot(nullptr, scene());
         plot->addData(eic,
@@ -130,7 +129,9 @@ void GalleryWidget::wheelEvent(QWheelEvent* event)
         } else {
             _nItemsVisible = max(1, _nItemsVisible - 1);
         }
+        int currentIndex = _indexOfVisibleItem;
         replot();
+        showPlotFor(currentIndex);
     } else {
         if (event->delta() > 0) {
             _indexOfVisibleItem = max(0, _indexOfVisibleItem - 1);
@@ -205,7 +206,10 @@ void GalleryWidget::copyImageToClipboard()
 
 void GalleryWidget::resizeEvent(QResizeEvent* event)
 {
+    Q_UNUSED(event);
+    int currentIndex = _indexOfVisibleItem;
     replot();
+    showPlotFor(currentIndex);
 }
 
 void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
