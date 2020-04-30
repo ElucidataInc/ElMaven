@@ -32,8 +32,10 @@ public:
     void setTitle(QString title) { _title=title; }
     void setXBounds(float x1, float x2) { _minXValue = x1; _maxXValue = x2; }
     void setYBounds(float y1, float y2) { _minYValue = y1; _maxYValue = y2; }
+    void setAxesOffset(float offset) { _axesOffset = offset; }
     void addPoint(float x, float y) { points << QPointF(x,y); }
-	
+    QPointF mapToPlot(float x, float y);
+
 protected:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -43,7 +45,6 @@ protected:
 //	void mouseMoveEvent (QGraphicsSceneMouseEvent*);
     
 private:
-	QPointF mapToPlot(float x, float y);
     void _addAxes(QPainter* painter);
 
 	QString _title;

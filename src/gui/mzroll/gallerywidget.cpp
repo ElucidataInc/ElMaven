@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "Compound.h"
 #include "datastructures/mzSlice.h"
 #include "EIC.h"
@@ -21,10 +23,14 @@ GalleryWidget::GalleryWidget(QWidget* parent)
 
     _boxW = 300;
     _boxH = 200;
+    _axesOffset = 18;
     recursionCheck = false;
     _plotItems.clear();
     _nItemsVisible = 1;
     _indexOfVisibleItem = 0;
+
+    _leftMarker = nullptr;
+    _rightMarker = nullptr;
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -37,6 +43,16 @@ GalleryWidget::~GalleryWidget()
         delete (scene());
 }
 
+void GalleryWidget::clear()
+{
+    scene()->clear();
+    _plotItems.clear();
+    delete_all(_eics);
+    _peakBounds.clear();
+    _leftMarker = nullptr;
+    _rightMarker = nullptr;
+}
+
 void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
 {
     clear();
@@ -44,18 +60,18 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         return;
 
     const mzSlice& slice = group->getSlice();
-    vector<EIC*> eics = PeakDetector::pullEICs(&slice, group->samples, mp);
-    sort(begin(eics), end(eics), [this](EIC* first, EIC* second) {
+    _eics = PeakDetector::pullEICs(&slice, group->samples, mp);
+    sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();
     });
 
     float minIntensity = 0.0f;
-    float maxIntensity = 0.0f;
-    float minRt = slice.rtmin;
-    float maxRt = slice.rtmax;
+    float maxIntensity = numeric_limits<float>::min();
+    float minRt = numeric_limits<float>::max();
+    float maxRt = numeric_limits<float>::min();
 
-    for (EIC* eic : eics) {
+    for (EIC* eic : _eics) {
         if (eic == nullptr)
             continue;
 
@@ -78,6 +94,10 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
             peakRtMax = samplePeak->rtmax;
             if (maxIntensity < samplePeak->peakIntensity)
                 maxIntensity = samplePeak->peakIntensity;
+            if (peakRtMin < minRt)
+                minRt = peakRtMin;
+            if (peakRtMax > maxRt)
+                maxRt = peakRtMax;
         }
 
         TinyPlot* plot = new TinyPlot(nullptr, scene());
@@ -89,9 +109,11 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                       peakRtMax);
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
+        plot->setAxesOffset(_axesOffset);
         plot->addDataColor(color);
         plot->setData(0, QVariant::fromValue(slice));
         _plotItems << plot;
+        _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
         scene()->addItem(plot);
     }
 
@@ -99,13 +121,11 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         // make sure all plots are scaled into a single inclusive x-y plane
         for (auto item : _plotItems) {
             auto plot = static_cast<TinyPlot*>(item);
-            plot->setXBounds(minRt - 1.0f, maxRt + 1.0f);
+            plot->setXBounds(minRt - 0.5, maxRt + 0.5);
             plot->setYBounds(minIntensity, maxIntensity * 1.1f);
         }
         replot();
     }
-
-    delete_all(eics);
 }
 
 void GalleryWidget::replot()
@@ -114,32 +134,6 @@ void GalleryWidget::replot()
         recursionCheck = true;
         drawMap();
         recursionCheck = false;
-    }
-}
-
-void GalleryWidget::wheelEvent(QWheelEvent* event)
-{
-    if (_plotItems.size() == 0)
-        return;
-
-    if (event->modifiers() == Qt::ControlModifier) {
-        if (event->delta() > 0) {
-            _nItemsVisible = min(4, min(_plotItems.size() - 1,
-                                        _nItemsVisible + 1));
-        } else {
-            _nItemsVisible = max(1, _nItemsVisible - 1);
-        }
-        int currentIndex = _indexOfVisibleItem;
-        replot();
-        showPlotFor(currentIndex);
-    } else {
-        if (event->delta() > 0) {
-            _indexOfVisibleItem = max(0, _indexOfVisibleItem - 1);
-        } else {
-            _indexOfVisibleItem = min(_plotItems.size() - 1,
-                                      _indexOfVisibleItem + 1);
-        }
-        _ensureCurrentItemIsVisible(event->delta() < 0);
     }
 }
 
@@ -174,6 +168,44 @@ void GalleryWidget::drawMap()
     scene()->update();
     _indexOfVisibleItem = 0;
     _ensureCurrentItemIsVisible();
+    _drawBoundaryMarkers();
+}
+
+void GalleryWidget::_drawBoundaryMarkers()
+{
+    EIC* eic = _eics.at(_indexOfVisibleItem);
+    TinyPlot* plot = static_cast<TinyPlot*>(_plotItems[_indexOfVisibleItem]);
+
+    auto rtBounds = _peakBounds.at(eic);
+    float rtMin = rtBounds.first;
+    float rtMax = rtBounds.second;
+
+    float x1 = plot->mapToPlot(rtMin, 0.0f).x();
+    float x2 = plot->mapToPlot(rtMax, 0.0f).x();
+    float yStart = _indexOfVisibleItem * _boxH;
+    float yEnd = yStart + _boxH - _axesOffset;
+
+    if (_leftMarker != nullptr)
+        delete _leftMarker;
+    _leftMarker = new QGraphicsLineItem(nullptr);
+    scene()->addItem(_leftMarker);
+
+    if (_rightMarker != nullptr)
+        delete _rightMarker;
+    _rightMarker = new QGraphicsLineItem(nullptr);
+    scene()->addItem(_rightMarker);
+
+    QPen pen(Qt::black, 1, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
+    _leftMarker->setPen(pen);
+    _leftMarker->setZValue(1000);
+    _leftMarker->setLine(x1, yStart, x1, yEnd);
+    _leftMarker->update();
+    _rightMarker->setPen(pen);
+    _rightMarker->setZValue(1000);
+    _rightMarker->setLine(x2, yStart, x2, yEnd);
+    _rightMarker->update();
+
+    scene()->update();
 }
 
 void GalleryWidget::_ensureCurrentItemIsVisible(bool topToBottom)
@@ -184,6 +216,7 @@ void GalleryWidget::_ensureCurrentItemIsVisible(bool topToBottom)
         yMargin = (_nItemsVisible - 1) * _boxH;
     ensureVisible(0, y, _boxW, _boxH, 0, yMargin);
     plotIndexChanged(_indexOfVisibleItem);
+    _drawBoundaryMarkers();
 }
 
 void GalleryWidget::showPlotFor(int index)
@@ -202,6 +235,32 @@ void GalleryWidget::copyImageToClipboard()
     render(&painter);
     painter.end();
     QApplication::clipboard()->setPixmap(image);
+}
+
+void GalleryWidget::wheelEvent(QWheelEvent* event)
+{
+    if (_plotItems.size() == 0)
+        return;
+
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->delta() > 0) {
+            _nItemsVisible = min(4, min(_plotItems.size() - 1,
+                                        _nItemsVisible + 1));
+        } else {
+            _nItemsVisible = max(1, _nItemsVisible - 1);
+        }
+        int currentIndex = _indexOfVisibleItem;
+        replot();
+        showPlotFor(currentIndex);
+    } else {
+        if (event->delta() > 0) {
+            _indexOfVisibleItem = max(0, _indexOfVisibleItem - 1);
+        } else {
+            _indexOfVisibleItem = min(_plotItems.size() - 1,
+                                      _indexOfVisibleItem + 1);
+        }
+        _ensureCurrentItemIsVisible(event->delta() < 0);
+    }
 }
 
 void GalleryWidget::resizeEvent(QResizeEvent* event)

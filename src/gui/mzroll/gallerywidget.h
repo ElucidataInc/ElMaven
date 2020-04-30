@@ -22,11 +22,7 @@ signals:
 public Q_SLOTS:
     void replot();
 
-    void clear()
-    {
-        scene()->clear();
-        _plotItems.clear();
-    }
+    void clear();
 
     void addEicPlots(PeakGroup* grp, MavenParameters* mp);
     void showPlotFor(int index);
@@ -36,10 +32,16 @@ private:
     QList<QGraphicsItem*> _plotItems;
     int _boxW;
     int _boxH;
+    int _axesOffset;
     int _nItemsVisible;
     int _indexOfVisibleItem;
+    vector<EIC*> _eics;
+    map<EIC*, pair<float, float>> _peakBounds;
+    QGraphicsLineItem* _leftMarker;
+    QGraphicsLineItem* _rightMarker;
 
     void _ensureCurrentItemIsVisible(bool topToBottom = true);
+    void _drawBoundaryMarkers();
 
 protected:
     bool recursionCheck;
