@@ -1196,7 +1196,6 @@ void EicWidget::addAxes() {
 	scene()->addItem(x);
 	scene()->addItem(y);
 	y->setOffset(20);
-	y->showTicLines(true);
 	x->setZValue(0);
 	y->setZValue(0);
 	return;
@@ -2251,7 +2250,6 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     scene.addItem(x);
     scene.addItem(y);
     y->setOffset(20);
-    y->showTicLines(true);
     x->setZValue(0);
     y->setZValue(0);
 

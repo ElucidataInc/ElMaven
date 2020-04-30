@@ -1,6 +1,7 @@
 #include <limits>
 
 #include "EIC.h"
+#include "plot_axes.h"
 #include "tinyplot.h"
 
 TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)  {
@@ -12,6 +13,7 @@ TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(p
 	//effect->setOffset(8); 
 	//setGraphicsEffect(effect);
     _noPeakData = false;
+    _axesOffset = 18.0f;
 }
 
 
@@ -104,21 +106,50 @@ void TinyPlot::addData(EIC* eic,
     }
 }
 
-QPointF TinyPlot::mapToPlot(float x,float y ) {
-	float xorigin = 0;
-	float yorigin = _height;
-	if (_maxXValue == 0 && _minXValue == 0 ) return QPointF(xorigin,yorigin);
-	if (_maxYValue == 0 && _minYValue == 0 ) return QPointF(xorigin,yorigin);
-	float px = xorigin+((x-_minXValue)/(_maxXValue-_minXValue))*_width;
-	float py = yorigin-((y-_minYValue)/(_maxYValue-_minYValue))*_height;
-	//qDebug() << x << " " << y << " " << px << " " << py << endl;
-	return QPointF(px,py);
+QPointF TinyPlot::mapToPlot(float x, float y)
+{
+    float xorigin = 0;
+    float yorigin = _height;
+    if (_maxXValue == 0 && _minXValue == 0)
+        return QPointF(xorigin, yorigin);
+    if (_maxYValue == 0 && _minYValue == 0)
+        return QPointF(xorigin, yorigin);
+
+    float px = xorigin
+               + (((x - _minXValue) / (_maxXValue - _minXValue))
+                  * (_width - _axesOffset))
+               + _axesOffset;
+    float py = yorigin
+               - (((y - _minYValue) / (_maxYValue - _minYValue))
+                  * (_height - _axesOffset))
+               - _axesOffset;
+
+    return QPointF(px, py);
 }
 
-float TinyPlot::predictYValue(float fx) {
-		return 0;
+void TinyPlot::_addAxes(QPainter *painter)
+{
+    Axes::paintAxes(painter,
+                    0,
+                    _minXValue,
+                    _maxXValue,
+                    _width,
+                    _height,
+                    0,
+                    _axesOffset,
+                    7,
+                    true);
+    Axes::paintAxes(painter,
+                    1,
+                    _minYValue,
+                    _maxYValue,
+                    _width,
+                    _height,
+                    0,
+                    _axesOffset,
+                    5,
+                    true);
 }
- 
 
 void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
@@ -128,6 +159,8 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     // TinyPlot will only be used for displaying EICs of singular peaks.
     if (nSeries != 3)
         return;
+
+    _addAxes(painter);
 
     float maxPointIntensity=0;
     for(int i=0; i < points.size(); i++ ) {        

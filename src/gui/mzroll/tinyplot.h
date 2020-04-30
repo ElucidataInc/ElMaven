@@ -44,11 +44,13 @@ protected:
     
 private:
 	QPointF mapToPlot(float x, float y);
-	float predictYValue(float x);
+    void _addAxes(QPainter* painter);
+
 	QString _title;
 
 	int _width;
 	int _height;
+    float _axesOffset;
 
     bool _noPeakData;
     float _minXValue, _minYValue, _maxXValue, _maxYValue;

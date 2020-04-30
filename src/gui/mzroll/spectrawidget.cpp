@@ -885,7 +885,7 @@ void SpectraWidget::addAxes()
     	Axes* y = new Axes(1, _minY, _maxY, 10);
     	scene()->addItem(y);
         y->setZValue(999);
-        y->showTicLines(false);
+        y->showTickLines(false);
 		y->setOffset(5);
     	_items.push_back(y);
     }
