@@ -227,7 +227,7 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         auto pen = QPen(color.darker());
         if (i % 2 == 0 || _noPeakData) {
             color = colorFaded;
-            pen = Qt::NoPen;
+            pen = QPen(Qt::lightGray);
         }
         painter->setBrush(color);
         painter->setPen(pen);
