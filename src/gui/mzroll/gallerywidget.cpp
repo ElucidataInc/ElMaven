@@ -343,9 +343,6 @@ void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
     QAction* copyImage = menu.addAction("Copy Image to Clipboard");
     connect(copyImage, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
 
-    QAction* print = menu.addAction("Print");
-    connect(print, SIGNAL(triggered()), SLOT(print()));
-
     menu.exec(event->globalPos());
     scene()->update();
 }
