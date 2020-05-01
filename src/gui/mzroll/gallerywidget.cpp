@@ -21,6 +21,11 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     setObjectName("Gallery");
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
+    _minRt = 0.0f;
+    _maxRt = 0.0f;
+    _minIntensity = 0.0f;
+    _maxIntensity = 0.0f;
+
     _boxW = 300;
     _boxH = 200;
     _axesOffset = 18;
@@ -31,10 +36,13 @@ GalleryWidget::GalleryWidget(QWidget* parent)
 
     _leftMarker = nullptr;
     _rightMarker = nullptr;
+    _markerBeingDragged = nullptr;
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     horizontalScrollBar()->setEnabled(false);
+
+    setMouseTracking(true);
 }
 
 GalleryWidget::~GalleryWidget()
@@ -66,11 +74,9 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                < second->sample->getSampleOrder();
     });
 
-    float minIntensity = 0.0f;
-    float maxIntensity = numeric_limits<float>::min();
-    float minRt = numeric_limits<float>::max();
-    float maxRt = numeric_limits<float>::min();
-
+    _maxIntensity = numeric_limits<float>::min();
+    _minRt = numeric_limits<float>::max();
+    _maxRt = numeric_limits<float>::min();
     for (EIC* eic : _eics) {
         if (eic == nullptr)
             continue;
@@ -92,37 +98,45 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         if (samplePeak != nullptr) {
             peakRtMin = samplePeak->rtmin;
             peakRtMax = samplePeak->rtmax;
-            if (maxIntensity < samplePeak->peakIntensity)
-                maxIntensity = samplePeak->peakIntensity;
-            if (peakRtMin < minRt)
-                minRt = peakRtMin;
-            if (peakRtMax > maxRt)
-                maxRt = peakRtMax;
+            if (_maxIntensity < samplePeak->peakIntensity)
+                _maxIntensity = samplePeak->peakIntensity;
+            if (peakRtMin < _minRt)
+                _minRt = peakRtMin;
+            if (peakRtMax > _maxRt)
+                _maxRt = peakRtMax;
         }
 
+        // creating empty plots and setting attributes
         TinyPlot* plot = new TinyPlot(nullptr, scene());
-        plot->addData(eic,
-                      slice.rtmin,
-                      slice.rtmax,
-                      true,
-                      peakRtMin,
-                      peakRtMax);
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
         plot->setAxesOffset(_axesOffset);
         plot->addDataColor(color);
-        plot->setData(0, QVariant::fromValue(slice));
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
         scene()->addItem(plot);
     }
 
     if (_plotItems.size() > 0) {
-        // make sure all plots are scaled into a single inclusive x-y plane
-        for (auto item : _plotItems) {
-            auto plot = static_cast<TinyPlot*>(item);
-            plot->setXBounds(minRt - 0.5, maxRt + 0.5);
-            plot->setYBounds(minIntensity, maxIntensity * 1.1f);
+        _minRt -= 0.5;
+        _maxRt += 0.5;
+        _maxIntensity *= 1.1f;
+        for (size_t i = 0; i < _plotItems.size(); ++i) {
+            auto plot = _plotItems[i];
+            auto eic = _eics[i];
+            auto& peakBounds = _peakBounds.at(eic);
+
+            // we add data only at this point, once bounds have been determined
+            plot->addData(eic,
+                          _minRt,
+                          _maxRt,
+                          true,
+                          peakBounds.first,
+                          peakBounds.second);
+
+            // make sure all plots are scaled into a single inclusive x-y plane
+            plot->setXBounds(_minRt, _maxRt);
+            plot->setYBounds(_minIntensity, _maxIntensity);
         }
         replot();
     }
@@ -158,7 +172,7 @@ void GalleryWidget::drawMap()
         int xpos = col * _boxW;
         int ypos = row * _boxH;
 
-        TinyPlot* item = static_cast<TinyPlot*>(_plotItems[row]);
+        TinyPlot* item = _plotItems[row];
         item->setWidth(_boxW);
         item->setHeight(_boxH);
 
@@ -168,13 +182,12 @@ void GalleryWidget::drawMap()
     scene()->update();
     _indexOfVisibleItem = 0;
     _ensureCurrentItemIsVisible();
-    _drawBoundaryMarkers();
 }
 
 void GalleryWidget::_drawBoundaryMarkers()
 {
     EIC* eic = _eics.at(_indexOfVisibleItem);
-    TinyPlot* plot = static_cast<TinyPlot*>(_plotItems[_indexOfVisibleItem]);
+    TinyPlot* plot = _plotItems[_indexOfVisibleItem];
 
     auto rtBounds = _peakBounds.at(eic);
     float rtMin = rtBounds.first;
@@ -237,6 +250,57 @@ void GalleryWidget::copyImageToClipboard()
     QApplication::clipboard()->setPixmap(image);
 }
 
+QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
+{
+    // correct for current plot - assumes `pos` is defined in terms of viewport
+    pos.setY((_indexOfVisibleItem * _boxH) + pos.y());
+    auto rect = QRectF(pos.x() - 2.0f, pos.y() - 2.0f, 4.0f, 4.0f);
+    if (_leftMarker->boundingRect().intersects(rect))
+        return _leftMarker;
+    if (_rightMarker->boundingRect().intersects(rect))
+        return _rightMarker;
+    return nullptr;
+}
+
+void GalleryWidget::_refillVisiblePlot(float x1, float x2)
+{
+    if (_plotItems.empty())
+        return;
+
+    auto plot = _plotItems.at(_indexOfVisibleItem);
+    auto eic = _eics.at(_indexOfVisibleItem);
+
+    // lambda: given an X-coordinate, converts it to the closest RT in `eic`
+    auto toRt = [this, eic](float coordinate) {
+        float width = static_cast<float>(_boxW);
+        float offset = static_cast<float>(_axesOffset);
+        float ratio = (coordinate - offset) / (width - offset);
+        float approximatedRt = _minRt + (ratio * (_maxRt - _minRt));
+
+        float closestRealRt = approximatedRt;
+        float minDiff = numeric_limits<float>::max();
+        for (size_t i = 0; i < eic->size(); ++i) {
+            float rt = eic->rt[i];
+            float diff = abs(rt - approximatedRt);
+            if (diff < minDiff) {
+                closestRealRt = rt;
+                minDiff = diff;
+            }
+        }
+        return closestRealRt;
+    };
+
+    float peakRtMin = toRt(x1);
+    float peakRtMax = toRt(x2);
+    _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+
+    plot->clearData();
+    plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
+    plot->setXBounds(_minRt, _maxRt);
+    plot->setYBounds(_minIntensity, _maxIntensity);
+    scene()->update();
+}
+
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
     if (_plotItems.size() == 0)
@@ -294,4 +358,58 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
         || event->key() == Qt::Key_Right) {
         event->ignore();
     }
+}
+
+void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    auto mousePos = event->pos();
+
+    if (_markerBeingDragged == nullptr) {
+        if (_rightMarker != nullptr
+            && _markerNear(mousePos) == _rightMarker) {
+            setCursor(Qt::SizeHorCursor);
+        } else if (_leftMarker != nullptr
+                   && _markerNear(mousePos) == _leftMarker) {
+            setCursor(Qt::SizeHorCursor);
+        } else {
+            setCursor(Qt::ArrowCursor);
+        }
+        return;
+    }
+
+    auto plot = _plotItems.at(_indexOfVisibleItem);
+    auto eic = _eics.at(_indexOfVisibleItem);
+    float newRt = 0.0f;
+
+    if (_markerBeingDragged == _leftMarker) {
+        float x1 = mousePos.x();
+        float x2 = _rightMarker->line().x1();
+        if (x1 >= x2)
+            return;
+        _refillVisiblePlot(x1, x2);
+        newRt = _peakBounds.at(eic).first;
+    } else if (_markerBeingDragged == _rightMarker) {
+        float x1 = _leftMarker->line().x1();
+        float x2 = mousePos.x();
+        if (x1 >= x2)
+            return;
+        _refillVisiblePlot(x1, x2);
+        newRt = _peakBounds.at(eic).second;
+    }
+
+    float x = plot->mapToPlot(newRt, 0.0f).x();
+    auto line = _markerBeingDragged->line();
+    _markerBeingDragged->setLine(QLineF(x, line.y1(), x, line.y2()));
+    scene()->update();
+}
+
+void GalleryWidget::mousePressEvent(QMouseEvent* event)
+{
+    _markerBeingDragged = _markerNear(event->pos());
+}
+
+void GalleryWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    _markerBeingDragged = nullptr;
 }

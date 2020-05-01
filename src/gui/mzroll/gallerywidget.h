@@ -7,6 +7,7 @@ class EIC;
 class MavenParameters;
 class mzSample;
 class PeakGroup;
+class TinyPlot;
 
 class GalleryWidget : public QGraphicsView
 {
@@ -29,7 +30,7 @@ public Q_SLOTS:
     void copyImageToClipboard();
 
 private:
-    QList<QGraphicsItem*> _plotItems;
+    QList<TinyPlot*> _plotItems;
     int _boxW;
     int _boxH;
     int _axesOffset;
@@ -39,9 +40,17 @@ private:
     map<EIC*, pair<float, float>> _peakBounds;
     QGraphicsLineItem* _leftMarker;
     QGraphicsLineItem* _rightMarker;
+    QGraphicsLineItem* _markerBeingDragged;
+
+    float _minRt;
+    float _maxRt;
+    float _minIntensity;
+    float _maxIntensity;
 
     void _ensureCurrentItemIsVisible(bool topToBottom = true);
     void _drawBoundaryMarkers();
+    QGraphicsLineItem* _markerNear(QPointF pos);
+    void _refillVisiblePlot(float x1, float x2);
 
 protected:
     bool recursionCheck;
@@ -51,6 +60,9 @@ protected:
     void wheelEvent(QWheelEvent* event);
     void contextMenuEvent(QContextMenuEvent* event);
     void keyPressEvent(QKeyEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 };
 
 #endif
