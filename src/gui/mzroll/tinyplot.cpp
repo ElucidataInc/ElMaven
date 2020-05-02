@@ -190,7 +190,19 @@ void TinyPlot::paint(QPainter *painter,
     auto baselinePath = baseline.shape();
     auto correctedPath = sceneBounds - baselinePath;
 
-    if (!_noPeakData) {
+    if (_noPeakData) {
+        painter->setClipping(false);
+        painter->setBrush(colorFaded);
+        painter->setPen(penFaded);
+
+        QString message = "NO PEAK";
+        QFont font("Helvetica", 14);
+        QFontMetrics fm(font);
+        painter->setFont(font);
+        painter->drawText((_width / 2) - (fm.width(message) / 2),
+                          (_height / 2) + (fm.height() / 2),
+                          message);
+    } else {
         // first we paint the area below the baseline
         painter->setBrush(colorFaded);
         painter->setPen(penFaded);
@@ -201,10 +213,6 @@ void TinyPlot::paint(QPainter *painter,
         painter->setBrush(_color);
         painter->setPen(penDark);
         painter->setClipPath(correctedPath);
-    } else {
-        painter->setClipping(false);
-        painter->setBrush(colorFaded);
-        painter->setPen(penFaded);
     }
     drawPath(_data.peakRegion);
 

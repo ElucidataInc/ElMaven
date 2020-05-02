@@ -204,6 +204,7 @@ void GalleryWidget::replot()
 
 void GalleryWidget::_drawBoundaryMarkers()
 {
+    bool allPeaksEmpty = true;
     float x1 = numeric_limits<float>::max();
     float x2 = numeric_limits<float>::min();
     for (int index : _indexesOfVisibleItems) {
@@ -213,20 +214,32 @@ void GalleryWidget::_drawBoundaryMarkers()
         auto rtBounds = _peakBounds.at(eic);
         float rtMin = rtBounds.first;
         float rtMax = rtBounds.second;
+        if (rtMin < 0.0f && rtMax < 0.0f)
+            continue;
 
+        allPeaksEmpty = false;
         x1 = min(x1, static_cast<float>(plot->mapToPlot(rtMin, 0.0f).x()));
         x2 = max(x2, static_cast<float>(plot->mapToPlot(rtMax, 0.0f).x()));
     }
     float yStart = 0;
     float yEnd = _boxH - _axesOffset;
 
-    if (_leftMarker != nullptr)
+    if (_leftMarker != nullptr) {
         delete _leftMarker;
+        _leftMarker = nullptr;
+    }
+    scene()->update();
+    if (_rightMarker != nullptr) {
+        delete _rightMarker;
+        _rightMarker = nullptr;
+    }
+    scene()->update();
+
+    if (allPeaksEmpty)
+        return;
+
     _leftMarker = new QGraphicsLineItem(nullptr);
     scene()->addItem(_leftMarker);
-
-    if (_rightMarker != nullptr)
-        delete _rightMarker;
     _rightMarker = new QGraphicsLineItem(nullptr);
     scene()->addItem(_rightMarker);
 
