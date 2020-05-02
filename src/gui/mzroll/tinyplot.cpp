@@ -164,6 +164,7 @@ void TinyPlot::paint(QPainter *painter,
 
         path << mapToPlot(_minXValue, _minYValue);
         painter->drawPolygon(path);
+        return path;
     };
 
     QColor colorFaded = QColor::fromRgbF(_color.redF(),
@@ -173,16 +174,41 @@ void TinyPlot::paint(QPainter *painter,
     QPen penDark = QPen(_color.darker());
     QPen penFaded = QPen(Qt::lightGray);
 
+    painter->setClipping(false);
     painter->setBrush(colorFaded);
     painter->setPen(penFaded);
     drawPath(_data.leftRegion);
 
+    QPen penDash(_color.darker(), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(penDash);
+    QGraphicsPolygonItem baseline(drawPath(_data.baseline));
+
+    // find region to clip below the baseline
+    QPainterPath sceneBounds;
+    sceneBounds.addPolygon(scene()->sceneRect());
+    auto baselinePath = baseline.shape();
+    auto correctedPath = sceneBounds - baselinePath;
+
     if (!_noPeakData) {
+        // first we paint the area below the baseline
+        painter->setBrush(colorFaded);
+        painter->setPen(penFaded);
+        painter->setClipPath(baselinePath);
+        drawPath(_data.peakRegion);
+
+        // setup for painting above the baseline
         painter->setBrush(_color);
         painter->setPen(penDark);
+        painter->setClipPath(correctedPath);
+    } else {
+        painter->setClipping(false);
+        painter->setBrush(colorFaded);
+        painter->setPen(penFaded);
     }
     drawPath(_data.peakRegion);
 
+    painter->setClipping(false);
     painter->setBrush(colorFaded);
     painter->setPen(penFaded);
     drawPath(_data.rightRegion);

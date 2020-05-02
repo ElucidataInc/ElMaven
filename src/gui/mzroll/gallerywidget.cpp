@@ -5,6 +5,7 @@
 #include "EIC.h"
 #include "gallerywidget.h"
 #include "globals.h"
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "Peak.h"
 #include "PeakDetector.h"
@@ -65,7 +66,15 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
     if (group == nullptr || !group->hasSlice())
         return;
 
-    const mzSlice& slice = group->getSlice();
+    // set min/max limits on slice to cover the entire EIC range
+    // this helps with baseline calculation as well as RT adjustment
+    mzSlice slice = group->getSlice();
+    slice.rtmin = numeric_limits<float>::max();
+    slice.rtmax = numeric_limits<float>::min();
+    for (mzSample* sample : group->samples) {
+        slice.rtmin = min(slice.rtmin, sample->minRt);
+        slice.rtmax = max(slice.rtmax, sample->maxRt);
+    }
     _eics = PeakDetector::pullEICs(&slice, group->samples, mp);
     sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
