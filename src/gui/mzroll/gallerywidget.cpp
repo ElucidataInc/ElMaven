@@ -109,7 +109,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
         plot->setAxesOffset(_axesOffset);
-        plot->addDataColor(color);
+        plot->setColor(color);
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
     }

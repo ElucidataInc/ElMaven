@@ -4,50 +4,28 @@
 #include "plot_axes.h"
 #include "tinyplot.h"
 
-TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)  {
-	_width=100;
-	_height=100;
-	_currentXCoord=0;
-	_minXValue = _minYValue = _maxXValue = _maxYValue = 0;
-	//QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
-	//effect->setOffset(8); 
-	//setGraphicsEffect(effect);
+TinyPlot::TinyPlot(QGraphicsItem* parent,
+                   QGraphicsScene *scene)
+    : QGraphicsItem(parent)
+{
+    _width = 100;
+    _height = 100;
+    _minXValue = _minYValue = _maxXValue = _maxYValue = 0.0f;
     _noPeakData = false;
     _axesOffset = 18.0f;
     _drawAxes = true;
 }
-
 
 QRectF TinyPlot::boundingRect() const
 {
 	return(QRectF(0,0,_width,_height));
 }
 
-void TinyPlot::addDataColor(QColor c) {
-	colors << c;
+void TinyPlot::clearData()
+{
+    _data.clear();
+    _minYValue = _maxYValue = _minXValue = _maxXValue = 0.0f;
 }
-
-void TinyPlot::addData(QVector<float>&v) { 
-	QVector<QPointF>d;
-	for(int i=0; i < v.size(); i++ ) d << QPointF(i,v[i]);
-	data << d;
-}
-
-void TinyPlot::addData(vector<float>&v) { 
-	QVector<QPointF>d;
-	for(int i=0; i < v.size(); i++ ) d << QPointF(i,v[i]);
-	data << d;
-}
-
-void TinyPlot::addData(EIC* eic) {
-	if(!eic) return;
-	QVector<QPointF>d;
-	for(int i=0; i<eic->size();i++) {
-		d<< QPointF( eic->rt[i], eic->intensity[i]);
-	}
-	data << d;
-}
-
 
 void TinyPlot::addData(EIC* eic,
                        float rtMin,
@@ -62,6 +40,7 @@ void TinyPlot::addData(EIC* eic,
     QVector<QPointF> left;
     QVector<QPointF> center;
     QVector<QPointF> right;
+    QVector<QPointF> baseline;
     for (int i = 0; i < eic->size(); ++i) {
         if (eic->rt[i] < rtMin)
             continue;
@@ -87,12 +66,22 @@ void TinyPlot::addData(EIC* eic,
                 center << QPointF( eic->rt[i], eic->intensity[i]);
             }
         }
+        baseline << QPointF(eic->rt[i], eic->baseline[i]);
     }
-    data << left << center << right;
+    _data.leftRegion = left;
+    _data.peakRegion = center;
+    _data.rightRegion = right;
+    _data.baseline = baseline;
 
     // find bounds
     _minXValue = _minYValue = numeric_limits<float>::max();
     _maxXValue = _maxYValue = numeric_limits<float>::min();
+    QList<QVector<QPointF>> data = {
+        _data.leftRegion,
+        _data.peakRegion,
+        _data.rightRegion,
+        _data.baseline
+    };
     for(QVector<QPointF> shape : data) {
         for (auto point : shape) {
             if (point.y() > _maxYValue)
@@ -156,95 +145,47 @@ void TinyPlot::_addAxes(QPainter *painter)
                     true);
 }
 
-void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void TinyPlot::paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *,
+                     QWidget *)
 {
-	if (_width <= 0 || _height <=0 ) return;
-	float nSeries=data.size();
-
-    // TinyPlot will only be used for displaying EICs of singular peaks.
-    if (nSeries != 3)
+    if (_width <= 0 || _height <=0 )
         return;
 
-    float maxPointIntensity=0;
-    for(int i=0; i < points.size(); i++ ) {        
-        if(points[i].y() > maxPointIntensity) { 
-            maxPointIntensity=points[i].y();
-        }
-	}
-
-	//title
-	if (!_title.isEmpty()) {
-		setToolTip(_title);
-		painter->setBrush(Qt::black);
-		painter->setPen(Qt::black);
-        float _fontH = static_cast<float>(_height) / 10;
-        if (_fontH > 17) {
-            _fontH = 17;
-        }
-        if (_fontH < 11) {
-            _fontH = 11;
-        }
-        QFont fontSmall("Helvetica",_fontH);
-        painter->setFont(fontSmall);
-        painter->drawText(_axesOffset + 6, _fontH+1,_title);
-	}
-
-	if (maxPointIntensity) {
-		setToolTip(_title);
-		painter->setBrush(Qt::black);
-		painter->setPen(Qt::black);
-
-        float _fontH = static_cast<float>(_height) / 10;
-        if (_fontH > 17) {
-            _fontH = 17;
-        }
-        if (_fontH < 11) {
-            _fontH = 11;
-        }
-
-        int prec = 0;
-        if (maxPointIntensity < 100) {
-            prec = 1;
-        } else if (maxPointIntensity < 10) {
-            prec = 2;
-        }
-        QString rightText = QString::number(maxPointIntensity, 'f', prec);
-        QFont font("Helvetica",_fontH);
-        QFontMetrics fm( font );
-        int legendShift = fm.size(0,rightText,0,NULL).width();
-        painter->setFont(font);
-        painter->drawText(_width-legendShift-2,_fontH+1,rightText);
-    }
-
-    QColor colorSolid = colors.at(0);
-    QColor colorFaded = QColor::fromRgbF(colorSolid.redF(),
-                                         colorSolid.greenF(),
-                                         colorSolid.blueF(),
-                                         0.1);
-    for (int i = 0; i < nSeries; i++) {
-        auto color = colorSolid;
-        auto pen = QPen(color.darker());
-        if (i % 2 == 0 || _noPeakData) {
-            color = colorFaded;
-            pen = QPen(Qt::lightGray);
-        }
-        painter->setBrush(color);
-        painter->setPen(pen);
-
-        int nPoints = data[i].size();
+    auto drawPath = [this, painter](const QVector<QPointF>& points) {
+        int nPoints = points.size();
         QPolygonF path;
         if (nPoints >= 1)
-            path << mapToPlot(data[i][0].x(), _minYValue);
-        for (int j = 0; j < nPoints; j++)
-            path << mapToPlot(data[i][j].x(), data[i][j].y());
-
-        // close path
-        if (nPoints >= 1)
-            path << mapToPlot(data[i][nPoints - 1].x(), _minYValue);
+            path << mapToPlot(points[0].x(), _minYValue);
+        for (auto& point : points)
+            path << mapToPlot(point.x(), point.y());
+        if (nPoints >= 1) // close path
+            path << mapToPlot(points[nPoints - 1].x(), _minYValue);
 
         path << mapToPlot(_minXValue, _minYValue);
         painter->drawPolygon(path);
+    };
+
+    QColor colorFaded = QColor::fromRgbF(_color.redF(),
+                                         _color.greenF(),
+                                         _color.blueF(),
+                                         0.1);
+    QPen penDark = QPen(_color.darker());
+    QPen penFaded = QPen(Qt::lightGray);
+
+    painter->setBrush(colorFaded);
+    painter->setPen(penFaded);
+    drawPath(_data.leftRegion);
+
+    if (!_noPeakData) {
+        painter->setBrush(_color);
+        painter->setPen(penDark);
     }
+    drawPath(_data.peakRegion);
+
+    painter->setBrush(colorFaded);
+    painter->setPen(penFaded);
+    drawPath(_data.rightRegion);
 
     if (_drawAxes)
         _addAxes(painter);
