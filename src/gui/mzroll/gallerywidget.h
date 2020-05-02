@@ -18,6 +18,10 @@ public:
     ~GalleryWidget();
 
     vector<EIC*> eics() { return _eics; }
+    pair<float, float> rtBounds();
+    void setRtBounds(float minRt, float maxRt);
+    pair<float, float> intensityBounds();
+    void setIntensityBounds(float minIntensity, float maxIntensity);
 
 signals:
     void peakRegionChanged(mzSample*, float, float);
@@ -51,6 +55,7 @@ private:
     void _drawBoundaryMarkers();
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
+    void _fillPlotData();
 
 protected:
     bool recursionCheck;

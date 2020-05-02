@@ -39,12 +39,30 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QPushButton" name="cancelButton">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Cancel edits</string>
+        <string>RT range:</string>
        </property>
-       <property name="autoDefault">
-        <bool>false</bool>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="rtMinSpinBox">
+       <property name="singleStep">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>to</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="rtMaxSpinBox">
+       <property name="singleStep">
+        <double>0.500000000000000</double>
        </property>
       </widget>
      </item>
@@ -60,6 +78,16 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel edits</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="applyButton">

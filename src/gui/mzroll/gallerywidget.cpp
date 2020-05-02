@@ -60,6 +60,32 @@ void GalleryWidget::clear()
     _rightMarker = nullptr;
 }
 
+pair<float, float> GalleryWidget::rtBounds()
+{
+    return make_pair(_minRt, _maxRt);
+}
+
+void GalleryWidget::setRtBounds(float minRt, float maxRt)
+{
+    _minRt = minRt;
+    _maxRt = maxRt;
+    _fillPlotData();
+    replot();
+}
+
+pair<float, float> GalleryWidget::intensityBounds()
+{
+    return make_pair(_minIntensity, _maxIntensity);
+}
+
+void GalleryWidget::setIntensityBounds(float minIntensity, float maxIntensity)
+{
+    _minIntensity = minIntensity;
+    _maxIntensity = maxIntensity;
+    _fillPlotData();
+    replot();
+}
+
 void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
 {
     clear();
@@ -123,28 +149,12 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
     }
 
-    if (_plotItems.size() > 0) {
-        _minRt -= 0.5;
-        _maxRt += 0.5;
-        _maxIntensity *= 1.1f;
-        for (size_t i = 0; i < _plotItems.size(); ++i) {
-            auto plot = _plotItems[i];
-            auto eic = _eics[i];
-            auto& peakBounds = _peakBounds.at(eic);
+    _minRt -= 0.5;
+    _maxRt += 0.5;
+    _maxIntensity *= 1.1f;
 
-            // we add data only at this point, once bounds have been determined
-            plot->addData(eic,
-                          _minRt,
-                          _maxRt,
-                          true,
-                          peakBounds.first,
-                          peakBounds.second);
-
-            // make sure all plots are scaled into a single inclusive x-y plane
-            plot->setXBounds(_minRt, _maxRt);
-            plot->setYBounds(_minIntensity, _maxIntensity);
-        }
-    }
+    // we add data only at this point, once bounds have been determined
+    _fillPlotData();
 }
 
 void GalleryWidget::replot()
@@ -304,6 +314,28 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         plot->setYBounds(_minIntensity, _maxIntensity);
     }
     scene()->update();
+}
+
+void GalleryWidget::_fillPlotData()
+{
+    if (_plotItems.empty())
+        return;
+
+    for (size_t i = 0; i < _plotItems.size(); ++i) {
+        auto plot = _plotItems[i];
+        auto eic = _eics[i];
+        auto& peakBounds = _peakBounds.at(eic);
+        plot->addData(eic,
+                      _minRt,
+                      _maxRt,
+                      true,
+                      peakBounds.first,
+                      peakBounds.second);
+
+        // make sure all plots are scaled into a single inclusive x-y plane
+        plot->setXBounds(_minRt, _maxRt);
+        plot->setYBounds(_minIntensity, _maxIntensity);
+    }
 }
 
 void GalleryWidget::wheelEvent(QWheelEvent* event)

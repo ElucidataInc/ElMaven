@@ -32,6 +32,18 @@ PeakEditor::PeakEditor(MainWindow *parent,
             [this](mzSample* sample, float rtMin, float rtMax) {
                 _editedPeakRegions[sample] = make_pair(rtMin, rtMax);
             });
+    connect(ui->rtMinSpinBox,
+            QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [this] {
+                _gallery->setRtBounds(ui->rtMinSpinBox->value(),
+                                      ui->rtMaxSpinBox->value());
+            });
+    connect(ui->rtMaxSpinBox,
+            QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            [this] {
+                _gallery->setRtBounds(ui->rtMinSpinBox->value(),
+                                      ui->rtMaxSpinBox->value());
+            });
     connect(ui->cancelButton, &QPushButton::clicked, this, &PeakEditor::hide);
     connect(ui->applyButton,
             &QPushButton::clicked,
@@ -53,6 +65,20 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     _group = group;
 
     _gallery->addEicPlots(group, _mw->mavenParameters);
+    auto rtBounds = _gallery->rtBounds();
+    ui->rtMinSpinBox->setValue(rtBounds.first);
+    ui->rtMaxSpinBox->setValue(rtBounds.second);
+
+    // set absolute min/max RT ranges
+    float minRt = numeric_limits<float>::max();
+    float maxRt = numeric_limits<float>::min();
+    for (mzSample* sample : group->samples) {
+        minRt = min(minRt, sample->minRt);
+        maxRt = max(maxRt, sample->maxRt);
+    }
+    ui->rtMinSpinBox->setRange(minRt, rtBounds.first);
+    ui->rtMaxSpinBox->setRange(rtBounds.second, maxRt);
+
     _populateSampleList(group);
 }
 
