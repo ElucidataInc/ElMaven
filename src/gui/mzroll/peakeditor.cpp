@@ -19,29 +19,14 @@ PeakEditor::PeakEditor(MainWindow *parent,
       _peakFilter(PeakFiltering(_mw->mavenParameters, false))
 {
     ui->setupUi(this);
-
+    ui->sampleList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     _gallery = new GalleryWidget(this);
     ui->graphicsLayout->addWidget(_gallery);
 
-    connect(_gallery,
-            &GalleryWidget::plotIndexChanged,
-            [this](int index) {
-                disconnect(ui->sampleList,
-                           &QTreeWidget::currentItemChanged,
-                           this,
-                           &PeakEditor::_selectionChanged);
-                if (ui->sampleList->topLevelItemCount() == 0)
-                    return;
-
-                auto itemAtIndex = ui->sampleList->topLevelItem(index);
-                if (itemAtIndex != nullptr)
-                    ui->sampleList->setCurrentItem(itemAtIndex);
-
-                connect(ui->sampleList,
-                        &QTreeWidget::currentItemChanged,
-                        this,
-                        &PeakEditor::_selectionChanged);
-            });
+    connect(ui->sampleList,
+            &QTreeWidget::itemSelectionChanged,
+            this,
+            &PeakEditor::_selectionChanged);
     connect(_gallery,
             &GalleryWidget::peakRegionChanged,
             [this](mzSample* sample, float rtMin, float rtMax) {
@@ -67,8 +52,8 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     _editedPeakRegions.clear();
     _group = group;
 
-    _populateSampleList(group);
     _gallery->addEicPlots(group, _mw->mavenParameters);
+    _populateSampleList(group);
 }
 
 void PeakEditor::_populateSampleList(PeakGroup* group)
@@ -83,6 +68,7 @@ void PeakEditor::_populateSampleList(PeakGroup* group)
         item->setData(0, Qt::UserRole, QVariant::fromValue(sample));
         ui->sampleList->addTopLevelItem(item);
     }
+    ui->sampleList->setCurrentItem(ui->sampleList->topLevelItem(0));
 }
 
 void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
@@ -137,14 +123,16 @@ void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
     _group->setSlice(slice);
 }
 
-void PeakEditor::_selectionChanged(QTreeWidgetItem* current,
-                                   QTreeWidgetItem* previous)
+void PeakEditor::_selectionChanged()
 {
-    Q_UNUSED(previous);
-    if (current == nullptr)
+    auto selectedItems = ui->sampleList->selectedItems();
+    if (selectedItems.empty())
         return;
 
-    _gallery->showPlotFor(ui->sampleList->indexOfTopLevelItem(current));
+    vector<int> selectedIndexes;
+    for (auto item : selectedItems)
+        selectedIndexes.push_back(ui->sampleList->indexOfTopLevelItem(item));
+    _gallery->showPlotFor(selectedIndexes);
 }
 
 void PeakEditor::_applyEdits()

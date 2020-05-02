@@ -14,6 +14,7 @@ TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(p
 	//setGraphicsEffect(effect);
     _noPeakData = false;
     _axesOffset = 18.0f;
+    _drawAxes = true;
 }
 
 
@@ -164,8 +165,6 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     if (nSeries != 3)
         return;
 
-    _addAxes(painter);
-
     float maxPointIntensity=0;
     for(int i=0; i < points.size(); i++ ) {        
         if(points[i].y() > maxPointIntensity) { 
@@ -246,4 +245,7 @@ void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
         path << mapToPlot(_minXValue, _minYValue);
         painter->drawPolygon(path);
     }
+
+    if (_drawAxes)
+        _addAxes(painter);
 }

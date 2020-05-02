@@ -32,6 +32,8 @@ public:
     void setTitle(QString title) { _title=title; }
     void setXBounds(float x1, float x2) { _minXValue = x1; _maxXValue = x2; }
     void setYBounds(float y1, float y2) { _minYValue = y1; _maxYValue = y2; }
+    void setDrawAxes(bool draw) { _drawAxes = draw; }
+    bool drawAxes() { return _drawAxes; }
     void setAxesOffset(float offset) { _axesOffset = offset; }
     void addPoint(float x, float y) { points << QPointF(x,y); }
     QPointF mapToPlot(float x, float y);
@@ -52,6 +54,7 @@ private:
 	int _width;
 	int _height;
     float _axesOffset;
+    bool _drawAxes;
 
     bool _noPeakData;
     float _minXValue, _minYValue, _maxXValue, _maxYValue;

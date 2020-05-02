@@ -42,8 +42,7 @@ private:
                                   float rtMax);
 
 private slots:
-    void _selectionChanged(QTreeWidgetItem* current,
-                           QTreeWidgetItem* previous);
+    void _selectionChanged();
     void _applyEdits();
 };
 

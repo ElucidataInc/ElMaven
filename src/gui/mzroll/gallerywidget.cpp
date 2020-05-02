@@ -31,8 +31,6 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     _axesOffset = 18;
     recursionCheck = false;
     _plotItems.clear();
-    _nItemsVisible = 1;
-    _indexOfVisibleItem = 0;
 
     _leftMarker = nullptr;
     _rightMarker = nullptr;
@@ -84,7 +82,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         QColor color = QColor::fromRgbF(eic->sample->color[0],
                                         eic->sample->color[1],
                                         eic->sample->color[2],
-                                        1.0);
+                                        0.5);
 
         Peak* samplePeak = nullptr;
         for (auto& peak : group->peaks) {
@@ -114,7 +112,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         plot->addDataColor(color);
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
-        scene()->addItem(plot);
     }
 
     if (_plotItems.size() > 0) {
@@ -138,65 +135,71 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
             plot->setXBounds(_minRt, _maxRt);
             plot->setYBounds(_minIntensity, _maxIntensity);
         }
-        replot();
     }
 }
 
 void GalleryWidget::replot()
 {
-    if (recursionCheck == false) {
-        recursionCheck = true;
-        drawMap();
-        recursionCheck = false;
-    }
-}
-
-void GalleryWidget::drawMap()
-{
-    if (width() < 50 or height() < 50)
+    if (recursionCheck == true)
         return;
 
-    int nItems = _plotItems.size();
-    if (nItems == 0)
+    if (width() < 50 || height() < 50)
         return;
+
+    if (_plotItems.empty())
+        return;
+
+    recursionCheck = true;
 
     _boxW = viewport()->width();
-    _boxH = viewport()->height() / _nItemsVisible;
+    _boxH = viewport()->height();
+    setSceneRect(0, 0, _boxW, _boxH);
 
-    int sceneW = _boxW;
-    int sceneH = nItems * _boxH;
-    setSceneRect(0, 0, sceneW, sceneH);
+    // first we remove all existing plots on the scene
+    for (TinyPlot* plot : _plotItems) {
+        if (plot->scene() == scene())
+            scene()->removeItem(plot);
+        scene()->update();
+    }
 
-    int col = 0;
-    for (int row = 0; row < nItems; ++row) {
-        int xpos = col * _boxW;
-        int ypos = row * _boxH;
+    for (int index : _indexesOfVisibleItems) {
+        TinyPlot* plot = _plotItems.at(index);
+        plot->setWidth(_boxW);
+        plot->setHeight(_boxH);
+        plot->setPos(0, 0);
 
-        TinyPlot* item = _plotItems[row];
-        item->setWidth(_boxW);
-        item->setHeight(_boxH);
+        // draw axes for only the last overlayed plot
+        if (index == _indexesOfVisibleItems.back()) {
+            plot->setDrawAxes(true);
+        } else {
+            plot->setDrawAxes(false);
+        }
 
-        item->setPos(xpos, ypos);
+        scene()->addItem(plot);
     }
 
     scene()->update();
-    _indexOfVisibleItem = 0;
-    _ensureCurrentItemIsVisible();
+    _drawBoundaryMarkers();
+    recursionCheck = false;
 }
 
 void GalleryWidget::_drawBoundaryMarkers()
 {
-    EIC* eic = _eics.at(_indexOfVisibleItem);
-    TinyPlot* plot = _plotItems[_indexOfVisibleItem];
+    float x1 = numeric_limits<float>::max();
+    float x2 = numeric_limits<float>::min();
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        TinyPlot* plot = _plotItems[index];
 
-    auto rtBounds = _peakBounds.at(eic);
-    float rtMin = rtBounds.first;
-    float rtMax = rtBounds.second;
+        auto rtBounds = _peakBounds.at(eic);
+        float rtMin = rtBounds.first;
+        float rtMax = rtBounds.second;
 
-    float x1 = plot->mapToPlot(rtMin, 0.0f).x();
-    float x2 = plot->mapToPlot(rtMax, 0.0f).x();
-    float yStart = _indexOfVisibleItem * _boxH;
-    float yEnd = yStart + _boxH - _axesOffset;
+        x1 = min(x1, static_cast<float>(plot->mapToPlot(rtMin, 0.0f).x()));
+        x2 = max(x2, static_cast<float>(plot->mapToPlot(rtMax, 0.0f).x()));
+    }
+    float yStart = 0;
+    float yEnd = _boxH - _axesOffset;
 
     if (_leftMarker != nullptr)
         delete _leftMarker;
@@ -221,22 +224,10 @@ void GalleryWidget::_drawBoundaryMarkers()
     scene()->update();
 }
 
-void GalleryWidget::_ensureCurrentItemIsVisible(bool topToBottom)
+void GalleryWidget::showPlotFor(vector<int> indexes)
 {
-    qreal y = _indexOfVisibleItem * _boxH;
-    qreal yMargin = -1.0;
-    if (topToBottom)
-        yMargin = (_nItemsVisible - 1) * _boxH;
-    ensureVisible(0, y, _boxW, _boxH, 0, yMargin);
-    plotIndexChanged(_indexOfVisibleItem);
-    _drawBoundaryMarkers();
-}
-
-void GalleryWidget::showPlotFor(int index)
-{
-    int lastIndex = _indexOfVisibleItem;
-    _indexOfVisibleItem = index;
-    _ensureCurrentItemIsVisible(lastIndex - index < 0);
+    _indexesOfVisibleItems = indexes;
+    replot();
 }
 
 void GalleryWidget::copyImageToClipboard()
@@ -252,8 +243,6 @@ void GalleryWidget::copyImageToClipboard()
 
 QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
 {
-    // correct for current plot - assumes `pos` is defined in terms of viewport
-    pos.setY((_indexOfVisibleItem * _boxH) + pos.y());
     auto rect = QRectF(pos.x() - 2.0f, pos.y() - 2.0f, 4.0f, 4.0f);
     if (_leftMarker->boundingRect().intersects(rect))
         return _leftMarker;
@@ -262,16 +251,13 @@ QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
     return nullptr;
 }
 
-void GalleryWidget::_refillVisiblePlot(float x1, float x2)
+void GalleryWidget::_refillVisiblePlots(float x1, float x2)
 {
-    if (_plotItems.empty())
+    if (_plotItems.empty() || _indexesOfVisibleItems.empty())
         return;
 
-    auto plot = _plotItems.at(_indexOfVisibleItem);
-    auto eic = _eics.at(_indexOfVisibleItem);
-
     // lambda: given an X-coordinate, converts it to the closest RT in `eic`
-    auto toRt = [this, eic](float coordinate) {
+    auto toRt = [this](float coordinate, EIC* eic) {
         float width = static_cast<float>(_boxW);
         float offset = static_cast<float>(_axesOffset);
         float ratio = (coordinate - offset) / (width - offset);
@@ -294,50 +280,32 @@ void GalleryWidget::_refillVisiblePlot(float x1, float x2)
         return closestRealRt;
     };
 
-    float peakRtMin = toRt(x1);
-    float peakRtMax = toRt(x2);
-    _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
-    emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
+    for (int index : _indexesOfVisibleItems) {
+        auto plot = _plotItems.at(index);
+        auto eic = _eics.at(index);
 
-    plot->clearData();
-    plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
-    plot->setXBounds(_minRt, _maxRt);
-    plot->setYBounds(_minIntensity, _maxIntensity);
+        float peakRtMin = toRt(x1, eic);
+        float peakRtMax = toRt(x2, eic);
+        _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+        emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
+
+        plot->clearData();
+        plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
+        plot->setXBounds(_minRt, _maxRt);
+        plot->setYBounds(_minIntensity, _maxIntensity);
+    }
     scene()->update();
 }
 
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
-    if (_plotItems.size() == 0)
-        return;
-
-    if (event->modifiers() == Qt::ControlModifier) {
-        if (event->delta() > 0) {
-            _nItemsVisible = min(4, min(_plotItems.size() - 1,
-                                        _nItemsVisible + 1));
-        } else {
-            _nItemsVisible = max(1, _nItemsVisible - 1);
-        }
-        int currentIndex = _indexOfVisibleItem;
-        replot();
-        showPlotFor(currentIndex);
-    } else {
-        if (event->delta() > 0) {
-            _indexOfVisibleItem = max(0, _indexOfVisibleItem - 1);
-        } else {
-            _indexOfVisibleItem = min(_plotItems.size() - 1,
-                                      _indexOfVisibleItem + 1);
-        }
-        _ensureCurrentItemIsVisible(event->delta() < 0);
-    }
+    event->ignore();
 }
 
 void GalleryWidget::resizeEvent(QResizeEvent* event)
 {
     Q_UNUSED(event);
-    int currentIndex = _indexOfVisibleItem;
     replot();
-    showPlotFor(currentIndex);
 }
 
 void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
@@ -379,27 +347,37 @@ void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
         return;
     }
 
-    auto plot = _plotItems.at(_indexOfVisibleItem);
-    auto eic = _eics.at(_indexOfVisibleItem);
-    float newRt = 0.0f;
-
+    float x = 0.0f;
     if (_markerBeingDragged == _leftMarker) {
         float x1 = mousePos.x();
         float x2 = _rightMarker->line().x1();
         if (x1 >= x2)
             return;
-        _refillVisiblePlot(x1, x2);
-        newRt = _peakBounds.at(eic).first;
+        _refillVisiblePlots(x1, x2);
+
+        x = numeric_limits<float>::max();
+        for (int index : _indexesOfVisibleItems) {
+            auto plot = _plotItems.at(index);
+            auto eic = _eics.at(index);
+            float rt = _peakBounds.at(eic).first;
+            x = min(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+        }
     } else if (_markerBeingDragged == _rightMarker) {
         float x1 = _leftMarker->line().x1();
         float x2 = mousePos.x();
         if (x1 >= x2)
             return;
-        _refillVisiblePlot(x1, x2);
-        newRt = _peakBounds.at(eic).second;
+        _refillVisiblePlots(x1, x2);
+
+        x = numeric_limits<float>::min();
+        for (int index : _indexesOfVisibleItems) {
+            auto plot = _plotItems.at(index);
+            auto eic = _eics.at(index);
+            float rt = _peakBounds.at(eic).second;
+            x = max(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+        }
     }
 
-    float x = plot->mapToPlot(newRt, 0.0f).x();
     auto line = _markerBeingDragged->line();
     _markerBeingDragged->setLine(QLineF(x, line.y1(), x, line.y2()));
     scene()->update();
