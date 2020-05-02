@@ -316,7 +316,7 @@ using namespace mzUtils;
 
     _libraryManager = new LibraryManager(this);
     massCalcWidget = new MassCalcWidget(this);
-    _peakEditor = new PeakEditor(this);
+    _peakEditor = new PeakEditor(this, clsf);
     covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
 	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
 	fragPanel->setupScanListHeader();

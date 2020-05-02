@@ -281,6 +281,10 @@ void GalleryWidget::_refillVisiblePlot(float x1, float x2)
         float minDiff = numeric_limits<float>::max();
         for (size_t i = 0; i < eic->size(); ++i) {
             float rt = eic->rt[i];
+            if (rt < _minRt)
+                continue;
+            if (rt > _maxRt)
+                break;
             float diff = abs(rt - approximatedRt);
             if (diff < minDiff) {
                 closestRealRt = rt;
@@ -293,6 +297,7 @@ void GalleryWidget::_refillVisiblePlot(float x1, float x2)
     float peakRtMin = toRt(x1);
     float peakRtMax = toRt(x2);
     _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+    emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
 
     plot->clearData();
     plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);

@@ -1609,6 +1609,7 @@ void TableDockWidget::editSelectedPeakGroup()
     return;
 
   editor->setPeakGroup(group);
+  // TODO: depending of group type, set the appropriate peak filter
   editor->show();
 }
 

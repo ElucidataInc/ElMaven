@@ -1,4 +1,3 @@
-#include "classifierNeuralNet.h"
 #include "Compound.h"
 #include "EIC.h"
 #include "eiclogic.h"
@@ -6,7 +5,6 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "PeakDetector.h"
-#include "peakFiltering.h"
 
 EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);
@@ -167,54 +165,3 @@ mzSlice EICLogic::visibleSamplesBounds(vector<mzSample*> samples) {
 	}
 	return bounds;
 }
-
-void EICLogic::editPeakRegionForSample(PeakGroup* group,
-                                       mzSample* peakSample,
-                                       float rtMin,
-                                       float rtMax,
-                                       ClassifierNeuralNet* clsf,
-                                       PeakFiltering* peakFilter)
-{
-    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
-        return eic->sample == peakSample;
-    });
-    if (eicFoundAt == end(eics))
-        return;
-
-    EIC* eic = *eicFoundAt;
-    bool deletePeak = false;
-    for (Peak& peak : group->peaks) {
-        if (peak.getSample() != peakSample)
-            continue;
-
-        Peak newPeak = eic->peakForRegion(rtMin, rtMax);
-        peak.mzmin = group->getSlice().mzmin;
-        peak.mzmax = group->getSlice().mzmax;
-        eic->getPeakDetails(peak);
-        if (newPeak.pos > 0) {
-            if (clsf != nullptr)
-                newPeak.quality = clsf->scorePeak(newPeak);
-
-            if (peakFilter != nullptr && !peakFilter->filter(newPeak)) {
-                peak = newPeak;
-            } else {
-                deletePeak = true;
-            }
-        } else {
-            deletePeak = true;
-        }
-        break;
-    }
-
-    if (deletePeak) {
-        group->peaks.erase(remove_if(begin(group->peaks),
-                                     end(group->peaks),
-                                     [peakSample](Peak& peak) {
-                                         return peak.getSample() == peakSample;
-                                     }),
-                           end(group->peaks));
-    }
-
-    group->groupStatistics();
-}
-

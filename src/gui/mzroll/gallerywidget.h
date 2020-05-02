@@ -17,8 +17,11 @@ public:
     GalleryWidget(QWidget* parent);
     ~GalleryWidget();
 
+    vector<EIC*> eics() { return _eics; }
+
 signals:
     void plotIndexChanged(int);
+    void peakRegionChanged(mzSample*, float, float);
 
 public Q_SLOTS:
     void replot();
