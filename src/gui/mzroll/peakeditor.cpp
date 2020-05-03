@@ -66,8 +66,6 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
 
     _gallery->addEicPlots(group, _mw->mavenParameters);
     auto rtBounds = _gallery->rtBounds();
-    ui->rtMinSpinBox->setValue(rtBounds.first);
-    ui->rtMaxSpinBox->setValue(rtBounds.second);
 
     // set absolute min/max RT ranges
     float minRt = numeric_limits<float>::max();
@@ -78,6 +76,10 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     }
     ui->rtMinSpinBox->setRange(minRt, rtBounds.first);
     ui->rtMaxSpinBox->setRange(rtBounds.second, maxRt);
+
+    // set visible RT ranges
+    ui->rtMinSpinBox->setValue(rtBounds.first);
+    ui->rtMaxSpinBox->setValue(rtBounds.second);
 
     _populateSampleList(group);
 }
