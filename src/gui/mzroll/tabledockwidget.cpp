@@ -1468,6 +1468,9 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
     if (treeWidget->itemAbove(item)) {
       treeWidget->setCurrentItem(treeWidget->itemAbove(item));
     }
+  } else if (e->key() == Qt::Key_E) {
+      if (treeWidget->selectedItems().size() == 1)
+          editSelectedPeakGroup();
   }
   QDockWidget::keyPressEvent(e);
   updateStatus();
