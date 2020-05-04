@@ -10,7 +10,7 @@ class SpectralLibExport
 {
 public:
     enum Format {
-        NIST,
+        Nist,
         Mascot
     };
 

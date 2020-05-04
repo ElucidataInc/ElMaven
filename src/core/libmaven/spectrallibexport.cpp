@@ -15,7 +15,7 @@ SpectralLibExport::SpectralLibExport(string filePath, Format format)
 
 void SpectralLibExport::writePeakGroupData(PeakGroup* group)
 {
-    if (_format == Format::NIST)
+    if (_format == Format::Nist)
         _writePeakGroupAsMsp(group);
     else if (_format == Format::Mascot) {
         _writePeakGroupAsMgf(group);

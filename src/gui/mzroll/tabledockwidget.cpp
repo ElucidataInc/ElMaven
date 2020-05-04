@@ -32,6 +32,7 @@
 #include "saveJson.h"
 #include "Scan.h"
 #include "scatterplot.h"
+#include "spectrallibexport.h"
 #include "spectrawidget.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
@@ -913,6 +914,28 @@ void TableDockWidget::exportJson() {
   jsonSaveThread->setPeakTable(this);
   jsonSaveThread->setfileName(fileName.toStdString());
   jsonSaveThread->start();
+}
+
+void TableDockWidget::exportSpectralLib()
+{
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+    if (settings->contains("lastDir"))
+        dir = settings->value("lastDir").value<QString>();
+
+    QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Export table as spectral library"), dir, tr("*.msp"));
+    if (fileName.isEmpty())
+        return;
+    if (!fileName.endsWith(".msp", Qt::CaseInsensitive))
+        fileName = fileName + ".msp";
+    if (QFile::exists(fileName))
+        QFile::remove(fileName);
+
+    SpectralLibExport library(fileName.toStdString(),
+                              SpectralLibExport::Format::Nist);
+    for (auto& group : allgroups)
+        library.writePeakGroupData(&group);
 }
 
 vector<EIC *> TableDockWidget::getEICs(float rtmin,
@@ -2214,6 +2237,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnMin->setIcon(td->style()->standardIcon(QStyle::SP_TitleBarMinButton));
     connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
     return btnMin;
+  } else if (btnName == "btnSaveSpectral") {
+    QToolButton *btnSaveSpectral = new QToolButton(parent);
+    btnSaveSpectral->setIcon(QIcon(rsrcPath + "/JSON.png"));
+    btnSaveSpectral->setToolTip(tr("Export table as spectral library (.msp)"));
+    connect(btnSaveSpectral, SIGNAL(clicked()), td, SLOT(exportSpectralLib()));
+    return btnSaveSpectral;
   } else {
     return NULL;
   }
@@ -2241,6 +2270,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnSaveSpectral =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2275,6 +2306,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
+  toolBar->addAction(btnSaveSpectral);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
   toolBar->addAction(btnX);
@@ -2339,6 +2371,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnSaveSpectral =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
@@ -2373,6 +2407,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
+  toolBar->addAction(btnSaveSpectral);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
@@ -2700,6 +2735,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
   QWidgetAction *btnSaveJson =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+  QWidgetAction *btnSaveSpectral =
+      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
@@ -2730,6 +2767,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnPDF);
   toolBar->addAction(btnGroupCSV);
   toolBar->addAction(btnSaveJson);
+  toolBar->addAction(btnSaveSpectral);
   toolBar->addWidget(spacer);
   toolBar->addAction(btnMin);
 
