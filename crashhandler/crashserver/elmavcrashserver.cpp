@@ -96,6 +96,15 @@ void OnChildProcessDumpRequested(void* aContext,
 
 }
 
+void onClientExit(void* context,
+                  const ClientInfo* client_info)
+{
+    Q_UNUSED(context);
+    Q_UNUSED(client_info);
+    handlerWait.wakeAll();
+    mutex.unlock();
+}
+
 int main(int argc, char** argv)
 {
     mutex.lock();
@@ -121,7 +130,7 @@ int main(int argc, char** argv)
                                                     NULL,
                                                     OnChildProcessDumpRequested,
                                                    NULL,
-                                                   NULL,
+                                                   onClientExit,
                                                    NULL,
                                                    NULL,
                                                    NULL,
