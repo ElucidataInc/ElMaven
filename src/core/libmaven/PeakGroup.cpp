@@ -77,6 +77,8 @@ PeakGroup::PeakGroup()  {
     _type = GroupType::None;
     _sliceSet = false;
 
+    _tableName = "";
+
     changePValue=0;
     changeFoldRatio=0;
     //children.reserve(0);

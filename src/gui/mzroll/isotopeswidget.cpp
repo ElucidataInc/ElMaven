@@ -305,12 +305,18 @@ void IsotopeWidget::computeIsotopes(string f)
 void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double parentMass)
 {
 	PeakGroup *parentGroup = isotopeParameters->_group;
-	if (!(parentGroup && parentGroup->isIsotope() == false))
+    if (parentGroup == nullptr || parentGroup->isIsotope())
 		return;
 	if (!isotopeParameters->_scan)
 		return;
 
-	map<string, PeakGroup> isotopes = isotopeDetector->getIsotopes(parentGroup, masslist);
+    map<string, PeakGroup> isotopes;
+    if (!parentGroup->children.empty() && !parentGroup->tableName().empty()) {
+        for (auto& child : parentGroup->children)
+            isotopes[child.tagString] = child;
+    } else {
+        isotopes = isotopeDetector->getIsotopes(parentGroup, masslist);
+    }
 
 	map<string, PeakGroup>::iterator itrIsotope;
 	unsigned int index = 1;
