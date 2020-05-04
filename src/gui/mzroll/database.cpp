@@ -515,7 +515,9 @@ int Database::loadNISTLibrary(QString filepath,
             currentCompound->setMz(line.mid(3, line.length())
                                         .simplified()
                                         .toDouble());
-        } else if (line.startsWith("CE:", Qt::CaseInsensitive)) {
+        } else if (line.startsWith("CE:", Qt::CaseInsensitive)
+                   || line.startsWith("COLLISION ENERGY:", Qt::CaseInsensitive)
+                   || line.startsWith("COLLISION_ENERGY:", Qt::CaseInsensitive)) {
             currentCompound->setCollisionEnergy (line.mid(3, line.length())
                                                    .simplified()
                                                    .toDouble());
@@ -567,11 +569,12 @@ int Database::loadNISTLibrary(QString filepath,
             if (line.contains("VIRTUAL", Qt::CaseInsensitive))
                 currentCompound->setVirtualFragmentation(true);
         } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)
+                   || line.startsWith("ION_MODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONMODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONIZATION:", Qt::CaseInsensitive)) {
-            if (line.contains("NEG", Qt::CaseInsensitive))
+            if (line.contains("N", Qt::CaseInsensitive))
                 currentCompound->ionizationMode = Compound::IonizationMode::Negative;
-            if (line.contains("POS", Qt::CaseInsensitive))
+            if (line.contains("P", Qt::CaseInsensitive))
                 currentCompound->ionizationMode = Compound::IonizationMode::Positive;
         } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)) {
             QString comment = line.mid(8, line.length()).simplified();
