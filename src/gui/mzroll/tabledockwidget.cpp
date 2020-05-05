@@ -918,6 +918,16 @@ void TableDockWidget::exportJson() {
 
 void TableDockWidget::exportSpectralLib()
 {
+    bool ok;
+    int limitNumPeaks = QInputDialog::getInt(this,
+                                             "",
+                                             "Limit number of fragments per "
+                                             "compound",
+                                             20, 1, 100, 1,
+                                             &ok);
+    if (!ok)
+        return;
+
     QString dir = ".";
     QSettings* settings = _mainwindow->getSettings();
     if (settings->contains("lastDir"))
@@ -933,7 +943,8 @@ void TableDockWidget::exportSpectralLib()
         QFile::remove(fileName);
 
     SpectralLibExport library(fileName.toStdString(),
-                              SpectralLibExport::Format::Nist);
+                              SpectralLibExport::Format::Nist,
+                              limitNumPeaks);
     for (auto& group : allgroups)
         library.writePeakGroupData(&group);
 }

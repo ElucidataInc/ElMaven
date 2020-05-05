@@ -7,9 +7,14 @@
 
 using namespace std;
 
-SpectralLibExport::SpectralLibExport(string filePath, Format format)
+SpectralLibExport::SpectralLibExport(string filePath,
+                                     Format format,
+                                     int limitNumPeaks,
+                                     float scaleToMax)
     : _filePath(filePath)
     , _format(format)
+    , _limitNumPeaks(limitNumPeaks)
+    , _scaleToMax(scaleToMax)
 {
 }
 
@@ -86,10 +91,27 @@ void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
         out << "COMMENT: " << compound->note() << "\n";
     }
 
-    out << "Num Peaks: " << fragmentationProfile.nobs() << "\n";
-    for (int i = 0; i < fragmentationProfile.nobs(); ++i) {
-        out << fragmentationProfile.mzValues.at(i) << "\t"
-            << fragmentationProfile.intensityValues.at(i) << "\n";
+    vector<float> mzValues = fragmentationProfile.mzValues;
+    vector<float> intensityValues = fragmentationProfile.intensityValues;
+    float maxIntensity = *(max_element(begin(intensityValues),
+                                       end(intensityValues)));
+    for (size_t i = 0; i < intensityValues.size(); ++i)
+        intensityValues[i] = intensityValues[i] / maxIntensity * _scaleToMax;
+
+    float cutoffIntensity = 1.0f;
+    int numPeaks = intensityValues.size();
+    if (numPeaks > _limitNumPeaks) {
+        auto tempValues = intensityValues;
+        std::sort(begin(tempValues), end(tempValues), std::greater<float>());
+        cutoffIntensity = tempValues[_limitNumPeaks - 1];
+        numPeaks = _limitNumPeaks;
+    }
+
+    out << "Num Peaks: " << numPeaks << "\n";
+    for (int i = 0; i < mzValues.size(); ++i) {
+        if (intensityValues[i] < cutoffIntensity)
+            continue;
+        out << mzValues[i] << "\t" << intensityValues[i] << "\n";
     }
 
     out << endl;
