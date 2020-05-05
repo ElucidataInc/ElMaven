@@ -1144,6 +1144,7 @@ EIC* mzSample::getEIC(float precursorMz,
         if (productMz != 0.0f && abs(scan->productMz - productMz) > amuQ3)
             continue;
         if (collisionEnergy != 0.0f
+            && scan->collisionEnergy != 0.0f
             && abs(scan->collisionEnergy - collisionEnergy) > 0.5) {
             continue;
         }
