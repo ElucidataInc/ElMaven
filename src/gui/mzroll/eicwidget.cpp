@@ -1238,7 +1238,7 @@ void EicWidget::setBarplotPosition(PeakGroup* group) {
 
 	int xpos_right = scene()->width() * 0.95 - bwidth;
 	int xpos_left = scene()->width() * 0.10;
-	int ypos = scene()->height() * 0.10;
+    int ypos = scene()->height() * 0.12;
 
 	int count_right = 0, count_left = 0;
 
