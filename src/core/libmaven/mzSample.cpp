@@ -337,7 +337,6 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         string chromatogramId = chromatogram.attribute("id").value();
         int sampleNo = getSampleNoChromatogram(chromatogramId);
 
-        // why is this cleaning needed?
         cleanFilterLine(chromatogramId);
 
         vector<float> timeVector;
