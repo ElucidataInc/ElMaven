@@ -2239,9 +2239,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     return btnMin;
   } else if (btnName == "btnSaveSpectral") {
     QToolButton *btnSaveSpectral = new QToolButton(parent);
-    btnSaveSpectral->setIcon(QIcon(rsrcPath + "/JSON.png"));
+    btnSaveSpectral->setIcon(QIcon(rsrcPath + "/exportmsp.png"));
     btnSaveSpectral->setToolTip(tr("Export table as spectral library (.msp)"));
-    connect(btnSaveSpectral, SIGNAL(clicked()), td, SLOT(exportSpectralLib()));
+    connect(btnSaveSpectral,
+            &QToolButton::clicked,
+            td,
+            &TableDockWidget::exportSpectralLib);
     return btnSaveSpectral;
   } else {
     return NULL;
