@@ -53,6 +53,7 @@ PeakEditor::PeakEditor(MainWindow *parent,
 
 PeakEditor::~PeakEditor()
 {
+    delete _gallery;
     delete ui;
 }
 
