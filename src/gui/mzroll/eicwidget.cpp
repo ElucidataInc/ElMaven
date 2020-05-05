@@ -595,10 +595,19 @@ void EicWidget::addEICLines(bool showSpline,
         }
 
         // sample stacking
+        float peakRtMin = numeric_limits<float>::min();
+        float peakRtMax = numeric_limits<float>::max();
         int zValue = 0;
         for (int j = 0; j < peaks.size(); j++) {
             if (peaks[j].getSample() == eic->getSample()) {
                 zValue = j;
+                if (!_areaIntegration) {
+                    peakRtMin = peaks[j].rtmin;
+                    peakRtMax = peaks[j].rtmax;
+                } else {
+                    peakRtMin = rtMin;
+                    peakRtMax = rtMax;
+                }
                 break;
             }
         }
@@ -616,25 +625,26 @@ void EicWidget::addEICLines(bool showSpline,
 
             if (showEic) {
                 if (overlayingIntegratedArea) {
-                    if (rtMin > 0.0f && eic->rt[j] < rtMin) {
+                    if (peakRtMin > 0.0f && eic->rt[j] < peakRtMin) {
                         addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
                         int nextIdx = j + 1;
-                        if (nextIdx < eic->size() && eic->rt[nextIdx] >= rtMin) {
+                        if (nextIdx < eic->size()
+                            && eic->rt[nextIdx] >= peakRtMin) {
                             addPoint(lineEicLeft,
                                      eic->rt[nextIdx],
                                      eic->intensity[nextIdx]);
                         }
                     }
-                    if (rtMax > 0.0f && eic->rt[j] > rtMax) {
+                    if (peakRtMax > 0.0f && eic->rt[j] > peakRtMax) {
                         int prevIdx = j - 1;
-                        if (prevIdx > 0 && eic->rt[prevIdx] <= rtMax) {
+                        if (prevIdx > 0 && eic->rt[prevIdx] <= peakRtMax) {
                             addPoint(lineEicRight,
                                      eic->rt[prevIdx],
                                      eic->intensity[prevIdx]);
                         }
                         addPoint(lineEicRight, eic->rt[j], eic->intensity[j]);
                     }
-                    if (eic->rt[j] >= rtMin && eic->rt[j] <= rtMax) {
+                    if (eic->rt[j] >= peakRtMin && eic->rt[j] <= peakRtMax) {
                         // TODO: ensure visual and integrated area match
                         addPoint(lineEic, eic->rt[j], eic->intensity[j]);
                     }
@@ -2270,10 +2280,6 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     if (eicparameters->_slice.rtmax > bounds.rtmax)
         eicparameters->_slice.rtmax = bounds.rtmax;
 
-
-    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
-    float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
-
     //Add Axes
     float _minX = group->minRt - 2 * _zoomFactor;
     float _maxX = group->maxRt + 2 * _zoomFactor;
@@ -2335,10 +2341,19 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         lineEicRight = new EicLine(0, &scene);
 
         // sample stacking
+        float peakRtMin = numeric_limits<float>::min();
+        float peakRtMax = numeric_limits<float>::max();
         int zValue = 0;
         for (int j = 0; j < group->peaks.size(); j++) {
             if (group->peaks[j].getSample() == eic->getSample()) {
                 zValue = j;
+                if (!_areaIntegration) {
+                    peakRtMin = group->peaks[j].rtmin;
+                    peakRtMax = group->peaks[j].rtmax;
+                } else {
+                    peakRtMin = rtMin;
+                    peakRtMax = rtMax;
+                }
                 break;
             }
         }
@@ -2346,7 +2361,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         // ignore points that do not fall within slice's time range
         for (int j = 0; j < eic->size(); j++) {
 
-            if (rtMin > 0.0f && eic->rt[j] < rtMin) {
+            if (peakRtMin > 0.0f && eic->rt[j] < peakRtMin) {
                 if(eic->intensity[j] > _maxY)
                     eic->intensity[j] = _maxY;
                 addPoint(lineEicLeft,
@@ -2361,7 +2376,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                 setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
 
                 int nextIdx = j + 1;
-                if (nextIdx < eic->size() && eic->rt[nextIdx] >= rtMin) {
+                if (nextIdx < eic->size() && eic->rt[nextIdx] >= peakRtMin) {
                     addPoint(lineEicLeft,
                              eic->rt[nextIdx],
                              eic->intensity[nextIdx],
@@ -2375,9 +2390,9 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
                 }
             }
-            if (rtMax > 0.0f && eic->rt[j] > rtMax) {
+            if (peakRtMax > 0.0f && eic->rt[j] > peakRtMax) {
                 int prevIdx = j - 1;
-                if (prevIdx > 0 && eic->rt[prevIdx] <= rtMax) {
+                if (prevIdx > 0 && eic->rt[prevIdx] <= peakRtMax) {
                     if(eic->intensity[j] > _maxY)
                         eic->intensity[j] = _maxY;
                     addPoint(lineEicRight,
@@ -2405,7 +2420,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                 setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
             }
 
-            if (eic->rt[j] >= rtMin && eic->rt[j] <= rtMax) {
+            if (eic->rt[j] >= peakRtMin && eic->rt[j] <= peakRtMax) {
                 addPoint(lineEic,
                          eic->rt[j],
                          eic->intensity[j],
@@ -2417,7 +2432,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                          _maxY);
                 setLineAttributes(lineEic, eic, alphaMultiplier, zValue);
             }
-            else if(eic->rt[j] < rtMin && eic->rt[j] > rtMax){
+            else if(eic->rt[j] < peakRtMin && eic->rt[j] > peakRtMax){
                 if(eic->intensity[j] > _maxY)
                     eic->intensity[j] = _maxY;
                 addPoint(lineEic,
@@ -2500,10 +2515,6 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
     barplot->setMainWindow(getMainWindow());
     barplot->setPeakGroup(group);
-
-    int bwidth = barplot->boundingRect().width();
-    int bheight = barplot->boundingRect().height();
-
     int xpos = scene.width() * 0.95 - 200;
     int ypos = scene.height() * 0.10;
     barplot->setPos(xpos, ypos);
