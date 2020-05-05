@@ -40,7 +40,15 @@ void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
         out << "CATEGORY: "
             << mzUtils::join(compound->category(), ", ") << "\n";
         out << "SMILE: " << compound->smileString() << "\n";
-        out << "PRECURSORTYPE: " << group->getAdduct()->getName() << "\n";
+        if (group->getAdduct() != nullptr) {
+            out << "PRECURSORTYPE: " << group->getAdduct()->getName() << "\n";
+        } else if (fragmentationProfile.polarity < 0) {
+            out << "PRECURSORTYPE: [M-H]-\n";
+        } else if (fragmentationProfile.polarity > 0) {
+            out << "PRECURSORTYPE: [M+H]+\n";
+        } else {
+            out << "PRECURSORTYPE: [M]\n";
+        }
     } else {
         out << "NAME: " << group->getName() << "\n";
         out << "ID: " << group->getName() << "\n";
@@ -61,8 +69,14 @@ void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
         }
     }
 
-    string ionizationMode = fragmentationProfile.polarity < 0 ? "Negative"
-                                                              : "Positive";
+    string ionizationMode = "";
+    if (fragmentationProfile.polarity < 0) {
+        ionizationMode = "Negative";
+    } else if (fragmentationProfile.polarity > 0) {
+        ionizationMode = "Positive";
+    } else {
+        ionizationMode = "Neutral"; // is this even possible?
+    }
     out << "IONMODE: " << ionizationMode << "\n";
     out << "CE: " << fragmentationProfile.collisionEnergy << "\n";
 
