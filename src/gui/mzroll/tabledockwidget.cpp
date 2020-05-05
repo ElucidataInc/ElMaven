@@ -1469,8 +1469,7 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
       treeWidget->setCurrentItem(treeWidget->itemAbove(item));
     }
   } else if (e->key() == Qt::Key_E) {
-      if (treeWidget->selectedItems().size() == 1)
-          editSelectedPeakGroup();
+      editSelectedPeakGroup();
   }
   QDockWidget::keyPressEvent(e);
   updateStatus();
@@ -1606,6 +1605,9 @@ void TableDockWidget::showHeatMap() {
 
 void TableDockWidget::editSelectedPeakGroup()
 {
+  if (treeWidget->selectedItems().size() != 1)
+      return;
+
   PeakGroup* group = getSelectedGroup();
   PeakEditor* editor = _mainwindow->peakEditor();
   if (editor == nullptr || group == nullptr)
@@ -2241,6 +2243,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             td,
             &TableDockWidget::exportSpectralLib);
     return btnSaveSpectral;
+  } else if (btnName == "btnEditPeakGroup") {
+    QToolButton *btnEditPeakGroup = new QToolButton(parent);
+    btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
+    connect(btnEditPeakGroup,
+            &QToolButton::clicked,
+            td,
+            &TableDockWidget::editSelectedPeakGroup);
+    return btnEditPeakGroup;
   } else {
     return NULL;
   }
@@ -2282,6 +2292,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
@@ -2295,6 +2307,9 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2383,6 +2398,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2396,6 +2413,9 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
   toolBar->addWidget(btnMerge);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2745,6 +2765,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2757,6 +2779,9 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnCluster);

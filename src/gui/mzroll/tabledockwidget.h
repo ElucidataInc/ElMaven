@@ -266,6 +266,12 @@ public Q_SLOTS:
    */
   bool selectPeakGroup(PeakGroup *group);
 
+  /**
+   * @brief Bring up a peak-editor to edit the RT regions for individual or a
+   * set of peaks of the currently selected peak-group item.
+   */
+  void editSelectedPeakGroup();
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
@@ -290,12 +296,6 @@ Q_SIGNALS:
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
-
-  /**
-   * @brief Bring up a peak-editor to edit the RT regions for individual or a
-   * set of peaks of the currently selected peak-group item.
-   */
-  void editSelectedPeakGroup();
 
 private:
   QPalette pal;
