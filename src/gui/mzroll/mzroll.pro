@@ -151,7 +151,6 @@ FORMS = forms/settingsform.ui  \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
-        forms/trainingdialog.ui \
         forms/alignmentdialog.ui \
         forms/animationcontrol.ui  \
         forms/noteswidget.ui   \

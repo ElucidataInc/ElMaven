@@ -7,7 +7,6 @@
 #include "stable.h"
 
 class MainWindow;
-class TrainDialog;
 class ClusterDialog;
 class PeakTableDeletionDialog;
 class NumericTreeWidgetItem;
