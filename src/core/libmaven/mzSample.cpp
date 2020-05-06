@@ -358,6 +358,13 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         float productMz = string2float(productMzStr);
         // int mslevel=2;
 
+        xml_node activationNode =
+            chromatogram.first_element_by_path("precursor/activation");
+        map<string, string> activationParams = mzML_cvParams(activationNode);
+        float collisionEnergy = 0.0f;
+        if (activationParams.count("collision energy"))
+            collisionEnergy = string2float(activationParams["collision energy"]);
+
         for (xml_node binaryDataArray = binaryDataArrayList.child("binaryDataArray");
              binaryDataArray;
              binaryDataArray =
@@ -388,21 +395,21 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
             }
         }
 
-        //	cerr << chromatogramId << endl;
-        //	cerr << timeVector.size() << " ints=" << intsVector.size() <<
-        //endl; 	cerr << "pre: " << precursorMz << " prod=" << productMz << endl;
-
-        // if (precursorMz and precursorMz ) {
-        if (precursorMz) {  // naman Same expression on both sides of '&&'.
-            int mslevel =
-                2;  // naman The scope of the variable 'mslevel' can be reduced.
+        if (precursorMz) {
+            int mslevel = 2;
+            // FIXME: a scan created for each data point! This is extremely
+            // wasteful - maybe we should directly create EICs and store them
+            // within the sample object for MRM data.
             for (unsigned int i = 0; i < timeVector.size(); i++) {
                 Scan* scan = new Scan(
                     this, scannum++, mslevel, timeVector[i], precursorMz, -1);
                 scan->productMz = productMz;
-                scan->mz.push_back(productMz);
-                scan->filterLine = chromatogramId;
+                scan->collisionEnergy = collisionEnergy;
+                scan->filterLine = chromatogramId
+                                   + " CE: "
+                                   + to_string(collisionEnergy);
                 sampleNumber = sampleNo;
+                scan->mz.push_back(productMz);
                 scan->intensity.push_back(intsVector[i]);
                 addScan(scan);
             }
@@ -1128,16 +1135,19 @@ EIC* mzSample::getEIC(float precursorMz,
 
     for (unsigned int i = 0; i < scans.size(); i++) {
         Scan* scan = scans[i];
-        if (!(scan->filterLine == filterline || filterline == ""))
+        if (filterline != "" && scan->filterLine != filterline)
             continue;
         if (scan->mslevel != 2)
             continue;
-        if (precursorMz && abs(scan->precursorMz - precursorMz) > amuQ1)
+        if (precursorMz != 0.0f && abs(scan->precursorMz - precursorMz) > amuQ1)
             continue;
-        // if (productMz && abs(scan->productMz - productMz) > amuQ3)
-        //	continue;
-        // if (collisionEnergy && abs(scan->collisionEnergy-collisionEnergy) >
-        // 0.5) continue;
+        if (productMz != 0.0f && abs(scan->productMz - productMz) > amuQ3)
+            continue;
+        if (collisionEnergy != 0.0f
+            && scan->collisionEnergy != 0.0f
+            && abs(scan->collisionEnergy - collisionEnergy) > 0.5) {
+            continue;
+        }
 
         float eicMz = 0;
         float eicIntensity = 0;
@@ -1145,11 +1155,17 @@ EIC* mzSample::getEIC(float precursorMz,
         switch ((EIC::EicType)eicType) {
         case EIC::MAX: {
             for (unsigned int k = 0; k < scan->nobs(); k++) {
-                if (abs(productMz - scan->mz[k]) > amuQ3)
-                    continue;
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
+
+                    // We set the filterline to be the SRM ID of the first scan
+                    // that matches, so that all subsequent observations also
+                    // originate from the same SRM ID. Since, there could be
+                    // multiple SRM chromatograms that satisfy the m/z checks
+                    // above, but in the absence of CE, their observations may
+                    // not be differentiable.
+                    filterline = scan->filterLine;
                 }
             }
             break;
@@ -1161,9 +1177,6 @@ EIC* mzSample::getEIC(float precursorMz,
             double sumMz = 0.0;
             double sumIntensity = 0.0;
             for (unsigned int k = 0; k < scan->nobs(); k++) {
-                if (abs(productMz - scan->mz[k]) > amuQ3)
-                    continue;
-
                 double intensity = static_cast<double>(scan->intensity[k]);
                 sumIntensity += intensity;
                 sumMz += static_cast<double>(scan->mz[k]) * intensity;
@@ -1171,17 +1184,17 @@ EIC* mzSample::getEIC(float precursorMz,
             if (sumIntensity != 0.0) {
                 eicMz = static_cast<float>(sumMz / sumIntensity);
                 eicIntensity = static_cast<float>(sumIntensity);
+                filterline = scan->filterLine;
             }
             break;
         }
 
         default: {
             for (unsigned int k = 0; k < scan->nobs(); k++) {
-                if (abs(productMz - scan->mz[k]) > amuQ3)
-                    continue;
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
+                    filterline = scan->filterLine;
                 }
             }
             break;

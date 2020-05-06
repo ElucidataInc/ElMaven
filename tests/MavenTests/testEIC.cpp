@@ -45,21 +45,21 @@ void TestEIC::testgetEICms2() {
     
     EIC* e = NULL;
     e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
-    QVERIFY(e->rt.size() == 305);
-    QVERIFY(e->scannum[e->scannum.size()-1] == 3351);
-    QVERIFY(e->maxIntensity == 20200);
+    QCOMPARE(e->rt.size(), 305);
+    QCOMPARE(e->scannum[e->scannum.size()-1], 3354);
+    QCOMPARE(e->maxIntensity, 20200);
 
     EIC* e2 = NULL;
     e2 = mzsample_2->getEIC(195,0,69,1,"",0.5,0.5);
-    QVERIFY(e2->rt.size() == 305);
-    QVERIFY(e2->scannum[e2->scannum.size()-1] == 3041);
-    QVERIFY(e2->maxIntensity == 10600);
+    QCOMPARE(e2->rt.size(), 305);
+    QCOMPARE(e2->scannum[e2->scannum.size()-1], 3041);
+    QCOMPARE(e2->maxIntensity, 10600);
 
     EIC* e3 = NULL;
     e3 = mzsample_2->getEIC(195,0,69,1,"",2,2);
     QVERIFY(e3->rt.size() == 305);
-    QVERIFY(e3->scannum[e3->scannum.size()-1] == 3040);
-    QVERIFY(e3->maxIntensity == 49400);
+    QVERIFY(e3->scannum[e3->scannum.size()-1] == 3042);
+    QVERIFY(e3->maxIntensity == 2500);
 }
 
 void TestEIC::testcomputeSpline()

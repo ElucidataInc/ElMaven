@@ -49,6 +49,7 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             float precursorMz = scan->precursorMz;
             float productMz   = scan->productMz;
             float rt = scan->rt;
+            float collisionEnergy = scan->collisionEnergy;
             int   polarity= scan->getPolarity();
             if (polarity==0) filterLine[0] == '+' ? polarity=1 : polarity =-1;
             if (userPolarity) polarity=userPolarity;  //user specified ionization mode
@@ -62,9 +63,15 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
             }
 
             if (precursorMz != 0 && productMz != 0 ) {
-                compound = findSpeciesByPrecursor(precursorMz,productMz,rt,polarity,amuQ1,amuQ3);
+                compound = findSpeciesByPrecursor(precursorMz,
+                                                  productMz,
+                                                  rt,
+                                                  polarity,
+                                                  amuQ1,
+                                                  amuQ3,
+                                                  collisionEnergy);
             }
-            
+
             if (annotation[string(filterLine.toStdString())]) {
                 compound = annotation[filterLine.toStdString()];
             }
@@ -80,8 +87,14 @@ vector<mzSlice*> SRMList::getSrmSlices(double amuQ1, double amuQ3, int userPolar
     return slices;
 }
 
-Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3) {
-    
+Compound* SRMList::findSpeciesByPrecursor(float precursorMz,
+                                          float productMz,
+                                          float rt,
+                                          int polarity,
+                                          double amuQ1,
+                                          double amuQ3,
+                                          float collisionEnergy)
+{
     Compound* x=NULL;
     float distMz=FLT_MAX;
     float distRt=FLT_MAX;
@@ -90,6 +103,10 @@ Compound *SRMList::findSpeciesByPrecursor(float precursorMz, float productMz, fl
             if (compoundsDB[i]->precursorMz() == 0 ) continue;
             //cerr << polarity << " " << compoundsDB[i]->charge << endl;
             if ((int) compoundsDB[i]->charge() != polarity && compoundsDB[i]->charge() != 0) continue;
+            if (collisionEnergy != 0.0f
+                && compoundsDB[i]->collisionEnergy() != 0.0f
+                && abs(compoundsDB[i]->collisionEnergy() - collisionEnergy) > 0.5)
+                continue;
             float a = abs(compoundsDB[i]->precursorMz() - precursorMz);
             if ( a > amuQ1 ) continue; // q1 tolerance
             float b = abs(compoundsDB[i]->productMz() - productMz);

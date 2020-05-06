@@ -56,10 +56,17 @@ class SRMList{
      * @param polarity user polarity
      * @param amuQ1 Q1 mass tolerance
      * @param amuQ3 Q3 mass tolerance
+     * @param collisionEnergy Collision energy applied for the transition
      * @return Compound* Compound from compound database
      * @see Compound
      */
-    Compound* findSpeciesByPrecursor(float precursorMz, float productMz, float rt, int polarity,double amuQ1, double amuQ3);
+    Compound* findSpeciesByPrecursor(float precursorMz,
+                                     float productMz,
+                                     float rt,
+                                     int polarity,
+                                     double amuQ1,
+                                     double amuQ3,
+                                     float collisionEnergy);
 
     /**
      * @brief Get precursor m/z from filterline (srm-id)
