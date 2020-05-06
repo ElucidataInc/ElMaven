@@ -153,7 +153,6 @@ FORMS = forms/settingsform.ui  \
         forms/comparesamplesdialog.ui \
         forms/alignmentdialog.ui \
         forms/animationcontrol.ui  \
-        forms/noteswidget.ui   \
         forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/loginform.ui \

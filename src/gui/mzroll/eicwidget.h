@@ -181,7 +181,6 @@ protected:
 	void addAxes();
 	void showAllPeaks();
 	void addPeakPositions(PeakGroup* group);
-	void createNotesTable();
 
 Q_SIGNALS:
 	void viewSet(float, float, float, float);
