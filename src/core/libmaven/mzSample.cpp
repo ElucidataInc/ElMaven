@@ -1158,6 +1158,14 @@ EIC* mzSample::getEIC(float precursorMz,
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
+
+                    // We set the filterline to be the SRM ID of the first scan
+                    // that matches, so that all subsequent observations also
+                    // originate from the same SRM ID. Since, there could be
+                    // multiple SRM chromatograms that satisfy the m/z checks
+                    // above, but in the absence of CE, their observations may
+                    // not be differentiable.
+                    filterline = scan->filterLine;
                 }
             }
             break;
@@ -1176,6 +1184,7 @@ EIC* mzSample::getEIC(float precursorMz,
             if (sumIntensity != 0.0) {
                 eicMz = static_cast<float>(sumMz / sumIntensity);
                 eicIntensity = static_cast<float>(sumIntensity);
+                filterline = scan->filterLine;
             }
             break;
         }
@@ -1185,6 +1194,7 @@ EIC* mzSample::getEIC(float precursorMz,
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
+                    filterline = scan->filterLine;
                 }
             }
             break;
