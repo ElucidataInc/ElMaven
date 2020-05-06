@@ -39,6 +39,7 @@
 #include "tabledockwidget.h";
 #include "peakdetector.h"
 #include "backgroundopsthread.h"
+#include "classificationWidget.h"
 
 using namespace QtCharts;
 
@@ -1599,6 +1600,12 @@ void TableDockWidget::setGroupLabel(char label)
   Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
     if (item) {
       shared_ptr<PeakGroup> group = groupForItem(item);
+
+      multimap<float, string> predictionInference;
+      if (_mainwindow->mavenParameters->peakMl) {
+        predictionInference = group->predictionInference();
+      }
+      
       if (group != nullptr) {
         if (group->Userlabel() != 'g' && group->userLabel() != 'b') {
           numberOfGroupsMarked+=1;
@@ -1608,6 +1615,10 @@ void TableDockWidget::setGroupLabel(char label)
       updateItem(item);
       if (item->parent() != nullptr)
         updateItem(item->parent(), false);
+
+      if(_mainwindow->mavenParameters->peakMl) {
+        group->setPredictionInference(predictionInference);
+      }  
     }
   }
   updateStatus();
@@ -2425,192 +2436,11 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
   if(_mainwindow->mavenParameters->peakMl)
   {
       QAction *z8 = menu.addAction("Explain classification");
+      classificationWidget = new ClassificationWidget(this);
       connect(z8,
-              &QAction::triggered,
-              [this] {
-                  PeakGroup* group = getSelectedGroup();
-                  if (group == nullptr)
-                      return;
-
-                  // TODO: maybe the widget defined here should be a class instead?
-
-                  int top_n = 5;
-                  int counter = 0;
-                  double sumNegativeWeights = 0.0;
-                  double sumPositiveWeights = 0.0;
-                  QHorizontalStackedBarSeries *series = new QHorizontalStackedBarSeries();
-                  auto predictionInference = group->predictionInference();
-                  for (auto it = predictionInference.begin();
-                       it != predictionInference.end();
-                       ++it) {
-                      if (it->first < 0 && counter < top_n) {
-                          QBarSet* set = new QBarSet(it->second.c_str());
-                          *set << it->first;
-                          series->append(set);
-                          sumNegativeWeights += it->first;
-                          ++counter;
-                      } else {
-                          break;
-                      }
-                  }
-                  counter = 0;
-                  for (auto it = predictionInference.rbegin();
-                       it != predictionInference.rend();
-                       ++it) {
-                      if (it->first > 0 && counter < top_n) {
-                          QBarSet* set = new QBarSet(it->second.c_str());
-                          *set << it->first;
-                          series->append(set);
-                          sumPositiveWeights += it->first;
-                          ++counter;
-                      } else {
-                          break;
-                      }
-                  }
-
-                  QChart *chart = new QChart();
-                  chart->addSeries(series);
-                  chart->setAnimationOptions(QChart::NoAnimation);
-                  chart->legend()->setVisible(true);
-                  chart->legend()->setAlignment(Qt::AlignRight);
-
-                  auto font = chart->titleFont();
-                  font.setBold(true);
-                  chart->setTitleFont(font);
-                  chart->setTitle(group->getName().c_str());
-
-                  auto setActiveTitle = [chart, group](QBarSet* bar, bool active) {
-                      if (active) {
-                          chart->setTitle(bar->label()
-                                          + " = "
-                                          + QString::number(bar->sum(), 'f', 2));
-                      } else {
-                          chart->setTitle(group->getName().c_str());
-                      }
-                  };
-
-                  // lambda that activates/inactivates bars
-                  auto setBarActive = [](QBarSet* bar, bool active) {
-                      auto color = bar->color();
-                      if (active) {
-                          color.setAlphaF(1.0);
-                      } else {
-                          color.setAlphaF(0.25);
-                      }
-                      bar->setColor(color);
-                  };
-
-                  // lambda that activates/inactivates legend markers
-                  auto setMarkerActive = [](QLegendMarker* marker, bool active) {
-                      auto labelColor = marker->labelBrush().color();
-                      if (active) {
-                          labelColor.setAlphaF(1.0);
-                      } else {
-                          labelColor.setAlphaF(0.25);
-                      }
-                      marker->setLabelBrush(labelColor);
-                  };
-
-                  // lambda that fades out bars
-                  auto fadeBars = [setBarActive, setMarkerActive, setActiveTitle]
-                      (QLegendMarker* marker,
-                       const QList<QLegendMarker*>& markers,
-                       const QHorizontalStackedBarSeries* series,
-                       bool hovering) {
-                          if (!series)
-                              return;
-                          const auto barSets = series->barSets();
-                          QBarSet* activeBar = nullptr;
-                          for (auto bar : barSets) {
-                              bool match = bar->label() == marker->label();
-                              setBarActive(bar, !hovering || match);
-                              if (match) {
-                                  activeBar = bar;
-                                  setActiveTitle(bar, hovering);
-                              }
-                          }
-                          for (auto marker : markers) {
-                              bool match = false;
-                              if (activeBar != nullptr)
-                                  match = activeBar->label() == marker->label();
-                              setMarkerActive(marker, !hovering || match);
-                          }
-                      };
-
-                  // lambda that fades out legend markers
-                  auto fadeMarkers = [setBarActive, setMarkerActive, setActiveTitle]
-                      (QBarSet* bar,
-                       const QList<QBarSet*>& barSets,
-                       const QLegend* legend,
-                       bool hovering) {
-                          if (!legend)
-                              return;
-                          const auto markers = legend->markers();
-                          QLegendMarker* activeMarker = nullptr;
-                          for (auto marker : markers) {
-                              bool match = bar->label() == marker->label();
-                              setMarkerActive(marker, !hovering || match);
-                              if (match)
-                                  activeMarker = marker;
-                          }
-                          for (auto bar : barSets) {
-                              bool match = false;
-                              if (activeMarker != nullptr)
-                                  match = bar->label() == activeMarker->label();
-                              setBarActive(bar, !hovering || match);
-                              if (match)
-                                  setActiveTitle(bar, hovering);
-                          }
-                      };
-
-                  const auto markers = chart->legend()->markers();
-                  for (auto marker : markers) {
-                      connect(marker,
-                              &QLegendMarker::hovered,
-                              this,
-                              [fadeBars, marker, markers, series](bool status) {
-                                  fadeBars(marker, markers, series, status);
-                              });
-                  }
-                  const auto barSets = series->barSets();
-                  for (auto bar : barSets) {
-                      auto legend = chart->legend();
-                      connect(bar,
-                              &QBarSet::hovered,
-                              this,
-                              [fadeMarkers, bar, barSets, legend](bool status) {
-                                  fadeMarkers(bar, barSets, legend, status);
-                              });
-
-                      // the logic below assigns a nice hue to the bars
-                      QColor color;
-                      if (bar->sum() > 0) {
-                          double f = bar->sum() / sumPositiveWeights;
-                          double f_inv = 1 - f;
-                          color = QColor(int(200 * f_inv) - int(200 * f),
-                                         int(200 * f_inv),
-                                         255);
-                      } else {
-                          double f = bar->sum() / sumNegativeWeights;
-                          double f_inv = 1 - f;
-                          color = QColor(255,
-                                         int(200 * f_inv) - int(200 * f),
-                                         int(200 * f_inv));
-                      }
-                      bar->setColor(color);
-                      bar->setBorderColor(QColor("white"));
-                  }
-
-                  QChartView *chartView = new QChartView(chart);
-                  chartView->setRenderHint(QPainter::Antialiasing);
-                  QDialog inferenceVisual(this);
-                  auto layout = new QVBoxLayout;
-                  layout->addWidget(chartView);
-                  inferenceVisual.setLayout(layout);
-                  inferenceVisual.resize(QSize(900, 400));
-                  inferenceVisual.setWindowTitle("Classification inference");
-                  inferenceVisual.exec();
-              });
+              SIGNAL(triggered()),
+              classificationWidget,
+          SLOT(showClassification()));
   }
 
   QAction *selectedAction = menu.exec(event->globalPos());
