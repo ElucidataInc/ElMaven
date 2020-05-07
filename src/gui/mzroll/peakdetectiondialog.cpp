@@ -146,14 +146,16 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                         identificationRtWindow->setEnabled(false);
                         identificationMatchRt->setEnabled(false);
                     } else {
-                        identificationRtWindow->setEnabled(true);
                         identificationMatchRt->setEnabled(true);
+                        if (identificationMatchRt->isChecked())
+                            identificationRtWindow->setEnabled(true);
                     }
                 });
 
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
-        connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool))); //TODO: Sahil - Kiran, Added while merging mainwindow
+        connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool)));
+        connect(identificationMatchRt,SIGNAL(clicked(bool)),identificationRtWindow,SLOT(setEnabled(bool)));
         connect(matchFragmentationOptions,
                 &QGroupBox::toggled,
                 [this](const bool checked)
@@ -203,7 +205,17 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
-        compoundRTWindow->setEnabled(false); //TODO: Sahil - Kiran, Added while merging mainwindow
+        if (matchRt->isChecked()) {
+            compoundRTWindow->setEnabled(true);
+        } else {
+            compoundRTWindow->setEnabled(false);
+        }
+
+        if (identificationMatchRt->isChecked()) {
+            identificationRtWindow->setEnabled(true);
+        } else {
+            identificationRtWindow->setEnabled(false);
+        }
 
         connect(classificationModelFilename,
                 SIGNAL(textChanged(QString)),

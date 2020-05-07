@@ -909,15 +909,15 @@ int Database::loadCompoundCSVFile(string filename)
 
         if (tempLine.contains('\r')) {
             vector<string> carriageSeparated;
-            mzUtils::split(line, '\r', carriageSeparated);
+            carriageSeparated = mzUtils::split(line, "\r");
             for(int i = 0; i < carriageSeparated.size(); i++){
                 vector<string>fields;
-                mzUtils::splitNew(carriageSeparated[i], sep, fields);
+                fields = mzUtils::split(carriageSeparated[i], sep);
                 getCompounds(allHeaders, fields, i+1);
             }
         } else{
             vector<string>fields;
-            mzUtils::splitNew(line, sep, fields);
+            fields = mzUtils::split(line, sep);
             getCompounds(allHeaders, fields, lineCount);
         }
     }
