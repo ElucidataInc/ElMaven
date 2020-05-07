@@ -1119,8 +1119,6 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
 
 void TableDockWidget::deleteSelectedItems()
 {
-    auto timerMain = mzUtils::startTimer();
-
     // temporarily disconnect selection trigger
     disconnect(treeWidget,
                SIGNAL(itemSelectionChanged()),
@@ -1131,10 +1129,9 @@ void TableDockWidget::deleteSelectedItems()
     QList<QTreeWidgetItem*> selectedItems;
     QTreeWidgetItem* nextItem = nullptr;
     for (auto item : treeWidget->selectedItems()) {
-        if (item)
-            nextItem = treeWidget->itemBelow(item);
         if (item->parent() == nullptr) {
             selectedItems.prepend(item);
+            nextItem = treeWidget->itemBelow(item);
         } else {
             selectedItems.append(item);
         }
@@ -1229,10 +1226,21 @@ void TableDockWidget::deleteSelectedItems()
         if(item)
             delete(item);
     }
-
+    auto groupSelected = getSelectedGroup();
     showAllGroups();
 
-    mzUtils::stopTimer(timerMain, "Deletion ends");
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        QTreeWidgetItem *item = (*it);
+        QVariant v = item->data(0, Qt::UserRole);
+        PeakGroup *currentGroup = v.value<PeakGroup *>();
+        if (currentGroup == groupSelected) {
+            treeWidget->setCurrentItem(item);
+            break;
+        }
+        it++;
+    }
+
     return;
 }
 
