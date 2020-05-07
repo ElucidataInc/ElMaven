@@ -147,6 +147,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                         identificationMatchRt->setEnabled(false);
                     } else {
                         identificationMatchRt->setEnabled(true);
+                        if (identificationMatchRt->isChecked())
+                            identificationRtWindow->setEnabled(true);
                     }
                 });
 
