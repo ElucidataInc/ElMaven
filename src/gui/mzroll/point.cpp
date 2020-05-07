@@ -9,7 +9,6 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mzSample.h"
-#include "note.h"
 #include "pathwaywidget.h"
 #include "point.h"
 #include "Scan.h"

@@ -39,8 +39,6 @@
 #include "messageBoxResize.h"
 #include "mzfileio.h"
 #include "mzSample.h"
-#include "note.h"
-#include "noteswidget.h"
 #include "notificator.h"
 #include "pathwaywidget.h"
 #include "peakdetectiondialog.h"
@@ -350,7 +348,6 @@ using namespace mzUtils;
 	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	galleryDockWidget = createDockWidget("Gallery", galleryWidget);
 	scatterDockWidget = new ScatterPlot(this);
-	notesDockWidget = new NotesWidget(this);
 	projectDockWidget = new ProjectDockWidget(this);
 	logWidget = new LogWidget(this, std::cout);
 	// rconsoleDockWidget = new RconsoleWidget(this);
@@ -402,7 +399,6 @@ using namespace mzUtils;
     sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
-	notesDockWidget->setVisible(false);
 	heatMapDockWidget->setVisible(false);
 	galleryDockWidget->setVisible(false);
 	projectDockWidget->setVisible(true);
@@ -474,7 +470,6 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, fragPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, scatterDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, bookmarkedPeaks, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, notesDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, galleryDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, srmDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, logWidget, Qt::Horizontal);
@@ -500,7 +495,6 @@ using namespace mzUtils;
 	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
-	tabifyDockWidget(spectraDockWidget, notesDockWidget);
 	tabifyDockWidget(spectraDockWidget, galleryDockWidget);
 	tabifyDockWidget(spectraDockWidget, logWidget);
 	tabifyDockWidget(spectraDockWidget, fragSpectraDockWidget);
@@ -3193,7 +3187,6 @@ void MainWindow::createToolBars() {
     QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
     QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
     //QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
-    QToolButton* btnNotes = addDockWidgetButton(sideBar,notesDockWidget,QIcon(rsrcPath + "/note.png"), "Show Notes Widget (F9)");
     QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
     QToolButton* btnGallery = addDockWidgetButton(sideBar,galleryDockWidget,QIcon(rsrcPath + "/gallery.png"), "Show Gallery Widget");
     QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
@@ -3207,7 +3200,6 @@ void MainWindow::createToolBars() {
 	btnFindCompound->setShortcut(Qt::Key_F6);
 	btnCovariants->setShortcut(Qt::Key_F7);
 	//btnPathways->setShortcut(Qt::Key_F8);
-	btnNotes->setShortcut(Qt::Key_F8);
 	btnBookmarks->setShortcut(Qt::Key_F9);
 	btnSRM->setShortcut(Qt::Key_F10);
 
@@ -3230,7 +3222,6 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
 	//sideBar->addWidget(btnPathways);
-	sideBar->addWidget(btnNotes);
 	sideBar->addWidget(btnSRM);
 	sideBar->addWidget(btnGallery);
 	// sideBar->addWidget(btnRconsole);
