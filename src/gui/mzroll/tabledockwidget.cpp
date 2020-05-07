@@ -34,7 +34,6 @@
 #include "spectrawidget.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
-#include "traindialog.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -84,9 +83,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setWidget(treeWidget);
   setupPeakTable();
 
-  traindialog = new TrainDialog(this);
-  connect(traindialog->saveButton, SIGNAL(clicked(bool)), SLOT(saveModel()));
-  connect(traindialog->trainButton, SIGNAL(clicked(bool)), SLOT(Train()));
   connect(treeWidget,
           SIGNAL(itemClicked(QTreeWidgetItem *, int)),
           SLOT(showSelectedGroup()));
@@ -117,8 +113,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
 }
 
 TableDockWidget::~TableDockWidget() {
-  if (traindialog != NULL)
-    delete traindialog;
   if (clusterDialog != NULL)
     delete clusterDialog;
 
@@ -133,8 +127,6 @@ TableDockWidget::~TableDockWidget() {
 void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
   item->sortChildren(1, Qt::AscendingOrder);
 }
-
-void TableDockWidget::showTrainDialog() { traindialog->show(); }
 
 void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
 
@@ -1285,46 +1277,6 @@ void TableDockWidget::showNextGroup() {
     treeWidget->setCurrentItem(nextitem);
 }
 
-void TableDockWidget::Train() {
-
-  Classifier *clsf = _mainwindow->getClassifier();
-
-  if (allgroups.size() == 0)
-    return;
-  if (clsf == NULL)
-    return;
-
-  vector<PeakGroup *> train_groups;
-  vector<PeakGroup *> test_groups;
-  vector<PeakGroup *> good_groups;
-  vector<PeakGroup *> bad_groups;
-
-  for (int i = 0; i < allgroups.size(); i++) {
-    PeakGroup *grp = &allgroups[i];
-    if (grp->label == 'g')
-      good_groups.push_back(grp);
-    if (grp->label == 'b')
-      bad_groups.push_back(grp);
-  }
-
-  mzUtils::shuffle(good_groups);
-  for (int i = 0; i < good_groups.size(); i++) {
-    PeakGroup *grp = good_groups[i];
-    i % 2 == 0 ? train_groups.push_back(grp) : test_groups.push_back(grp);
-  }
-
-  mzUtils::shuffle(bad_groups);
-  for (int i = 0; i < bad_groups.size(); i++) {
-    PeakGroup *grp = bad_groups[i];
-    i % 2 == 0 ? train_groups.push_back(grp) : test_groups.push_back(grp);
-  }
-
-  clsf->train(train_groups);
-  clsf->classify(test_groups);
-  showAccuracy(test_groups);
-  updateTable();
-}
-
 void TableDockWidget::keyPressEvent(QKeyEvent *e) {
 
   QTreeWidgetItem *item = treeWidget->currentItem();
@@ -1333,10 +1285,6 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
     if (items.size() > 0) {
       cerr << items.size() << endl;
       deleteGroups();
-    }
-  } else if (e->key() == Qt::Key_T) {
-    if (item) {
-      Train();
     }
   } else if (e->key() == Qt::Key_G) {
 
@@ -1449,65 +1397,6 @@ void TableDockWidget::updateStatus() {
   _mainwindow->setStatusText(title);
 }
 
-float TableDockWidget::showAccuracy(vector<PeakGroup *> &groups) {
-  // check accuracy
-  if (groups.size() == 0)
-    return 0;
-
-  int fp = 0;
-  int fn = 0;
-  int tp = 0;
-  int tn = 0;
-  int total = 0;
-  float accuracy = 0;
-  int gc = 0;
-  int bc = 0;
-  for (int i = 0; i < groups.size(); i++) {
-    if (groups[i]->label == 'g' || groups[i]->label == 'b') {
-      for (int j = 0; j < groups[i]->peaks.size(); j++) {
-        float q = groups[i]->peaks[j].quality;
-        char l = groups[i]->peaks[j].label;
-        if (l == 'g')
-          gc++;
-        if (l == 'g' && q > _mainwindow->mavenParameters->minQuality)
-          tp++;
-        if (l == 'g' && q < _mainwindow->mavenParameters->minQuality)
-          fn++;
-
-        if (l == 'b')
-          bc++;
-        if (l == 'b' && q < _mainwindow->mavenParameters->minQuality)
-          tn++;
-        if (l == 'b' && q > _mainwindow->mavenParameters->minQuality)
-          fp++;
-        total++;
-      }
-    }
-  }
-  if (total > 0)
-    accuracy = 1.00 - ((float)(fp + fn) / total);
-  cerr << "TOTAL=" << total << endl;
-  if (total == 0)
-    return 0;
-
-  cerr << "GC=" << gc << " BC=" << bc << endl;
-  cerr << "TP=" << tp << " FN=" << fn << endl;
-  cerr << "TN=" << tn << " FP=" << fp << endl;
-  cerr << "Accuracy=" << accuracy << endl;
-
-  traindialog->FN->setText(QString::number(fn));
-  traindialog->FP->setText(QString::number(fp));
-  traindialog->TN->setText(QString::number(tn));
-  traindialog->TP->setText(QString::number(tp));
-  traindialog->accuracy->setText(QString::number(accuracy * 100, 'f', 2));
-  traindialog->show();
-  _mainwindow->setStatusText(tr("Good Groups=%1 Bad Groups=%2 Accuracy=%3")
-                                 .arg(QString::number(gc), QString::number(bc),
-                                      QString::number(accuracy * 100)));
-
-  return accuracy;
-}
-
 void TableDockWidget::showScatterPlot() {
 
   if (groupCount() == 0)
@@ -1613,30 +1502,6 @@ void TableDockWidget::focusOutEvent(QFocusEvent *event) {
   if (event->lostFocus()) {
     pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
     setPalette(pal);
-  }
-}
-
-void TableDockWidget::saveModel() {
-
-  QString fileName = QFileDialog::getSaveFileName(
-      this, tr("Save Classification Model to a File"));
-  if (fileName.isEmpty())
-    return;
-
-  if (!fileName.endsWith(".model", Qt::CaseInsensitive))
-    fileName = fileName + ".model";
-
-  Classifier *clsf = _mainwindow->getClassifier();
-  if (clsf != NULL) {
-    clsf->saveModel(fileName.toStdString());
-  }
-
-  if (clsf) {
-    vector<PeakGroup *> groups;
-    for (int i = 0; i < allgroups.size(); i++)
-      if (allgroups[i].label == 'g' || allgroups[i].label == 'b')
-        groups.push_back(&allgroups[i]);
-    clsf->saveFeatures(groups, fileName.toStdString() + ".csv");
   }
 }
 
@@ -2191,13 +2056,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     btnCluster->setToolTip("Cluster Groups");
     connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
     return btnCluster;
-  } else if (btnName == "btnTrain") {
-
-    QToolButton *btnTrain = new QToolButton(parent);
-    btnTrain->setIcon(QIcon(rsrcPath + "/train.png"));
-    btnTrain->setToolTip("Train Neural Net");
-    connect(btnTrain, SIGNAL(clicked()), td, SLOT(showTrainDialog()));
-    return btnTrain;
   } else if (btnName == "btnGood") {
 
     QToolButton *btnGood = new QToolButton(parent);
@@ -2276,8 +2134,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
-  QWidgetAction *btnTrain =
-      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2298,7 +2154,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
 
   toolBar->addSeparator();
@@ -2377,8 +2232,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
-  QWidgetAction *btnTrain =
-      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2398,7 +2251,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
   toolBar->addWidget(btnMerge);
 
@@ -2739,8 +2591,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
   QWidgetAction *btnCluster =
       new TableToolBarWidgetAction(toolBar, this, "btnCluster");
-  QWidgetAction *btnTrain =
-      new TableToolBarWidgetAction(toolBar, this, "btnTrain");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2760,7 +2610,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnTrain);
   toolBar->addAction(btnHeatmapelete);
 
   toolBar->addSeparator();

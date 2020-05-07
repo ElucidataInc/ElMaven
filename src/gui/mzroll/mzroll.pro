@@ -151,7 +151,6 @@ FORMS = forms/settingsform.ui  \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
-        forms/trainingdialog.ui \
         forms/alignmentdialog.ui \
         forms/animationcontrol.ui  \
         forms/noteswidget.ui   \
@@ -202,7 +201,6 @@ HEADERS += stable.h \
            peakdetectiondialog.h \
            pollyelmaveninterface.h \
            comparesamplesdialog.h \
-           traindialog.h \
            tabledockwidget.h  \
            treedockwidget.h  \
            heatmap.h  \
@@ -282,7 +280,6 @@ SOURCES += mainwindow.cpp  \
            peakdetectiondialog.cpp \
            pollyelmaveninterface.cpp \
            comparesamplesdialog.cpp \
-           traindialog.cpp \
            line.cpp  \
            heatmap.cpp \
            treemap.cpp \

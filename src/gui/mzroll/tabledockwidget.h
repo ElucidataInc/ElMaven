@@ -7,7 +7,6 @@
 #include "stable.h"
 
 class MainWindow;
-class TrainDialog;
 class ClusterDialog;
 class PeakTableDeletionDialog;
 class NumericTreeWidgetItem;
@@ -167,7 +166,6 @@ public Q_SLOTS:
                            QString userFilename);
   void exportJsonToPolly(QString writableTempDir, QString jsonfileName, bool addMLInfo);
 
-  void showTrainDialog();
   void showClusterDialog();
 
   inline void selectedPeakSet() {
@@ -196,11 +194,6 @@ public Q_SLOTS:
   void setGroupLabel(char label);
   void showLastGroup();
   void showNextGroup();
-
-  // Training methods
-  void Train();
-  float showAccuracy(vector<PeakGroup *> &groups);
-  void saveModel();
 
   void printPdfReport();
 
@@ -287,7 +280,6 @@ private:
   // TODO: investigate and remove this dialog if not being used
   void setupFiltersDialog();
 
-  TrainDialog *traindialog;
   ClusterDialog *clusterDialog;
   QDialog *filtersDialog;
   QMap<QString, QHistogramSlider *> sliders;
