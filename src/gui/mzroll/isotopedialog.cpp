@@ -48,6 +48,9 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
     _mw = parent;
     isotopeSettings = new IsotopeDialogSettings(this);
 
+    resetButton->setDefault(false);
+    resetButton->setAutoDefault(false);
+
     connect(resetButton, &QPushButton::clicked, this, &IsotopeDialog::onReset);
     connect(this, &IsotopeDialog::settingsChanged,
             isotopeSettings, &IsotopeDialogSettings::updateIsotopeDialogSettings);

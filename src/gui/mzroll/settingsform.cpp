@@ -98,6 +98,9 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
 
     optionSettings = new OptionsDialogSettings(this);
 
+    resetButton->setDefault(false);
+    resetButton->setAutoDefault(false);
+
     connect(tabWidget, SIGNAL(currentChanged(int)), SLOT(getFormValues()));
     connect(resetButton, &QPushButton::clicked, this, &SettingsForm::onReset);
 
