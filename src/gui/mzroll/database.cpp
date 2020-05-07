@@ -895,7 +895,7 @@ int Database::loadCompoundCSVFile(string filename)
             if (!name.empty())
                 id = name;
             invalidRows.push_back(id);
-        }   
+        }
     };
 
     while(!file.atEnd())
