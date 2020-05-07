@@ -2553,4 +2553,3 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     view.render(painter);
 
 }
-

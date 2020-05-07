@@ -1464,6 +1464,7 @@ void TableDockWidget::renderPdf(QString fileName)
 
     for (int i = 0; i < selected.size(); i++) {
         PeakGroup *grp = selected[i];
+        emit updateProgressBar("", i, selected.size());
         _mainwindow->getEicWidget()->renderPdf(grp, &painter);
 
         if(!printer.newPage())
@@ -1474,6 +1475,7 @@ void TableDockWidget::renderPdf(QString fileName)
 
    }
    painter.end();
+   emit updateProgressBar("", selected.size(), selected.size());
    emit renderedPdf();
 }
 
