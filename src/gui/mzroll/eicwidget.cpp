@@ -1088,7 +1088,6 @@ void EicWidget::replot(PeakGroup* group)
 
         if (group && group->getCompound() != NULL && group->getCompound()->expectedRt() > 0)
                         _focusLineRt = group->getCompound()->expectedRt();
-	else _focusLineRt = 0;
 
     if (_showCubicSpline)
         addCubicSpline();
