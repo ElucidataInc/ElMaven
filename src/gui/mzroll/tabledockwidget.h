@@ -196,7 +196,17 @@ public Q_SLOTS:
   void showNextGroup();
 
   void printPdfReport();
+  /**
+   * @brief renderPdf Creates the Printer and calls corresponding
+   * functions from eicWidget to render pdf.
+   * @param fileName  Name of the pdf to be created.
+   */
   void renderPdf(QString fileName);
+  /**
+   * @brief pdfReadyNotification After pdf is successfully stored,
+   * this function creates the notification for the user about the
+   * same.
+   */
   void pdfReadyNotification();
 
   void updateTable();

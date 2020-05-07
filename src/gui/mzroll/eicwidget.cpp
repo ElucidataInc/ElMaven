@@ -2144,7 +2144,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     QGraphicsScene scene;
     scene.setSceneRect(10, 10, 676, 267);
 
-    ////Set font////
+    //Set font
     QFont font = QApplication::font();
     int pxSize = scene.height() * 0.03;
     if (pxSize < 14)
@@ -2153,11 +2153,11 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         pxSize = 20;
     font.setPixelSize(pxSize);
 
-    ////Set Title for the Scene////
+    //Set Title for the Scene
     QString tagString;
-    if (group != NULL) {
+    if (group != nullptr) {
         tagString = QString(group->getName().c_str());
-    } else if (group->getSlice().compound != NULL) {
+    } else if (group->hasCompoundLink()) {
         tagString = QString(group->getSlice().compound->name().c_str());
     } else if (!group->getSlice().srmId.empty()) {
         tagString = QString(group->getSlice().srmId.c_str());
@@ -2174,7 +2174,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
     sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
 
-    ////Lambda for setting line attributes////
+    //Lambda for setting line attributes
     auto setLineAttributes = [&](EicLine* line,
                                  EIC *eic,
                                  float alpha,
@@ -2208,8 +2208,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         line->setColor(pen.color());
     };
 
-    //// lambda that when given an EicLine and a pair of RT and intensity values,////
-    //// adds their co-ordinates to the line////
+    // lambda that when given an EicLine and a pair of RT and intensity values,
+    // adds their co-ordinates to the line
     auto addPoint = [this](EicLine* line, float rt, float intensity, float width, float height,
                            float _minX, float _minY, float _maxX, float _maxY) {
         line->addPoint(QPointF(((rt - _minX) / (_maxX - _minX) * width),
@@ -2220,7 +2220,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
     EICLogic* eicparameters = new EICLogic();
 
-    ////Set Slice in eicparameter////
+    //Set Slice in eicparameter
     int charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
     if (group->getExpectedMz(charge) != -1) {
         eicparameters->_slice.mz = group->getExpectedMz(charge);
@@ -2256,7 +2256,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         eicparameters->_slice = slice;
     }
 
-    ////pulling EIC////
+    //pulling EIC
     auto bounds = eicparameters->visibleSamplesBounds(samples);
     eicparameters->getEIC(bounds,
                           samples,
@@ -2288,7 +2288,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
 
 
-    ////Add Axes////
+    //Add Axes
     float _minX = group->minRt - 2 * _zoomFactor;
     float _maxX = group->maxRt + 2 * _zoomFactor;
     float _minY = 0;
@@ -2336,14 +2336,13 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     x->setZValue(0);
     y->setZValue(0);
 
-    ////Set Colours for EIC////
+    //Set Colours for EIC
     for (size_t i = 0; i < eicparameters->eics.size() ; i++)
     {
-        auto peak = group->peaks[i];
         auto eic = eicparameters->eics[i];
-        if (eic == NULL)
+        if (eic == nullptr)
             continue;
-        if (eic->sample == NULL) {
+        if (eic->sample == nullptr) {
             eic->color[0] = 0.6;
             eic->color[1] = 0.1;
             eic->color[2] = 0.1;
@@ -2354,23 +2353,21 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
             eic->color[2] = eic->sample->color[2];
             eic->color[3] = eic->sample->color[3];
         }
-
     }
-    bool overlayingArea = true;
-    bool areaIntegration = false;
+
     auto rtMin = group->minRt;
     auto rtMax = group->maxRt;
     float alphaMultiplier = 0.5f;
     float fadedMultiplier = 0.1f;
 
-    ///Add EIC Lines////
+    //Add EIC Lines
     for (unsigned int i = 0; i < eicparameters->eics.size(); i++) {
 
         EIC* eic = eicparameters->eics[i];
         if (eic->size() == 0)
             continue;
 
-        if (eic->sample != NULL && eic->sample->isSelected == false)
+        if (eic->sample != nullptr && eic->sample->isSelected == false)
             continue;
 
         if (eic->maxIntensity <= 0)
@@ -2477,15 +2474,15 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
     }
 
-    ////Add Peak Positions////
+    //Add Peak Positions
     for (unsigned int i = 0; i < group->peaks.size(); i++) {
         Peak& peak = group->peaks[i];
 
-        if (peak.getSample() != NULL && peak.getSample()->isSelected == false)
+        if (peak.getSample() != nullptr && peak.getSample()->isSelected == false)
             continue;
 
         QColor color = Qt::black;
-        if (peak.getSample() != NULL) {
+        if (peak.getSample() != nullptr) {
             mzSample* s = peak.getSample();
             color = QColor::fromRgbF(s->color[0], s->color[1], s->color[2],
                                      s->color[3]);
@@ -2507,7 +2504,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         scene.addItem(p);
     }
 
-    ////Add Selection Line////
+    //Add Selection Line
     auto selectionLine = new QGraphicsLineItem(nullptr);
     scene.addItem(selectionLine);
     if (rtMin < _minX)
@@ -2523,9 +2520,9 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                            (rtMax - _minX) / (_maxX - _minX) * scene.width(), scene.height());
     selectionLine->update();
 
-    ////Add Focus Line////
+    //Add Focus Line
     float rt;
-    if (group && group->getCompound() != NULL && group->getCompound()->expectedRt() > 0)
+    if (group && group->getCompound() != nullptr && group->getCompound()->expectedRt() > 0)
         rt = group->getCompound()->expectedRt();
     auto focusLine = new QGraphicsLineItem(0);
     scene.addItem(focusLine);
@@ -2536,8 +2533,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                        ((rt - _minX) / (_maxX - _minX) * scene.width()),
                        scene.height());
 
-    ////Barplot////
-    auto barplot = new BarPlot(NULL, 0);
+    //Barplot
+    auto barplot = new BarPlot(nullptr, &scene);
     scene.addItem(barplot);
 
     barplot->setMainWindow(getMainWindow());
@@ -2545,12 +2542,13 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
 
     int bwidth = barplot->boundingRect().width();
     int bheight = barplot->boundingRect().height();
-    int xpos = scene.width() * 0.95 - 130;
+
+    int xpos = scene.width() * 0.95 - 200;
     int ypos = scene.height() * 0.10;
     barplot->setPos(xpos, ypos);
     barplot->setZValue(1000);
 
-    ////Render on pdf////
+    //Render on pdf
     QGraphicsView view(&scene);
     view.render(painter);
 

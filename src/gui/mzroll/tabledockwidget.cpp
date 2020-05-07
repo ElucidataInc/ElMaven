@@ -1438,7 +1438,7 @@ void TableDockWidget::renderPdf(QString fileName)
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOrientation(QPrinter::Landscape);
-    printer.setCreator("MAVEN Metabolics Analyzer");
+    printer.setCreator("El-MAVEN");
     printer.setOutputFileName(fileName);
     printer.setResolution(50);
 
@@ -1479,15 +1479,15 @@ void TableDockWidget::renderPdf(QString fileName)
 
 void TableDockWidget::pdfReadyNotification()
 {
-    QIcon icon = QIcon(":/images/notification.png");
+    QIcon icon = QIcon("");
     QString title("");
-    QString message("Pdf is ready");
+    QString message("Your PDF has been saved successfully.");
 
     Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
                                                             title,
                                                             message,
                                                            this);
-    title = "Pdf is ready";
+    title = "Your PDF has been saved successfully.";
     _mainwindow->setStatusText(title, true);
 }
 
