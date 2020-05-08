@@ -15,6 +15,7 @@ class JSONReports;
 class PeakGroup;
 class EIC;
 class QHistogramSlider;
+class PeakDetector;
 
 using namespace std;
 
@@ -29,6 +30,7 @@ public:
   JSONReports *jsonReports;
   int numberOfGroupsMarked = 0;
   QString writableTempS3Dir;
+  PeakDetector* peakDetector;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -145,6 +147,12 @@ public:
       setTitleForId(-1);
       setTitleForId(0);
   }
+
+  /**
+   * @brief updateTableAfterAlignment Updates table if table existed before
+   * samples were assigned.
+   */
+  void updateTableAfterAlignment();
 
 public Q_SLOTS:
   void updateCompoundWidget();

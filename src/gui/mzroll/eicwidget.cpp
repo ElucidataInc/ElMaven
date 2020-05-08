@@ -1702,16 +1702,6 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
     emit groupSet(group);
     replot(group);
     _clearEicPoints();
-    // Done to update group in case of alignment performed
-    // after peak detection.
-    for (size_t i = 0; i < group->peaks.size(); i++) {
-        auto peak = group->peaks[i];
-        for (auto eic : eicParameters->eics) {
-            if (eic->sample == peak.getSample()) {
-                group->peaks[i].rt = eic->rt[peak.pos];
-            }
-        }
-    }
 	addPeakPositions(group);
 }
 

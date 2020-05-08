@@ -438,6 +438,11 @@ public Q_SLOTS:
      */
     void promptUpdate(QString version);
 
+    /**
+     * @brief updateTablePostAlignment Updating peak tables after alignment.
+     */
+    void updateTablePostAlignment(bool update);
+
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();

@@ -35,6 +35,7 @@
 #include "spectrawidget.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
+#include "PeakDetector.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -62,6 +63,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   _targetedGroups = 0;
   pal = palette();
   setAutoFillBackground(true);
+  peakDetector = new PeakDetector(_mainwindow->mavenParameters);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
 
@@ -134,6 +136,29 @@ void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
 
 void TableDockWidget::sortBy(int col) {
   treeWidget->sortByColumn(col, Qt::AscendingOrder);
+}
+
+void TableDockWidget::updateTableAfterAlignment()
+{
+    for(size_t i = 0; i < allgroups.size(); i++)
+    {
+        auto slice = allgroups[i].getSlice();
+        auto samples = _mainwindow->getVisibleSamples();
+        auto eics  = peakDetector->pullEICs(&slice,
+                                           samples,
+                                           _mainwindow->mavenParameters);
+        for(auto eic : eics)
+        {
+            for(size_t j = 0; j < allgroups[i].peaks.size(); j++)
+            {
+                if (eic->getSample() == allgroups[i].peaks[j].getSample()){
+                    eic->getPeakDetails(allgroups[i].peaks[j]);
+                }
+            }
+        }
+        allgroups[i].groupStatistics();
+    }
+    showAllGroups();
 }
 
 void TableDockWidget::setIntensityColName() {
