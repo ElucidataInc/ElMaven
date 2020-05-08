@@ -64,7 +64,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   _targetedGroups = 0;
   pal = palette();
   setAutoFillBackground(true);
-  peakDetector = new PeakDetector(_mainwindow->mavenParameters);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
 
