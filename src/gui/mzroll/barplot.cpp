@@ -101,7 +101,7 @@ int BarPlot::intensityTextShift() {
     QFont font("Helvetica");
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
-    font.setPointSizeF(fontsize);
+    font.setPixelSize(fontsize);
     QFontMetrics fm( font );
     return fm.size(0,"100e+10",0,NULL).width();   
 
@@ -127,10 +127,10 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     QFont font("Helvetica");
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
-    font.setPointSizeF(fontsize);
+    font.setPixelSize(fontsize);
     painter->setFont(font);
     QFontMetrics fm( font );
-    int lagendShift = fm.size(0,"100e+10",0,NULL).width();   
+    int legendShift = fm.size(0, "100e+10", 0, NULL).width();
 
     QColor color = QColor::fromRgbF(0.2,0.2,0.2,1.0);
     QBrush brush(color);
@@ -143,17 +143,17 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     case PeakGroup::AreaTop: title = "Peak AreaTop"; break;
     case PeakGroup::Area: title = "Peak Area"; break;
     // new feature - Kiran
-    case PeakGroup::AreaNotCorrected: title = "Peak Area Not Corrected"; break;
-    case PeakGroup::AreaTopNotCorrected: title = "Peak AreaTop Not Corrected"; break;
+    case PeakGroup::AreaNotCorrected: title = "Peak Area (not corrected)"; break;
+    case PeakGroup::AreaTopNotCorrected: title = "Peak AreaTop (not corrected)"; break;
     case PeakGroup::Height: title = "Peak Height"; break;
     case PeakGroup::Quality: title = "Peak Quality"; break;
-    case PeakGroup::RetentionTime: title = "RetentionTime"; break;
+    case PeakGroup::RetentionTime: title = "Retention Time"; break;
     case PeakGroup::SNRatio: title = "Peak S/N Ratio"; break;
     default: title = "?"; break;
     }
 
     if (_showQValueType) {
-        painter->drawText(legendX-lagendShift,legendY-1,title);
+        painter->drawText(legendX - legendShift, legendY - 4, title);
     }
 
     for(int i=0; i < _yvalues.size(); i++ ) {
@@ -186,7 +186,7 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
         if (_yvalues[i] > 0 && _showIntensityText) {
             QString value = QString::number(_yvalues[i],numType,numPrec);
-            painter->drawText(posX-lagendShift,posY+_barwidth-2,value);
+            painter->drawText(posX-legendShift,posY+_barwidth-2,value);
         }
 
         if ( posY+_barwidth > _height) _height = posY+_barwidth+barSpacer;
@@ -196,6 +196,6 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     painter->setBrush(Qt::NoBrush);
     painter->drawLine(legendX,legendY,legendX,legendY+_height);
 
-    _width = lagendShift+maxBarHeight;
+    _width = legendShift+maxBarHeight;
 
 }
