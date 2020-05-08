@@ -2213,7 +2213,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     auto addPoint = [this](EicLine* line, float rt, float intensity, float width, float height,
                            float _minX, float _minY, float _maxX, float _maxY) {
         line->addPoint(QPointF(((rt - _minX) / (_maxX - _minX) * width),
-                               height - ((intensity - _minY) / (_maxY - _minY) * height)));
+                                height - ((intensity - _minY) / (_maxY - _minY) * height)));
     };
 
 
@@ -2274,59 +2274,12 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
     float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
 
-    eicparameters->groupPeaks(eic_smoothingWindow,
-                              &(eicparameters->_slice),
-                              grouping_maxRtWindow,
-                              getMainWindow()->mavenParameters->minQuality,
-                              getMainWindow()->mavenParameters->distXWeight,
-                              getMainWindow()->mavenParameters->distYWeight,
-                              getMainWindow()->mavenParameters->overlapWeight,
-                              getMainWindow()->mavenParameters->useOverlap,
-                              getMainWindow()->mavenParameters->minSignalBaselineDifference,
-                              getMainWindow()->mavenParameters->fragmentTolerance,
-                              getMainWindow()->mavenParameters->scoringAlgo);
-
-
-
     //Add Axes
     float _minX = group->minRt - 2 * _zoomFactor;
     float _maxX = group->maxRt + 2 * _zoomFactor;
     float _minY = 0;
-    float _maxY = 0;
+    float _maxY = group->maxHeightIntensity * 1.2;
 
-    float mx=0;
-    for(int i=0;i<eicparameters->eics.size();++i)
-        mx=max(mx,eicparameters->eics[i]->maxIntensity);
-    _maxY = mx;
-
-    float potentialMaxY = 0;
-
-    for (int i = 0; i < eicparameters->peakgroups.size(); i++) {
-        if (mzUtils::checkOverlap(eicparameters->peakgroups[i].minRt,
-                                  eicparameters->peakgroups[i].maxRt, eicParameters->_slice.rtmin,
-                                  eicparameters->_slice.rtmax) > 0) {
-            if (eicparameters->peakgroups[i].maxHeightIntensity > potentialMaxY) {
-                potentialMaxY = eicparameters->peakgroups[i].maxHeightIntensity;
-            }
-        }
-    }
-
-    float peakMaxIntensity = 0;
-    for(auto peak : group->peaks)
-    {
-        if(peakMaxIntensity < peak.peakIntensity)
-            peakMaxIntensity = peak.peakIntensity;
-    }
-
-
-    if (potentialMaxY > peakMaxIntensity){
-        _maxY = potentialMaxY;
-    } else {
-        _maxY = mx;
-    }
-
-
-    _maxY = (_maxY * 1.3) + 1;
     Axes* x = new Axes(0, _minX, _maxX, 10);
     Axes* y = new Axes(1, _minY, _maxY, 10);
     scene.addItem(x);
@@ -2394,6 +2347,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
         for (int j = 0; j < eic->size(); j++) {
 
             if (rtMin > 0.0f && eic->rt[j] < rtMin) {
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
                 addPoint(lineEicLeft,
                          eic->rt[j],
                          eic->intensity[j],
@@ -2404,6 +2359,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                          _maxX,
                          _maxY);
                 setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
+
                 int nextIdx = j + 1;
                 if (nextIdx < eic->size() && eic->rt[nextIdx] >= rtMin) {
                     addPoint(lineEicLeft,
@@ -2416,12 +2372,14 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                              _maxX,
                              _maxY);
                     setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
-                }
 
+                }
             }
             if (rtMax > 0.0f && eic->rt[j] > rtMax) {
                 int prevIdx = j - 1;
                 if (prevIdx > 0 && eic->rt[prevIdx] <= rtMax) {
+                    if(eic->intensity[j] > _maxY)
+                        eic->intensity[j] = _maxY;
                     addPoint(lineEicRight,
                              eic->rt[prevIdx],
                              eic->intensity[prevIdx],
@@ -2433,6 +2391,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                              _maxY);
                     setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
                 }
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
                 addPoint(lineEicRight,
                          eic->rt[j],
                          eic->intensity[j],
@@ -2444,8 +2404,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                          _maxY);
                 setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
             }
+
             if (eic->rt[j] >= rtMin && eic->rt[j] <= rtMax) {
-                // TODO: ensure visual and integrated area match
                 addPoint(lineEic,
                          eic->rt[j],
                          eic->intensity[j],
@@ -2456,9 +2416,10 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                          _maxX,
                          _maxY);
                 setLineAttributes(lineEic, eic, alphaMultiplier, zValue);
-
             }
             else if(eic->rt[j] < rtMin && eic->rt[j] > rtMax){
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
                 addPoint(lineEic,
                          eic->rt[j],
                          eic->intensity[j],
@@ -2469,9 +2430,9 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
                          _maxX,
                          _maxY);
                 setLineAttributes(lineEic, eic, fadedMultiplier, zValue);
+
             }
         }
-
     }
 
     //Add Peak Positions
