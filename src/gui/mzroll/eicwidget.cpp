@@ -1947,7 +1947,7 @@ void EicWidget::selectGroupNearRt(float rt) {
 
 void EicWidget::setSelectedGroup(PeakGroup* group) {
 	//qDebug <<"EicWidget::setSelectedGroup(PeakGroup* group ) ";
-	if (_frozen || group == NULL)
+        if (_frozen)
 		return;
         if (_showBarPlot)
                 addBarPlot(group);
