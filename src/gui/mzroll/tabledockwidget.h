@@ -196,6 +196,18 @@ public Q_SLOTS:
   void showNextGroup();
 
   void printPdfReport();
+  /**
+   * @brief renderPdf Creates the Printer and calls corresponding
+   * functions from eicWidget to render pdf.
+   * @param fileName  Name of the pdf to be created.
+   */
+  void renderPdf(QString fileName);
+  /**
+   * @brief pdfReadyNotification After pdf is successfully stored,
+   * this function creates the notification for the user about the
+   * same.
+   */
+  void pdfReadyNotification();
 
   void updateTable();
   void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
@@ -267,6 +279,7 @@ protected:
 Q_SIGNALS:
   void updateProgressBar(QString, int, int);
   void UploadPeakBatch();
+  void renderedPdf();
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);

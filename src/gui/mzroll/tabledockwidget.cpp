@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include <QHistogramSlider.h>
+#include <qtconcurrentrun.h>
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
@@ -106,6 +107,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           _mainwindow,
           SLOT(setProgressBar(QString, int, int)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
+  connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
 
   setupFiltersDialog();
 
@@ -1422,38 +1424,73 @@ void TableDockWidget::printPdfReport() {
   if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
     fileName = fileName + ".pdf";
 
-  QPrinter printer;
-  printer.setOutputFormat(QPrinter::PdfFormat);
-  printer.setOrientation(QPrinter::Landscape);
-  printer.setCreator("MAVEN Metabolics Analyzer");
-  printer.setOutputFileName(fileName);
+  QString title = "Saving PDF export for table…";
+  _mainwindow->setStatusText(title);
 
-  QPainter painter;
 
-  if (!painter.begin(&printer)) {
-    // failed to open file
-    qWarning("failed to open file, is it writable?");
-    return;
-  }
+  auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
+}
 
-  if (printer.printerState() != QPrinter::Active) {
-    qDebug() << "PrinterState:" << printer.printerState();
-  }
 
-  // PDF report only for selected groups
-  QList<PeakGroup *> selected = getSelectedGroups();
+void TableDockWidget::renderPdf(QString fileName)
+{
+    //Setting printer.
+    QPrinter printer;
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOrientation(QPrinter::Landscape);
+    printer.setCreator("El-MAVEN");
+    printer.setOutputFileName(fileName);
+    printer.setResolution(50);
 
-  for (int i = 0; i < selected.size(); i++) {
-    PeakGroup *grp = selected[i];
-    _mainwindow->getEicWidget()->setPeakGroup(grp);
-    _mainwindow->getEicWidget()->render(&painter);
+    QPainter painter;
 
-    if (!printer.newPage()) {
-      qWarning("failed in flushing page to disk, disk full?");
-      return;
+    if (!painter.begin(&printer)) {
+        // failed to open file
+        qWarning("failed to open file, is it writable?");
+        return;
     }
-  }
-  painter.end();
+
+    if (printer.printerState() != QPrinter::Active) {
+        qDebug() << "PrinterState:" << printer.printerState();
+    }
+
+    QList<PeakGroup *> selected;
+    // PDF report only for selected groups
+    if(peakTableSelection == peakTableSelectionType::Selected)
+    selected = getSelectedGroups();
+    else{
+    selected = getGroups();
+    }
+
+    for (int i = 0; i < selected.size(); i++) {
+        PeakGroup *grp = selected[i];
+        emit updateProgressBar("", i, selected.size());
+        _mainwindow->getEicWidget()->renderPdf(grp, &painter);
+
+        if(!printer.newPage())
+        {
+            qWarning("failed in flushing page to disk, disk full?");
+            return;
+        }
+
+   }
+   painter.end();
+   emit updateProgressBar("", selected.size(), selected.size());
+   emit renderedPdf();
+}
+
+void TableDockWidget::pdfReadyNotification()
+{
+    QIcon icon = QIcon("");
+    QString title("");
+    QString message("Your PDF has been saved successfully.");
+
+    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
+                                                            title,
+                                                            message,
+                                                           this);
+    title = "Your PDF has been saved successfully.";
+    _mainwindow->setStatusText(title, true);
 }
 
 void TableDockWidget::showHeatMap() {
@@ -2088,8 +2125,23 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QToolButton *btnPDF = new QToolButton(parent);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
     btnPDF->setToolTip("Generate PDF Report");
-    connect(btnPDF, SIGNAL(clicked()), td, SLOT(printPdfReport()));
-    connect(btnPDF, SIGNAL(clicked()), td, SLOT(showNotification()));
+    btnPDF->setMenu(new QMenu("Export Groups"));
+    btnPDF->setPopupMode(QToolButton::InstantPopup);
+    QAction *exportSelected =
+        btnPDF->menu()->addAction(tr("Export selected groups"));
+    QAction *exportAll =
+        btnPDF->menu()->addAction(tr("Export all groups"));
+
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+    connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
+
+
+
     return btnPDF;
   } else if (btnName == "btnX") {
 

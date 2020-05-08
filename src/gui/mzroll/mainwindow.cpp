@@ -2466,8 +2466,13 @@ void MainWindow::exportSVG()
 	statusBar()->showMessage("EIC Image copied to Clipboard");
 }
 
-void MainWindow::setStatusText(QString text) {
+void MainWindow::setStatusText(QString text, bool highPriority) {
+    QString textStatus = statusText->text();
+    if(textStatus == "Saving PDF export for table…" &&
+        highPriority == true)
 	statusText->setText(text);
+    else if(textStatus != "Saving PDF export for table…")
+        statusText->setText(text);
 	//statusBar()->showMessage(text,500);
 }
 

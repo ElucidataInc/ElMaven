@@ -2137,3 +2137,380 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
 
     qDebug() << "addMS2Events()  found=" << count;
 }
+
+
+void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
+{
+    QGraphicsScene scene;
+    scene.setSceneRect(10, 10, 676, 267);
+
+    //Set font
+    QFont font = QApplication::font();
+    int pxSize = scene.height() * 0.03;
+    if (pxSize < 14)
+        pxSize = 14;
+    if (pxSize > 20)
+        pxSize = 20;
+    font.setPixelSize(pxSize);
+
+    //Set Title for the Scene
+    QString tagString;
+    if (group != nullptr) {
+        tagString = QString(group->getName().c_str());
+    } else if (group->hasCompoundLink()) {
+        tagString = QString(group->getSlice().compound->name().c_str());
+    } else if (!group->getSlice().srmId.empty()) {
+        tagString = QString(group->getSlice().srmId.c_str());
+    }
+    QString titleText = tr("%1 m/z: %2-%3").arg(tagString,
+                                                QString::number(group->getSlice().mzmin, 'f', 4),
+                                                QString::number(group->getSlice().mzmax, 'f', 4));
+
+    QGraphicsTextItem* title = scene.addText(titleText, font);
+    title->setHtml(titleText);
+    int titleWith = title->boundingRect().width();
+    title->setPos(scene.width() / 2 - titleWith / 2, -20);
+    title->update();
+
+    sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
+
+    //Lambda for setting line attributes
+    auto setLineAttributes = [&](EicLine* line,
+                                 EIC *eic,
+                                 float alpha,
+                                 int zValue) {
+        if (line == nullptr)
+            return;
+
+        QColor eicColor = QColor::fromRgbF(eic->color[0],
+                                           eic->color[1],
+                                           eic->color[2],
+                                           alpha);
+        QPen pen(eicColor.darker(),
+                 1,
+                 Qt::SolidLine,
+                 Qt::RoundCap,
+                 Qt::RoundJoin);
+        QBrush brush(eicColor);
+
+        if (_showEICLines) {
+            brush.setStyle(Qt::NoBrush);
+            line->setFillPath(false);
+        } else {
+            brush.setStyle(Qt::SolidPattern);
+            line->setFillPath(true);
+        }
+        line->setZValue(zValue);
+        line->setFillPath(true);
+        line->setEIC(eic);
+        line->setBrush(brush);
+        line->setPen(pen);
+        line->setColor(pen.color());
+    };
+
+    // lambda that when given an EicLine and a pair of RT and intensity values,
+    // adds their co-ordinates to the line
+    auto addPoint = [this](EicLine* line, float rt, float intensity, float width, float height,
+                           float _minX, float _minY, float _maxX, float _maxY) {
+        line->addPoint(QPointF(((rt - _minX) / (_maxX - _minX) * width),
+                                height - ((intensity - _minY) / (_maxY - _minY) * height)));
+    };
+
+
+    vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+    EICLogic* eicparameters = new EICLogic();
+
+    //Set Slice in eicparameter
+    int charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
+    if (group->getExpectedMz(charge) != -1) {
+        eicparameters->_slice.mz = group->getExpectedMz(charge);
+    } else {
+        eicparameters->_slice.mz = group->meanMz;
+    }
+
+    eicparameters->_slice.compound = group->getCompound();
+    eicparameters->_slice.srmId = group->srmId;
+
+    auto slice = group->getSlice();
+    if (slice.mzmin != eicparameters->_slice.mzmin
+        || slice.mzmax != eicparameters->_slice.mzmax
+        || slice.srmId != eicparameters->_slice.srmId
+        || slice.compound != eicparameters->_slice.compound) {
+        eicparameters->_slice = slice;
+        if (slice.compound) {
+            if (slice.compound->precursorMz() != 0
+                && slice.compound->productMz() != 0) {
+                eicparameters->_slice.mzmin = slice.compound->precursorMz();
+                eicparameters->_slice.mzmax = slice.compound->productMz();
+                eicparameters->_slice.mz = slice.compound->precursorMz();
+                eicparameters->_slice.compound = slice.compound;
+                eicparameters->_slice.srmId = slice.srmId;
+            }
+        } else if (slice.mzmin != 0 && slice.mzmax != 0) {
+            eicparameters->_slice.mzmin = slice.mzmin;
+            eicparameters->_slice.mzmax = slice.mzmax;
+            eicparameters->_slice.mz = slice.mz;
+        }
+
+    } else {
+        eicparameters->_slice = slice;
+    }
+
+    //pulling EIC
+    auto bounds = eicparameters->visibleSamplesBounds(samples);
+    eicparameters->getEIC(bounds,
+                          samples,
+                          getMainWindow()->mavenParameters);
+    PeakFiltering peakFiltering(getMainWindow()->mavenParameters, false);
+    peakFiltering.filter(eicParameters->eics);
+
+    bounds = eicparameters->visibleEICBounds();
+    if (eicparameters->_slice.rtmin < bounds.rtmin)
+        eicparameters->_slice.rtmin = bounds.rtmin;
+    if (eicparameters->_slice.rtmax > bounds.rtmax)
+        eicparameters->_slice.rtmax = bounds.rtmax;
+
+
+    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
+    float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
+
+    //Add Axes
+    float _minX = group->minRt - 2 * _zoomFactor;
+    float _maxX = group->maxRt + 2 * _zoomFactor;
+    float _minY = 0;
+    float _maxY = group->maxHeightIntensity * 1.2;
+
+    Axes* x = new Axes(0, _minX, _maxX, 10);
+    Axes* y = new Axes(1, _minY, _maxY, 10);
+    scene.addItem(x);
+    scene.addItem(y);
+    y->setOffset(20);
+    y->showTicLines(true);
+    x->setZValue(0);
+    y->setZValue(0);
+
+    //Set Colours for EIC
+    for (size_t i = 0; i < eicparameters->eics.size() ; i++)
+    {
+        auto eic = eicparameters->eics[i];
+        if (eic == nullptr)
+            continue;
+        if (eic->sample == nullptr) {
+            eic->color[0] = 0.6;
+            eic->color[1] = 0.1;
+            eic->color[2] = 0.1;
+            eic->color[3] = 0;
+        } else {
+            eic->color[0] = eic->sample->color[0];
+            eic->color[1] = eic->sample->color[1];
+            eic->color[2] = eic->sample->color[2];
+            eic->color[3] = eic->sample->color[3];
+        }
+    }
+
+    auto rtMin = group->minRt;
+    auto rtMax = group->maxRt;
+    float alphaMultiplier = 0.5f;
+    float fadedMultiplier = 0.1f;
+
+    //Add EIC Lines
+    for (unsigned int i = 0; i < eicparameters->eics.size(); i++) {
+
+        EIC* eic = eicparameters->eics[i];
+        if (eic->size() == 0)
+            continue;
+
+        if (eic->sample != nullptr && eic->sample->isSelected == false)
+            continue;
+
+        if (eic->maxIntensity <= 0)
+            continue;
+
+        EicLine* lineEic = new EicLine(0, &scene);
+
+        EicLine* lineEicLeft = nullptr;
+        EicLine* lineEicRight = nullptr;
+
+        lineEicLeft = new EicLine(0, &scene);
+        lineEicRight = new EicLine(0, &scene);
+
+        // sample stacking
+        int zValue = 0;
+        for (int j = 0; j < group->peaks.size(); j++) {
+            if (group->peaks[j].getSample() == eic->getSample()) {
+                zValue = j;
+                break;
+            }
+        }
+
+        // ignore points that do not fall within slice's time range
+        for (int j = 0; j < eic->size(); j++) {
+
+            if (rtMin > 0.0f && eic->rt[j] < rtMin) {
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
+                addPoint(lineEicLeft,
+                         eic->rt[j],
+                         eic->intensity[j],
+                         scene.width(),
+                         scene.height(),
+                         _minX,
+                         _minY,
+                         _maxX,
+                         _maxY);
+                setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
+
+                int nextIdx = j + 1;
+                if (nextIdx < eic->size() && eic->rt[nextIdx] >= rtMin) {
+                    addPoint(lineEicLeft,
+                             eic->rt[nextIdx],
+                             eic->intensity[nextIdx],
+                             scene.width(),
+                             scene.height(),
+                             _minX,
+                             _minY,
+                             _maxX,
+                             _maxY);
+                    setLineAttributes(lineEicLeft, eic, fadedMultiplier, zValue);
+
+                }
+            }
+            if (rtMax > 0.0f && eic->rt[j] > rtMax) {
+                int prevIdx = j - 1;
+                if (prevIdx > 0 && eic->rt[prevIdx] <= rtMax) {
+                    if(eic->intensity[j] > _maxY)
+                        eic->intensity[j] = _maxY;
+                    addPoint(lineEicRight,
+                             eic->rt[prevIdx],
+                             eic->intensity[prevIdx],
+                             scene.width(),
+                             scene.height(),
+                             _minX,
+                             _minY,
+                             _maxX,
+                             _maxY);
+                    setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
+                }
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
+                addPoint(lineEicRight,
+                         eic->rt[j],
+                         eic->intensity[j],
+                         scene.width(),
+                         scene.height(),
+                         _minX,
+                         _minY,
+                         _maxX,
+                         _maxY);
+                setLineAttributes(lineEicRight, eic, fadedMultiplier, zValue);
+            }
+
+            if (eic->rt[j] >= rtMin && eic->rt[j] <= rtMax) {
+                addPoint(lineEic,
+                         eic->rt[j],
+                         eic->intensity[j],
+                         scene.width(),
+                         scene.height(),
+                         _minX,
+                         _minY,
+                         _maxX,
+                         _maxY);
+                setLineAttributes(lineEic, eic, alphaMultiplier, zValue);
+            }
+            else if(eic->rt[j] < rtMin && eic->rt[j] > rtMax){
+                if(eic->intensity[j] > _maxY)
+                    eic->intensity[j] = _maxY;
+                addPoint(lineEic,
+                         eic->rt[j],
+                         eic->intensity[j],
+                         scene.width(),
+                         scene.height(),
+                         _minX,
+                         _minY,
+                         _maxX,
+                         _maxY);
+                setLineAttributes(lineEic, eic, fadedMultiplier, zValue);
+
+            }
+        }
+    }
+
+    //Add Peak Positions
+    for (unsigned int i = 0; i < group->peaks.size(); i++) {
+        Peak& peak = group->peaks[i];
+
+        if (peak.getSample() != nullptr && peak.getSample()->isSelected == false)
+            continue;
+
+        QColor color = Qt::black;
+        if (peak.getSample() != nullptr) {
+            mzSample* s = peak.getSample();
+            color = QColor::fromRgbF(s->color[0], s->color[1], s->color[2],
+                                     s->color[3]);
+        }
+
+        QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        QBrush brush(color);
+        brush.setStyle(Qt::NoBrush);
+
+        EicPoint* p = new EicPoint(((peak.rt - _minX) / (_maxX - _minX) * scene.width()),
+                                   scene.height() - ((peak.peakIntensity - _minY) / (_maxY - _minY) * scene.height()),
+                                   &peak,
+                                   getMainWindow());
+        p->setColor(color);
+        p->forceFillColor(true);
+        p->setBrush(brush);
+        p->setPen(pen);
+        p->setPeakGroup(group);
+        scene.addItem(p);
+    }
+
+    //Add Selection Line
+    auto selectionLine = new QGraphicsLineItem(nullptr);
+    scene.addItem(selectionLine);
+    if (rtMin < _minX)
+        rtMin = _minX;
+    if (rtMax > _maxX)
+        rtMax = _maxX;
+
+    QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    selectionLine->setPen(pen);
+    selectionLine->setZValue(1000);
+    selectionLine->setLine(((rtMin - _minX) / (_maxX - _minX) * scene.width()),
+                           scene.height(),
+                           (rtMax - _minX) / (_maxX - _minX) * scene.width(), scene.height());
+    selectionLine->update();
+
+    //Add Focus Line
+    float rt;
+    if (group && group->getCompound() != nullptr && group->getCompound()->expectedRt() > 0)
+        rt = group->getCompound()->expectedRt();
+    auto focusLine = new QGraphicsLineItem(0);
+    scene.addItem(focusLine);
+    QPen penFocus(Qt::red, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    focusLine->setPen(penFocus);
+    focusLine->setLine(((rt - _minX) / (_maxX - _minX) * scene.width()),
+                       0,
+                       ((rt - _minX) / (_maxX - _minX) * scene.width()),
+                       scene.height());
+
+    //Barplot
+    auto barplot = new BarPlot(nullptr, &scene);
+    scene.addItem(barplot);
+
+    barplot->setMainWindow(getMainWindow());
+    barplot->setPeakGroup(group);
+
+    int bwidth = barplot->boundingRect().width();
+    int bheight = barplot->boundingRect().height();
+
+    int xpos = scene.width() * 0.95 - 200;
+    int ypos = scene.height() * 0.10;
+    barplot->setPos(xpos, ypos);
+    barplot->setZValue(1000);
+
+    //Render on pdf
+    QGraphicsView view(&scene);
+    view.render(painter);
+
+}
