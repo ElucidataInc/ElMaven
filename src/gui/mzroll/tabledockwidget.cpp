@@ -36,6 +36,7 @@
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
 #include "PeakDetector.h"
+#include "background_peaks_update.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -140,24 +141,9 @@ void TableDockWidget::sortBy(int col) {
 
 void TableDockWidget::updateTableAfterAlignment()
 {
-    for(size_t i = 0; i < allgroups.size(); i++)
-    {
-        auto slice = allgroups[i].getSlice();
-        auto samples = _mainwindow->getVisibleSamples();
-        auto eics  = peakDetector->pullEICs(&slice,
-                                           samples,
-                                           _mainwindow->mavenParameters);
-        for(auto eic : eics)
-        {
-            for(size_t j = 0; j < allgroups[i].peaks.size(); j++)
-            {
-                if (eic->getSample() == allgroups[i].peaks[j].getSample()){
-                    eic->getPeakDetails(allgroups[i].peaks[j]);
-                }
-            }
-        }
-        allgroups[i].groupStatistics();
-    }
+    BackgroundPeakUpdate::updateGroups(allgroups,
+                                       _mainwindow->getVisibleSamples(),
+                                       _mainwindow->mavenParameters);
     showAllGroups();
 }
 

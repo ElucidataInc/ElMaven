@@ -750,15 +750,13 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::updateTablePostAlignment(bool update)
+void MainWindow::updateTablePostAlignment()
 {
-    if (update) {
-        auto tableList = getPeakTableList();
-        if(tableList.size() == 0)
-            return;
-        for(auto table : tableList) {
-            table->updateTableAfterAlignment();
-        }
+    auto tableList = getPeakTableList();
+    if(tableList.size() == 0)
+        return;
+    for(auto table : tableList) {
+        table->updateTableAfterAlignment();
     }
 }
 
@@ -2435,7 +2433,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
 			alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 	connect(workerThread, SIGNAL(samplesAligned(bool)), alignmentDialog, SLOT(samplesAligned(bool)));
-        connect(workerThread, SIGNAL(samplesAligned(bool)), this, SLOT(updateTablePostAlignment(bool)));
+        connect(workerThread, SIGNAL(samplesAligned(bool)), this, SLOT(updateTablePostAlignment()));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;

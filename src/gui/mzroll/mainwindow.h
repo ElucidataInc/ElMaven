@@ -439,9 +439,12 @@ public Q_SLOTS:
     void promptUpdate(QString version);
 
     /**
-     * @brief updateTablePostAlignment Updating peak tables after alignment.
+     * @brief updateTablePostAlignment Update the attributes of peaks for every
+     * group present in all current peak-tables. This method should be called
+     * after operations such as alignment, where the scan's RT changes from its
+     * original value.
      */
-    void updateTablePostAlignment(bool update);
+    void updateTablePostAlignment();
 
 private Q_SLOTS:
 	void createMenus();

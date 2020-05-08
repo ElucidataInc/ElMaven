@@ -25,6 +25,7 @@
 #include "obiwarp.h"
 #include "PeakDetector.h"
 #include "samplertwidget.h"
+#include "EIC.h"
 
 BackgroundPeakUpdate::BackgroundPeakUpdate(QWidget*) {
         mainwindow = NULL;
@@ -437,4 +438,28 @@ bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
         };
         QFile testOut(outfile);
         return testOut.exists();
+}
+
+void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
+                                        vector<mzSample *> samples,
+                                        MavenParameters* mavenParameters)
+{
+    for(PeakGroup& group : groups)
+    {
+        auto slice = group.getSlice();
+
+        auto eics  = PeakDetector::pullEICs(&slice,
+                                           samples,
+                                           mavenParameters);
+        for(auto eic : eics)
+        {
+            for(Peak& peak :  group.peaks)
+            {
+                if (eic->getSample() == peak.getSample()){
+                    eic->getPeakDetails(peak);
+                }
+            }
+        }
+        group.groupStatistics();
+    }
 }
