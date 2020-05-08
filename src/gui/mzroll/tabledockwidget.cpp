@@ -35,6 +35,8 @@
 #include "spectrawidget.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
+#include "PeakDetector.h"
+#include "background_peaks_update.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -134,6 +136,14 @@ void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
 
 void TableDockWidget::sortBy(int col) {
   treeWidget->sortByColumn(col, Qt::AscendingOrder);
+}
+
+void TableDockWidget::updateTableAfterAlignment()
+{
+    BackgroundPeakUpdate::updateGroups(allgroups,
+                                       _mainwindow->getVisibleSamples(),
+                                       _mainwindow->mavenParameters);
+    showAllGroups();
 }
 
 void TableDockWidget::setIntensityColName() {

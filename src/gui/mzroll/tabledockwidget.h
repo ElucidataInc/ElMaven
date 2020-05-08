@@ -15,6 +15,7 @@ class JSONReports;
 class PeakGroup;
 class EIC;
 class QHistogramSlider;
+class PeakDetector;
 
 using namespace std;
 
@@ -145,6 +146,12 @@ public:
       setTitleForId(-1);
       setTitleForId(0);
   }
+
+  /**
+   * @brief updateTableAfterAlignment Updates table if table existed before
+   * samples were assigned.
+   */
+  void updateTableAfterAlignment();
 
 public Q_SLOTS:
   void updateCompoundWidget();

@@ -101,6 +101,16 @@ public:
         _untargetedMustHaveMs2 = pred;
     }
 
+    /**
+     * @brief updateGroups Updates the attributes of peakgroups according to new
+     * mainwindow parameters.
+     * @param groups    Updation of attributes of peakgroups.
+     * @param samples   Current visible samples in the state of alignment or not
+     * @param mavenParameters current mainwindow mavenparameters.
+     */
+    static void updateGroups(QList<PeakGroup> &groups,
+                             vector<mzSample*> samples,
+                             MavenParameters* mavenParameters);
 Q_SIGNALS:
 
 	/**

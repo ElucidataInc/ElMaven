@@ -436,7 +436,9 @@ using namespace mzUtils;
 	alignmentDialog->setMainWindow(this);
 	connect(alignmentDialog->alignButton, SIGNAL(clicked()), SLOT(Align()));
 	connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
-			SLOT(UndoAlignment()));
+                       SLOT(UndoAlignment()));
+        connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
+                SLOT(updateTablePostAlignment()));
 
 	//rconsole dialog
 	//rconsoleDialog	 =  new RConsoleDialog(this);
@@ -747,6 +749,17 @@ MainWindow::~MainWindow()
 	analytics->sessionEnd();
     delete mavenParameters;
     delete _usageTracker;
+}
+
+
+void MainWindow::updateTablePostAlignment()
+{
+    auto tableList = getPeakTableList();
+    if(tableList.size() == 0)
+        return;
+    for(auto table : tableList) {
+        table->updateTableAfterAlignment();
+    }
 }
 
 void MainWindow::promptUpdate(QString version)
@@ -2422,6 +2435,7 @@ BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
 			alignmentDialog, SLOT(setProgressBar(QString, int,int)));
 	connect(workerThread, SIGNAL(samplesAligned(bool)), alignmentDialog, SLOT(samplesAligned(bool)));
+        connect(workerThread, SIGNAL(samplesAligned(bool)), this, SLOT(updateTablePostAlignment()));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;
