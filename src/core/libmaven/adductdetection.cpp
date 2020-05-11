@@ -16,12 +16,21 @@ mzSlice* AdductDetection::createSliceForCompoundAdduct(Compound *compound,
     float neutralMass = compound->neutralMass();
     if (!compound->formula().empty())
         neutralMass = massCalc.computeNeutralMass(compound->formula());
-    if (neutralMass <= 0)
-        return slice;
+
+    float mz = 0.0f;
+    if (neutralMass <= 0.0f) {
+        // we have to have a neutral mass for non-parent adducts
+        if (!adduct->isParent())
+            return slice;
+
+        mz = compound->mz();
+    } else {
+        mz = adduct->computeAdductMz(neutralMass);
+    }
 
     slice->compound = compound;
     slice->adduct = adduct;
-    slice->mz = adduct->computeAdductMz(neutralMass);
+    slice->mz = mz;
     slice->calculateMzMinMax(mp->compoundMassCutoffWindow, adduct->getCharge());
     slice->calculateRTMinMax(mp->matchRtFlag, mp->compoundRTWindow);
     return slice;
