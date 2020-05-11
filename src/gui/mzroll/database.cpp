@@ -471,6 +471,7 @@ int Database::loadNISTLibrary(QString filepath,
     QRegExp whiteSpace("\\s+");
     QRegExp formulaMatch("Formula\\=(C\\d+H\\d+\\S*)");
     QRegExp retentionTimeMatch("AvgRt\\=(\\S+)");
+    QRegularExpression keyValuePattern("\\\"([^=\\\"]*)=([^\\\"]*)\\\"");
 
     string dbName = mzUtils::cleanFilename(filepath.toStdString());
     Compound* currentCompound = nullptr;
@@ -515,7 +516,9 @@ int Database::loadNISTLibrary(QString filepath,
             currentCompound->setMz(line.mid(3, line.length())
                                         .simplified()
                                         .toDouble());
-        } else if (line.startsWith("CE:", Qt::CaseInsensitive)) {
+        } else if (line.startsWith("CE:", Qt::CaseInsensitive)
+                   || line.startsWith("COLLISION ENERGY:", Qt::CaseInsensitive)
+                   || line.startsWith("COLLISION_ENERGY:", Qt::CaseInsensitive)) {
             currentCompound->setCollisionEnergy (line.mid(3, line.length())
                                                    .simplified()
                                                    .toDouble());
@@ -567,13 +570,15 @@ int Database::loadNISTLibrary(QString filepath,
             if (line.contains("VIRTUAL", Qt::CaseInsensitive))
                 currentCompound->setVirtualFragmentation(true);
         } else if (line.startsWith("ION MODE:", Qt::CaseInsensitive)
+                   || line.startsWith("ION_MODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONMODE:", Qt::CaseInsensitive)
                    || line.startsWith("IONIZATION:", Qt::CaseInsensitive)) {
-            if (line.contains("NEG", Qt::CaseInsensitive))
+            if (line.contains("N", Qt::CaseInsensitive))
                 currentCompound->ionizationMode = Compound::IonizationMode::Negative;
-            if (line.contains("POS", Qt::CaseInsensitive))
+            if (line.contains("P", Qt::CaseInsensitive))
                 currentCompound->ionizationMode = Compound::IonizationMode::Positive;
-        } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)) {
+        } else if (line.startsWith("COMMENT:", Qt::CaseInsensitive)
+                   || line.startsWith("COMMENTS:", Qt::CaseInsensitive)) {
             QString comment = line.mid(8, line.length()).simplified();
             if (comment.contains(formulaMatch)) {
                 currentCompound->setFormula (formulaMatch.capturedTexts()
@@ -585,6 +590,67 @@ int Database::loadNISTLibrary(QString filepath,
                                                                 .at(1)
                                                                 .simplified()
                                                                 .toDouble());
+            }
+
+            // the following pattern logic extracts some useful information
+            // available as comments in the MoNA public library available at:
+            // https://mona.fiehnlab.ucdavis.edu/downloads
+            QString keggId = "";
+            QString hmdbId = "";
+            QString pubchemId = "";
+            QString chebi = "";
+            QString note = "";
+            QRegularExpressionMatchIterator itr =
+                keyValuePattern.globalMatch(comment);
+            while (itr.hasNext()) {
+                QRegularExpressionMatch match = itr.next();
+                QString key = match.captured(1);
+                QString value = match.captured(2);
+
+                // replace SMILE if available and not already set
+                if (key.contains("SMILE")
+                    && currentCompound->smileString().empty()) {
+                    currentCompound->setSmileString(value.toStdString());
+                }
+
+                // replace category if available and not already set
+                if (key.contains("compound class")
+                    && currentCompound->category().empty()) {
+                    string categories = value.toStdString();
+                    currentCompound->setCategory(mzUtils::split(categories,
+                                                                "; "));
+                }
+
+                if (key.contains("kegg", Qt::CaseInsensitive))
+                    keggId = value;
+                if (key.contains("hmdb", Qt::CaseInsensitive))
+                    hmdbId = value;
+                if (key.contains("pubchem", Qt::CaseInsensitive))
+                    pubchemId = value;
+                if (key.contains("chebi", Qt::CaseInsensitive))
+                    chebi = value;
+
+                note += QString("\"%1: %2\" ").arg(key, value);
+            }
+
+            if (!keggId.isEmpty()) {
+                // KEGG gets precendence over HMDB
+                currentCompound->setId(keggId.toStdString());
+            } else if (!hmdbId.isEmpty()) {
+                // HMDB gets precendence over PubChem
+                currentCompound->setId(hmdbId.toStdString());
+            } else if (!pubchemId.isEmpty()) {
+                // PubChem gets precendence over ChEBI
+                currentCompound->setId(pubchemId.toStdString());
+            } else if (!chebi.isEmpty()) {
+                currentCompound->setId(chebi.toStdString());
+            }
+
+            // comments are added as a note for the compound
+            if (note.isEmpty()) {
+                currentCompound->setNote(comment.toStdString());
+            } else {
+                currentCompound->setNote(note.simplified().toStdString());
             }
         } else if (line.startsWith("NUM PEAKS:", Qt::CaseInsensitive)
                    || line.startsWith("NUMPEAKS:", Qt::CaseInsensitive)) {
