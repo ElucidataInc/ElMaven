@@ -129,7 +129,14 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
             Peak* nearestPeak = nullptr;
             int dist = numeric_limits<int>::max();
             for (auto& peak : allPeaks) {
-                float d = abs(static_cast<int>(peak.scan - parentPeak->scan));
+                int d = 0;
+                int minScan = min(peak.scan, parentPeak->scan);
+                int maxScan = max(peak.scan, parentPeak->scan);
+                while (minScan != maxScan) {
+                    auto scanInBetween = sample->getScan(++minScan);
+                    if (scanInBetween->mslevel == 1)
+                        ++d;
+                }
                 if (d > _mavenParameters->maxIsotopeScanDiff)
                     continue;
                 if (d < dist) {
@@ -216,16 +223,22 @@ std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, 
 
         // Filter out MS2 scans when obtaining isotope peak intensities.
         auto pos = i;
-        while(s->mslevel > 1 && i < scan->scannum) {
-            auto index = i < scan->scannum ? --pos
-                                           : ++pos;
+        while(s->mslevel > 1) {
+            auto previousScan = s;
+            auto index = i < scan->scannum ? --pos : ++pos;
             s = sample->getScan(index);
+
+            // maybe we reached the last or the first scan - which is still MS2
+            if (s == previousScan)
+                break;
         }
+        if (s->mslevel > 1)
+            continue;
 
         vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
-        for (auto pos : matches) {
-            if (s->intensity[pos] > highestIntensity) {
-                highestIntensity = s->intensity[pos];
+        for (auto match : matches) {
+            if (s->intensity[match] > highestIntensity) {
+                highestIntensity = s->intensity[match];
                 rt = s->rt;
             }
         }
