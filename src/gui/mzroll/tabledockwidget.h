@@ -196,6 +196,8 @@ public Q_SLOTS:
   };
 
   void exportJson();
+  void exportSpectralLib();
+
   void UploadPeakBatchToCloud();
   void showSelectedGroup();
   void setGroupLabel(char label);

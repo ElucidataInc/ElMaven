@@ -434,6 +434,16 @@ namespace mzUtils
     vector<string> split(const string& str, const string& sep);
 
     /**
+     * @brief Join a vector of words into a single string with the given
+     * separator.
+     * @param words A vector of strings to be accumulated.
+     * @param sep A separator that will be placed in between two words (but not
+     * at the start or end) in the result string.
+     * @return The string of joined words.
+     */
+    string join(const vector<string>& words, const string& sep);
+
+    /**
      * @brief contains  Checks if s1 contains s2.
      * @param s1    string.
      * @param s2    string.

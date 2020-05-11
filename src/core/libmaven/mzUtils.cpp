@@ -59,6 +59,19 @@ namespace mzUtils {
         return result;
     }
 
+    string join(const vector<string>& words, const string& sep)
+    {
+        if (words.empty())
+            return "";
+        if (words.size() == 1)
+            return words.at(0);
+
+        return accumulate(next(begin(words)),
+                          end(words),
+                          words.at(0),
+                          [sep](string a, string b) { return a + sep + b; });
+    }
+
     void removeSpecialCharFromStartEnd(vector<string>& fields)
     {
         for(size_t i = 0; i < fields.size(); i++) {
@@ -1030,6 +1043,14 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(result[3] == "to");
         REQUIRE(result[4] == "test");
         REQUIRE(result[5] == "function");
+    }
+
+    TEST_CASE("Testing join function")
+    {
+        vector<string> words = {"Hello!", "This", "is", "a", "test."};
+        string sep = " ";
+        string result = mzUtils::join(words, sep);
+        REQUIRE(result == "Hello! This is a test.");
     }
 
     TEST_CASE("Testing converting to Lower case")
