@@ -240,7 +240,9 @@ after_build:
               exit 1
           }
 
-          if ( Test-Path env:APPVEYOR_REPO_TAG_NAME ) {
+          if ( (Test-Path env:APPVEYOR_REPO_TAG_NAME) -and
+               !($env:APPVEYOR_REPO_TAG_NAME -like "*alpha*") -and
+               !($env:APPVEYOR_REPO_TAG_NAME -like "*beta*") ) {
               # create update repository for this release
               echo "Creating an update repository for $ELMAVEN_BRANCH ..."
               $env:ELMAVEN_UPDATES = "repository"
@@ -304,7 +306,7 @@ deploy:
       set_public: true
       artifact: "Updates"
       on:
-          APPVEYOR_REPO_TAG: true        # deploy to release updates on tag push only
+          APPVEYOR_REPO_TAG: true      # deploy updates for release builds only
 
 
 on_success:

@@ -232,9 +232,11 @@ after_success:
         exit 1
       fi
 
-      if [ "$TRAVIS_TAG" != "" ]; then
+      export IS_RELEASE_TAG=false
+      if [ "$TRAVIS_TAG" != "" ] && [[ "$TRAVIS_TAG" != *"alpha"* ]] && [[ "$TRAVIS_TAG" != *"beta"* ]]; then
         # create update repository for this release
         echo "Creating an update repository for $ELMAVEN_BRANCH ..."
+        IS_RELEASE_TAG=true
         export ELMAVEN_UPDATES="repository"
         cd $PARENT_DIR
         mkdir "$PARENT_DIR/$ELMAVEN_UPDATES"
@@ -328,4 +330,4 @@ deploy:
     local_dir: $ELMAVEN_UPDATES
     on:
       tags: true
-      condition: $TRAVIS_OS_NAME = "osx"
+      condition: $IS_RELEASE_TAG = true
