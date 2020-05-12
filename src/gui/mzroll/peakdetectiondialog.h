@@ -37,6 +37,14 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
 
                  /**
+                  * @brief Disables or enables certain UI elements, based on
+                  * whether peak detection is currently in progress.
+                  * @param detectionMode A boolean to signify whether peak
+                  * detection is taking place or not.
+                  */
+                 void setDetectionMode(bool detectionModeOn);
+
+                 /**
                   * @brief Repopulate the relevant databases in dropdowns.
                   */
                  void refreshCompoundDatabases();
@@ -48,7 +56,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showBaselineQuantileStatus(int);
 				 void showBlankQuantileStatus(int);
                  void setMassCutoffType(QString type);
-                virtual void closeEvent(QCloseEvent* event) override;
                                 void triggerSettingsUpdate();
                 void onReset();
 
@@ -61,12 +68,17 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
         public:
                 QString massCutoffType;
 
+        protected:
+                virtual void closeEvent(QCloseEvent* event) override;
+                virtual void keyPressEvent(QKeyEvent* event) override;
+
         private:
 				QSettings *settings;
 				MainWindow *mainwindow;
                 BackgroundPeakUpdate* peakupdater;
 				FeatureDetectionType _featureDetectionType;
                 PeakDetectionSettings* peakSettings;
+                bool _inDetectionMode;
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();

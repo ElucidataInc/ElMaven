@@ -242,9 +242,21 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 {
-    // update maven peak settings whenever we close the dilaog box or click on 'cancel' button. 
-    // cancel in turn calls close();
+    if (_inDetectionMode) {
+        event->ignore();
+        return;
+    }
+
+    // update maven peak settings on close-event ('close' or 'cancel' button)
     emit updateSettings(peakSettings);
+}
+
+void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
+{
+    if (_inDetectionMode) {
+        event->ignore();
+        return;
+    }
 }
 
 void PeakDetectionDialog::dbSearchClicked()
@@ -303,6 +315,8 @@ void PeakDetectionDialog::cancel() {
             return;
         }
     }
+    setDetectionMode(false);
+    setProgressBar("Cancelled", 0, 1);
     close();
 }
 
@@ -461,6 +475,13 @@ void PeakDetectionDialog::refreshCompoundDatabases()
 
 void PeakDetectionDialog::toggleFragmentation()
 {
+    QString selectedDbName = "";
+    if (dbSearch->isChecked()) {
+        selectedDbName = compoundDatabase->currentText();
+    } else if (featureOptions->isChecked()) {
+        selectedDbName = identificationDatabase->currentText();
+    }
+
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples),
                         end(samples),
@@ -469,25 +490,13 @@ void PeakDetectionDialog::toggleFragmentation()
                                    && (s->ms2ScanCount() > 0));
                         });
     bool foundDda = iter != end(samples);
-    if (foundDda && featureOptions->isChecked()) {
-        mustHaveMs2->setEnabled(true);
-    } else {
-        mustHaveMs2->setEnabled(false);
-        mustHaveMs2->setChecked(false);
-    }
-
-    QString selectedDbName = "";
-    if (dbSearch->isChecked()) {
-        selectedDbName = compoundDatabase->currentText();
-    } else if (featureOptions->isChecked()) {
-        selectedDbName = identificationDatabase->currentText();
-    }
 
     if (foundDda && DB.isSpectralLibrary(selectedDbName.toStdString())) {
         matchFragmentationOptions->setEnabled(true);
     } else {
         matchFragmentationOptions->setChecked(false);
         matchFragmentationOptions->setEnabled(false);
+        mustHaveMs2->setChecked(false);
     }
 }
 
@@ -499,6 +508,26 @@ void PeakDetectionDialog::_setAdductWindowState()
     } else {
         adductSearchWindow->setEnabled(false);
         adductPercentCorrelation->setEnabled(false);
+    }
+}
+
+void PeakDetectionDialog::setDetectionMode(bool detectionModeOn)
+{
+    _inDetectionMode = detectionModeOn;
+    if (_inDetectionMode) {
+        featureOptions->setDisabled(true);
+        dbSearch->setDisabled(true);
+        matchFragmentationOptions->setDisabled(true);
+        peakScoringOptions->setDisabled(true);
+        computeButton->setDisabled(true);
+        resetButton->setDisabled(true);
+    } else {
+        featureOptions->setEnabled(true);
+        dbSearch->setEnabled(true);
+        matchFragmentationOptions->setEnabled(true);
+        peakScoringOptions->setEnabled(true);
+        computeButton->setEnabled(true);
+        resetButton->setEnabled(true);
     }
 }
 
@@ -520,6 +549,7 @@ void PeakDetectionDialog::_setAdductWindowState()
 void PeakDetectionDialog::findPeaks()
 {
     emit findPeaksClicked();
+    setDetectionMode(true);
 
     // IMPORTANT: we have to make sure that maven parameters are updated before we start finding peaks.
     // there are not a lot of settings that need to be updated,hence it's not late to update them right now.
@@ -529,7 +559,6 @@ void PeakDetectionDialog::findPeaks()
     if (peakupdater == NULL) return;
     if (peakupdater->isRunning()) cancel();
     if (peakupdater->isRunning()) return;
-    peakupdater->setUntargetedMustHaveMs2(false);
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
@@ -537,28 +566,29 @@ void PeakDetectionDialog::findPeaks()
     mainwindow->setTotalCharge();
 
     QString dbName = "";
+    QString mode = "";
     if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
         _featureDetectionType = CompoundDB;
-        mainwindow->getAnalytics()->hitEvent("Peak Detection", "Targeted");
+        mode = "Targeted";
         mainwindow->massCutoffWindowBox->setValue(compoundPPMWindow->value());
         dbName = compoundDatabase->currentText();
     } else if (!(dbSearch->isChecked()) && (featureOptions->isChecked())) {
         _featureDetectionType = FullSpectrum;
+        mode = "Untargeted";
         mainwindow->massCutoffWindowBox->setValue(ppmStep->value());
-        if (mustHaveMs2->isChecked()) {
-            peakupdater->setUntargetedMustHaveMs2(true);
-            mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                                 "Untargeted",
-                                                 "Filter for MS2 events");
-        } else {
-            mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                                 "Untargeted"
-                                                 "No filter");
-        }
         if (identificationDatabase->currentIndex() != 0)
             dbName = identificationDatabase->currentText();
     } else {
         _featureDetectionType = FullSpectrum;
+    }
+    if (mustHaveMs2->isChecked()) {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             mode,
+                                             "Filter for MS2 events");
+    } else {
+        mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                             mode,
+                                             "No filter");
     }
 
     TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName);
@@ -571,7 +601,13 @@ void PeakDetectionDialog::findPeaks()
     connect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), peaksTable,
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
-    connect(peakupdater, SIGNAL(finished()), this, SLOT(close()));
+    connect(peakupdater,
+            &BackgroundPeakUpdate::finished,
+            this,
+            [this] {
+                setDetectionMode(false);
+                close();
+            });
     if(!settings->value("hideVideoPlayer", 0).toBool())
         connect(peakupdater, SIGNAL(finished()), mainwindow->vidPlayer, SLOT(show()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));

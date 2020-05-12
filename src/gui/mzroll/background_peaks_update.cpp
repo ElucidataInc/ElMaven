@@ -161,20 +161,10 @@ void BackgroundPeakUpdate::writeCSVRep(string setName)
             csvreports->addGroup(&group);
 
         if (mavenParameters->keepFoundGroups) {
-            if (_untargetedMustHaveMs2
-                && mavenParameters->allgroups[j].ms2EventCount == 0)
-                continue;
-
             Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
             QCoreApplication::processEvents();
         }
     }
-
-    if (csvreports != NULL) {
-            delete (csvreports);
-            csvreports = NULL;
-    }
-    Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
 void BackgroundPeakUpdate::setPeakDetector(PeakDetector *pd)

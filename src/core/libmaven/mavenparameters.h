@@ -162,6 +162,7 @@ class MavenParameters
         float fragmentTolerance;
         float minFragMatch;
         string scoringAlgo;
+        bool mustHaveFragmentation;
 
         // to allow adduct matching
         bool searchAdducts;

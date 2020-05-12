@@ -97,10 +97,6 @@ public:
     PeakDetector* peakDetector;
     MavenParameters* mavenParameters;
 
-    inline void setUntargetedMustHaveMs2(bool pred) {
-        _untargetedMustHaveMs2 = pred;
-    }
-
     /**
      * @brief updateGroups Updates the attributes of peakgroups according to new
      * mainwindow parameters.
@@ -111,6 +107,7 @@ public:
     static void updateGroups(QList<PeakGroup> &groups,
                              vector<mzSample*> samples,
                              MavenParameters* mavenParameters);
+
 Q_SIGNALS:
 
 	/**
@@ -149,7 +146,6 @@ protected:
 	void run(void);
 	
 private:
-    bool _untargetedMustHaveMs2;
 	string runFunction;
 	MainWindow *mainwindow;
 

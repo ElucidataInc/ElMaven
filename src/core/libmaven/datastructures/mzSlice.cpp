@@ -61,7 +61,8 @@ bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge
 		return false;
 	}
 
-	return true;
+    mz = (mzmax + mzmin) / 2.0f;
+    return true;
 }
 
 void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
@@ -84,6 +85,7 @@ void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
 		//double
 		this->rtmax = 1e9;
 	}
+    rt = (rtmax + rtmin) / 2.0f;
 }
 
 void mzSlice::setSRMId()

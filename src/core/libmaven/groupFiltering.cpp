@@ -33,14 +33,18 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
         // only filter for MS2 for groups having targets
         if (_mavenParameters->matchFragmentationFlag
             && peakgroups[i].getCompound() != nullptr
-            && !(peakgroups[i].isAdduct())
-            && filterByMS2(peakgroups[i])) {
-            peakgroups.erase(peakgroups.begin() + i);
-            continue;
+            && !(peakgroups[i].isAdduct())) {
+            bool hasFragments = peakgroups[i].ms2EventCount > 0;
+            if (!hasFragments && _mavenParameters->mustHaveFragmentation) {
+                peakgroups.erase(peakgroups.begin() + i);
+                continue;
+            } else if (hasFragments && filterByMS2(peakgroups[i])) {
+                peakgroups.erase(peakgroups.begin() + i);
+                continue;
+            }
         }
 
         i++;
-        
     }
 
 }
@@ -98,12 +102,14 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
 
 bool GroupFiltering::filterByMS2(PeakGroup& peakgroup)
 {
+    if (peakgroup.ms2EventCount == 0)
+        return true;
+
     //TODO: remove MS2 stats calculation from filtering.
     //Already calculated during grouping
     peakgroup.computeFragPattern(_mavenParameters->fragmentTolerance);
     peakgroup.matchFragmentation(_mavenParameters->fragmentTolerance,
                                  _mavenParameters->scoringAlgo);
-    
     FragmentationMatchScore score = peakgroup.fragMatchScore;
 
     if (score.numMatches < _mavenParameters->minFragMatch)
