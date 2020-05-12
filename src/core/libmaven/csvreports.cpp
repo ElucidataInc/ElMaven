@@ -404,8 +404,6 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     // different systems.
     std::sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleName);
 
-
-
     vector<mzSample*> samplesWithNoPeak = samples;
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
@@ -424,8 +422,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
 
         _reportStream << fixed << setprecision(6) << group->groupId << SEP
                       << compoundName << SEP << compoundID << SEP << formula
-                      << SEP << sampleName << SEP <<adductName<< SEP << peak.peakMz << SEP
-                      << peak.mzmin << SEP << peak.mzmax << setprecision(3)
+                      << SEP << sampleName << SEP << adductName << SEP << peak.peakMz
+                      << SEP << peak.mzmin << SEP << peak.mzmax << setprecision(3)
                       << SEP << peak.rt << SEP << peak.rtmin << SEP
                       << peak.rtmax << SEP
                       << peak.quality
