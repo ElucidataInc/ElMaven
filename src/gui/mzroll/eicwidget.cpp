@@ -617,7 +617,7 @@ void EicWidget::addEICLines(bool showSpline,
             if (eic->rt[j] < eicParameters->getMzSlice().rtmin)
                 continue;
             if (eic->rt[j] > eicParameters->getMzSlice().rtmax)
-                continue;
+                break;
 
             if (showSpline){
                 addPoint(lineSpline, eic->rt[j], eic->spline[j]);

@@ -318,6 +318,31 @@ class mzSample
     float correlation(float mz1, float mz2, MassCutoff *massCutoff, float rt1, float rt2, int eicType, string filterline);
 
     /**
+     * @brief Find correlation between two EICs from different mass ranges but
+     * the same time range. Useful for finding correlation between co-eluents.
+     * @param mzMin1 The lower limit for first m/z range.
+     * @param mzMax1 The upper limit for first m/z range.
+     * @param mzMin2 The lower limit for first m/z range.
+     * @param mzMax2 The upper limit for first m/z range.
+     * @param rtMin The lower limit for the common RT range.
+     * @param rtMax The upper limit for the common RT range.
+     * @param msLevel MS level for which the chromatograms will be pulled.
+     * @param eicType Type of EIC (max or sum).
+     * @param filterline Selected filterline.
+     * @return A floating point number denoting the correlation between the two
+     * extracted chromatograms.
+     */
+    float correlation(float mzMin1,
+                      float mzMax1,
+                      float mzMin2,
+                      float mzMax2,
+                      float rtMin,
+                      float rtMax,
+                      int msLevel,
+                      int eicType,
+                      string filterline);
+
+    /**
     * @brief Get normalization constant
     * @return Normalization constant
     */

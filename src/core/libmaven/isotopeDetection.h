@@ -8,6 +8,7 @@ class MavenParameters;
 class mzSample;
 class PeakGroup;
 class Scan;
+class Peak;
 
 using namespace std;
 
@@ -25,21 +26,30 @@ class IsotopeDetection
 		bool D2Flag);
 
 	void pullIsotopes(PeakGroup *group);
-	bool filterIsotope(Isotope x, bool C13Flag, bool N15Flag, bool S34Flag, bool D2Flag, float parentPeakIntensity, float isotopePeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
-	map<string, PeakGroup> getIsotopes(PeakGroup* parentgroup, vector<Isotope> masslist);
+    map<string, PeakGroup> getIsotopes(PeakGroup* parentGroup, vector<Isotope> masslist);
 
 	/**
 	* @brief find highest intensity for given m/z and scan ranges
 	* @return pair of two values. Intensity and rt at which given intensity was found
 	**/
 	std::pair<float, float> getIntensity(Scan* scan, float mzmin, float mzmax);
-	
-	/**
-	 * @brief checks for natural abundance error and parent-isotope correlation
-	 * @details if parent group is not available, correlation check if skipped
-	 * @return bool. true if isotope has to be skipped. false if it passes the checks
-	 **/
-	bool filterIsotope(Isotope x, float isotopePeakIntensity, float parentPeakIntensity, mzSample* sample, PeakGroup* parentGroup = NULL);
+
+    /**
+     * @brief Checks whether parent-isotope signal correlation is above the
+     * minimum threshold.
+     * @param parentPeak Pointer to the parent peak whose signal will be used to
+     * check for isotope correlation.
+     * @param isotopeMzMin The min bound on m/z range for the isotope signal.
+     * @param isotopeMzMax The max bound on m/z range for the isotope signal.
+     * @param sample The sample whose parent-isotope chromatogram signals will
+     * be compared.
+     * @return `true` if the calculated correlation is above the expected
+     * threshold, `false` otherwise.
+     **/
+    bool satisfiesCorrelation(const Peak* parentPeak,
+                              float isotopeMzMin,
+                              float isotopeMzMax,
+                              mzSample* sample);
 
   private:
 	bool _C13Flag;

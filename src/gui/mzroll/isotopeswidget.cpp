@@ -236,11 +236,9 @@ void IsotopeWidget::computeIsotopes(string f)
 	if (f.empty())
 		return;
 
-	QSettings *settings = _mw->getSettings();
 	MassCutoff *massCutoff = _mw->getUserMassCutoff();
 
-	double maxNaturalAbundanceErr = _mw->mavenParameters->maxNaturalAbundanceErr;
-	bool C13Labeled = _mw->mavenParameters->C13Labeled_BPE;
+    bool C13Labeled = _mw->mavenParameters->C13Labeled_BPE;
 	bool N15Labeled = _mw->mavenParameters->N15Labeled_BPE;
 	bool S34Labeled = _mw->mavenParameters->S34Labeled_BPE;
 	bool D2Labeled = _mw->mavenParameters->D2Labeled_BPE;
@@ -258,10 +256,6 @@ void IsotopeWidget::computeIsotopes(string f)
 	if (isotopeParameters->_scan == NULL)
 		return;
 
-	std::pair<float, float> parent = isotopeDetector->getIntensity(
-		isotopeParameters->_scan, parentMass - mzWindow, parentMass + mzWindow);
-	float parentPeakIntensity = parent.first;
-
 	if (isotopeParameters->_group && !isotopeParameters->_group->isIsotope())
 	{
 		populateByParentGroup(isotopes, parentMass);
@@ -276,16 +270,24 @@ void IsotopeWidget::computeIsotopes(string f)
 			std::pair<float, float> child = isotopeDetector->getIntensity(
 				isotopeParameters->_scan, x.mass - mzWindow, x.mass + mzWindow);
 			float isotopePeakIntensity = child.first;
-
 			mzLink link;
-			bool filterIsotope = false;
 
-			filterIsotope = isotopeDetector->filterIsotope(x, 
-				isotopePeakIntensity, 
-				parentPeakIntensity, 
-				_selectedSample, 
-				isotopeParameters->_group);
-
+            bool filterIsotope = false;
+            if (isotopePeakIntensity > 0.0f) {
+                auto scanRt = isotopeParameters->_scan->rt;
+                auto rtDelta = _mw->mavenParameters->maxIsotopeScanDiff
+                               * _mw->mavenParameters->avgScanTime;
+                auto sample = isotopeParameters->_scan->getSample();
+                auto corr = sample->correlation(parentMass,
+                                                x.mass,
+                                                _mw->mavenParameters->massCutoffMerge,
+                                                scanRt - rtDelta,
+                                                scanRt + rtDelta,
+                                                _mw->mavenParameters->eicType,
+                                                _mw->mavenParameters->filterline);
+                if (corr < _mw->mavenParameters->minIsotopicCorrelation)
+                    filterIsotope = true;
+            }
 			if (filterIsotope)
 				isotopePeakIntensity = 0;
 
@@ -538,20 +540,6 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 				groupInfo << QString::number(MM(j, i), 'f', 2);
 			}
 			isotopeInfo += groupInfo.join("\t") + "\n";
-		}
-		if (_mw->mavenParameters->pullIsotopesFlag && _mw->mavenParameters->isotopeC13Correction)
-		{
-			isotopeInfo += "Natural Abundance\n";
-			for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++)
-			{
-				QStringList groupInfo;
-				groupInfo << tag + " | " + QString(isotopes[i]->tagString.c_str());
-				for (unsigned int j = 0; j < vsamples.size(); j++)
-				{
-					groupInfo << QString::number(MM(j, k), 'f', 2);
-				}
-				isotopeInfo += groupInfo.join("\t") + "\n";
-			}
 		}
 
 		_mw->setStatusText("Clipboard set to isotope summary");

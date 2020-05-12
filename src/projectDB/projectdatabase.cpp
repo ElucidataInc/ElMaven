@@ -630,9 +630,7 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
                       , :s34_label_bpe                    \
                       , :min_isotope_parent_correlation   \
                       , :max_isotope_scan_diff            \
-                      , :abundance_threshold              \
-                      , :max_natural_abundance_error      \
-                      , :correct_c13_isotope_abundance    \
+                      , :link_isotope_rt_range            \
                       , :eic_type                         \
                       , :use_overlap                      \
                       , :dist_x_weight                    \
@@ -743,9 +741,7 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
 
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
     settingsQuery->bind(":max_isotope_scan_diff", BINT(settingsMap.at("maxIsotopeScanDiff")));
-    settingsQuery->bind(":abundance_threshold", BDOUBLE(settingsMap.at("abundanceThreshold")));
-    settingsQuery->bind(":max_natural_abundance_error", BDOUBLE(settingsMap.at("maxNaturalAbundanceError")));
-    settingsQuery->bind(":correct_c13_isotope_abundance", BINT(settingsMap.at("correctC13IsotopeAbundance")));
+    settingsQuery->bind(":link_isotope_rt_range", BINT(settingsMap.at("linkIsotopeRtRange")));
 
     settingsQuery->bind(":eic_type", BINT(settingsMap.at("eicType")));
 
@@ -1353,9 +1349,7 @@ map<string, variant> ProjectDatabase::loadSettings()
 
         settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
         settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
-        settingsMap["abundanceThreshold"] = variant(settingsQuery->doubleValue("abundance_threshold"));
-        settingsMap["maxNaturalAbundanceError"] = variant(settingsQuery->doubleValue("max_natural_abundance_error"));
-        settingsMap["correctC13IsotopeAbundance"] = variant(settingsQuery->integerValue("correct_c13_isotope_abundance"));
+        settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
 
         settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
 

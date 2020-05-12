@@ -12,9 +12,7 @@ IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
     
     settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(id->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(id->maxIsotopeScanDiff));
-    settings.insert("abundanceThreshold", QVariant::fromValue(id->doubleSpinBoxAbThresh));
-    settings.insert("maxNaturalAbundanceError", QVariant::fromValue(id->maxNaturalAbundanceErr));
-    settings.insert("correctC13IsotopeAbundance", QVariant::fromValue(id->isotopeC13Correction));
+    settings.insert("linkIsotopeRtRange", QVariant::fromValue(id->linkIsotopeRtRange));
 }
 
 void IsotopeDialogSettings::updateIsotopeDialogSettings(string key, string value)

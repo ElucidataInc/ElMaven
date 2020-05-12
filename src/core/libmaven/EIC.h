@@ -149,9 +149,23 @@ class EIC
     void findPeakBounds(Peak &peak);
 
     /**
-    * @brief find all parameter values for every peak in an EIC
-    * @method getPeakStatistics
-    */
+     * @brief Manually adjust the bounds of a single peak, known to this EIC.
+     * @details This method should only be used when the user explicitly
+     * specifies peak's bounds, with a better judgement than the automatic
+     * boundary detection algorithm. No additional checks, such as zero
+     * trimming at edges or spline edge detection, will be employed. In fact,
+     * peak's spline bounds will be set to be the same as the peak's raw
+     * intensity bounds.
+     * @param peak The peak to be modified. It should already exist within this
+     * EIC object's `peaks` vector.
+     * @param rtMin The lower bound on peak's RT span.
+     * @param rtMax The upper bound on peak's RT span.
+     */
+    void adjustPeakBounds(Peak& peak, float rtMin, float rtMax);
+
+    /**
+     * @brief Find all parameter values for every peak in an EIC.
+     */
     void getPeakStatistics();
 
     /**

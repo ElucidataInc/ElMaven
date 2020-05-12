@@ -101,9 +101,8 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         filterline = "";
 
         maxIsotopeScanDiff = 10;
-        maxNaturalAbundanceErr = 100;
         minIsotopicCorrelation = 0;
-        isotopeC13Correction = 0;
+        linkIsotopeRtRange = true;
 
 	C13Labeled_BPE = false;
 	N15Labeled_BPE = false;
@@ -197,17 +196,14 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
     if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
 
-    if(strcmp(key, "correctC13IsotopeAbundance") == 0)
-        isotopeC13Correction = atof(value);
-
     if(strcmp(key, "minIsotopeParentCorrelation") == 0)
         minIsotopicCorrelation = atof(value);
 
     if(strcmp(key, "maxIsotopeScanDiff") == 0)
         maxIsotopeScanDiff = atof(value);
 
-    if(strcmp(key, "maxNaturalAbundanceError") == 0)
-        maxNaturalAbundanceErr = atof(value);
+    if(strcmp(key, "linkIsotopeRtRange") == 0)
+        linkIsotopeRtRange = atoi(value);
 }
 
 std::vector<Adduct*> MavenParameters::getDefaultAdductList()

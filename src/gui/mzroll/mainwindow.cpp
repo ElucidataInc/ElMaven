@@ -4402,16 +4402,8 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 		numberofCarbons = composition["C"];
 	}
 
-	isotopeC13Correct(MMabundance, numberofCarbons, carbonIsotopeSpecies);
-    if (mavenParameters && mavenParameters->isotopeC13Correction == true) {
-		for (int i = 0, k = isotopes.size(); i < isotopes.size(); i++, k++) {
-			if (!isotopes[i])
-				continue;
-			for (int j = 0; j < vsamples.size(); j++) {
-				MM(j, k) = MMabundance(j,i);  //rows=samples, columns=isotopes
-			}
-		}
-	}
+    // does this work?
+    // isotopeC13Correct(MMabundance, numberofCarbons, carbonIsotopeSpecies);
 	return MM;
 }
 
@@ -4421,8 +4413,6 @@ void MainWindow::isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsign
 
 	qDebug() << "IsotopePlot::isotopeC13Correct() " << MM.rows() << " "
 			<< MM.cols() << " nCarbons=" << numberofCarbons << endl;
-    if (mavenParameters && mavenParameters->isotopeC13Correction == false)
-		return;
 
 	for (int i = 0; i < MM.rows(); i++) {		//samples
 		float sum = 0;

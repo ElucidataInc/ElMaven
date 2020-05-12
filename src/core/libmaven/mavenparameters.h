@@ -221,9 +221,8 @@ class MavenParameters
         string ligandDbFilename;
 
         double maxIsotopeScanDiff;
-        double maxNaturalAbundanceErr;
         double minIsotopicCorrelation;
-        bool isotopeC13Correction;
+        bool linkIsotopeRtRange;
         bool C13Labeled_BPE;
         bool N15Labeled_BPE;
         bool S34Labeled_BPE;

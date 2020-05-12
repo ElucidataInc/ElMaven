@@ -175,9 +175,7 @@
                                               , s34_label_bpe                    INTEGER \
                                               , min_isotope_parent_correlation   REAL    \
                                               , max_isotope_scan_diff            INTEGER \
-                                              , abundance_threshold              REAL    \
-                                              , max_natural_abundance_error      REAL    \
-                                              , correct_c13_isotope_abundance    INTEGER \
+                                              , link_isotope_rt_range            INTEGER \
                                               , eic_type                         INTEGER \
                                               , use_overlap                      INTEGER \
                                               , dist_x_weight                    INTEGER \

@@ -59,10 +59,9 @@
         <C13LabelBPE>1</C13LabelBPE>
         <N15LabelBPE>0</N15LabelBPE>
         <S34LabelBPE>0</S34LabelBPE>
-        <correctC13IsotopeAbundance>0</correctC13IsotopeAbundance>
+        <linkIsotopeRtRange>1</linkIsotopeRtRange>
         <minIsotopeParentCorrelation>0.20</minIsotopeParentCorrelation>
         <maxIsotopeScanDiff>5</maxIsotopeScanDiff>
-        <maxNaturalAbundanceError>100.00</maxNaturalAbundanceError>
         <eicType>0</eicType>
         <useOverlap>1</useOverlap>
         <distXWeight>10</distXWeight>
