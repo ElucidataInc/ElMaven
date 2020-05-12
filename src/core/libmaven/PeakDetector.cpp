@@ -31,7 +31,7 @@ void PeakDetector::resetProgressBar() {
 	zeroStatus = true;
 }
 
-vector<EIC*> PeakDetector::pullEICs(mzSlice* slice,
+vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                                     std::vector<mzSample*>& samples,
                                     MavenParameters* mp)
 {

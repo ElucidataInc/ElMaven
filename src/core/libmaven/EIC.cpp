@@ -775,6 +775,38 @@ void EIC::getPeakWidth(Peak &peak)
     peak.width = width + left + right;
 }
 
+Peak EIC::peakForRegion(float rtMin, float rtMax)
+{
+    Peak peak(this, 0);
+    for (size_t i = 0; i < size(); ++i) {
+        if (rt[i] < rtMin || rt[i] > rtMax)
+            continue;
+
+        if (peak.minpos == 0) {
+            peak.minpos = i;
+            peak.splineminpos = i;
+            peak.rtmin = rt[i];
+        }
+        if (peak.maxpos < i) {
+            peak.maxpos = i;
+            peak.splinemaxpos = i;
+            peak.rtmax = rt[i];
+        }
+        peak.peakArea += intensity[i];
+        peak.rtmin = rtMin;
+        peak.rtmax = rtMax;
+
+        if (intensity[i] > peak.peakIntensity) {
+            peak.peakIntensity = intensity[i];
+            peak.pos = i;
+            peak.rt = rt[i];
+            peak.peakMz = mz[i];
+        }
+    }
+
+    return peak;
+}
+
 void EIC::filterPeaks()
 {
 

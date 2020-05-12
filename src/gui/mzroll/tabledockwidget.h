@@ -164,7 +164,6 @@ public Q_SLOTS:
 
   void showFocusedGroups();
   void clearFocusedGroups();
-  void unhideFocusedGroups();
 
   // output to csv file
   void exportGroupsToSpreadsheet();
@@ -241,10 +240,8 @@ public Q_SLOTS:
   virtual void deleteGroup(PeakGroup *groupX);
 
   void sortBy(int);
-  void align();
   void deleteAll();
   void clusterGroups();
-  void findMatchingCompounds();
   void showFiltersDialog();
   void filterPeakTable();
 
@@ -268,6 +265,12 @@ public Q_SLOTS:
    * selected or not.
    */
   bool selectPeakGroup(PeakGroup *group);
+
+  /**
+   * @brief Bring up a peak-editor to edit the RT regions for individual or a
+   * set of peaks of the currently selected peak-group item.
+   */
+  void editSelectedPeakGroup();
 
 protected:
   MainWindow *_mainwindow;

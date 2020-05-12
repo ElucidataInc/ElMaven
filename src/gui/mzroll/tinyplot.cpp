@@ -1,187 +1,226 @@
+#include <limits>
+
 #include "EIC.h"
+#include "plot_axes.h"
 #include "tinyplot.h"
 
-TinyPlot::TinyPlot(QGraphicsItem* parent, QGraphicsScene *scene):QGraphicsItem(parent)  {
-	_width=100;
-	_height=100;
-	_currentXCoord=0;
-	_minXValue = _minYValue = _maxXValue = _maxYValue = 0;
-	//QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
-	//effect->setOffset(8); 
-	//setGraphicsEffect(effect);
+TinyPlot::TinyPlot(QGraphicsItem* parent,
+                   QGraphicsScene *scene)
+    : QGraphicsItem(parent)
+{
+    _width = 100;
+    _height = 100;
+    _minXValue = _minYValue = _maxXValue = _maxYValue = 0.0f;
+    _noPeakData = false;
+    _axesOffset = 18.0f;
+    _drawAxes = true;
 }
-
 
 QRectF TinyPlot::boundingRect() const
 {
 	return(QRectF(0,0,_width,_height));
 }
 
-void TinyPlot::addDataColor(QColor c) {
-	colors << c;
+void TinyPlot::clearData()
+{
+    _data.clear();
+    _minYValue = _maxYValue = _minXValue = _maxXValue = 0.0f;
 }
 
-void TinyPlot::addData(QVector<float>&v) { 
-	QVector<QPointF>d;
-	for(int i=0; i < v.size(); i++ ) d << QPointF(i,v[i]);
-	data << d;
-}
+void TinyPlot::addData(EIC* eic,
+                       float rtMin,
+                       float rtMax,
+                       bool highlightRange,
+                       float peakRtMin,
+                       float peakRtMax)
+{
+    if (eic == nullptr)
+        return;
 
-void TinyPlot::addData(vector<float>&v) { 
-	QVector<QPointF>d;
-	for(int i=0; i < v.size(); i++ ) d << QPointF(i,v[i]);
-	data << d;
-}
+    QVector<QPointF> left;
+    QVector<QPointF> center;
+    QVector<QPointF> right;
+    QVector<QPointF> baseline;
+    for (int i = 0; i < eic->size(); ++i) {
+        if (eic->rt[i] < rtMin)
+            continue;
+        if (eic->rt[i] > rtMax)
+            break;
 
-void TinyPlot::addData(EIC* eic) {
-	if(!eic) return;
-	QVector<QPointF>d;
-	for(int i=0; i<eic->size();i++) {
-		d<< QPointF( eic->rt[i], eic->intensity[i]);
-	}
-	data << d;
-}
+        if (peakRtMin < 0.0f || peakRtMax < 0.0f) {
+            center << QPointF( eic->rt[i], eic->intensity[i]);
+            if (highlightRange)
+                _noPeakData = true;
+        } else {
+            if (eic->rt[i] < peakRtMin) {
+                left << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] > peakRtMax) {
+                right << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] == peakRtMin) {
+                left << QPointF( eic->rt[i], eic->intensity[i]);
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            } else if (eic->rt[i] == peakRtMax) {
+                right << QPointF( eic->rt[i], eic->intensity[i]);
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            } else {
+                center << QPointF( eic->rt[i], eic->intensity[i]);
+            }
+        }
+        baseline << QPointF(eic->rt[i], eic->baseline[i]);
+    }
+    _data.leftRegion = left;
+    _data.peakRegion = center;
+    _data.rightRegion = right;
+    _data.baseline = baseline;
 
-
-void TinyPlot::addData(EIC* eic,float rtmin, float rtmax) {
-    if(!eic) return;
-    QVector<QPointF>d;
-    for(int i=0; i<eic->size();i++) {
-        if(eic->rt[i] >= rtmin and eic->rt[i] <= rtmax ) {
-
-            d<< QPointF( eic->rt[i], eic->intensity[i]);
+    // find bounds
+    _minXValue = _minYValue = numeric_limits<float>::max();
+    _maxXValue = _maxYValue = numeric_limits<float>::min();
+    QList<QVector<QPointF>> data = {
+        _data.leftRegion,
+        _data.peakRegion,
+        _data.rightRegion,
+        _data.baseline
+    };
+    for(QVector<QPointF> shape : data) {
+        for (auto point : shape) {
+            if (point.y() > _maxYValue)
+                _maxYValue = point.y() * 1.2;
+            if (point.y() < _minYValue)
+                _minYValue = point.y() * 0.8;
+            if (point.x() > _maxXValue)
+                _maxXValue = point.x();
+            if (point.x() < _minXValue)
+                _minXValue = point.x();
         }
     }
-    data << d;
 }
 
-QPointF TinyPlot::mapToPlot(float x,float y ) {
-	float xorigin = 0;
-	float yorigin = _height;
-	if (_maxXValue == 0 && _minXValue == 0 ) return QPointF(xorigin,yorigin);
-	if (_maxYValue == 0 && _minYValue == 0 ) return QPointF(xorigin,yorigin);
-	float px = xorigin+((x-_minXValue)/(_maxXValue-_minXValue))*_width;
-	float py = yorigin-((y-_minYValue)/(_maxYValue-_minYValue))*_height;
-	//qDebug() << x << " " << y << " " << px << " " << py << endl;
-	return QPointF(px,py);
+QPointF TinyPlot::mapToPlot(float x, float y)
+{
+    float xorigin = 0;
+    float yorigin = _height;
+    if (_maxXValue == 0 && _minXValue == 0)
+        return QPointF(xorigin, yorigin);
+    if (_maxYValue == 0 && _minYValue == 0)
+        return QPointF(xorigin, yorigin);
+
+    if (y > _maxYValue)
+        y = _maxYValue;
+
+    float px = xorigin
+               + (((x - _minXValue) / (_maxXValue - _minXValue))
+                  * (_width - _axesOffset))
+               + _axesOffset;
+
+    float py = yorigin
+               - (((y - _minYValue) / (_maxYValue - _minYValue))
+                  * (_height - _axesOffset))
+               - _axesOffset;
+
+    return QPointF(px, py);
 }
 
-float TinyPlot::predictYValue(float fx) {
-		return 0;
+void TinyPlot::_addAxes(QPainter *painter)
+{
+    Axes::paintAxes(painter,
+                    0,
+                    _minXValue,
+                    _maxXValue,
+                    _width + _axesOffset,
+                    _height - _axesOffset,
+                    _axesOffset,
+                    0,
+                    6,
+                    true);
+    Axes::paintAxes(painter,
+                    1,
+                    _minYValue,
+                    _maxYValue,
+                    _width - _axesOffset,
+                    _height - _axesOffset,
+                    0,
+                    _axesOffset,
+                    5,
+                    true);
 }
- 
 
-void TinyPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{ 
-	
-	if (_width <= 0 || _height <=0 ) return;
-	float nSeries=data.size();
-	_minXValue=_minYValue=FLT_MAX;
-	_maxXValue=_maxYValue=FLT_MIN;
+void TinyPlot::paint(QPainter *painter,
+                     const QStyleOptionGraphicsItem *,
+                     QWidget *)
+{
+    if (_width <= 0 || _height <=0 )
+        return;
 
-	if (nSeries == 0 ) return;
+    auto drawPath = [this, painter](const QVector<QPointF>& points) {
+        int nPoints = points.size();
+        QPolygonF path;
+        if (nPoints >= 1)
+            path << mapToPlot(points[0].x(), _minYValue);
+        for (auto& point : points)
+            path << mapToPlot(point.x(), point.y());
+        if (nPoints >= 1) // close path
+            path << mapToPlot(points[nPoints - 1].x(), _minYValue);
 
-	//find bounds
-    for(int i=0; i < nSeries; i++ ) {
-		for(int j=0; j < data[i].size(); j++ ) {
-			if ( data[i][j].y() > _maxYValue ) { _maxYValue=data[i][j].y()*1.2; }
-			if ( data[i][j].y() < _minYValue ) { _minYValue=data[i][j].y()*0.8; }
-			if ( data[i][j].x() > _maxXValue ) { _maxXValue=data[i][j].x()*1.2; }
-			if ( data[i][j].x() < _minXValue ) { _minXValue=data[i][j].x()*0.8; }
-		}
-	}
+        path << mapToPlot(_minXValue, _minYValue);
+        painter->drawPolygon(path);
+        return path;
+    };
 
-    float maxPointIntensity=0;
-    for(int i=0; i < points.size(); i++ ) {        
-        if(points[i].y() > maxPointIntensity) { 
-            maxPointIntensity=points[i].y();
-        }
-	}
+    QColor colorFaded = QColor::fromRgbF(_color.redF(),
+                                         _color.greenF(),
+                                         _color.blueF(),
+                                         0.1);
+    QPen penDark = QPen(_color.darker());
+    QPen penFaded = QPen(Qt::lightGray);
 
+    painter->setClipping(false);
+    painter->setBrush(colorFaded);
+    painter->setPen(penFaded);
+    drawPath(_data.leftRegion);
 
-	//qDebug() << QPointF(_minXValue,_maxXValue) << QPointF(_minYValue,_maxYValue);
+    QPen penDash(_color.darker(), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(penDash);
+    QGraphicsPolygonItem baseline(drawPath(_data.baseline));
 
-	painter->setPen(Qt::gray);   
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect());
-    QPen shadowPen(Qt::black); shadowPen.setWidth(2);
-	painter->setPen(shadowPen);
-	painter->drawLine(0,_height+2,_width+2,_height+2);
-	painter->drawLine(_width+2,2,_width+2,_height);
+    // find region to clip below the baseline
+    QPainterPath sceneBounds;
+    sceneBounds.addPolygon(scene()->sceneRect());
+    auto baselinePath = baseline.shape();
+    auto correctedPath = sceneBounds - baselinePath;
 
+    if (_noPeakData) {
+        painter->setClipping(false);
+        painter->setBrush(colorFaded);
+        painter->setPen(penFaded);
 
-	//title
-	if (!_title.isEmpty()) {
-		setToolTip(_title);
-		painter->setBrush(Qt::black);
-		painter->setPen(Qt::black);
-        float _fontH = ((float)_height)/10;
+        QString message = "NO PEAK";
+        QFont font("Helvetica", 14);
+        QFontMetrics fm(font);
+        painter->setFont(font);
+        painter->drawText((_width / 2) - (fm.width(message) / 2),
+                          (_height / 2) + (fm.height() / 2),
+                          message);
+    } else {
+        // first we paint the area below the baseline
+        painter->setBrush(colorFaded);
+        painter->setPen(penFaded);
+        painter->setClipPath(baselinePath);
+        drawPath(_data.peakRegion);
 
-        if (_fontH > 15) { _fontH = 15; }
-		if(_fontH > 3) {
-			QFont fontSmall("Helvetica",_fontH);
-			painter->setFont(fontSmall);
-            painter->drawText(5,_fontH+1,_title);
-		}
-	}
+        // setup for painting above the baseline
+        painter->setBrush(_color);
+        painter->setPen(penDark);
+        painter->setClipPath(correctedPath);
+    }
+    drawPath(_data.peakRegion);
 
-	if (maxPointIntensity) {
-		setToolTip(_title);
-		painter->setBrush(Qt::black);
-		painter->setPen(Qt::black);
-        float _fontH = ((float)_height)/10;
+    painter->setClipping(false);
+    painter->setBrush(colorFaded);
+    painter->setPen(penFaded);
+    drawPath(_data.rightRegion);
 
-        if (_fontH > 15) { _fontH = 15; }
-		if(_fontH > 3) {
-
-            int prec;
-            if (maxPointIntensity < 100) prec=1;
-            else if (maxPointIntensity < 10) prec=2;
-            else prec=0;
-
-            QString rightText = QString::number(maxPointIntensity,'f',prec);
-			QFont font("Helvetica",_fontH);
-            QFontMetrics fm( font );
-            int lagendShift = fm.size(0,rightText,0,NULL).width();
-			painter->setFont(font);
-            painter->drawText(_width-lagendShift-2,_fontH+1,rightText);
-		}
-	}
-
-
-	int nColors = colors.size();
-	if (nColors==0) colors << Qt::blue << Qt::red << Qt::yellow << Qt::green;
-
-	for(int i=0; i < nSeries; i++ ) {
-		painter->setBrush(Qt::black);
-		painter->setPen(colors[ i % nColors ] );
-
-		int nPoints = data[i].size();
-		QPolygonF path;
-		if (nPoints >= 1 ) path << mapToPlot(data[i][0].x(),_minYValue);
-		for(int j=0; j < nPoints; j++ ) {
-			path << mapToPlot(data[i][j].x(),data[i][j].y());
-		//	painter->drawEllipse(mapToPlot(data[i][j].x(), data[i][j].y()), 5,5);
-		}
-		//close path
-		if (nPoints >= 1 ) path << mapToPlot(data[i][nPoints-1].x(),_minYValue);
-		path << mapToPlot(_minXValue,_minYValue);
-
-		painter->setBrush( colors[ i % nColors ] );
-		if (_width > 20) painter->setPen(Qt::black);
-		painter->drawPolygon(path);
-	}
-
-    int pointSize = _height/30; if (pointSize<2) {pointSize=2;} if(pointSize>10) {pointSize=10;}
-	for(int i=0; i < points.size(); i++ ) {        
-		painter->setBrush(Qt::gray);
-        painter->drawEllipse(mapToPlot(points[i].x(),points[i].y()),pointSize,pointSize);
-	}
-
-	if ( _currentXCoord != 0 ) {
-		float x = _currentXCoord * (_maxXValue-_minXValue);
-		painter->setBrush(Qt::red);
-		painter->setPen(Qt::red);
-		painter->drawLine(mapToPlot(x,_minYValue),mapToPlot(x,_maxYValue));
-	}
+    if (_drawAxes)
+        _addAxes(painter);
 }

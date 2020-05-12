@@ -69,7 +69,7 @@ public Q_SLOTS:
 	void addBoxPlot(PeakGroup*);
 	void addFitLine(PeakGroup*);
     void addMS2Events(float mzmin, float mzmax);
-	void integrateRegion(float rtmin, float rtmax);
+    void integrateRegion(float rtMin, float rtMax);
 	void recompute();
 	void replot(PeakGroup*);
 	void replot();
@@ -77,7 +77,6 @@ public Q_SLOTS:
 	void print(QPaintDevice* printer);
 	void showPeakArea(Peak*);
 	void saveRetentionTime();
-	void setGalleryToEics();
 
 	void selectGroupNearRt(float rt);
 	void eicToClipboard();
@@ -187,7 +186,6 @@ Q_SIGNALS:
 	void viewSet(float, float, float, float);
     void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 	void peakMarkedEicWidget();
-    void eicUpdated();
     void groupSet(PeakGroup*);
     void compoundSet(Compound*);
 

@@ -1,456 +1,264 @@
+#include <limits>
+
 #include "Compound.h"
-#include "eiclogic.h"
-#include "eicwidget.h"
+#include "datastructures/mzSlice.h"
 #include "EIC.h"
 #include "gallerywidget.h"
 #include "globals.h"
-#include "mainwindow.h"
 #include "mavenparameters.h"
-#include "masscutofftype.h"
 #include "mzSample.h"
+#include "Peak.h"
 #include "PeakDetector.h"
+#include "PeakGroup.h"
 #include "Scan.h"
 #include "statistics.h"
-#include "tabledockwidget.h"
 #include "tinyplot.h"
 
-GalleryWidget::GalleryWidget(MainWindow* mw) {
-	this->mainwindow = mw;
-
+GalleryWidget::GalleryWidget(QWidget* parent)
+{
+    setParent(parent);
     setScene(new QGraphicsScene(this));
     scene()->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
-	setObjectName("Gallery");
-	setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    setObjectName("Gallery");
+    setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-    _rowSpacer=1;
-    _colSpacer=1;
-	_boxW=300;
-	_boxH=200;
-	recursionCheck=false;
-	plotitems.clear();
+    _minRt = 0.0f;
+    _maxRt = 0.0f;
+    _minIntensity = 0.0f;
+    _maxIntensity = 0.0f;
 
-    connect(mw->getEicWidget(), &EicWidget::eicUpdated, this, &GalleryWidget::replot);
-//	fileGallery("/home/melamud/samples/");
+    _boxW = 300;
+    _boxH = 200;
+    _axesOffset = 18;
+    recursionCheck = false;
+    _plotItems.clear();
 
-	/*
-	for(int i=0; i<100; i++ ) {
-//		QPen pen(Qt::black); pen.setWidth(2);
-//	    QGraphicsRectItem* item = scene()->addRect(QRectF(0,0,_boxW,_boxH),pen,Qt::NoBrush);
-//		plotitems << item;
-		QVector<float>data(100);
-		for(int i=0; i<100; i++) data[i] = pow((float) rand() / INT_MAX*100,10);
+    _leftMarker = nullptr;
+    _rightMarker = nullptr;
+    _markerBeingDragged = nullptr;
 
-		QVector<float>data2(100);
-		for(int i=0; i<100; i++) data2[i] = pow((float) rand() / INT_MAX*100,10);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    horizontalScrollBar()->setEnabled(false);
 
-		QVector<float>data3(100);
-		for(int i=0; i<100; i++) data3[i] = pow((float) rand() / INT_MAX*100,10);
-
-
-		TinyPlot* plot = new TinyPlot(0,scene());
-		plot->setWidth(_boxW);
-		plot->setHeight(_boxH);
-		plot->addData(data);
-		plot->addData(data2);
-		plot->addData(data3);
-		plot->setTitle(tr("This a title %1").arg(i));
-		plotitems << plot;
-	}
-	*/
+    setMouseTracking(true);
 }
 
-
-GalleryWidget::~GalleryWidget() {
-  if (scene()!=NULL) delete(scene());
-}
-
-void GalleryWidget::fileGallery(const QString &fromDir) {
-
-		QDir d(fromDir);
-		if (!d.exists()) return;
-		//qDebug() << "GalleryWidget::fileGallery: dir=" <<  fromDir << " exists=" << d.exists();
-
-		QStringList filters; //filters << "*.mzXML" << "*.mzCSV" << "*.raw" << "*.mzData" << "." << "..";
-		QFileInfoList list = d.entryInfoList( filters,
-										QDir::Files | QDir::Dirs | QDir::NoSymLinks  | QDir::Readable,
-										QDir::Name | QDir::DirsFirst | QDir::IgnoreCase);
-		if (list.size() == 0) return;
-		int fileCount=0;
-
-		Q_FOREACH ( QFileInfo fi, list ) {
-				QString filename = fi.fileName();
-				if (filename == "." || filename == "..") continue;
-
-				if (fi.isDir()) {
-		//			qDebug() << "GalleryWidget::fileGallery: dir=" << fi.fileName();
-					fileGallery(fi.absoluteFilePath()); //recurse
-				} else if (fi.isFile()) {
-					if ( 	filename.contains("mzXML",Qt::CaseSensitive) ||
-							filename.contains("mzData",Qt::CaseSensitive) ||
-							filename.contains("mzCSV",Qt::CaseSensitive) ||
-							filename.contains("mzML",Qt::CaseSensitive) ||
-							filename.contains("raw",Qt::CaseSensitive)
-							) {
-						fileCount++;
-		//				qDebug() << "\tGalleryWidget::fileGallery: file=" << fi.fileName();
-					}
-				}
-		}
-
-}
-
-void GalleryWidget::addEicPlots(std::vector<Compound*>&compounds) {
-
-	MassCalculator  mcalc;
-	MassCutoff *massCutoff=mainwindow->getUserMassCutoff();
-	int   ionizationMode=mainwindow->getIonizationMode();
-
-	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
-	if (samples.size() == 0 ) return;
-
-	for (unsigned int i=0; i < compounds.size();  i++ ) {
-		Compound* c = compounds[i];
-		if ( c == NULL ) continue;
-
-		mzSlice slice;
-		slice.compound = c;
-		slice.rtmin = 0;
-		slice.rtmax = 1e9;
-                if (!c->srmId().empty()) slice.srmId=c->srmId();
-
-        if (!c->formula().empty()) {
-            int charge = mainwindow->mavenParameters->getCharge(c);
-            double mass = mcalc.computeMass(c->formula(), charge);
-            double massCutoffW = massCutoff->massCutoffValue(mass);
-            slice.mzmin = mass-massCutoffW;
-            slice.mzmax = mass+massCutoffW;
-		}
-
-    /*	if (c->expectedRt > 0 ) {
-			slice.rtmin = c->expectedRt-2.0;
-			slice.rtmax = c->expectedRt+2.0;
-		}
-    */
-		TinyPlot* plot = addEicPlot(slice);
-                if(plot) plot->setTitle(QString(c->name().c_str()));
-		if(plot) plot->setData(0, QVariant::fromValue(c));
-	}
-	if (plotitems.size() > 0) replot();
-}
-
-
-void GalleryWidget::addEicPlots(std::vector<PeakGroup*>&groups) {
-	if (groups.size() == 0) return;
-
-    //for multiple groups. find the widest retention time window
-    float rtmin=groups[0]->minRt;
-    float rtmax=groups[0]->maxRt;
-     for(int i=1; i < groups.size(); i++ ) {
-         if(groups[i]->minRt<rtmin) rtmin=groups[i]->minRt;
-         if(groups[i]->maxRt>rtmax) rtmax=groups[i]->maxRt;
-     }
-
-	//qDebug() << "GalleryWidget::addEicPlots(groups) ";
-	for(int i=0; i < groups.size(); i++ ) {
-		PeakGroup* group = groups[i];
-		if (group == NULL) continue;
-
-		float minmz = group->minMz;
-		float maxmz = group->maxMz;
-		Compound* c = group->getCompound();
-
-   		mzSlice slice(minmz,maxmz,rtmin,rtmax);
-		if(c) slice.compound = c;
-                if(c && !c->srmId().empty()) slice.srmId=c->srmId();
-
-		TinyPlot* plot = addEicPlot(slice);
-		if ( plot ) {
-                        plot->setTitle(QString(group->getName().c_str()));
-			plot->setData(0, QVariant::fromValue(slice));
-
-			for(int j=0; j < group->peakCount(); j++ ) {
-				plot->addPoint(group->peaks[j].rt, group->peaks[j].peakIntensity);
-			}
-		}
-	}
-	replot();
-}
-
-
-void GalleryWidget::addEicPlots(std::vector<mzLink>&links) {
-
-	clear();
-
-	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
-	if (samples.size() == 0 ) return;
-
-	MassCutoff *compoundMassCutoff=mainwindow->getUserMassCutoff();
-        mzSlice& current = mainwindow->getEicWidget()->getParameters()->getMzSlice();
-
-	sort(links.begin(), links.end(), mzLink::compCorrelation);
-
-	for (unsigned int i=0; i < links.size();  i++ ) {
-		mzLink link = links[i];
-   		mzSlice slice;
-		float mass = link.mz2;
-		slice.mzmin = mass - compoundMassCutoff->massCutoffValue(mass);
-		slice.mzmax = mass + compoundMassCutoff->massCutoffValue(mass);
-		slice.rtmin = current.rtmin;
-		slice.rtmax = current.rtmax;
-		TinyPlot* plot = addEicPlot(slice);
-		if(plot) plot->setTitle(QString(link.note.c_str()));
-		if(plot) plot->setData(0, QVariant::fromValue(slice));
-
-	}
-	if (plotitems.size() > 0) replot();
-}
-
-
-void GalleryWidget::addIdividualEicPlots(std::vector<EIC*>&eics, PeakGroup*group) {
-
-    clear();
-
-    for (unsigned int i=0; i < eics.size();  i++ ) {
-        EIC* eic = eics[i];
-        if(!eic) continue;
-        QColor color = QColor::fromRgbF( eic->sample->color[0], eic->sample->color[1], eic->sample->color[2], 1.0 );
-
-        mzSlice& slice =  mainwindow->getEicWidget()->getParameters()->getMzSlice();
-
-        TinyPlot* plot = new TinyPlot(0,scene());
-        plot->setWidth(_boxW);
-        plot->setHeight(_boxH);
-        plot->addData(eic,slice.rtmin,slice.rtmax);
-        plot->addDataColor(color);
-        plot->setData(0,QVariant::fromValue(slice));
-        plot->setTitle(tr("%1 mz: %1-%2")
-                       .arg(eic->sample->sampleName.c_str())
-                       .arg(eic->mzmin)
-                       .arg(eic->mzmax));
-        if(group) {
-            for(int j=0; j < group->peakCount(); j++ ) {
-                if(group->peaks[j].getSample() ==  eic->getSample() ) {
-                    plot->addPoint(group->peaks[j].rt, group->peaks[j].peakIntensity);
-                }
-            }
-        }
-        plotitems << plot;
-        scene()->addItem(plot);
-    }
-
-    if (plotitems.size() > 0) replot();
-}
-
-void GalleryWidget::addEicPlots(std::vector<mzSlice*>&slices) {
-	clear();
-	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
-	if (samples.size() == 0 ) return;
-
-	for (unsigned int i=0; i < slices.size();  i++ ) {
-		if (slices[i] == NULL ) continue;
-   		mzSlice slice = *slices[i];
-		TinyPlot* plot = addEicPlot(slice);
-		if(plot) plot->setTitle(tr("%1-%2").arg(slice.mzmin).arg(slice.mzmax));
-		if(plot) plot->setData(0, QVariant::fromValue(slice));
-	}
-	if (plotitems.size() > 0) replot();
-}
-
-
-
-TinyPlot* GalleryWidget::addEicPlot(mzSlice& slice) {
-	std::vector<mzSample*>samples = mainwindow->getVisibleSamples();
-	if (samples.size() == 0 ) return NULL;
-    QSettings* settings = mainwindow->getSettings();
-
-    vector<EIC*> eics = PeakDetector::pullEICs(&slice,
-                                               samples,
-                                               mainwindow->mavenParameters);
-    TinyPlot* plot = addEicPlot(eics);
-    delete_all(eics);
-    return plot;
-}
-
-TinyPlot* GalleryWidget::addEicPlot(std::vector<EIC*>& eics) {
-	if(eics.size() == 0 ) return NULL;
-
-	TinyPlot* plot = new TinyPlot(0,0);
-	plot->setWidth(_boxW);
-	plot->setHeight(_boxH);
-
-	std::sort(eics.begin(), eics.end(), EIC::compMaxIntensity);
-	int insertCount=0;
-	for(int i=0; i < eics.size(); i++ ) {
-		EIC* eic = eics[i];
-		if(!eic) continue;
-		if (eic->maxIntensity == 0 ) continue;
-        QColor color = QColor::fromRgbF( eic->sample->color[0], eic->sample->color[1], eic->sample->color[2], 1.0 );
-
-		plot->addData(eic);
-		plot->addDataColor(color);
-		plot->setTitle(tr("mz: %1-%2").arg(eics[i]->mzmin).arg(eics[i]->mzmax));
-
-		insertCount++;
-	}
-	if (insertCount > 0 ) {
-		scene()->addItem(plot);
-		plotitems << plot;
-		return plot;
-	} else {
-		delete(plot);
-		return NULL;
-	}
-}
-
-
-
-void GalleryWidget::replot() {
-	qDebug() << "GalleryWidget::replot() ";
-
-    if(isVisible()){
-        if (recursionCheck == false ) {
-            recursionCheck=true;
-            drawMap();
-            recursionCheck=false;
-        }
-    }
-}
-
-void GalleryWidget::wheelEvent(QWheelEvent *event) {
-	    qDebug() << "GalleryWidget::wheelEvent() ";
-		if ( event->delta() > 0 ) {
-            if(_boxH*0.8>50) {
-                 _boxH *= 0.8; replot();
-            }
-		} else {
-            if(_boxH*1.2<height()){
-                 _boxH *= 1.2; replot();
-            }
-		}
-}
-
-void GalleryWidget::drawMap()
+GalleryWidget::~GalleryWidget()
 {
-    // gallery widget is too small
-    if (width() < 50 or height() < 50) {
-        return;
-    }
-
-    int nItems = plotitems.size();
-    if (nItems == 0)
-        return;
-
-    _boxW = width() - 30;
-    if (_boxH < 50)
-        _boxH = 50;
-    if (_boxH > height()) {
-        _boxH = height();
-    }
-
-    //_rowSpacer = _boxH/5;
-    // if  (_rowSpacer < 1) _rowSpacer=1;
-    // if  (_colSpacer < 1) _colSpacer=1;
-
-    // int nItemPerRow=width()/(_boxW+_colSpacer);
-    // if  (nItemPerRow < 1 ) nItemPerRow=1;
-    int nItemPerRow = 1;
-    int nRows = ceil(nItems / nItemPerRow);
-    if (nRows < 1)
-        nRows = 1;
-
-    int sceneW = width() - 30;
-    int sceneH = nRows * (_boxH + _rowSpacer) + _boxH + 100;
-    setSceneRect(0, 0, sceneW, sceneH);
-
-    /*
-        cerr << "GalleryWidget::drawMap() " << nItemPerRow << " " <<
-       _boxW+_rowSpacer << endl; cerr << "GalleryWidget::drawMap() width()=" <<
-       sceneW << endl; cerr << "GalleryWidget::drawMap() nItems=" << nItems <<
-       endl; cerr << "GalleryWidget::drawMap() nItemPerRow=" <<  nItemPerRow <<
-       endl; cerr << "GalleryWidget::drawMap() nRows=" <<  nRows << endl;
-*/
-    for (int i = 0; i < nItems; i++) {
-        QGraphicsItem* item = plotitems[i];
-        int row = i % nItemPerRow;
-        int col = i / nItemPerRow;
-        int xpos = row * (_colSpacer + _boxW);
-        int ypos = col * (_rowSpacer + _boxH);
-        ((TinyPlot*)item)->setWidth(_boxW);
-        ((TinyPlot*)item)->setHeight(_boxH);
-        ((TinyPlot*)item)->setPos(xpos, ypos);
-        //((QGraphicsRectItem*)item)->setRect(xpos,ypos,_boxW,_boxH);
-    }
-
-    scene()->update();
-    fitInView(0, 0, sceneW, _boxH + _rowSpacer + 50, Qt::KeepAspectRatio);
+    if (scene() != NULL)
+        delete (scene());
 }
 
-void GalleryWidget::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        QGraphicsItem* item = itemAt(event->pos());
-        if ( item != NULL )  {
-			/*
-			QVariant v = item->data(0);
-   			PeakGroup*  group =  v.value<PeakGroup*>();
-            if (group != NULL && mainwindow != NULL) {
-                mainwindow->setPeakGroup(group);
-            }
-			*/
-			QVariant v = item->data(0);
-   			Compound*  compound =  v.value<Compound*>();
-            if (compound != NULL && mainwindow != NULL) {
-                mainwindow->setCompoundFocus(compound);
-				return;
-            }
-
-			mzSlice slice =  v.value<mzSlice>();
-            if (mainwindow != NULL) {
-                mainwindow->getEicWidget()->setMzSlice(slice);
-				return;
-            }
-
-        }
-	}
+void GalleryWidget::clear()
+{
+    scene()->clear();
+    _plotItems.clear();
+    delete_all(_eics);
+    _peakBounds.clear();
+    _leftMarker = nullptr;
+    _rightMarker = nullptr;
 }
 
-void GalleryWidget::resizeEvent ( QResizeEvent * event ) {
+pair<float, float> GalleryWidget::rtBounds()
+{
+    return make_pair(_minRt, _maxRt);
+}
 
+void GalleryWidget::setRtBounds(float minRt, float maxRt)
+{
+    _minRt = minRt;
+    _maxRt = maxRt;
+    _fillPlotData();
     replot();
 }
 
-void GalleryWidget::keyPressEvent(QKeyEvent *event)
+pair<float, float> GalleryWidget::intensityBounds()
 {
-		switch (event->key()) {
-				case Qt::Key_Right:
-						break;
-				case Qt::Key_Left:
-						break;
-				default:
-					QGraphicsView::keyPressEvent(event);
-		}
-	scene()->update();
+    return make_pair(_minIntensity, _maxIntensity);
 }
 
-// new features added - Kiran
-void GalleryWidget::print() {
-    QPrinter printer;
-    QPrintDialog dialog(&printer);
+void GalleryWidget::setIntensityBounds(float minIntensity, float maxIntensity)
+{
+    _minIntensity = minIntensity;
+    _maxIntensity = maxIntensity;
+    _fillPlotData();
+    replot();
+}
 
-    if ( dialog.exec() ) {
-        printer.setOrientation(QPrinter::Landscape);;
-        QPainter painter;
-        if (! painter.begin(&printer)) { // failed to open file
-            qWarning("failed to open file, is it writable?");
-            return;
-        }
-        render(&painter);
-        painter.end();
+void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
+{
+    clear();
+    if (group == nullptr || !group->hasSlice())
+        return;
+
+    // set min/max limits on slice to cover the entire EIC range
+    // this helps with baseline calculation as well as RT adjustment
+    mzSlice slice = group->getSlice();
+    slice.rtmin = numeric_limits<float>::max();
+    slice.rtmax = numeric_limits<float>::min();
+    for (mzSample* sample : group->samples) {
+        slice.rtmin = min(slice.rtmin, sample->minRt);
+        slice.rtmax = max(slice.rtmax, sample->maxRt);
     }
+    _eics = PeakDetector::pullEICs(&slice, group->samples, mp);
+    sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
+        return first->sample->getSampleOrder()
+               < second->sample->getSampleOrder();
+    });
+
+    _maxIntensity = numeric_limits<float>::min();
+    _minRt = numeric_limits<float>::max();
+    _maxRt = numeric_limits<float>::min();
+    for (EIC* eic : _eics) {
+        if (eic == nullptr)
+            continue;
+
+        QColor color = QColor::fromRgbF(eic->sample->color[0],
+                                        eic->sample->color[1],
+                                        eic->sample->color[2],
+                                        0.5);
+
+        Peak* samplePeak = group->getSamplePeak(eic->sample);
+        float peakRtMin = -1.0f;
+        float peakRtMax = -1.0f;
+        if (samplePeak != nullptr) {
+            peakRtMin = samplePeak->rtmin;
+            peakRtMax = samplePeak->rtmax;
+            if (_maxIntensity < samplePeak->peakIntensity)
+                _maxIntensity = samplePeak->peakIntensity;
+            if (peakRtMin < _minRt)
+                _minRt = peakRtMin;
+            if (peakRtMax > _maxRt)
+                _maxRt = peakRtMax;
+        }
+
+        // creating empty plots and setting attributes
+        TinyPlot* plot = new TinyPlot(nullptr, scene());
+        plot->setWidth(_boxW);
+        plot->setHeight(_boxH);
+        plot->setAxesOffset(_axesOffset);
+        plot->setColor(color);
+        _plotItems << plot;
+        _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+    }
+
+    _minRt -= 0.5;
+    _maxRt += 0.5;
+    _maxIntensity *= 1.1f;
+
+    // we add data only at this point, once bounds have been determined
+    _fillPlotData();
 }
 
-// new features added - Kiran
-void GalleryWidget::copyImageToClipboard() {
-    QPixmap image(this->width(),this->height());
+void GalleryWidget::replot()
+{
+    if (recursionCheck == true)
+        return;
+
+    if (width() < 50 || height() < 50)
+        return;
+
+    if (_plotItems.empty())
+        return;
+
+    recursionCheck = true;
+
+    _boxW = viewport()->width();
+    _boxH = viewport()->height();
+    setSceneRect(0, 0, _boxW, _boxH);
+
+    // first we remove all existing plots on the scene
+    for (TinyPlot* plot : _plotItems) {
+        if (plot->scene() == scene())
+            scene()->removeItem(plot);
+        scene()->update();
+    }
+
+    for (int index : _indexesOfVisibleItems) {
+        TinyPlot* plot = _plotItems.at(index);
+        plot->setWidth(_boxW);
+        plot->setHeight(_boxH);
+        plot->setPos(0, 0);
+
+        // draw axes for only the last overlayed plot
+        if (index == _indexesOfVisibleItems.back()) {
+            plot->setDrawAxes(true);
+        } else {
+            plot->setDrawAxes(false);
+        }
+
+        scene()->addItem(plot);
+    }
+
+    scene()->update();
+    _drawBoundaryMarkers();
+    recursionCheck = false;
+}
+
+void GalleryWidget::_drawBoundaryMarkers()
+{
+    bool allPeaksEmpty = true;
+    float x1 = numeric_limits<float>::max();
+    float x2 = numeric_limits<float>::min();
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        TinyPlot* plot = _plotItems[index];
+
+        auto rtBounds = _peakBounds.at(eic);
+        float rtMin = rtBounds.first;
+        float rtMax = rtBounds.second;
+        if (rtMin < 0.0f && rtMax < 0.0f)
+            continue;
+
+        allPeaksEmpty = false;
+        x1 = min(x1, static_cast<float>(plot->mapToPlot(rtMin, 0.0f).x()));
+        x2 = max(x2, static_cast<float>(plot->mapToPlot(rtMax, 0.0f).x()));
+    }
+    float yStart = 0;
+    float yEnd = _boxH - _axesOffset;
+
+    if (_leftMarker != nullptr) {
+        delete _leftMarker;
+        _leftMarker = nullptr;
+    }
+    scene()->update();
+    if (_rightMarker != nullptr) {
+        delete _rightMarker;
+        _rightMarker = nullptr;
+    }
+    scene()->update();
+
+    if (allPeaksEmpty)
+        return;
+
+    _leftMarker = new QGraphicsLineItem(nullptr);
+    scene()->addItem(_leftMarker);
+    _rightMarker = new QGraphicsLineItem(nullptr);
+    scene()->addItem(_rightMarker);
+
+    QPen pen(Qt::black, 1, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
+    _leftMarker->setPen(pen);
+    _leftMarker->setZValue(1000);
+    _leftMarker->setLine(x1, yStart, x1, yEnd);
+    _leftMarker->update();
+    _rightMarker->setPen(pen);
+    _rightMarker->setZValue(1000);
+    _rightMarker->setLine(x2, yStart, x2, yEnd);
+    _rightMarker->update();
+
+    scene()->update();
+}
+
+void GalleryWidget::showPlotFor(vector<int> indexes)
+{
+    _indexesOfVisibleItems = indexes;
+    replot();
+}
+
+void GalleryWidget::copyImageToClipboard()
+{
+    QPixmap image(this->width(), this->height());
     image.fill(Qt::white);
     QPainter painter;
     painter.begin(&image);
@@ -459,19 +267,177 @@ void GalleryWidget::copyImageToClipboard() {
     QApplication::clipboard()->setPixmap(image);
 }
 
-// new features added - Kiran
-void GalleryWidget::contextMenuEvent(QContextMenuEvent * event) {
- //qDebug <<"EicWidget::contextMenuEvent(QContextMenuEvent * event) ";
+QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
+{
+    auto rect = QRectF(pos.x() - 2.0f, pos.y() - 2.0f, 4.0f, 4.0f);
+    if (_leftMarker->boundingRect().intersects(rect))
+        return _leftMarker;
+    if (_rightMarker->boundingRect().intersects(rect))
+        return _rightMarker;
+    return nullptr;
+}
 
+void GalleryWidget::_refillVisiblePlots(float x1, float x2)
+{
+    if (_plotItems.empty() || _indexesOfVisibleItems.empty())
+        return;
+
+    // lambda: given an X-coordinate, converts it to the closest RT in `eic`
+    auto toRt = [this](float coordinate, EIC* eic) {
+        float width = static_cast<float>(_boxW);
+        float offset = static_cast<float>(_axesOffset);
+        float ratio = (coordinate - offset) / (width - offset);
+        float approximatedRt = _minRt + (ratio * (_maxRt - _minRt));
+
+        float closestRealRt = approximatedRt;
+        float minDiff = numeric_limits<float>::max();
+        for (size_t i = 0; i < eic->size(); ++i) {
+            float rt = eic->rt[i];
+            if (rt < _minRt)
+                continue;
+            if (rt > _maxRt)
+                break;
+            float diff = abs(rt - approximatedRt);
+            if (diff < minDiff) {
+                closestRealRt = rt;
+                minDiff = diff;
+            }
+        }
+        return closestRealRt;
+    };
+
+    for (int index : _indexesOfVisibleItems) {
+        auto plot = _plotItems.at(index);
+        auto eic = _eics.at(index);
+
+        float peakRtMin = toRt(x1, eic);
+        float peakRtMax = toRt(x2, eic);
+        _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+        emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
+
+        plot->clearData();
+        plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
+        plot->setXBounds(_minRt, _maxRt);
+        plot->setYBounds(_minIntensity, _maxIntensity);
+    }
+    scene()->update();
+}
+
+void GalleryWidget::_fillPlotData()
+{
+    if (_plotItems.empty())
+        return;
+
+    for (size_t i = 0; i < _plotItems.size(); ++i) {
+        auto plot = _plotItems[i];
+        auto eic = _eics[i];
+        auto& peakBounds = _peakBounds.at(eic);
+        plot->addData(eic,
+                      _minRt,
+                      _maxRt,
+                      true,
+                      peakBounds.first,
+                      peakBounds.second);
+
+        // make sure all plots are scaled into a single inclusive x-y plane
+        plot->setXBounds(_minRt, _maxRt);
+        plot->setYBounds(_minIntensity, _maxIntensity);
+    }
+}
+
+void GalleryWidget::wheelEvent(QWheelEvent* event)
+{
+    event->ignore();
+}
+
+void GalleryWidget::resizeEvent(QResizeEvent* event)
+{
+    Q_UNUSED(event);
+    replot();
+}
+
+void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
+{
     event->ignore();
     QMenu menu;
 
     QAction* copyImage = menu.addAction("Copy Image to Clipboard");
     connect(copyImage, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
 
-    QAction* print = menu.addAction("Print");
-    connect(print, SIGNAL(triggered()), SLOT(print()));
-
-    QAction *selectedAction = menu.exec(event->globalPos());
+    menu.exec(event->globalPos());
     scene()->update();
+}
+
+void GalleryWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Up
+        || event->key() == Qt::Key_Down
+        || event->key() == Qt::Key_Left
+        || event->key() == Qt::Key_Right) {
+        event->ignore();
+    }
+}
+
+void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    auto mousePos = event->pos();
+
+    if (_markerBeingDragged == nullptr) {
+        if (_rightMarker != nullptr
+            && _markerNear(mousePos) == _rightMarker) {
+            setCursor(Qt::SizeHorCursor);
+        } else if (_leftMarker != nullptr
+                   && _markerNear(mousePos) == _leftMarker) {
+            setCursor(Qt::SizeHorCursor);
+        } else {
+            setCursor(Qt::ArrowCursor);
+        }
+        return;
+    }
+
+    float x = 0.0f;
+    if (_markerBeingDragged == _leftMarker) {
+        float x1 = mousePos.x();
+        float x2 = _rightMarker->line().x1();
+        if (x1 >= x2)
+            return;
+        _refillVisiblePlots(x1, x2);
+
+        x = numeric_limits<float>::max();
+        for (int index : _indexesOfVisibleItems) {
+            auto plot = _plotItems.at(index);
+            auto eic = _eics.at(index);
+            float rt = _peakBounds.at(eic).first;
+            x = min(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+        }
+    } else if (_markerBeingDragged == _rightMarker) {
+        float x1 = _leftMarker->line().x1();
+        float x2 = mousePos.x();
+        if (x1 >= x2)
+            return;
+        _refillVisiblePlots(x1, x2);
+
+        x = numeric_limits<float>::min();
+        for (int index : _indexesOfVisibleItems) {
+            auto plot = _plotItems.at(index);
+            auto eic = _eics.at(index);
+            float rt = _peakBounds.at(eic).second;
+            x = max(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+        }
+    }
+
+    auto line = _markerBeingDragged->line();
+    _markerBeingDragged->setLine(QLineF(x, line.y1(), x, line.y2()));
+    scene()->update();
+}
+
+void GalleryWidget::mousePressEvent(QMouseEvent* event)
+{
+    _markerBeingDragged = _markerNear(event->pos());
+}
+
+void GalleryWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    Q_UNUSED(event);
+    _markerBeingDragged = nullptr;
 }

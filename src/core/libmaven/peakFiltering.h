@@ -1,7 +1,6 @@
 #ifndef PEAKFILTERING_H
 #define PEAKFILTERING_H
 
-#include <iostream>
 #include "standardincludes.h"
 
 class Peak;

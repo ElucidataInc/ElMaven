@@ -116,5 +116,6 @@
         <file>images/resetzoom.png</file>
         <file>images/unmark.png</file>
         <file>images/exportmsp.png</file>
+        <file>images/editPeakGroup.png</file>
     </qresource>
 </RCC>

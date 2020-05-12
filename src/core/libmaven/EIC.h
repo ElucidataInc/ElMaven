@@ -128,6 +128,16 @@ class EIC
     */
     void getPeakWidth(Peak &peak);
 
+    /**
+     * @brief Create a peak spanning over the given RT range in this EIC.
+     * @param rtMin The left boundary of the peak.
+     * @param rtMax The right boundary of the peak.
+     * @return A `Peak` object, which only contains the RT boundary information.
+     * A call to `getPeakDetails` might still be needed to make any use of this
+     * peak in most contexts.
+     */
+    Peak peakForRegion(float rtMin, float rtMax);
+
     void setBaselineMode(BaselineMode b) { _baselineMode = b; }
 
     /**

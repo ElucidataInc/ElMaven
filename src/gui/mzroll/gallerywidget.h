@@ -3,59 +3,70 @@
 
 #include "stable.h"
 
-class TinyPlot;
-class MainWindow;
 class EIC;
-class mzLink;
+class MavenParameters;
+class mzSample;
 class PeakGroup;
-class mzSlice;
-class Compound;
+class TinyPlot;
 
 class GalleryWidget : public QGraphicsView
 {
     Q_OBJECT
 
-		public:
-				GalleryWidget(MainWindow* mw);
-                ~GalleryWidget();
+public:
+    GalleryWidget(QWidget* parent);
+    ~GalleryWidget();
 
-		public Q_SLOTS: 
-            void replot();
-			void clear() { scene()->clear(); plotitems.clear(); }
-			void addEicPlots(std::vector<PeakGroup*>& groups);
-			void addEicPlots(std::vector<Compound*>&compounds);
-			void addEicPlots(std::vector<mzSlice*>&slices);
-			void addEicPlots(std::vector<mzLink>&links);
-            void addIdividualEicPlots(std::vector<EIC*>& eics,PeakGroup* grp);
-			void fileGallery(const QString& dir);
+    vector<EIC*> eics() { return _eics; }
+    pair<float, float> rtBounds();
+    void setRtBounds(float minRt, float maxRt);
+    pair<float, float> intensityBounds();
+    void setIntensityBounds(float minIntensity, float maxIntensity);
 
-			// new features added - kiran
-			void print();
-            void copyImageToClipboard();
-			
-		private:
-				MainWindow* mainwindow;
-				QList<QGraphicsItem*> plotitems;
-				int _rowSpacer;
-				int _colSpacer;
-				int _boxW;
-				int _boxH;
-				TinyPlot* addEicPlot(std::vector<EIC*>& eics);
-				TinyPlot* addEicPlot(mzSlice& slice);
+signals:
+    void peakRegionChanged(mzSample*, float, float);
 
+public Q_SLOTS:
+    void replot();
 
-		protected:
-				void drawMap();
-				void resizeEvent ( QResizeEvent *event );
-				void wheelEvent(QWheelEvent *event);
-                void mousePressEvent(QMouseEvent *event);
-				void keyPressEvent(QKeyEvent *event);
-				bool recursionCheck;
+    void clear();
 
-				// new features added - kiran
-				void contextMenuEvent(QContextMenuEvent * event);
+    void addEicPlots(PeakGroup* grp, MavenParameters* mp);
+    void showPlotFor(vector<int> indexes);
+    void copyImageToClipboard();
 
+private:
+    QList<TinyPlot*> _plotItems;
+    int _boxW;
+    int _boxH;
+    int _axesOffset;
+    vector<int> _indexesOfVisibleItems;
+    vector<EIC*> _eics;
+    map<EIC*, pair<float, float>> _peakBounds;
+    QGraphicsLineItem* _leftMarker;
+    QGraphicsLineItem* _rightMarker;
+    QGraphicsLineItem* _markerBeingDragged;
+
+    float _minRt;
+    float _maxRt;
+    float _minIntensity;
+    float _maxIntensity;
+
+    void _drawBoundaryMarkers();
+    QGraphicsLineItem* _markerNear(QPointF pos);
+    void _refillVisiblePlots(float x1, float x2);
+    void _fillPlotData();
+
+protected:
+    bool recursionCheck;
+
+    void resizeEvent(QResizeEvent* event);
+    void wheelEvent(QWheelEvent* event);
+    void contextMenuEvent(QContextMenuEvent* event);
+    void keyPressEvent(QKeyEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
 };
 
 #endif
-

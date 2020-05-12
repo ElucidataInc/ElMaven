@@ -27,6 +27,7 @@
 #include "mzUtils.h"
 #include "notificator.h"
 #include "numeric_treewidgetitem.h"
+#include "peakeditor.h"
 #include "PeakGroup.h"
 #include "peaktabledeletiondialog.h"
 #include "saveJson.h"
@@ -1467,6 +1468,8 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
     if (treeWidget->itemAbove(item)) {
       treeWidget->setCurrentItem(treeWidget->itemAbove(item));
     }
+  } else if (e->key() == Qt::Key_E) {
+      editSelectedPeakGroup();
   }
   QDockWidget::keyPressEvent(e);
   updateStatus();
@@ -1600,28 +1603,53 @@ void TableDockWidget::showHeatMap() {
   }
 }
 
-void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
-  QMenu menu;
+void TableDockWidget::editSelectedPeakGroup()
+{
+  if (treeWidget->selectedItems().size() != 1)
+      return;
 
+  PeakGroup* group = getSelectedGroup();
+  PeakEditor* editor = _mainwindow->peakEditor();
+  if (editor == nullptr || group == nullptr)
+    return;
+
+  editor->setPeakGroup(group);
+  if (group->isIsotope())
+      editor->setPeakFilter(PeakFiltering(_mainwindow->mavenParameters, true));
+  editor->show();
+}
+
+void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
+  if (treeWidget->topLevelItemCount() < 1)
+      return;
+
+  QMenu menu;
   QAction *z0 = menu.addAction("Copy to Clipboard");
   connect(z0, SIGNAL(triggered()), this, SLOT(setClipboard()));
 
-  QAction *z3 = menu.addAction("Align Groups");
-  connect(z3, SIGNAL(triggered()), SLOT(align()));
+  QAction *z1 = menu.addAction("Edit peak-group");
+  connect(z1,
+          &QAction::triggered,
+          this,
+          &TableDockWidget::editSelectedPeakGroup);
 
-  QAction *z4 = menu.addAction("Find Matching Compound");
-  connect(z4, SIGNAL(triggered()), SLOT(findMatchingCompounds()));
+  QAction *z2 = menu.addAction("Show Consensus Spectra");
+  connect(z2, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
 
-  QAction *z5 = menu.addAction("Delete All Groups");
-  connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
+  QAction *z3 = menu.addAction("Delete All Groups");
+  connect(z3, SIGNAL(triggered()), SLOT(deleteAll()));
 
-  QAction *z6 = menu.addAction("Show Hidden Groups");
-  connect(z6, SIGNAL(triggered()), SLOT(unhideFocusedGroups()));
+  if (treeWidget->selectedItems().empty()) {
+    // disable actions not relevant when nothing is selected
+    z0->setEnabled(false);
+  }
+  if (treeWidget->selectedItems().size() != 1) {
+    // disable actions not relevant to individual peak-groups
+    z1->setEnabled(false);
+    z2->setEnabled(false);
+  }
 
-  QAction *z7 = menu.addAction("Show Consensus Spectra");
-  connect(z7, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
-
-  QAction *selectedAction = menu.exec(event->globalPos());
+  menu.exec(event->globalPos());
 }
 
 void TableDockWidget::focusInEvent(QFocusEvent *event) {
@@ -1637,26 +1665,6 @@ void TableDockWidget::focusOutEvent(QFocusEvent *event) {
     pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
     setPalette(pal);
   }
-}
-
-void TableDockWidget::findMatchingCompounds() {
-  // matching compounds
-  MassCutoff *massCutoff = _mainwindow->getUserMassCutoff();
-  float ionizationMode = _mainwindow->mavenParameters->ionizationMode;
-  for (int i = 0; i < allgroups.size(); i++) {
-    PeakGroup &g = allgroups[i];
-    int charge = _mainwindow->mavenParameters->getCharge(g.getCompound());
-    QSet<Compound *> compounds =
-        _mainwindow->massCalcWidget->findMathchingCompounds(g.meanMz,
-                                                            massCutoff,
-                                                            charge);
-    if (compounds.size() > 0)
-      Q_FOREACH (Compound *c, compounds) {
-        g.tagString += " |" + c->name();
-        break;
-      }
-  }
-  updateTable();
 }
 
 void TableDockWidget::writeQEInclusionList(QString filename) {
@@ -1707,22 +1715,6 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
     }
   }
   file.close();
-}
-
-void TableDockWidget::align() {
-  if (allgroups.size() > 0) {
-    vector<PeakGroup *> groups;
-    for (int i = 0; i < allgroups.size(); i++)
-      groups.push_back(&allgroups[i]);
-    Aligner aligner;
-    aligner.setMaxIterations(
-        _mainwindow->alignmentDialog->maxIterations->value());
-    aligner.setPolymialDegree(
-        _mainwindow->alignmentDialog->polynomialDegree->value());
-    aligner.doAlignment(groups);
-    _mainwindow->getEicWidget()->replotForced();
-    showSelectedGroup();
-  }
 }
 
 void TableDockWidget::clearClusters() {
@@ -1897,15 +1889,6 @@ void TableDockWidget::showFocusedGroups() {
 void TableDockWidget::clearFocusedGroups() {
   for (int i = 0; i < allgroups.size(); i++) {
     allgroups[i].isFocused = false;
-  }
-}
-
-void TableDockWidget::unhideFocusedGroups() {
-  clearFocusedGroups();
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    (*it)->setHidden(false);
-    ++it;
   }
 }
 
@@ -2261,6 +2244,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             td,
             &TableDockWidget::exportSpectralLib);
     return btnSaveSpectral;
+  } else if (btnName == "btnEditPeakGroup") {
+    QToolButton *btnEditPeakGroup = new QToolButton(parent);
+    btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
+    connect(btnEditPeakGroup,
+            &QToolButton::clicked,
+            td,
+            &TableDockWidget::editSelectedPeakGroup);
+    return btnEditPeakGroup;
   } else {
     return NULL;
   }
@@ -2302,6 +2293,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
@@ -2315,6 +2308,9 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2403,6 +2399,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2416,6 +2414,9 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
   toolBar->addWidget(btnMerge);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2765,6 +2766,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
   QWidgetAction *btnHeatmapelete =
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnEditPeakGroup =
+      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2777,6 +2780,9 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnHeatmapelete);
+
+  toolBar->addSeparator();
+  toolBar->addAction(btnEditPeakGroup);
 
   toolBar->addSeparator();
   toolBar->addAction(btnCluster);

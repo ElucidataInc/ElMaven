@@ -1454,11 +1454,6 @@ void PathwayWidget::showAnimationStep(float fraction) {
 	if (fraction <= 0)
 		fraction = 0;
 
-	if (tinyPlot)
-		tinyPlot->setCurrentXCoord(fraction);
-	// if (animationProgress)
-	// 	animationProgress->setValue(fraction);
-
 	if (getTimerMaxSteps() == 0)
 		return;
 

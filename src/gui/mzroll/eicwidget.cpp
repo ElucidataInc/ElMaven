@@ -9,7 +9,6 @@
 #include "classifierNeuralNet.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
-#include "gallerywidget.h"
 #include "globals.h"
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
@@ -78,9 +77,6 @@ EicWidget::EicWidget(QWidget *p) {
     _ignoreTolerance = false;
     _ignoreMouseReleaseEvent = false;
     _selectionLine = nullptr;
-
-    connect(this, &EicWidget::eicUpdated, this, &EicWidget::setGalleryToEics);
-
 }
 
 EicWidget::~EicWidget() {
@@ -170,75 +166,6 @@ void EicWidget::mouseReleaseEvent(QMouseEvent *event) {
 	}
 }
 
-void EicWidget::integrateRegion(float rtmin, float rtmax) {
-
-	eicParameters->_integratedGroup.clear();
-	QSettings *settings = getMainWindow()->getSettings();
-    eicParameters->_integratedGroup.minQuality = getMainWindow()->mavenParameters->minQuality;
-    eicParameters->_integratedGroup.setSlice(eicParameters->_slice);
-	eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
-    eicParameters->_integratedGroup.setSelectedSamples(getMainWindow()->getVisibleSamples());
-	for (int i = 0; i < eicParameters->eics.size(); i++) {
-		EIC* eic = eicParameters->eics[i];
-		Peak peak(eic, 0);
-
-		for (int j = 0; j < eic->size(); j++) {
-			if (eic->rt[j] >= rtmin && eic->rt[j] <= rtmax) {
-				if (peak.minpos == 0) {
-					peak.minpos = j;
-					peak.splineminpos = j;
-					peak.rtmin = eic->rt[j];
-				}
-				if (peak.maxpos < j) {
-					peak.maxpos = j;
-					peak.splinemaxpos = j;
-					peak.rtmax = eic->rt[j];
-				}
-				peak.peakArea += eic->intensity[j];
-				peak.rtmin = rtmin;
-				peak.rtmax = rtmax;
-				peak.mzmin = eicParameters->_slice.mzmin;
-				peak.mzmax = eicParameters->_slice.mzmax;
-
-				if (eic->intensity[j] > peak.peakIntensity) {
-					peak.peakIntensity = eic->intensity[j];
-					peak.pos = j;
-					peak.rt = eic->rt[j];
-					peak.peakMz = eic->mz[j];
-				}
-			}
-		}
-		if (peak.pos > 0) {
-
-			eic->getPeakDetails(peak);
-
-			ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
-			if (clsf != NULL) {
-				peak.quality = clsf->scorePeak(peak);
-			}
-
-			bool isIsotope = false;
-			PeakFiltering peakFiltering(getMainWindow()->mavenParameters, isIsotope);
-
-			if (!peakFiltering.filter(peak))
-			{
-				eicParameters->_integratedGroup.addPeak(peak);
-				this->showPeakArea(&peak);
-			}
-		}
-	}
-
-    eicParameters->_integratedGroup.groupStatistics();
-    int ms2Events = eicParameters->_integratedGroup.getFragmentationEvents().size();
-    if (ms2Events) {
-        float ppm = getMainWindow()->mavenParameters->fragmentTolerance;
-        string scoringAlgo = getMainWindow()->mavenParameters->scoringAlgo;
-        eicParameters->_integratedGroup.computeFragPattern(ppm);
-        eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
-    }
-    getMainWindow()->isotopeWidget->setPeakGroupAndMore(&eicParameters->_integratedGroup, true);
-}
-
 void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	//qDebug <<" EicWidget::mouseDoubleClickEvent(QMouseEvent* event)";
 	QGraphicsView::mouseDoubleClickEvent(event);
@@ -265,6 +192,46 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
         //setFocusLine(selScan->rt);
         Q_EMIT(scanChanged(selScan)); //TODO: Sahil, added while merging eicwidget
 	}
+}
+
+void EicWidget::integrateRegion(float rtMin, float rtMax)
+{
+    eicParameters->_integratedGroup.clear();
+    eicParameters->_integratedGroup.minQuality
+        = getMainWindow()->mavenParameters->minQuality;
+    eicParameters->_integratedGroup.setSlice(eicParameters->_slice);
+    eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
+    eicParameters->_integratedGroup.setSelectedSamples(
+        getMainWindow()->getVisibleSamples());
+
+    for (EIC* eic : eicParameters->eics) {
+        Peak peak = eic->peakForRegion(rtMin, rtMax);
+        peak.mzmin = eicParameters->_slice.mzmin;
+        peak.mzmax = eicParameters->_slice.mzmax;
+        eic->getPeakDetails(peak);
+        if (peak.pos > 0) {
+            ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
+            if (clsf != nullptr)
+                peak.quality = clsf->scorePeak(peak);
+
+            PeakFiltering peakFiltering(getMainWindow()->mavenParameters,
+                                        false);
+            if (!peakFiltering.filter(peak))
+                eicParameters->_integratedGroup.addPeak(peak);
+        }
+    }
+
+    eicParameters->_integratedGroup.groupStatistics();
+    int ms2Events =
+        eicParameters->_integratedGroup.getFragmentationEvents().size();
+    if (ms2Events) {
+        float ppm = getMainWindow()->mavenParameters->fragmentTolerance;
+        string scoringAlgo = getMainWindow()->mavenParameters->scoringAlgo;
+        eicParameters->_integratedGroup.computeFragPattern(ppm);
+        eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
+    }
+    getMainWindow()->isotopeWidget->setPeakGroupAndMore(
+        &eicParameters->_integratedGroup, true);
 }
 
 void EicWidget::setFocusLine(float rt) {
@@ -1112,7 +1079,6 @@ void EicWidget::replot(PeakGroup* group)
 
 	addAxes();
 	getMainWindow()->addToHistory(eicParameters->_slice);
-    emit eicUpdated();
 	scene()->update();
 }
 
@@ -1230,7 +1196,6 @@ void EicWidget::addAxes() {
 	scene()->addItem(x);
 	scene()->addItem(y);
 	y->setOffset(20);
-	y->showTicLines(true);
 	x->setZValue(0);
 	y->setZValue(0);
 	return;
@@ -1973,14 +1938,6 @@ PeakGroup* EicWidget::getSelectedGroup()
     return (eicParameters->displayedGroup());
 }
 
-void EicWidget::setGalleryToEics() {
-	//todo fix spelling
-	if (getMainWindow()->galleryDockWidget->isVisible()) {
-		getMainWindow()->galleryWidget->addIdividualEicPlots(
-                eicParameters->eics, eicParameters->displayedGroup());
-	}
-}
-
 void EicWidget::saveRetentionTime() {
 	//qDebug <<"EicWidget::saveRetentionTime() ";
     if (!eicParameters->displayedGroup()
@@ -2035,6 +1992,8 @@ void EicWidget::keyPressEvent(QKeyEvent *e) {
 		replotForced();
     case Qt::Key_Shift:
         toggleAreaIntegration(true);
+    case Qt::Key_E: {
+    }
     default:
 		break;
 	}
@@ -2291,7 +2250,6 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     scene.addItem(x);
     scene.addItem(y);
     y->setOffset(20);
-    y->showTicLines(true);
     x->setZValue(0);
     y->setZValue(0);
 

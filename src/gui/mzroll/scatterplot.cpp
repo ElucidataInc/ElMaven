@@ -1,7 +1,6 @@
 #include "comparesamplesdialog.h"
 #include "Compound.h"
 #include "eicwidget.h"
-#include "gallerywidget.h"
 #include "globals.h"
 #include "mainwindow.h"
 #include "mzSample.h"
@@ -182,26 +181,6 @@ void ScatterPlot::showSelectedGroups(QPointF from, QPointF to) {
 
 
 }
-
-void ScatterPlot::showSelectedGroupGallery(QPointF from, QPointF to) {
-    // merged with maven776 - Kiran
-
-    QSet<PeakGroup*>similar = getGroupsInRect(from,to);
-    if (similar.size() > 0 ) {
-            vector<mzSlice*>slices;
-            QSetIterator<PeakGroup*> i(similar);
-            while (i.hasNext())  {
-                    PeakGroup* groupX = i.next();
-                    mzSlice* slice = new mzSlice(groupX->minMz, groupX->maxMz, groupX->minRt-2, groupX->maxRt+2);
-                    slices.push_back(slice);
-            }
-            MainWindow* mw = (MainWindow*) parent();
-            mw->galleryWidget->clear();
-            mw->galleryWidget->addEicPlots(slices);
-            mzUtils::delete_all(slices);
-    }
-}
-
 
 void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float>vecB, vector<PeakGroup*>groups) { 
     

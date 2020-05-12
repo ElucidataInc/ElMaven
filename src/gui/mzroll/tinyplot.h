@@ -13,41 +13,56 @@ class TinyPlot: public QObject, public QGraphicsItem {
 #endif
 
 public:
-    TinyPlot(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
-	void addData(QVector<float>&v);
-	void addData(std::vector<float>&v);
-	void addData(EIC* eic);
-    void addData(EIC* eic, float rtmin, float rtmax);
-	void addDataColor(QColor c);
-	void clearData() { data.clear(); _minYValue=_maxYValue=_minXValue=_maxXValue=0; }
-	void setCurrentXCoord(float x) { _currentXCoord=x; }
-	float getCurrentXCoord() { return _currentXCoord; }
+    TinyPlot(QGraphicsItem *parent = nullptr, QGraphicsScene *scene = nullptr);
+    void addData(EIC* eic,
+                 float rtMin,
+                 float rtMax,
+                 bool highlightRange = false,
+                 float peakRtMin = -1.0f,
+                 float peakRtMax = -1.0f);
+    void setColor(QColor color) { _color = color; }
+    void clearData();
 	void setWidth(int w)  { _width=w; }
 	void setHeight(int h) { _height=h; }
-	void setTitle(QString title) { _title=title; }
-	void addPoint(float x, float y) { points << QPointF(x,y); }
-	
+    void setXBounds(float x1, float x2) { _minXValue = x1; _maxXValue = x2; }
+    void setYBounds(float y1, float y2) { _minYValue = y1; _maxYValue = y2; }
+    void setDrawAxes(bool draw) { _drawAxes = draw; }
+    bool drawAxes() { return _drawAxes; }
+    void setAxesOffset(float offset) { _axesOffset = offset; }
+    QPointF mapToPlot(float x, float y);
+
 protected:
     QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-//  void hoverEnterEvent( QGraphicsSceneHoverEvent * event);
-//	void hoverLeaveEvent( QGraphicsSceneHoverEvent * event);
-//  void mouseDoubleClickEvent (QGraphicsSceneMouseEvent * event);
-//	void mouseMoveEvent (QGraphicsSceneMouseEvent*);
-    
+    void paint(QPainter *painter,
+               const QStyleOptionGraphicsItem *option,
+               QWidget *widget);
+
 private:
-	QPointF mapToPlot(float x, float y);
-	float predictYValue(float x);
-	QString _title;
+    struct PlotData {
+        QVector<QPointF> leftRegion;
+        QVector<QPointF> peakRegion;
+        QVector<QPointF> rightRegion;
+        QVector<QPointF> baseline;
+
+        void clear() {
+            leftRegion.clear();
+            peakRegion.clear();
+            rightRegion.clear();
+            baseline.clear();
+        }
+    };
+
+    void _addAxes(QPainter* painter);
 
 	int _width;
 	int _height;
+    float _axesOffset;
+    bool _drawAxes;
 
-	float _minXValue, _minYValue, _maxXValue, _maxYValue;
-	float _currentXCoord;
-	QVector< QVector<QPointF> >data;
-	QVector<QColor> colors;
-	QVector<QPointF> points;
+    bool _noPeakData;
+    float _minXValue, _minYValue, _maxXValue, _maxYValue;
+    PlotData _data;
+    QColor _color;
 };
 
 #endif
