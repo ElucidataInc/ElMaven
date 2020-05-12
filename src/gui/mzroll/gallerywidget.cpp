@@ -119,13 +119,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
                                         eic->sample->color[2],
                                         0.5);
 
-        Peak* samplePeak = nullptr;
-        for (auto& peak : group->peaks) {
-            if (peak.getSample() == eic->sample) {
-                samplePeak = &peak;
-                break;
-            }
-        }
+        Peak* samplePeak = group->getSamplePeak(eic->sample);
         float peakRtMin = -1.0f;
         float peakRtMax = -1.0f;
         if (samplePeak != nullptr) {
