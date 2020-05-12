@@ -1166,8 +1166,12 @@ void TableDockWidget::deleteSelectedItems()
         if (item->parent() == nullptr) {
             selectedItems.prepend(item);
             nextItem = treeWidget->itemBelow(item);
+            while(nextItem && nextItem->parent() != nullptr) {
+                nextItem = treeWidget->itemBelow(nextItem);
+            }
         } else {
             selectedItems.append(item);
+            nextItem = treeWidget->itemBelow(item);
         }
     }
     if (selectedItems.isEmpty())
