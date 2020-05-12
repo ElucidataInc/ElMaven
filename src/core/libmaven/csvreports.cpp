@@ -155,6 +155,7 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
                            << "compoundId"
                            << "formula"
                            << "sample"
+                           << "adductName"
                            << "peakMz"
                            << "mzmin"
                            << "mzmax"
@@ -382,6 +383,10 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
         compoundID = compoundName;
     }
 
+    string adductName = "";
+    if (group->getAdduct() != nullptr)
+        adductName = group->getAdduct()->getName();
+
     if (selectionFlag == 2) {
         if (group->label != 'g')
             return;
@@ -417,8 +422,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
 
         _reportStream << fixed << setprecision(6) << group->groupId << SEP
                       << compoundName << SEP << compoundID << SEP << formula
-                      << SEP << sampleName << SEP << peak.peakMz << SEP
-                      << peak.mzmin << SEP << peak.mzmax << setprecision(3)
+                      << SEP << sampleName << SEP << adductName << SEP << peak.peakMz
+                      << SEP << peak.mzmin << SEP << peak.mzmax << setprecision(3)
                       << SEP << peak.rt << SEP << peak.rtmin << SEP
                       << peak.rtmax << SEP
                       << peak.quality
@@ -645,17 +650,17 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                     getline(savedPeakFile, saved);
                     vector<string> savedValues;
                     savedValues = mzUtils::split(saved, ",");
-                    if (string2float(inputValues[8])
-                            == doctest::Approx(string2float(savedValues[8])).epsilon(0.3)
-                        && string2float(inputValues[12])
-                               == doctest::Approx(string2float(savedValues[12]))
+                    if (string2float(inputValues[9])
+                            == doctest::Approx(string2float(savedValues[9])).epsilon(0.3)
+                        && string2float(inputValues[13])
+                               == doctest::Approx(string2float(savedValues[13]))
                         && inputValues[2] == savedValues[2]) {
                         double inputFloat;
                         double savedFloat;
                         for (int i = 1;
                              i < static_cast<int>(inputValues.size());
                              i++) {
-                            if (i == 1 || i == 2 || i == 3) {
+                            if (i == 1 || i == 2 || i == 3 || i == 5) {
                                 REQUIRE(inputValues[i] == savedValues[i]);
                             } else if (i == 4)
                                 continue;
@@ -887,20 +892,20 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
                     vector<string> savedValues;
                     savedValues = mzUtils::split(saved, ",");
 
-                    if (string2float(inputValues[16])
-                            == doctest::Approx(string2float(savedValues[16]))
+                    if (string2float(inputValues[17])
+                            == doctest::Approx(string2float(savedValues[17]))
                                    .epsilon(0.0005)
-                        && string2float(inputValues[12])
-                               == doctest::Approx(string2float(savedValues[12]))
+                        && string2float(inputValues[13])
+                               == doctest::Approx(string2float(savedValues[13]))
                                       .epsilon(0.0005)
                         && inputValues[4] == savedValues[4]
-                        && string2float(inputValues[11])
-                               == doctest::Approx(string2float(savedValues[11]))
+                        && string2float(inputValues[12])
+                               == doctest::Approx(string2float(savedValues[12]))
                                       .epsilon(0.0005)) {
                         double inputFloat;
                         double savedFloat;
                         for (size_t i = 3; i < inputValues.size(); i++) {
-                            if (i == 4) {
+                            if (i == 4 || i == 5) {
                                 REQUIRE(inputValues[i] == savedValues[i]);
                             } else {
                                 inputFloat = string2float(inputValues[i]);
