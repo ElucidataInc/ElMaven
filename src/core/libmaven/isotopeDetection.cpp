@@ -94,17 +94,18 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
             if (isotopePeakIntensity == 0.0f || rt == 0.0f)
                 continue;
 
-            float rtmin = parentGroup->getSlice().rtmin;
-            float rtmax = parentGroup->getSlice().rtmax;
             EIC* eic = sample->getEIC(mzmin,
                                       mzmax,
-                                      rtmin,
-                                      rtmax,
+                                      parentPeak->rtmin,
+                                      parentPeak->rtmax,
                                       1,
                                       _mavenParameters->eicType,
                                       _mavenParameters->filterline);
 
             if (eic == nullptr || eic->size() == 0)
+                continue;
+
+            if (!satisfiesCorrelation(parentPeak, mzmin, mzmax, sample))
                 continue;
 
             eic->setSmootherType(static_cast<EIC::SmootherType>(_mavenParameters->eic_smoothingAlgorithm));
@@ -120,15 +121,21 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                     peak.quality = _mavenParameters->clsf->scorePeak(peak);
             }
 
-            // filter isotopic peaks
-            PeakFiltering peakFiltering(_mavenParameters, true);
-            peakFiltering.filter(allPeaks);
-            filterIsotopePeaks(parentPeak, allPeaks, sample);
-
             // find nearest peak as long as it is within RT window
+            PeakFiltering peakFiltering(_mavenParameters, true);
             Peak* nearestPeak = nullptr;
             int dist = numeric_limits<int>::max();
             for (auto& peak : allPeaks) {
+                // if required, adjust candidate peak's bounndary
+                if (_mavenParameters->linkIsotopeRtRange) {
+                    eic->adjustPeakBounds(peak,
+                                          parentPeak->rtmin,
+                                          parentPeak->rtmax);
+                    eic->getPeakDetails(peak);
+                }
+                if (peakFiltering.filter(peak))
+                    continue;
+
                 int d = 0;
                 int minScan = min(peak.scan, parentPeak->scan);
                 int maxScan = max(peak.scan, parentPeak->scan);
@@ -139,6 +146,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                 }
                 if (d > _mavenParameters->maxIsotopeScanDiff)
                     continue;
+
                 if (d < dist) {
                     dist = d;
                     nearestPeak = &peak;
@@ -148,13 +156,6 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
             if (nearestPeak == nullptr) {
                 delete eic;
                 continue;
-            }
-
-            if (_mavenParameters->linkIsotopeRtRange) {
-                eic->adjustPeakBounds(*nearestPeak,
-                                      parentPeak->rtmin,
-                                      parentPeak->rtmax);
-                eic->getPeakDetails(*nearestPeak);
             }
             Peak isotopePeak = *nearestPeak;
             delete(eic);
@@ -172,7 +173,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
 
                 // slice for this child group has the same bounds used for
                 // pulling the isotope's EIC
-                mzSlice childSlice(mzmin, mzmax, rtmin, rtmax);
+                mzSlice childSlice(mzmin,
+                                   mzmax,
+                                   parentGroup->getSlice().rtmin,
+                                   parentGroup->getSlice().rtmax);
                 childGroup.setSlice(childSlice);
                 childGroup.setCompound(parentGroup->getCompound());
                 isotopeGroups[isotopeName] = childGroup;
@@ -183,58 +187,64 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
     return isotopeGroups;
 }
 
-void IsotopeDetection::filterIsotopePeaks(const Peak* parentPeak,
-                                          vector<Peak>& isotopePeaks,
-                                          mzSample* sample)
+bool IsotopeDetection::satisfiesCorrelation(const Peak* parentPeak,
+                                            float isotopeMzMin,
+                                            float isotopeMzMax,
+                                            mzSample* sample)
 {
     if (parentPeak == nullptr)
-        return;
-
-    auto badCorrelation = [&] (const Peak& peak) {
-        auto corr = sample->correlation(parentPeak->mzmin,
-                                        parentPeak->mzmax,
-                                        peak.mzmin,
-                                        peak.mzmax,
-                                        parentPeak->rtmin,
-                                        parentPeak->rtmax,
-                                        1, // ms level
-                                        _mavenParameters->eicType,
-                                        _mavenParameters->filterline);
-        if (corr < _mavenParameters->minIsotopicCorrelation)
-            return true;
         return false;
-    };
-    isotopePeaks.erase(remove_if(begin(isotopePeaks),
-                                 end(isotopePeaks),
-                                 badCorrelation),
-                       end(isotopePeaks));
+
+    auto corr = sample->correlation(parentPeak->mzmin,
+                                    parentPeak->mzmax,
+                                    isotopeMzMin,
+                                    isotopeMzMax,
+                                    parentPeak->rtmin,
+                                    parentPeak->rtmax,
+                                    1, // ms level
+                                    _mavenParameters->eicType,
+                                    _mavenParameters->filterline);
+    if (corr < _mavenParameters->minIsotopicCorrelation)
+        return false;
+    return true;
 }
 
 std::pair<float, float> IsotopeDetection::getIntensity(Scan* scan, float mzmin, float mzmax)
 {
-    float highestIntensity = 0.0f;
-    float rt = 0.0f;
     mzSample* sample = scan->getSample();
+    vector<Scan*> scansToCheck;
 
-    for (int i = scan->scannum - _mavenParameters->maxIsotopeScanDiff;
-         i < scan->scannum + _mavenParameters->maxIsotopeScanDiff;
-         i++) {
-        Scan* s = sample->getScan(i);
-
-        // Filter out MS2 scans when obtaining isotope peak intensities.
-        auto pos = i;
-        while(s->mslevel > 1) {
-            auto previousScan = s;
-            auto index = i < scan->scannum ? --pos : ++pos;
-            s = sample->getScan(index);
-
-            // maybe we reached the last or the first scan - which is still MS2
-            if (s == previousScan)
-                break;
-        }
-        if (s->mslevel > 1)
+    // search left for MS1 scans
+    int foundLeft = 0;
+    for (int i = scan->scannum - 1; i >= 0; --i) {
+        Scan* leftScan = sample->getScan(i);
+        if (leftScan == nullptr || leftScan->mslevel > 1)
             continue;
 
+        scansToCheck.push_back(leftScan);
+        foundLeft += 1;
+        if (foundLeft == _mavenParameters->maxIsotopeScanDiff)
+            break;
+    }
+
+    scansToCheck.push_back(scan);
+
+    // search right for MS1 scans
+    int foundRight = 0;
+    for (int i = scan->scannum + 1; i < sample->scanCount(); ++i) {
+        Scan* rightScan = sample->getScan(i);
+        if (rightScan == nullptr || rightScan->mslevel > 1)
+            continue;
+
+        scansToCheck.push_back(rightScan);
+        foundRight += 1;
+        if (foundRight == _mavenParameters->maxIsotopeScanDiff)
+            break;
+    }
+
+    float highestIntensity = 0.0f;
+    float rt = 0.0f;
+    for (Scan* s : scansToCheck) {
         vector<int> matches = s->findMatchingMzs(mzmin, mzmax);
         for (auto match : matches) {
             if (s->intensity[match] > highestIntensity) {

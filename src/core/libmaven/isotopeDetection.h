@@ -35,19 +35,21 @@ class IsotopeDetection
 	std::pair<float, float> getIntensity(Scan* scan, float mzmin, float mzmax);
 
     /**
-     * @brief Checks for parent-isotope correlation and eliminates peaks that
-     * have less correlation than the minimum threshold.
+     * @brief Checks whether parent-isotope signal correlation is above the
+     * minimum threshold.
      * @param parentPeak Pointer to the parent peak whose signal will be used to
      * check for isotope correlation.
-     * @param isotopePeaks A vector of isotope peaks each of which will be
-     * checked for correlation against parent peak signal. This vector itself
-     * will be filtered.
+     * @param isotopeMzMin The min bound on m/z range for the isotope signal.
+     * @param isotopeMzMax The max bound on m/z range for the isotope signal.
      * @param sample The sample whose parent-isotope chromatogram signals will
      * be compared.
+     * @return `true` if the calculated correlation is above the expected
+     * threshold, `false` otherwise.
      **/
-    void filterIsotopePeaks(const Peak* parentPeak,
-                            vector<Peak>& isotopePeaks,
-                            mzSample* sample);
+    bool satisfiesCorrelation(const Peak* parentPeak,
+                              float isotopeMzMin,
+                              float isotopeMzMax,
+                              mzSample* sample);
 
   private:
 	bool _C13Flag;
