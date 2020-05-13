@@ -92,6 +92,25 @@ void IsotopePlotDockWidget::setToolBar()
     connect(D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
     connect(S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
     connect(poolLabels, SIGNAL(valueChanged(double)), this, SLOT(setPoolThreshold(double)));
+
+    if (_mw->isotopePlot != nullptr) {
+        connect(_mw->isotopePlot,
+                &IsotopePlot::peakGroupSet,
+                C13,
+                &QCheckBox::setDisabled);
+        connect(_mw->isotopePlot,
+                &IsotopePlot::peakGroupSet,
+                D2,
+                &QCheckBox::setDisabled);
+        connect(_mw->isotopePlot,
+                &IsotopePlot::peakGroupSet,
+                N15,
+                &QCheckBox::setDisabled);
+        connect(_mw->isotopePlot,
+                &IsotopePlot::peakGroupSet,
+                S34,
+                &QCheckBox::setDisabled);
+    }
 }
 
 void IsotopePlotDockWidget::updateC13Flag(bool setState)
@@ -128,10 +147,11 @@ void IsotopePlotDockWidget::recompute()
 {
     if (_mw->getEicWidget()->isVisible()) {
         PeakGroup* group = _mw->getEicWidget()->getParameters()->displayedGroup();
-        if (group)
-        {
+        if (group && group->tableName().empty()) {
             group->childrenBarPlot.clear();
             _mw->isotopeWidget->updateIsotopicBarplot(group);
+        } else {
+            _mw->isotopeWidget->updateIsotopicBarplot();
         }
     }
 }

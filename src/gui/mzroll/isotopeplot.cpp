@@ -63,6 +63,9 @@ void IsotopePlot::replot()
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
     if ( group == NULL ) return;
+
+    if (!group->tableName().empty())
+        group->childrenBarPlot = group->children;
     if (group->childCountBarPlot() == 0) return;
 
     if (group->isIsotope() && group->getParent() ) {
@@ -70,6 +73,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
         return;
     }
 
+    emit peakGroupSet(!group->tableName().empty());
     clear();
 
     if (_group)
