@@ -1261,12 +1261,30 @@ void TableDockWidget::deleteSelectedItems()
         treeWidget->setCurrentItem(nextItem);
     }
 
+    /* Disconnecting selection trigger as while deleting item from
+     * tree widget selection changes and might give some null pointer
+     * for setting group which causes segment fault */
+    disconnect(treeWidget,
+               SIGNAL(itemSelectionChanged()),
+               this,
+               SLOT(showSelectedGroup()));
     Q_FOREACH (QTreeWidgetItem* item, itemsToDelete) {
         if(item)
             delete(item);
     }
+    connect(treeWidget,
+            SIGNAL(itemSelectionChanged()),
+            this,
+            SLOT(showSelectedGroup()));
+
     auto groupSelected = getSelectedGroup();
     showAllGroups();
+
+    if (allgroups.size() == 0) {
+        _mainwindow->ligandWidget->resetColor();
+        deleteLater();
+        _mainwindow->removePeaksTable(this);
+    }
 
     QTreeWidgetItemIterator it(treeWidget);
     while (*it) {
