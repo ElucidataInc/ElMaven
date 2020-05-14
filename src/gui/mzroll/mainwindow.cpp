@@ -756,6 +756,8 @@ void MainWindow::updateTablePostAlignment()
     for(auto table : tableList) {
         table->updateTableAfterAlignment();
     }
+
+    bookmarkedPeaks->updateTableAfterAlignment();
 }
 
 void MainWindow::promptUpdate(QString version)
