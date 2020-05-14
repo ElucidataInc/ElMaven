@@ -1280,10 +1280,11 @@ void TableDockWidget::deleteSelectedItems()
     auto groupSelected = getSelectedGroup();
     showAllGroups();
 
-    if (allgroups.size() == 0) {
+    if (allgroups.empty()) {
+        _mainwindow->getEicWidget()->replot(nullptr);
         _mainwindow->ligandWidget->resetColor();
-        deleteLater();
         _mainwindow->removePeaksTable(this);
+        return;
     }
 
     QTreeWidgetItemIterator it(treeWidget);
