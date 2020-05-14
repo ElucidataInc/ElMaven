@@ -446,12 +446,12 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
         }
         _reportStream << fixed << setprecision(6) << group->groupId << SEP
                       << compoundName << SEP << compoundID << SEP << formula
-                      << SEP << sampleName << SEP << 0.0f << SEP << 0.0f << SEP
-                      << 0.0f << setprecision(3) << SEP << 0.0f << SEP << 0.0f
-                      << SEP << 0.0f << SEP << 0.0f << setprecision(2) << SEP
+                      << SEP << sampleName << SEP << adductName<< SEP << 0.0f
+                      << SEP << 0.0f << SEP << 0.0f << setprecision(3) << SEP
                       << 0.0f << SEP << 0.0f << SEP << 0.0f << SEP << 0.0f
-                      << SEP << 0.0f << SEP << 0.0f << SEP << 0.0f << SEP
-                      << 0.0f << SEP << 0 << endl;
+                      << setprecision(2) << SEP << 0.0f << SEP << 0.0f << SEP
+                      << 0.0f << SEP << 0.0f << SEP << 0.0f << SEP << 0.0f
+                      << SEP << 0.0f << SEP << 0.0f << SEP << 0 << endl;
     }
 }
 
