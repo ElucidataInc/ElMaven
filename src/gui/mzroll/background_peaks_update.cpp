@@ -435,6 +435,7 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                                         vector<mzSample *> samples,
                                         MavenParameters* mavenParameters)
 {
+
     for(PeakGroup& group : groups)
     {
         auto slice = group.getSlice();
@@ -448,35 +449,27 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
         {
             for(Peak& peak :  group.peaks)
             {
-                if (eic->getSample()->getSampleName() ==
-                    peak.getSample()->getSampleName()){
+                if (eic->getSample() ==
+                    peak.getSample()){
                     eic->getPeakDetails(peak);
                 }
             }
         }
         group.groupStatistics();
-    }
 
-    MavenParameters* mavenparameters = new MavenParameters();
-    mavenparameters = mavenParameters;
-    mavenparameters->allgroups.clear();
-    for (PeakGroup& group : groups) {
-        mavenparameters->allgroups.push_back(group);
-    }
-    for (PeakGroup& group : groups) {
         if (!group.isIsotope() && group.childCount() > 0)
         {
             group.children.clear();
-            bool C13Flag = mavenparameters->C13Labeled_BPE;
-            bool N15Flag = mavenparameters->N15Labeled_BPE;
-            bool S34Flag = mavenparameters->S34Labeled_BPE;
-            bool D2Flag = mavenparameters->D2Labeled_BPE;
+            bool C13Flag = mavenParameters->C13Labeled_BPE;
+            bool N15Flag = mavenParameters->N15Labeled_BPE;
+            bool S34Flag = mavenParameters->S34Labeled_BPE;
+            bool D2Flag = mavenParameters->D2Labeled_BPE;
 
             IsotopeDetection::IsotopeDetectionType isoType;
             isoType = IsotopeDetection::PeakDetection;
 
             IsotopeDetection isotopeDetection(
-                mavenparameters,
+                mavenParameters,
                 isoType,
                 C13Flag,
                 N15Flag,
@@ -487,5 +480,10 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                 child.setTableName(group.tableName());
             }
         }
+    }
+
+    mavenParameters->allgroups.clear();
+    for (auto& group : groups) {
+        mavenParameters->allgroups.push_back(group);
     }
 }
