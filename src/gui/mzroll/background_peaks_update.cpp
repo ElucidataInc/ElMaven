@@ -438,6 +438,8 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
     for(PeakGroup& group : groups)
     {
         auto slice = group.getSlice();
+        slice.rtmin = samples[0]->minRt;
+        slice.rtmax = samples[0]->maxRt;
 
         auto eics  = PeakDetector::pullEICs(&slice,
                                            samples,
@@ -446,7 +448,8 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
         {
             for(Peak& peak :  group.peaks)
             {
-                if (eic->getSample() == peak.getSample()){
+                if (eic->getSample()->getSampleName() ==
+                    peak.getSample()->getSampleName()){
                     eic->getPeakDetails(peak);
                 }
             }

@@ -751,8 +751,7 @@ MainWindow::~MainWindow()
 void MainWindow::updateTablePostAlignment()
 {
     auto tableList = getPeakTableList();
-    if(tableList.size() == 0)
-        return;
+
     for(auto table : tableList) {
         table->updateTableAfterAlignment();
     }
