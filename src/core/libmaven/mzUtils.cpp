@@ -55,7 +55,13 @@ namespace mzUtils {
     vector<string> split(const string& str, const string& sep)
     {
         vector<string> result;
-        boost::split(result, str, boost::is_any_of(sep));
+        int start = 0;
+        int end = 0;
+        while(end != string::npos){
+            end = str.find(sep, start);
+            result.push_back(str.substr(start, end - start));
+            start = end + sep.length();
+        }
         return result;
     }
 

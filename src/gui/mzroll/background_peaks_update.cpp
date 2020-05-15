@@ -281,7 +281,6 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
                                            mavenParameters);
             emit (updateProgressBar("Filtering out false adducts…", 0, 0));
         }
-
         writeCSVRep(setName);
 }
 
@@ -302,6 +301,7 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
     vector<mzSlice*> slices = peakDetector->processCompounds(set, setName);
     processSlices(slices, setName);
     delete_all(slices);
+    Q_EMIT(updateProgressBar("Status", 0, 100));
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
@@ -312,6 +312,7 @@ void BackgroundPeakUpdate::processMassSlices() {
         align();
 
         writeCSVRep("allslices");
+        Q_EMIT(updateProgressBar("Status", 0, 100));
 }
 
 void BackgroundPeakUpdate::qtSignalSlot(const string& progressText, unsigned int completed_slices, int total_slices)
@@ -434,9 +435,12 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                                         vector<mzSample *> samples,
                                         MavenParameters* mavenParameters)
 {
+
     for(PeakGroup& group : groups)
     {
         auto slice = group.getSlice();
+        slice.rtmin = samples[0]->minRt;
+        slice.rtmax = samples[0]->maxRt;
 
         auto eics  = PeakDetector::pullEICs(&slice,
                                            samples,
@@ -445,11 +449,41 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
         {
             for(Peak& peak :  group.peaks)
             {
-                if (eic->getSample() == peak.getSample()){
+                if (eic->getSample() ==
+                    peak.getSample()){
                     eic->getPeakDetails(peak);
                 }
             }
         }
         group.groupStatistics();
+
+        if (!group.isIsotope() && group.childCount() > 0)
+        {
+            group.children.clear();
+            bool C13Flag = mavenParameters->C13Labeled_BPE;
+            bool N15Flag = mavenParameters->N15Labeled_BPE;
+            bool S34Flag = mavenParameters->S34Labeled_BPE;
+            bool D2Flag = mavenParameters->D2Labeled_BPE;
+
+            IsotopeDetection::IsotopeDetectionType isoType;
+            isoType = IsotopeDetection::PeakDetection;
+
+            IsotopeDetection isotopeDetection(
+                mavenParameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+            isotopeDetection.pullIsotopes(&group);
+            for (PeakGroup& child : group.children) {
+                child.setTableName(group.tableName());
+            }
+        }
+    }
+
+    mavenParameters->allgroups.clear();
+    for (auto& group : groups) {
+        mavenParameters->allgroups.push_back(group);
     }
 }

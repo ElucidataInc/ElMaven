@@ -137,8 +137,6 @@ Q_SIGNALS:
 
 	void alignmentComplete(QList<PeakGroup>);
 
-
-
 protected:
 	/**
 	 * [run method for a thread]

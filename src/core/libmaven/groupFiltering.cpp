@@ -33,15 +33,18 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
         // only filter for MS2 for groups having targets
         if (_mavenParameters->matchFragmentationFlag
             && peakgroups[i].getCompound() != nullptr
-            && !(peakgroups[i].isAdduct())) {
-            bool hasFragments = peakgroups[i].ms2EventCount > 0;
-            if (!hasFragments && _mavenParameters->mustHaveFragmentation) {
-                peakgroups.erase(peakgroups.begin() + i);
-                continue;
-            } else if (hasFragments && filterByMS2(peakgroups[i])) {
-                peakgroups.erase(peakgroups.begin() + i);
-                continue;
-            }
+            && !(peakgroups[i].isAdduct())
+            && peakgroups[i].ms2EventCount > 0
+            && filterByMS2(peakgroups[i])) {
+            peakgroups.erase(peakgroups.begin() + i);
+            continue;
+        }
+        if (_mavenParameters->matchFragmentationFlag
+            && !(peakgroups[i].isAdduct())
+            && _mavenParameters->mustHaveFragmentation
+            && peakgroups[i].ms2EventCount == 0) {
+            peakgroups.erase(peakgroups.begin() + i);
+            continue;
         }
 
         i++;

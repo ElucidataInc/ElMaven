@@ -35,6 +35,9 @@ public:
 public Q_SLOTS:
     void replot();
 
+signals:
+    void peakGroupSet(bool alreadyIntegrated);
+
 private Q_SLOTS:
     void showPointToolTip(QMouseEvent *event);
 	

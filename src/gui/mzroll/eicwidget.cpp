@@ -2478,6 +2478,43 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     barplot->setPos(xpos, ypos);
     barplot->setZValue(1000);
 
+    //Adding MS2 events.
+    MainWindow* mw = getMainWindow();
+    if (samples.size() <= 0)    return;
+    auto mzmin = eicparameters->_slice.mzmin;
+    auto mzmax = eicparameters->_slice.mzmax;
+
+    int count = 0;
+    for (auto const& sample : samples) {
+        if (sample->ms1ScanCount() == 0) continue;
+        for (auto const& scan : sample->scans) {
+            if (scan->mslevel == 2 && scan->precursorMz >= mzmin
+                && scan->precursorMz <= mzmax) {
+                if (scan->rt < eicparameters->_slice.rtmin
+                    || scan->rt > eicparameters->_slice.rtmax) {
+                    continue;
+                }
+
+                QColor color = QColor::fromRgbF(
+                    sample->color[0], sample->color[1], sample->color[2], 1);
+                EicPoint* p =
+                    new EicPoint((scan->rt - _minX)/(_maxX - _minX) * scene.width(),
+                                 scene.height() - ((10 - _minY) / (_maxY - _minY) * scene.height()),
+                                 NULL,
+                                 getMainWindow());
+                p->setPointShape(EicPoint::TRIANGLE_UP);
+                p->forceFillColor(true);
+                p->setScan(scan);
+                p->setSize(30);
+                p->setColor(color);
+                p->setZValue(1000);
+                p->setPeakGroup(NULL);
+                scene.addItem(p);
+                count++;
+            }
+        }
+    }
+
     //Render on pdf
     QGraphicsView view(&scene);
     view.render(painter);

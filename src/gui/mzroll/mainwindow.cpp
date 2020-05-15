@@ -751,11 +751,12 @@ MainWindow::~MainWindow()
 void MainWindow::updateTablePostAlignment()
 {
     auto tableList = getPeakTableList();
-    if(tableList.size() == 0)
-        return;
+
     for(auto table : tableList) {
         table->updateTableAfterAlignment();
     }
+
+    bookmarkedPeaks->updateTableAfterAlignment();
 }
 
 void MainWindow::promptUpdate(QString version)
@@ -4296,25 +4297,13 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
 	sort(vsamples.begin(), vsamples.end(), mzSample::compRevSampleOrder);
-	map<unsigned int, string> carbonIsotopeSpecies;
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
-	string delimIsotopic = "C13-label-";
-	string delimParent = "C12 PARENT";
 	for (int i = 0; i < group->childCountBarPlot(); i++) {
 		if (group->childrenBarPlot[i].isIsotope()) {
 			PeakGroup* isotope = &(group->childrenBarPlot[i]);
 			isotopes.push_back(isotope);
-			//Getting the labels of carbon
-			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
-				if (isotope->tagString.find(delimParent) != string::npos) {
-					carbonIsotopeSpecies.insert(pair<unsigned int, string>(0, isotope->tagString));
-				} else if (isotope->tagString.find(delimIsotopic) != string::npos) {
-					unsigned int carbonLabel = atoi(isotope->tagString.substr(delimIsotopic.size() - (isotope->tagString.size() - delimIsotopic.size() - 1)).c_str());
-					carbonIsotopeSpecies.insert(pair<unsigned int, string>(carbonLabel, isotope->tagString));
-				}
-			}
 		}
 	}
 
@@ -4329,14 +4318,6 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 		for (int j = 0; j < values.size(); j++)
 			MM(j, i) = values[j];  //rows=samples, columns=isotopes
 	}
-
-	int numberofCarbons = 0;
-        if (group->getCompound() && !group->getCompound()->formula().empty()) {
-		map<string, int> composition = MassCalculator::getComposition(
-                                group->getCompound()->formula());
-		numberofCarbons = composition["C"];
-	}
-	isotopeC13Correct(MM, numberofCarbons, carbonIsotopeSpecies);
 	normalizeIsotopicMatrix(MM);
 	return MM;
 }
