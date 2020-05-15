@@ -452,7 +452,6 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
             }
         }
         group.groupStatistics();
-        group.children.clear();
     }
 
     MavenParameters* mavenparameters = new MavenParameters();
@@ -461,30 +460,28 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
     for (PeakGroup& group : groups) {
         mavenparameters->allgroups.push_back(group);
     }
+    for (PeakGroup& group : groups) {
+        if (!group.isIsotope() && group.childCount() > 0)
+        {
+            group.children.clear();
+            bool C13Flag = mavenparameters->C13Labeled_BPE;
+            bool N15Flag = mavenparameters->N15Labeled_BPE;
+            bool S34Flag = mavenparameters->S34Labeled_BPE;
+            bool D2Flag = mavenparameters->D2Labeled_BPE;
 
-    if (mavenparameters->pullIsotopesFlag) {
-        for (PeakGroup& group : groups) {
-            if (!group.isIsotope())
-            {
-                bool C13Flag = mavenparameters->C13Labeled_BPE;
-                bool N15Flag = mavenparameters->N15Labeled_BPE;
-                bool S34Flag = mavenparameters->S34Labeled_BPE;
-                bool D2Flag = mavenparameters->D2Labeled_BPE;
+            IsotopeDetection::IsotopeDetectionType isoType;
+            isoType = IsotopeDetection::PeakDetection;
 
-                IsotopeDetection::IsotopeDetectionType isoType;
-                isoType = IsotopeDetection::PeakDetection;
-
-                IsotopeDetection isotopeDetection(
-                    mavenparameters,
-                    isoType,
-                    C13Flag,
-                    N15Flag,
-                    S34Flag,
-                    D2Flag);
-                isotopeDetection.pullIsotopes(&group);
-                for (PeakGroup& child : group.children) {
-                    child.setTableName(group.tableName());
-                }
+            IsotopeDetection isotopeDetection(
+                mavenparameters,
+                isoType,
+                C13Flag,
+                N15Flag,
+                S34Flag,
+                D2Flag);
+            isotopeDetection.pullIsotopes(&group);
+            for (PeakGroup& child : group.children) {
+                child.setTableName(group.tableName());
             }
         }
     }
