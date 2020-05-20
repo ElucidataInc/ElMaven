@@ -108,8 +108,20 @@ void FragmentDetection::findFragments(PeakGroup* precursor)
     if (parameters == nullptr)
         return;
 
+    int precursorIndex = -1;
+    for (int i = 0; i < parameters->allgroups.size(); ++i) {
+        if (&(parameters->allgroups[i]) == precursor)
+            precursorIndex = i;
+    }
+
     // backup all MS1 groups in peak-detector's parameters object
     auto msGroups = parameters->allgroups;
+
+    // if the precursor was in `parameters->allgroups` and we are going to
+    // replace the whole set at the end, we should instead be modifying the
+    // peak-group that eventually survives
+    if (precursorIndex != -1)
+        precursor = &(msGroups.at(precursorIndex));
 
     // TODO: should come from the user
     float fiveSeconds = 5.0f / 60.0f;
