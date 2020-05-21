@@ -422,10 +422,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
       item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
     heatmapBackground(item);
   }
-  if (viewType == groupView)
-    item->setText(12, QString::number(group->maxQuality, 'f', 2));
-
-  item->setText(2, QString(group->getName().c_str()));
 
   item->setIcon(0, iconsForLegend()[group->predictedLabel()]);
   QString castLabel =
@@ -1841,12 +1837,15 @@ void TableDockWidget::markGroupGood() {
   if (currentGroups.isEmpty())
       return;
 
-  for(auto group : currentGroups)
+  if(hasClassifiedGroups)
   {
-    auto label = group->labelToString(group->predictedLabel());
-    auto probability = group->predictionProbability();
-    pair<string, float> groupLabel = make_pair(label, probability);
-    undoBuffer[group->groupId] = groupLabel;
+      for(auto group : currentGroups)
+      {
+          auto label = group->labelToString(group->predictedLabel());
+          auto probability = group->predictionProbability();
+          pair<string, float> groupLabel = make_pair(label, probability);
+          undoBuffer[group->groupId] = groupLabel;
+      }
   }
   setGroupLabel('g');
 
