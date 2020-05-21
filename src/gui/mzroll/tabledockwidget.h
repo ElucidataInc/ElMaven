@@ -59,6 +59,7 @@ public:
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
   ClassificationWidget* classificationWidget;
+  bool hasClassifiedGroups;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -430,7 +431,9 @@ class PeakTableDockWidget : public TableDockWidget {
   Q_OBJECT
 
 public:
-  PeakTableDockWidget (MainWindow *mw, const QString& tableTitle="");
+  PeakTableDockWidget (MainWindow *mw, 
+                       const QString& tableTitle="", 
+                       bool classifiedGroups = false);
   ~PeakTableDockWidget();
 
 public Q_SLOTS:

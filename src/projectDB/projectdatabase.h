@@ -231,6 +231,14 @@ public:
                                   const MavenParameters* globalParams);
 
     /**
+     * @brief Loads peakgroup table and makes a map which represent
+     * the information whether the table has classified groups or not.
+     * @return Map which has tablename and a bool that tells whether the group 
+     * are classified or not.
+     */ 
+    map<string, bool> loadTableSettings();
+    
+    /**
      * @brief Load peaks for a given peak group.
      * @param group The PeakGroup for which peaks are to be loaded.
      * @param databaseId The unique database ID for peak group whose peaks are

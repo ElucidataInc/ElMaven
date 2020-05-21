@@ -1134,9 +1134,26 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
     }
 }
 
-vector<PeakGroup*>
-ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
-                            const MavenParameters* globalParams)
+map<string, bool> ProjectDatabase::loadTableSettings()
+{
+    auto tableQuery = _connection->prepare("SELECT *              \
+                                            FROM peakgroups GROUP BY table_name");
+
+    map<string, bool> tableResponse;
+    while (tableQuery->next())
+    {
+        int label = tableQuery->integerValue("predicted_label");
+        string tableName = tableQuery->stringValue("table_name");
+        bool hasClassified = false;
+        if(label >= 0)
+            hasClassified = true;
+        tableResponse[tableName] = hasClassified;
+    }
+    return tableResponse;
+}
+
+vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded, 
+                                                const MavenParameters* globalParams)
 {
     map<int, map<string, variant>> settings = loadGroupSettings();
 

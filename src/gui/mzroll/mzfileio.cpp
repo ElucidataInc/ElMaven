@@ -1032,16 +1032,22 @@ void mzFileIO::_postSampleLoadOperations()
     // create tables for stored peak groups, this can only be done in the
     // main loop
     auto tableNames = _currentProject->getTableNames();
+    auto tableSettings = _currentProject->loadTableSettings();
+
     for (auto name : tableNames) {
         auto tableName = QString::fromStdString(name);
         TableDockWidget* table = nullptr;
         for (auto t : _mainwindow->getPeakTableList())
             if (t->windowTitle() == tableName)
                 table = t;
-
+        
         if (!table
             && tableName != _mainwindow->bookmarkedPeaks->windowTitle()) {
-            _mainwindow->addPeaksTable(tableName);
+            bool hasClassifiedGroups = false;
+            auto it = tableSettings.find(name);
+            if(it != tableSettings.end())
+                hasClassifiedGroups= tableSettings[name];
+            _mainwindow->addPeaksTable(tableName, hasClassifiedGroups);
         }
     }
 

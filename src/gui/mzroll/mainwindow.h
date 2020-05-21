@@ -352,7 +352,8 @@ public Q_SLOTS:
 	}
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
-    TableDockWidget* addPeaksTable(const QString& tableTitle="");
+    TableDockWidget* addPeaksTable(const QString& tableTitle="", 
+	                               bool hasClassifiedGroups = false);
 	//SpectralHitsDockWidget* addSpectralHitsTable(QString title); //TODO: Sahil - Kiran, Added while merging mainwindow
 
 	//Added when merging with Maven776 - Kiran
