@@ -270,10 +270,14 @@ void GalleryWidget::copyImageToClipboard()
 QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
 {
     auto rect = QRectF(pos.x() - 2.0f, pos.y() - 2.0f, 4.0f, 4.0f);
-    if (_leftMarker->boundingRect().intersects(rect))
+    if (_leftMarker != nullptr
+        && _leftMarker->boundingRect().intersects(rect)) {
         return _leftMarker;
-    if (_rightMarker->boundingRect().intersects(rect))
+    }
+    if (_rightMarker != nullptr
+        && _rightMarker->boundingRect().intersects(rect)) {
         return _rightMarker;
+    }
     return nullptr;
 }
 
@@ -332,6 +336,7 @@ void GalleryWidget::_fillPlotData()
         auto plot = _plotItems[i];
         auto eic = _eics[i];
         auto& peakBounds = _peakBounds.at(eic);
+        plot->clearData();
         plot->addData(eic,
                       _minRt,
                       _maxRt,
