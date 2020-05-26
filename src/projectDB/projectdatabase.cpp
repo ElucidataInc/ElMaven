@@ -246,7 +246,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :predicted_label                    \
                      , :prediction_probability             \
                      , :prediction_inference_key           \
-                     , :prediction_inference_value         )");
+                     , :prediction_inference_value         \
+                     , :correlated_groups                  )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -340,6 +341,34 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
         keyString.pop_back();
         valueString.pop_back();
     }
+
+    string correlatedGroups = "";
+    if (group->parent == nullptr && 
+        (group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::Correlation
+        || group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::CorrelationAndPattern))
+    {
+        correlatedGroups += "{";
+        auto correlatedGroupMap = group->getCorrelatedGroups();
+        int size = correlatedGroupMap.size();
+        int count = 0;
+        for(auto it = correlatedGroupMap.begin(); 
+        it != correlatedGroupMap.end(); 
+        it++)
+        {   
+            count++;
+            correlatedGroups += mzUtils::integer2string(it->first);
+            correlatedGroups += ": ";
+            correlatedGroups += mzUtils::float2string(it->second, 2);
+            if(count != size)
+                correlatedGroups += ", ";
+        }
+        correlatedGroups += "}";
+    }
+
+    groupsQuery->bind(":correlated_groups", correlatedGroups);
+
     groupsQuery->bind(":prediction_inference_key", keyString);
     groupsQuery->bind(":prediction_inference_value", valueString);
 
@@ -1215,6 +1244,26 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         string compoundDB = groupsQuery->stringValue("compound_db");
         string compoundName = groupsQuery->stringValue("compound_name");
 
+        string correlatedGroups = groupsQuery->stringValue("correlated_groups");
+        if (correlatedGroups.size() > 0)
+        {  
+            correlatedGroups = correlatedGroups.substr(1, 
+                               correlatedGroups.size() - 2);
+            int correlatedGroupId;
+            float correlationFactor;
+            vector<string> eachGroup;
+            mzUtils::splitNew(correlatedGroups, ", ", eachGroup);  
+            for (auto groupValue : eachGroup)
+            {
+                vector<string> values;
+                mzUtils::splitNew(groupValue, ": ", values);
+                correlatedGroupId = mzUtils::string2integer(values[0]);
+                correlationFactor = mzUtils::string2float(values[1]);
+                group->addCorrelatedGroup(correlatedGroupId,
+                                          correlationFactor);
+            }    
+        }
+        
         string srmId = groupsQuery->stringValue("srm_id");
         if (!srmId.empty())
             group->setSrmId(srmId);
