@@ -30,6 +30,9 @@ public:
     bool drawAxes() { return _drawAxes; }
     void setAxesOffset(float offset) { _axesOffset = offset; }
     QPointF mapToPlot(float x, float y);
+    void setDrawNoPeakMessages(bool draw) { _drawNoPeakMessages = draw; }
+    void setNoPeakMessage(QString message) { _noPeakMessage = message; }
+    void setNoPeakSubMessage(QString message) { _noPeakSubMessage = message; }
 
 protected:
     QRectF boundingRect() const;
@@ -63,6 +66,9 @@ private:
     float _minXValue, _minYValue, _maxXValue, _maxYValue;
     PlotData _data;
     QColor _color;
+    bool _drawNoPeakMessages;
+    QString _noPeakMessage;
+    QString _noPeakSubMessage;
 };
 
 #endif

@@ -28,9 +28,7 @@ signals:
 
 public Q_SLOTS:
     void replot();
-
     void clear();
-
     void addEicPlots(PeakGroup* grp, MavenParameters* mp);
     void showPlotFor(vector<int> indexes);
     void copyImageToClipboard();
@@ -56,6 +54,8 @@ private:
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
     void _fillPlotData();
+    bool _visibleItemsHavePeakData();
+    void _createNewPeak();
 
 protected:
     bool recursionCheck;

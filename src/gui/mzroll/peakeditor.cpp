@@ -111,29 +111,35 @@ void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
     if (eicFoundAt == end(eics))
         return;
 
+    int peakIndexForSample = -1;
     EIC* eic = *eicFoundAt;
     bool deletePeak = false;
-    for (Peak& peak : _group->peaks) {
+    for (int i = 0; i < _group->peaks.size(); ++i) {
+        Peak& peak = _group->peaks[i];
         if (peak.getSample() != peakSample)
             continue;
+        peakIndexForSample = i;
+    }
 
-        Peak newPeak = eic->peakForRegion(rtMin, rtMax);
-        newPeak.mzmin = _group->getSlice().mzmin;
-        newPeak.mzmax = _group->getSlice().mzmax;
-        eic->getPeakDetails(newPeak);
-        if (newPeak.pos > 0) {
-            if (_clsf != nullptr)
-                newPeak.quality = _clsf->scorePeak(newPeak);
+    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
+    newPeak.mzmin = _group->getSlice().mzmin;
+    newPeak.mzmax = _group->getSlice().mzmax;
+    eic->getPeakDetails(newPeak);
+    if (newPeak.pos > 0) {
+        if (_clsf != nullptr)
+            newPeak.quality = _clsf->scorePeak(newPeak);
 
-            if (!_peakFilter.filter(newPeak)) {
-                peak = newPeak;
+        if (!_peakFilter.filter(newPeak)) {
+            if (peakIndexForSample < 0) {
+                _group->addPeak(newPeak);
             } else {
-                deletePeak = true;
+                _group->peaks[peakIndexForSample] = newPeak;
             }
         } else {
             deletePeak = true;
         }
-        break;
+    } else {
+        deletePeak = true;
     }
 
     if (deletePeak) {

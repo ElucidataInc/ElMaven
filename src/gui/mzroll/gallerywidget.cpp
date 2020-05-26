@@ -139,6 +139,9 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         plot->setHeight(_boxH);
         plot->setAxesOffset(_axesOffset);
         plot->setColor(color);
+        plot->setNoPeakMessage("NO PEAK");
+        plot->setNoPeakSubMessage("(Press \"C\" in this region, "
+                                  "to create one)");
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
     }
@@ -175,11 +178,13 @@ void GalleryWidget::replot()
         scene()->update();
     }
 
+    bool drawNoPeakMessage = !_visibleItemsHavePeakData();
     for (int index : _indexesOfVisibleItems) {
         TinyPlot* plot = _plotItems.at(index);
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
         plot->setPos(0, 0);
+        plot->setDrawNoPeakMessages(drawNoPeakMessage);
 
         // draw axes for only the last overlayed plot
         if (index == _indexesOfVisibleItems.back()) {
@@ -350,6 +355,54 @@ void GalleryWidget::_fillPlotData()
     }
 }
 
+bool GalleryWidget::_visibleItemsHavePeakData()
+{
+    bool anyHasPeakData = false;
+    for (int index : _indexesOfVisibleItems) {
+        auto eic = _eics.at(index);
+        auto& peakBounds = _peakBounds.at(eic);
+        if (peakBounds.first >= 0.0f && peakBounds.second >= 0.0f)
+            anyHasPeakData = true;
+    }
+    return anyHasPeakData;
+}
+
+void GalleryWidget::_createNewPeak()
+{
+    if (_visibleItemsHavePeakData())
+        return;
+
+    int presentPeaks = 0;
+    float rtMinMean = 0.0f;
+    float rtMaxMean = 0.0f;
+    for (auto& elem : _peakBounds) {
+        auto& peakBounds = elem.second;
+        if (peakBounds.first < 0.0f && peakBounds.second < 0.0f)
+            continue;
+
+        rtMinMean += peakBounds.first;
+        rtMaxMean += peakBounds.second;
+        ++presentPeaks;
+    }
+    if (rtMinMean == 0.0f && rtMaxMean == 0.0f) {
+        float rtCenter = _minRt + ((_maxRt - _minRt) / 2.0f);
+        float twoSeconds = 2.0f / 60.0f;
+        rtMinMean = max(rtCenter - twoSeconds, _minRt + twoSeconds);
+        rtMaxMean = min(rtCenter + twoSeconds, _maxRt - twoSeconds);
+    } else {
+        rtMinMean /= presentPeaks;
+        rtMaxMean /= presentPeaks;
+    }
+
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        _peakBounds[eic] = make_pair(rtMinMean, rtMaxMean);
+        emit peakRegionChanged(eic->sample, rtMinMean, rtMaxMean);
+    }
+    _fillPlotData();
+    replot();
+}
+
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
     event->ignore();
@@ -380,6 +433,8 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
         || event->key() == Qt::Key_Left
         || event->key() == Qt::Key_Right) {
         event->ignore();
+    } else if (event->key() == Qt::Key_C) {
+        _createNewPeak();
     }
 }
 

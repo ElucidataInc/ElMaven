@@ -14,6 +14,7 @@ TinyPlot::TinyPlot(QGraphicsItem* parent,
     _noPeakData = false;
     _axesOffset = 18.0f;
     _drawAxes = true;
+    _drawNoPeakMessages = true;
 }
 
 QRectF TinyPlot::boundingRect() const
@@ -52,6 +53,7 @@ void TinyPlot::addData(EIC* eic,
             if (highlightRange)
                 _noPeakData = true;
         } else {
+            _noPeakData = false;
             if (eic->rt[i] < peakRtMin) {
                 left << QPointF( eic->rt[i], eic->intensity[i]);
             } else if (eic->rt[i] > peakRtMax) {
@@ -195,13 +197,17 @@ void TinyPlot::paint(QPainter *painter,
         painter->setBrush(colorFaded);
         painter->setPen(penFaded);
 
-        QString message = "NO PEAK";
-        QFont font("Helvetica", 14);
-        QFontMetrics fm(font);
-        painter->setFont(font);
-        painter->drawText((_width / 2) - (fm.width(message) / 2),
-                          (_height / 2) + (fm.height() / 2),
-                          message);
+        if (_drawNoPeakMessages) {
+            QFont font("Helvetica", 14);
+            QFontMetrics fm(font);
+            painter->setFont(font);
+            painter->drawText((_width / 2) - (fm.width(_noPeakMessage) / 2),
+                              (_height / 2) - fm.height(),
+                              _noPeakMessage);
+            painter->drawText((_width / 2) - (fm.width(_noPeakSubMessage) / 2),
+                              (_height / 2) + fm.height(),
+                              _noPeakSubMessage);
+        }
     } else {
         // first we paint the area below the baseline
         painter->setBrush(colorFaded);
