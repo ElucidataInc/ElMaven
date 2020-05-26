@@ -131,6 +131,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   connect(treeWidget,
           SIGNAL(itemSelectionChanged()),
           SLOT(showSelectedGroup()));
+
   connect(treeWidget,
           &QTreeWidget::itemExpanded,
           this,
@@ -150,6 +151,13 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SLOT(setProgressBar(QString, int, int, bool)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
+          SLOT(setProgressBar(QString, int, int)));
+  
+  // selections in correlation table will trigger selection in this table
+  connect(mw->getCorrelationTable(),
+          SIGNAL(groupIdSelected(int)),
+          this,
+          SLOT(displayNextGroupInCorrelationTable(int)));
 
   setupFiltersDialog();
 
@@ -219,6 +227,23 @@ void TableDockWidget::undoLabel()
         undoBuffer[group->groupId] = updatedLabel;
         updateTable();
     }
+}
+
+void TableDockWidget::displayNextGroupInCorrelationTable(int groupId)
+{
+  if (_mainwindow->getCorrelationTable()->currentTable() == this) {
+    auto wasBlocked = treeWidget->blockSignals(true);
+    for (auto item : _cycleBuffer) {
+      if (item->text(1).toInt() == groupId) {
+        treeWidget->setCurrentItem(item);
+        treeWidget->scrollTo(treeWidget->currentIndex(),
+                              QAbstractItemView::PositionAtCenter);
+        showSelectedGroup();
+        break;
+      }
+    }
+    treeWidget->blockSignals(wasBlocked);
+  }
 }
 
 void TableDockWidget::setupPeakTable() {
@@ -1561,7 +1586,7 @@ void TableDockWidget::_refreshCycleBuffer()
   _mainwindow->getCorrelationTable()->setVisible(true);
   _mainwindow->getCorrelationTable()->setReferencePeakGroup(selectedGroup);
   _mainwindow->getCorrelationTable()->setCurrentTable(this);
-
+  
   QTreeWidgetItemIterator itr(treeWidget);
   while (*itr) {
     QTreeWidgetItem *item = (*itr);
@@ -3067,25 +3092,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
           _mainwindow->getEicWidget(),
           &EicWidget::unSetPeakTableGroup);
 
-  // selections in correlation table will trigger selection in this table
-  connect(_mainwindow->getCorrelationTable(),
-          &CorrelationTable::groupIdSelected,
-          [this] (int groupId) {
-            if (_mainwindow->getCorrelationTable()->currentTable() == this) {
-              auto wasBlocked = treeWidget->blockSignals(true);
-              for (auto item : _cycleBuffer) {
-                if (item->text(1).toInt() == groupId) {
-                  treeWidget->setCurrentItem(item);
-                  treeWidget->scrollTo(treeWidget->currentIndex(),
-                                       QAbstractItemView::PositionAtCenter);
-                  showSelectedGroup();
-                  break;
-                }
-              }
-              treeWidget->blockSignals(wasBlocked);
-            }
-          });
-
   deletionDialog = new PeakTableDeletionDialog(this);
 }
 
@@ -3100,6 +3106,7 @@ void PeakTableDockWidget::destroy()
   if (_mainwindow->getCorrelationTable()->currentTable() == this) {
     _mainwindow->getCorrelationTable()->clearCorrelation();
     _mainwindow->getCorrelationTable()->setVisible(false);
+    _mainwindow->getCorrelationTable()->setCurrentTable(nullptr);
   }
   cleanUp();
   deleteLater();

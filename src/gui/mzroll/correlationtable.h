@@ -28,6 +28,9 @@ public:
 signals:
     void groupIdSelected(int);
 
+public Q_SLOTS:
+    void displayNext();
+
 private:
     Ui::CorrelationTable *ui;
     PeakGroup* _referenceGroup;

@@ -429,6 +429,13 @@ using namespace mzUtils;
 
 	setWindowIcon(QIcon(":/images/icon.png"));
 
+    //seeting correlation table 
+    _correlationTable = new CorrelationTable;
+    addDockWidget(Qt::BottomDockWidgetArea,
+                  _correlationTable,
+                  Qt::Horizontal);
+    _correlationTable->setVisible(false);
+
 	//dock widgets
     setDockOptions(QMainWindow::AllowNestedDocks
                    | QMainWindow::AllowTabbedDocks
@@ -846,12 +853,6 @@ using namespace mzUtils;
 			settings->sync();
 		}
 	}
-
-    _correlationTable = new CorrelationTable;
-    addDockWidget(Qt::BottomDockWidgetArea,
-                  _correlationTable,
-                  Qt::Horizontal);
-    _correlationTable->setVisible(false);
 
     _usageTracker = new Mixpanel;
     _infoDialog = new InfoDialog(this);

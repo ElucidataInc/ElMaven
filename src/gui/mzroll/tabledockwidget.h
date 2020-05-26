@@ -19,6 +19,7 @@ class PeakDetector;
 class PeakGroupTreeWidget;
 class MultiSelectComboBox;
 class ClassificationWidget;
+class CorrelationTable;
 
 using namespace std;
 
@@ -227,6 +228,8 @@ public slots:
   void exportJsonToPolly(QString writableTempDir, QString jsonfileName, bool addMLInfo);
 
   void showClusterDialog();
+
+  void displayNextGroupInCorrelationTable(int groupId);
 
   inline void selectedPeaks() {
     peakTableSelection = PeakTableSubsetType::Selected;

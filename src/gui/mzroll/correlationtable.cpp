@@ -11,12 +11,15 @@ CorrelationTable::CorrelationTable(QWidget *parent) :
     _referenceGroup = nullptr;
 
     connect(ui->treeWidget,
-            &QTreeWidget::itemSelectionChanged,
-            [this] {
-                int currentGroupId =
+            SIGNAL(itemSelectionChanged()),
+            SLOT(displayNext()));
+}
+
+void CorrelationTable::displayNext()
+{
+    int currentGroupId =
                     ui->treeWidget->currentItem()->text(0).toInt();
-                emit groupIdSelected(currentGroupId);
-            });
+    emit groupIdSelected(currentGroupId);
 }
 
 CorrelationTable::~CorrelationTable()
