@@ -562,18 +562,18 @@ void EicWidget::addEICLines(bool showSpline,
         }
 
         // sample stacking
-        float peakRtMin = numeric_limits<float>::min();
-        float peakRtMax = numeric_limits<float>::max();
+        float peakRtMin = -1.0f;
+        float peakRtMax = -1.0f;
         int zValue = 0;
         for (int j = 0; j < peaks.size(); j++) {
             if (peaks[j].getSample() == eic->getSample()) {
                 zValue = j;
-                if (!_areaIntegration) {
-                    peakRtMin = peaks[j].rtmin;
-                    peakRtMax = peaks[j].rtmax;
-                } else {
+                if (_areaIntegration) {
                     peakRtMin = rtMin;
                     peakRtMax = rtMax;
+                } else {
+                    peakRtMin = peaks[j].rtmin;
+                    peakRtMax = peaks[j].rtmax;
                 }
                 break;
             }
@@ -592,6 +592,11 @@ void EicWidget::addEICLines(bool showSpline,
 
             if (showEic) {
                 if (overlayingIntegratedArea) {
+                    if (peakRtMin < 0.0f && peakRtMax < 0.0f) {
+                        // the peak does not exist, fade entire EIC
+                        addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
+                        continue;
+                    }
                     if (peakRtMin > 0.0f && eic->rt[j] < peakRtMin) {
                         addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
                         int nextIdx = j + 1;
@@ -612,7 +617,6 @@ void EicWidget::addEICLines(bool showSpline,
                         addPoint(lineEicRight, eic->rt[j], eic->intensity[j]);
                     }
                     if (eic->rt[j] >= peakRtMin && eic->rt[j] <= peakRtMax) {
-                        // TODO: ensure visual and integrated area match
                         addPoint(lineEic, eic->rt[j], eic->intensity[j]);
                     }
                 } else {
