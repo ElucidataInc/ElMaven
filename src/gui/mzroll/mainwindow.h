@@ -298,8 +298,11 @@ public Q_SLOTS:
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
-	void setProgressBar(QString, int step, int totalSteps);
-        void setStatusText(QString text = QString::null, bool highPriority = false);
+    void setProgressBar(QString text,
+                        int progress,
+                        int totalSteps,
+                        bool highPriority = false);
+    void setStatusText(QString text = "");
 	void setMzValue();
 	void setMzValue(float mz1, float mz2 = 0.0);
 	void loadModel();
@@ -531,6 +534,7 @@ private:
     vector<string> unloadableFiles;
 
     QProgressDialog* _loadProgressDialog;
+    int _statusPriority;
 
     /**
      * @brief A small tool that allows the user to manage their compound

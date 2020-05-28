@@ -5,6 +5,7 @@
 
 ProjectSaveWorker::ProjectSaveWorker(MainWindow *mw)
     : _mw(mw)
+    , _isTempProject(false)
 {
 }
 
@@ -51,7 +52,8 @@ void ProjectSaveWorker::_saveSqliteProject()
     while (_mw->fileLoader->sqliteDbSaveInProgress());
 
     auto success = _mw->fileLoader->writeSQLiteProject(_currentProjectName,
-                                                       _saveRawData);
+                                                       _saveRawData,
+                                                       _isTempProject);
     if (!success)
         _currentProjectName = "";
 }
@@ -74,6 +76,7 @@ void ProjectSaveWorker::_savePeakGroupInSqlite(shared_ptr<PeakGroup> group)
 TempProjectSaveWorker::TempProjectSaveWorker(MainWindow *mw)
     : ProjectSaveWorker(mw)
 {
+    _isTempProject = true;
 }
 
 TempProjectSaveWorker::~TempProjectSaveWorker()

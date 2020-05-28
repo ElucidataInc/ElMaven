@@ -298,7 +298,7 @@ protected:
   void focusOutEvent(QFocusEvent *event);
 
 Q_SIGNALS:
-  void updateProgressBar(QString, int, int);
+  void updateProgressBar(QString, int, int, bool = false);
   void UploadPeakBatch();
   void renderedPdf();
 

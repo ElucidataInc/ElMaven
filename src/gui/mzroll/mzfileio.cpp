@@ -813,7 +813,8 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
 }
 
 bool mzFileIO::writeSQLiteProject(const QString filename,
-                                  const bool saveRawData)
+                                  const bool saveRawData,
+                                  const bool isTempProject)
 {
     _sqliteDbSaveInProgress = true;
 
@@ -855,18 +856,42 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
 
     if (_currentProject) {
         _currentProject->deleteAll();  // this is crazy
-        _currentProject->saveGlobalSettings(_settingsMap);
-        _currentProject->saveSamples(sampleSet);
-        _currentProject->saveAlignment(sampleSet);
 
-        vector<PeakGroup*> groupVector;
-        set<Compound*> compoundSet;
-        int topLevelGroupCount = 0;
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
+        int topLevelGroupCount = 0;
+        for (const auto& peakTable : allTablesList)
+            topLevelGroupCount += peakTable->topLevelGroupCount();
+
+        _currentProject->saveGlobalSettings(_settingsMap);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   1 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->saveSamples(sampleSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   2 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->saveAlignment(sampleSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   3 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        int counter = 0;
+        vector<PeakGroup*> groupVector;
+        set<Compound*> compoundSet;
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
-                topLevelGroupCount++;
                 group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
@@ -874,19 +899,49 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
                     compound->setCharge(group->parameters()->getCharge(compound));
                     compoundSet.insert(compound);
                 }
+                ++counter;
+                if (!isTempProject) {
+                    emit updateProgressBar("Saving project…",
+                                           3 * topLevelGroupCount
+                                               + 4 * counter,
+                                           10 * topLevelGroupCount,
+                                           true);
+                }
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
             _currentProject->saveGroups(groupVector, tableName);
             groupVector.clear();
         }
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   8 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
         _currentProject->saveCompounds(compoundSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   9 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->vacuum();
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   10 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
         qDebug() << "finished writing to project" << filename;
-        if (_mainwindow->autosaveWorker->currentProjectName().isEmpty())
+        if (!isTempProject) {
             Q_EMIT(updateStatusString(
                 QString("Project successfully saved to %1").arg(filename)
             ));
-        _currentProject->vacuum();
+        }
         _sqliteDbSaveInProgress = false;
         return true;
     }

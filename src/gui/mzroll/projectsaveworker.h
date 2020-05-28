@@ -42,6 +42,7 @@ protected:
     QString _currentProjectName;
     QList<shared_ptr<PeakGroup>> _groupsToSave;
     bool _saveRawData;
+    bool _isTempProject;
 
     void run();
 

@@ -166,10 +166,13 @@ Q_OBJECT
          * @param saveRawData Passing `true` here would create new project files
          * that store peak EIC and spectra data. This is a project level flag,
          * and once set cannot be changed.
+         * @param isTempProject If false, then the writer will emit signals to
+         * notify any listeners about the progress of save operation.
          * @return true if the write operation was successful, false otherwise.
          */
         bool writeSQLiteProject(const QString filename,
-                                const bool saveRawData = false);
+                                const bool saveRawData = false,
+                                const bool isTempProject = true);
 
         /**
          * @brief Create a `ProjectDatabase` instance for the given filename.
@@ -286,7 +289,7 @@ Q_OBJECT
      * @param int     [total value]
      */
      void updateStatusString(QString);
-     void updateProgressBar(QString,int,int);
+     void updateProgressBar(QString, int, int, bool = false);
      void sampleLoaded();
      void sampleLoadFailed(QList<QString>, bool);
      void spectraLoaded();

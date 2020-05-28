@@ -111,9 +111,9 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SLOT(clearClusters()));
 
   connect(this,
-          SIGNAL(updateProgressBar(QString, int, int)),
+          SIGNAL(updateProgressBar(QString, int, int, bool)),
           _mainwindow,
-          SLOT(setProgressBar(QString, int, int)));
+          SLOT(setProgressBar(QString, int, int, bool)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
 
@@ -1517,10 +1517,6 @@ void TableDockWidget::printPdfReport() {
   if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
     fileName = fileName + ".pdf";
 
-  QString title = "Saving PDF export for table…";
-  _mainwindow->setStatusText(title);
-
-
   auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
 }
 
@@ -1557,7 +1553,10 @@ void TableDockWidget::renderPdf(QString fileName)
 
     for (int i = 0; i < selected.size(); i++) {
         shared_ptr<PeakGroup> grp = selected[i];
-        emit updateProgressBar("", i, selected.size());
+        emit updateProgressBar("Saving PDF export for table…",
+                               i + 1,
+                               selected.size(),
+                               true);
         _mainwindow->getEicWidget()->renderPdf(grp, &painter);
 
         if(!printer.newPage())
@@ -1583,7 +1582,7 @@ void TableDockWidget::pdfReadyNotification()
                                                             message,
                                                            this);
     title = "Your PDF has been saved successfully.";
-    _mainwindow->setStatusText(title, true);
+    _mainwindow->setStatusText(title);
 }
 
 void TableDockWidget::showHeatMap() {

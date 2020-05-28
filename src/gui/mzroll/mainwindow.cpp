@@ -513,7 +513,10 @@ using namespace mzUtils;
             SIGNAL(updateStatusString(QString)),
             SLOT(_setStatusString(QString)));
 
-    connect(fileLoader,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
+    connect(fileLoader,
+            &mzFileIO::updateProgressBar,
+            this,
+            &MainWindow::setProgressBar);
     connect(fileLoader,
             SIGNAL(sampleLoaded()),
             this,
@@ -764,6 +767,7 @@ using namespace mzUtils;
 
     _usageTracker = new Mixpanel;
     _infoDialog = new InfoDialog(this);
+    _statusPriority = 0;
 }
 
 MainWindow::~MainWindow()
@@ -2496,18 +2500,24 @@ void MainWindow::exportSVG()
 	statusBar()->showMessage("EIC Image copied to Clipboard");
 }
 
-void MainWindow::setStatusText(QString text, bool highPriority) {
-    QString textStatus = statusText->text();
-    if(textStatus == "Saving PDF export for table…" &&
-        highPriority == true)
+void MainWindow::setStatusText(QString text) {
+    if (_statusPriority > 0)
+        return;
 	statusText->setText(text);
-    else if(textStatus != "Saving PDF export for table…")
-        statusText->setText(text);
-	//statusBar()->showMessage(text,500);
 }
 
-void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
-	setStatusText(text);
+void MainWindow::setProgressBar(QString text,
+                                int progress,
+                                int totalSteps,
+                                bool highPriority)
+{
+    if (_statusPriority > 0 && !highPriority)
+        return;
+
+    setStatusText(text);
+    if (highPriority)
+        _statusPriority = 1;
+
 	if (progressBar->isVisible() == false && progress != totalSteps) {
 		progressBar->show();
 	}
@@ -2515,7 +2525,8 @@ void MainWindow::setProgressBar(QString text, int progress, int totalSteps) {
 	progressBar->setValue(progress);
 	if (progress == totalSteps) {
 		progressBar->hide();
-	}
+        _statusPriority = 0;
+    }
 }
 
 void MainWindow::_setStatusString(QString text)
