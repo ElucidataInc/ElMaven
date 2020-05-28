@@ -917,6 +917,15 @@ void MainWindow::explicitSave()
 
 void MainWindow::threadSave(const QString filename, const bool saveRawData)
 {
+    if (saveWorker->isRunning()) {
+        QMessageBox::information(this,
+                                 "Save already in progress",
+                                 "Please wait, another project save is in"
+                                 "progress. You can try again once the "
+                                 "current save operation is complete.");
+        return;
+    }
+
     QFileInfo fileInfo(filename);
     setWindowTitle(programName
                    + " "
@@ -931,6 +940,15 @@ void MainWindow::threadSave(const QString filename, const bool saveRawData)
 
 void MainWindow::saveProject(bool explicitSave)
 {
+    if (saveWorker->isRunning()) {
+        QMessageBox::information(this,
+                                 "Save already in progress",
+                                 "Please wait, another project save is in"
+                                 "progress. You can try again once the "
+                                 "current save operation is complete.");
+        return;
+    }
+
     QString projectName;
     QSettings* settings = this->getSettings();
     if (settings->value("closeEvent").toInt() == 1) {
@@ -1027,6 +1045,14 @@ void MainWindow::saveProject(bool explicitSave)
         autosaveWorker->deleteCurrentProject();
         saveWorker->saveProject(projectName);
     } else if (explicitSave) {
+        if (saveWorker->isRunning()) {
+            QMessageBox::information(this,
+                                     "Save already in progress",
+                                     "Please wait, another project save is in"
+                                     "progress. You can try again once the "
+                                     "current save operation is complete.");
+            return;
+        }
         if (getLatestUserProject().isEmpty()) {
             auto reply = QMessageBox::question(this,
                                                "No project open",
