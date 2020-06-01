@@ -245,9 +245,6 @@ public Q_SLOTS:
   void showFiltersDialog();
   void filterPeakTable();
 
-  int loadSpreadsheet(QString fileName);
-  int loadCSVFile(QString filename, QString sep);
-
   void switchTableView();
 
   void setTableView(tableViewType t) { viewType = t; }

@@ -230,6 +230,7 @@ public:
 	vector<mzSample*> getVisibleSamples();
 
 	PeakGroup::QType getUserQuantType();
+    void setUserQuantType(QString type);
 
         /**
          * @brief Converts `EL_MAVEN_VERSION" macro value to a usable QString

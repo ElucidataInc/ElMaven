@@ -6,6 +6,8 @@
 #include "connection.h"
 #include "cursor.h"
 #include "datastructures/adduct.h"
+#include "masscutofftype.h"
+#include "mavenparameters.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
@@ -266,6 +268,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     int lastInsertedGroupId = _connection->lastInsertId();
     saveGroupPeaks(group, lastInsertedGroupId);
+    saveGroupSettings(group, lastInsertedGroupId);
 
     for (auto child: group->children)
         saveGroupAndPeaks(&child, lastInsertedGroupId, tableName);
@@ -590,120 +593,121 @@ void ProjectDatabase::saveScans(const vector<mzSample*>& sampleSet)
     _connection->commit();
 }
 
-void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
+Cursor* _settingsSaveCommand(Connection* connection)
 {
-    if (!_connection->prepare(CREATE_SETTINGS_TABLE)->execute()) {
-        cerr << "Error: failed to create settings table" << endl;
-        return;
-    }
+    auto cursor = connection->prepare(
+        "INSERT INTO user_settings                       \
+              VALUES ( :domain                           \
+                     , :ionization_mode                  \
+                     , :ionization_type                  \
+                     , :instrument_type                  \
+                     , :q1_accuracy                      \
+                     , :q3_accuracy                      \
+                     , :filterline                       \
+                     , :centroid_scans                   \
+                     , :scan_filter_polarity             \
+                     , :scan_filter_ms_level             \
+                     , :scan_filter_min_quantile         \
+                     , :scan_filter_min_intensity        \
+                     , :upload_multiprocessing           \
+                     , :eic_smoothing_algorithm          \
+                     , :eic_smoothing_window             \
+                     , :max_rt_difference_bw_peaks       \
+                     , :asls_baseline_mode               \
+                     , :baseline_quantile                \
+                     , :baseline_smoothing_window        \
+                     , :asls_smoothness                  \
+                     , :asls_asymmetry                   \
+                     , :isotope_filter_equal_peak        \
+                     , :min_signal_baseline_diff         \
+                     , :min_peak_quality                 \
+                     , :isotope_min_signal_baseline_diff \
+                     , :isotope_min_peak_quality         \
+                     , :d2_label_bpe                     \
+                     , :c13_label_bpe                    \
+                     , :n15_label_bpe                    \
+                     , :s34_label_bpe                    \
+                     , :min_isotope_parent_correlation   \
+                     , :max_isotope_scan_diff            \
+                     , :link_isotope_rt_range            \
+                     , :eic_type                         \
+                     , :use_overlap                      \
+                     , :dist_x_weight                    \
+                     , :dist_y_weight                    \
+                     , :overlap_weight                   \
+                     , :consider_delta_rt                \
+                     , :quality_weight                   \
+                     , :intensity_weight                 \
+                     , :delta_rt_weight                  \
+                     , :mass_cutoff_type                 \
+                     , :automated_detection              \
+                     , :mass_domain_resolution           \
+                     , :time_domain_resolution           \
+                     , :min_mz                           \
+                     , :max_mz                           \
+                     , :min_rt                           \
+                     , :max_rt                           \
+                     , :min_intensity                    \
+                     , :max_intensity                    \
+                     , :database_search                  \
+                     , :compound_extraction_window       \
+                     , :match_rt                         \
+                     , :compound_rt_window               \
+                     , :limit_groups_per_compound        \
+                     , :match_fragmentation              \
+                     , :min_frag_match_score             \
+                     , :fragment_tolerance               \
+                     , :min_frag_match                   \
+                     , :report_isotopes                  \
+                     , :peak_quantitation                \
+                     , :min_group_intensity              \
+                     , :intensity_quantile               \
+                     , :min_group_quality                \
+                     , :quality_quantile                 \
+                     , :min_signal_blank_ratio           \
+                     , :signal_blank_ratio_quantile      \
+                     , :min_signal_baseline_ratio        \
+                     , :signal_baseline_ratio_quantile   \
+                     , :min_peak_width                   \
+                     , :min_good_peak_count              \
+                     , :peak_classifier_file             \
+                     , :alignment_good_peak_count        \
+                     , :alignment_limit_group_count      \
+                     , :alignment_peak_grouping_window   \
+                     , :alignemnt_wrt_expected_rt        \
+                     , :alignment_min_peak_intensity     \
+                     , :alignment_min_signal_noise_ratio \
+                     , :alignment_min_peak_width         \
+                     , :alignment_peak_detection         \
+                     , :poly_fit_num_iterations          \
+                     , :poly_fit_polynomial_degree       \
+                     , :obi_warp_reference_sample        \
+                     , :obi_warp_show_advance_params     \
+                     , :obi_warp_score                   \
+                     , :obi_warp_response                \
+                     , :obi_warp_bin_size                \
+                     , :obi_warp_gap_init                \
+                     , :obi_warp_gap_extend              \
+                     , :obi_warp_factor_diag             \
+                     , :obi_warp_factor_gap              \
+                     , :obi_warp_no_standard_normal      \
+                     , :obi_warp_local                   \
+                     , :main_window_selected_db_name     \
+                     , :main_window_charge               \
+                     , :main_window_peak_quantitation    \
+                     , :main_window_mass_resolution      \
+                     , :must_have_fragmentation          \
+                     , :identification_match_rt          \
+                     , :identification_rt_window         \
+                     , :search_adducts                   \
+                     , :adduct_search_window             \
+                     , :adduct_percent_correlation       )");
+    return cursor;
+}
 
-    auto settingsQuery = _connection->prepare(
-        "REPLACE INTO user_settings                       \
-               VALUES ( :ionization_mode                  \
-                      , :ionization_type                  \
-                      , :instrument_type                  \
-                      , :q1_accuracy                      \
-                      , :q3_accuracy                      \
-                      , :filterline                       \
-                      , :centroid_scans                   \
-                      , :scan_filter_polarity             \
-                      , :scan_filter_ms_level             \
-                      , :scan_filter_min_quantile         \
-                      , :scan_filter_min_intensity        \
-                      , :upload_multiprocessing           \
-                      , :eic_smoothing_algorithm          \
-                      , :eic_smoothing_window             \
-                      , :max_rt_difference_bw_peaks       \
-                      , :asls_baseline_mode               \
-                      , :baseline_quantile                \
-                      , :baseline_smoothing_window        \
-                      , :asls_smoothness                  \
-                      , :asls_asymmetry                   \
-                      , :isotope_filter_equal_peak        \
-                      , :min_signal_baseline_diff         \
-                      , :min_peak_quality                 \
-                      , :isotope_min_signal_baseline_diff \
-                      , :isotope_min_peak_quality         \
-                      , :d2_label_bpe                     \
-                      , :c13_label_bpe                    \
-                      , :n15_label_bpe                    \
-                      , :s34_label_bpe                    \
-                      , :min_isotope_parent_correlation   \
-                      , :max_isotope_scan_diff            \
-                      , :link_isotope_rt_range            \
-                      , :eic_type                         \
-                      , :use_overlap                      \
-                      , :dist_x_weight                    \
-                      , :dist_y_weight                    \
-                      , :overlap_weight                   \
-                      , :consider_delta_rt                \
-                      , :quality_weight                   \
-                      , :intensity_weight                 \
-                      , :delta_rt_weight                  \
-                      , :mass_cutoff_type                 \
-                      , :automated_detection              \
-                      , :mass_domain_resolution           \
-                      , :time_domain_resolution           \
-                      , :min_mz                           \
-                      , :max_mz                           \
-                      , :min_rt                           \
-                      , :max_rt                           \
-                      , :min_intensity                    \
-                      , :max_intensity                    \
-                      , :database_search                  \
-                      , :compound_extraction_window       \
-                      , :match_rt                         \
-                      , :compound_rt_window               \
-                      , :limit_groups_per_compound        \
-                      , :match_fragmentation              \
-                      , :min_frag_match_score             \
-                      , :fragment_tolerance               \
-                      , :min_frag_match                   \
-                      , :report_isotopes                  \
-                      , :peak_quantitation                \
-                      , :min_group_intensity              \
-                      , :intensity_quantile               \
-                      , :min_group_quality                \
-                      , :quality_quantile                 \
-                      , :min_signal_blank_ratio           \
-                      , :signal_blank_ratio_quantile      \
-                      , :min_signal_baseline_ratio        \
-                      , :signal_baseline_ratio_quantile   \
-                      , :min_peak_width                   \
-                      , :min_good_peak_count              \
-                      , :peak_classifier_file             \
-                      , :alignment_good_peak_count        \
-                      , :alignment_limit_group_count      \
-                      , :alignment_peak_grouping_window   \
-                      , :alignemnt_wrt_expected_rt        \
-                      , :alignment_min_peak_intensity     \
-                      , :alignment_min_signal_noise_ratio \
-                      , :alignment_min_peak_width         \
-                      , :alignment_peak_detection         \
-                      , :poly_fit_num_iterations          \
-                      , :poly_fit_polynomial_degree       \
-                      , :obi_warp_reference_sample        \
-                      , :obi_warp_show_advance_params     \
-                      , :obi_warp_score                   \
-                      , :obi_warp_response                \
-                      , :obi_warp_bin_size                \
-                      , :obi_warp_gap_init                \
-                      , :obi_warp_gap_extend              \
-                      , :obi_warp_factor_diag             \
-                      , :obi_warp_factor_gap              \
-                      , :obi_warp_no_standard_normal      \
-                      , :obi_warp_local                   \
-                      , :main_window_selected_db_name     \
-                      , :main_window_charge               \
-                      , :main_window_peak_quantitation    \
-                      , :main_window_mass_resolution      \
-                      , :must_have_fragmentation          \
-                      , :identification_match_rt          \
-                      , :identification_rt_window         \
-                      , :search_adducts                   \
-                      , :adduct_search_window             \
-                      , :adduct_percent_correlation       )");
-
+void _bindSettingsFromMap(Cursor* settingsQuery,
+                          const map<string, variant>& settingsMap)
+{
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
     settingsQuery->bind(":instrument_type", BINT(settingsMap.at("instrumentType")));
@@ -803,10 +807,37 @@ void ProjectDatabase::saveSettings(const map<string, variant>& settingsMap)
     settingsQuery->bind(":main_window_charge", BINT(settingsMap.at("mainWindowCharge")));
     settingsQuery->bind(":main_window_peak_quantitation", BINT(settingsMap.at("mainWindowPeakQuantitation")));
     settingsQuery->bind(":main_window_mass_resolution", BDOUBLE(settingsMap.at("mainWindowMassResolution")));
+}
 
-    if (!settingsQuery->execute()) {
-        cerr << "Error: failed to save user settings." << endl;
+void
+ProjectDatabase::saveGlobalSettings(const map<string, variant>& settingsMap)
+{
+    if (!_connection->prepare(CREATE_SETTINGS_TABLE)->execute()) {
+        cerr << "Error: failed to create settings table" << endl;
+        return;
     }
+
+    auto settingsQuery = _settingsSaveCommand(_connection);
+    settingsQuery->bind(":domain", "global");
+    _bindSettingsFromMap(settingsQuery, settingsMap);
+    if (!settingsQuery->execute())
+        cerr << "Error: failed to save user settings." << endl;
+}
+
+void ProjectDatabase::saveGroupSettings(const PeakGroup* group, int groupId)
+{
+    if (!_connection->prepare(CREATE_SETTINGS_TABLE)->execute()) {
+        cerr << "Error: failed to create settings table" << endl;
+        return;
+    }
+
+    auto settingsQuery = _settingsSaveCommand(_connection);
+    settingsQuery->bind(":domain", to_string(groupId));
+
+    auto settingsMap = fromParametersToMap(group->parameters());
+    _bindSettingsFromMap(settingsQuery, settingsMap);
+    if (!settingsQuery->execute())
+        cerr << "Error: failed to save group settings." << endl;
 }
 
 pair<vector<string>, vector<string>>
@@ -897,8 +928,12 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
     }
 }
 
-vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
+vector<PeakGroup*>
+ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
+                            const MavenParameters* globalParams)
 {
+    map<int, map<string, variant>> settings = loadGroupSettings();
+
     _connection->prepare(CREATE_PEAKS_GROUP_INDEX)->execute();
     auto groupsQuery = _connection->prepare("SELECT *         \
                                                FROM peakgroups");
@@ -907,8 +942,17 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded)
     map<int, PeakGroup*> databaseIdForGroups;
     map<PeakGroup*, int> childParentMap;
     while (groupsQuery->next()) {
-        PeakGroup* group = new PeakGroup();
+        PeakGroup* group = nullptr;
+
         int databaseId = groupsQuery->integerValue("group_id");
+        if (settings.count(databaseId)) {
+            auto mp = fromMaptoParameters(settings.at(databaseId),
+                                          globalParams);
+            group = new PeakGroup(make_shared<MavenParameters>(mp));
+        } else {
+            group = new PeakGroup(make_shared<MavenParameters>(*globalParams));
+        }
+
         group->groupId = groupsQuery->integerValue("table_group_id");
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
         group->tagString = groupsQuery->stringValue("tag_string");
@@ -1305,115 +1349,137 @@ void ProjectDatabase::loadAndPerformAlignment(const vector<mzSample*>& loaded)
         aligner.performSegmentedAlignment();
 }
 
-map<string, variant> ProjectDatabase::loadSettings()
+string _nextSettingsRow(Cursor* settingsQuery,
+                        map<string, variant>& settingsMap)
+{
+    settingsMap["ionizationMode"] = variant(settingsQuery->integerValue("ionization_mode"));
+    settingsMap["ionizationType"] = variant(settingsQuery->integerValue("ionization_type"));
+    settingsMap["instrumentType"] = variant(settingsQuery->integerValue("instrument_type"));
+    settingsMap["q1Accuracy"] = variant(settingsQuery->doubleValue("q1_accuracy"));
+    settingsMap["q3Accuracy"] = variant(settingsQuery->doubleValue("q3_accuracy"));
+    settingsMap["filterline"] = variant(settingsQuery->integerValue("filterline"));
+
+    settingsMap["centroidScans"] = variant(settingsQuery->integerValue("centroid_scans"));
+    settingsMap["scanFilterPolarity"] = variant(settingsQuery->integerValue("scan_filter_polarity"));
+    settingsMap["scanFilterMsLevel"] = variant(settingsQuery->integerValue("scan_filter_ms_level"));
+    settingsMap["scanFilterMinQuantile"] = variant(settingsQuery->integerValue("scan_filter_min_quantile"));
+    settingsMap["scanFilterMinIntensity"] = variant(settingsQuery->integerValue("scan_filter_min_intensity"));
+    settingsMap["uploadMultiprocessing"] = variant(settingsQuery->integerValue("upload_multiprocessing"));
+
+    settingsMap["eicSmoothingAlgorithm"] = variant(settingsQuery->integerValue("eic_smoothing_algorithm"));
+    settingsMap["eicSmoothingWindow"] = variant(settingsQuery->integerValue("eic_smoothing_window"));
+    settingsMap["maxRtDiffBetweenPeaks"] = variant(settingsQuery->doubleValue("max_rt_difference_bw_peaks"));
+
+    settingsMap["aslsBaselineMode"] = variant(settingsQuery->integerValue("asls_baseline_mode"));
+    settingsMap["baselineQuantile"] = variant(settingsQuery->integerValue("baseline_quantile"));
+    settingsMap["baselineSmoothing"] = variant(settingsQuery->integerValue("baseline_smoothing_window"));
+    settingsMap["aslsSmoothness"] = variant(settingsQuery->integerValue("asls_smoothness"));
+    settingsMap["aslsAsymmetry"] = variant(settingsQuery->integerValue("asls_asymmetry"));
+
+    settingsMap["isotopeFilterEqualPeak"] = variant(settingsQuery->integerValue("isotope_filter_equal_peak"));
+    settingsMap["minSignalBaselineDifference"] = variant(settingsQuery->doubleValue("min_signal_baseline_diff"));
+    settingsMap["minPeakQuality"] = variant(settingsQuery->doubleValue("min_peak_quality"));
+    settingsMap["isotopeMinSignalBaselineDifference"] = variant(settingsQuery->doubleValue("isotope_min_signal_baseline_diff"));
+    settingsMap["isotopeMinPeakQuality"] = variant(settingsQuery->doubleValue("isotope_min_peak_quality"));
+
+    settingsMap["D2LabelBPE"] = variant(settingsQuery->integerValue("d2_label_bpe"));
+    settingsMap["C13LabelBPE"] = variant(settingsQuery->integerValue("c13_label_bpe"));
+    settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
+    settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
+
+    settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
+    settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
+    settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
+
+    settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
+
+    settingsMap["useOverlap"] = variant(settingsQuery->integerValue("use_overlap"));
+    settingsMap["distXWeight"] = variant(settingsQuery->doubleValue("dist_x_weight"));
+    settingsMap["distYWeight"] = variant(settingsQuery->doubleValue("dist_y_weight"));
+    settingsMap["overlapWeight"] = variant(settingsQuery->doubleValue("overlap_weight"));
+
+    settingsMap["considerDeltaRT"] = variant(settingsQuery->integerValue("consider_delta_rt"));
+    settingsMap["qualityWeight"] = variant(settingsQuery->integerValue("quality_weight"));
+    settingsMap["intensityWeight"] = variant(settingsQuery->integerValue("intensity_weight"));
+    settingsMap["deltaRTWeight"] = variant(settingsQuery->integerValue("delta_rt_weight"));
+
+    settingsMap["massCutoffType"] = variant(settingsQuery->stringValue("mass_cutoff_type"));
+
+    settingsMap["automatedDetection"] = variant(settingsQuery->integerValue("automated_detection"));
+    settingsMap["massDomainResolution"] = settingsQuery->doubleValue("mass_domain_resolution");
+    settingsMap["timeDomainResolution"] = variant(settingsQuery->integerValue("time_domain_resolution"));
+    settingsMap["minMz"] = variant(settingsQuery->doubleValue("min_mz"));
+    settingsMap["maxMz"] = variant(settingsQuery->doubleValue("max_mz"));
+    settingsMap["minRt"] = settingsQuery->doubleValue("min_rt");
+    settingsMap["maxRt"] = variant(settingsQuery->doubleValue("max_rt"));
+    settingsMap["minIntensity"] = variant(settingsQuery->doubleValue("min_intensity"));
+    settingsMap["maxIntensity"] = variant(settingsQuery->doubleValue("max_intensity"));
+    settingsMap["mustHaveFragmentation"] = variant(settingsQuery->integerValue("must_have_fragmentation"));
+    settingsMap["identificationMatchRt"] = variant(settingsQuery->integerValue("identification_match_rt"));
+    settingsMap["identificationRtWindow"] = variant(settingsQuery->doubleValue("identification_rt_window"));
+
+    settingsMap["databaseSearch"] = variant(settingsQuery->integerValue("database_search"));
+    settingsMap["compoundExtractionWindow"] = settingsQuery->doubleValue("compound_extraction_window");
+    settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
+    settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
+    settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
+    settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
+    settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
+    settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
+
+    settingsMap["matchFragmentation"] = settingsQuery->integerValue("match_fragmentation");
+    settingsMap["minFragMatchScore"] = variant(settingsQuery->doubleValue("min_frag_match_score"));
+    settingsMap["fragmentTolerance"] = variant(settingsQuery->doubleValue("fragment_tolerance"));
+    settingsMap["minFragMatch"] = variant(settingsQuery->integerValue("min_frag_match"));
+
+    settingsMap["reportIsotopes"] = variant(settingsQuery->integerValue("report_isotopes"));
+
+    settingsMap["peakQuantitation"] = variant(settingsQuery->integerValue("peak_quantitation"));
+    settingsMap["minGroupIntensity"] = variant(settingsQuery->doubleValue("min_group_intensity"));
+    settingsMap["intensityQuantile"] = variant(settingsQuery->integerValue("intensity_quantile"));
+    settingsMap["minGroupQuality"] = variant(settingsQuery->doubleValue("min_group_quality"));
+    settingsMap["qualityQuantile"] = variant(settingsQuery->integerValue("quality_quantile"));
+    settingsMap["minSignalBlankRatio"] = variant(settingsQuery->doubleValue("min_signal_blank_ratio"));
+    settingsMap["signalBlankRatioQuantile"] = variant(settingsQuery->integerValue("signal_blank_ratio_quantile"));
+    settingsMap["minSignalBaselineRatio"] = variant(settingsQuery->doubleValue("min_signal_baseline_ratio"));
+    settingsMap["signalBaselineRatioQuantile"] = settingsQuery->integerValue("signal_baseline_ratio_quantile");
+    settingsMap["minPeakWidth"] = variant(settingsQuery->integerValue("min_peak_width"));
+    settingsMap["minGoodPeakCount"] = variant(settingsQuery->integerValue("min_good_peak_count"));
+    settingsMap["peakClassifierFile"] = variant(settingsQuery->stringValue("peak_classifier_file"));
+
+    settingsMap["mainWindowSelectedDbName"] = settingsQuery->stringValue("main_window_selected_db_name");
+    settingsMap["mainWindowCharge"] = settingsQuery->integerValue("main_window_charge");
+    settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
+    settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
+
+    return settingsQuery->stringValue("domain");
+}
+
+map<string, variant> ProjectDatabase::loadGlobalSettings()
 {
     map<string, variant> settingsMap;
-
-    auto settingsQuery = _connection->prepare("SELECT *            \
-                                                 FROM user_settings");
-    while (settingsQuery->next()) {
-        settingsMap["ionizationMode"] = variant(settingsQuery->integerValue("ionization_mode"));
-        settingsMap["ionizationType"] = variant(settingsQuery->integerValue("ionization_type"));
-        settingsMap["instrumentType"] = variant(settingsQuery->integerValue("instrument_type"));
-        settingsMap["q1Accuracy"] = variant(settingsQuery->doubleValue("q1_accuracy"));
-        settingsMap["q3Accuracy"] = variant(settingsQuery->doubleValue("q3_accuracy"));
-        settingsMap["filterline"] = variant(settingsQuery->integerValue("filterline"));
-
-        settingsMap["centroidScans"] = variant(settingsQuery->integerValue("centroid_scans"));
-        settingsMap["scanFilterPolarity"] = variant(settingsQuery->integerValue("scan_filter_polarity"));
-        settingsMap["scanFilterMsLevel"] = variant(settingsQuery->integerValue("scan_filter_ms_level"));
-        settingsMap["scanFilterMinQuantile"] = variant(settingsQuery->integerValue("scan_filter_min_quantile"));
-        settingsMap["scanFilterMinIntensity"] = variant(settingsQuery->integerValue("scan_filter_min_intensity"));
-        settingsMap["uploadMultiprocessing"] = variant(settingsQuery->integerValue("upload_multiprocessing"));
-
-        settingsMap["eicSmoothingAlgorithm"] = variant(settingsQuery->integerValue("eic_smoothing_algorithm"));
-        settingsMap["eicSmoothingWindow"] = variant(settingsQuery->integerValue("eic_smoothing_window"));
-        settingsMap["maxRtDiffBetweenPeaks"] = variant(settingsQuery->doubleValue("max_rt_difference_bw_peaks"));
-
-        settingsMap["aslsBaselineMode"] = variant(settingsQuery->integerValue("asls_baseline_mode"));
-        settingsMap["baselineQuantile"] = variant(settingsQuery->integerValue("baseline_quantile"));
-        settingsMap["baselineSmoothingWindow"] = variant(settingsQuery->integerValue("baseline_smoothing_window"));
-        settingsMap["aslsSmoothness"] = variant(settingsQuery->integerValue("asls_smoothness"));
-        settingsMap["aslsAsymmetry"] = variant(settingsQuery->integerValue("asls_asymmetry"));
-
-        settingsMap["isotopeFilterEqualPeak"] = variant(settingsQuery->integerValue("isotope_filter_equal_peak"));
-        settingsMap["minSignalBaselineDifference"] = variant(settingsQuery->doubleValue("min_signal_baseline_diff"));
-        settingsMap["minPeakQuality"] = variant(settingsQuery->doubleValue("min_peak_quality"));
-        settingsMap["isotopeMinSignalBaselineDifference"] = variant(settingsQuery->doubleValue("isotope_min_signal_baseline_diff"));
-        settingsMap["isotopeMinPeakQuality"] = variant(settingsQuery->doubleValue("isotope_min_peak_quality"));
-
-        settingsMap["D2LabelBPE"] = variant(settingsQuery->integerValue("d2_label_bpe"));
-        settingsMap["C13LabelBPE"] = variant(settingsQuery->integerValue("c13_label_bpe"));
-        settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
-        settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
-
-        settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
-        settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
-        settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
-
-        settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
-
-        settingsMap["useOverlap"] = variant(settingsQuery->integerValue("use_overlap"));
-        settingsMap["distXWeight"] = variant(settingsQuery->doubleValue("dist_x_weight"));
-        settingsMap["distYWeight"] = variant(settingsQuery->doubleValue("dist_y_weight"));
-        settingsMap["overlapWeight"] = variant(settingsQuery->doubleValue("overlap_weight"));
-
-        settingsMap["considerDeltaRT"] = variant(settingsQuery->integerValue("consider_delta_rt"));
-        settingsMap["qualityWeight"] = variant(settingsQuery->integerValue("quality_weight"));
-        settingsMap["intensityWeight"] = variant(settingsQuery->integerValue("intensity_weight"));
-        settingsMap["deltaRTWeight"] = variant(settingsQuery->integerValue("delta_rt_weight"));
-
-        settingsMap["massCutoffType"] = variant(settingsQuery->stringValue("mass_cutoff_type"));
-
-        settingsMap["automatedDetection"] = variant(settingsQuery->integerValue("automated_detection"));
-        settingsMap["massDomainResolution"] = settingsQuery->doubleValue("mass_domain_resolution");
-        settingsMap["timeDomainResolution"] = variant(settingsQuery->integerValue("time_domain_resolution"));
-        settingsMap["minMz"] = variant(settingsQuery->doubleValue("min_mz"));
-        settingsMap["maxMz"] = variant(settingsQuery->doubleValue("max_mz"));
-        settingsMap["minRt"] = settingsQuery->doubleValue("min_rt");
-        settingsMap["maxRt"] = variant(settingsQuery->doubleValue("max_rt"));
-        settingsMap["minIntensity"] = variant(settingsQuery->doubleValue("min_intensity"));
-        settingsMap["maxIntensity"] = variant(settingsQuery->doubleValue("max_intensity"));
-        settingsMap["mustHaveFragmentation"] = variant(settingsQuery->integerValue("must_have_fragmentation"));
-        settingsMap["identificationMatchRt"] = variant(settingsQuery->integerValue("identification_match_rt"));
-        settingsMap["identificationRtWindow"] = variant(settingsQuery->doubleValue("identification_rt_window"));
-
-        settingsMap["databaseSearch"] = variant(settingsQuery->integerValue("database_search"));
-        settingsMap["compoundExtractionWindow"] = settingsQuery->doubleValue("compound_extraction_window");
-        settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
-        settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
-        settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
-        settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
-        settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
-        settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
-
-        settingsMap["matchFragmentation"] = settingsQuery->doubleValue("match_fragmentation");
-        settingsMap["minFragMatchScore"] = variant(settingsQuery->integerValue("min_frag_match_score"));
-        settingsMap["fragmentTolerance"] = variant(settingsQuery->doubleValue("fragment_tolerance"));
-        settingsMap["minFragMatch"] = variant(settingsQuery->integerValue("min_frag_match"));
-
-        settingsMap["reportIsotopes"] = variant(settingsQuery->integerValue("report_isotopes"));
-
-        settingsMap["peakQuantitation"] = variant(settingsQuery->integerValue("peak_quantitation"));
-        settingsMap["minGroupIntensity"] = variant(settingsQuery->doubleValue("min_group_intensity"));
-        settingsMap["intensityQuantile"] = variant(settingsQuery->integerValue("intensity_quantile"));
-        settingsMap["minGroupQuality"] = variant(settingsQuery->doubleValue("min_group_quality"));
-        settingsMap["qualityQuantile"] = variant(settingsQuery->integerValue("quality_quantile"));
-        settingsMap["minSignalBlankRatio"] = variant(settingsQuery->doubleValue("min_signal_blank_ratio"));
-        settingsMap["signalBlankRatioQuantile"] = variant(settingsQuery->integerValue("signal_blank_ratio_quantile"));
-        settingsMap["minSignalBaselineRatio"] = variant(settingsQuery->doubleValue("min_signal_baseline_ratio"));
-        settingsMap["signalBaselineRatioQuantile"] = settingsQuery->integerValue("signal_baseline_ratio_quantile");
-        settingsMap["minPeakWidth"] = variant(settingsQuery->integerValue("min_peak_width"));
-        settingsMap["minGoodPeakCount"] = variant(settingsQuery->integerValue("min_good_peak_count"));
-        settingsMap["peakClassifierFile"] = variant(settingsQuery->stringValue("peak_classifier_file"));
-
-        settingsMap["mainWindowSelectedDbName"] = settingsQuery->stringValue("main_window_selected_db_name");
-        settingsMap["mainWindowCharge"] = settingsQuery->integerValue("main_window_charge");
-        settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
-        settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
-    }
+    auto settingsQuery = _connection->prepare("SELECT *                  "
+                                              "  FROM user_settings      "
+                                              " WHERE domain = \"global\"");
+    while (settingsQuery->next())
+        _nextSettingsRow(settingsQuery, settingsMap);
 
     return settingsMap;
+}
+
+map<int, map<string, variant>> ProjectDatabase::loadGroupSettings()
+{
+    map<int, map<string, variant>> settings;
+    auto settingsQuery = _connection->prepare("SELECT *                      "
+                                              "  FROM user_settings          "
+                                              " WHERE NOT domain = \"global\"");
+    while (settingsQuery->next()) {
+        map<string, variant> settingsMap;
+        int groupId = stoi(_nextSettingsRow(settingsQuery, settingsMap));
+        settings[groupId] = settingsMap;
+    }
+
+    return settings;
 }
 
 void ProjectDatabase::deleteAll()
@@ -1618,6 +1684,228 @@ void ProjectDatabase::vacuum()
 bool ProjectDatabase::openConnection()
 {
     return _connection != nullptr;
+}
+
+map<string, variant>
+ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
+{
+    map<string, variant> settingsMap;
+
+    // Note: the following attributes have been assigned by assuming the
+    // `MavenParameters` object actually stores configuration used for a single
+    // group's integration. Some of the global parameters may not be applicable
+    // or even necessary for these cases.
+
+    settingsMap["ionizationMode"] = mp->ionizationMode;
+    settingsMap["ionizationType"] = static_cast<int>(MassCalculator::ionizationType);
+    settingsMap["instrumentType"] = 0; // maybe not really important?
+    settingsMap["q1Accuracy"] = static_cast<double>(mp->amuQ1);
+    settingsMap["q3Accuracy"] = static_cast<double>(mp->amuQ3);
+    settingsMap["filterline"] = 0; // again not important for peak-groups
+
+    settingsMap["centroidScans"] = mzSample::getFilter_centroidScans();
+    settingsMap["scanFilterPolarity"] = mzSample::getFilter_polarity();
+    settingsMap["scanFilterMsLevel"] = mzSample::getFilter_mslevel();
+    settingsMap["scanFilterMinQuantile"] = mzSample::getFilter_intensityQuantile();
+    settingsMap["scanFilterMinIntensity"] = mzSample::getFilter_minIntensity();
+    settingsMap["uploadMultiprocessing"] = 1; // dynamically get this value?
+
+    settingsMap["eicSmoothingAlgorithm"] = mp->eic_smoothingAlgorithm;
+    settingsMap["eicSmoothingWindow"] = mp->eic_smoothingWindow;
+    settingsMap["maxRtDiffBetweenPeaks"] = static_cast<double>(mp->grouping_maxRtWindow);
+
+    settingsMap["aslsBaselineMode"] = static_cast<int>(mp->aslsBaselineMode);
+    settingsMap["baselineQuantile"] = mp->baseline_dropTopX;
+    settingsMap["baselineSmoothing"] = mp->baseline_smoothingWindow;
+    settingsMap["aslsSmoothness"] = mp->aslsSmoothness;
+    settingsMap["aslsAsymmetry"] = mp->aslsAsymmetry;
+
+    settingsMap["isotopeFilterEqualPeak"] = static_cast<int>(mp->isIsotopeEqualPeakFilter);
+    settingsMap["minSignalBaselineDifference"] = mp->minSignalBaselineDifference;
+    settingsMap["minPeakQuality"] = mp->minPeakQuality;
+    settingsMap["isotopeMinSignalBaselineDifference"] = mp->isotopicMinSignalBaselineDifference;
+    settingsMap["isotopeMinPeakQuality"] = mp->minIsotopicPeakQuality;
+
+    settingsMap["D2LabelBPE"] = static_cast<int>(mp->D2Labeled_BPE);
+    settingsMap["C13LabelBPE"] = static_cast<int>(mp->C13Labeled_BPE);
+    settingsMap["N15LabelBPE"] = static_cast<int>(mp->N15Labeled_BPE);
+    settingsMap["S34LabelBPE"] = static_cast<int>(mp->S34Labeled_BPE);
+
+    settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
+    settingsMap["maxIsotopeScanDiff"] = static_cast<int>(mp->maxIsotopeScanDiff);
+    settingsMap["linkIsotopeRtRange"] = static_cast<int>(mp->linkIsotopeRtRange);
+
+    settingsMap["eicType"] = mp->eicType;
+
+    settingsMap["useOverlap"] = static_cast<int>(mp->useOverlap);
+    settingsMap["distXWeight"] = static_cast<int>(mp->distXWeight);
+    settingsMap["distYWeight"] = static_cast<int>(mp->distYWeight);
+    settingsMap["overlapWeight"] = static_cast<int>(mp->overlapWeight);
+
+    settingsMap["considerDeltaRT"] = static_cast<int>(mp->deltaRtCheckFlag);
+    settingsMap["qualityWeight"] = mp->qualityWeight;
+    settingsMap["intensityWeight"] = mp->intensityWeight;
+    settingsMap["deltaRTWeight"] = mp->deltaRTWeight;
+
+    settingsMap["massCutoffType"] = mp->massCutoffMerge->getMassCutoffType();
+
+    settingsMap["automatedDetection"] = static_cast<int>(mp->processAllSlices);
+    settingsMap["massDomainResolution"] = mp->massCutoffMerge->getMassCutoff();
+    settingsMap["timeDomainResolution"] = static_cast<double>(mp->rtStepSize);
+    settingsMap["minMz"] = static_cast<double>(mp->minMz);
+    settingsMap["maxMz"] = static_cast<double>(mp->maxMz);
+    settingsMap["minRt"] = static_cast<double>(mp->minRt);
+    settingsMap["maxRt"] = static_cast<double>(mp->maxRt);
+    settingsMap["minIntensity"] = static_cast<double>(mp->minIntensity);
+    settingsMap["maxIntensity"] = static_cast<double>(mp->maxIntensity);
+    settingsMap["mustHaveFragmentation"] = static_cast<int>(mp->mustHaveFragmentation);
+    settingsMap["identificationMatchRt"] = static_cast<int>(mp->identificationMatchRt);
+    settingsMap["identificationRtWindow"] = static_cast<double>(mp->identificationRtWindow);
+
+    settingsMap["databaseSearch"] = static_cast<int>(!mp->processAllSlices);
+    settingsMap["compoundExtractionWindow"] = mp->compoundMassCutoffWindow->getMassCutoff();
+    settingsMap["matchRt"] = static_cast<int>(mp->matchRtFlag);
+    settingsMap["compoundRtWindow"] = static_cast<double>(mp->compoundRTWindow);
+    settingsMap["limitGroupsPerCompound"] = mp->eicMaxGroups;
+    settingsMap["searchAdducts"] = static_cast<int>(mp->searchAdducts);
+    settingsMap["adductSearchWindow"] = static_cast<double>(mp->adductSearchWindow);
+    settingsMap["adductPercentCorrelation"] = static_cast<double>(mp->adductPercentCorrelation);
+
+    settingsMap["matchFragmentation"] = static_cast<int>(mp->matchFragmentationFlag);
+    settingsMap["minFragMatchScore"] = static_cast<double>(mp->minFragMatchScore);
+    settingsMap["fragmentTolerance"] = static_cast<double>(mp->fragmentTolerance);
+    settingsMap["minFragMatch"] = static_cast<double>(mp->minFragMatch);
+
+    settingsMap["reportIsotopes"] = static_cast<int>(mp->pullIsotopesFlag);
+
+    settingsMap["peakQuantitation"] = mp->peakQuantitation;
+    settingsMap["minGroupIntensity"] = static_cast<double>(mp->minGroupIntensity);
+    settingsMap["intensityQuantile"] = static_cast<int>(mp->quantileIntensity);
+    settingsMap["minGroupQuality"] = static_cast<double>(mp->minQuality);
+    settingsMap["qualityQuantile"] = static_cast<int>(mp->quantileQuality);
+    settingsMap["minSignalBlankRatio"] = static_cast<double>(mp->minSignalBlankRatio);
+    settingsMap["signalBlankRatioQuantile"] = static_cast<int>(mp->quantileSignalBlankRatio);
+    settingsMap["minSignalBaselineRatio"] = static_cast<int>(mp->minSignalBaseLineRatio);
+    settingsMap["signalBaselineRatioQuantile"] = static_cast<int>(mp->quantileSignalBaselineRatio);
+    settingsMap["minPeakWidth"] = static_cast<int>(mp->minNoNoiseObs);
+    settingsMap["minGoodPeakCount"] = mp->minGoodGroupCount;
+    settingsMap["peakClassifierFile"] = string(); // does this even change?
+
+    settingsMap["mainWindowSelectedDbName"] = string(); // not-necessary for groups
+    settingsMap["mainWindowCharge"] = mp->ionizationMode; // always 1 for now
+    settingsMap["mainWindowPeakQuantitation"] = mp->peakQuantitation;
+    settingsMap["mainWindowMassResolution"] = mp->compoundMassCutoffWindow->getMassCutoff();
+
+    return settingsMap;
+}
+
+MavenParameters
+ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
+                                     const MavenParameters* super)
+{
+    MavenParameters mp(*super);
+
+    mp.ionizationMode = BINT(settingsMap["ionizationMode"]);
+    // MassCalculator::ionizationType = settingsMap["ionizationType"];
+    // ?? = settingsMap["instrumentType"];
+    mp.amuQ1 = BDOUBLE(settingsMap["q1Accuracy"]);
+    mp.amuQ3 = BDOUBLE(settingsMap["q3Accuracy"]);
+    // mp.filterline = settingsMap["filterline"];
+
+    // mzSample::getFilter_centroidScans() = settingsMap["centroidScans"];
+    // mzSample::getFilter_polarity() = settingsMap["scanFilterPolarity"];
+    // mzSample::getFilter_mslevel() = settingsMap["scanFilterMsLevel"];
+    // mzSample::getFilter_intensityQuantile() = settingsMap["scanFilterMinQuantile"];
+    // mzSample::getFilter_minIntensity() = settingsMap["scanFilterMinIntensity"];
+    // ?? = settingsMap["uploadMultiprocessing"];
+
+    mp.eic_smoothingAlgorithm = BINT(settingsMap["eicSmoothingAlgorithm"]);
+    mp.eic_smoothingWindow = BINT(settingsMap["eicSmoothingWindow"]);
+    mp.grouping_maxRtWindow = BDOUBLE(settingsMap["maxRtDiffBetweenPeaks"]);
+
+    mp.aslsBaselineMode = static_cast<bool>(BINT(settingsMap["aslsBaselineMode"]));
+    mp.baseline_dropTopX = BINT(settingsMap["baselineQuantile"]);
+    mp.baseline_smoothingWindow = BINT(settingsMap["baselineSmoothing"]);
+    mp.aslsSmoothness = BINT(settingsMap["aslsSmoothness"]);
+    mp.aslsAsymmetry = BINT(settingsMap["aslsAsymmetry"]);
+
+    mp.isIsotopeEqualPeakFilter = static_cast<bool>(BINT(settingsMap["isotopeFilterEqualPeak"]));
+    mp.minSignalBaselineDifference = BDOUBLE(settingsMap["minSignalBaselineDifference"]);
+    mp.minPeakQuality = BDOUBLE(settingsMap["minPeakQuality"]);
+    mp.isotopicMinSignalBaselineDifference = BDOUBLE(settingsMap["isotopeMinSignalBaselineDifference"]);
+    mp.minIsotopicPeakQuality = BDOUBLE(settingsMap["isotopeMinPeakQuality"]);
+
+    mp.D2Labeled_BPE = static_cast<bool>(BINT(settingsMap["D2LabelBPE"]));
+    mp.C13Labeled_BPE = static_cast<bool>(BINT(settingsMap["C13LabelBPE"]));
+    mp.N15Labeled_BPE = static_cast<bool>(BINT(settingsMap["N15LabelBPE"]));
+    mp.S34Labeled_BPE = static_cast<bool>(BINT(settingsMap["S34LabelBPE"]));
+
+    mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
+    mp.maxIsotopeScanDiff = BINT(settingsMap["maxIsotopeScanDiff"]);
+    mp.linkIsotopeRtRange = static_cast<bool>(BINT(settingsMap["linkIsotopeRtRange"]));
+
+    mp.eicType = BINT(settingsMap["eicType"]);
+
+    mp.useOverlap = static_cast<bool>(BINT(settingsMap["useOverlap"]));
+    mp.distXWeight = BDOUBLE(settingsMap["distXWeight"]);
+    mp.distYWeight = BDOUBLE(settingsMap["distYWeight"]);
+    mp.overlapWeight = BDOUBLE(settingsMap["overlapWeight"]);
+
+    mp.deltaRtCheckFlag = static_cast<bool>(BINT(settingsMap["considerDeltaRT"]));
+    mp.qualityWeight = BINT(settingsMap["qualityWeight"]);
+    mp.intensityWeight = BINT(settingsMap["intensityWeight"]);
+    mp.deltaRTWeight = BINT(settingsMap["deltaRTWeight"]);
+
+    mp.massCutoffMerge->setMassCutoffType(BSTRING(settingsMap["massCutoffType"]));
+
+    mp.processAllSlices = static_cast<bool>(BINT(settingsMap["automatedDetection"]));
+    mp.massCutoffMerge->setMassCutoff(BDOUBLE(settingsMap["massDomainResolution"]));
+    mp.rtStepSize = BINT(settingsMap["timeDomainResolution"]);
+    mp.minMz = BDOUBLE(settingsMap["minMz"]);
+    mp.maxMz = BDOUBLE(settingsMap["maxMz"]);
+    mp.minRt = BDOUBLE(settingsMap["minRt"]);
+    mp.maxRt = BDOUBLE(settingsMap["maxRt"]);
+    mp.minIntensity = BDOUBLE(settingsMap["minIntensity"]);
+    mp.maxIntensity = BDOUBLE(settingsMap["maxIntensity"]);
+    mp.mustHaveFragmentation = static_cast<bool>(BINT(settingsMap["mustHaveFragmentation"]));
+    mp.identificationMatchRt = static_cast<bool>(BINT(settingsMap["identificationMatchRt"]));
+    mp.identificationRtWindow = BDOUBLE(settingsMap["identificationRtWindow"]);
+
+    // ?? = settingsMap["databaseSearch"];
+    mp.compoundMassCutoffWindow->setMassCutoff(BDOUBLE(settingsMap["compoundExtractionWindow"]));
+    mp.matchRtFlag = static_cast<bool>(BINT(settingsMap["matchRt"]));
+    mp.compoundRTWindow = BDOUBLE(settingsMap["compoundRtWindow"]);
+    mp.eicMaxGroups = BINT(settingsMap["limitGroupsPerCompound"]);
+    mp.searchAdducts = static_cast<bool>(BINT(settingsMap["searchAdducts"]));
+    mp.adductSearchWindow = BDOUBLE(settingsMap["adductSearchWindow"]);
+    mp.adductPercentCorrelation = BDOUBLE(settingsMap["adductPercentCorrelation"]);
+
+    mp.matchFragmentationFlag = static_cast<bool>(BINT(settingsMap["matchFragmentation"]));
+    mp.minFragMatchScore = BDOUBLE(settingsMap["minFragMatchScore"]);
+    mp.fragmentTolerance = BDOUBLE(settingsMap["fragmentTolerance"]);
+    mp.minFragMatch = BINT(settingsMap["minFragMatch"]);
+
+    mp.pullIsotopesFlag = static_cast<bool>(BINT(settingsMap["reportIsotopes"]));
+
+    mp.peakQuantitation = BINT(settingsMap["peakQuantitation"]);
+    mp.minGroupIntensity = BDOUBLE(settingsMap["minGroupIntensity"]);
+    mp.quantileIntensity = BINT(settingsMap["intensityQuantile"]);
+    mp.minQuality = BDOUBLE(settingsMap["minGroupQuality"]);
+    mp.quantileQuality = BINT(settingsMap["qualityQuantile"]);
+    mp.minSignalBlankRatio = BDOUBLE(settingsMap["minSignalBlankRatio"]);
+    mp.quantileSignalBlankRatio = BINT(settingsMap["signalBlankRatioQuantile"]);
+    mp.minSignalBaseLineRatio = BDOUBLE(settingsMap["minSignalBaselineRatio"]);
+    mp.quantileSignalBaselineRatio = BINT(settingsMap["signalBaselineRatioQuantile"]);
+    mp.minNoNoiseObs = BINT(settingsMap["minPeakWidth"]);
+    mp.minGoodGroupCount = BINT(settingsMap["minGoodPeakCount"]);
+    // ?? = settingsMap["peakClassifierFile"];
+
+    // ?? = settingsMap["mainWindowSelectedDbName"];
+    // ?? = settingsMap["mainWindowCharge"];
+    // ?? = settingsMap["mainWindowPeakQuantitation"];
+    // ?? settingsMap["mainWindowMassResolution"];
+
+    return mp;
 }
 
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {

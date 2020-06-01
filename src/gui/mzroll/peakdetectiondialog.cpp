@@ -223,7 +223,11 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SLOT(setModel(QString)));
 
         connect(this, &PeakDetectionDialog::settingsChanged, peakSettings, &PeakDetectionSettings::updatePeakSettings);
-
+        connect(peakQuantitation,
+                &QComboBox::currentTextChanged,
+                [&](QString type) {
+                    mainwindow->setUserQuantType(type);
+                });
 }
 
 void PeakDetectionDialog::onReset()
@@ -238,6 +242,11 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
     ppmStep->setSuffix(suffix);
     compoundPPMWindow->setSuffix(suffix);
     emit updateSettings(peakSettings);
+}
+
+void PeakDetectionDialog::setQuantType(QString type)
+{
+    peakQuantitation->setCurrentText(type);
 }
 
 void PeakDetectionDialog::closeEvent(QCloseEvent* event)

@@ -126,7 +126,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	distXWeight = 1.0;
 	distYWeight = 1.0;
 	overlapWeight = 1.0;
-	bool useOverlap = true;
+    useOverlap = true;
 
     /* default_settings_xml is a  character array generated using Default_Settings.xml file
      * It's present in settings.h header file
@@ -160,9 +160,144 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         loadSettings(defaultSettingsData);
 }
 
+MavenParameters::MavenParameters(const MavenParameters& mp)
+{
+    copyFrom(mp);
+}
+
 MavenParameters::~MavenParameters()
 {
     saveSettings(lastUsedSettingsPath.c_str());
+}
+
+MavenParameters& MavenParameters::operator=(const MavenParameters& mp)
+{
+    copyFrom(mp);
+    return *this;
+}
+
+void MavenParameters::copyFrom(const MavenParameters& mp)
+{
+    clsf = mp.clsf;
+    alignSamplesFlag = mp.alignSamplesFlag;
+    processAllSlices = mp.processAllSlices;
+    pullIsotopesFlag = mp.pullIsotopesFlag;
+    matchRtFlag = mp.matchRtFlag;
+    stop = mp.stop;
+
+    outputdir = mp.outputdir;
+    writeCSVFlag = mp.writeCSVFlag;
+
+    ionizationMode = mp.ionizationMode;
+    charge = mp.charge;
+    keepFoundGroups = mp.keepFoundGroups;
+    showProgressFlag = mp.showProgressFlag;
+
+    alignButton = mp.alignButton;
+
+    fragmentTolerance = mp.fragmentTolerance;
+    minFragMatchScore = mp.minFragMatchScore;
+    minFragMatch = mp.minFragMatch;
+    scoringAlgo = mp.scoringAlgo;
+    matchFragmentationFlag = mp.matchFragmentationFlag;
+    mustHaveFragmentation = mp.mustHaveFragmentation;
+
+    massCutoffMerge = mp.massCutoffMerge;
+    mzBinStep = mp.mzBinStep;
+    rtStepSize = mp.rtStepSize;
+    avgScanTime = mp.avgScanTime;
+
+    limitGroupCount = mp.limitGroupCount;
+
+    searchAdducts = mp.searchAdducts;
+    adductSearchWindow = mp.adductSearchWindow;
+    adductPercentCorrelation = mp.adductPercentCorrelation;
+    setChosenAdductList(mp.getChosenAdductList());
+
+    eic_smoothingWindow = mp.eic_smoothingWindow;
+    eic_smoothingAlgorithm = mp.eic_smoothingAlgorithm;
+
+    aslsBaselineMode = mp.aslsBaselineMode;
+    baseline_smoothingWindow = mp.baseline_smoothingWindow;
+    baseline_dropTopX = mp.baseline_dropTopX;
+    aslsSmoothness = mp.aslsSmoothness;
+    aslsAsymmetry = mp.aslsAsymmetry;
+
+    isIsotopeEqualPeakFilter = mp.isIsotopeEqualPeakFilter;
+    minSignalBaselineDifference = mp.minSignalBaselineDifference;
+    isotopicMinSignalBaselineDifference = mp.isotopicMinSignalBaselineDifference;
+    minPeakQuality = mp.minPeakQuality;
+    minIsotopicPeakQuality = mp.minIsotopicPeakQuality;
+
+    eicType = mp.eicType;
+
+    grouping_maxRtWindow = mp.grouping_maxRtWindow;
+
+    minGoodGroupCount = mp.minGoodGroupCount;
+    minSignalBlankRatio = mp.minSignalBlankRatio;
+    minNoNoiseObs = mp.minNoNoiseObs;
+    minSignalBaseLineRatio = mp.minSignalBaseLineRatio;
+    minGroupIntensity = mp.minGroupIntensity;
+    peakQuantitation = mp.peakQuantitation;
+    minQuality = mp.minQuality;
+
+    qualityWeight = mp.qualityWeight;
+    intensityWeight = mp.intensityWeight;
+    deltaRTWeight = mp.deltaRTWeight;
+    deltaRtCheckFlag = mp.deltaRtCheckFlag;
+
+    massCutoffMerge = new MassCutoff();
+    massCutoffMerge->setMassCutoffAndType(
+        mp.massCutoffMerge->getMassCutoff(),
+        mp.massCutoffMerge->getMassCutoffType());
+    compoundMassCutoffWindow = new MassCutoff();
+    compoundMassCutoffWindow->setMassCutoffAndType(
+        mp.compoundMassCutoffWindow->getMassCutoff(),
+        mp.compoundMassCutoffWindow->getMassCutoffType());
+
+    compoundMassCutoffWindow = mp.compoundMassCutoffWindow;
+    compoundRTWindow = mp.compoundRTWindow;
+    eicMaxGroups = mp.eicMaxGroups;
+
+    amuQ1 = mp.amuQ1;
+    amuQ3 = mp.amuQ3;
+    filterline = mp.filterline;
+
+    maxIsotopeScanDiff = mp.maxIsotopeScanDiff;
+    minIsotopicCorrelation = mp.minIsotopicCorrelation;
+    linkIsotopeRtRange = mp.linkIsotopeRtRange;
+
+    C13Labeled_BPE = mp.C13Labeled_BPE;
+    N15Labeled_BPE = mp.N15Labeled_BPE;
+    S34Labeled_BPE = mp.S34Labeled_BPE;
+    D2Labeled_BPE = mp.D2Labeled_BPE;
+
+    C13Labeled_Barplot = mp.C13Labeled_Barplot;
+    N15Labeled_Barplot = mp.N15Labeled_Barplot;
+    S34Labeled_Barplot = mp.S34Labeled_Barplot;
+    D2Labeled_Barplot = mp.D2Labeled_Barplot;
+
+    alignMaxIterations = mp.alignMaxIterations;
+    alignPolynomialDegree = mp.alignPolynomialDegree;
+
+    quantileQuality = mp.quantileQuality;
+    quantileIntensity = mp.quantileIntensity;
+    quantileSignalBaselineRatio = mp.quantileSignalBaselineRatio;
+    quantileSignalBlankRatio = mp.quantileSignalBlankRatio;
+
+    distXWeight = mp.distXWeight;
+    distYWeight = mp.distYWeight;
+    overlapWeight = mp.overlapWeight;
+    useOverlap = mp.useOverlap;
+
+    lastUsedSettingsPath = mp.lastUsedSettingsPath;
+    defaultSettingsData = mp.defaultSettingsData;
+    mavenSettings = mp.mavenSettings;
+
+    // we intentionally do not copy `allgroups` and `compounds` since these
+    // vectors are meant to be used only by the global `MavenParameters` object,
+    // which will not be created by a copy operation like this.
+    samples = mp.samples;
 }
 
 void MavenParameters::setOutputDir(QString outdir) {
@@ -481,20 +616,13 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
 
 bool MavenParameters::saveSettings(const char* path)
 {
-    cerr << "\n\n saving the settings at  " << path << "\n";
     pugi::xml_document xmlDoc;
-
     pugi::xml_node pNode = xmlDoc.append_child("Settings");
-
-
-
     for(std::map<std::string, std::string>::iterator  it = mavenSettings.begin(); it != mavenSettings.end(); it++) {
-
         pugi::xml_node cNode = pNode.append_child(it->first.c_str());
         cNode.append_child(pugi::node_pcdata).set_value(it->second.c_str());
 
     }
-
 
     if(!xmlDoc.save_file(path,"\t", format_default, pugi::xml_encoding::encoding_utf8))
         return false;

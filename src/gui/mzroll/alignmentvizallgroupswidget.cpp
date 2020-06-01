@@ -5,6 +5,7 @@
 #include "alignmentvizallgroupswidget.h"
 #include "eicwidget.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "Peak.h"
 #include "projectdockwidget.h"
@@ -41,7 +42,8 @@ void AlignmentVizAllGroupsWidget::plotGraph(QList<PeakGroup> allgroups) {
             mzSample* sample = peak.getSample();
             retentionTime[sample] << peak.rt;
             retentionTimeDeviation[sample] << peak.rt - grp.medianRt();
-            pairPeakGroup[make_pair(peak.rt, peak.rt - grp.medianRt())] = grp;
+            pairPeakGroup.insert(map<pair<float, float>, PeakGroup>::value_type(
+                make_pair(peak.rt, peak.rt - grp.medianRt()), grp));
         }
     }
 
@@ -125,7 +127,7 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
 
     QCPDataRange dataRange;
     int index;
-    PeakGroup grp;
+    PeakGroup grp(make_shared<MavenParameters>(*_mw->mavenParameters));
 
     for (unsigned int i =0; i<samples.size(); i++) {
         mzSample* sample = samples[i];
@@ -141,7 +143,7 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
                 float x = retentionTime[sample][index];
                 float y = retentionTimeDeviation[sample][index];
                 pair<float, float> xy = make_pair(x, y);
-                grp = pairPeakGroup[xy];
+                grp = pairPeakGroup.find(xy)->second;
                 if (_mw != NULL) {
                     _mw->setPeakGroup(&grp);
                     _mw->getEicWidget()->replotForced();

@@ -314,8 +314,10 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
 
     map<string, PeakGroup> isotopes;
     if (!parentGroup->children.empty() && !parentGroup->tableName().empty()) {
-        for (auto& child : parentGroup->children)
-            isotopes[child.tagString] = child;
+        for (auto& child : parentGroup->children) {
+            isotopes.insert(map<string, PeakGroup>::value_type(child.tagString,
+                                                               child));
+        }
     } else {
         isotopes = isotopeDetector->getIsotopes(parentGroup, masslist);
     }

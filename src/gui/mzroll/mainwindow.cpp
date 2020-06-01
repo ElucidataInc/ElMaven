@@ -1287,6 +1287,7 @@ void MainWindow::setUserMassCutoff(double x)
     eicWidget->setMassCutoff(_massCutoffWindow);
     fileLoader->insertSettingForSave("mainWindowMassResolution",
                                      variant(cutoff));
+    mavenParameters->compoundMassCutoffWindow->setMassCutoff(x);
 }
 
 void MainWindow::setIonizationModeLabel() {
@@ -3296,6 +3297,7 @@ void MainWindow::refreshIntensities()
 
     fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
                                      variant(quantType->currentIndex()));
+    peakDetectionDialog->setQuantType(quantType->currentText());
 }
 
 void MainWindow::_postProjectLoadActions()
@@ -4254,6 +4256,11 @@ PeakGroup::QType MainWindow::getUserQuantType() {
 			return PeakGroup::SNRatio;
 	}
 	return PeakGroup::AreaTop;
+}
+
+void MainWindow::setUserQuantType(QString type)
+{
+    quantType->setCurrentText(type);
 }
 
 void MainWindow::markGroup(PeakGroup* group, char label) {

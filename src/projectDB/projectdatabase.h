@@ -15,6 +15,7 @@ class Connection;
 class mzSample;
 class PeakGroup;
 class Scan;
+class MavenParameters;
 
 using namespace std;
 using variant = boost::variant<int, float, double, bool, string>;
@@ -142,7 +143,9 @@ public:
     void saveScans(const vector<mzSample*>& sampleSet);
 
     /**
-     * @brief Save all user settings for the session into SQLite database.
+     * @brief Save all user settings for the session into SQLite database. The
+     * global UI state settings will be saved with the "global" key as its
+     * domain.
      * @details Since the value of a setting might be of different types, a
      * variant is used to wrap them into a single type. However, it is worth
      * noting that only the types - int, float, double, bool and string are
@@ -152,7 +155,16 @@ public:
      * @param settingsMap A map of settings (string identifiers) and their
      * values for the session.
      */
-    void saveSettings(const map<string, variant>& settingsMap);
+    void saveGlobalSettings(const map<string, variant>& settingsMap);
+
+    /**
+     * @brief Save integration parameters for groups where each key-string is a
+     * group's ID.
+     * @param group A peak-group whose integration parameters are to be saved.
+     * @param groupId The database ID for a saved peak-group, which will be used
+     * to specify the domain key of its saved parameters.
+     */
+    void saveGroupSettings(const PeakGroup *group, int groupId);
 
     /**
      * @brief Load sample filenames saved in the DB from a previous session.
@@ -197,9 +209,13 @@ public:
      * be added as a top-level group itself.
      * @param loaded A vector of loaded samples which will be associated with
      * peak groups and their peaks.
+     * @param globalParams A pointer to the current global parameters object,
+     * which will be used to initialize individual group's parameters before
+     * filling them with values loaded from the database.
      * @return A vector of PeakGroup objects that were successfully loaded.
      */
-    vector<PeakGroup*> loadGroups(const vector<mzSample*>& loaded);
+    vector<PeakGroup*> loadGroups(const vector<mzSample*>& loaded,
+                                  const MavenParameters* globalParams);
 
     /**
      * @brief Load peaks for a given peak group.
@@ -257,7 +273,14 @@ public:
      * @return A map with settings (string identifiers) mapping to their values
      * loaded from the database.
      */
-    map<string, variant> loadSettings();
+    map<string, variant> loadGlobalSettings();
+
+    /**
+     * @brief Load parameters used while integrating each group.
+     * @return A map of group ID values mapping to their settings which is
+     * itself a map of parameters and their values.
+     */
+    map<int, map<string, variant>> loadGroupSettings();
 
     /**
      * @brief Drop all tables, deleting all data stored by any of the save
@@ -369,6 +392,31 @@ public:
      * @return True if the connection exists or is open, false otherwise.
      */
     bool openConnection();
+
+    /**
+     * @brief Convert a `MavenParameters` object's values to a settings map that
+     * can be used by `ProjectDatabase::saveSettings` method.
+     * @details Some information will be lost during this conversion, since not
+     * every parameter is added to the map. Likewise, some settings that are not
+     * present in an actual `MavenParameters` object will be added to conform to
+     * the map format expected in `ProjectDatabase::saveSettings`.
+     * @param mp A shared pointer to a `MavenParameters` object.
+     * @return A collection of setting names mapping to their values.
+     */
+    map<string, variant>
+    fromParametersToMap(const shared_ptr<MavenParameters> mp);
+
+    /**
+     * @brief Convert a settings map produced by `ProjectDatabase::loadSettings`
+     * into a `MavenParameters` object with the respective settings filled in.
+     * @param settingsMap A collection of setting names mapping to their values.
+     * @param super A pointer to a `MavenParameters` object, that will be used
+     * as a template to inherit initial settings from.
+     * @return A `MavenParameters` object filled with settings from `super`
+     * and overwritten by those available in `settingsMap`.
+     */
+    MavenParameters fromMaptoParameters(map<string, variant> settingsMap,
+                                        const MavenParameters *super);
 
 private:
     /**

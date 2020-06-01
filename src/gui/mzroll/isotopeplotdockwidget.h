@@ -27,6 +27,11 @@ private Q_SLOTS:
 private:
     Ui::IsotopePlotDockWidget *ui;
     MainWindow *_mw;
+    QCheckBox* _C13;
+    QCheckBox* _D2;
+    QCheckBox* _N15;
+    QCheckBox* _S34;
+
     void setToolBar();
     void recompute();
 };

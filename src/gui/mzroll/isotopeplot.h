@@ -26,6 +26,7 @@ public:
     ~IsotopePlot();
 
     void setPeakGroup(PeakGroup* group);
+    const PeakGroup* peakGroup() { return _group; }
     void setMainWindow(MainWindow* mw);
     QRectF boundingRect() const;
     void clear();

@@ -22,5 +22,6 @@
 #include <cstddef>
 #include <cstring>
 #include <cfloat>
+#include <memory>
 
 #endif // STANDARDINCLUDES_H

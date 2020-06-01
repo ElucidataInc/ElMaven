@@ -67,17 +67,7 @@ public:
 								int intensityWeight,
 								int deltaRTWeight);
 
-    void groupPeaks(float eic_smoothingWindow,
-                    mzSlice* slice,
-                    float grouping_maxRtWindow,
-                    double minQuality,
-                    double distXWeight,
-                    double distYWeight,
-                    double overlapWeight,
-                    bool useOverlap,
-                    double minSignalBaselineDifference,
-                    float productPpmTolerance,
-                    string scoringAlgo);
+    void groupPeaks(mzSlice* slice, MavenParameters* mp);
 
 	mzSlice setMzSlice(float mz1, MassCutoff *massCutoff, float mz2 = 0.0);
 
@@ -96,7 +86,7 @@ public:
 	vector<EIC*> eics;				// vectors mass slices one from each sample
 	deque<EIC*> tics;				// vectors total chromatogram intensities
 	vector<PeakGroup> peakgroups;	    //peaks grouped across samples
-	PeakGroup _integratedGroup;		//manually integrated peak group
+    PeakGroup* integratedGroup; // manually integrated peak group
 
 private:
 	void addPeakGroup(PeakGroup& group);

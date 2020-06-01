@@ -66,6 +66,7 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
 map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                                                      vector<Isotope> masslist)
 {
+    auto parameters = make_shared<MavenParameters>(*_mavenParameters);
     map<string, PeakGroup> isotopeGroups;
     for (auto sample : _mavenParameters->samples) {
         for (Isotope& isotope : masslist) {
@@ -162,7 +163,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
 
             // label the peak of isotope
             if (isotopeGroups.count(isotopeName) == 0) {
-                PeakGroup childGroup;
+                PeakGroup childGroup(parameters);
                 // meanMz is updated in group statistics later
                 childGroup.meanMz = isotopeMass;
                 childGroup.expectedMz = isotopeMass;
@@ -179,9 +180,10 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
                                    parentGroup->getSlice().rtmax);
                 childGroup.setSlice(childSlice);
                 childGroup.setCompound(parentGroup->getCompound());
-                isotopeGroups[isotopeName] = childGroup;
+                isotopeGroups.insert(map<string, PeakGroup>::value_type(isotopeName,
+                                                                        childGroup));
             }
-            isotopeGroups[isotopeName].addPeak(isotopePeak);
+            isotopeGroups.find(isotopeName)->second.addPeak(isotopePeak);
         }
     }
     return isotopeGroups;

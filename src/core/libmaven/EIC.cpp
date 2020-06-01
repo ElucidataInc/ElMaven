@@ -3,6 +3,7 @@
 #include "EIC.h"
 #include "Peak.h"
 #include "PeakGroup.h"
+#include "mavenparameters.h"
 #include "mzPatterns.h"
 #include "mzSample.h"
 #include "SavGolSmoother.h"
@@ -947,57 +948,29 @@ void EIC::removeLowRankGroups(vector<PeakGroup> &groups, unsigned int rankLimit)
     }
 }
 
-//TODO: Lots of parameters. Refactor this code - Sahil
 vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   mzSlice* slice,
-                                  int smoothingWindow,
-                                  float maxRtDiff,
-                                  double minQuality,
-                                  double distXWeight,
-                                  double distYWeight,
-                                  double overlapWeight,
-                                  bool useOverlap,
-                                  double minSignalBaselineDifference,
-                                  float productPpmTolerance,
-                                  string scoringAlgo)
+                                  shared_ptr<MavenParameters> mp)
 {
     vector<mzSample*> samples;
-    for(int i=0;i<eics.size();++i){
-            samples.push_back(eics[i]->sample); //collect all mzSample into vector samples 
-    }
-    //list filled and return by this function
+    for(int i=0;i<eics.size();++i)
+        samples.push_back(eics[i]->sample);
+
+    // list filled and return by this function
     vector<PeakGroup> pgroups;
 
-    //case there is only a single EIC, there is nothing to group
-    // if (eics.size() == 1 && eics[0] != NULL)
-    // {
-    //     EIC *m = eics[0];
-    //     for (unsigned int i = 0; i < m->peaks.size(); i++)
-    //     {
-    //         PeakGroup grp;
-    //         grp.minQuality = minQuality;
-    //         grp.groupId = i;
-    //         grp.addPeak(m->peaks[i]);
-    //         grp.groupStatistics();
-    //         grp.setSelectedSamples(samples);
-    //         pgroups.push_back(grp);
-    //     }
-    //     return pgroups;
-    // }
-
-    //create EIC compose from all sample eics
+    // create EIC compose from all sample eics
     EIC *m = EIC::eicMerge(eics);
     if (!m)
         return pgroups;
 
     //find peaks in merged eic
-    m->setFilterSignalBaselineDiff(minSignalBaselineDifference);
-    m->getPeakPositions(smoothingWindow);
+    m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+    m->getPeakPositions(mp->eic_smoothingWindow);
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
-    for (unsigned int i = 0; i < m->peaks.size(); i++)
-    {
-        PeakGroup grp;
+    for (unsigned int i = 0; i < m->peaks.size(); i++) {
+        PeakGroup grp(mp);
         grp.groupId = i;
         if (slice) {
             grp.setSlice(*slice);
@@ -1007,34 +980,38 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         pgroups.push_back(grp);
     }
 
-    //cerr << "EIC::groupPeaks() peakgroups=" << pgroups.size() << endl;
-
-    for (unsigned int i = 0; i < eics.size(); i++)
-    { //for every sample
-        for (unsigned int j = 0; j < eics[i]->peaks.size(); j++)
-        { //for every peak in the sample
+    // for every sample
+    for (unsigned int i = 0; i < eics.size(); i++) {
+        // for every peak in the sample
+        for (unsigned int j = 0; j < eics[i]->peaks.size(); j++) {
             Peak &b = eics[i]->peaks[j];
             b.groupNum = -1;
             b.groupOverlap = FLT_MIN;
 
-            vector<Peak>::iterator itr = lower_bound(m->peaks.begin(), m->peaks.end(), b, Peak::compRtMin);
+            vector<Peak>::iterator itr = lower_bound(m->peaks.begin(),
+                                                     m->peaks.end(),
+                                                     b,
+                                                     Peak::compRtMin);
             int lb = (itr - (m->peaks.begin())) - 1;
             if (lb < 0)
                 lb = 0;
-            //cerr << "\tb=" << b.rtmin << "<=>" << b.rtmax << " lb=" << lb << endl;
 
-            //Find best matching group
+            // find best matching group
             for (unsigned int k = 0; k < m->peaks.size(); k++)
             {
                 Peak &a = m->peaks[k];
 
                 float score;
 
-                float overlap = checkOverlap(a.rtmin, a.rtmax, b.rtmin, b.rtmax); //check for overlap
+                // check for overlap
+                float overlap = checkOverlap(a.rtmin,
+                                             a.rtmax,
+                                             b.rtmin,
+                                             b.rtmax);
                 float distx = abs(b.rt - a.rt);
                 float disty = abs(b.peakIntensity - a.peakIntensity);
 
-                if (useOverlap)
+                if (mp->useOverlap)
                 {
 
                     if (overlap == 0 and a.rtmax < b.rtmin)
@@ -1042,18 +1019,23 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                     if (overlap == 0 and a.rtmin > b.rtmax)
                         break;
 
-                    if (distx > maxRtDiff && overlap < 0.2)
+                    if (distx > mp->grouping_maxRtWindow && overlap < 0.2)
                         continue;
 
-                    score = 1.0 / (distXWeight * distx + 0.01) / (distYWeight * disty + 0.01) * (overlapWeight * overlap);
+                    score = 1.0
+                            / (mp->distXWeight * distx + 0.01)
+                            / (mp->distYWeight * disty + 0.01)
+                            * (mp->overlapWeight * overlap);
                 }
                 else
                 {
 
-                    if (distx > maxRtDiff)
+                    if (distx > mp->grouping_maxRtWindow)
                         continue;
 
-                    score = 1.0 / (distXWeight * distx + 0.01) / (distYWeight * disty + 0.01);
+                    score = 1.0
+                            / (mp->distXWeight * distx + 0.01)
+                            / (mp->distYWeight * disty + 0.01);
                 }
 
                 if (score > b.groupOverlap)
@@ -1063,11 +1045,6 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                 }
             }
 
-            /*
-               cerr << b->peakMz <<  " " << b->rtmin << " " << b->rtmax << "->"  << b->groupNum <<
-               " " << b->groupOverlap << endl;
-               */
-
             if (b.groupNum != -1)
             {
                 PeakGroup &bestPeakGroup = pgroups[b.groupNum];
@@ -1075,7 +1052,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             }
             else
             {
-                PeakGroup grp;
+                PeakGroup grp(mp);
                 pgroups.push_back(grp);
                 grp.groupId = pgroups.size() + 1;
                 grp.setSlice(*slice);
@@ -1087,26 +1064,28 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
 
     //clean up peakgroup such that there is only one peak for each sample
     //does the same funtion of vector::erase(), but much faster
-    pgroups.erase(std::remove_if(pgroups.begin(), pgroups.end(), [](const PeakGroup &grp) { return grp.peaks.size() <= 0; }), pgroups.end());
+    pgroups.erase(std::remove_if(pgroups.begin(),
+                                 pgroups.end(),
+                                 [](const PeakGroup &grp)
+                                 {
+                                     return grp.peaks.size() <= 0;
+                                 }),
+                  pgroups.end());
 
     for (unsigned int i = 0; i < pgroups.size(); i++)
     {
         PeakGroup &grp = pgroups[i];
-        grp.minQuality = minQuality;
+        grp.minQuality = mp->minQuality;
         grp.reduce();
         //grp.fillInPeaks(eics);
         //Feng note: fillInPeaks is unecessary
         grp.groupStatistics();
         grp.computeAvgBlankArea(eics);
         if (grp.getFragmentationEvents().size()) {
-            grp.computeFragPattern(productPpmTolerance);
-            grp.matchFragmentation(productPpmTolerance, scoringAlgo);
+            grp.computeFragPattern(mp->fragmentTolerance);
+            grp.matchFragmentation(mp->fragmentTolerance, mp->scoringAlgo);
         }
     }
-
-    //now merge overlapping groups
-    //EIC::mergeOverlapingGroups(pgroups);
-    //cerr << "Found " << pgroups.size() << "groups" << endl;
 
     if (m)
         delete (m);

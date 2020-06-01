@@ -10,6 +10,7 @@ EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);
     _selectedGroup = nullptr;
     _displayedGroup = nullptr;
+    integratedGroup = nullptr;
 }
 
 void EICLogic::addPeakGroup(PeakGroup& group) {
@@ -65,33 +66,13 @@ PeakGroup* EICLogic::selectGroupNearRt(float rt,
 	return selGroup;
 }
 
-void EICLogic::groupPeaks(float eic_smoothingWindow,
-                          mzSlice* slice,
-                          float grouping_maxRtWindow,
-                          double minQuality,
-                          double distXWeight,
-                          double distYWeight,
-                          double overlapWeight,
-                          bool useOverlap,
-                          double minSignalBaselineDifference,
-                          float productPpmTolerance,
-                          string scoringAlgo)
+void EICLogic::groupPeaks(mzSlice* slice, MavenParameters *mp)
 {
     peakgroups = EIC::groupPeaks(eics,
-                                slice,
-                                eic_smoothingWindow,
-                                grouping_maxRtWindow,
-                                minQuality,
-                                distXWeight,
-                                distYWeight,
-                                overlapWeight,
-                                useOverlap,
-                                minSignalBaselineDifference,
-                                productPpmTolerance,
-                                scoringAlgo);
+                                 slice,
+                                 make_shared<MavenParameters>(*mp));
 
-
-    //keep only top X groups ( ranked by intensity )
+    // keep only top X groups ( ranked by intensity )
     EIC::removeLowRankGroups(peakgroups, 50);
 }
 

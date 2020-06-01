@@ -56,7 +56,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showBaselineQuantileStatus(int);
 				 void showBlankQuantileStatus(int);
                  void setMassCutoffType(QString type);
-                                void triggerSettingsUpdate();
+                 void setQuantType(QString type);
+                 void triggerSettingsUpdate();
                 void onReset();
 
                 Q_SIGNALS:

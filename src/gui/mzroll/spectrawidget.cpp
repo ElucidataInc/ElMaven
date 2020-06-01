@@ -15,12 +15,13 @@
 #include "spectramatching.h"
 #include "spectrawidget.h"
 
-SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra) {
+SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra)
+    : _currentGroup(make_shared<MavenParameters>(*mw->mavenParameters))
+{
     this->mainwindow = mw;
     eicparameters = new EICLogic();
    _currentScan = nullptr;
-   _avgScan = nullptr;
-   _currentGroup = PeakGroup();
+   _avgScan = nullptr; 
    _spectralHit = SpectralHit();
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
@@ -275,7 +276,8 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 
 void SpectraWidget::overlayPeakGroup(PeakGroup* group)
 {
-    _currentGroup = PeakGroup();
+    _currentGroup =
+        PeakGroup(make_shared<MavenParameters>(*mainwindow->mavenParameters));
     if (!group) return;
     
     _overlayMode = OverlayMode::Consensus;
@@ -372,7 +374,7 @@ void SpectraWidget::showConsensusSpectra(PeakGroup* group)
     if (!group) return;
     _scanset.clear();
 
-    float fragTolerance = mainwindow->mavenParameters->fragmentTolerance;
+    float fragTolerance = group->parameters()->fragmentTolerance;
     Scan* consensus = group->getAverageFragmentationScan(fragTolerance);
 
     if (consensus) {

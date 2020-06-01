@@ -15,6 +15,7 @@ class Scan;
 class EIC;
 class MassCutoff;
 class Adduct;
+class MavenParameters;
 
 using namespace std;
 
@@ -27,6 +28,7 @@ class PeakGroup{
         bool _sliceSet;
 
         string _tableName;
+        shared_ptr<MavenParameters> _parameters;
 
     public:
         enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
@@ -38,7 +40,7 @@ class PeakGroup{
                         Quality=5,
                         SNRatio=6,
                         AreaTopNotCorrected=7};
-        PeakGroup();
+        PeakGroup(shared_ptr<MavenParameters> parameters);
         PeakGroup(const PeakGroup& o);
         PeakGroup& operator=(const PeakGroup& o);
 
@@ -618,5 +620,15 @@ class PeakGroup{
          * @param tableName A string containing peak-table name.
          */
         void setTableName(string tableName);
+
+        /**
+         * @brief Obtain a reference to the parameters object used while
+         * integrating this peak-group.
+         * @return A constant shared pointer to a `MavenParameters` object.
+         */
+        const shared_ptr<MavenParameters> parameters() const
+        {
+            return _parameters;
+        }
 };
 #endif

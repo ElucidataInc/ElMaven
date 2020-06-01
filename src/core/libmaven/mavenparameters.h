@@ -23,7 +23,12 @@ class MavenParameters
 {
     public:
         MavenParameters(string settingsPath="");
+        MavenParameters(const MavenParameters& mp);
         ~MavenParameters();
+
+        void copyFrom(const MavenParameters& mp);
+        MavenParameters& operator=(const MavenParameters& mp);
+
         enum Polarity{AutoDetect,Neutral, Positive, Negative};
         boost::signals2::signal< void (const string&,unsigned int , int ) > sig;
 
@@ -299,7 +304,7 @@ class MavenParameters
         std::map<string, string>& getSettings();
 
         std::vector<Adduct*> getDefaultAdductList();
-        inline std::vector<Adduct*> getChosenAdductList()
+        inline std::vector<Adduct*> getChosenAdductList() const
             { return _chosenAdducts; }
         inline void setChosenAdductList(std::vector<Adduct*> chosenAdducts)
             { _chosenAdducts = chosenAdducts; }

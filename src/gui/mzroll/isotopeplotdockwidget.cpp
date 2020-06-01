@@ -45,21 +45,21 @@ void IsotopePlotDockWidget::setToolBar()
     QWidget* spacer1 = new QWidget();
     toolBar->addWidget(spacer1);
 
-    QCheckBox *C13 = new QCheckBox("C13");
-    C13->setChecked(true);
-    toolBar->addWidget(C13);
+    _C13 = new QCheckBox("C13");
+    _C13->setChecked(true);
+    toolBar->addWidget(_C13);
 
-    QCheckBox *N15 = new QCheckBox("N15");
-    N15->setChecked(false);
-    toolBar->addWidget(N15);
+    _N15 = new QCheckBox("N15");
+    _N15->setChecked(false);
+    toolBar->addWidget(_N15);
 
-    QCheckBox *D2 = new QCheckBox("D2");
-    D2->setChecked(false);
-    toolBar->addWidget(D2);
+    _D2 = new QCheckBox("D2");
+    _D2->setChecked(false);
+    toolBar->addWidget(_D2);
 
-    QCheckBox *S34 = new QCheckBox("S34");
-    S34->setChecked(false);
-    toolBar->addWidget(S34);
+    _S34 = new QCheckBox("S34");
+    _S34->setChecked(false);
+    toolBar->addWidget(_S34);
 
     toolBar->addSeparator();
     QLabel *pool = new QLabel("Other: <");
@@ -87,29 +87,49 @@ void IsotopePlotDockWidget::setToolBar()
 
     setTitleBarWidget(toolBar);
 
-    connect(C13, SIGNAL(toggled(bool)), this, SLOT(updateC13Flag(bool)));
-    connect(N15, SIGNAL(toggled(bool)), this, SLOT(updateN15Flag(bool)));
-    connect(D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
-    connect(S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
+    connect(_C13, SIGNAL(toggled(bool)), this, SLOT(updateC13Flag(bool)));
+    connect(_N15, SIGNAL(toggled(bool)), this, SLOT(updateN15Flag(bool)));
+    connect(_D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
+    connect(_S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
     connect(poolLabels, SIGNAL(valueChanged(double)), this, SLOT(setPoolThreshold(double)));
 
     if (_mw->isotopePlot != nullptr) {
         connect(_mw->isotopePlot,
                 &IsotopePlot::peakGroupSet,
-                C13,
-                &QCheckBox::setDisabled);
+                _C13,
+                [&] (bool alreadyIntegrated) {
+                    const PeakGroup* group = _mw->isotopePlot->peakGroup();
+                    if (group != nullptr && alreadyIntegrated)
+                        _C13->setChecked(group->parameters()->C13Labeled_BPE);
+                    _C13->setDisabled(alreadyIntegrated);
+                });
         connect(_mw->isotopePlot,
                 &IsotopePlot::peakGroupSet,
-                D2,
-                &QCheckBox::setDisabled);
+                _D2,
+                [&] (bool alreadyIntegrated) {
+                    const PeakGroup* group = _mw->isotopePlot->peakGroup();
+                    if (group != nullptr && alreadyIntegrated)
+                        _D2->setChecked(group->parameters()->D2Labeled_BPE);
+                    _D2->setDisabled(alreadyIntegrated);
+                });
         connect(_mw->isotopePlot,
                 &IsotopePlot::peakGroupSet,
-                N15,
-                &QCheckBox::setDisabled);
+                _N15,
+                [&] (bool alreadyIntegrated) {
+                    const PeakGroup* group = _mw->isotopePlot->peakGroup();
+                    if (group != nullptr && alreadyIntegrated)
+                        _N15->setChecked(group->parameters()->N15Labeled_BPE);
+                    _N15->setDisabled(alreadyIntegrated);
+                });
         connect(_mw->isotopePlot,
                 &IsotopePlot::peakGroupSet,
-                S34,
-                &QCheckBox::setDisabled);
+                _S34,
+                [&] (bool alreadyIntegrated) {
+                    const PeakGroup* group = _mw->isotopePlot->peakGroup();
+                    if (group != nullptr && alreadyIntegrated)
+                        _S34->setChecked(group->parameters()->S34Labeled_BPE);
+                    _S34->setDisabled(alreadyIntegrated);
+                });
     }
 }
 
