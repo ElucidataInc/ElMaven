@@ -60,6 +60,7 @@ private:
     void _fillPlotData();
     bool _visibleItemsHavePeakData();
     void _createNewPeak();
+    void _deleteCurrentPeak();
 
 protected:
     bool recursionCheck;

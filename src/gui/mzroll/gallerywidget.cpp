@@ -407,6 +407,20 @@ void GalleryWidget::_createNewPeak()
     replot();
 }
 
+void GalleryWidget::_deleteCurrentPeak()
+{
+    if (!_visibleItemsHavePeakData())
+        return;
+
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        _peakBounds[eic] = make_pair(-1.0f, -1.0f);
+        emit peakRegionChanged(eic->sample, -1.0f, -1.0f);
+    }
+    _fillPlotData();
+    replot();
+}
+
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
     event->ignore();
@@ -439,6 +453,8 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
         event->ignore();
     } else if (event->key() == Qt::Key_C) {
         _createNewPeak();
+    } else if (event->key() == Qt::Key_Delete) {
+        _deleteCurrentPeak();
     }
 }
 

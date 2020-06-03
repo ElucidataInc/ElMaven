@@ -130,6 +130,21 @@ void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
                                           float rtMin,
                                           float rtMax)
 {
+    // lambda: deletes the peak for `peakSample` in `_group` if it exists
+    auto deletePeakIfExists = [this, peakSample] {
+        _group->peaks.erase(remove_if(begin(_group->peaks),
+                                  end(_group->peaks),
+                                  [peakSample](Peak& peak) {
+                                      return peak.getSample() == peakSample;
+                                  }),
+                            end(_group->peaks));
+    };
+
+    if (rtMin < 0.0f && rtMax < 0.0f) {
+        deletePeakIfExists();
+        return;
+    }
+
     vector<EIC*> eics = _gallery->eics();
     auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
         return eic->sample == peakSample;
@@ -168,14 +183,8 @@ void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
         deletePeak = true;
     }
 
-    if (deletePeak) {
-        _group->peaks.erase(remove_if(begin(_group->peaks),
-                                      end(_group->peaks),
-                                      [peakSample](Peak& peak) {
-                                          return peak.getSample() == peakSample;
-                                      }),
-                            end(_group->peaks));
-    }
+    if (deletePeak)
+        deletePeakIfExists();
 
     mzSlice slice = _group->getSlice();
     slice.rtmin = min(slice.rtmin, rtMin);
