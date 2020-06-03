@@ -90,12 +90,19 @@ private:
     map<mzSample*, pair<float, float>> _editedPeakRegions;
 
     /**
-     * @brief Given a group, populate the sample list with the samples used for
-     * performing peak integration for that group (i.e., samples unchecked while
-     * integration will not appear).
-     * @param group Pointer to a `PeakGroup` object.
+     * @brief For the current peak-group, set the min and max RT values - their
+     * allowed ranges as well as their visible values. If the peak-group is part
+     * of an isotopologue set, then the min/max RT values of all peak-groups in
+     * that set are also considered while setting the default visible range.
      */
-    void _populateSampleList(PeakGroup* group);
+    void _setRtRangeAndValues();
+
+    /**
+     * @brief For the current peak-group, populate the sample list with the
+     * samples used for performing peak integration for that group (i.e.,
+     * samples unchecked while integration will not appear).
+     */
+    void _populateSampleList();
 
     /**
      * @brief Set the RT bounds of the peak (in the current peak-group) for the

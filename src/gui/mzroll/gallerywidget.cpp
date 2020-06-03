@@ -26,6 +26,8 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     _maxRt = 0.0f;
     _minIntensity = 0.0f;
     _maxIntensity = 0.0f;
+    _rtBuffer = 0.5f;
+    _intensityMultiplier = 1.1f;
 
     _boxW = 300;
     _boxH = 200;
@@ -148,9 +150,9 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
     }
 
-    _minRt -= 0.5;
-    _maxRt += 0.5;
-    _maxIntensity *= 1.1f;
+    _minRt -= _rtBuffer;
+    _maxRt += _rtBuffer;
+    _maxIntensity *= _intensityMultiplier;
 
     // we add data only at this point, once bounds have been determined
     _fillPlotData();

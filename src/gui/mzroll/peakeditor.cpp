@@ -62,34 +62,60 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     if (group == nullptr || group->samples.empty())
         return;
 
+    setWindowTitle(tr("Peak Editor: %1").arg(group->getName().c_str()));
+
     _editedPeakRegions.clear();
     _group = group;
 
-    _gallery->addEicPlots(group);
-    auto rtBounds = _gallery->rtBounds();
-
-    // set absolute min/max RT ranges
-    float minRt = numeric_limits<float>::max();
-    float maxRt = numeric_limits<float>::min();
-    for (mzSample* sample : group->samples) {
-        minRt = min(minRt, sample->minRt);
-        maxRt = max(maxRt, sample->maxRt);
-    }
-    ui->rtMinSpinBox->setRange(minRt, rtBounds.first);
-    ui->rtMaxSpinBox->setRange(rtBounds.second, maxRt);
-
-    // set visible RT ranges
-    ui->rtMinSpinBox->setValue(rtBounds.first);
-    ui->rtMaxSpinBox->setValue(rtBounds.second);
-
-    _populateSampleList(group);
+    _gallery->addEicPlots(_group);
+    _setRtRangeAndValues();
+    _populateSampleList();
 }
 
-void PeakEditor::_populateSampleList(PeakGroup* group)
+void PeakEditor::_setRtRangeAndValues()
+{
+    auto rtBounds = _gallery->rtBounds();
+    float rtBuffer = _gallery->rtBuffer();
+
+    // find absolute min/max RT ranges
+    float minRtBound = numeric_limits<float>::max();
+    float maxRtBound = numeric_limits<float>::min();
+    for (mzSample* sample : _group->samples) {
+        minRtBound = min(minRtBound, sample->minRt);
+        maxRtBound = max(maxRtBound, sample->maxRt);
+    }
+
+    // find min/max RT limit across isotopologues
+    float minRt = rtBounds.first;
+    float maxRt = rtBounds.first;
+    if (_group->childCount() > 0) {
+        for (PeakGroup& child : _group->children) {
+            minRt = min(minRt, child.minRt - rtBuffer);
+            maxRt = max(maxRt, child.maxRt + rtBuffer);
+        }
+    } else if (_group->type() == PeakGroup::GroupType::Isotope
+               && _group->parent != nullptr) {
+        PeakGroup* parentGroup = _group->parent;
+        minRt = parentGroup->minRt - rtBuffer;
+        maxRt = parentGroup->maxRt + rtBuffer;
+        for (PeakGroup& child : parentGroup->children) {
+            minRt = min(minRt, child.minRt - rtBuffer);
+            maxRt = max(maxRt, child.maxRt + rtBuffer);
+        }
+    }
+
+    // set allowed and visible RT ranges
+    ui->rtMinSpinBox->setRange(minRtBound, minRt);
+    ui->rtMaxSpinBox->setRange(maxRt, maxRtBound);
+    ui->rtMinSpinBox->setValue(minRt);
+    ui->rtMaxSpinBox->setValue(maxRt);
+}
+
+void PeakEditor::_populateSampleList()
 {
     ui->sampleList->clear();
 
-    auto samples = group->samples;
+    auto samples = _group->samples;
     sort(begin(samples), end(samples), mzSample::compSampleOrder);
     for (mzSample* sample : samples) {
         auto item = new NumericTreeWidgetItem(ui->sampleList, 0);
