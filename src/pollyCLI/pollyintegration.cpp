@@ -214,7 +214,6 @@ QPair<ErrorStatus, QMap<QString, QStringList>> PollyIntegration::_fetchAppLicens
 QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
 {
     QMap<PollyApp, QString> appsWithTypes = {
-        {PollyApp::FirstView, "components"},
         {PollyApp::PollyPhi, "workflows"},
         {PollyApp::QuantFit, "components"}
     };
@@ -227,7 +226,6 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
     if (error == ErrorStatus::Error ||
         error == ErrorStatus::Failure) {
         appLicenseStatus = {
-            {PollyApp::FirstView, false},
             {PollyApp::PollyPhi, false},
             {PollyApp::QuantFit, false}
         };
@@ -258,9 +256,7 @@ QMap<PollyApp, bool> PollyIntegration::getAppLicenseStatus()
 
 QString PollyIntegration::stringForApp(PollyApp app)
 {
-    if (app == PollyApp::FirstView) {
-        return "FirstView";
-    } else if (app == PollyApp::PollyPhi) {
+    if (app == PollyApp::PollyPhi) {
         return "PollyPhi";
     } else if (app == PollyApp::QuantFit) {
         return "QuantFit";

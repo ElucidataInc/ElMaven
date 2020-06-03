@@ -8,10 +8,9 @@ class Logger;
 
 enum class PollyApp: int
 {
-    FirstView = 0,
-    PollyPhi = 1,
-    QuantFit = 2,
-    None = 3
+    PollyPhi = 0,
+    QuantFit = 1,
+    None = 2
 };
 
 enum class ErrorStatus: int

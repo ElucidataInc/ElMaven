@@ -602,36 +602,6 @@
          </property>
          <item>
           <property name="text">
-           <string>FirstView</string>
-          </property>
-          <property name="toolTip">
-           <string>FirstView: Preview El-MAVEN processed data and perform further analysis</string>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-            <italic>true</italic>
-            <underline>false</underline>
-           </font>
-          </property>
-          <property name="textAlignment">
-           <set>AlignCenter</set>
-          </property>
-          <property name="icon">
-           <iconset resource="../mzroll.qrc">
-            <normaloff>:/images/firstView.png</normaloff>
-            <normalon>:/images/firstView.png</normalon>
-            <activeoff>:/images/firstView.png</activeoff>
-            <activeon>:/images/firstViewSelected.png</activeon>
-            <selectedoff>:/images/firstViewSelected.png</selectedoff>
-            <selectedon>:/images/firstViewSelected.png</selectedon>:/images/firstView.png</iconset>
-          </property>
-          <property name="flags">
-           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-          </property>
-         </item>
-         <item>
-          <property name="text">
            <string>PollyPhi</string>
           </property>
           <property name="toolTip">
