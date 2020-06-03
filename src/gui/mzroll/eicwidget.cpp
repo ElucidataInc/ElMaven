@@ -1209,8 +1209,8 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 void EicWidget::addAxes() {
 	//qDebug <<" EicWidget::addAxes()";
 //	 qDebug() << "EicWidget: addAxes() " << _minY << " " << _maxY << endl;
-	Axes* x = new Axes(0, _minX, _maxX, 10);
-	Axes* y = new Axes(1, _minY, _maxY, 10);
+    Axes* x = new Axes(0, _minX, _maxX, 11);
+    Axes* y = new Axes(1, _minY, _maxY, 9);
 	scene()->addItem(x);
 	scene()->addItem(y);
 	y->setOffset(20);

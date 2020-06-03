@@ -133,7 +133,7 @@ void TinyPlot::_addAxes(QPainter *painter)
                     _height - _axesOffset,
                     _axesOffset,
                     0,
-                    6,
+                    11,
                     true);
     Axes::paintAxes(painter,
                     1,
