@@ -24,7 +24,9 @@ public:
     void clearData();
 	void setWidth(int w)  { _width=w; }
 	void setHeight(int h) { _height=h; }
+    pair<float, float> xBounds() { return {_minXValue, _maxXValue}; }
     void setXBounds(float x1, float x2) { _minXValue = x1; _maxXValue = x2; }
+    pair<float, float> yBounds() { return {_minYValue, _maxYValue}; }
     void setYBounds(float y1, float y2) { _minYValue = y1; _maxYValue = y2; }
     void setDrawAxes(bool draw) { _drawAxes = draw; }
     bool drawAxes() { return _drawAxes; }

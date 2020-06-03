@@ -87,9 +87,11 @@ void PeakEditor::_setRtRangeAndValues()
 
     // find min/max RT limit across isotopologues
     float minRt = rtBounds.first;
-    float maxRt = rtBounds.first;
+    float maxRt = rtBounds.second;
     if (_group->childCount() > 0) {
         for (PeakGroup& child : _group->children) {
+            if (child.peakCount() == 0)
+                continue;
             minRt = min(minRt, child.minRt - rtBuffer);
             maxRt = max(maxRt, child.maxRt + rtBuffer);
         }
@@ -99,6 +101,8 @@ void PeakEditor::_setRtRangeAndValues()
         minRt = parentGroup->minRt - rtBuffer;
         maxRt = parentGroup->maxRt + rtBuffer;
         for (PeakGroup& child : parentGroup->children) {
+            if (child.peakCount() == 0)
+                continue;
             minRt = min(minRt, child.minRt - rtBuffer);
             maxRt = max(maxRt, child.maxRt + rtBuffer);
         }
@@ -109,6 +113,11 @@ void PeakEditor::_setRtRangeAndValues()
     ui->rtMaxSpinBox->setRange(maxRt, maxRtBound);
     ui->rtMinSpinBox->setValue(minRt);
     ui->rtMaxSpinBox->setValue(maxRt);
+
+    // have to call this separately (even though slots are connected), because
+    // for isotopologues the `valueChanged` signal will not be re-emitted, as we
+    // are constructing a range for them which does not change
+    _gallery->setRtBounds(minRt, maxRt);
 }
 
 void PeakEditor::_populateSampleList()

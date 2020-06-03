@@ -87,9 +87,9 @@ void TinyPlot::addData(EIC* eic,
     for(QVector<QPointF> shape : data) {
         for (auto point : shape) {
             if (point.y() > _maxYValue)
-                _maxYValue = point.y() * 1.2;
+                _maxYValue = point.y() * 1.1;
             if (point.y() < _minYValue)
-                _minYValue = point.y() * 0.8;
+                _minYValue = point.y() * 0.9;
             if (point.x() > _maxXValue)
                 _maxXValue = point.x();
             if (point.x() < _minXValue)

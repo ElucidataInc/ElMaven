@@ -20,10 +20,7 @@ public:
     vector<EIC*> eics() { return _eics; }
     pair<float, float> rtBounds();
     void setRtBounds(float minRt, float maxRt);
-    pair<float, float> intensityBounds();
-    void setIntensityBounds(float minIntensity, float maxIntensity);
     float rtBuffer() { return _rtBuffer; }
-    float intensityMultiplier() { return _intensityMultiplier; }
 
 signals:
     void peakRegionChanged(mzSample*, float, float);
@@ -49,14 +46,12 @@ private:
 
     float _minRt;
     float _maxRt;
-    float _minIntensity;
-    float _maxIntensity;
     float _rtBuffer;
-    float _intensityMultiplier;
 
     void _drawBoundaryMarkers();
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
+    void _scalePlotsToIncludeMaxIntensity();
     void _fillPlotData();
     bool _visibleItemsHavePeakData();
     void _createNewPeak();

@@ -24,10 +24,7 @@ GalleryWidget::GalleryWidget(QWidget* parent)
 
     _minRt = 0.0f;
     _maxRt = 0.0f;
-    _minIntensity = 0.0f;
-    _maxIntensity = 0.0f;
     _rtBuffer = 0.5f;
-    _intensityMultiplier = 1.1f;
 
     _boxW = 300;
     _boxH = 200;
@@ -75,19 +72,6 @@ void GalleryWidget::setRtBounds(float minRt, float maxRt)
     replot();
 }
 
-pair<float, float> GalleryWidget::intensityBounds()
-{
-    return make_pair(_minIntensity, _maxIntensity);
-}
-
-void GalleryWidget::setIntensityBounds(float minIntensity, float maxIntensity)
-{
-    _minIntensity = minIntensity;
-    _maxIntensity = maxIntensity;
-    _fillPlotData();
-    replot();
-}
-
 void GalleryWidget::addEicPlots(PeakGroup* group)
 {
     clear();
@@ -111,7 +95,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
                < second->sample->getSampleOrder();
     });
 
-    _maxIntensity = numeric_limits<float>::min();
     _minRt = numeric_limits<float>::max();
     _maxRt = numeric_limits<float>::min();
     for (EIC* eic : _eics) {
@@ -129,8 +112,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
         if (samplePeak != nullptr) {
             peakRtMin = samplePeak->rtmin;
             peakRtMax = samplePeak->rtmax;
-            if (_maxIntensity < samplePeak->peakIntensity)
-                _maxIntensity = samplePeak->peakIntensity;
             if (peakRtMin < _minRt)
                 _minRt = peakRtMin;
             if (peakRtMax > _maxRt)
@@ -152,7 +133,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
 
     _minRt -= _rtBuffer;
     _maxRt += _rtBuffer;
-    _maxIntensity *= _intensityMultiplier;
 
     // we add data only at this point, once bounds have been determined
     _fillPlotData();
@@ -331,9 +311,24 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         plot->clearData();
         plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
         plot->setXBounds(_minRt, _maxRt);
-        plot->setYBounds(_minIntensity, _maxIntensity);
     }
+    _scalePlotsToIncludeMaxIntensity();
     scene()->update();
+}
+
+void GalleryWidget::_scalePlotsToIncludeMaxIntensity()
+{
+    float minIntensity = numeric_limits<float>::max();
+    float maxIntensity = numeric_limits<float>::min();
+    for (size_t i = 0; i < _plotItems.size(); ++i) {
+        auto plot = _plotItems[i];
+        auto plotIntensities = plot->yBounds();
+        minIntensity = min(minIntensity, plotIntensities.first);
+        maxIntensity = max(maxIntensity, plotIntensities.second);
+    }
+
+    for (auto plot : _plotItems)
+        plot->setYBounds(minIntensity, maxIntensity);
 }
 
 void GalleryWidget::_fillPlotData()
@@ -353,10 +348,10 @@ void GalleryWidget::_fillPlotData()
                       peakBounds.first,
                       peakBounds.second);
 
-        // make sure all plots are scaled into a single inclusive x-y plane
+        // make sure all plots are scaled into a single inclusive x-range
         plot->setXBounds(_minRt, _maxRt);
-        plot->setYBounds(_minIntensity, _maxIntensity);
     }
+    _scalePlotsToIncludeMaxIntensity();
 }
 
 bool GalleryWidget::_visibleItemsHavePeakData()
