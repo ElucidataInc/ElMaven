@@ -169,7 +169,8 @@ FORMS = forms/settingsform.ui  \
         forms/infodialog.ui \
         forms/adductwidget.ui \
         forms/updatedialog.ui \
-        forms/peakeditor.ui
+        forms/peakeditor.ui \
+        forms/groupsettingslog.ui
 
 HEADERS += stable.h \
            globals.h \
@@ -246,7 +247,8 @@ HEADERS += stable.h \
            adductwidget.h \
            autoupdater.h \
            updatedialog.h \
-           peakeditor.h
+           peakeditor.h \
+           groupsettingslog.h
 
 SOURCES += mainwindow.cpp  \
            database.cpp \
@@ -319,7 +321,8 @@ SOURCES += mainwindow.cpp  \
            adductwidget.cpp \
            autoupdater.cpp \
            updatedialog.cpp \
-           peakeditor.cpp
+           peakeditor.cpp \
+           groupsettingslog.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

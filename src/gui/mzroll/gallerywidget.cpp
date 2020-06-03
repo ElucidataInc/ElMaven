@@ -86,7 +86,7 @@ void GalleryWidget::setIntensityBounds(float minIntensity, float maxIntensity)
     replot();
 }
 
-void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
+void GalleryWidget::addEicPlots(PeakGroup* group)
 {
     clear();
     if (group == nullptr || !group->hasSlice())
@@ -101,7 +101,9 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         slice.rtmin = min(slice.rtmin, sample->minRt);
         slice.rtmax = max(slice.rtmax, sample->maxRt);
     }
-    _eics = PeakDetector::pullEICs(&slice, group->samples, mp);
+    _eics = PeakDetector::pullEICs(&slice,
+                                   group->samples,
+                                   group->parameters().get());
     sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();

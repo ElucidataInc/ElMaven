@@ -456,6 +456,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "BEGIN TRANSACTION;"
 
         // deleting some isotope detection parameters and adding a new one
+        // also adding a new "domain" key
         "ALTER TABLE user_settings RENAME TO user_settings_old;"
         "CREATE TABLE user_settings ( domain                           TEXT    "
         "                           , ionization_mode                  INTEGER "
@@ -774,6 +775,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "                          , adduct_percent_correlation       "
         "                       FROM user_settings_old               ;"
         "DROP TABLE user_settings_old;"
+
+        "ALTER TABLE peakgroups ADD COLUMN integration_type INTEGER;"
 
         "COMMIT;"
     }

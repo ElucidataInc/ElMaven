@@ -1207,7 +1207,8 @@ void mzFileIO::readSamplesXML(QXmlStreamReader& xml,
 PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
 {
     PeakGroup* group = new PeakGroup(
-        make_shared<MavenParameters>(*_mainwindow->mavenParameters));
+        make_shared<MavenParameters>(*_mainwindow->mavenParameters),
+        PeakGroup::IntegrationType::Programmatic);
 
     group->groupId = xml.attributes().value("groupId").toString().toInt();
     group->tagString =

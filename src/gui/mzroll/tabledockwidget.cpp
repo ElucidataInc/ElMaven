@@ -15,6 +15,7 @@
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
+#include "groupsettingslog.h"
 #include "heatmap.h"
 #include "isotopeswidget.h"
 #include "jsonReports.h";
@@ -1638,6 +1639,16 @@ void TableDockWidget::editSelectedPeakGroup()
   editor->show();
 }
 
+void TableDockWidget::showIntegrationSettings()
+{
+  if (treeWidget->selectedItems().size() != 1)
+      return;
+
+  PeakGroup* group = getSelectedGroup();
+  GroupSettingsLog log(this, group);
+  log.exec();
+}
+
 void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
   if (treeWidget->topLevelItemCount() < 1)
       return;
@@ -1652,11 +1663,17 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::editSelectedPeakGroup);
 
-  QAction *z2 = menu.addAction("Show Consensus Spectra");
-  connect(z2, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
+  QAction *z2 = menu.addAction("Show integration settings");
+  connect(z2,
+          &QAction::triggered,
+          this,
+          &TableDockWidget::showIntegrationSettings);
 
-  QAction *z3 = menu.addAction("Delete All Groups");
-  connect(z3, SIGNAL(triggered()), SLOT(deleteAll()));
+  QAction *z3 = menu.addAction("Show Consensus Spectra");
+  connect(z3, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
+
+  QAction *z4 = menu.addAction("Delete All Groups");
+  connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
     // disable actions not relevant when nothing is selected
@@ -1666,6 +1683,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
     // disable actions not relevant to individual peak-groups
     z1->setEnabled(false);
     z2->setEnabled(false);
+    z3->setEnabled(false);
   }
 
   menu.exec(event->globalPos());
@@ -2173,6 +2191,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
             td,
             &TableDockWidget::editSelectedPeakGroup);
     return btnEditPeakGroup;
+  } else if (btnName == "btnSettingsLog") {
+    QToolButton *btnSettingsLog = new QToolButton(parent);
+    btnSettingsLog->setIcon(QIcon(rsrcPath + "/settingsLog.png"));
+    connect(btnSettingsLog,
+            &QToolButton::clicked,
+            td,
+            &TableDockWidget::showIntegrationSettings);
+    return btnSettingsLog;
   } else {
     return NULL;
   }
@@ -2216,6 +2242,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+  QWidgetAction *btnSettingsLog =
+      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
@@ -2232,6 +2260,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
+  toolBar->addAction(btnSettingsLog);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2322,6 +2351,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+  QWidgetAction *btnSettingsLog =
+      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2338,6 +2369,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
+  toolBar->addAction(btnSettingsLog);
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
@@ -2689,6 +2721,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+  QWidgetAction *btnSettingsLog =
+      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
   QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
   QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
@@ -2704,6 +2738,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
+  toolBar->addAction(btnSettingsLog);
 
   toolBar->addSeparator();
   toolBar->addAction(btnCluster);

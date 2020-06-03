@@ -28,7 +28,8 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
     if (group == nullptr)
         return;
     currentDisplayedGroup = new PeakGroup(
-        make_shared<MavenParameters>(*_mw->mavenParameters));
+        make_shared<MavenParameters>(*_mw->mavenParameters),
+        PeakGroup::IntegrationType::Programmatic);
     currentDisplayedGroup->copyObj(*group);
     intialSetup();
     updateGraph();
@@ -186,7 +187,8 @@ float GroupRtWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
 
 PeakGroup GroupRtWidget::getNewGroup(PeakGroup group) {
 
-    PeakGroup newGroup(make_shared<MavenParameters>(*_mw->mavenParameters));
+    PeakGroup newGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
+                       PeakGroup::IntegrationType::Programmatic);
 
     bool groupFound = false;
 

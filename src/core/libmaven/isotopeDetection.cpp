@@ -163,7 +163,7 @@ map<string, PeakGroup> IsotopeDetection::getIsotopes(PeakGroup* parentGroup,
 
             // label the peak of isotope
             if (isotopeGroups.count(isotopeName) == 0) {
-                PeakGroup childGroup(parameters);
+                PeakGroup childGroup(parameters, parentGroup->integrationType());
                 // meanMz is updated in group statistics later
                 childGroup.meanMz = isotopeMass;
                 childGroup.expectedMz = isotopeMass;

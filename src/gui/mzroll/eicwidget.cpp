@@ -201,7 +201,8 @@ void EicWidget::integrateRegion(float rtMin, float rtMax)
 
     MavenParameters* mp = getMainWindow()->mavenParameters;
     auto parameters = make_shared<MavenParameters>(*mp);
-    eicParameters->integratedGroup = new PeakGroup(parameters);
+    eicParameters->integratedGroup =
+        new PeakGroup(parameters, PeakGroup::IntegrationType::Manual);
     eicParameters->integratedGroup->minQuality = parameters->minQuality;
     eicParameters->integratedGroup->setSlice(eicParameters->_slice);
     eicParameters->integratedGroup->srmId = eicParameters->_slice.srmId;

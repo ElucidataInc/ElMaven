@@ -195,7 +195,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :slice_rt_min                       \
                      , :slice_rt_max                       \
                      , :slice_ion_count                    \
-                     , :table_group_id                     )");
+                     , :table_group_id                     \
+                     , :integration_type                   )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId);
@@ -249,6 +250,9 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":slice_rt_min", group->getSlice().rtmin);
     groupsQuery->bind(":slice_rt_max", group->getSlice().rtmax);
     groupsQuery->bind(":slice_ion_count", group->getSlice().ionCount);
+
+    groupsQuery->bind(":integration_type",
+                      static_cast<int>(group->integrationType()));
 
     string sample_ids = "";
     if (group->samples.size() > 0) {
@@ -945,12 +949,16 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         PeakGroup* group = nullptr;
 
         int databaseId = groupsQuery->integerValue("group_id");
+        PeakGroup::IntegrationType integrationType =
+            static_cast<PeakGroup::IntegrationType>(groupsQuery->integerValue("integration_type"));
         if (settings.count(databaseId)) {
             auto mp = fromMaptoParameters(settings.at(databaseId),
                                           globalParams);
-            group = new PeakGroup(make_shared<MavenParameters>(mp));
+            group = new PeakGroup(make_shared<MavenParameters>(mp),
+                                  integrationType);
         } else {
-            group = new PeakGroup(make_shared<MavenParameters>(*globalParams));
+            group = new PeakGroup(make_shared<MavenParameters>(*globalParams),
+                                  integrationType);
         }
 
         group->groupId = groupsQuery->integerValue("table_group_id");

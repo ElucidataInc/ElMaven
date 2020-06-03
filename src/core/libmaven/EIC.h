@@ -10,6 +10,7 @@
 #include <Eigen>
 
 #include "standardincludes.h"
+#include "PeakGroup.h"
 
 class Peak;
 class PeakGroup;
@@ -281,11 +282,15 @@ class EIC
      * will be used to assign a slice to each peak-group.
      * @param A shared pointer to a `MavenParameters` object that will be used
      * to create all new peak-groups for the given EICs.
+     * @param An integration type that will be used to tell the method to tag
+     * any detected groups with this type.
      * @return A vector of peak-groups found.
     **/
-    static vector<PeakGroup> groupPeaks(vector<EIC *> &eics,
-                                        mzSlice* slice,
-                                        shared_ptr<MavenParameters> mp);
+    static vector<PeakGroup>
+    groupPeaks(vector<EIC *> &eics,
+               mzSlice* slice,
+               shared_ptr<MavenParameters> mp,
+               PeakGroup::IntegrationType integrationType = PeakGroup::IntegrationType::Programmatic);
     /**
          * [eicMerge ]
          * @method eicMerge

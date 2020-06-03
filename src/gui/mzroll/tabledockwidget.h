@@ -269,6 +269,12 @@ public Q_SLOTS:
    */
   void editSelectedPeakGroup();
 
+  /**
+   * @brief Show a `GroupSettingsLog` dialog listing all relevant parameters
+   * used when the currently selected peak-group was integrated.
+   */
+  void showIntegrationSettings();
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;

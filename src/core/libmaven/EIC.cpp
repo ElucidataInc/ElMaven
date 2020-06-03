@@ -2,7 +2,6 @@
 #include "datastructures/mzSlice.h"
 #include "EIC.h"
 #include "Peak.h"
-#include "PeakGroup.h"
 #include "mavenparameters.h"
 #include "mzPatterns.h"
 #include "mzSample.h"
@@ -950,7 +949,8 @@ void EIC::removeLowRankGroups(vector<PeakGroup> &groups, unsigned int rankLimit)
 
 vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                                   mzSlice* slice,
-                                  shared_ptr<MavenParameters> mp)
+                                  shared_ptr<MavenParameters> mp,
+                                  PeakGroup::IntegrationType integrationType)
 {
     vector<mzSample*> samples;
     for(int i=0;i<eics.size();++i)
@@ -970,7 +970,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
     for (unsigned int i = 0; i < m->peaks.size(); i++) {
-        PeakGroup grp(mp);
+        PeakGroup grp(mp, integrationType);
         grp.groupId = i;
         if (slice) {
             grp.setSlice(*slice);
@@ -1052,7 +1052,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             }
             else
             {
-                PeakGroup grp(mp);
+                PeakGroup grp(mp, integrationType);
                 pgroups.push_back(grp);
                 grp.groupId = pgroups.size() + 1;
                 grp.setSlice(*slice);

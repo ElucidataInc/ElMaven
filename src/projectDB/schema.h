@@ -112,7 +112,8 @@
                                            , slice_rt_min                       REAL                              \
                                            , slice_rt_max                       REAL                              \
                                            , slice_ion_count                    REAL                              \
-                                           , table_group_id                     INTEGER                           );"
+                                           , table_group_id                     INTEGER                           \
+                                           , integration_type                   INTEGER                           );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \

@@ -79,7 +79,8 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
     if (_group)
         delete _group;
-    _group = new PeakGroup(make_shared<MavenParameters>(*_mw->mavenParameters));
+    _group = new PeakGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
+                           PeakGroup::IntegrationType::Programmatic);
     _group->copyObj(*group);
 
 	_samples.clear();

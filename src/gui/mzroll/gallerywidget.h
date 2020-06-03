@@ -29,7 +29,7 @@ signals:
 public Q_SLOTS:
     void replot();
     void clear();
-    void addEicPlots(PeakGroup* grp, MavenParameters* mp);
+    void addEicPlots(PeakGroup* grp);
     void showPlotFor(vector<int> indexes);
     void copyImageToClipboard();
 

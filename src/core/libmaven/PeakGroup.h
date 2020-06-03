@@ -20,17 +20,12 @@ class MavenParameters;
 using namespace std;
 
 class PeakGroup{
-    private:
-        Adduct* _adduct;
-
-    private:
-        mzSlice _slice;
-        bool _sliceSet;
-
-        string _tableName;
-        shared_ptr<MavenParameters> _parameters;
-
     public:
+        enum class IntegrationType {
+            Manual,
+            Automated,
+            Programmatic
+        };
         enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
         enum QType	   {AreaTop=0,
                         Area=1,
@@ -40,7 +35,8 @@ class PeakGroup{
                         Quality=5,
                         SNRatio=6,
                         AreaTopNotCorrected=7};
-        PeakGroup(shared_ptr<MavenParameters> parameters);
+        PeakGroup(shared_ptr<MavenParameters> parameters,
+                  IntegrationType integrationType);
         PeakGroup(const PeakGroup& o);
         PeakGroup& operator=(const PeakGroup& o);
 
@@ -630,5 +626,21 @@ class PeakGroup{
         {
             return _parameters;
         }
+
+        IntegrationType integrationType() const {
+            if (_type == GroupType::Isotope && parent != nullptr)
+                return parent->integrationType();
+            return _integrationType;
+        }
+
+    private:
+        Adduct* _adduct;
+        mzSlice _slice;
+        bool _sliceSet;
+
+        string _tableName;
+        shared_ptr<MavenParameters> _parameters;
+        IntegrationType _integrationType;
+
 };
 #endif

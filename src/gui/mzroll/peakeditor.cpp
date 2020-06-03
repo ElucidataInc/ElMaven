@@ -65,7 +65,7 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     _editedPeakRegions.clear();
     _group = group;
 
-    _gallery->addEicPlots(group, _mw->mavenParameters);
+    _gallery->addEicPlots(group);
     auto rtBounds = _gallery->rtBounds();
 
     // set absolute min/max RT ranges

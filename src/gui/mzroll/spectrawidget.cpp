@@ -16,7 +16,8 @@
 #include "spectrawidget.h"
 
 SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra)
-    : _currentGroup(make_shared<MavenParameters>(*mw->mavenParameters))
+    : _currentGroup(make_shared<MavenParameters>(*mw->mavenParameters),
+                    PeakGroup::IntegrationType::Programmatic)
 {
     this->mainwindow = mw;
     eicparameters = new EICLogic();
@@ -277,7 +278,8 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
 void SpectraWidget::overlayPeakGroup(PeakGroup* group)
 {
     _currentGroup =
-        PeakGroup(make_shared<MavenParameters>(*mainwindow->mavenParameters));
+        PeakGroup(make_shared<MavenParameters>(*mainwindow->mavenParameters),
+                  PeakGroup::IntegrationType::Programmatic);
     if (!group) return;
     
     _overlayMode = OverlayMode::Consensus;

@@ -311,7 +311,11 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
 
     // lambda that adds detected groups to mavenparameters
     auto detectGroupsForSlice = [&](vector<EIC*>& eics, mzSlice* slice) {
-        vector<PeakGroup> peakgroups = EIC::groupPeaks(eics, slice, mp);
+        vector<PeakGroup> peakgroups =
+            EIC::groupPeaks(eics,
+                            slice,
+                            mp,
+                            PeakGroup::IntegrationType::Automated);
         GroupFiltering groupFiltering(mavenParameters, slice);
         groupFiltering.filter(peakgroups);
 

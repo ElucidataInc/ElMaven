@@ -9,9 +9,11 @@
 #include "mzSample.h"
 #include "mzMassCalculator.h"
 
-PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters)
+PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
+                     IntegrationType integrationType)
 {
     _parameters = parameters;
+    _integrationType = integrationType;
 
     groupId=0;
     metaGroupId=0;
@@ -169,6 +171,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
 
     copyChildren(o);
     _parameters = o._parameters;
+    _integrationType = o.integrationType();
 }
 
 PeakGroup::~PeakGroup() {

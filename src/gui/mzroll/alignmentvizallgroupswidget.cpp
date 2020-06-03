@@ -127,7 +127,8 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
 
     QCPDataRange dataRange;
     int index;
-    PeakGroup grp(make_shared<MavenParameters>(*_mw->mavenParameters));
+    PeakGroup grp(make_shared<MavenParameters>(*_mw->mavenParameters),
+                  PeakGroup::IntegrationType::Programmatic);
 
     for (unsigned int i =0; i<samples.size(); i++) {
         mzSample* sample = samples[i];
