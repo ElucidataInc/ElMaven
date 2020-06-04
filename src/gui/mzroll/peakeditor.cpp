@@ -4,8 +4,10 @@
 #include "gallerywidget.h"
 #include "globals.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
+#include "PeakDetector.h"
 #include "peakeditor.h"
 #include "Scan.h"
 #include "ui_peakeditor.h"
@@ -15,8 +17,7 @@ PeakEditor::PeakEditor(MainWindow *parent,
       QDialog(parent),
       ui(new Ui::PeakEditor),
       _mw(parent),
-      _clsf(clsf),
-      _peakFilter(PeakFiltering(_mw->mavenParameters, false))
+      _clsf(clsf)
 {
     ui->setupUi(this);
     ui->sampleList->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -28,9 +29,14 @@ PeakEditor::PeakEditor(MainWindow *parent,
             this,
             &PeakEditor::_selectionChanged);
     connect(_gallery,
-            &GalleryWidget::peakRegionChanged,
+            &GalleryWidget::peakRegionSet,
             [this](mzSample* sample, float rtMin, float rtMax) {
-                _editedPeakRegions[sample] = make_pair(rtMin, rtMax);
+                // in case the user joined both markers, attempting to remove
+                if (rtMin == rtMax) {
+                    rtMin = -1.0f;
+                    rtMax = -1.0f;
+                }
+                _setPeakRegions[sample] = make_pair(rtMin, rtMax);
             });
     connect(ui->rtMinSpinBox,
             QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -43,6 +49,57 @@ PeakEditor::PeakEditor(MainWindow *parent,
             [this] {
                 _gallery->setRtBounds(ui->rtMinSpinBox->value(),
                                       ui->rtMaxSpinBox->value());
+            });
+    connect(ui->dropTopSpinBox,
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            [this] {
+                if (ui->baselineTabWidget->currentIndex() == 0) {
+                    _gallery->recomputeBaselinesThresh(
+                        ui->dropTopSpinBox->value(),
+                        ui->smoothingSpinBox->value());
+                }
+            });
+    connect(ui->smoothingSpinBox,
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            [this] {
+                if (ui->baselineTabWidget->currentIndex() == 0) {
+                    _gallery->recomputeBaselinesThresh(
+                        ui->dropTopSpinBox->value(),
+                        ui->smoothingSpinBox->value());
+                }
+            });
+    connect(ui->smoothnessSlider,
+            &QSlider::valueChanged,
+            [this](int value) {
+                ui->smoothnessLabel->setText(tr("%1").arg(value));
+                if (ui->baselineTabWidget->currentIndex() == 1) {
+                    _gallery->recomputeBaselinesAsLS(
+                        ui->smoothnessSlider->value(),
+                        ui->asymmetrySlider->value());
+                }
+            });
+    connect(ui->asymmetrySlider,
+            &QSlider::valueChanged,
+            [this](int value) {
+                ui->asymmetryLabel->setText(tr("%1").arg(value));
+                if (ui->baselineTabWidget->currentIndex() == 1) {
+                    _gallery->recomputeBaselinesAsLS(
+                        ui->smoothnessSlider->value(),
+                        ui->asymmetrySlider->value());
+                }
+            });
+    connect(ui->baselineTabWidget,
+            &QTabWidget::currentChanged,
+            [this](int index) {
+                if (index == 0) {
+                    _gallery->recomputeBaselinesThresh(
+                        ui->dropTopSpinBox->value(),
+                        ui->smoothingSpinBox->value());
+                } else {
+                    _gallery->recomputeBaselinesAsLS(
+                        ui->smoothnessSlider->value(),
+                        ui->asymmetrySlider->value());
+                }
             });
     connect(ui->cancelButton, &QPushButton::clicked, this, &PeakEditor::hide);
     connect(ui->applyButton,
@@ -64,12 +121,28 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
 
     setWindowTitle(tr("Peak Editor: %1").arg(group->getName().c_str()));
 
-    _editedPeakRegions.clear();
+    _setPeakRegions.clear();
     _group = group;
 
     _gallery->addEicPlots(_group);
+    _setBaselineParameters();
     _setRtRangeAndValues();
+    _setSyncRtCheckbox();
     _populateSampleList();
+}
+
+void PeakEditor::_setBaselineParameters()
+{
+    MavenParameters* parameters = _group->parameters().get();
+    if (parameters->aslsBaselineMode) {
+        ui->baselineTabWidget->setCurrentIndex(1);
+        ui->smoothnessSlider->setValue(parameters->aslsSmoothness);
+        ui->asymmetrySlider->setValue(parameters->aslsAsymmetry);
+    } else {
+        ui->baselineTabWidget->setCurrentIndex(0);
+        ui->dropTopSpinBox->setValue(parameters->baseline_dropTopX);
+        ui->smoothingSpinBox->setValue(parameters->baseline_smoothingWindow);
+    }
 }
 
 void PeakEditor::_setRtRangeAndValues()
@@ -95,8 +168,7 @@ void PeakEditor::_setRtRangeAndValues()
             minRt = min(minRt, child.minRt - rtBuffer);
             maxRt = max(maxRt, child.maxRt + rtBuffer);
         }
-    } else if (_group->type() == PeakGroup::GroupType::Isotope
-               && _group->parent != nullptr) {
+    } else if (_group->isIsotope() && _group->parent != nullptr) {
         PeakGroup* parentGroup = _group->parent;
         minRt = parentGroup->minRt - rtBuffer;
         maxRt = parentGroup->maxRt + rtBuffer;
@@ -120,6 +192,25 @@ void PeakEditor::_setRtRangeAndValues()
     _gallery->setRtBounds(minRt, maxRt);
 }
 
+void PeakEditor::_setSyncRtCheckbox()
+{
+    if (_group->childCount() == 0 && !_group->isIsotope()) {
+        ui->syncRtCheckBox->setChecked(false);
+        ui->syncRtCheckBox->setEnabled(false);
+        return;
+    }
+
+    ui->syncRtCheckBox->setEnabled(true);
+
+    MavenParameters* parameters = _group->parameters().get();
+    if (parameters->linkIsotopeRtRange
+        && (_group->childCount() > 0 || _group->tagString == "C12 PARENT")) {
+        ui->syncRtCheckBox->setChecked(true);
+    } else {
+        ui->syncRtCheckBox->setChecked(false);
+    }
+}
+
 void PeakEditor::_populateSampleList()
 {
     ui->sampleList->clear();
@@ -135,73 +226,6 @@ void PeakEditor::_populateSampleList()
     ui->sampleList->setCurrentItem(ui->sampleList->topLevelItem(0));
 }
 
-void PeakEditor::_editPeakRegionForSample(mzSample* peakSample,
-                                          float rtMin,
-                                          float rtMax)
-{
-    // lambda: deletes the peak for `peakSample` in `_group` if it exists
-    auto deletePeakIfExists = [this, peakSample] {
-        _group->peaks.erase(remove_if(begin(_group->peaks),
-                                  end(_group->peaks),
-                                  [peakSample](Peak& peak) {
-                                      return peak.getSample() == peakSample;
-                                  }),
-                            end(_group->peaks));
-    };
-
-    if (rtMin < 0.0f && rtMax < 0.0f) {
-        deletePeakIfExists();
-        return;
-    }
-
-    vector<EIC*> eics = _gallery->eics();
-    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
-        return eic->sample == peakSample;
-    });
-    if (eicFoundAt == end(eics))
-        return;
-
-    int peakIndexForSample = -1;
-    EIC* eic = *eicFoundAt;
-    bool deletePeak = false;
-    for (int i = 0; i < _group->peaks.size(); ++i) {
-        Peak& peak = _group->peaks[i];
-        if (peak.getSample() != peakSample)
-            continue;
-        peakIndexForSample = i;
-    }
-
-    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
-    newPeak.mzmin = _group->getSlice().mzmin;
-    newPeak.mzmax = _group->getSlice().mzmax;
-    eic->getPeakDetails(newPeak);
-    if (newPeak.pos > 0) {
-        if (_clsf != nullptr)
-            newPeak.quality = _clsf->scorePeak(newPeak);
-
-        if (!_peakFilter.filter(newPeak)) {
-            if (peakIndexForSample < 0) {
-                _group->addPeak(newPeak);
-            } else {
-                _group->peaks[peakIndexForSample] = newPeak;
-            }
-        } else {
-            deletePeak = true;
-        }
-    } else {
-        deletePeak = true;
-    }
-
-    if (deletePeak)
-        deletePeakIfExists();
-
-    mzSlice slice = _group->getSlice();
-    slice.rtmin = min(slice.rtmin, rtMin);
-    slice.rtmax = max(slice.rtmax, rtMax);
-    slice.rt = (slice.rtmin + slice.rtmax) / 2.0f;
-    _group->setSlice(slice);
-}
-
 void PeakEditor::_selectionChanged()
 {
     auto selectedItems = ui->sampleList->selectedItems();
@@ -214,15 +238,168 @@ void PeakEditor::_selectionChanged()
     _gallery->showPlotFor(selectedIndexes);
 }
 
+void PeakEditor::_editPeakRegionForSample(PeakGroup *group,
+                                          mzSample* peakSample,
+                                          vector<EIC*>& eics,
+                                          float rtMin,
+                                          float rtMax)
+{
+    // lambda: deletes the peak for `peakSample` in `group` if it exists
+    auto deletePeakIfExists = [group, peakSample] {
+        group->peaks.erase(remove_if(begin(group->peaks),
+                                  end(group->peaks),
+                                  [peakSample](Peak& peak) {
+                                      return peak.getSample() == peakSample;
+                                  }),
+                            end(group->peaks));
+    };
+
+    if (rtMin < 0.0f && rtMax < 0.0f) {
+        deletePeakIfExists();
+        return;
+    }
+
+    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
+        return eic->sample == peakSample;
+    });
+    if (eicFoundAt == end(eics))
+        return;
+
+    int peakIndexForSample = -1;
+    EIC* eic = *eicFoundAt;
+    bool deletePeak = false;
+    for (int i = 0; i < group->peaks.size(); ++i) {
+        Peak& peak = group->peaks[i];
+        if (peak.getSample() != peakSample)
+            continue;
+        peakIndexForSample = i;
+    }
+
+    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
+    newPeak.mzmin = group->getSlice().mzmin;
+    newPeak.mzmax = group->getSlice().mzmax;
+    eic->getPeakDetails(newPeak);
+    if (newPeak.pos > 0) {
+        if (_clsf != nullptr)
+            newPeak.quality = _clsf->scorePeak(newPeak);
+
+        PeakFiltering peakFilter(group->parameters().get(), group->isIsotope());
+        if (!peakFilter.filter(newPeak)) {
+            if (peakIndexForSample < 0) {
+                group->addPeak(newPeak);
+            } else {
+                group->peaks[peakIndexForSample] = newPeak;
+            }
+        } else {
+            deletePeak = true;
+        }
+    } else {
+        deletePeak = true;
+    }
+
+    if (deletePeak)
+        deletePeakIfExists();
+
+    mzSlice slice = group->getSlice();
+    slice.rtmin = min(slice.rtmin, rtMin);
+    slice.rtmax = max(slice.rtmax, rtMax);
+    slice.rt = (slice.rtmin + slice.rtmax) / 2.0f;
+    group->setSlice(slice);
+}
+
 void PeakEditor::_applyEdits()
 {
-    for (auto& elem : _editedPeakRegions) {
-        auto sample = elem.first;
-        auto rtMin = elem.second.first;
-        auto rtMax = elem.second.second;
-        _editPeakRegionForSample(sample, rtMin, rtMax);
+    _setBusyState();
+
+    MavenParameters* mp = _group->parameters().get();
+    if (ui->baselineTabWidget->currentIndex() == 0) {
+        mp->aslsBaselineMode = false;
+        mp->baseline_dropTopX = ui->dropTopSpinBox->value();
+        mp->baseline_smoothingWindow = ui->smoothingSpinBox->value();
+    } else {
+        mp->aslsBaselineMode = true;
+        mp->aslsSmoothness = ui->smoothnessSlider->value();
+        mp->aslsAsymmetry = ui->asymmetrySlider->value();
     }
-    _group->groupStatistics();
+
+    // lambda: edits peak regions and recalculates a group's statistics
+    auto editGroup = [this](PeakGroup* group, vector<EIC*>& eics) {
+        for (auto& elem : _setPeakRegions) {
+            auto sample = elem.first;
+            auto rtMin = elem.second.first;
+            auto rtMax = elem.second.second;
+            _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
+        }
+        group->groupStatistics();
+    };
+
+    // lambda: obtain full range EICs for the given peak-group
+    auto getEicsForGroup = [] (PeakGroup* group) {
+        mzSlice slice = group->getSlice();
+        slice.rtmin = numeric_limits<float>::max();
+        slice.rtmax = numeric_limits<float>::min();
+        for (mzSample* sample : group->samples) {
+            slice.rtmin = min(slice.rtmin, sample->minRt);
+            slice.rtmax = max(slice.rtmax, sample->maxRt);
+        }
+        auto eics = PeakDetector::pullEICs(&slice,
+                                           group->samples,
+                                           group->parameters().get());
+        return eics;
+    };
+
+    // if checked, edit regions for all related isotopologues
+    if (ui->syncRtCheckBox->isChecked()) {
+        mp->linkIsotopeRtRange = true;
+
+        PeakGroup* parentGroup = nullptr;
+        if (_group->childCount() > 0) {
+            parentGroup = _group;
+        } else if (_group->isIsotope()) {
+            parentGroup = _group->parent;
+        }
+
+        if (parentGroup == nullptr) {
+            hide();
+            _setActiveState();
+            return;
+        }
+
+        auto eics = getEicsForGroup(parentGroup);
+        editGroup(parentGroup, eics);
+        for (auto& child : parentGroup->children) {
+            eics = getEicsForGroup(&child);
+            editGroup(&child, eics);
+        }
+    } else {
+        mp->linkIsotopeRtRange = false;
+        auto eics = _gallery->eics();
+        editGroup(_group, eics);
+    }
+
     _mw->setPeakGroup(_group);
+    _setActiveState();
     hide();
+}
+
+void PeakEditor::_setBusyState()
+{
+    ui->sampleList->setEnabled(false);
+    _gallery->setEnabled(false);
+    ui->baselineSettings->setEnabled(false);
+    ui->editorSettings->setEnabled(false);
+    ui->cancelButton->setEnabled(false);
+    ui->applyButton->setEnabled(false);
+    ui->statusLabel->setText("Applying edits…");
+}
+
+void PeakEditor::_setActiveState()
+{
+    ui->sampleList->setEnabled(true);
+    _gallery->setEnabled(true);
+    ui->baselineSettings->setEnabled(true);
+    ui->editorSettings->setEnabled(true);
+    ui->cancelButton->setEnabled(true);
+    ui->applyButton->setEnabled(true);
+    ui->statusLabel->setText("");
 }

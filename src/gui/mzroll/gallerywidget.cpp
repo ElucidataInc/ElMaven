@@ -129,6 +129,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
                                   "to create one)");
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+        emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
     }
 
     _minRt -= _rtBuffer;
@@ -136,6 +137,30 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
 
     // we add data only at this point, once bounds have been determined
     _fillPlotData();
+}
+
+void GalleryWidget::recomputeBaselinesThresh(int dropTopX, int smoothingWindow)
+{
+    for (EIC* eic : _eics) {
+        eic->setBaselineMode(EIC::BaselineMode::Threshold);
+        eic->setBaselineDropTopX(dropTopX);
+        eic->setBaselineSmoothingWindow(smoothingWindow);
+        eic->computeBaseline();
+    }
+    _fillPlotData();
+    replot();
+}
+
+void GalleryWidget::recomputeBaselinesAsLS(int smoothness, int asymmetry)
+{
+    for (EIC* eic : _eics) {
+        eic->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+        eic->setAsLSSmoothness(smoothness);
+        eic->setAsLSAsymmetry(asymmetry);
+        eic->computeBaseline();
+    }
+    _fillPlotData();
+    replot();
 }
 
 void GalleryWidget::replot()
@@ -306,7 +331,7 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         float peakRtMin = toRt(x1, eic);
         float peakRtMax = toRt(x2, eic);
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
-        emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
+        emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
 
         plot->clearData();
         plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
@@ -396,7 +421,7 @@ void GalleryWidget::_createNewPeak()
     for (int index : _indexesOfVisibleItems) {
         EIC* eic = _eics.at(index);
         _peakBounds[eic] = make_pair(rtMinMean, rtMaxMean);
-        emit peakRegionChanged(eic->sample, rtMinMean, rtMaxMean);
+        emit peakRegionSet(eic->sample, rtMinMean, rtMaxMean);
     }
     _fillPlotData();
     replot();
@@ -410,7 +435,7 @@ void GalleryWidget::_deleteCurrentPeak()
     for (int index : _indexesOfVisibleItems) {
         EIC* eic = _eics.at(index);
         _peakBounds[eic] = make_pair(-1.0f, -1.0f);
-        emit peakRegionChanged(eic->sample, -1.0f, -1.0f);
+        emit peakRegionSet(eic->sample, -1.0f, -1.0f);
     }
     _fillPlotData();
     replot();

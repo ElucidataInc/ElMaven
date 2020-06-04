@@ -23,12 +23,14 @@ public:
     float rtBuffer() { return _rtBuffer; }
 
 signals:
-    void peakRegionChanged(mzSample*, float, float);
+    void peakRegionSet(mzSample*, float, float);
 
 public Q_SLOTS:
     void replot();
     void clear();
     void addEicPlots(PeakGroup* grp);
+    void recomputeBaselinesThresh(int dropTopX, int smoothingWindow);
+    void recomputeBaselinesAsLS(int smoothness, int asymmetry);
     void showPlotFor(vector<int> indexes);
     void copyImageToClipboard();
 

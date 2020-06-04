@@ -1634,8 +1634,6 @@ void TableDockWidget::editSelectedPeakGroup()
     return;
 
   editor->setPeakGroup(group);
-  if (group->isIsotope())
-      editor->setPeakFilter(PeakFiltering(_mainwindow->mavenParameters, true));
   editor->show();
 }
 
