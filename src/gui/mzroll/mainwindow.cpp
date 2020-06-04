@@ -1718,6 +1718,47 @@ void MainWindow::open()
     if (tmp.exists())
         settings->setValue("lastDir", tmp.absolutePath());
 
+    qint64 firstFileSize = fileInfo.size();
+    qint64 cumulativeSize = std::accumulate(next(begin(filelist)),
+                                            end(filelist),
+                                            firstFileSize,
+                                            [](qint64 sum, QString filePath) {
+                                                QFileInfo info(filePath);
+                                                return sum + info.size();
+                                            });
+    qint64 totalMemory = mzUtils::availableSystemMemory();
+    int numCpus = mzUtils::numSystemCpus();
+    // and now, our magical formula:
+    if ((cumulativeSize * 1.5) + (numCpus * firstFileSize) >= totalMemory) {
+        qWarning() << "Loading files that might be too large to process!";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("El-MAVEN on Polly");
+        msgBox.setText("It seems you are trying to load data that might be too "
+                       "large for El-MAVEN to handle on your system.\n\n"
+                       "Instead, you can try El-MAVEN on Polly (cloud) now!\n\n"
+                       "Or you can click \"Continue\" to import your data "
+                       "anyway.");
+        QPushButton* continueButton = msgBox.addButton("Continue",
+                                                       QMessageBox::ActionRole);
+        QPushButton* cancelButton = msgBox.addButton("Cancel",
+                                                     QMessageBox::RejectRole);
+        QPushButton* findOutButton = msgBox.addButton("Find out more",
+                                                      QMessageBox::AcceptRole);
+        msgBox.setDefaultButton(findOutButton);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == cancelButton)
+            return;
+
+        if (msgBox.clickedButton() == findOutButton) {
+            QDesktopServices::openUrl(QUrl("https://docs.elucidata.io/Apps/"
+                                           "Metabolomic%20Data/El-MAVEN.html"));
+            return;
+        }
+
+        Q_UNUSED(continueButton);
+    }
+
     // Changing the title of the main window after selecting the samples
     setWindowTitle(programName
                    + " "

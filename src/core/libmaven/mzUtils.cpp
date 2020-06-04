@@ -1,13 +1,23 @@
+#include <thread>
+
+#ifdef UNIX
+#include <unistd.h>
+#endif
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "doctest.h"
 #include "mzUtils.h"
 #include "SavGolSmoother.h"
 #include "csvparser.h"
 #include "masscutofftype.h"
 #include "RealFirFilter.h"
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/algorithm/string.hpp>
 
 /**
  * random collection of useful functions 
@@ -1013,7 +1023,27 @@ namespace mzUtils {
              << chrono::duration_cast<chrono::milliseconds>(diff).count()
              << " ms\n";
     }
-    
+
+    unsigned long long availableSystemMemory()
+    {
+#ifdef UNIX
+        long long pages = sysconf(_SC_PHYS_PAGES);
+        long long page_size = sysconf(_SC_PAGE_SIZE);
+        return pages * page_size;
+#endif
+#ifdef WIN32
+        MEMORYSTATUSEX status;
+        status.dwLength = sizeof(status);
+        GlobalMemoryStatusEx(&status);
+        return status.ullTotalPhys;
+#endif
+    }
+
+    int numSystemCpus()
+    {
+        int nCpu = thread::hardware_concurrency();
+        return nCpu;
+    }
 } //namespace end
 
 //////////////////////////////////////TestCases/////////////////////////////

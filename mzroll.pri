@@ -17,6 +17,8 @@ win32 {
 }
 
 unix: {
+    message("using unix config")
+    DEFINES += UNIX
     INCLUDEPATH += /usr/local/include/ $$top_srcdir/3rdparty/obiwarp
     QMAKE_LFLAGS += -L/usr/local/lib/ -L$$top_builddir/libs/
     LIBS += -lErrorHandling -lobiwarp -lboost_iostreams

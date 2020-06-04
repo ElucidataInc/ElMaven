@@ -790,6 +790,22 @@ namespace mzUtils
     void stopTimer(chrono::time_point<chrono::high_resolution_clock>& clock,
                    string name);
 
+    /**
+     * @brief Query total memory available on the current system. This is not
+     * the same as "free memory".
+     * @return A 64-bit unsigned integer representing the amount of memory in
+     * bytes.
+     */
+    unsigned long long availableSystemMemory();
+
+    /**
+     * @brief Query the number of processing units available on the system.
+     * This is also the cap on the number of parallel threads that can be worked
+     * with on the system.
+     * @return An integer denoting the number of physical/virtual processors.
+     */
+    int numSystemCpus();
+
 }  // namespace mzUtils
 
 template<typename T>
