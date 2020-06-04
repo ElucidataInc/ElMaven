@@ -470,6 +470,22 @@ void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
     QAction* copyImage = menu.addAction("Copy Image to Clipboard");
     connect(copyImage, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
 
+    QAction* createPeak = menu.addAction("Create new peak");
+    connect(createPeak,
+            &QAction::triggered,
+            this,
+            &GalleryWidget::_createNewPeak);
+    if (_visibleItemsHavePeakData())
+        createPeak->setEnabled(false);
+
+    QAction* deletePeak = menu.addAction("Delete current peak");
+    connect(deletePeak,
+            &QAction::triggered,
+            this,
+            &GalleryWidget::_deleteCurrentPeak);
+    if (!_visibleItemsHavePeakData())
+        deletePeak->setEnabled(false);
+
     menu.exec(event->globalPos());
     scene()->update();
 }

@@ -56,6 +56,8 @@ private:
     void _scalePlotsToIncludeMaxIntensity();
     void _fillPlotData();
     bool _visibleItemsHavePeakData();
+
+private slots:
     void _createNewPeak();
     void _deleteCurrentPeak();
 
