@@ -187,13 +187,13 @@ void GalleryWidget::replot()
         scene()->update();
     }
 
-    bool drawNoPeakMessage = !_visibleItemsHavePeakData();
+    bool noVisiblePeakData = !_visibleItemsHavePeakData();
     for (int index : _indexesOfVisibleItems) {
         TinyPlot* plot = _plotItems.at(index);
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
         plot->setPos(0, 0);
-        plot->setDrawNoPeakMessages(drawNoPeakMessage);
+        plot->setDrawNoPeakMessages(noVisiblePeakData);
 
         // draw axes for only the last overlayed plot
         if (index == _indexesOfVisibleItems.back()) {
@@ -337,6 +337,13 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
         plot->setXBounds(_minRt, _maxRt);
     }
+
+    bool noVisiblePeakData = !_visibleItemsHavePeakData();
+    for (int index : _indexesOfVisibleItems) {
+        auto plot = _plotItems.at(index);
+        plot->setDrawNoPeakMessages(noVisiblePeakData);
+    }
+
     _scalePlotsToIncludeMaxIntensity();
     scene()->update();
 }
@@ -385,8 +392,11 @@ bool GalleryWidget::_visibleItemsHavePeakData()
     for (int index : _indexesOfVisibleItems) {
         auto eic = _eics.at(index);
         auto& peakBounds = _peakBounds.at(eic);
-        if (peakBounds.first >= 0.0f && peakBounds.second >= 0.0f)
+        if (peakBounds.first != peakBounds.second
+            && peakBounds.first >= 0.0f
+            && peakBounds.second >= 0.0f) {
             anyHasPeakData = true;
+        }
     }
     return anyHasPeakData;
 }

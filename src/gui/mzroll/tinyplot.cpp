@@ -48,7 +48,7 @@ void TinyPlot::addData(EIC* eic,
         if (eic->rt[i] > rtMax)
             break;
 
-        if (peakRtMin < 0.0f || peakRtMax < 0.0f) {
+        if (peakRtMin < 0.0f || peakRtMax < 0.0f || peakRtMin == peakRtMax) {
             center << QPointF( eic->rt[i], eic->intensity[i]);
             if (highlightRange)
                 _noPeakData = true;
