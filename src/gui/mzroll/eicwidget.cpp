@@ -2031,13 +2031,11 @@ void EicWidget::keyReleaseEvent(QKeyEvent *e)
 void EicWidget::markGroupGood()
 {
     getMainWindow()->markGroup(eicParameters->displayedGroup(), 'g');
-    getMainWindow()->peaksMarked++;
     getMainWindow()->autoSaveSignal({eicParameters->displayedGroup()});
 }
 void EicWidget::markGroupBad()
 {
     getMainWindow()->markGroup(eicParameters->displayedGroup(), 'b');
-	getMainWindow()->peaksMarked++;
     getMainWindow()->autoSaveSignal({eicParameters->displayedGroup()});
 }
 

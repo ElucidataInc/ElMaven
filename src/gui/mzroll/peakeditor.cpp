@@ -360,7 +360,7 @@ void PeakEditor::_applyEdits()
         }
 
         if (parentGroup == nullptr) {
-            hide();
+            close();
             _setActiveState();
             return;
         }
@@ -379,7 +379,7 @@ void PeakEditor::_applyEdits()
 
     _mw->setPeakGroup(_group);
     _setActiveState();
-    hide();
+    close();
 }
 
 void PeakEditor::_setBusyState()

@@ -227,7 +227,6 @@ public Q_SLOTS:
   virtual void markGroupBad();
   virtual void markGroupGood();
   virtual void unmarkGroup();
-  bool checkLabeledGroups();
   void markGroupIgnored();
   void showAllGroups();
   void showHeatMap();

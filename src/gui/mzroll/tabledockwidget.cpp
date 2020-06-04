@@ -1355,7 +1355,6 @@ void TableDockWidget::markGroupGood() {
   auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
-  _mainwindow->peaksMarked++;
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
@@ -1364,7 +1363,6 @@ void TableDockWidget::markGroupBad() {
   auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
-  _mainwindow->peaksMarked++;
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
@@ -1373,33 +1371,7 @@ void TableDockWidget::unmarkGroup() {
   setGroupLabel('\0');
   auto currentGroups = getSelectedGroups();
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
-  if (_mainwindow->peaksMarked > 0)
-      _mainwindow->peaksMarked--;
   _mainwindow->autoSaveSignal(currentGroups);
-}
-
-bool TableDockWidget::checkLabeledGroups() {
-
-  int totalCount = 0;
-  int goodCount = 0;
-  int badCount = 0;
-
-  if (_mainwindow->peaksMarked >= allgroups.size()) {
-    for (int i = 0; i < allgroups.size(); i++) {
-      char groupLabel = allgroups[i].label;
-      if (groupLabel == 'g') {
-        goodCount++;
-      } else if (groupLabel == 'b') {
-        badCount++;
-      }
-      totalCount++;
-    }
-
-    if (totalCount == goodCount + badCount)
-      return true;
-  }
-
-  return false;
 }
 
 void TableDockWidget::markGroupIgnored() {
@@ -1665,6 +1637,11 @@ void TableDockWidget::editSelectedPeakGroup()
   editor->setPeakGroup(group);
   editor->exec();
   updateItem(treeWidget->currentItem(), true);
+
+  auto groupToSave = group;
+  if (group->isIsotope() && group->parent != nullptr)
+      groupToSave = group->parent;
+  _mainwindow->autoSaveSignal({groupToSave});
 }
 
 void TableDockWidget::showIntegrationSettings()
@@ -2699,9 +2676,6 @@ void BookmarkTableDockWidget::markGroupGood() {
   setGroupLabel('g');
   auto currentGroups = getSelectedGroups();
   showNextGroup();
-  _mainwindow->peaksMarked++;
-  if (checkLabeledGroups())
-    _mainwindow->allPeaksMarked = true;
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
@@ -2710,9 +2684,6 @@ void BookmarkTableDockWidget::markGroupBad() {
   setGroupLabel('b');
   auto currentGroups = getSelectedGroups();
   showNextGroup();
-  _mainwindow->peaksMarked++;
-  if (checkLabeledGroups())
-    _mainwindow->allPeaksMarked = true;
   _mainwindow->autoSaveSignal(currentGroups);
 }
 

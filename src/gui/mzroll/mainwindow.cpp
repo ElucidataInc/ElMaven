@@ -904,7 +904,6 @@ void MainWindow::resetAutosave()
         QFile::remove(_currentProjectName);
     }
     this->timestampFileExists = false;
-    this->peaksMarked = 0;
     _currentProjectName = "";
 }
 
@@ -920,13 +919,11 @@ void MainWindow::autosaveGroup(QList<PeakGroup*> groups)
 
 void MainWindow::autosaveProject()
 {
-    if (this->peaksMarked == 1 || this->timestampFileExists) {
-        if (!this->timestampFileExists) {
-            this->_currentProjectName = this->_newAutosaveFile();
-            this->timestampFileExists = true;
-        }
-        autosave->saveProjectWorker();
+    if (!this->timestampFileExists) {
+        this->_currentProjectName = this->_newAutosaveFile();
+        this->timestampFileExists = true;
     }
+    autosave->saveProjectWorker();
 }
 
 void MainWindow::explicitSave()
@@ -1031,6 +1028,11 @@ void MainWindow::saveProject(bool explicitSave)
                 settings->setValue("closeEvent", 0);
                 return;
             } else if (confirmation.clickedButton() == noButton) {
+                // remove current project file only if it was created by autosave
+                if (this->timestampFileExists) {
+                    fileLoader->closeSQLiteProject();
+                    QFile::remove(_currentProjectName);
+                }
                 return;
             }
 
@@ -1104,8 +1106,6 @@ void MainWindow::saveProject(bool explicitSave)
         }
         this->autosave->saveProjectWorker();
     } else if (this->timestampFileExists) {
-        this->autosave->saveProjectWorker();
-    } else if (this->peaksMarked > 5 || this->allPeaksMarked) {
         this->autosave->saveProjectWorker();
     }
 }

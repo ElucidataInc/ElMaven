@@ -84,9 +84,7 @@ public:
 	}
 	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
-	int peaksMarked = 0;
 	int totalCharge = 0;
-	bool allPeaksMarked = false;
 	bool samplesAlignedFlag = false;
 	map<pair<string,string>, double> deltaRt;
 
