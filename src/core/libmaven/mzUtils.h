@@ -434,6 +434,16 @@ namespace mzUtils
     vector<string> split(const string& str, const string& sep);
 
     /**
+     * @brief splitCSVFields split csv files which might have coma in 
+     * the values of the field, where a simple coma split function would
+     * give unexpected results. 
+     * @param s String to be split. 
+     * @param c Seperator.
+     * @return vector of string.
+     */ 
+    vector<string> splitCSVFields(const string& s, const string& c);
+
+    /**
      * @brief Join a vector of words into a single string with the given
      * separator.
      * @param words A vector of strings to be accumulated.

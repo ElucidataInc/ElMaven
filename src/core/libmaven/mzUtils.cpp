@@ -65,6 +65,25 @@ namespace mzUtils {
         return result;
     }
 
+    vector<string> splitCSVFields(const string& s,const string& c){
+
+        vector<string> v;
+        const char *whole_row = s.c_str();
+        const char *del = c.c_str();
+
+        CsvParser *csvparser = CsvParser_new_from_string(whole_row, del, 0);
+
+        CsvRow *row;
+
+        row = CsvParser_getRow(csvparser);
+        const char **rowFields = CsvParser_getFields(row);
+        
+        for (int i = 0 ; i < CsvParser_getNumFields(row) ; i++) {
+            v.push_back(rowFields[i]);
+        }
+        return v;
+    }
+
     string join(const vector<string>& words, const string& sep)
     {
         if (words.empty())

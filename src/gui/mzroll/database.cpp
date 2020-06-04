@@ -983,7 +983,7 @@ int Database::loadCompoundCSVFile(string filename)
             }
         } else{
             vector<string>fields;
-            fields = mzUtils::split(line, sep);
+            fields = mzUtils::splitCSVFields(line, sep);
             getCompounds(allHeaders, fields, lineCount);
         }
     }
