@@ -231,14 +231,12 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   PeakGroup *group = v.value<PeakGroup *>();
   if (group == NULL)
     return;
+
   heatmapBackground(item);
 
-    if (viewType == groupView) {
-        item->setText(11, QString::number(group->maxQuality, 'f', 2));
-        item->setText(1, QString(group->getName().c_str()));
-  }
   //Find maximum number of peaks
   if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
+
   //score group quality
   groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
   if (groupClsf != NULL) {
@@ -250,13 +248,44 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   if (groupPred != NULL) {
       groupPred->predict(group);
   }
-  
+
   // Updating the peakid
   item->setText(0, QString::number(group->groupId));
+  item->setText(1, QString(group->getName().c_str()));
+  item->setText(2, QString::number(group->meanMz, 'f', 4));
 
-  if (viewType == groupView && fabs(group->changeFoldRatio) >= 0) {
-    item->setText(15, QString::number(group->changeFoldRatio, 'f', 3));
-    item->setText(16, QString::number(group->changePValue, 'f', 6));
+  int charge = group->parameters()->getCharge(group->getCompound());
+  if (group->getExpectedMz(charge) != -1) {
+    float mz = group->getExpectedMz(charge);
+    item->setText(3, QString::number(mz, 'f', 4));
+  } else {
+    item->setText(3, "NA");
+  }
+
+  item->setText(4, QString::number(group->meanRt, 'f', 2));
+
+  if (viewType == groupView) {
+    auto expectedRtDiff = group->expectedRtDiff();
+    if (expectedRtDiff == -1.0f) {
+      item->setText(5, "NA");
+    } else {
+      item->setText(5, QString::number(expectedRtDiff, 'f', 2));
+    }
+    item->setText(6, QString::number(group->sampleCount
+                                     + group->blankSampleCount));
+    item->setText(7, QString::number(group->goodPeakCount));
+    item->setText(8, QString::number(group->maxNoNoiseObs));
+    item->setText(9, QString::number(extractMaxIntensity(group), 'g', 3));
+    item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
+    item->setText(11, QString::number(group->maxQuality, 'f', 2));
+    item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
+    item->setText(13, QString::number(group->ms2EventCount));
+    item->setText(14, QString::number(group->groupRank, 'e', 6));
+
+    if (fabs(group->changeFoldRatio) >= 0) {
+      item->setText(15, QString::number(group->changeFoldRatio, 'f', 3));
+      item->setText(16, QString::number(group->changePValue, 'f', 6));
+    }
   }
 
   int good = 0;
@@ -379,8 +408,8 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
   item->setText(0, QString::number(group->groupId));
   item->setText(1, QString(group->getName().c_str()));
   item->setText(2, QString::number(group->meanMz, 'f', 4));
-  int charge = _mainwindow->mavenParameters->getCharge(group->getCompound());
 
+  int charge = group->parameters()->getCharge(group->getCompound());
   if (group->getExpectedMz(charge) != -1) {
     float mz = group->getExpectedMz(charge);
 
@@ -1634,7 +1663,8 @@ void TableDockWidget::editSelectedPeakGroup()
     return;
 
   editor->setPeakGroup(group);
-  editor->show();
+  editor->exec();
+  updateItem(treeWidget->currentItem(), true);
 }
 
 void TableDockWidget::showIntegrationSettings()
