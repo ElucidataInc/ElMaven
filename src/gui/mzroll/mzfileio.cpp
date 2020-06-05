@@ -815,7 +815,7 @@ bool mzFileIO::writeSQLiteProject(QString filename)
 
     if (_currentProject) {
         _currentProject->deleteAll();  // this is crazy
-        _currentProject->saveSettings(_settingsMap);
+        _currentProject->saveGlobalSettings(_settingsMap);
         _currentProject->saveSamples(sampleSet);
         _currentProject->saveAlignment(sampleSet);
 
@@ -859,7 +859,7 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
     auto sessionDb = new ProjectDatabase(filename.toStdString(), version);
     if (sessionDb) {
         sessionDb->deleteAll();
-        sessionDb->saveSettings(_settingsMap);
+        sessionDb->saveGlobalSettings(_settingsMap);
         sessionDb->saveSamples(sampleSet);
         sessionDb->saveAlignment(sampleSet);
 
@@ -925,7 +925,7 @@ void mzFileIO::_beginSQLiteProjectLoad()
     }
 
     emit updateStatusString("Loading user settings…");
-    auto settings = _currentProject->loadSettings();
+    auto settings = _currentProject->loadGlobalSettings();
     for (const auto& it : settings)
         _settingsMap[it.first] = it.second;
 
@@ -1044,7 +1044,8 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     vector<QString> dbNames;
 
     // load all peakgroups
-    auto groups = _currentProject->loadGroups(newSamples);
+    auto groups = _currentProject->loadGroups(newSamples,
+                                              _mainwindow->mavenParameters);
     auto groupCount = 0;
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
@@ -1205,7 +1206,9 @@ void mzFileIO::readSamplesXML(QXmlStreamReader& xml,
 
 PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
 {
-    PeakGroup* group = new PeakGroup();
+    PeakGroup* group = new PeakGroup(
+        make_shared<MavenParameters>(*_mainwindow->mavenParameters),
+        PeakGroup::IntegrationType::Programmatic);
 
     group->groupId = xml.attributes().value("groupId").toString().toInt();
     group->tagString =

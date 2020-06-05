@@ -84,9 +84,7 @@ public:
 	}
 	vector<mzSample*> samples;		//list of loaded samples
 	static mzSample* loadSample(QString filename);
-	int peaksMarked = 0;
 	int totalCharge = 0;
-	bool allPeaksMarked = false;
 	bool samplesAlignedFlag = false;
 	map<pair<string,string>, double> deltaRt;
 
@@ -230,6 +228,7 @@ public:
 	vector<mzSample*> getVisibleSamples();
 
 	PeakGroup::QType getUserQuantType();
+    void setUserQuantType(QString type);
 
         /**
          * @brief Converts `EL_MAVEN_VERSION" macro value to a usable QString

@@ -24,8 +24,7 @@ GalleryWidget::GalleryWidget(QWidget* parent)
 
     _minRt = 0.0f;
     _maxRt = 0.0f;
-    _minIntensity = 0.0f;
-    _maxIntensity = 0.0f;
+    _rtBuffer = 0.5f;
 
     _boxW = 300;
     _boxH = 200;
@@ -73,20 +72,7 @@ void GalleryWidget::setRtBounds(float minRt, float maxRt)
     replot();
 }
 
-pair<float, float> GalleryWidget::intensityBounds()
-{
-    return make_pair(_minIntensity, _maxIntensity);
-}
-
-void GalleryWidget::setIntensityBounds(float minIntensity, float maxIntensity)
-{
-    _minIntensity = minIntensity;
-    _maxIntensity = maxIntensity;
-    _fillPlotData();
-    replot();
-}
-
-void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
+void GalleryWidget::addEicPlots(PeakGroup* group)
 {
     clear();
     if (group == nullptr || !group->hasSlice())
@@ -101,13 +87,14 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         slice.rtmin = min(slice.rtmin, sample->minRt);
         slice.rtmax = max(slice.rtmax, sample->maxRt);
     }
-    _eics = PeakDetector::pullEICs(&slice, group->samples, mp);
+    _eics = PeakDetector::pullEICs(&slice,
+                                   group->samples,
+                                   group->parameters().get());
     sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();
     });
 
-    _maxIntensity = numeric_limits<float>::min();
     _minRt = numeric_limits<float>::max();
     _maxRt = numeric_limits<float>::min();
     for (EIC* eic : _eics) {
@@ -125,8 +112,6 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         if (samplePeak != nullptr) {
             peakRtMin = samplePeak->rtmin;
             peakRtMax = samplePeak->rtmax;
-            if (_maxIntensity < samplePeak->peakIntensity)
-                _maxIntensity = samplePeak->peakIntensity;
             if (peakRtMin < _minRt)
                 _minRt = peakRtMin;
             if (peakRtMax > _maxRt)
@@ -139,16 +124,43 @@ void GalleryWidget::addEicPlots(PeakGroup* group, MavenParameters* mp)
         plot->setHeight(_boxH);
         plot->setAxesOffset(_axesOffset);
         plot->setColor(color);
+        plot->setNoPeakMessage("NO PEAK");
+        plot->setNoPeakSubMessage("(Press \"C\" in this region, "
+                                  "to create one)");
         _plotItems << plot;
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+        emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
     }
 
-    _minRt -= 0.5;
-    _maxRt += 0.5;
-    _maxIntensity *= 1.1f;
+    _minRt -= _rtBuffer;
+    _maxRt += _rtBuffer;
 
     // we add data only at this point, once bounds have been determined
     _fillPlotData();
+}
+
+void GalleryWidget::recomputeBaselinesThresh(int dropTopX, int smoothingWindow)
+{
+    for (EIC* eic : _eics) {
+        eic->setBaselineMode(EIC::BaselineMode::Threshold);
+        eic->setBaselineDropTopX(dropTopX);
+        eic->setBaselineSmoothingWindow(smoothingWindow);
+        eic->computeBaseline();
+    }
+    _fillPlotData();
+    replot();
+}
+
+void GalleryWidget::recomputeBaselinesAsLS(int smoothness, int asymmetry)
+{
+    for (EIC* eic : _eics) {
+        eic->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
+        eic->setAsLSSmoothness(smoothness);
+        eic->setAsLSAsymmetry(asymmetry);
+        eic->computeBaseline();
+    }
+    _fillPlotData();
+    replot();
 }
 
 void GalleryWidget::replot()
@@ -175,11 +187,13 @@ void GalleryWidget::replot()
         scene()->update();
     }
 
+    bool noVisiblePeakData = !_visibleItemsHavePeakData();
     for (int index : _indexesOfVisibleItems) {
         TinyPlot* plot = _plotItems.at(index);
         plot->setWidth(_boxW);
         plot->setHeight(_boxH);
         plot->setPos(0, 0);
+        plot->setDrawNoPeakMessages(noVisiblePeakData);
 
         // draw axes for only the last overlayed plot
         if (index == _indexesOfVisibleItems.back()) {
@@ -270,10 +284,14 @@ void GalleryWidget::copyImageToClipboard()
 QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
 {
     auto rect = QRectF(pos.x() - 2.0f, pos.y() - 2.0f, 4.0f, 4.0f);
-    if (_leftMarker->boundingRect().intersects(rect))
+    if (_leftMarker != nullptr
+        && _leftMarker->boundingRect().intersects(rect)) {
         return _leftMarker;
-    if (_rightMarker->boundingRect().intersects(rect))
+    }
+    if (_rightMarker != nullptr
+        && _rightMarker->boundingRect().intersects(rect)) {
         return _rightMarker;
+    }
     return nullptr;
 }
 
@@ -313,14 +331,36 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         float peakRtMin = toRt(x1, eic);
         float peakRtMax = toRt(x2, eic);
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
-        emit peakRegionChanged(eic->sample, peakRtMin, peakRtMax);
+        emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
 
         plot->clearData();
         plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
         plot->setXBounds(_minRt, _maxRt);
-        plot->setYBounds(_minIntensity, _maxIntensity);
     }
+
+    bool noVisiblePeakData = !_visibleItemsHavePeakData();
+    for (int index : _indexesOfVisibleItems) {
+        auto plot = _plotItems.at(index);
+        plot->setDrawNoPeakMessages(noVisiblePeakData);
+    }
+
+    _scalePlotsToIncludeMaxIntensity();
     scene()->update();
+}
+
+void GalleryWidget::_scalePlotsToIncludeMaxIntensity()
+{
+    float minIntensity = numeric_limits<float>::max();
+    float maxIntensity = numeric_limits<float>::min();
+    for (size_t i = 0; i < _plotItems.size(); ++i) {
+        auto plot = _plotItems[i];
+        auto plotIntensities = plot->yBounds();
+        minIntensity = min(minIntensity, plotIntensities.first);
+        maxIntensity = max(maxIntensity, plotIntensities.second);
+    }
+
+    for (auto plot : _plotItems)
+        plot->setYBounds(minIntensity, maxIntensity);
 }
 
 void GalleryWidget::_fillPlotData()
@@ -332,6 +372,7 @@ void GalleryWidget::_fillPlotData()
         auto plot = _plotItems[i];
         auto eic = _eics[i];
         auto& peakBounds = _peakBounds.at(eic);
+        plot->clearData();
         plot->addData(eic,
                       _minRt,
                       _maxRt,
@@ -339,10 +380,75 @@ void GalleryWidget::_fillPlotData()
                       peakBounds.first,
                       peakBounds.second);
 
-        // make sure all plots are scaled into a single inclusive x-y plane
+        // make sure all plots are scaled into a single inclusive x-range
         plot->setXBounds(_minRt, _maxRt);
-        plot->setYBounds(_minIntensity, _maxIntensity);
     }
+    _scalePlotsToIncludeMaxIntensity();
+}
+
+bool GalleryWidget::_visibleItemsHavePeakData()
+{
+    bool anyHasPeakData = false;
+    for (int index : _indexesOfVisibleItems) {
+        auto eic = _eics.at(index);
+        auto& peakBounds = _peakBounds.at(eic);
+        if (peakBounds.first != peakBounds.second
+            && peakBounds.first >= 0.0f
+            && peakBounds.second >= 0.0f) {
+            anyHasPeakData = true;
+        }
+    }
+    return anyHasPeakData;
+}
+
+void GalleryWidget::_createNewPeak()
+{
+    if (_visibleItemsHavePeakData())
+        return;
+
+    int presentPeaks = 0;
+    float rtMinMean = 0.0f;
+    float rtMaxMean = 0.0f;
+    for (auto& elem : _peakBounds) {
+        auto& peakBounds = elem.second;
+        if (peakBounds.first < 0.0f && peakBounds.second < 0.0f)
+            continue;
+
+        rtMinMean += peakBounds.first;
+        rtMaxMean += peakBounds.second;
+        ++presentPeaks;
+    }
+    if (rtMinMean == 0.0f && rtMaxMean == 0.0f) {
+        float rtCenter = _minRt + ((_maxRt - _minRt) / 2.0f);
+        float twoSeconds = 2.0f / 60.0f;
+        rtMinMean = max(rtCenter - twoSeconds, _minRt + twoSeconds);
+        rtMaxMean = min(rtCenter + twoSeconds, _maxRt - twoSeconds);
+    } else {
+        rtMinMean /= presentPeaks;
+        rtMaxMean /= presentPeaks;
+    }
+
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        _peakBounds[eic] = make_pair(rtMinMean, rtMaxMean);
+        emit peakRegionSet(eic->sample, rtMinMean, rtMaxMean);
+    }
+    _fillPlotData();
+    replot();
+}
+
+void GalleryWidget::_deleteCurrentPeak()
+{
+    if (!_visibleItemsHavePeakData())
+        return;
+
+    for (int index : _indexesOfVisibleItems) {
+        EIC* eic = _eics.at(index);
+        _peakBounds[eic] = make_pair(-1.0f, -1.0f);
+        emit peakRegionSet(eic->sample, -1.0f, -1.0f);
+    }
+    _fillPlotData();
+    replot();
 }
 
 void GalleryWidget::wheelEvent(QWheelEvent* event)
@@ -364,6 +470,22 @@ void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
     QAction* copyImage = menu.addAction("Copy Image to Clipboard");
     connect(copyImage, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
 
+    QAction* createPeak = menu.addAction("Create new peak");
+    connect(createPeak,
+            &QAction::triggered,
+            this,
+            &GalleryWidget::_createNewPeak);
+    if (_visibleItemsHavePeakData())
+        createPeak->setEnabled(false);
+
+    QAction* deletePeak = menu.addAction("Delete current peak");
+    connect(deletePeak,
+            &QAction::triggered,
+            this,
+            &GalleryWidget::_deleteCurrentPeak);
+    if (!_visibleItemsHavePeakData())
+        deletePeak->setEnabled(false);
+
     menu.exec(event->globalPos());
     scene()->update();
 }
@@ -375,6 +497,10 @@ void GalleryWidget::keyPressEvent(QKeyEvent *event)
         || event->key() == Qt::Key_Left
         || event->key() == Qt::Key_Right) {
         event->ignore();
+    } else if (event->key() == Qt::Key_C) {
+        _createNewPeak();
+    } else if (event->key() == Qt::Key_Delete) {
+        _deleteCurrentPeak();
     }
 }
 

@@ -196,12 +196,17 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void EicWidget::integrateRegion(float rtMin, float rtMax)
 {
-    eicParameters->_integratedGroup.clear();
-    eicParameters->_integratedGroup.minQuality
-        = getMainWindow()->mavenParameters->minQuality;
-    eicParameters->_integratedGroup.setSlice(eicParameters->_slice);
-    eicParameters->_integratedGroup.srmId = eicParameters->_slice.srmId;
-    eicParameters->_integratedGroup.setSelectedSamples(
+    if (eicParameters->integratedGroup != nullptr)
+        delete eicParameters->integratedGroup;
+
+    MavenParameters* mp = getMainWindow()->mavenParameters;
+    auto parameters = make_shared<MavenParameters>(*mp);
+    eicParameters->integratedGroup =
+        new PeakGroup(parameters, PeakGroup::IntegrationType::Manual);
+    eicParameters->integratedGroup->minQuality = parameters->minQuality;
+    eicParameters->integratedGroup->setSlice(eicParameters->_slice);
+    eicParameters->integratedGroup->srmId = eicParameters->_slice.srmId;
+    eicParameters->integratedGroup->setSelectedSamples(
         getMainWindow()->getVisibleSamples());
 
     for (EIC* eic : eicParameters->eics) {
@@ -214,24 +219,23 @@ void EicWidget::integrateRegion(float rtMin, float rtMax)
             if (clsf != nullptr)
                 peak.quality = clsf->scorePeak(peak);
 
-            PeakFiltering peakFiltering(getMainWindow()->mavenParameters,
-                                        false);
+            PeakFiltering peakFiltering(parameters.get(), false);
             if (!peakFiltering.filter(peak))
-                eicParameters->_integratedGroup.addPeak(peak);
+                eicParameters->integratedGroup->addPeak(peak);
         }
     }
 
-    eicParameters->_integratedGroup.groupStatistics();
+    eicParameters->integratedGroup->groupStatistics();
     int ms2Events =
-        eicParameters->_integratedGroup.getFragmentationEvents().size();
+        eicParameters->integratedGroup->getFragmentationEvents().size();
     if (ms2Events) {
-        float ppm = getMainWindow()->mavenParameters->fragmentTolerance;
-        string scoringAlgo = getMainWindow()->mavenParameters->scoringAlgo;
-        eicParameters->_integratedGroup.computeFragPattern(ppm);
-        eicParameters->_integratedGroup.matchFragmentation(ppm, scoringAlgo);
+        float ppm = parameters->fragmentTolerance;
+        string scoringAlgo = parameters->scoringAlgo;
+        eicParameters->integratedGroup->computeFragPattern(ppm);
+        eicParameters->integratedGroup->matchFragmentation(ppm, scoringAlgo);
     }
     getMainWindow()->isotopeWidget->setPeakGroupAndMore(
-        &eicParameters->_integratedGroup, true);
+        eicParameters->integratedGroup, true);
 }
 
 void EicWidget::setFocusLine(float rt) {
@@ -338,12 +342,14 @@ void EicWidget::computeEICs() {
 	if (samples.size() == 0)
 		return;
 
-	QSettings *settings = getMainWindow()->getSettings();
     mzSlice bounds = visibleSamplesBounds();
 
-    eicParameters->getEIC(bounds,
-                          samples,
-                          getMainWindow()->mavenParameters);
+    auto mp = getMainWindow()->mavenParameters;
+    if (eicParameters->selectedGroup() != nullptr
+        && !eicParameters->selectedGroup()->tableName().empty()) {
+        mp = eicParameters->selectedGroup()->parameters().get();
+    }
+    eicParameters->getEIC(bounds, samples, mp);
 
     // score peak quality
     ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
@@ -352,7 +358,7 @@ void EicWidget::computeEICs() {
 	}
 
 	bool isIsotope = false;
-	PeakFiltering peakFiltering(getMainWindow()->mavenParameters, isIsotope);
+    PeakFiltering peakFiltering(mp, isIsotope);
 	peakFiltering.filter(eicParameters->eics);
 
 	if(_groupPeaks) groupPeaks(); //TODO: Sahil, added while merging eicwidget
@@ -562,18 +568,18 @@ void EicWidget::addEICLines(bool showSpline,
         }
 
         // sample stacking
-        float peakRtMin = numeric_limits<float>::min();
-        float peakRtMax = numeric_limits<float>::max();
+        float peakRtMin = -1.0f;
+        float peakRtMax = -1.0f;
         int zValue = 0;
         for (int j = 0; j < peaks.size(); j++) {
             if (peaks[j].getSample() == eic->getSample()) {
                 zValue = j;
-                if (!_areaIntegration) {
-                    peakRtMin = peaks[j].rtmin;
-                    peakRtMax = peaks[j].rtmax;
-                } else {
+                if (_areaIntegration) {
                     peakRtMin = rtMin;
                     peakRtMax = rtMax;
+                } else {
+                    peakRtMin = peaks[j].rtmin;
+                    peakRtMax = peaks[j].rtmax;
                 }
                 break;
             }
@@ -592,6 +598,11 @@ void EicWidget::addEICLines(bool showSpline,
 
             if (showEic) {
                 if (overlayingIntegratedArea) {
+                    if (peakRtMin < 0.0f && peakRtMax < 0.0f) {
+                        // the peak does not exist, fade entire EIC
+                        addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
+                        continue;
+                    }
                     if (peakRtMin > 0.0f && eic->rt[j] < peakRtMin) {
                         addPoint(lineEicLeft, eic->rt[j], eic->intensity[j]);
                         int nextIdx = j + 1;
@@ -612,7 +623,6 @@ void EicWidget::addEICLines(bool showSpline,
                         addPoint(lineEicRight, eic->rt[j], eic->intensity[j]);
                     }
                     if (eic->rt[j] >= peakRtMin && eic->rt[j] <= peakRtMax) {
-                        // TODO: ensure visual and integrated area match
                         addPoint(lineEic, eic->rt[j], eic->intensity[j]);
                     }
                 } else {
@@ -861,13 +871,16 @@ void EicWidget::addTicLine() {
 	_minY = tmpMinY;
 }
 
-void EicWidget::addMergedEIC() {
-	//qDebug <<" EicWidget::addMergedEIC()";
+void EicWidget::addMergedEIC()
+{
+    auto mp = getMainWindow()->mavenParameters;
+    if (eicParameters->selectedGroup() != nullptr
+        && !eicParameters->selectedGroup()->tableName().empty()) {
+        mp = eicParameters->selectedGroup()->parameters().get();
+    }
 
-	QSettings* settings = this->getMainWindow()->getSettings();
-
-    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
-    int eic_smoothingAlgorithm = getMainWindow()->mavenParameters->eic_smoothingAlgorithm;
+    int eic_smoothingWindow = mp->eic_smoothingWindow;
+    int eic_smoothingAlgorithm = mp->eic_smoothingAlgorithm;
 
     EicLine* line = new EicLine(0, scene());
 
@@ -901,14 +914,19 @@ void EicWidget::addMergedEIC() {
 
 EicLine* EicWidget::addBaseLine(EIC* eic, double zValue)
 {
-    if (!eic->baseline) {
-        auto parameters = getMainWindow()->mavenParameters;
-        eic->setBaselineDropTopX(parameters->baseline_dropTopX);
-        eic->setBaselineSmoothingWindow(parameters->baseline_smoothingWindow);
-        eic->setAsLSSmoothness(parameters->aslsSmoothness);
-        eic->setAsLSAsymmetry(parameters->aslsAsymmetry);
+    auto mp = getMainWindow()->mavenParameters;
+    if (eicParameters->selectedGroup() != nullptr
+        && !eicParameters->selectedGroup()->tableName().empty()) {
+        mp = eicParameters->selectedGroup()->parameters().get();
+    }
 
-        if (parameters->aslsBaselineMode) {
+    if (!eic->baseline) {
+        eic->setBaselineDropTopX(mp->baseline_dropTopX);
+        eic->setBaselineSmoothingWindow(mp->baseline_smoothingWindow);
+        eic->setAsLSSmoothness(mp->aslsSmoothness);
+        eic->setAsLSAsymmetry(mp->aslsAsymmetry);
+
+        if (mp->aslsBaselineMode) {
             eic->setBaselineMode(EIC::BaselineMode::AsLSSmoothing);
         }
         else {
@@ -1191,8 +1209,8 @@ void EicWidget::addFocusLine(PeakGroup* group) {
 void EicWidget::addAxes() {
 	//qDebug <<" EicWidget::addAxes()";
 //	 qDebug() << "EicWidget: addAxes() " << _minY << " " << _maxY << endl;
-	Axes* x = new Axes(0, _minX, _maxX, 10);
-	Axes* y = new Axes(1, _minY, _maxY, 10);
+    Axes* x = new Axes(0, _minX, _maxX, 11);
+    Axes* y = new Axes(1, _minY, _maxY, 9);
 	scene()->addItem(x);
 	scene()->addItem(y);
 	y->setOffset(20);
@@ -1599,8 +1617,11 @@ void EicWidget::setCompound(Compound* c)
 	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 }
 
-void EicWidget::setMzSlice(const mzSlice& slice) {
-	//qDebug << "EicWidget::setmzSlice()";
+void EicWidget::setMzSlice(const mzSlice& slice)
+{
+    eicParameters->setDisplayedGroup(nullptr);
+    eicParameters->setSelectedGroup(nullptr);
+
 	if (slice.mzmin != eicParameters->_slice.mzmin
 			|| slice.mzmax != eicParameters->_slice.mzmax
 			|| slice.srmId != eicParameters->_slice.srmId
@@ -1620,19 +1641,19 @@ void EicWidget::setMzSlice(const mzSlice& slice) {
 					eicParameters->_slice.mzmax = slice.mzmax;
 					eicParameters->_slice.mz = slice.mz;
 				}
-
-		recompute();
 	} else {
 		eicParameters->_slice = slice;
 	}
-	replot(NULL);
+
+    recompute();
+    replot(NULL);
 }
 
-void EicWidget::setPeakGroup(PeakGroup* group) {
-
+void EicWidget::setPeakGroup(PeakGroup* group)
+{
 	if (group == NULL) return;
 
-	int charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
+    int charge = group->parameters()->getCharge(group->getCompound());
 	if (group->getExpectedMz(charge) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(charge);
 	} else {
@@ -1664,8 +1685,8 @@ void EicWidget::setPeakGroup(PeakGroup* group) {
         eicParameters->_slice.rtmax = bounds.rtmax;
 
     setMassCutoff(getMainWindow()->getUserMassCutoff());
+    eicParameters->setSelectedGroup(group);
     recompute();
-    // }
 
 	if (group->getCompound())
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
@@ -1716,24 +1737,13 @@ void EicWidget::setMzSlice(float mz1, float mz2) {
 }
 
 void EicWidget::groupPeaks() {
-	//qDebug() << "EicWidget::groupPeaks() " << endl;
-	//delete previous set of pointers to groups
-	QSettings *settings = getMainWindow()->getSettings();
-    int eic_smoothingWindow = getMainWindow()->mavenParameters->eic_smoothingWindow;
-    float grouping_maxRtWindow = getMainWindow()->mavenParameters->grouping_maxRtWindow;
+    auto mp = getMainWindow()->mavenParameters;
+    if (eicParameters->selectedGroup() != nullptr
+        && !eicParameters->selectedGroup()->tableName().empty()) {
+        mp = eicParameters->selectedGroup()->parameters().get();
+    }
 
-    eicParameters->groupPeaks(eic_smoothingWindow,
-                              &(eicParameters->_slice),
-                              grouping_maxRtWindow,
-                              getMainWindow()->mavenParameters->minQuality,
-                              getMainWindow()->mavenParameters->distXWeight,
-                              getMainWindow()->mavenParameters->distYWeight,
-                              getMainWindow()->mavenParameters->overlapWeight,
-                              getMainWindow()->mavenParameters->useOverlap,
-                              getMainWindow()->mavenParameters->minSignalBaselineDifference,
-                              getMainWindow()->mavenParameters->fragmentTolerance,
-                              getMainWindow()->mavenParameters->scoringAlgo);
-
+    eicParameters->groupPeaks(&(eicParameters->_slice), mp);
 }
 
 void EicWidget::print(QPaintDevice* printer) {
@@ -2021,13 +2031,11 @@ void EicWidget::keyReleaseEvent(QKeyEvent *e)
 void EicWidget::markGroupGood()
 {
     getMainWindow()->markGroup(eicParameters->displayedGroup(), 'g');
-    getMainWindow()->peaksMarked++;
     getMainWindow()->autoSaveSignal({eicParameters->displayedGroup()});
 }
 void EicWidget::markGroupBad()
 {
     getMainWindow()->markGroup(eicParameters->displayedGroup(), 'b');
-	getMainWindow()->peaksMarked++;
     getMainWindow()->autoSaveSignal({eicParameters->displayedGroup()});
 }
 
@@ -2190,7 +2198,7 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     EICLogic* eicparameters = new EICLogic();
 
     //Set Slice in eicparameter
-    int charge = getMainWindow()->mavenParameters->getCharge(group->getCompound());
+    int charge = group->parameters()->getCharge(group->getCompound());
     if (group->getExpectedMz(charge) != -1) {
         eicparameters->_slice.mz = group->getExpectedMz(charge);
     } else {
@@ -2229,8 +2237,8 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     auto bounds = eicparameters->visibleSamplesBounds(samples);
     eicparameters->getEIC(bounds,
                           samples,
-                          getMainWindow()->mavenParameters);
-    PeakFiltering peakFiltering(getMainWindow()->mavenParameters, false);
+                          group->parameters().get());
+    PeakFiltering peakFiltering(group->parameters().get(), false);
     peakFiltering.filter(eicParameters->eics);
 
     bounds = eicparameters->visibleEICBounds();

@@ -456,8 +456,10 @@ map<int, string> dbVersionUpgradeScripts = {
         "BEGIN TRANSACTION;"
 
         // deleting some isotope detection parameters and adding a new one
+        // also adding a new "domain" key
         "ALTER TABLE user_settings RENAME TO user_settings_old;"
-        "CREATE TABLE user_settings ( ionization_mode                  INTEGER "
+        "CREATE TABLE user_settings ( domain                           TEXT    "
+        "                           , ionization_mode                  INTEGER "
         "                           , ionization_type                  INTEGER "
         "                           , instrument_type                  INTEGER "
         "                           , q1_accuracy                      REAL    "
@@ -561,7 +563,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "                           , search_adducts                   INTEGER "
         "                           , adduct_search_window             REAL    "
         "                           , adduct_percent_correlation       REAL    );"
-        "INSERT INTO user_settings ( ionization_mode                  "
+        "INSERT INTO user_settings ( domain                           "
+        "                          , ionization_mode                  "
         "                          , ionization_type                  "
         "                          , instrument_type                  "
         "                          , q1_accuracy                      "
@@ -665,7 +668,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "                          , search_adducts                   "
         "                          , adduct_search_window             "
         "                          , adduct_percent_correlation       )"
-        "                     SELECT ionization_mode                  "
+        "                     SELECT \"global\"                       "
+        "                          , ionization_mode                  "
         "                          , ionization_type                  "
         "                          , instrument_type                  "
         "                          , q1_accuracy                      "
@@ -771,6 +775,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "                          , adduct_percent_correlation       "
         "                       FROM user_settings_old               ;"
         "DROP TABLE user_settings_old;"
+
+        "ALTER TABLE peakgroups ADD COLUMN integration_type INTEGER;"
 
         "COMMIT;"
     }

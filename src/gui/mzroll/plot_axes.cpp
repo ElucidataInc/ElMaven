@@ -67,36 +67,28 @@ void Axes::paintAxes(QPainter* painter,
     int X0 = margin + offset;
 
     float range = (max - min);
-    float expbase = pow(10, floor(log(range / nticks) / log(10)));
-    float b;
-    for (int i = 0; i < 10; i += 1) {
-        b = i * expbase;
-        if (b > range / nticks)
-            break;
-    }
-
-    float ticks = range / b;
-    float ix = (x1 - x0) / ticks;
-    float iy = (y1 - y0) / ticks;
+    float b = range / nticks;
+    float ix = (x1 - x0) / nticks;
+    float iy = (y1 - y0) / nticks;
 
     if (b == 0)
         return;
 
     if (type == 0) {  // X axes
         painter->drawLine(x0, Y0, x1, Y0);
-        for (int i = 1; i <= ticks; i++)
+        for (int i = 1; i < nticks; i++)
             painter->drawLine(x0 + ix * i, Y0 - 5, x0 + ix * i, Y0);
-        for (int i = 1; i <= ticks; ++i) {
+        for (int i = 1; i < nticks; ++i) {
             auto value = QString::number(min + b * i, 'f', 2);
             int pixelsWide = fm.width(value);
             painter->drawText(x0 + ix * i - (pixelsWide / 2), Y0 + 10, value);
         }
     } else if (type == 1) {  // Y axes
         painter->drawLine(X0, y0, X0, y1);
-        for (int i = 1; i <= ticks; i++)
+        for (int i = 1; i < nticks; i++)
             painter->drawLine(X0 - 5, y0 + iy * i, X0, y0 + iy * i);
 
-        for (int i = 1; i <= ticks; ++i) {
+        for (int i = 1; i < nticks; ++i) {
             QString value = QString::number(min + b * i, 'g', 2);
             if (max < 10000)
                 value = QString::number(min + b * i, 'f', 0);
@@ -114,7 +106,7 @@ void Axes::paintAxes(QPainter* painter,
             // horizontal tick lines
             QPen pen(Qt::gray, 0.1, Qt::SolidLine);
             painter->setPen(pen);
-            for (int i = 0; i <= ticks; i++)
+            for (int i = 1; i < nticks; i++)
                 painter->drawLine(X0 - 5, y0 + iy * i, x1, y0 + iy * i);
         }
     }

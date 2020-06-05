@@ -328,18 +328,10 @@ void TestEIC:: testgroupPeaks() {
                                                mavenparameters->samples,
                                                mavenparameters);
 
-    vector<PeakGroup> peakgroups = EIC::groupPeaks(eics,
-                                                   slice,
-                                                   mavenparameters->eic_smoothingWindow,
-                                                   mavenparameters->grouping_maxRtWindow,
-                                                   mavenparameters->minQuality,
-                                                   mavenparameters->distXWeight,
-                                                   mavenparameters->distYWeight,
-                                                   mavenparameters->overlapWeight,
-                                                   mavenparameters->useOverlap,
-                                                   mavenparameters->minSignalBaselineDifference,
-                                                   mavenparameters->fragmentTolerance,
-                                                   mavenparameters->scoringAlgo);
+    vector<PeakGroup> peakgroups =
+        EIC::groupPeaks(eics,
+                        slice,
+                        make_shared<MavenParameters>(*mavenparameters));
 
     QVERIFY(peakgroups.size() == 3);
     QVERIFY(13.2378 < peakgroups[0].meanRt < 13.238);

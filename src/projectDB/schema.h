@@ -112,7 +112,8 @@
                                            , slice_rt_min                       REAL                              \
                                            , slice_rt_max                       REAL                              \
                                            , slice_ion_count                    REAL                              \
-                                           , table_group_id                     INTEGER                           );"
+                                           , table_group_id                     INTEGER                           \
+                                           , integration_type                   INTEGER                           );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
@@ -144,7 +145,8 @@
                                               , rt_updated  REAL    NOT NULL );"
 
 #define CREATE_SETTINGS_TABLE \
-    "CREATE TABLE IF NOT EXISTS user_settings ( ionization_mode                  INTEGER \
+    "CREATE TABLE IF NOT EXISTS user_settings ( domain                           TEXT    \
+                                              , ionization_mode                  INTEGER \
                                               , ionization_type                  INTEGER \
                                               , instrument_type                  INTEGER \
                                               , q1_accuracy                      REAL    \

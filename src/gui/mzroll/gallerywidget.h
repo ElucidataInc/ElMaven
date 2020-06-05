@@ -20,18 +20,17 @@ public:
     vector<EIC*> eics() { return _eics; }
     pair<float, float> rtBounds();
     void setRtBounds(float minRt, float maxRt);
-    pair<float, float> intensityBounds();
-    void setIntensityBounds(float minIntensity, float maxIntensity);
+    float rtBuffer() { return _rtBuffer; }
 
 signals:
-    void peakRegionChanged(mzSample*, float, float);
+    void peakRegionSet(mzSample*, float, float);
 
 public Q_SLOTS:
     void replot();
-
     void clear();
-
-    void addEicPlots(PeakGroup* grp, MavenParameters* mp);
+    void addEicPlots(PeakGroup* grp);
+    void recomputeBaselinesThresh(int dropTopX, int smoothingWindow);
+    void recomputeBaselinesAsLS(int smoothness, int asymmetry);
     void showPlotFor(vector<int> indexes);
     void copyImageToClipboard();
 
@@ -49,13 +48,18 @@ private:
 
     float _minRt;
     float _maxRt;
-    float _minIntensity;
-    float _maxIntensity;
+    float _rtBuffer;
 
     void _drawBoundaryMarkers();
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
+    void _scalePlotsToIncludeMaxIntensity();
     void _fillPlotData();
+    bool _visibleItemsHavePeakData();
+
+private slots:
+    void _createNewPeak();
+    void _deleteCurrentPeak();
 
 protected:
     bool recursionCheck;

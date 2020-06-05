@@ -98,17 +98,17 @@ void TestIsotopeDetection::testgetIsotopes() {
     //number of isotopes found
     QCOMPARE(isotopes.size(), 6);
     // meanMz should be very close to that of parent group
-    QCOMPARE(isotopes["C12 PARENT"].meanMz, parentgroup->meanMz);
+    QCOMPARE(isotopes.find("C12 PARENT")->second.meanMz, parentgroup->meanMz);
     //tagstring has been populated
-    QCOMPARE(isotopes["C13-label-2"].tagString, "C13-label-2");
+    QCOMPARE(isotopes.find("C13-label-2")->second.tagString, "C13-label-2");
     //number of peaks for a label are consistent
-    QCOMPARE(isotopes["D2-label-1"].peaks.size(), 1);
+    QCOMPARE(isotopes.find("D2-label-1")->second.peaks.size(), 1);
     //intensity of label is consistent
-    QCOMPARE(floor(isotopes["D2-label-1"].getPeak(samplesToLoad[1])->peakIntensity), 89733);
+    QCOMPARE(floor(isotopes.find("D2-label-1")->second.getPeak(samplesToLoad[1])->peakIntensity), 89733);
     //scan number is populated and consistent 
-    QCOMPARE(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->scan, 3490);
+    QCOMPARE(isotopes.find("C13-label-2")->second.getPeak(samplesToLoad[1])->scan, 3490);
     //peak quality is populated and consistent
-    QVERIFY(isotopes["C13-label-2"].getPeak(samplesToLoad[1])->quality > 0.2);
+    QVERIFY(isotopes.find("C13-label-2")->second.getPeak(samplesToLoad[1])->quality > 0.2);
 }
 
 void TestIsotopeDetection::testpullIsotopes() {

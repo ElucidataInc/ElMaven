@@ -227,7 +227,6 @@ public Q_SLOTS:
   virtual void markGroupBad();
   virtual void markGroupGood();
   virtual void unmarkGroup();
-  bool checkLabeledGroups();
   void markGroupIgnored();
   void showAllGroups();
   void showHeatMap();
@@ -244,9 +243,6 @@ public Q_SLOTS:
   void clusterGroups();
   void showFiltersDialog();
   void filterPeakTable();
-
-  int loadSpreadsheet(QString fileName);
-  int loadCSVFile(QString filename, QString sep);
 
   void switchTableView();
 
@@ -271,6 +267,12 @@ public Q_SLOTS:
    * set of peaks of the currently selected peak-group item.
    */
   void editSelectedPeakGroup();
+
+  /**
+   * @brief Show a `GroupSettingsLog` dialog listing all relevant parameters
+   * used when the currently selected peak-group was integrated.
+   */
+  void showIntegrationSettings();
 
 protected:
   MainWindow *_mainwindow;
@@ -323,6 +325,7 @@ public:
 
 public Q_SLOTS:
   void destroy();
+  void deleteAll();
 
 private:
   QToolBar *toolBar;

@@ -3,6 +3,7 @@
 #include "Compound.h"
 #include "isotopeplot.h"
 #include "mainwindow.h"
+#include"mavenparameters.h"
 #include "mzSample.h"
 #include "settingsform.h"
 
@@ -78,7 +79,8 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 
     if (_group)
         delete _group;
-    _group = new PeakGroup;
+    _group = new PeakGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
+                           PeakGroup::IntegrationType::Programmatic);
     _group->copyObj(*group);
 
 	_samples.clear();

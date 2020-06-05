@@ -306,22 +306,16 @@ void PeakDetector::processSlices(vector<mzSlice*> &slices, string setName)
     if (slices.empty())
         return;
 
+    // shared `MavenParameters` object
+    auto mp = make_shared<MavenParameters>(*mavenParameters);
+
     // lambda that adds detected groups to mavenparameters
     auto detectGroupsForSlice = [&](vector<EIC*>& eics, mzSlice* slice) {
         vector<PeakGroup> peakgroups =
-        EIC::groupPeaks(eics,
-                        slice,
-                        mavenParameters->eic_smoothingWindow,
-                        mavenParameters->grouping_maxRtWindow,
-                        mavenParameters->minQuality,
-                        mavenParameters->distXWeight,
-                        mavenParameters->distYWeight,
-                        mavenParameters->overlapWeight,
-                        mavenParameters->useOverlap,
-                        mavenParameters->minSignalBaselineDifference,
-                        mavenParameters->fragmentTolerance,
-                        mavenParameters->scoringAlgo);
-
+            EIC::groupPeaks(eics,
+                            slice,
+                            mp,
+                            PeakGroup::IntegrationType::Automated);
         GroupFiltering groupFiltering(mavenParameters, slice);
         groupFiltering.filter(peakgroups);
 

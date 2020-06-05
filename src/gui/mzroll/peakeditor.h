@@ -33,15 +33,6 @@ public:
     ~PeakEditor();
 
     /**
-     * @brief Set the `PeakFiltering` object that should be used to filter for
-     * candidate peaks.
-     * @details This method is needed mostly for setting up to filter parent vs.
-     * non-parent isotopes. By default non-parent isotope filters are applied.
-     * @param filter A `PeakFiltering` object.
-     */
-    void setPeakFilter(PeakFiltering filter) { _peakFilter = filter; }
-
-    /**
      * @brief Set the peak-group for whose peaks need to be edited.
      * @details This is the main method that will update the values of almost
      * every visual and data element of peak-editor. Retains state until the
@@ -71,12 +62,6 @@ private:
     ClassifierNeuralNet* _clsf;
 
     /**
-     * @brief A filter that will be used to judge chromatographic area as
-     * being peak-worthy or not.
-     */
-    PeakFiltering _peakFilter;
-
-    /**
      * @brief Reference to a peak-group object that is currently displayed and
      * being edited.
      */
@@ -87,26 +72,62 @@ private:
      * pair of left and right boundaries). Updated everytime the user changes
      * it in the gallery widget.
      */
-    map<mzSample*, pair<float, float>> _editedPeakRegions;
+    map<mzSample*, pair<float, float>> _setPeakRegions;
 
     /**
-     * @brief Given a group, populate the sample list with the samples used for
-     * performing peak integration for that group (i.e., samples unchecked while
-     * integration will not appear).
-     * @param group Pointer to a `PeakGroup` object.
+     * @brief For the current peak-group, set values for baseline settings,
+     * based on the settings used when integrating that peak-group.
      */
-    void _populateSampleList(PeakGroup* group);
+    void _setBaselineParameters();
 
     /**
-     * @brief Set the RT bounds of the peak (in the current peak-group) for the
+     * @brief For the current peak-group, set the min and max RT values - their
+     * allowed ranges as well as their visible values. If the peak-group is part
+     * of an isotopologue set, then the min/max RT values of all peak-groups in
+     * that set are also considered while setting the default visible range.
+     */
+    void _setRtRangeAndValues();
+
+    /**
+     * @brief Depending on whether the current peak-group was set to have all of
+     * its isotopic peaks share the same RT range, the sync checkbox will be
+     * checked. The checkbox will be disabled if the peak-group has no isotopic
+     * children.
+     */
+    void _setSyncRtCheckbox();
+
+    /**
+     * @brief For the current peak-group, populate the sample list with the
+     * samples used for performing peak integration for that group (i.e.,
+     * samples unchecked while integration will not appear).
+     */
+    void _populateSampleList();
+
+    /**
+     * @brief Set the RT bounds of the peak, of the given peak-group, for the
      * given sample.
+     * @param group Pointer to the peak-group whose peak bounds will be edited.
      * @param peakSample Pointer to an `mzSample` object.
+     * @param eics A vector of EICs which used for extracting peak region
      * @param rtMin Minimum retention time (left bound) to set for the peak.
      * @param rtMax Maximum retention time (right bound) to set for the peak.
      */
-    void _editPeakRegionForSample(mzSample* peakSample,
+    void _editPeakRegionForSample(PeakGroup* group,
+                                  mzSample* peakSample,
+                                  vector<EIC*>& eics,
                                   float rtMin,
                                   float rtMax);
+
+    /**
+     * @brief Disables most of the UI and sets the status label to inform user
+     * that an edit operation is in progress.
+     */
+    void _setBusyState();
+
+    /**
+     * @brief Enables the whole UI and resets status label to an empty string.
+     */
+    void _setActiveState();
 
 private slots:
     /**

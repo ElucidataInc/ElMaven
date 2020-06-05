@@ -14,6 +14,7 @@ TinyPlot::TinyPlot(QGraphicsItem* parent,
     _noPeakData = false;
     _axesOffset = 18.0f;
     _drawAxes = true;
+    _drawNoPeakMessages = true;
 }
 
 QRectF TinyPlot::boundingRect() const
@@ -47,11 +48,12 @@ void TinyPlot::addData(EIC* eic,
         if (eic->rt[i] > rtMax)
             break;
 
-        if (peakRtMin < 0.0f || peakRtMax < 0.0f) {
+        if (peakRtMin < 0.0f || peakRtMax < 0.0f || peakRtMin == peakRtMax) {
             center << QPointF( eic->rt[i], eic->intensity[i]);
             if (highlightRange)
                 _noPeakData = true;
         } else {
+            _noPeakData = false;
             if (eic->rt[i] < peakRtMin) {
                 left << QPointF( eic->rt[i], eic->intensity[i]);
             } else if (eic->rt[i] > peakRtMax) {
@@ -85,9 +87,9 @@ void TinyPlot::addData(EIC* eic,
     for(QVector<QPointF> shape : data) {
         for (auto point : shape) {
             if (point.y() > _maxYValue)
-                _maxYValue = point.y() * 1.2;
+                _maxYValue = point.y() * 1.1;
             if (point.y() < _minYValue)
-                _minYValue = point.y() * 0.8;
+                _minYValue = point.y() * 0.9;
             if (point.x() > _maxXValue)
                 _maxXValue = point.x();
             if (point.x() < _minXValue)
@@ -131,7 +133,7 @@ void TinyPlot::_addAxes(QPainter *painter)
                     _height - _axesOffset,
                     _axesOffset,
                     0,
-                    6,
+                    11,
                     true);
     Axes::paintAxes(painter,
                     1,
@@ -195,13 +197,17 @@ void TinyPlot::paint(QPainter *painter,
         painter->setBrush(colorFaded);
         painter->setPen(penFaded);
 
-        QString message = "NO PEAK";
-        QFont font("Helvetica", 14);
-        QFontMetrics fm(font);
-        painter->setFont(font);
-        painter->drawText((_width / 2) - (fm.width(message) / 2),
-                          (_height / 2) + (fm.height() / 2),
-                          message);
+        if (_drawNoPeakMessages) {
+            QFont font("Helvetica", 14);
+            QFontMetrics fm(font);
+            painter->setFont(font);
+            painter->drawText((_width / 2) - (fm.width(_noPeakMessage) / 2),
+                              (_height / 2) - fm.height(),
+                              _noPeakMessage);
+            painter->drawText((_width / 2) - (fm.width(_noPeakSubMessage) / 2),
+                              (_height / 2) + fm.height(),
+                              _noPeakSubMessage);
+        }
     } else {
         // first we paint the area below the baseline
         painter->setBrush(colorFaded);

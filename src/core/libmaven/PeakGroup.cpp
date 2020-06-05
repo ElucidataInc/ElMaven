@@ -5,10 +5,16 @@
 #include "mzSample.h"
 #include "EIC.h"
 #include "Scan.h"
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzMassCalculator.h"
 
-PeakGroup::PeakGroup()  {
+PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
+                     IntegrationType integrationType)
+{
+    _parameters = parameters;
+    _integrationType = integrationType;
+
     groupId=0;
     metaGroupId=0;
     clusterId = 0;
@@ -163,11 +169,13 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedBadByCloudModel = o.markedBadByCloudModel;
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
-
     copyChildren(o);
+    _parameters = make_shared<MavenParameters>(*(o._parameters.get()));
+    _integrationType = o.integrationType();
 }
 
 PeakGroup::~PeakGroup() {
+    _parameters.reset();
     clear();
 }
 

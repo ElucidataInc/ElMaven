@@ -5,6 +5,7 @@
 #include "Compound.h"
 #include "grouprtwidget.h"
 #include "mainwindow.h"
+#include "mavenparameters.h"
 #include "mzSample.h"
 #include "Peak.h"
 
@@ -26,7 +27,9 @@ void GroupRtWidget::plotGraph(PeakGroup*  group) {
         delete currentDisplayedGroup;
     if (group == nullptr)
         return;
-    currentDisplayedGroup = new PeakGroup;
+    currentDisplayedGroup = new PeakGroup(
+        make_shared<MavenParameters>(*_mw->mavenParameters),
+        PeakGroup::IntegrationType::Programmatic);
     currentDisplayedGroup->copyObj(*group);
     intialSetup();
     updateGraph();
@@ -184,7 +187,8 @@ float GroupRtWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
 
 PeakGroup GroupRtWidget::getNewGroup(PeakGroup group) {
 
-    PeakGroup newGroup;
+    PeakGroup newGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
+                       PeakGroup::IntegrationType::Programmatic);
 
     bool groupFound = false;
 
