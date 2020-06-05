@@ -605,6 +605,8 @@ void TableDockWidget::showAllGroups() {
       itr++;
   }
 
+  treeWidget->header()->setSectionResizeMode(1,QHeaderView::Interactive);
+  treeWidget->setColumnWidth(1, 250);
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup *group) {

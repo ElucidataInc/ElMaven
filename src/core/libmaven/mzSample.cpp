@@ -161,9 +161,7 @@ void mzSample::loadSample(string filename)
     // catch any error while parsing
     try {
         loadAnySample(filename);
-    }
-
-    catch (MavenException& excp) {
+    } catch (MavenException& excp) {
         cerr << endl << "Error: " << excp.what() << endl;
     }
 

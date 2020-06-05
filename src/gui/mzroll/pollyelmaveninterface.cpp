@@ -51,7 +51,8 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                 "QListView {"
                                 "outline: 0;"
                                 "}");
-    workflowMenu->setCurrentRow(int(PollyApp::FirstView));
+    workflowMenu->setCurrentRow(int(PollyApp::PollyPhi));
+
     gotoPollyButton->setVisible(false);
     gotoPollyButtonAlt->setVisible(false);
 
@@ -317,21 +318,7 @@ void PollyElmavenInterfaceDialog::_changePage()
 {
     QCoreApplication::processEvents();
     _selectedApp = PollyApp(workflowMenu->currentRow());
-    if (_selectedApp == PollyApp::FirstView) {
-        viewTitle->setText("Upload to Polly™ FirstView");
-        viewTitleAdvert->setText("Polly™ FirstView");
-        appAdvertLabel->setText(
-            "Polly supports pre-clinical research efforts in pharma and "
-            "biotech labs with plans to develop into a discovery platform that "
-            "be customized for a variety of lab-specific applications. It is "
-            "an application suite that has been developed for the analysis, "
-            "quantitation, and presentation of mass spectrometry data with an "
-            "advanced distributed data management infrastructure on the Amazon "
-            "Cloud. This FirstView application allows you to preview your data "
-            "from El-MAVEN on Polly."
-        );
-        tutorialLink->setText("");
-    } else if (_selectedApp == PollyApp::PollyPhi) {
+    if (_selectedApp == PollyApp::PollyPhi) {
         viewTitle->setText("Upload to PollyPhi™ Relative");
         viewTitleAdvert->setText("PollyPhi™ Relative");
         appAdvertLabel->setText(
@@ -390,9 +377,7 @@ void PollyElmavenInterfaceDialog::_changeMode()
 void PollyElmavenInterfaceDialog::_goToPollyApp()
 {
     QString appName = "";
-    if (_selectedApp == PollyApp::FirstView) {
-        appName = "FirstView";
-    } else if (_selectedApp == PollyApp::PollyPhi) {
+    if (_selectedApp == PollyApp::PollyPhi) {
         appName = "PollyPhi";
     } else if (_selectedApp == PollyApp::QuantFit) {
         appName = "QuantFit";
@@ -657,9 +642,7 @@ void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 {
-    if (_selectedApp == PollyApp::FirstView) {
-        gotoPollyButton->setText("Go to FirstView");
-    } else if (_selectedApp == PollyApp::PollyPhi) {
+    if (_selectedApp == PollyApp::PollyPhi) {
         gotoPollyButton->setText("Start Fluxing");
     } else if (_selectedApp == PollyApp::QuantFit) {
         gotoPollyButton->setText("Start Quantification");
@@ -726,8 +709,7 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
         if (_selectedApp == PollyApp::PollyPhi
             && table->getLabeledGroupCount() > 0) {
             peakTableCombo->addItem(tableName);
-        } else if (_selectedApp == PollyApp::FirstView
-                   || _selectedApp == PollyApp::QuantFit) {
+        } else if ( _selectedApp == PollyApp::QuantFit) {
             peakTableCombo->addItem(tableName);
         }
         peakTableComboAlt->addItem(tableName);
@@ -754,9 +736,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     if (_selectedMode == SendMode::PollyProject) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
-    } else if (_selectedApp == PollyApp::FirstView) {
-        _mainwindow->getAnalytics()->hitEvent("Polly upload", "FirstView");
-    } else if (_selectedApp == PollyApp::PollyPhi) {
+    } if (_selectedApp == PollyApp::PollyPhi) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
     } else if (_selectedApp == PollyApp::QuantFit) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "QuantFit");
@@ -942,9 +922,6 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
             appname = "project";
         } else {
             switch (_selectedApp) {
-            case PollyApp::FirstView:
-                appname = "firstview";
-                break;
             case PollyApp::PollyPhi:
                 appname = "pollyphi";
                 break;
@@ -975,16 +952,7 @@ PollyElmavenInterfaceDialog::_getAppRedirectionUrl(QString datetimestamp,
     QString redirectionUrl = "";
 
     switch (_selectedApp) {
-    case PollyApp::FirstView: {
-        QString componentId = 
-            _pollyIntegration->obtainComponentId(PollyApp::FirstView);
-        
-        redirectionUrl =
-            _pollyIntegration->getComponentEndpoint(componentId,
-                                                    uploadProjectIdThread,
-                                                    datetimestamp);
-        break;
-    } case PollyApp::PollyPhi: {
+    case PollyApp::PollyPhi: {
         QString landingPage = QString("relative_lcms_elmaven");
         QString workflowId = 
             _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
@@ -1060,11 +1028,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
     QCoreApplication::processEvents();
 
-    // Now uploading the Compound DB that was used for peak detection.
-    // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
-    // ToDo Kailash, Keep track of compound DB used for each peak table,
-    // As of now, uploading what is currently there in the compound section of
-    // Elmaven.
     QString compoundDb = _mainwindow->ligandWidget->getDatabaseName();
     _mainwindow->ligandWidget->saveCompoundList(_writeableTempDir
                                                 + QDir::separator()
@@ -1072,7 +1035,7 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
                                                 + "_Compound_DB_Elmaven.csv",
                                                 compoundDb);
 
-    qDebug() << "Uploading all groups, needed for firstview app…";
+    qDebug() << "Preparing group report…";
 
     // Preparing the CSV file
     QCoreApplication::processEvents();

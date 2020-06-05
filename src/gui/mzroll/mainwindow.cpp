@@ -568,7 +568,7 @@ using namespace mzUtils;
     connect(fileLoader,
             &mzFileIO::sampleLoadFailed,
             this,
-            [=](QList<QString> sampleFiles) {
+            [=](QList<QString> sampleFiles, bool wasMemoryError) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle("Sample load failure");
                 QString fileHtmlList = "";
@@ -580,12 +580,35 @@ using namespace mzUtils;
                                         "failed to load:</p>"
                                         "<ul>%1</ul>").arg(fileHtmlList);
                 msgBox.setText(htmlText);
-                msgBox.setInformativeText("Please make sure your file import "
-                                          "settings do not conflict with the "
-                                          "type of samples being loaded.");
+                QPushButton* actionButton = nullptr;
+                if (wasMemoryError) {
+                    msgBox.setInformativeText("El-MAVEN ran out of memory "
+                                              "while trying to load the above "
+                                              "samples. You can try closing "
+                                              "some running applications and "
+                                              "retrying import.\n\n"
+                                              "Alternatively, you may consider "
+                                              "running your analysis on Polly "
+                                              "El-MAVEN (cloud). Click \"Learn "
+                                              "more\" for further details.");
+                    actionButton = msgBox.addButton("Learn more",
+                                                    QMessageBox::ActionRole);
+                    msgBox.setDefaultButton(actionButton);
+                } else {
+                    msgBox.setInformativeText("Please make sure your file "
+                                              "import settings do not conflict "
+                                              "with the type of samples being "
+                                              "loaded.");
+                }
                 msgBox.setStyleSheet("QMessageBox { font-weight: normal; }");
                 msgBox.addButton(QMessageBox::Ok);
                 msgBox.exec();
+
+                if (msgBox.clickedButton() == actionButton) {
+                    QDesktopServices::openUrl(QUrl("https://docs.elucidata.io/"
+                                                   "Apps/Metabolomic%20Data/"
+                                                   "El-MAVEN.html"));
+                }
             });
 
     connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
@@ -1718,6 +1741,47 @@ void MainWindow::open()
     QDir tmp = fileInfo.absoluteDir();
     if (tmp.exists())
         settings->setValue("lastDir", tmp.absolutePath());
+
+    qint64 firstFileSize = fileInfo.size();
+    qint64 cumulativeSize = std::accumulate(next(begin(filelist)),
+                                            end(filelist),
+                                            firstFileSize,
+                                            [](qint64 sum, QString filePath) {
+                                                QFileInfo info(filePath);
+                                                return sum + info.size();
+                                            });
+    qint64 totalMemory = mzUtils::availableSystemMemory();
+    int numCpus = mzUtils::numSystemCpus();
+    // and now, our magical formula:
+    if ((cumulativeSize * 1.5) + (numCpus * firstFileSize) >= totalMemory) {
+        qWarning() << "Loading files that might be too large to process!";
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("El-MAVEN on Polly");
+        msgBox.setText("It seems you are trying to load data that might be too "
+                       "large for El-MAVEN to handle on your system.\n\n"
+                       "Instead, you can try El-MAVEN on Polly (cloud) now!\n\n"
+                       "Or you may click on \"Continue\" to import your data "
+                       "anyway.");
+        QPushButton* continueButton = msgBox.addButton("Continue",
+                                                       QMessageBox::ActionRole);
+        QPushButton* cancelButton = msgBox.addButton("Cancel",
+                                                     QMessageBox::RejectRole);
+        QPushButton* learnButton = msgBox.addButton("Learn more",
+                                                    QMessageBox::AcceptRole);
+        msgBox.setDefaultButton(learnButton);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == cancelButton)
+            return;
+
+        if (msgBox.clickedButton() == learnButton) {
+            QDesktopServices::openUrl(QUrl("https://docs.elucidata.io/Apps/"
+                                           "Metabolomic%20Data/El-MAVEN.html"));
+            return;
+        }
+
+        Q_UNUSED(continueButton);
+    }
 
     // Changing the title of the main window after selecting the samples
     setWindowTitle(programName

@@ -619,12 +619,17 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
 
     for (unsigned int i = 0; i < filenames.size(); i++) {
         mzSample* sample = new mzSample();
-        sample->loadSample(filenames[i].c_str());
-        sample->sampleName = mzUtils::cleanFilename(filenames[i]);
-        sample->isSelected = true;
-        if (sample->scans.size() >= 1) {
+        try {
+            sample->loadSample(filenames[i].c_str());
+        } catch (const std::bad_alloc&) {
+            cerr << "MemoryError: " << "ran out of memory" << endl;
+            mzUtils::delete_all(sample->scans);
+        }
+        if (!sample->scans.empty()) {
+            sample->sampleName = mzUtils::cleanFilename(filenames[i]);
+            sample->isSelected = true;
             mavenParameters->samples.push_back(sample);
-            _log->info() << "Loaded Sample: "
+            _log->info() << "Loaded sample: "
                          << sample->getSampleName()
                          << std::flush;
         } else {
@@ -632,6 +637,9 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
                 delete sample;
                 sample = NULL;
             }
+            _log->info() << "Failed to load file: "
+                         << filenames[i]
+                         << std::flush;
         }
     }
 

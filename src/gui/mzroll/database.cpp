@@ -978,12 +978,12 @@ int Database::loadCompoundCSVFile(string filename)
             carriageSeparated = mzUtils::split(line, "\r");
             for(int i = 0; i < carriageSeparated.size(); i++){
                 vector<string>fields;
-                fields = mzUtils::split(carriageSeparated[i], sep);
+                fields = mzUtils::splitCSVFields(carriageSeparated[i], sep);
                 getCompounds(allHeaders, fields, i+1);
             }
         } else{
             vector<string>fields;
-            fields = mzUtils::split(line, sep);
+            fields = mzUtils::splitCSVFields(line, sep);
             getCompounds(allHeaders, fields, lineCount);
         }
     }

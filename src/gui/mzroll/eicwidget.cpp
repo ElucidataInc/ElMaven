@@ -1482,8 +1482,7 @@ void EicWidget::addPeakPositions(PeakGroup* group) {
 		p->setBrush(brush);
 		p->setPen(pen);
 	 	p->setPeakGroup(group);
-		//connect(p,SIGNAL(addNote(Peak*)),this,SLOT(addNote(Peak*)));
-		//scene()->addItem(NULL);
+		
 		scene()->addItem(p);
         _drawnPoints.push_back(p);
 	}
@@ -1769,9 +1768,6 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
 	QAction* d = menu.addAction("Peak Grouping Options");
 	connect(d, SIGNAL(triggered()), settingsForm, SLOT(showPeakDetectionTab()));
 	connect(d, SIGNAL(triggered()), settingsForm, SLOT(show()));
-
-	QAction* a = menu.addAction("Add a Note");
-	connect(a, SIGNAL(triggered()), SLOT(addNote()));
 
 	QAction* b = menu.addAction("Recalculate EICs");
 	connect(b, SIGNAL(triggered()), SLOT(replotForced()));
