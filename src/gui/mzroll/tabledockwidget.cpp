@@ -90,11 +90,13 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setupPeakTable();
 
   connect(treeWidget,
-          SIGNAL(itemClicked(QTreeWidgetItem *, int)),
-          SLOT(showSelectedGroup()));
+          &QTreeWidget::itemClicked,
+          this,
+          &TableDockWidget::showSelectedGroup);
   connect(treeWidget,
-          SIGNAL(itemSelectionChanged()),
-          SLOT(showSelectedGroup()));
+          &QTreeWidget::itemSelectionChanged,
+          this,
+          &TableDockWidget::showSelectedGroup);
   connect(treeWidget,
           SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
           SLOT(sortChildrenAscending(QTreeWidgetItem *)));
@@ -521,11 +523,24 @@ QList<PeakGroup *> TableDockWidget::getGroups() {
   return groups;
 }
 
-void TableDockWidget::deleteAll() {
+void TableDockWidget::deleteAll()
+{
+  if (treeWidget->currentItem()) {
+      _mainwindow->getEicWidget()->unSetPeakTableGroup(
+          treeWidget->currentItem()->data(0, Qt::UserRole).value<PeakGroup*>());
+  }
+
+  disconnect(treeWidget,
+             &QTreeWidget::itemSelectionChanged,
+             this,
+             &TableDockWidget::showSelectedGroup);
   treeWidget->clear();
   allgroups.clear();
+  connect(treeWidget,
+          &QTreeWidget::itemSelectionChanged,
+          this,
+          &TableDockWidget::showSelectedGroup);
 
-  _mainwindow->removePeaksTable(this);
   _mainwindow->getEicWidget()->replotForced();
 
   this->hide();
@@ -2297,6 +2312,12 @@ void PeakTableDockWidget::destroy() {
   cleanUp();
   deleteLater();
   _mainwindow->removePeaksTable(this);
+}
+
+void PeakTableDockWidget::deleteAll()
+{
+  TableDockWidget::deleteAll();
+  destroy();
 }
 
 void PeakTableDockWidget::cleanUp()

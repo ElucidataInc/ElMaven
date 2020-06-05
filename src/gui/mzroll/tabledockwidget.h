@@ -325,6 +325,7 @@ public:
 
 public Q_SLOTS:
   void destroy();
+  void deleteAll();
 
 private:
   QToolBar *toolBar;

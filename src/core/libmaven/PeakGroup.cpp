@@ -170,7 +170,7 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
     copyChildren(o);
-    _parameters = o._parameters;
+    _parameters = make_shared<MavenParameters>(*(o._parameters.get()));
     _integrationType = o.integrationType();
 }
 
