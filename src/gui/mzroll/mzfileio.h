@@ -273,7 +273,7 @@ Q_OBJECT
      void updateStatusString(QString);
      void updateProgressBar(QString,int,int);
      void sampleLoaded();
-     void sampleLoadFailed(QList<QString>);
+     void sampleLoadFailed(QList<QString>, bool);
      void spectraLoaded();
      void projectLoaded();
      void peaklistLoaded();
@@ -318,6 +318,8 @@ Q_OBJECT
          * @brief to make updating sampleId thread safe
          */
         mutex mtxSampleId;
+
+        bool _encounteredMemoryError;
 
         /**
          * @brief An instance of the ProjectData class acting as a proxy for

@@ -33,6 +33,7 @@ mzFileIO::mzFileIO(QWidget*) {
     _stopped = true;
     process = NULL;
     _currentProject = nullptr;
+    _encounteredMemoryError = false;
 
     qRegisterMetaType<QList<QString>>("QList<QString>");
     qRegisterMetaType<map<string, variant>>("map<string, variant>");
@@ -99,11 +100,18 @@ mzSample* mzFileIO::loadSample(const QString& filename){
         mzFileIO::ThermoRawFileImport(filename);
     } else {
         sample = new mzSample();
-        sample->loadSample( filename.toLatin1().data() );
-        if ( sample->scans.size() == 0 ) { delete(sample); sample=NULL; }
+        try {
+            sample->loadSample( filename.toLatin1().data() );
+        } catch (const std::bad_alloc&) {
+            cerr << "MemoryError: " << "ran out of memory" << endl;
+            mzUtils::delete_all(sample->scans);
+            _encounteredMemoryError = true;
+        }
+        if (sample->scans.empty()) {
+            delete sample;
+            sample = nullptr;
+        }
     }
-
-
 
     if ( sample && sample->scans.size() > 0 ) {
         if (sample->sampleNumber > 0){
@@ -532,7 +540,13 @@ void mzFileIO::fileImport(void) {
         int iter = 0;
         #pragma omp parallel for shared(iter)
         for (int i = 0; i < samples.size(); i++) {
+
             QString filename = samples.at(i);
+            if (_encounteredMemoryError) {
+                samplesFailedToLoad.append(filename);
+                continue;
+            }
+
             mzSample* sample = loadSample(filename);
             if (sample && sample->scans.size() > 0) {
                 emit addNewSample(sample);
@@ -618,7 +632,7 @@ void mzFileIO::fileImport(void) {
     if (samples.size() > 0)
         Q_EMIT(sampleLoaded());
     if (samplesFailedToLoad.size() > 0)
-        Q_EMIT(sampleLoadFailed(samplesFailedToLoad));
+        Q_EMIT(sampleLoadFailed(samplesFailedToLoad, _encounteredMemoryError));
     if (spectralhits.size() > 0)
         Q_EMIT(spectraLoaded());
     if (projects.size() > 0)
@@ -628,8 +642,9 @@ void mzFileIO::fileImport(void) {
     for (auto dbEntry : databaseCompoundCounts)
         Q_EMIT(compoundsLoaded(dbEntry.first, dbEntry.second));
 
-    // clear queue
+    // clear queue and reset last state
     filelist.clear();
+    _encounteredMemoryError = false;
 }
 
 void mzFileIO::qtSlot(const string& progressText, unsigned int completed_samples, int total_samples)
