@@ -1028,11 +1028,6 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
 
     QCoreApplication::processEvents();
 
-    // Now uploading the Compound DB that was used for peak detection.
-    // This is needed for Elmaven->Firstview->PollyPhi relative LCMS workflow.
-    // ToDo Kailash, Keep track of compound DB used for each peak table,
-    // As of now, uploading what is currently there in the compound section of
-    // Elmaven.
     QString compoundDb = _mainwindow->ligandWidget->getDatabaseName();
     _mainwindow->ligandWidget->saveCompoundList(_writeableTempDir
                                                 + QDir::separator()
@@ -1040,7 +1035,7 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
                                                 + "_Compound_DB_Elmaven.csv",
                                                 compoundDb);
 
-    qDebug() << "Uploading all groups, needed for firstview app…";
+    qDebug() << "Preparing group report…";
 
     // Preparing the CSV file
     QCoreApplication::processEvents();
