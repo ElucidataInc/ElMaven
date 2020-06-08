@@ -1428,9 +1428,10 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
     }
 
     sort(compounds.begin(), compounds.end(), Compound::compMass);
-    cerr << "Loaded: " << loadCount << " compounds" << endl;
-    if (loadCount > 0 and !databaseName.empty())
+    if (loadCount > 0 and !databaseName.empty()) {
+        cerr << "Loaded: " << loadCount << " compounds" << endl;
         _loadedCompoundDatabases.push_back(databaseName);
+    }
 
     return compounds;
 }
