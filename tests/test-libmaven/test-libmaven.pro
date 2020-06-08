@@ -10,8 +10,6 @@ TARGET = test-libmaven
 CONFIG+=console
 CONFIG-=app_bundle
 
-QT -= gui core
-
 QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
 QMAKE_CXXFLAGS += -fopenmp

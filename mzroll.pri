@@ -1,4 +1,4 @@
-QT += sql core xml gui
+QT += core
 
 CONFIG += silent exceptions
 DEFINES += ZLIB BOOST_IOSTREAMS_NO_LIB

@@ -1,3 +1,6 @@
+#define _STR(X) #X
+#define STR(X) _STR(X)
+
 #include "common/analytics.h"
 #include "common/downloadmanager.h"
 #include "Compound.h"
@@ -7,6 +10,7 @@
 #include "masscutofftype.h"
 #include "mzUtils.h"
 #include "peakdetectorcli.h"
+#include "projectDB/projectdatabase.h"
 
 PeakDetectorCLI::PeakDetectorCLI(Logger* log, Analytics* analytics)
 {
@@ -198,6 +202,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
 
         case 'r':
             mavenParameters->rtStepSize = atoi(optarg);
+            break;
+
+        case 's':
+            _projectName = QString(optarg);
             break;
 
         case 'v':
@@ -663,6 +671,53 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
          << getTime() - startLoadingTime
          << " seconds.\n";
 #endif
+}
+
+void PeakDetectorCLI::saveEmdb()
+{
+    if (_projectName.isEmpty())
+        return;
+
+    if (!_projectName.endsWith(".emDB", Qt::CaseInsensitive))
+        _projectName = _projectName + ".emDB";
+    if (QFile::exists(_projectName))
+        QFile::remove(_projectName);
+
+    bool saveRawData = false;
+    if (_projectName.contains(".raw", Qt::CaseInsensitive))
+        saveRawData = true;
+
+    _log->info() << "\nSaving project as \""
+                 << _projectName.toStdString() << "\"…"
+                 << std::flush;
+
+    if (mavenParameters->samples.size() == 0)
+        return;
+
+    auto version = string(STR(APPVERSION));
+    auto sessionDb = new ProjectDatabase(_projectName.toStdString(),
+                                         version,
+                                         saveRawData);
+    if (sessionDb) {
+        shared_ptr<MavenParameters> mp(mavenParameters);
+        sessionDb->saveGlobalSettings(sessionDb->fromParametersToMap(mp));
+
+        sessionDb->saveSamples(mavenParameters->samples);
+        sessionDb->saveAlignment(mavenParameters->samples);
+
+        vector<PeakGroup*> groupVector;
+        for (auto& group : mavenParameters->allgroups)
+            groupVector.push_back(&group);
+        sessionDb->saveGroups(groupVector, mavenParameters->ligandDbFilename);
+
+        set<Compound*> compoundSet(mavenParameters->compounds.begin(),
+                                   mavenParameters->compounds.end());
+        sessionDb->saveCompounds(compoundSet);
+
+        _log->info() << "Finished saving emDB project." << std::flush;
+        return;
+    }
+    _log->error() << "Unable to open SQLite DB." << _projectName.toStdString();
 }
 
 void PeakDetectorCLI::_makeSampleCohortFile(QString sampleCohortFilename,
