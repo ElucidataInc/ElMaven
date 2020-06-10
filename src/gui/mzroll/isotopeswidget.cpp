@@ -258,13 +258,9 @@ void IsotopeWidget::computeIsotopes(string f)
 	if (isotopeParameters->_scan == NULL)
 		return;
 
-	if (isotopeParameters->_group && !isotopeParameters->_group->isIsotope())
-	{
-		populateByParentGroup(isotopes, parentMass);
-	}
-
-	else
-	{
+    if (isotopeParameters->_group) {
+        populateByParentGroup(isotopes, parentMass);
+    } else {
 		for (unsigned int i = 0; i < isotopes.size(); i++)
 		{
 			Isotope &x = isotopes[i];
@@ -309,6 +305,8 @@ void IsotopeWidget::computeIsotopes(string f)
 void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double parentMass)
 {
     PeakGroup *parentGroup = isotopeParameters->_group.get();
+    if (parentGroup->parent != nullptr)
+        parentGroup = parentGroup->parent;
     if (parentGroup == nullptr || parentGroup->isIsotope())
 		return;
 	if (!isotopeParameters->_scan)
