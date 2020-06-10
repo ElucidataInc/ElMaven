@@ -40,7 +40,6 @@ public:
   vector<PeakGroup> vallgroups;
   vector<PeakGroup> subsetPeakGroups;
   int maxPeaks;
-  QList<PeakGroup> allgroups;
   QString uploadId;
   int uploadCount = 0;
 
@@ -67,7 +66,7 @@ public:
    * @brief Obtain the number of groups in the table.
    * @return Integer count.
    */
-  int groupCount() { return allgroups.size(); }
+  int topLevelGroupCount() { return _topLevelGroups.size(); }
 
   MainWindow* getMainWindow() { return _mainwindow; }
 
@@ -75,7 +74,7 @@ public:
    * @brief Obtain a list of groups present in <allgroups>.
    * @return QList of PeakGroup pointers.
    */
-  QList<PeakGroup *> getGroups();
+  QList<shared_ptr<PeakGroup>> getGroups();
 
   int tableId;
 
@@ -155,11 +154,11 @@ public:
 
 public Q_SLOTS:
   void updateCompoundWidget();
-  PeakGroup *addPeakGroup(PeakGroup *group);
+  shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
   virtual void setupPeakTable();
-  PeakGroup *getSelectedGroup();
-  QList<PeakGroup *> getSelectedGroups();
+  shared_ptr<PeakGroup> getSelectedGroup();
+  QList<shared_ptr<PeakGroup>> getSelectedGroups();
   void showNotification();
 
   void showFocusedGroups();
@@ -255,12 +254,12 @@ public Q_SLOTS:
 
   /**
    * @brief Selects the item in the tree which stores the given peak-group.
-   * @param A pointer to a `PeakGroup` object that will be used to compare
-   * against stored peak-groups.
+   * @param A shared pointer to a `PeakGroup` object that will be used to
+   * compare against stored peak-groups.
    * @return Boolean value denoting whether the peak-group was found and
    * selected or not.
    */
-  bool selectPeakGroup(PeakGroup *group);
+  bool selectPeakGroup(shared_ptr<PeakGroup> group);
 
   /**
    * @brief Bring up a peak-editor to edit the RT regions for individual or a
@@ -277,6 +276,7 @@ public Q_SLOTS:
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
+  QList<shared_ptr<PeakGroup>> _topLevelGroups;
   int _labeledGroups;
   int _targetedGroups;
 
@@ -301,7 +301,7 @@ protected Q_SLOTS:
 
 private:
   QPalette pal;
-  void addRow(PeakGroup *group, QTreeWidgetItem *root);
+  void addRow(shared_ptr<PeakGroup> group, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
   // TODO: investigate and remove this dialog if not being used
@@ -311,7 +311,6 @@ private:
   QDialog *filtersDialog;
   QMap<QString, QHistogramSlider *> sliders;
   peakTableSelectionType peakTableSelection;
-  QList<PeakGroup *> getCustomGroups(peakTableSelectionType peakSelection);
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
 };
@@ -338,7 +337,7 @@ private Q_SLOTS:
   void showDeletionDialog();
 
 Q_SIGNALS:
-  void unSetFromEicWidget(PeakGroup*);
+  void unSetFromEicWidget(shared_ptr<PeakGroup>);
 };
 
 class BookmarkTableDockWidget : public TableDockWidget {

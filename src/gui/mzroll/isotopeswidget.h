@@ -40,7 +40,8 @@ public Q_SLOTS:
 	 * @details sets peakgroup, sample (1st sample if none are selected),
 	 * scan, compound and formula for calculation of isotopes
 	**/
-	void setPeakGroupAndMore(PeakGroup* grp, bool bookmarkflg = false);
+    void setPeakGroupAndMore(shared_ptr<PeakGroup> grp,
+                             bool bookmarkflg = false);
 	/**
 	 * @brief sets compound, window title and formula
 	**/
@@ -48,15 +49,16 @@ public Q_SLOTS:
 	void setIonizationMode(int mode);
 	void setClipboard();
 	void setClipboard(PeakGroup* group);
-	void setClipboard(QList<PeakGroup*>& groups);
+    void setClipboard(QList<shared_ptr<PeakGroup> > &groups);
 	void pullIsotopes(PeakGroup* group);
 	void pullIsotopesForBarplot(PeakGroup* group);
-	void updateIsotopicBarplot(PeakGroup* grp);
+    void updateIsotopicBarplot(shared_ptr<PeakGroup> grp);
 	void updateIsotopicBarplot();
 	/**
 	 * @brief set peak and group if a specific peak is selected
 	**/
-	void peakSelected(Peak* peak, PeakGroup* group);
+    void peakSelected(Peak* peak, shared_ptr<PeakGroup> group);
+
 	/**
 	 * @brief Add sample names to sample drop-down list
 	 * @details List is updated whenever a sample is loaded/deleted/checked/unchecked

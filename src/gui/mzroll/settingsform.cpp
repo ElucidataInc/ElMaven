@@ -309,10 +309,11 @@ void SettingsForm::recomputeEIC() {
      
     getFormValues();
 
-    PeakGroup* previousGroup = mainwindow->getEicWidget()->getParameters()->displayedGroup();
+    shared_ptr<PeakGroup> previousGroup =
+        mainwindow->getEicWidget()->getParameters()->displayedGroup();
     float rt = 0;
 
-    if (previousGroup) {
+    if (previousGroup != nullptr) {
         rt = previousGroup->meanRt;
     }
 

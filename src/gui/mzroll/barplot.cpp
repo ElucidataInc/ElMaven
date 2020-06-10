@@ -29,10 +29,11 @@ void BarPlot::switchQValue() {
     //supposed to do in the first place. qtype is set in setPeakGroup()
     //it seems like it temporarily changes the qtype?
     //BarPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
-	PeakGroup* g = NULL;
-    if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->displayedGroup();
-	if ( g != NULL ) {
-		setPeakGroup(g);
+    shared_ptr<PeakGroup> g = nullptr;
+    if (_mw != nullptr && _mw->getEicWidget() != nullptr)
+        g = _mw->getEicWidget()->getParameters()->displayedGroup();
+    if (g != nullptr) {
+        setPeakGroup(g);
 		scene()->update();
 	}
 }
@@ -53,9 +54,9 @@ void BarPlot::clear() {
 }
 
 
-void BarPlot::setPeakGroup(PeakGroup* group) {
+void BarPlot::setPeakGroup(shared_ptr<PeakGroup> group) {
     clear();
-    if (group == NULL ) return;
+    if (group == nullptr) return;
     if (_mw == NULL   ) return;
 
     qtype = _mw->getUserQuantType();

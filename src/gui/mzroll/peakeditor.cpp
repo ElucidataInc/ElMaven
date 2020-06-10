@@ -114,7 +114,7 @@ PeakEditor::~PeakEditor()
     delete ui;
 }
 
-void PeakEditor::setPeakGroup(PeakGroup *group)
+void PeakEditor::setPeakGroup(shared_ptr<PeakGroup> group)
 {
     if (group == nullptr || group->samples.empty())
         return;
@@ -124,7 +124,7 @@ void PeakEditor::setPeakGroup(PeakGroup *group)
     _setPeakRegions.clear();
     _group = group;
 
-    _gallery->addEicPlots(_group);
+    _gallery->addEicPlots(_group.get());
     _setBaselineParameters();
     _setRtRangeAndValues();
     _setSyncRtCheckbox();
@@ -162,21 +162,21 @@ void PeakEditor::_setRtRangeAndValues()
     float minRt = rtBounds.first;
     float maxRt = rtBounds.second;
     if (_group->childCount() > 0) {
-        for (PeakGroup& child : _group->children) {
-            if (child.peakCount() == 0)
+        for (auto child : _group->children) {
+            if (child->peakCount() == 0)
                 continue;
-            minRt = min(minRt, child.minRt - rtBuffer);
-            maxRt = max(maxRt, child.maxRt + rtBuffer);
+            minRt = min(minRt, child->minRt - rtBuffer);
+            maxRt = max(maxRt, child->maxRt + rtBuffer);
         }
     } else if (_group->isIsotope() && _group->parent != nullptr) {
         PeakGroup* parentGroup = _group->parent;
         minRt = parentGroup->minRt - rtBuffer;
         maxRt = parentGroup->maxRt + rtBuffer;
-        for (PeakGroup& child : parentGroup->children) {
-            if (child.peakCount() == 0)
+        for (auto child : parentGroup->children) {
+            if (child->peakCount() == 0)
                 continue;
-            minRt = min(minRt, child.minRt - rtBuffer);
-            maxRt = max(maxRt, child.maxRt + rtBuffer);
+            minRt = min(minRt, child->minRt - rtBuffer);
+            maxRt = max(maxRt, child->maxRt + rtBuffer);
         }
     }
 
@@ -354,7 +354,7 @@ void PeakEditor::_applyEdits()
 
         PeakGroup* parentGroup = nullptr;
         if (_group->childCount() > 0) {
-            parentGroup = _group;
+            parentGroup = _group.get();
         } else if (_group->isIsotope()) {
             parentGroup = _group->parent;
         }
@@ -367,14 +367,14 @@ void PeakEditor::_applyEdits()
 
         auto eics = getEicsForGroup(parentGroup);
         editGroup(parentGroup, eics);
-        for (auto& child : parentGroup->children) {
-            eics = getEicsForGroup(&child);
-            editGroup(&child, eics);
+        for (auto child : parentGroup->children) {
+            eics = getEicsForGroup(child.get());
+            editGroup(child.get(), eics);
         }
     } else {
         mp->linkIsotopeRtRange = false;
         auto eics = _gallery->eics();
-        editGroup(_group, eics);
+        editGroup(_group.get(), eics);
     }
 
     _mw->setPeakGroup(_group);

@@ -66,10 +66,9 @@ class PeakGroup{
         PeakGroup* parentIon;
 
         vector<Peak> peaks;
-        vector<PeakGroup> children;
-        vector<PeakGroup> childAdducts;
-        vector<PeakGroup> childrenBarPlot;
-        vector<PeakGroup> childrenIsoWidget;
+        vector<shared_ptr<PeakGroup>> children;
+        vector<shared_ptr<PeakGroup>> childAdducts;
+        vector<shared_ptr<PeakGroup>> childrenBarPlot;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been
                                     //used for peak detection
         string srmId;
@@ -209,8 +208,6 @@ class PeakGroup{
 
         inline unsigned int childCountBarPlot() const { return childrenBarPlot.size(); }
 
-        inline unsigned int childCountIsoWidget() const { return childrenIsoWidget.size(); }
-
         Compound* getCompound() const;
 
         void setCompound(Compound* compound);
@@ -245,7 +242,7 @@ class PeakGroup{
         inline vector<Peak>& getPeaks() { return peaks; }
 
 
-        inline vector<PeakGroup>& getChildren()  { return children; }
+        inline const vector<shared_ptr<PeakGroup>> getChildren() { return children; }
 
         vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
 
@@ -320,13 +317,21 @@ class PeakGroup{
          * @method addChild
          * @param  child    []
          */
-        inline void addChild(const PeakGroup& child) { children.push_back(child); children.back().parent = this;   }
+        inline void addChild(const PeakGroup& child)
+        {
+            auto childCopy = make_shared<PeakGroup>(child);
+            childCopy->parent = this;
+            children.push_back(childCopy);
+        }
 
-        inline void addChildBarPlot(const PeakGroup& child) { childrenBarPlot.push_back(child); childrenBarPlot.back().parent = this;   }
+        inline void addChildBarPlot(const PeakGroup& child)
+        {
+            auto childCopy = make_shared<PeakGroup>(child);
+            childCopy->parent = this;
+            childrenBarPlot.push_back(childCopy);
+        }
 
-        inline void addChildIsoWidget(const PeakGroup& child) { childrenIsoWidget.push_back(child); childrenIsoWidget.back().parent = this;   }
-
-        inline void setGroupIdForChildren() { for (auto& child : children) child.groupId = groupId; }
+        inline void setGroupIdForChildren() { for (auto child : children) child->groupId = groupId; }
 
         /**
          * [getPeak ]

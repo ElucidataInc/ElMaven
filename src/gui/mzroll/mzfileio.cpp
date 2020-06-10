@@ -840,10 +840,10 @@ bool mzFileIO::writeSQLiteProject(QString filename)
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
         for (const auto& peakTable : allTablesList) {
-            for (PeakGroup* group : peakTable->getGroups()) {
+            for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
-                groupVector.push_back(group);
-                if (group->getCompound())
+                groupVector.push_back(group.get());
+                if (group->hasCompoundLink())
                     compoundSet.insert(group->getCompound());
             }
             string tableName = peakTable->titlePeakTable
@@ -884,10 +884,10 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
         for (const auto& peakTable : allTablesList) {
-            for (PeakGroup* group : peakTable->getGroups()) {
+            for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
-                groupVector.push_back(group);
-                if (group->getCompound())
+                groupVector.push_back(group.get());
+                if (group->hasCompoundLink())
                     compoundSet.insert(group->getCompound());
             }
             string tableName = peakTable->titlePeakTable
@@ -1287,7 +1287,7 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     if (parent) {
         parent->addChild(*group);
         if (parent->childCount() > 0)
-            group = &(parent->children[parent->children.size() - 1]);
+            group = parent->children[parent->children.size() - 1].get();
     }
 
     return group;
@@ -1410,9 +1410,9 @@ vector<PeakGroup*> mzFileIO::readGroupsXML(QString fileName)
                     parent = stack.pop();
                 if (parent && parent->childCount()) {
                     for (int i = 0; i < parent->children.size(); i++) {
-                        parent->children[i].minQuality =
+                        parent->children[i]->minQuality =
                             _mainwindow->mavenParameters->minQuality;
-                        parent->children[i].groupStatistics();
+                        parent->children[i]->groupStatistics();
                     }
                 }
                 if (stack.size() == 0)

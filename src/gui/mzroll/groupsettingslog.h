@@ -14,12 +14,12 @@ class GroupSettingsLog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GroupSettingsLog(QWidget *parent, PeakGroup *group);
+    explicit GroupSettingsLog(QWidget *parent, shared_ptr<PeakGroup> group);
     ~GroupSettingsLog();
 
 private:
     Ui::GroupSettingsLog *ui;
-    PeakGroup* _group;
+    shared_ptr<PeakGroup> _group;
 
     void _displayGroupSettings();
 };

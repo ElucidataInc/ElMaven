@@ -996,8 +996,8 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
     peaksTableList.prepend(_mainwindow->getBookmarkedPeaks());
     TableDockWidget* peaksTable;
     Q_FOREACH(peaksTable, peaksTableList) {
-        PeakGroup* grp;
-        Q_FOREACH(grp, peaksTable->getGroups()) {
+        QList<shared_ptr<PeakGroup>> groups = peaksTable->getGroups();
+        Q_FOREACH (shared_ptr<PeakGroup> grp, groups) {
             vector<Peak>& peaks = grp->getPeaks();
             for(unsigned int j=0; j< peaks.size(); j++) {
                 Peak p = peaks.at(j);

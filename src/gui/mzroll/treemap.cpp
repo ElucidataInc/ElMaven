@@ -41,20 +41,20 @@ void TreeMap::drawMap() {
     float margin=100;
 
 
-	QList<PeakGroup*> glist = _table->getGroups();
+    QList<shared_ptr<PeakGroup>> glist = _table->getGroups();
 	if (glist.size()==0) return;
 
 	QList<TreemapItem*> treeItems; 
-    for (int i=0; i < glist.size(); i++ ) {
-        PeakGroup* g = glist[i];
-        if ( g ) {
+    for (shared_ptr<PeakGroup> g : glist) {
+        if (g != nullptr) {
             double area=0;
-            for(int j=0; j<g->peaks.size();j++) area += g->peaks[j].peakAreaCorrected;
-			if ( area > 0 ) {
-					TreemapItem* treeItem = new TreemapItem(log2(area),Qt::gray);
-					treeItem->setGroup(g);
-					if ( g->hasCompoundLink() ) { Compound* c = g->getCompound(); }
-					treeItems << treeItem;
+            for(int j=0; j < g->peaks.size(); j++)
+                area += g->peaks[j].peakAreaCorrected;
+            if (area > 0) {
+                TreemapItem* treeItem = new TreemapItem(log2(area),
+                                                        Qt::gray);
+                treeItem->setGroup(g.get());
+                treeItems << treeItem;
 			}
         }
     }
@@ -390,7 +390,8 @@ void TreeMap::mousePressEvent(QMouseEvent *event) {
 			QVariant v = item->data(0);
    			PeakGroup*  group =  v.value<PeakGroup*>();
             if (group != NULL && mainwindow != NULL) {
-                mainwindow->setPeakGroup(group);
+                auto sharedGroup = make_shared<PeakGroup>(*group);
+                mainwindow->setPeakGroup(sharedGroup);
             }
         }
 	}

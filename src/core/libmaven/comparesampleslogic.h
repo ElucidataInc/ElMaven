@@ -16,8 +16,8 @@ public:
 
 	void shuffle(StatisticsVector<float>& groupA,
 			StatisticsVector<float>& groupB);
-	void FDRCorrection(QList<PeakGroup*> allgroups, int correction);
-        void computeMinPValue(QList<PeakGroup*> allgroups);
+    void FDRCorrection(QList<std::shared_ptr<PeakGroup> > allgroups, int correction);
+    void computeMinPValue(QList<std::shared_ptr<PeakGroup> > allgroups);
         void computeStats(PeakGroup* group, std::vector<mzSample*> sampleSet,
                         std::vector<mzSample*> sset1, std::vector<mzSample*> sset2,
 			float _missingValue);

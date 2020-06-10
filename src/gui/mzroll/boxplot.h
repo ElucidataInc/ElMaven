@@ -22,7 +22,7 @@ class BoxPlot : public QObject, public QGraphicsItem
 public:
 	BoxPlot(QGraphicsItem *parent, QGraphicsScene *scene);
 	~BoxPlot();
-	void setPeakGroup(PeakGroup *group);
+    void setPeakGroup(shared_ptr<PeakGroup> group);
     QRectF boundingRect() const;
 	void setMainWindow(MainWindow* mw) { _mw = mw; }
 	void switchQValue();

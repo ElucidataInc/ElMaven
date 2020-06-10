@@ -199,8 +199,8 @@ void CSVReports::_insertIsotopes(PeakGroup* group,
         _insertUserSelectedIsotopes(group);
     } else {
         for (auto subGroup : group->children) {
-            subGroup.metaGroupId = group->metaGroupId;
-            _writeGroupInfo(&subGroup);
+            subGroup->metaGroupId = group->metaGroupId;
+            _writeGroupInfo(subGroup.get());
         }
     }
 }
@@ -217,17 +217,17 @@ void CSVReports::_insertUserSelectedIsotopes(PeakGroup* group)
     // before writing it to the report. If any of the unselected
     // labels are found, we discard the child group.
     for (auto subGroup : group->children) {
-        if (!C13Flag && subGroup.tagString.find("C13") != std::string::npos)
+        if (!C13Flag && subGroup->tagString.find("C13") != std::string::npos)
             continue;
-        if (!N15Flag && subGroup.tagString.find("N15") != std::string::npos)
+        if (!N15Flag && subGroup->tagString.find("N15") != std::string::npos)
             continue;
-        if (!S34Flag && subGroup.tagString.find("S34") != std::string::npos)
+        if (!S34Flag && subGroup->tagString.find("S34") != std::string::npos)
             continue;
-        if (!D2Flag && subGroup.tagString.find("D2") != std::string::npos)
+        if (!D2Flag && subGroup->tagString.find("D2") != std::string::npos)
             continue;
 
-        subGroup.metaGroupId = group->metaGroupId;
-        _writeGroupInfo(&subGroup);
+        subGroup->metaGroupId = group->metaGroupId;
+        _writeGroupInfo(subGroup.get());
     }
 }
 
@@ -469,23 +469,26 @@ void CSVReports::writeDataForPolly(const std::string& file,
 
         for (auto grp : groups) {
             for (auto child : grp.children) {
-                int mlLabel = (child.markedGoodByCloudModel)
+                int mlLabel = (child->markedGoodByCloudModel)
                                   ? 1
-                                  : (child.markedBadByCloudModel) ? 0 : -1;
+                                  : (child->markedBadByCloudModel) ? 0 : -1;
                 _reportStream << mlLabel;
                 _reportStream << ",";
 
-                string tagString = child.srmId + child.tagString;
+                string tagString = child->srmId + child->tagString;
                 tagString = _sanitizeString(tagString.c_str()).toStdString();
                 _reportStream << tagString;
                 _reportStream << ",";
 
                 string compoundName = "";
-                if(child.getCompound() != NULL)
-                    compoundName = _sanitizeString(child.getCompound()->name().c_str()).toStdString();
-                else
-                    compoundName = std::to_string(child.meanMz) + "@"
-                                   + std::to_string(child.meanRt);
+                if(child->hasCompoundLink()) {
+                    compoundName = _sanitizeString(
+                                       child->getCompound()->name().c_str())
+                                       .toStdString();
+                } else {
+                    compoundName = std::to_string(child->meanMz) + "@"
+                                   + std::to_string(child->meanRt);
+                }
                 _reportStream << compoundName;
                 _reportStream << endl;
             }

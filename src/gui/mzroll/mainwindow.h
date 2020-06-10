@@ -209,7 +209,7 @@ public:
 	MatrixXf getIsotopicMatrix(PeakGroup* group);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
-    void autoSaveSignal(QList<PeakGroup*> groups = {});
+    void autoSaveSignal(QList<shared_ptr<PeakGroup>> groups = {});
     void normalizeIsotopicMatrix(MatrixXf &MM);
 
     mzSample* getSampleByName(QString sampleName); //TODO: Sahil, Added this while merging mzfile
@@ -258,7 +258,7 @@ public:
      * the project already contains the other necessary information for session
      * restoration.
      */
-    void saveProjectForFilename(QList<PeakGroup*> groupsToBeSaved);
+    void saveProjectForFilename(QList<shared_ptr<PeakGroup> > groupsToBeSaved);
 
     /**
      * @brief Stores whether a timestamp file is being used to save in the
@@ -270,7 +270,7 @@ public:
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();
-    void saveSignal(QList<PeakGroup*> groups);
+    void saveSignal(QList<shared_ptr<PeakGroup>> groups);
 	void undoAlignment(QList<PeakGroup>);
 	void reBoot();
     void metaCsvFileLoaded();
@@ -288,7 +288,7 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
-    void autosaveGroup(QList<PeakGroup*> groups = {});
+    void autosaveGroup(QList<shared_ptr<PeakGroup> > groups = {});
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
@@ -338,10 +338,10 @@ public Q_SLOTS:
 	void showFragmentationScans(float pmz);
 	QString groupTextExport(PeakGroup* group);
 	// void bookmarkPeakGroup(PeakGroup* group); //TODO: Sahil Changed the structure of function
-	PeakGroup* bookmarkPeakGroup(PeakGroup* group);
+    shared_ptr<PeakGroup> bookmarkPeakGroup(shared_ptr<PeakGroup> group);
 	void setClipboardToGroup(PeakGroup* group);
 	// void bookmarkPeakGroup();
-    PeakGroup* bookmarkPeakGroup();
+    shared_ptr<PeakGroup> bookmarkPeakGroup();
 	void reorderSamples(PeakGroup* group);
 	void findCovariants(Peak* _peak);
 	void reportBugs();
@@ -350,8 +350,8 @@ public Q_SLOTS:
 	void open();
 	void print();
 	void exportPDF();
-	void exportSVG();
-	void setPeakGroup(PeakGroup* group);
+    void exportSVG();
+    void setPeakGroup(shared_ptr<PeakGroup> group);
 	void showDockWidgets();
 	void hideDockWidgets();
 	//void terminateTheads();
@@ -362,8 +362,8 @@ public Q_SLOTS:
         void addToHistory(const mzSlice& slice);
         void historyNext();
 	void historyLast();
-	void getLinks(Peak* peak);
-	void markGroup(PeakGroup* group, char label);
+    void getLinks(Peak* peak);
+    void markGroup(shared_ptr<PeakGroup> group, char label);
     //Added when merged with Maven776 - Kiran
     void startEmbededHttpServer();
         int getIonizationMode();
@@ -617,11 +617,11 @@ class AutoSave : public QThread
 
 public:
     AutoSave(MainWindow*);
-    void saveProjectWorker(QList<PeakGroup*> groupsToBeSaved = {});
+    void saveProjectWorker(QList<shared_ptr<PeakGroup> > groupsToBeSaved = {});
     MainWindow* _mainwindow;
 
 private:
-    QList<PeakGroup*> groupsToBeSaved;
+    QList<shared_ptr<PeakGroup>> groupsToBeSaved;
     void run();
 };
 

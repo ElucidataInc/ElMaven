@@ -196,17 +196,14 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void EicWidget::integrateRegion(float rtMin, float rtMax)
 {
-    if (eicParameters->integratedGroup != nullptr)
-        delete eicParameters->integratedGroup;
-
     MavenParameters* mp = getMainWindow()->mavenParameters;
     auto parameters = make_shared<MavenParameters>(*mp);
-    eicParameters->integratedGroup =
-        new PeakGroup(parameters, PeakGroup::IntegrationType::Manual);
-    eicParameters->integratedGroup->minQuality = parameters->minQuality;
-    eicParameters->integratedGroup->setSlice(eicParameters->_slice);
-    eicParameters->integratedGroup->srmId = eicParameters->_slice.srmId;
-    eicParameters->integratedGroup->setSelectedSamples(
+    auto integratedGroup =
+        make_shared<PeakGroup>(parameters, PeakGroup::IntegrationType::Manual);
+    integratedGroup->minQuality = parameters->minQuality;
+    integratedGroup->setSlice(eicParameters->_slice);
+    integratedGroup->srmId = eicParameters->_slice.srmId;
+    integratedGroup->setSelectedSamples(
         getMainWindow()->getVisibleSamples());
 
     for (EIC* eic : eicParameters->eics) {
@@ -221,21 +218,20 @@ void EicWidget::integrateRegion(float rtMin, float rtMax)
 
             PeakFiltering peakFiltering(parameters.get(), false);
             if (!peakFiltering.filter(peak))
-                eicParameters->integratedGroup->addPeak(peak);
+                integratedGroup->addPeak(peak);
         }
     }
 
-    eicParameters->integratedGroup->groupStatistics();
+    integratedGroup->groupStatistics();
     int ms2Events =
-        eicParameters->integratedGroup->getFragmentationEvents().size();
+        integratedGroup->getFragmentationEvents().size();
     if (ms2Events) {
         float ppm = parameters->fragmentTolerance;
         string scoringAlgo = parameters->scoringAlgo;
-        eicParameters->integratedGroup->computeFragPattern(ppm);
-        eicParameters->integratedGroup->matchFragmentation(ppm, scoringAlgo);
+        integratedGroup->computeFragPattern(ppm);
+        integratedGroup->matchFragmentation(ppm, scoringAlgo);
     }
-    getMainWindow()->isotopeWidget->setPeakGroupAndMore(
-        eicParameters->integratedGroup, true);
+    getMainWindow()->isotopeWidget->setPeakGroupAndMore(integratedGroup, true);
 }
 
 void EicWidget::setFocusLine(float rt) {
@@ -497,10 +493,10 @@ void EicWidget::addEICLines(bool showSpline,
 {
     // sort EICs by peak height of selected group, tallest go at the back
     vector<Peak> peaks;
-    if (eicParameters->displayedGroup()) {
-        PeakGroup* group = eicParameters->displayedGroup();
-        peaks = group->getPeaks();
-        sort(peaks.begin(), peaks.end(), Peak::compIntensity);
+    if (eicParameters->displayedGroup() != nullptr) {
+        auto group = eicParameters->displayedGroup();
+        sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
+        peaks = group->peaks;
     } else {
       sort(eicParameters->eics.begin(),
            eicParameters->eics.end(),
@@ -721,11 +717,13 @@ void EicWidget::addCubicSpline() {
     //sort eics by peak height of selected group
     vector<Peak> peaks;
     if (eicParameters->displayedGroup()) {
-        PeakGroup* group=eicParameters->displayedGroup();
-        peaks=group->getPeaks();
-        sort(peaks.begin(), peaks.end(), Peak::compIntensity);
+        auto group = eicParameters->displayedGroup();
+        sort(group->peaks.begin(), group->peaks.end(), Peak::compIntensity);
+        peaks = group->peaks;
     } else {
-        std::sort(eicParameters->eics.begin(), eicParameters->eics.end(), EIC::compMaxIntensity);
+        sort(eicParameters->eics.begin(),
+             eicParameters->eics.end(),
+             EIC::compMaxIntensity);
     }
 
     //display eics
@@ -1041,7 +1039,7 @@ void EicWidget::clearPlot() {
 	scene()->setSceneRect(10, 10, this->width() - 10, this->height() - 10);
 }
 
-void EicWidget::unSetPeakTableGroup(PeakGroup* group)
+void EicWidget::unSetPeakTableGroup(shared_ptr<PeakGroup> group)
 {
     // Peak table is being deleted. Making sure the selected group is not holding any garbage value;
     if(eicParameters->displayedGroup() ==  group) {
@@ -1052,7 +1050,7 @@ void EicWidget::unSetPeakTableGroup(PeakGroup* group)
     }
 }
 
-void EicWidget::replot(PeakGroup* group)
+void EicWidget::replot(shared_ptr<PeakGroup> group)
 {
     if (_areaIntegration) {
         toggleAreaIntegration(false);
@@ -1069,7 +1067,7 @@ void EicWidget::replot(PeakGroup* group)
 
 	clearPlot();
 
-	setSelectedGroup(group);
+    setSelectedGroup(group);
 	setTitle();
 
     if (group != nullptr && !group->tableName().empty()) {
@@ -1266,9 +1264,9 @@ void EicWidget::_clearBarPlot()
     scene()->update();
 }
 
-void EicWidget::addBarPlot(PeakGroup* group) {
+void EicWidget::addBarPlot(shared_ptr<PeakGroup> group) {
    // qDebug() <<" EicWidget::addBarPlot(PeakGroup* group )";
-    if (group == NULL || _areaIntegration)
+    if (group == nullptr || _areaIntegration)
 		return;
 	if (_barplot == NULL)
 		_barplot = new BarPlot(NULL, 0);
@@ -1282,8 +1280,8 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 	// int bheight = _barplot->boundingRect().height();
 	// int xpos = scene()->width() * 0.95 - bwidth;
 	// int ypos = scene()->height() * 0.10;
-	// _barplot->setPos(xpos, ypos);
-	setBarplotPosition(group);
+    // _barplot->setPos(xpos, ypos);
+    setBarplotPosition(group.get());
 	_barplot->setZValue(1000);
 
 	float medianRt = group->medianRt();
@@ -1312,7 +1310,7 @@ void EicWidget::addBarPlot(PeakGroup* group) {
 	return;
 }
 
-void EicWidget::addBoxPlot(PeakGroup* group) {
+void EicWidget::addBoxPlot(shared_ptr<PeakGroup> group) {
 	//qDebug <<" EicWidget::addBoxPlot(PeakGroup* group)";
 	if (group == NULL)
 		return;
@@ -1325,7 +1323,6 @@ void EicWidget::addBoxPlot(PeakGroup* group) {
 	_boxplot->setPeakGroup(group);
 
 	int bwidth = _boxplot->boundingRect().width();
-	int bheight = _boxplot->boundingRect().height();
 
 	int xpos = scene()->width() * 0.95 - bwidth;
 	int ypos = scene()->height() * 0.10;
@@ -1418,14 +1415,14 @@ void EicWidget::showAllPeaks() {
 	//qDebug <<"EicWidget::showAllPeaks() ";
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++) {
 		PeakGroup& group = eicParameters->peakgroups[i];
-		addPeakPositions(&group);
+        auto sharedGroup = make_shared<PeakGroup>(group);
+        addPeakPositions(sharedGroup);
 	}
 }
 
 void EicWidget::addPeakPositions() {
-    if (eicParameters->displayedGroup()) {
+    if (eicParameters->displayedGroup() != nullptr)
         addPeakPositions(eicParameters->displayedGroup());
-	}
 }
 
 void EicWidget::_clearEicPoints()
@@ -1442,7 +1439,8 @@ void EicWidget::_clearEicPoints()
     scene()->update();
 }
 
-void EicWidget::addPeakPositions(PeakGroup* group) {
+void EicWidget::addPeakPositions(shared_ptr<PeakGroup> group)
+{
 	////qDebug <<"EicWidget::addPeakPositions(PeakGroup* group) ";
     if (!_showPeaks || _areaIntegration)
 		return;
@@ -1648,9 +1646,10 @@ void EicWidget::setMzSlice(const mzSlice& slice)
     replot(NULL);
 }
 
-void EicWidget::setPeakGroup(PeakGroup* group)
+void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
 {
-	if (group == NULL) return;
+    if (group == nullptr)
+        return;
 
     int charge = group->parameters()->getCharge(group->getCompound());
 	if (group->getExpectedMz(charge) != -1) {
@@ -1687,7 +1686,7 @@ void EicWidget::setPeakGroup(PeakGroup* group)
     eicParameters->setSelectedGroup(group);
     recompute();
 
-	if (group->getCompound())
+    if (group->hasCompoundLink())
 		for (int i = 0; i < eicParameters->peakgroups.size(); i++)
 			eicParameters->peakgroups[i].setCompound(group->getCompound());
 	if (eicParameters->_slice.srmId.length())
@@ -1710,8 +1709,11 @@ void EicWidget::setSensitiveToTolerance(bool sensitive)
         // method initiates a `cleanup` that erases all peakgroups in
         // `eicParameters` object; `eicParameters->selectedGroup()` might also
         // be deleted which leads to corruption
-        if ((*eicParameters).selectedGroup() != nullptr)
-            setPeakGroup(new PeakGroup(*eicParameters->selectedGroup()));
+        if (eicParameters->selectedGroup() != nullptr) {
+            auto sharedGroup =
+                make_shared<PeakGroup>(*(eicParameters->selectedGroup().get()));
+            setPeakGroup(sharedGroup);
+        }
     }
 }
 
@@ -1919,27 +1921,28 @@ void EicWidget::selectGroupNearRt(float rt) {
 												getMainWindow()->mavenParameters->intensityWeight,
 												getMainWindow()->mavenParameters->deltaRTWeight);
 
-	if (selGroup) {
-		//Sabu Iso
-		setSelectedGroup(selGroup);
+    if (selGroup != nullptr) {
+        auto sharedGroup = make_shared<PeakGroup>(*selGroup);
+        setSelectedGroup(sharedGroup);
 	}
 	getMainWindow()->mavenParameters->setPeakGroup(selGroup);
 }
 
-void EicWidget::setSelectedGroup(PeakGroup* group) {
-	//qDebug <<"EicWidget::setSelectedGroup(PeakGroup* group ) ";
-        if (_frozen)
-		return;
-        if (_showBarPlot)
-                addBarPlot(group);
-	if (_showBoxPlot)
-                addBoxPlot(group);
-	//addFitLine(group);
+void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
+{
+    if (_frozen)
+        return;
+
+    if (_showBarPlot)
+        addBarPlot(group);
+    if (_showBoxPlot)
+        addBoxPlot(group);
+
     eicParameters->setDisplayedGroup(group);
     eicParameters->setSelectedGroup(group);
 }
 
-PeakGroup* EicWidget::getSelectedGroup()
+shared_ptr<PeakGroup> EicWidget::getSelectedGroup()
 {
     return (eicParameters->displayedGroup());
 }
@@ -2037,10 +2040,10 @@ void EicWidget::markGroupBad()
 
 void EicWidget::copyToClipboard()
 {
-        getMainWindow()->getAnalytics()->hitEvent("Exports",
-                                                  "Clipboard",
-                                                  "From Dropdown");
-    getMainWindow()->setClipboardToGroup(eicParameters->displayedGroup());
+    getMainWindow()->getAnalytics()->hitEvent("Exports",
+                                              "Clipboard",
+                                              "From Dropdown");
+    getMainWindow()->setClipboardToGroup(eicParameters->displayedGroup().get());
 }
 
 void EicWidget::freezeView(bool freeze) {
@@ -2112,7 +2115,7 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
 }
 
 
-void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
+void EicWidget::renderPdf(shared_ptr<PeakGroup> group, QPainter* painter)
 {
     QGraphicsScene scene;
     scene.setSceneRect(10, 10, 676, 267);
@@ -2483,7 +2486,6 @@ void EicWidget::renderPdf(PeakGroup* group, QPainter* painter)
     barplot->setZValue(1000);
 
     //Adding MS2 events.
-    MainWindow* mw = getMainWindow();
     if (samples.size() <= 0)    return;
     auto mzmin = eicparameters->_slice.mzmin;
     auto mzmax = eicparameters->_slice.mzmax;

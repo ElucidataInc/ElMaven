@@ -65,7 +65,7 @@ void HeatMap::drawMap() {
 	if (_table == NULL) return;
 
 
-	QList<PeakGroup*>allgroups = _table->getGroups();
+    QList<shared_ptr<PeakGroup>> allgroups = _table->getGroups();
         int Nrows= allgroups.size();
 	vector<mzSample*> vsamples = mainwindow->getVisibleSamples();
    	sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
@@ -73,28 +73,32 @@ void HeatMap::drawMap() {
 	if ( Nrows == 0 || Ncols == 0) return;
 
 	heatmap.resize(Nrows,Ncols);
-        heatmap.setZero();
-        _heatMax=0;
-        _heatMin=0;
+    heatmap.setZero();
+    _heatMax=0;
+    _heatMin=0;
 
-        sort(allgroups.begin(), allgroups.end(), PeakGroup::compPvalue);
+    sort(allgroups.begin(),
+         allgroups.end(),
+         [](shared_ptr<PeakGroup> a, shared_ptr<PeakGroup> b) {
+             return a->meanRt < b->meanRt;
+         });
 
-        for (int i=0; i < Nrows; i++ ) {
-            PeakGroup* group = allgroups[i];
-            StatisticsVector<float> yvalues = group->getOrderedIntensityVector(vsamples,PeakGroup::AreaTop);
+    for (int i=0; i < Nrows; i++ ) {
+        auto group = allgroups[i];
+        StatisticsVector<float> yvalues = group->getOrderedIntensityVector(vsamples,PeakGroup::AreaTop);
 
-            float center = median(yvalues);
-            if ( center == 0 ) center = yvalues.mean();
-            if ( center == 0 ) center = yvalues[0];
-            if ( center == 0 ) center = 1;
-            if ( center )
-               for(int j=0; j< yvalues.size(); j++ ) {
-                float ratio = yvalues[j]/center;
-                if (ratio !=0 ) ratio = log2(ratio);   //fold change on log2 scale
-                heatmap(i,j)=ratio;
-                if (ratio > _heatMax)  _heatMax=ratio;
-                if (ratio < _heatMin)  _heatMin=ratio;
-            }
+        float center = median(yvalues);
+        if ( center == 0 ) center = yvalues.mean();
+        if ( center == 0 ) center = yvalues[0];
+        if ( center == 0 ) center = 1;
+        if ( center )
+           for(int j=0; j< yvalues.size(); j++ ) {
+            float ratio = yvalues[j]/center;
+            if (ratio !=0 ) ratio = log2(ratio);   //fold change on log2 scale
+            heatmap(i,j)=ratio;
+            if (ratio > _heatMax)  _heatMax=ratio;
+            if (ratio < _heatMin)  _heatMin=ratio;
+        }
 	}
 
 	//heatmap.print();
@@ -107,7 +111,7 @@ void HeatMap::drawMap() {
 	//draw heatmap
         scene()->setSceneRect(0,0,sceneWidth,sceneHeight);
         for (int i=0; i < heatmap.rows(); i++ ) {
-            PeakGroup* group = allgroups[i];
+            auto group = allgroups[i];
             for (int j=0; j < heatmap.cols(); j++ ) {
                 float cellValue = heatmap(i,j);
                 QColor color = getColor(cellValue,_heatMin,_heatMax);
@@ -189,10 +193,9 @@ void HeatMap::mousePressEvent(QMouseEvent *event) {
         cerr << "Item=" << item << endl;
         if ( item != NULL )  {
 			QVariant v = item->data(0);
-   			PeakGroup*  group =  v.value<PeakGroup*>();
-            if (group != NULL && mainwindow != NULL) {
+            shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+            if (group != nullptr && mainwindow != nullptr)
                 mainwindow->setPeakGroup(group);
-            }
         }
 	}
 }

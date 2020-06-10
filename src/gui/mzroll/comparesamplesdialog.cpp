@@ -47,13 +47,13 @@ void CompareSamplesDialog::setTableWidget(TableDockWidget* w) {
 		return;
 	table = w;
 	samples.clear();
-	QList<PeakGroup*> allgroups = table->getGroups();
-	Q_FOREACH (PeakGroup* group, allgroups){
-	for(int i=0; i < group->peakCount(); i++ ) {
-		mzSample* sample = group->peaks[i].getSample();
-		if (sample) samples.insert(sample);
-	}
-}
+    QList<shared_ptr<PeakGroup>> allgroups = table->getGroups();
+    Q_FOREACH (shared_ptr<PeakGroup> group, allgroups) {
+        for(int i=0; i < group->peakCount(); i++ ) {
+            mzSample* sample = group->peaks[i].getSample();
+            if (sample) samples.insert(sample);
+        }
+    }
 	qDebug() << " Load Samples: " << samples.size() << endl;
 }
 
@@ -85,7 +85,7 @@ void CompareSamplesDialog::updateSampleList() {
 }
 
 void CompareSamplesDialog::showEvent(QShowEvent *) {
-	if (!table || table->groupCount() == 0)
+    if (!table || table->topLevelGroupCount() == 0)
 		return;
 
 	filelist1->clear();
@@ -163,17 +163,19 @@ void CompareSamplesDialog::compareSets(vector<mzSample*> sset1,
 	for (int i = 0; i < sset2.size(); i++)
 		sampleSet.push_back(sset2[i]);
 
-	QList<PeakGroup*> allgroups = table->getGroups();
+    QList<shared_ptr<PeakGroup>> allgroups = table->getGroups();
 	compareLogic.rand_scores.clear();
 
 	for (int i = 0; i < allgroups.size(); i++) {
-
 		//replace missing values
 		float _missingValue = missingValue->value();
 
-		PeakGroup* group = allgroups[i];
-		compareLogic.computeStats(group, sampleSet, sset1, sset2,
-				_missingValue);
+        shared_ptr<PeakGroup> group = allgroups[i];
+        compareLogic.computeStats(group.get(),
+                                  sampleSet,
+                                  sset1,
+                                  sset2,
+                                  _missingValue);
 
 		//qDebug() << "CompareSamplesDialog: " << i << " " << meanA << " " << meanB;
 		Q_EMIT(setProgressBar("CompareSamples", i + 1, allgroups.size()));

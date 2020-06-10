@@ -174,8 +174,9 @@ void AdductDetection::filterAdducts(vector<PeakGroup>& groups,
                 continue;
             }
 
-            bestMatch->childAdducts.push_back(group);
             group.parentIon = bestMatch;
+            auto sharedGroup = make_shared<PeakGroup>(group);
+            bestMatch->childAdducts.push_back(sharedGroup);
         }
         ++it;
     }

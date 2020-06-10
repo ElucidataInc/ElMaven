@@ -27,7 +27,7 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _y = y;
     _mw = mw;
     _peak = peak;
-    _group = NULL;
+    _group = nullptr;
     _scan = NULL;
     _cSize = 10;
     _color=QColor(Qt::black);
@@ -39,24 +39,44 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
 
     if (_peak) {
         _cSize += 20*(_peak->quality);
-        //mouse press events
-         connect(this, SIGNAL(peakSelected(Peak*)), mw, SLOT(showPeakInfo(Peak*)));
-         connect(this, SIGNAL(peakSelected(Peak*)), mw->getEicWidget(), SLOT(showPeakArea(Peak*)));
-         connect(this, SIGNAL(peakSelected(Peak*)), mw->spectraWidget, SLOT(setScan(Peak*)));
-         connect(this, SIGNAL(peakGroupSelected(PeakGroup*)), mw->fragSpectraWidget, SLOT(overlayPeakGroup(PeakGroup*)));
+        // mouse press events
+        connect(this,
+                &EicPoint::peakSelected,
+                mw,
+                &MainWindow::showPeakInfo);
+        connect(this,
+                &EicPoint::peakSelected,
+                mw->getEicWidget(),
+                &EicWidget::showPeakArea);
+        connect(this,
+                &EicPoint::peakSelected,
+                mw->spectraWidget,
+                QOverload<Peak*>::of(&SpectraWidget::setScan));
+        connect(this,
+                &EicPoint::peakGroupSelected,
+                mw->fragSpectraWidget,
+                &SpectraWidget::overlayPeakGroup);
 
-         //mouse hover events
-         connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget(), SLOT(setSelectedGroup(PeakGroup*)));
-         connect(this, SIGNAL(peakGroupFocus(PeakGroup*)), mw->getEicWidget()->scene(), SLOT(update()));
+        // mouse hover events
+        connect(this,
+                &EicPoint::peakGroupFocus,
+                mw->getEicWidget(),
+                &EicWidget::setSelectedGroup);
+        connect(this,
+                &EicPoint::peakGroupFocus,
+                [this] {
+                    _mw->getEicWidget()->scene()->update();
+                });
     }
     connect(this,
-            SIGNAL(peakGroupSelected(PeakGroup*)),
-            mw->massCalcWidget,
-            SLOT(setPeakGroup(PeakGroup*)));
+            &EicPoint::peakGroupSelected,
+            [this] (shared_ptr<PeakGroup> group) {
+                _mw->massCalcWidget->setPeakGroup(group.get());
+            });
     connect(this,
-            SIGNAL(ms2MarkerSelected(Scan*)),
+            &EicPoint::ms2MarkerSelected,
             mw->massCalcWidget,
-            SLOT(setFragmentationScan(Scan*)));
+            &MassCalcWidget::setFragmentationScan);
 }
 
 EicPoint::~EicPoint() {}
@@ -77,11 +97,11 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 	this->setFocus(Qt::MouseFocusReason);
 
 	//update colors of all peaks belonging to this group
-	if(_group) { 
+    if(_group != nullptr) {
 		Q_FOREACH (QGraphicsItem *item, scene()->items()) {
-			if (qgraphicsitem_cast<EicPoint *>(item)) {
-				if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
-			}
+            auto point = qgraphicsitem_cast<EicPoint*>(item);
+            if (point && point->getPeakGroup() == _group)
+                item->update();
 		}
 	}
 
@@ -162,7 +182,7 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 
 
 
-    if(_group) {
+    if(_group != nullptr) {
         _group->isFocused = true;
         Q_EMIT(peakGroupFocus(_group));
     }
@@ -171,13 +191,13 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
 void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
     clearFocus();
 
-    if (_group) {
+    if (_group != nullptr) {
         _group->isFocused = false;
 
         Q_FOREACH (QGraphicsItem *item, scene()->items()) {
-            if (qgraphicsitem_cast<EicPoint *>(item)) {
-                if (((EicPoint*) item)->getPeakGroup() == _group) item->update();
-            }
+            auto point = qgraphicsitem_cast<EicPoint*>(item);
+            if (point && point->getPeakGroup() == _group)
+                point->update();
         }
     }
     update(); 
@@ -185,10 +205,10 @@ void EicPoint::hoverLeaveEvent ( QGraphicsSceneHoverEvent*) {
 
 void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
 
-    if (_group) Q_EMIT peakGroupSelected(_group);
+    if (_group != nullptr) Q_EMIT peakGroupSelected(_group);
     if (_peak)  Q_EMIT peakSelected(_peak);
 
-    if ( _group && _group->isIsotope() == false ) {
+    if (_group != nullptr && _group->isIsotope() == false) {
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
         _mw->isotopeWidget->peakSelected(_peak, _group);
     }
@@ -202,7 +222,7 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     setZValue(10);
-    if (_group) {
+    if (_group != nullptr) {
         cerr << "GROUP EXISTS!" << endl;
         emit peakGroupSelected(_group);
     }
@@ -220,14 +240,14 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 }
 
 void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
-                                          PeakGroup* group,
+                                          shared_ptr<PeakGroup> group,
                                           Peak* peak)
 {
-    if (group)
-        mw->groupRtWidget->plotGraph(group);
-    if ( group && group->isIsotope() == false )
+    if (group != nullptr)
+        mw->groupRtWidget->plotGraph(group.get());
+    if (group != nullptr && group->isIsotope() == false )
         mw->isotopeWidget->updateIsotopicBarplot(group);
-    if (peak && group && mw->isotopeWidget->isVisible())
+    if (peak && group != nullptr && mw->isotopeWidget->isVisible())
         mw->isotopeWidget->peakSelected(peak, group);
     if (peak && mw->covariantsPanel->isVisible())
         mw->getLinks(peak);
@@ -264,9 +284,10 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     //if (maxRadius > 30) maxRadius = 30;
     //if (maxRadius < 5) maxRadius=5;
 
-    PeakGroup* selGroup = _mw->getEicWidget()->getParameters()->displayedGroup();
+    shared_ptr<PeakGroup> selGroup =
+        _mw->getEicWidget()->getParameters()->displayedGroup();
 
-    if (_group != NULL && selGroup == _group ) {
+    if (_group != nullptr && selGroup == _group) {
         brush.setStyle(Qt::SolidPattern);
         pen.setColor(_color.darker());
         pen.setWidth(_pen.width()+1);
@@ -297,16 +318,21 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 void EicPoint::setClipboardToGroup()
 {
     _mw->getAnalytics()->hitEvent("Exports", "Clipboard", "Group Information");
-    if(_group) _mw->setClipboardToGroup(_group); 
+    if(_group != nullptr)
+        _mw->setClipboardToGroup(_group.get());
 }
 
-void EicPoint::bookmark() { if(_group) _mw->bookmarkPeakGroup(_group); }
+void EicPoint::bookmark()
+{
+    if(_group != nullptr)
+        _mw->bookmarkPeakGroup(_group);
+}
 
 void EicPoint::setClipboardToIsotopes() {
     _mw->getAnalytics()->hitEvent("Exports",
                                   "Clipboard",
                                   "Isotopes Information");
-    if (_group
+    if (_group != nullptr
         && _group->getCompound() != NULL
         && ! _group->getCompound()->formula().empty()) {
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
@@ -316,7 +342,7 @@ void EicPoint::setClipboardToIsotopes() {
 }
 
 void EicPoint::linkCompound() {
-    if (_group &&_group->getCompound() != NULL )  {
+    if (_group != nullptr &&_group->getCompound() != NULL )  {
 
             //update compound retention time
             if (_peak) _group->getCompound()->setExpectedRt(_peak->rt);
@@ -333,7 +359,11 @@ void EicPoint::linkCompound() {
 	}
 }
 
-void EicPoint::reorderSamples() { if (_mw && _group ) _mw->reorderSamples(_group ); }
+void EicPoint::reorderSamples()
+{
+    if (_mw && _group != nullptr)
+        _mw->reorderSamples(_group.get());
+}
 
 void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
     QMenu menu;
@@ -342,7 +372,7 @@ void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
     c1->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
     connect(c1, SIGNAL(triggered()), SLOT(setClipboardToGroup()));
 
-    if (_group && _group->getCompound() ) {
+    if (_group != nullptr && _group->getCompound() ) {
        if ( _group->isIsotope() == false
             && !_group->getCompound()->formula().empty() ) {
             QAction* z = menu.addAction("Copy Isotope Information to Clipboard");
@@ -363,7 +393,7 @@ void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
     c3->setIcon(QIcon(rsrcPath + "/markbad.png"));
     connect(c3, SIGNAL(triggered()), _mw->getEicWidget(), SLOT(markGroupBad()));
 
-    if ( _group && _group->peaks.size() > 1  ) {
+    if ( _group != nullptr && _group->peaks.size() > 1  ) {
         QAction* d = menu.addAction("Sort Samples by Peak Intensity");
         connect(d, SIGNAL(triggered()), SLOT(reorderSamples()));
     }
@@ -376,7 +406,7 @@ void EicPoint::contextMenuEvent ( QGraphicsSceneMouseEvent* event ) {
 
 void EicPoint::keyPressEvent( QKeyEvent *e ) {
 	bool marked=false;
-	if (!_group) return;
+    if (_group == nullptr) return;
 
 	//qDebug() << "Point::keyPressEvent() " << e->key() << endl;
 

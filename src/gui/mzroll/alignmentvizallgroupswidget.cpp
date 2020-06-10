@@ -146,7 +146,8 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
                 pair<float, float> xy = make_pair(x, y);
                 grp = pairPeakGroup.find(xy)->second;
                 if (_mw != NULL) {
-                    _mw->setPeakGroup(&grp);
+                    auto sharedGroup = make_shared<PeakGroup>(grp);
+                    _mw->setPeakGroup(sharedGroup);
                     _mw->getEicWidget()->replotForced();
                     //_mw->rconsoleDockWidget->updateStatus();
                 }

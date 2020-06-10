@@ -200,8 +200,8 @@ void TestIsotopeDetection::testpullIsotopes() {
     int outlier = 0;
     for (int i = 0; i < parent.children.size(); i++) 
     {
-        PeakGroup& child = parent.children[i];
-        Peak* childPeak = child.getPeak(sample);
+        auto child = parent.children[i];
+        Peak* childPeak = child->getPeak(sample);
         if (!childPeak) continue;
         float rtDiff = abs(parentRt - childPeak->rt);
         if (rtDiff > maxRtDiff) outlier++;
@@ -234,8 +234,8 @@ void TestIsotopeDetection::testpullIsotopes() {
     int C13_BPE = 0;
     for (int i = 0; i < parent.children.size(); i++)
     {
-        PeakGroup& child = parent.children[i];
-        string isotopeName = child.tagString;
+        auto child = parent.children[i];
+        string isotopeName = child->tagString;
         if (isotopeName.find(N15_LABEL) != string::npos || isotopeName.find(C13N15_LABEL) != string::npos)
             N15_BPE++;
         if (isotopeName.find(H2_LABEL) != string::npos || isotopeName.find(C13H2_LABEL) != string::npos)

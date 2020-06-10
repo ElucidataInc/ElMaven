@@ -145,7 +145,7 @@ void TableDockWidget::sortBy(int col) {
 
 void TableDockWidget::updateTableAfterAlignment()
 {
-    BackgroundPeakUpdate::updateGroups(allgroups,
+    BackgroundPeakUpdate::updateGroups(_topLevelGroups,
                                        _mainwindow->getVisibleSamples(),
                                        _mainwindow->mavenParameters);
     showAllGroups();
@@ -230,8 +230,8 @@ void TableDockWidget::updateTable() {
 
 void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   QVariant v = item->data(0, Qt::UserRole);
-  PeakGroup *group = v.value<PeakGroup *>();
-  if (group == NULL)
+  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  if (group == nullptr)
     return;
 
   heatmapBackground(item);
@@ -242,13 +242,13 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   //score group quality
   groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
   if (groupClsf != NULL) {
-      groupClsf->classify(group);
+      groupClsf->classify(group.get());
   }
 
   //get probability good/bad from svm
   svmPredictor* groupPred = _mainwindow->getSVMPredictor();
   if (groupPred != NULL) {
-      groupPred->predict(group);
+      groupPred->predict(group.get());
   }
 
   // Updating the peakid
@@ -277,7 +277,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
                                      + group->blankSampleCount));
     item->setText(7, QString::number(group->goodPeakCount));
     item->setText(8, QString::number(group->maxNoNoiseObs));
-    item->setText(9, QString::number(extractMaxIntensity(group), 'g', 3));
+    item->setText(9, QString::number(extractMaxIntensity(group.get()), 'g', 3));
     item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
@@ -342,7 +342,7 @@ void TableDockWidget::updateCompoundWidget() {
     QTreeWidgetItem *item = (*itr);
     if (item) {
       QVariant v = item->data(0, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
+      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
       if (group == nullptr)
         continue;
       _mainwindow->ligandWidget->markAsDone(group->getCompound());
@@ -392,9 +392,10 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
   }
 }
 
-void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
+void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
+                             QTreeWidgetItem *root) {
 
-  if (group == NULL)
+  if (group == nullptr)
     return;
   if (group->peakCount() == 0)
     return;
@@ -438,7 +439,7 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
                                      + group->blankSampleCount));
     item->setText(7, QString::number(group->goodPeakCount));
     item->setText(8, QString::number(group->maxNoNoiseObs));
-    item->setText(9, QString::number(extractMaxIntensity(group), 'g', 3));
+    item->setText(9, QString::number(extractMaxIntensity(group.get()), 'g', 3));
     item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
@@ -458,13 +459,13 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
     //TODO: Move this to peak detector or peakgroup
     groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
     if (groupClsf != NULL) {
-        groupClsf->classify(group);
+        groupClsf->classify(group.get());
     }
 
     //Get prediction labels from svm
     svmPredictor* groupPred = _mainwindow->getSVMPredictor();
     if (groupPred != NULL) {
-        groupPred->predict(group);
+        groupPred->predict(group.get());
     }
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -482,8 +483,8 @@ void TableDockWidget::addRow(PeakGroup *group, QTreeWidgetItem *root) {
   updateItem(item);
 
   if (group->childCount() > 0) {
-    for (int i = 0; i < group->childCount(); i++)
-      addRow(&(group->children[i]), item);
+    for (auto child : group->children)
+      addRow(child, item);
   }
 }
 
@@ -494,40 +495,41 @@ void ListView::keyPressEvent(QKeyEvent *event) {
   }
 }
 
-PeakGroup *TableDockWidget::addPeakGroup(PeakGroup *group) {
+shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
+{
   if (group != NULL) {
-    allgroups.push_back(*group);
-    if (group->childCount() > 0)
+    shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*group);
+    _topLevelGroups.push_back(sharedGroup);
+    if (sharedGroup->childCount() > 0)
       _labeledGroups++;
-    if (group->getCompound())
+    if (sharedGroup->getCompound())
       _targetedGroups++;
-    if (allgroups.size() > 0) {
-      PeakGroup &g = allgroups.back();
-      g.setTableName(this->titlePeakTable->text().toStdString());
-      for (unsigned int i = 0; i < allgroups.size(); i++) {
-        allgroups[i].groupId = i + 1;
-        allgroups[i].setGroupIdForChildren();
+    if (_topLevelGroups.size() > 0) {
+      shared_ptr<PeakGroup> g = _topLevelGroups.back();
+      g->setTableName(this->titlePeakTable->text().toStdString());
+      for (int i = 0; i < _topLevelGroups.size(); ++i) {
+        auto group = _topLevelGroups[i];
+        group->groupId = i + 1;
+        group->setGroupIdForChildren();
       }
-      return &g;
+      return g;
     }
   }
 
   return NULL;
 }
 
-QList<PeakGroup *> TableDockWidget::getGroups() {
-  QList<PeakGroup *> groups;
-  for (int i = 0; i < allgroups.size(); i++) {
-    groups.push_back(&allgroups[i]);
-  }
-  return groups;
+QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
+{
+  return _topLevelGroups;
 }
 
 void TableDockWidget::deleteAll()
 {
   if (treeWidget->currentItem()) {
       _mainwindow->getEicWidget()->unSetPeakTableGroup(
-          treeWidget->currentItem()->data(0, Qt::UserRole).value<PeakGroup*>());
+          treeWidget->currentItem()->data(0, Qt::UserRole)
+              .value<shared_ptr<PeakGroup>>());
   }
 
   disconnect(treeWidget,
@@ -535,7 +537,7 @@ void TableDockWidget::deleteAll()
              this,
              &TableDockWidget::showSelectedGroup);
   treeWidget->clear();
-  allgroups.clear();
+  _topLevelGroups.clear();
   connect(treeWidget,
           &QTreeWidget::itemSelectionChanged,
           this,
@@ -556,7 +558,7 @@ void TableDockWidget::showAllGroups() {
   treeWidget->clear();
 
   setFocus();
-  if (allgroups.size() == 0) {
+  if (topLevelGroupCount() == 0) {
     if (viewType == groupView)
       setIntensityColName();
     setVisible(false);
@@ -570,21 +572,21 @@ void TableDockWidget::showAllGroups() {
     setIntensityColName();
 
   QMap<int, QTreeWidgetItem *> parents;
-  for (int i = 0; i < allgroups.size(); i++) {
-    int clusterId = allgroups[i].clusterId;
-    if (clusterId && allgroups[i].meanMz > 0 && allgroups[i].peakCount() > 0) {
+  for (auto group : _topLevelGroups) {
+    int clusterId = group->clusterId;
+    if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
       if (!parents.contains(clusterId)) {
         parents[clusterId] = new QTreeWidgetItem(treeWidget);
         parents[clusterId]->setText(0, QString("Cluster ") +
                                            QString::number(clusterId));
         parents[clusterId]->setText(
-            5, QString::number(allgroups[i].meanRt, 'f', 2));
+            5, QString::number(group->meanRt, 'f', 2));
         parents[clusterId]->setExpanded(true);
       }
       QTreeWidgetItem *parent = parents[clusterId];
-      addRow(&allgroups[i], parent);
+      addRow(group, parent);
     } else {
-      addRow(&allgroups[i], NULL);
+      addRow(group, NULL);
     }
   }
 
@@ -600,8 +602,8 @@ void TableDockWidget::showAllGroups() {
   while(*itr) {
       QTreeWidgetItem* item = (*itr);
       QVariant v = item->data(0,Qt::UserRole);
-      PeakGroup* grp = v.value<PeakGroup*>();
-      validateGroup(grp, item);
+      shared_ptr<PeakGroup> grp = v.value<shared_ptr<PeakGroup>>();
+      validateGroup(grp.get(), item);
       itr++;
   }
 
@@ -640,7 +642,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   vector<mzSample *> samples = _mainwindow->getSamples();
 
-  if (allgroups.size() == 0) {
+  if (topLevelGroupCount() == 0) {
     QString msg = "Peaks Table is Empty";
     QMessageBox::warning(this, tr("Error"), msg);
     return;
@@ -706,13 +708,15 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   }
 
  
-  auto prmGroupAt = find_if(begin(allgroups),
-                            end(allgroups),
-                            [] (PeakGroup& group) {
-                              if (group.getCompound() == nullptr) return false;
-                              return group.getCompound()->type() == Compound::Type::MS2;
+  auto ms2GroupAt = find_if(begin(_topLevelGroups),
+                            end(_topLevelGroups),
+                            [] (shared_ptr<PeakGroup> group) {
+                              if (!group->hasCompoundLink())
+                                  return false;
+                              return (group->getCompound()->type()
+                                      == Compound::Type::MS2);
                             });
-  bool prmGroupExists = prmGroupAt != end(allgroups);
+  bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
   bool includeSetNamesLines = false;
 
   auto reportType = CSVReports::ReportType::GroupReport;
@@ -736,18 +740,16 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                                 reportType,
                                 samples,
                                 _mainwindow->getUserQuantType(),
-                                prmGroupExists,
+                                ms2GroupExists,
                                 includeSetNamesLines,
                                 _mainwindow->mavenParameters);
 
-  QList<PeakGroup *> selectedGroups = getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
   csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (selectedGroups.contains(&allgroups[i])) {
-      PeakGroup &group = allgroups[i];
-      csvreports->addGroup(&group);
-    }
+  for (auto group : _topLevelGroups) {
+    if (selectedGroups.contains(group))
+      csvreports->addGroup(group.get());
   }
  
   if (csvreports->getErrorReport() != "") {
@@ -763,7 +765,7 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
                                           QString userFilename) {
     vector<mzSample*> samples = _mainwindow->getSamples();
 
-    if (allgroups.size() == 0) {
+    if (topLevelGroupCount() == 0) {
         QString msg = "Peaks Table is Empty";
         QMessageBox::warning(this, tr("Error"), msg);
         return;
@@ -808,17 +810,18 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         return;
     }
 
-    auto ddaGroupAt =
-        find_if(begin(allgroups), end(allgroups), [](PeakGroup& group) {
-            if (!group.getCompound())
-                return false;
-            return group.getCompound()->type() == Compound::Type::MS2;
-        });
-    bool ddaGroupExists = ddaGroupAt != end(allgroups);
+    auto ms2GroupAt = find_if(begin(_topLevelGroups),
+                              end(_topLevelGroups),
+                              [](shared_ptr<PeakGroup> group) {
+                                if (!group->hasCompoundLink())
+                                  return false;
+                                return (group->getCompound()->type()
+                                        == Compound::Type::MS2);
+                              });
+    bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
     bool includeSetNamesLines = false;
 
     auto reportType = CSVReports::ReportType::GroupReport;
-    char flag;
     if (sFilterSel == groupsSCSV) {
         reportType = CSVReports::ReportType::GroupReport;
     } else if (sFilterSel == groupsSTAB) {
@@ -833,19 +836,19 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
                                 reportType,
                                 samples,
                                 _mainwindow->getUserQuantType(),
-                                ddaGroupExists,
+                                ms2GroupExists,
                                 includeSetNamesLines,
                                 _mainwindow->mavenParameters,
                                 true);
 
-    QList<PeakGroup*> selectedGroups = getSelectedGroups();
+    QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
     csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
 
-    for (auto& group : allgroups) {
+    for (auto group : _topLevelGroups) {
         // we do not set untargeted groups to Polly yet, remove this when we
         // can.
-        if (selectedGroups.contains(&group) && group.getCompound() != nullptr) {
-            csvreports->addGroup(&group);
+        if (selectedGroups.contains(group) && group->hasCompoundLink()) {
+            csvreports->addGroup(group.get());
         }
     }
 
@@ -862,20 +865,18 @@ void TableDockWidget::exportJsonToPolly(QString writableTempDir,
                                         bool addMLInfo)
 {
 
-  if (allgroups.size() == 0) {
+  if (topLevelGroupCount() == 0) {
     QString msg = "Peaks Table is Empty";
     QMessageBox::warning(this, tr("Error"), msg);
     return;
   }
 
-  /**
-   * copy all groups from <allgroups> to <vallgroups> which is used by
-   * < libmaven/jsonReports.cpp>
-   */
+  // copy all groups from <_topLevelGroups> to <vallgroups> which is used by
+  // <libmaven/jsonReports.cpp>
   vallgroups.clear();
-  for (int i = 0; i < allgroups.size(); ++i) {
-    vallgroups.push_back(allgroups[i]);
-  }
+  for (auto group : _topLevelGroups)
+    vallgroups.push_back(*(group.get()));
+
   jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
   jsonReports->save(jsonfileName.toStdString(),
                              vallgroups,
@@ -928,7 +929,7 @@ void TableDockWidget::UploadPeakBatchToCloud(){
 
 void TableDockWidget::exportJson() {
 
-  if (allgroups.size() == 0) {
+  if (topLevelGroupCount() == 0) {
     QString msg = "Peaks Table is Empty";
     QMessageBox::warning(this, tr("Error"), msg);
     return;
@@ -936,14 +937,11 @@ void TableDockWidget::exportJson() {
 
   _mainwindow->getAnalytics()->hitEvent("Exports", "JSON");
 
-  /**
-   * copy all groups from <allgroups> to <vallgroups> which is used by
-   * < libmaven/jsonReports.cpp>
-   */
+  // copy all groups from <_topLevelGroups> to <vallgroups> which is used by
+  // <libmaven/jsonReports.cpp>
   vallgroups.clear();
-  for (int i = 0; i < allgroups.size(); ++i) {
-    vallgroups.push_back(allgroups[i]);
-  }
+  for (auto group : _topLevelGroups)
+    vallgroups.push_back(*(group.get()));
 
   QString dir = ".";
   QSettings *settings = _mainwindow->getSettings();
@@ -993,8 +991,8 @@ void TableDockWidget::exportSpectralLib()
     SpectralLibExport library(fileName.toStdString(),
                               SpectralLibExport::Format::Nist,
                               limitNumPeaks);
-    for (auto& group : allgroups)
-        library.writePeakGroupData(&group);
+    for (auto group : _topLevelGroups)
+        library.writePeakGroupData(group.get());
 }
 
 vector<EIC *> TableDockWidget::getEICs(float rtmin,
@@ -1022,7 +1020,7 @@ vector<EIC *> TableDockWidget::getEICs(float rtmin,
   return (eics);
 }
 
-bool TableDockWidget::selectPeakGroup(PeakGroup *group)
+bool TableDockWidget::selectPeakGroup(shared_ptr<PeakGroup> group)
 {
   if (group == nullptr)
     return false;
@@ -1031,7 +1029,7 @@ bool TableDockWidget::selectPeakGroup(PeakGroup *group)
   while (*it) {
     QTreeWidgetItem *item = (*it);
     QVariant v = item->data(0, Qt::UserRole);
-    PeakGroup *currentGroup = v.value<PeakGroup *>();
+    shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
     if (currentGroup == group) {
         treeWidget->setCurrentItem(item);
       return true;
@@ -1047,32 +1045,22 @@ void TableDockWidget::showSelectedGroup() {
     return;
 
   QVariant v = item->data(0, Qt::UserRole);
-  PeakGroup *group = v.value<PeakGroup *>();
-  _mainwindow->groupRtWidget->plotGraph(group);
+  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  _mainwindow->groupRtWidget->plotGraph(group.get());
 
-  if (group != NULL && _mainwindow != NULL) {
+  if (group != nullptr && _mainwindow != nullptr) {
     _mainwindow->setPeakGroup(group);
-  }
-
-  if (item->childCount() > 0) {
-    vector<PeakGroup *> children;
-    for (int i = 0; i < item->childCount(); i++) {
-      QTreeWidgetItem *child = item->child(i);
-      QVariant data = child->data(0, Qt::UserRole);
-      PeakGroup *group = data.value<PeakGroup *>();
-      if (group)
-        children.push_back(group);
-    }
   }
 }
 
-QList<PeakGroup *> TableDockWidget::getSelectedGroups() {
-  QList<PeakGroup *> selectedGroups;
+QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
+{
+  QList<shared_ptr<PeakGroup>> selectedGroups;
   Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
     if (item) {
       QVariant v = item->data(0, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group != NULL) {
+      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+      if (group != nullptr) {
         selectedGroups.append(group);
       }
     }
@@ -1085,53 +1073,29 @@ void TableDockWidget::showNotification()
   _mainwindow->showNotification(this);
 }
 
-QList<PeakGroup *>
-TableDockWidget::getCustomGroups(peakTableSelectionType peakSelection) {
-  QList<PeakGroup *> selectedGroups;
-  peakTableSelectionType temppeakSelection = peakSelection;
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      QVariant v = item->data(0, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group != NULL) {
-        if (temppeakSelection == peakTableSelectionType::Good) {
-          if (group->label == 'g') {
-            selectedGroups.append(group);
-          }
-        } else if (temppeakSelection == peakTableSelectionType::Bad) {
-          if (group->label == 'b') {
-            selectedGroups.append(group);
-          }
-        } else {
-          selectedGroups.append(group);
-        }
-      }
-    }
-  }
-  return selectedGroups;
-}
-
-PeakGroup *TableDockWidget::getSelectedGroup() {
+shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup()
+{
   QTreeWidgetItem *item = treeWidget->currentItem();
   if (!item)
     return NULL;
   QVariant v = item->data(0, Qt::UserRole);
-  PeakGroup *group = v.value<PeakGroup *>();
-  if (group != NULL) {
+  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  if (group != nullptr) {
     return group;
   } else
-    return NULL;
+    return shared_ptr<PeakGroup>(nullptr);
 }
 
-void TableDockWidget::setGroupLabel(char label) {
+void TableDockWidget::setGroupLabel(char label)
+{
   Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
     if (item) {
       QVariant v = item->data(0, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group != NULL) {
+      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+      if (group != nullptr) {
         if (group->label != 'g' && group->label != 'b') {
           numberOfGroupsMarked+=1;
-          subsetPeakGroups.push_back(*group);
+          subsetPeakGroups.push_back(*(group.get()));
         }
         group->setLabel(label);
         if (numberOfGroupsMarked ==10){
@@ -1145,7 +1109,7 @@ void TableDockWidget::setGroupLabel(char label) {
       if (item->parent() != nullptr)
         updateItem(item->parent(), false);
     }
-}
+  }
   updateStatus();
 }
 
@@ -1154,8 +1118,8 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     return;
 
   int pos = -1;
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (&allgroups[i] == groupX) {
+  for (int i = 0; i < _topLevelGroups.size(); i++) {
+    if (_topLevelGroups[i].get() == groupX) {
       pos = i;
       break;
     }
@@ -1171,13 +1135,13 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       continue;
     }
     QVariant v = item->data(0, Qt::UserRole);
-    PeakGroup *group = v.value<PeakGroup *>();
-    if (group != NULL and group == groupX) {
+    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    if (group != nullptr and group.get() == groupX) {
       item->setHidden(true);
 
-      if (group->children.size() > 0)
+      if (!group->children.empty())
         _labeledGroups--;
-      if (group->getCompound())
+      if (group->hasCompoundLink())
         _targetedGroups--;
 
       // Deleting
@@ -1185,15 +1149,16 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       if (posTree != -1)
         treeWidget->takeTopLevelItem(posTree);
 
-      allgroups.erase(allgroups.begin() + pos);
+      _topLevelGroups.erase(_topLevelGroups.begin() + pos);
       break;
     }
     ++it;
   }
 
-  for (unsigned int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].groupId = i + 1;
-    allgroups[i].setGroupIdForChildren();
+  for (int i = 0; i < _topLevelGroups.size(); ++i) {
+    auto group = _topLevelGroups[i];
+    group->groupId = i + 1;
+    group->setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();
@@ -1225,9 +1190,8 @@ void TableDockWidget::deleteSelectedItems()
     if (selectedItems.isEmpty())
         return;
 
-    PeakGroup* group = nullptr;
     set<QTreeWidgetItem*> itemsToDelete;
-    set<PeakGroup*> groupsToDelete;
+    set<shared_ptr<PeakGroup>> groupsToDelete;
 
     for (auto item : selectedItems)
     {
@@ -1235,17 +1199,15 @@ void TableDockWidget::deleteSelectedItems()
             continue;
 
         auto v = item->data(0, Qt::UserRole);
-        auto group = v.value<PeakGroup*>();
-
+        auto group = v.value<shared_ptr<PeakGroup>>();
         if (group == nullptr)
             continue;
 
         auto parentGroup = group->parent;
-
         if (parentGroup == nullptr){
             if (!group->children.empty())
                 _labeledGroups--;
-            if (group->getCompound())
+            if (group->hasCompoundLink())
                 _targetedGroups--;
             itemsToDelete.insert(item);
             groupsToDelete.insert(group);
@@ -1258,7 +1220,7 @@ void TableDockWidget::deleteSelectedItems()
                 continue;
             }
 
-            if (!parentGroup->deleteChild(group))
+            if (!parentGroup->deleteChild(group.get()))
                 continue;
 
             itemsToDelete.insert(item);
@@ -1276,26 +1238,26 @@ void TableDockWidget::deleteSelectedItems()
                 auto childGroupIter =
                     find_if(begin(parentGroup->children),
                             end(parentGroup->children),
-                            [&](PeakGroup& g) {
-                                return g.getName() == name;
+                            [&](shared_ptr<PeakGroup> g) {
+                                return g->getName() == name;
                             });
                 if (childGroupIter != end(parentGroup->children)) {
                     auto& childGroup = *childGroupIter;
                     child->setData(0,
                                    Qt::UserRole,
-                                   QVariant::fromValue(&childGroup));
+                                   QVariant::fromValue(childGroup));
                 }
             }
         }
     }
 
     if (!groupsToDelete.empty()) {
-        allgroups.erase(remove_if(begin(allgroups),
-                                  end(allgroups),
-                                  [groupsToDelete](PeakGroup& g) {
-                                      return groupsToDelete.count(&g) > 0;
-                                  }),
-                        end(allgroups));
+        _topLevelGroups.erase(remove_if(begin(_topLevelGroups),
+                                        end(_topLevelGroups),
+                                        [groupsToDelete](shared_ptr<PeakGroup> g) {
+                                            return groupsToDelete.count(g) > 0;
+                                        }),
+                              end(_topLevelGroups));
     }
 
     // reconnect selection trigger
@@ -1327,7 +1289,7 @@ void TableDockWidget::deleteSelectedItems()
     auto groupSelected = getSelectedGroup();
     showAllGroups();
 
-    if (allgroups.empty()) {
+    if (_topLevelGroups.empty()) {
         _mainwindow->getEicWidget()->replot(nullptr);
         _mainwindow->ligandWidget->resetColor();
         _mainwindow->removePeaksTable(this);
@@ -1338,7 +1300,7 @@ void TableDockWidget::deleteSelectedItems()
     while (*it) {
         QTreeWidgetItem *item = (*it);
         QVariant v = item->data(0, Qt::UserRole);
-        PeakGroup *currentGroup = v.value<PeakGroup *>();
+        shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
         if (currentGroup == groupSelected) {
             treeWidget->setCurrentItem(item);
             break;
@@ -1353,17 +1315,17 @@ void TableDockWidget::setClipboard() {
   _mainwindow->getAnalytics()->hitEvent("Exports",
                                         "Clipboard",
                                         "From Peak Table Menu");
-  QList<PeakGroup *> groups = getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> groups = getSelectedGroups();
   if (groups.size() > 0) {
     _mainwindow->isotopeWidget->setClipboard(groups);
   }
 }
 
 void TableDockWidget::showConsensusSpectra() {
-  QList<PeakGroup *> groups = getSelectedGroups();
-  if (groups.size() > 0) {
+  shared_ptr<PeakGroup> group = getSelectedGroup();
+  if (group != nullptr) {
     _mainwindow->fragSpectraDockWidget->setVisible(true);
-    _mainwindow->fragSpectraWidget->overlayPeakGroup(groups[groups.size() - 1]);
+    _mainwindow->fragSpectraWidget->overlayPeakGroup(group);
   }
 }
 
@@ -1518,10 +1480,8 @@ void TableDockWidget::updateStatus() {
   int totalCount = 0;
   int goodCount = 0;
   int badCount = 0;
-  int ignoredCount = 0;
-  int predictedGood = 0;
-  for (int i = 0; i < allgroups.size(); i++) {
-    char groupLabel = allgroups[i].label;
+  for (auto group : _topLevelGroups) {
+    char groupLabel = group->label;
     if (groupLabel == 'g') {
       goodCount++;
     } else if (groupLabel == 'b') {
@@ -1539,7 +1499,7 @@ void TableDockWidget::updateStatus() {
 
 void TableDockWidget::showScatterPlot() {
 
-  if (groupCount() == 0)
+  if (topLevelGroupCount() == 0)
     return;
   _mainwindow->scatterDockWidget->setVisible(true);
   ((ScatterPlot *)_mainwindow->scatterDockWidget)->setTable(this);
@@ -1592,16 +1552,16 @@ void TableDockWidget::renderPdf(QString fileName)
         qDebug() << "PrinterState:" << printer.printerState();
     }
 
-    QList<PeakGroup *> selected;
+    QList<shared_ptr<PeakGroup>> selected;
     // PDF report only for selected groups
-    if(peakTableSelection == peakTableSelectionType::Selected)
-    selected = getSelectedGroups();
-    else{
-    selected = getGroups();
+    if(peakTableSelection == peakTableSelectionType::Selected) {
+        selected = getSelectedGroups();
+    } else {
+        selected = getGroups();
     }
 
     for (int i = 0; i < selected.size(); i++) {
-        PeakGroup *grp = selected[i];
+        shared_ptr<PeakGroup> grp = selected[i];
         emit updateProgressBar("", i, selected.size());
         _mainwindow->getEicWidget()->renderPdf(grp, &painter);
 
@@ -1646,18 +1606,31 @@ void TableDockWidget::editSelectedPeakGroup()
   if (treeWidget->selectedItems().size() != 1)
       return;
 
-  PeakGroup* group = getSelectedGroup();
+  shared_ptr<PeakGroup> group = getSelectedGroup();
   PeakEditor* editor = _mainwindow->peakEditor();
   if (editor == nullptr || group == nullptr)
     return;
 
   editor->setPeakGroup(group);
   editor->exec();
-  updateItem(treeWidget->currentItem(), true);
+
+  auto currentItem = treeWidget->currentItem();
+  updateItem(currentItem, true);
 
   auto groupToSave = group;
-  if (group->isIsotope() && group->parent != nullptr)
-      groupToSave = group->parent;
+  if (group->isIsotope() && group->parent != nullptr) {
+      QTreeWidgetItemIterator it(treeWidget);
+      while (*it) {
+          QTreeWidgetItem* item = (*it);
+          QVariant v = item->data(0, Qt::UserRole);
+          shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
+          if (currentGroup.get() == group->parent) {
+              groupToSave = currentGroup;
+              break;
+          }
+          it++;
+      }
+  }
   _mainwindow->autoSaveSignal({groupToSave});
 }
 
@@ -1666,7 +1639,7 @@ void TableDockWidget::showIntegrationSettings()
   if (treeWidget->selectedItems().size() != 1)
       return;
 
-  PeakGroup* group = getSelectedGroup();
+  shared_ptr<PeakGroup> group = getSelectedGroup();
   GroupSettingsLog log(this, group);
   log.exec();
 }
@@ -1734,13 +1707,12 @@ void TableDockWidget::writeQEInclusionList(QString filename) {
     return; // error
   }
 
-  QList<PeakGroup *> selected = getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
 
   float window = 1.5;
   int polarity = _mainwindow->mavenParameters->ionizationMode;
   QTextStream out(&file);
-  for (int i = 0; i < selected.size(); i++) {
-    PeakGroup *g = selected[i];
+  for (auto g : selected) {
     out << g->meanMz << ",";
     polarity > 0 ? out << "Positive," : out << "Negative,";
     out << g->meanRt - window << ",";
@@ -1761,12 +1733,11 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
     return; // error
   }
 
-  QList<PeakGroup *> selected = getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
   QTextStream out(&file);
-  for (int i = 0; i < selected.size(); i++) {
-    PeakGroup *g = selected[i];
-    Scan *cons =
-        g->getAverageFragmentationScan(_mainwindow->mavenParameters->fragmentTolerance);
+  for (auto g : selected) {
+    Scan *cons = g->getAverageFragmentationScan(
+          _mainwindow->mavenParameters->fragmentTolerance);
 
     if (cons) {
       string scandata = cons->toMGF();
@@ -1776,20 +1747,23 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
   file.close();
 }
 
-void TableDockWidget::clearClusters() {
-
-  for (unsigned int i = 0; i < allgroups.size(); i++)
-    allgroups[i].clusterId = 0;
+void TableDockWidget::clearClusters()
+{
+  for (auto group : _topLevelGroups)
+    group->clusterId = 0;
   showAllGroups();
 }
 
-void TableDockWidget::clusterGroups() {
-
-  sort(allgroups.begin(), allgroups.end(), PeakGroup::compRt);
-  qDebug() << "Clustering..";
+void TableDockWidget::clusterGroups()
+{
+  sort(_topLevelGroups.begin(),
+       _topLevelGroups.end(),
+       [](shared_ptr<PeakGroup> a, shared_ptr<PeakGroup> b) {
+           return a->meanRt < b->meanRt;
+       });
+  qDebug() << "Clustering…";
   int clusterId = 0;
 
-  QSettings *settings = _mainwindow->getSettings();
   double maxRtDiff = clusterDialog->maxRtDiff_2->value();
   double minSampleCorrelation = clusterDialog->minSampleCorr->value();
   double minRtCorrelation = clusterDialog->minRt->value();
@@ -1798,79 +1772,80 @@ void TableDockWidget::clusterGroups() {
   vector<mzSample *> samples = _mainwindow->getSamples();
 
   // clear cluster information
-  for (unsigned int i = 0; i < allgroups.size(); i++)
-    allgroups[i].clusterId = 0;
-  map<int, PeakGroup *> parentGroups;
+  for (auto group : _topLevelGroups)
+    group->clusterId = 0;
 
-  for (unsigned int i = 0; i < allgroups.size(); i++) {
-    PeakGroup &group1 = allgroups[i];
-
-    if (group1.clusterId == 0) {
+  map<int, shared_ptr<PeakGroup>> parentGroups;
+  for (int i = 0; i < _topLevelGroups.size(); ++i) {
+    auto group1 = _topLevelGroups[i];
+    if (group1->clusterId == 0) {
       // create new cluster
-      group1.clusterId = ++clusterId;
-      parentGroups[clusterId] = &group1;
+      group1->clusterId = ++clusterId;
+      parentGroups[clusterId] = group1;
     }
 
     // cluster parent
-    PeakGroup *parent = parentGroups[clusterId];
+    shared_ptr<PeakGroup> parent = parentGroups[clusterId];
 
     mzSample *largestSample = NULL;
     double maxIntensity = 0;
-    int countCheckRaghu = 0;
 
-    for (int i = 0; i < group1.peakCount(); i++) {
-      mzSample *sample = group1.peaks[i].getSample();
-      if (group1.peaks[i].peakIntensity > maxIntensity)
+    for (int i = 0; i < group1->peakCount(); i++) {
+      mzSample *sample = group1->peaks[i].getSample();
+      if (group1->peaks[i].peakIntensity > maxIntensity)
         largestSample = sample;
     }
 
     if (largestSample == NULL)
       continue;
     vector<float> peakIntensityA =
-        group1.getOrderedIntensityVector(samples, PeakGroup::AreaTop);
+        group1->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
 
-    for (unsigned int j = i + 1; j < allgroups.size(); j++) {
-      PeakGroup &group2 = allgroups[j];
-      if (group2.clusterId > 0)
+    for (auto group2 : _topLevelGroups) {
+      if (group2->clusterId > 0)
         continue;
 
       // retention time distance
-      float rtdist = abs(parent->meanRt - group2.meanRt);
+        float rtdist = abs(parent->meanRt - group2->meanRt);
       if (rtdist > maxRtDiff * 2)
         continue;
 
       // retention time overlap
-      float rtoverlap = mzUtils::checkOverlap(group1.minRt, group1.maxRt,
-                                              group2.minRt, group2.maxRt);
+      float rtoverlap = mzUtils::checkOverlap(group1->minRt, group1->maxRt,
+                                              group2->minRt, group2->maxRt);
       if (rtoverlap < 0.1)
         continue;
 
       // peak intensity correlation
       vector<float> peakIntensityB =
-          group2.getOrderedIntensityVector(samples, PeakGroup::AreaTop);
+          group2->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
       float cor = correlation(peakIntensityA, peakIntensityB);
       if (cor < minSampleCorrelation)
         continue;
 
       // peak shape correlation
-      float cor2 = largestSample->correlation(group1.meanMz, group2.meanMz,
+      float cor2 = largestSample->correlation(group1->meanMz,
+                                              group2->meanMz,
                                               massCutoff,
-                                              group1.minRt, group1.maxRt,
+                                              group1->minRt,
+                                              group1->maxRt,
                                               _mainwindow->mavenParameters->eicType,
                                               _mainwindow->mavenParameters->filterline);
       if (cor2 < minRtCorrelation)
         continue;
 
-      // passed all the filters.. group1 and group2 into a single metagroup
-      group2.clusterId = group1.clusterId;
+      // passed all the filters, group1 and group2 into a single metagroup
+      group2->clusterId = group1->clusterId;
     }
     if (i % 10 == 0)
-      _mainwindow->setProgressBar("Clustering.,", i + 1, allgroups.size());
+      _mainwindow->setProgressBar("Clustering…",
+                                  i + 1,
+                                  _topLevelGroups.size());
   }
 
-  _mainwindow->setProgressBar("Clustering., done!",
-                              allgroups.size(),
-                              allgroups.size());
+  _mainwindow->setProgressBar("Clustering done!",
+                              _topLevelGroups.size(),
+                              _topLevelGroups.size());
   showAllGroups();
 }
 
@@ -1922,8 +1897,8 @@ void TableDockWidget::showFocusedGroups() {
   for (int i = 0; i < N; i++) {
     QTreeWidgetItem *item = treeWidget->topLevelItem(i);
     QVariant v = item->data(0, Qt::UserRole);
-    PeakGroup *group = v.value<PeakGroup *>();
-    if (group && group->isFocused)
+    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    if (group != nullptr && group->isFocused)
       item->setHidden(false);
     else
       item->setHidden(true);
@@ -1932,8 +1907,8 @@ void TableDockWidget::showFocusedGroups() {
       bool showParentFlag = false;
       for (int j = 0; j < item->childCount(); j++) {
         QVariant v = (item->child(j))->data(0, Qt::UserRole);
-        PeakGroup *group = v.value<PeakGroup *>();
-        if (group && group->isFocused) {
+        shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+        if (group != nullptr && group->isFocused) {
           item->setHidden(false);
           showParentFlag = true;
         } else
@@ -1946,9 +1921,8 @@ void TableDockWidget::showFocusedGroups() {
 }
 
 void TableDockWidget::clearFocusedGroups() {
-  for (int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].isFocused = false;
-  }
+  for (auto group : _topLevelGroups)
+    group->isFocused = false;
 }
 
 void TableDockWidget::dragEnterEvent(QDragEnterEvent *event) {
@@ -2299,7 +2273,10 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
 
   setTitleBarWidget(toolBar);
 
-  connect(this, &PeakTableDockWidget::unSetFromEicWidget, _mainwindow->getEicWidget(), &EicWidget::unSetPeakTableGroup);
+  connect(this,
+          &PeakTableDockWidget::unSetFromEicWidget,
+          _mainwindow->getEicWidget(),
+          &EicWidget::unSetPeakTableGroup);
 
   deletionDialog = new PeakTableDeletionDialog(this);
 }
@@ -2324,8 +2301,11 @@ void PeakTableDockWidget::deleteAll()
 
 void PeakTableDockWidget::cleanUp()
 {
-  if (treeWidget->currentItem())
-    emit unSetFromEicWidget(treeWidget->currentItem()->data(0, Qt::UserRole).value<PeakGroup*>());
+  if (treeWidget->currentItem()) {
+    emit unSetFromEicWidget(
+          treeWidget->currentItem()->data(0, Qt::UserRole)
+              .value<shared_ptr<PeakGroup>>());
+  }
   _mainwindow->ligandWidget->resetColor();
 }
 
@@ -2490,13 +2470,13 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     }
 
     //return if no bookmarked groups or peak tables
-    if (allgroups.isEmpty() || peaksTableList.isEmpty()) {
+    if (_topLevelGroups.isEmpty() || peaksTableList.isEmpty()) {
         showMsgBox(true, j);
         return;
     }
 
     //find table to merge with
-    TableDockWidget* peakTable;
+    TableDockWidget* peakTable = nullptr;
     for (auto table : peaksTableList) {
         if (table->tableId == j) {
             peakTable = table;
@@ -2505,15 +2485,15 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     }
 
     //return if peak table not found
-    if (!peakTable) {
+    if (peakTable == nullptr) {
         showMsgBox(false, j);
         return;
     }
 
-    int initialSize = peakTable->allgroups.size();
-    int finalSize = allgroups.size() + initialSize;
-    for (auto group : allgroups)
-        peakTable->addPeakGroup(&group);
+    int initialSize = peakTable->topLevelGroupCount();
+    int finalSize = _topLevelGroups.size() + initialSize;
+    for (auto group : _topLevelGroups)
+        peakTable->addPeakGroup(group.get());
 
     deleteAll();
     peakTable->showAllGroups();
@@ -2521,7 +2501,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
 
     bool merged = true;
 
-    if (finalSize == peakTable->allgroups.size())
+    if (finalSize == peakTable->topLevelGroupCount())
         merged = true;
     else
         merged = false;
@@ -2576,7 +2556,7 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
   QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
   QString compoundName = QString::fromStdString(group->getName());
 
-  if (allgroups.size() == 0 ||
+  if (topLevelGroupCount() == 0 ||
       sameMzRtGroups[sameMzRtGroupIndexHash].size() == 0) {
     /**
      * add this group corresponding compound name to list of string which all
@@ -2586,11 +2566,11 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
     sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
   }
 
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (&allgroups[i] == group)
+  for (auto g : _topLevelGroups) {
+    if (g.get() == group)
       return true;
-    if ((double)std::abs(group->meanMz - allgroups[i].meanMz) < 1e-5 &&
-        (double)std::abs(group->meanRt - allgroups[i].meanRt) < 1e-5) {
+    if ((double)std::abs(group->meanMz - g->meanMz) < 1e-5 &&
+        (double)std::abs(group->meanRt - g->meanRt) < 1e-5) {
       addSameMzRtGroup = false;
       if (!sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
 
@@ -2631,8 +2611,9 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
     return;
 
   int pos = -1;
-  for (int i = 0; i < allgroups.size(); i++) {
-    if (&allgroups[i] == groupX) {
+  for (int i = 0; i < _topLevelGroups.size(); ++i) {
+    auto group = _topLevelGroups[i];
+    if (group.get() == groupX) {
       pos = i;
       break;
     }
@@ -2648,11 +2629,11 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
       continue;
     }
     QVariant v = item->data(0, Qt::UserRole);
-    PeakGroup *group = v.value<PeakGroup *>();
-    if (group != NULL and group == groupX) {
+    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    if (group != nullptr and group.get() == groupX) {
         item->setHidden(true);
 
-    if (group->children.size() > 0)
+    if (!group->children.empty())
       _labeledGroups--;
     if (group->getCompound())
       _targetedGroups--;
@@ -2681,15 +2662,16 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
         }
       }
 
-      allgroups.erase(allgroups.begin() + pos);
+      _topLevelGroups.erase(_topLevelGroups.begin() + pos);
       break;
     }
     ++it;
   }
 
-  for (unsigned int i = 0; i < allgroups.size(); i++) {
-    allgroups[i].groupId = i + 1;
-    allgroups[i].setGroupIdForChildren();
+  for (int i = 0; i < _topLevelGroups.size(); ++i) {
+    auto group = _topLevelGroups[i];
+    group->groupId = i + 1;
+    group->setGroupIdForChildren();
   }
   updateTable();
   updateCompoundWidget();

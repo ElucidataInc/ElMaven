@@ -18,9 +18,10 @@ BoxPlot::BoxPlot(QGraphicsItem* parent, QGraphicsScene *scene)
 void BoxPlot::switchQValue() {  
 	// TODO: updated equation, didn't understand why - Kiran
     BoxPlot::qtype = (PeakGroup::QType) (((int) qtype+1) % 7);
-	PeakGroup* g = NULL;
-    if ( _mw != NULL && _mw->getEicWidget() ) g =  _mw->getEicWidget()->getParameters()->displayedGroup();
-	if ( g != NULL ) {
+    shared_ptr<PeakGroup> g(nullptr);
+    if (_mw != nullptr && _mw->getEicWidget() != nullptr)
+        g = _mw->getEicWidget()->getParameters()->displayedGroup();
+    if (g != nullptr) {
 		setPeakGroup(g);
 		scene()->update();
 	}
@@ -42,9 +43,9 @@ void BoxPlot::clear() {
 }
 
 
-void BoxPlot::setPeakGroup(PeakGroup* group) {
+void BoxPlot::setPeakGroup(shared_ptr<PeakGroup> group) {
 	clear();
- 	if (group == NULL ) return;
+    if (group == nullptr) return;
 	if (_mw == NULL   ) return;
 
 	qtype = _mw->getUserQuantType();

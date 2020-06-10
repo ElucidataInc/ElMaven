@@ -444,7 +444,8 @@ using namespace mzUtils;
 
 	spectraMatchingForm = new SpectraMatching(this);
 
-	connect(scatterDockWidget, SIGNAL(groupSelected(PeakGroup*)),
+    connect(scatterDockWidget,
+            SIGNAL(groupSelected(PeakGroup*)),
 			SLOT(setPeakGroup(PeakGroup*)));
 	pathwayWidgetController();
 
@@ -501,9 +502,9 @@ using namespace mzUtils;
 
     connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
     connect(this,
-            SIGNAL(saveSignal(QList<PeakGroup*>)),
+            SIGNAL(saveSignal(QList<shared_ptr<PeakGroup>>)),
             this,
-            SLOT(autosaveGroup(QList<PeakGroup*>)));
+            SLOT(autosaveGroup(QList<shared_ptr<PeakGroup>>)));
 
     connect(fileLoader,
             SIGNAL(updateStatusString(QString)),
@@ -812,7 +813,7 @@ void MainWindow::showNotification(TableDockWidget* table) {
     QString message("Make your analyses more insightful with Machine learning."
                     "\nView your fluxomics workflow in PollyPhi.");
 
-    if (table->groupCount() == 0 || table->getLabeledGroupCount() == 0)
+    if (table->topLevelGroupCount() == 0 || table->getLabeledGroupCount() == 0)
         return;
 
     Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
@@ -861,7 +862,7 @@ AutoSave::AutoSave(MainWindow* mw)
     _mainwindow->timestampFileExists = false;
 }
 
-void AutoSave::saveProjectWorker(QList<PeakGroup*> groupsToBeSaved)
+void AutoSave::saveProjectWorker(QList<shared_ptr<PeakGroup>> groupsToBeSaved)
 {
     this->groupsToBeSaved = groupsToBeSaved;
     this->start();
@@ -930,7 +931,7 @@ void MainWindow::resetAutosave()
     _currentProjectName = "";
 }
 
-void MainWindow::autosaveGroup(QList<PeakGroup*> groups)
+void MainWindow::autosaveGroup(QList<shared_ptr<PeakGroup>> groups)
 {
     if (groups.empty() || !this->timestampFileExists) {
         autosaveProject();
@@ -1133,12 +1134,13 @@ void MainWindow::saveProject(bool explicitSave)
     }
 }
 
-void MainWindow::saveProjectForFilename(QList<PeakGroup*> groupsToBeSaved)
+void
+MainWindow::saveProjectForFilename(QList<shared_ptr<PeakGroup>> groupsToBeSaved)
 {
     if (fileLoader->isEmdbProject(_currentProjectName)) {
         if (!groupsToBeSaved.empty()) {
             for (auto queuedGroup : groupsToBeSaved) {
-                projectDockWidget->savePeakGroupInSQLite(queuedGroup,
+                projectDockWidget->savePeakGroupInSQLite(queuedGroup.get(),
                                                          _currentProjectName);
             }
         } else {
@@ -1217,7 +1219,7 @@ void MainWindow::setUrl(QString url, QString link) {
 	setStatusText(tr("<a href=\"%1\">%2</a>").arg(url, link));
 }
 
-void MainWindow::autoSaveSignal(QList<PeakGroup*> groups) {
+void MainWindow::autoSaveSignal(QList<shared_ptr<PeakGroup>> groups) {
     if (groups.empty()) {
         Q_EMIT(saveSignal());
     } else {
@@ -1404,33 +1406,30 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	return vsamples;
 }
 
-PeakGroup* MainWindow::bookmarkPeakGroup()
+shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup()
 {
-    if(eicWidget != nullptr && eicWidget->getParameters() != nullptr){
-        if (eicWidget->getParameters()->displayedGroup() != nullptr){
-            return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
-        }
-        else
-        {
-            PeakGroup* peakgroup;
-            return peakgroup;
-        }
+    if (eicWidget != nullptr
+        && eicWidget->getParameters() != nullptr
+        && eicWidget->getParameters()->displayedGroup() != nullptr) {
+        return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
     }
+    return shared_ptr<PeakGroup>(nullptr);
 }
 
-PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
+shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
 {
     if ( bookmarkedPeaks == NULL ) return NULL;
 	//TODO: User feedback when group is rejected
-	if (group->peakCount() == 0) return NULL;
+    if (group == nullptr || group->peakCount() == 0)
+        return nullptr;
 
     bookmarkedPeaks->setVisible(true);
 
-    PeakGroup* bookmarkedGroup = NULL;
-	if (bookmarkedPeaks->allgroups.size() == 0)
+    shared_ptr<PeakGroup> bookmarkedGroup(nullptr);
+    if (bookmarkedPeaks->topLevelGroupCount() == 0)
 		analytics->hitEvent("New Table", "Bookmark Table");
 
-    if (bookmarkedPeaks->hasPeakGroup(group) == false) {
+    if (bookmarkedPeaks->hasPeakGroup(group.get()) == false) {
 
         float rtDiff = group->expectedRtDiff();
 		double A = (double) mavenParameters->qualityWeight/10;
@@ -1447,7 +1446,7 @@ PeakGroup* MainWindow::bookmarkPeakGroup(PeakGroup* group)
                                * (1 /(pow(log(group->maxIntensity + 1), B)));
         }
 
-		bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group);
+        bookmarkedGroup = bookmarkedPeaks->addPeakGroup(group.get());
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
         bookmarkedPeaks->selectPeakGroup(bookmarkedGroup);
@@ -1516,8 +1515,8 @@ void MainWindow::setCompoundFocus(Compound*c) {
 	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-		eicWidget->setCompound(c);
-		PeakGroup *selectedGroup = eicWidget->getSelectedGroup();
+        eicWidget->setCompound(c);
+        shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
 		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
@@ -3369,7 +3368,7 @@ void MainWindow::_postProjectLoadActions()
     emit loadedSettings();
 
     refreshIntensities();
-    if (bookmarkedPeaks->allgroups.size() > 0)
+    if (bookmarkedPeaks->topLevelGroupCount() > 0)
         bookmarkedPeaks->setVisible(true);
 
     _updateEMDBProgressBar(5, 5);
@@ -3465,42 +3464,43 @@ void MainWindow::showSRMList() {
      }
 }
 
-void MainWindow::setPeakGroup(PeakGroup* group) {
+void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group) {
     qDebug() << "setPeakgroup(group)" << endl;
 	if (group == NULL)
 		return;
 
-	searchText->setText(QString::number(group->meanMz, 'f', 8));
+    searchText->setText(QString::number(group->meanMz, 'f', 8));
 
 	if (eicWidget && eicWidget->isVisible()) {
-		eicWidget->setPeakGroup(group);
+        eicWidget->setPeakGroup(group);
 	}
 
-	if (isotopeWidget && isotopeWidget->isVisible() && group->getCompound() != NULL) {
-		isotopeWidget->setPeakGroupAndMore(group);
+    if (isotopeWidget != nullptr
+        && isotopeWidget->isVisible()
+        && group->hasCompoundLink()) {
+        isotopeWidget->setPeakGroupAndMore(group);
     } else if (isotopeWidget
                && isotopePlot
                && isotopePlot->isVisible()
-               && group
-               && group->getCompound() != NULL) {
+               && group->hasCompoundLink()) {
         isotopeWidget->updateIsotopicBarplot(group);
     }
 
-    if ( group->getCompound() != NULL) {
-		if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
+    if (group->hasCompoundLink()) {
+        if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
 		if (fragSpectraDockWidget->isVisible()) {
-			fragSpectraWidget->overlayPeakGroup(group);
+            fragSpectraWidget->overlayPeakGroup(group);
 		}
         QString compoundName(group->getCompound()->name().c_str());
         if (! setPeptideSequence(compoundName)) {
             setUrl(group->getCompound());
         }
         if (massCalcWidget)
-            massCalcWidget->setPeakGroup(group);
+            massCalcWidget->setPeakGroup(group.get());
     }
 
-	if (scatterDockWidget->isVisible()) {
-		((ScatterPlot*) scatterDockWidget)->showSimilar(group);
+    if (scatterDockWidget->isVisible()) {
+        ((ScatterPlot*) scatterDockWidget)->showSimilar(group.get());
 	}
 
     if (group->peaks.size() > 0) {
@@ -4125,7 +4125,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         connect(mw->getEicWidget(),
                 &EicWidget::groupSet,
                 toleranceSyncSwitch,
-                [=](PeakGroup* selectedGroup) {
+                [=](shared_ptr<PeakGroup> selectedGroup) {
                     if (selectedGroup == nullptr)
                         return;
 
@@ -4327,14 +4327,12 @@ void MainWindow::setUserQuantType(QString type)
     quantType->setCurrentText(type);
 }
 
-void MainWindow::markGroup(PeakGroup* group, char label) {
+void MainWindow::markGroup(shared_ptr<PeakGroup> group, char label) {
 	if (!group)
 		return;
 
 	group->setLabel(label);
 	bookmarkPeakGroup(group);
-	//if (getClassifier()) { getClassifier()->refineModel(group); }
-	//getPlotWidget()->scene()->update();
 }
 
 QString MainWindow::appVersion() {
@@ -4372,8 +4370,8 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
 	for (int i = 0; i < group->childCountBarPlot(); i++) {
-		if (group->childrenBarPlot[i].isIsotope()) {
-			PeakGroup* isotope = &(group->childrenBarPlot[i]);
+        if (group->childrenBarPlot[i]->isIsotope()) {
+            PeakGroup* isotope = group->childrenBarPlot[i].get();
 			isotopes.push_back(isotope);
 		}
 	}
@@ -4405,9 +4403,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	vector<PeakGroup*> isotopes;
 	string delimIsotopic = "C13-label-";
 	string delimParent = "C12 PARENT";
-	for (int i = 0; i < group->childCount(); i++) {
-		if (group->children[i].isIsotope()) {
-			PeakGroup* isotope = &(group->children[i]);
+    for (int i = 0; i < group->childCount(); i++) {
+        if (group->children[i]->isIsotope()) {
+            PeakGroup* isotope = group->children[i].get();
 			isotopes.push_back(isotope);
 			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
 				if (isotope->tagString.find(delimParent) != string::npos) {

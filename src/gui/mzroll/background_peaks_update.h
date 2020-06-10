@@ -104,7 +104,7 @@ public:
      * @param samples   Current visible samples in the state of alignment or not
      * @param mavenParameters current mainwindow mavenparameters.
      */
-    static void updateGroups(QList<PeakGroup> &groups,
+    static void updateGroups(QList<shared_ptr<PeakGroup>> groups,
                              vector<mzSample*> samples,
                              MavenParameters* mavenParameters);
 
@@ -170,8 +170,6 @@ private:
 	 * @param group [pointer to group]
 	 */
 	void pullIsotopes(PeakGroup *group);
-
-	void pullIsotopesIsoWidget(PeakGroup *group);
 
 	void pullIsotopesBarPlot(PeakGroup *group);
 

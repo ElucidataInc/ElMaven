@@ -283,31 +283,27 @@ void IsotopeDetection::addChild(PeakGroup *parentgroup, PeakGroup &child, string
     switch (_isoType)
     {
         case IsotopeDetectionType::PeakDetection:
-            childExist = checkChildExist(parentgroup->children, isotopeName); 
+            childExist = checkChildExists(parentgroup->children, isotopeName);
             if (!childExist) parentgroup->addChild(child);
             break;
-        case IsotopeDetectionType::IsoWidget:
-            childExist = checkChildExist(parentgroup->childrenIsoWidget, isotopeName);
-            if (!childExist) parentgroup->addChildIsoWidget(child);
-            break;
         case IsotopeDetectionType::BarPlot:
-            childExist = checkChildExist(parentgroup->childrenBarPlot, isotopeName);
+            childExist = checkChildExists(parentgroup->childrenBarPlot, isotopeName);
             if (!childExist) parentgroup->addChildBarPlot(child);
             break;
     }
 }
 
-bool IsotopeDetection::checkChildExist(vector<PeakGroup> &children, string isotopeName)
+bool IsotopeDetection::checkChildExists(vector<shared_ptr<PeakGroup>> children,
+                                        string isotopeName)
 {
-
-    bool childExist = false;
-    for (unsigned int ii = 0; ii < children.size(); ii++) {
-        if (children[ii].tagString == isotopeName) {
-            childExist = true;
+    bool childExists = false;
+    for (auto child : children) {
+        if (child->tagString == isotopeName) {
+            childExists = true;
+            break;
         }
     }
-    
-    return childExist;
+    return childExists;
 }
 
 void IsotopeDetection::childStatistics(
