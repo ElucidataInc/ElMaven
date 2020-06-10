@@ -700,7 +700,9 @@ void PeakDetectorCLI::saveEmdb()
                                          saveRawData);
     if (sessionDb) {
         shared_ptr<MavenParameters> mp(mavenParameters);
-        sessionDb->saveGlobalSettings(sessionDb->fromParametersToMap(mp));
+        auto settingsMap = sessionDb->fromParametersToMap(mp);
+        settingsMap["activeTableName"] = mavenParameters->ligandDbFilename;
+        sessionDb->saveGlobalSettings(settingsMap);
 
         sessionDb->saveSamples(mavenParameters->samples);
         sessionDb->saveAlignment(mavenParameters->samples);
