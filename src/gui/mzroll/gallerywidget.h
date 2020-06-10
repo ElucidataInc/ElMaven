@@ -32,6 +32,7 @@ public Q_SLOTS:
     void recomputeBaselinesThresh(int dropTopX, int smoothingWindow);
     void recomputeBaselinesAsLS(int smoothness, int asymmetry);
     void showPlotFor(vector<int> indexes);
+    void setScaleForHighestPeak(bool scale);
     void copyImageToClipboard();
 
 private:
@@ -45,6 +46,7 @@ private:
     QGraphicsLineItem* _leftMarker;
     QGraphicsLineItem* _rightMarker;
     QGraphicsLineItem* _markerBeingDragged;
+    bool _scaleForHighestPeak;
 
     float _minRt;
     float _maxRt;
@@ -53,7 +55,7 @@ private:
     void _drawBoundaryMarkers();
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
-    void _scalePlotsToIncludeMaxIntensity();
+    void _scaleVisibleYAxis();
     void _fillPlotData();
     bool _visibleItemsHavePeakData();
 

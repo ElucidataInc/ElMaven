@@ -215,29 +215,10 @@
         <string>Editor settings</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_7">
-        <item row="1" column="1">
-         <widget class="QDoubleSpinBox" name="rtMaxSpinBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="suffix">
-           <string> mins</string>
-          </property>
-          <property name="singleStep">
-           <double>0.500000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QCheckBox" name="syncRtCheckBox">
-          <property name="toolTip">
-           <string>If checked, any changes to peak retention times will also be applied to the respective peaks of isotopologues of this metabolite.</string>
-          </property>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_10">
           <property name="text">
-           <string>Sync range for all other isotopologues</string>
+           <string>Max. RT</string>
           </property>
          </widget>
         </item>
@@ -257,6 +238,16 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QCheckBox" name="syncRtCheckBox">
+          <property name="toolTip">
+           <string>If checked, any changes to peak retention times will also be applied to the respective peaks of isotopologues of this metabolite.</string>
+          </property>
+          <property name="text">
+           <string>Sync range for all other isotopologues</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
@@ -264,23 +255,29 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="1" column="1">
+         <widget class="QDoubleSpinBox" name="rtMaxSpinBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>10</height>
-           </size>
+          <property name="suffix">
+           <string> mins</string>
           </property>
-         </spacer>
+          <property name="singleStep">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_10">
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="yAxisFitCheckBox">
+          <property name="toolTip">
+           <string>If checked, the Y-axis of visible plots will be scaled to accomodate the highest peak in the peak-group, regardless of which peaks are currently being viewed.</string>
+          </property>
           <property name="text">
-           <string>Max. RT</string>
+           <string>Y-axis fits highest peak in group</string>
           </property>
          </widget>
         </item>

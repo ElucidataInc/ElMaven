@@ -35,6 +35,7 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     _leftMarker = nullptr;
     _rightMarker = nullptr;
     _markerBeingDragged = nullptr;
+    _scaleForHighestPeak = false;
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -267,6 +268,14 @@ void GalleryWidget::_drawBoundaryMarkers()
 void GalleryWidget::showPlotFor(vector<int> indexes)
 {
     _indexesOfVisibleItems = indexes;
+    _scaleVisibleYAxis();
+    replot();
+}
+
+void GalleryWidget::setScaleForHighestPeak(bool scale)
+{
+    _scaleForHighestPeak = scale;
+    _scaleVisibleYAxis();
     replot();
 }
 
@@ -344,23 +353,36 @@ void GalleryWidget::_refillVisiblePlots(float x1, float x2)
         plot->setDrawNoPeakMessages(noVisiblePeakData);
     }
 
-    _scalePlotsToIncludeMaxIntensity();
+    _scaleVisibleYAxis();
     scene()->update();
 }
 
-void GalleryWidget::_scalePlotsToIncludeMaxIntensity()
+void GalleryWidget::_scaleVisibleYAxis()
 {
     float minIntensity = numeric_limits<float>::max();
     float maxIntensity = numeric_limits<float>::min();
-    for (size_t i = 0; i < _plotItems.size(); ++i) {
-        auto plot = _plotItems[i];
-        auto plotIntensities = plot->yBounds();
-        minIntensity = min(minIntensity, plotIntensities.first);
-        maxIntensity = max(maxIntensity, plotIntensities.second);
+    if (_scaleForHighestPeak) {
+        for (size_t i = 0; i < _plotItems.size(); ++i) {
+            auto plot = _plotItems[i];
+            plot->computeYBoundsFromData();
+            auto plotIntensities = plot->yBounds();
+            minIntensity = min(minIntensity, plotIntensities.first);
+            maxIntensity = max(maxIntensity, plotIntensities.second);
+        }
+    } else {
+        for (int index : _indexesOfVisibleItems) {
+            auto plot = _plotItems.at(index);
+            plot->computeYBoundsFromData();
+            auto plotIntensities = plot->yBounds();
+            minIntensity = min(minIntensity, plotIntensities.first);
+            maxIntensity = max(maxIntensity, plotIntensities.second);
+        }
     }
 
-    for (auto plot : _plotItems)
+    for (int index : _indexesOfVisibleItems) {
+        auto plot = _plotItems.at(index);
         plot->setYBounds(minIntensity, maxIntensity);
+    }
 }
 
 void GalleryWidget::_fillPlotData()
@@ -383,7 +405,7 @@ void GalleryWidget::_fillPlotData()
         // make sure all plots are scaled into a single inclusive x-range
         plot->setXBounds(_minRt, _maxRt);
     }
-    _scalePlotsToIncludeMaxIntensity();
+    _scaleVisibleYAxis();
 }
 
 bool GalleryWidget::_visibleItemsHavePeakData()

@@ -76,8 +76,36 @@ void TinyPlot::addData(EIC* eic,
     _data.baseline = baseline;
 
     // find bounds
-    _minXValue = _minYValue = numeric_limits<float>::max();
-    _maxXValue = _maxYValue = numeric_limits<float>::min();
+    computeXBoundsFromData();
+    computeYBoundsFromData();
+}
+
+void TinyPlot::computeXBoundsFromData()
+{
+    _minXValue = numeric_limits<float>::max();
+    _maxXValue = numeric_limits<float>::min();
+
+    QList<QVector<QPointF>> data = {
+        _data.leftRegion,
+        _data.peakRegion,
+        _data.rightRegion,
+        _data.baseline
+    };
+    for(QVector<QPointF> shape : data) {
+        for (auto point : shape) {
+            if (point.x() > _maxXValue)
+                _maxXValue = point.x();
+            if (point.x() < _minXValue)
+                _minXValue = point.x();
+        }
+    }
+}
+
+void TinyPlot::computeYBoundsFromData()
+{
+    _minYValue = numeric_limits<float>::max();
+    _maxYValue = numeric_limits<float>::min();
+
     QList<QVector<QPointF>> data = {
         _data.leftRegion,
         _data.peakRegion,
@@ -90,10 +118,6 @@ void TinyPlot::addData(EIC* eic,
                 _maxYValue = point.y() * 1.1;
             if (point.y() < _minYValue)
                 _minYValue = point.y() * 0.9;
-            if (point.x() > _maxXValue)
-                _maxXValue = point.x();
-            if (point.x() < _minXValue)
-                _minXValue = point.x();
         }
     }
 }
