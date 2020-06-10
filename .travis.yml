@@ -178,7 +178,7 @@ after_success:
       cd $BIN
       rm -rf *
 
-      rsync -av --progress --exclude={'windows', 'linux', 'node', 'node_bin', 'node.exe', 'MavenTests'} $ELMAVEN_BIN . &>/dev/null
+      rsync -av --progress --exclude={'windows','linux','node','node_bin','node.exe','MavenTests','methods'} $ELMAVEN_BIN . &>/dev/null
 
       # create application bundles for both binaries
       echo "Deploying bundles ..."
