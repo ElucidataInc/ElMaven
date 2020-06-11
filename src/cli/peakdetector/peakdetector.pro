@@ -41,11 +41,10 @@ LIBS +=  -lmaven         \
          -lobiwarp       \
          -lpollyCLI      \
          -lcommon        \
-         -lsqlite3       \
          -lprojectDB
 
-unix: LIBS += -lboost_system -lboost_filesystem
-win32: LIBS += -lboost_system-mt -lboost_filesystem-mt
+unix: LIBS += -lboost_system -lboost_filesystem -lsqlite3
+win32: LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
 
 !macx: LIBS += -fopenmp
 
