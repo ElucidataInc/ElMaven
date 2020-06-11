@@ -11,7 +11,7 @@
 
 MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
-
+    _group = nullptr;
     clsf = NULL;
     alignSamplesFlag = false;
         processAllSlices = false;
