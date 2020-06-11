@@ -771,8 +771,11 @@ void PeakGroup::summary() {
     for(unsigned int i=0; i < children.size(); i++ ) children[i]->summary();
 }
 
-PeakGroup::PeakGroup(const PeakGroup& o)  {
+PeakGroup::PeakGroup(const PeakGroup& o, IntegrationType integrationType)
+{
     copyObj(o);
+    if (integrationType != IntegrationType::Inherit)
+        _integrationType = integrationType;
 }
 
 PeakGroup& PeakGroup::operator=(const PeakGroup& o)  {

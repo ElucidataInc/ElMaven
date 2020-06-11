@@ -208,7 +208,9 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     if (_group != nullptr) Q_EMIT peakGroupSelected(_group);
     if (_peak)  Q_EMIT peakSelected(_peak);
 
-    if (_group != nullptr && _group->isIsotope() == false) {
+    if (_group != nullptr && !_group->isIsotope()) {
+        _group = make_shared<PeakGroup>(*_group,
+                                        PeakGroup::IntegrationType::Manual);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
         _mw->isotopeWidget->peakSelected(_peak, _group);
     }

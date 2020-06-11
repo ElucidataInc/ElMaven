@@ -24,7 +24,8 @@ class PeakGroup{
         enum class IntegrationType {
             Manual,
             Automated,
-            Programmatic
+            Programmatic,
+            Inherit
         };
         enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
         enum QType	   {AreaTop=0,
@@ -37,7 +38,8 @@ class PeakGroup{
                         AreaTopNotCorrected=7};
         PeakGroup(shared_ptr<MavenParameters> parameters,
                   IntegrationType integrationType);
-        PeakGroup(const PeakGroup& o);
+        PeakGroup(const PeakGroup& o,
+                  IntegrationType integrationType = IntegrationType::Inherit);
         PeakGroup& operator=(const PeakGroup& o);
 
         bool operator==(const PeakGroup* o);
@@ -646,6 +648,5 @@ class PeakGroup{
         string _tableName;
         shared_ptr<MavenParameters> _parameters;
         IntegrationType _integrationType;
-
 };
 #endif

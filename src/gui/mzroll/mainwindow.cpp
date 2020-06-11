@@ -3138,7 +3138,10 @@ void MainWindow::createToolBars() {
                 if (!peakDetectionDialog->isVisible())
                     peakDetectionDialog->compoundPPMWindow->setValue(value);
             });
-    massCutoffWindowBox->setValue(settings->value("massCutoffWindowBox").toDouble());
+    double initMassCutoff = settings->value("massCutoffWindowBox").toDouble();
+    massCutoffWindowBox->setValue(initMassCutoff);
+    peakDetectionDialog->compoundPPMWindow->setValue(initMassCutoff);
+    mavenParameters->compoundMassCutoffWindow->setMassCutoff(initMassCutoff);
 
     searchText = new QLineEdit(hBox);
     searchText->setMinimumWidth(100);
