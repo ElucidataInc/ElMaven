@@ -114,7 +114,8 @@ int main(int argc, char *argv[]) {
     //cleanup
     delete_all(peakdetectorCLI->mavenParameters->samples);
     peakdetectorCLI->mavenParameters->samples.clear();
-    peakdetectorCLI->mavenParameters->allgroups.clear();
+    // clearing `allgroups` crashes on Windows - also undebuggable
+    // peakdetectorCLI->mavenParameters->allgroups.clear();
     delete peakdetectorCLI;
 
 #ifndef __APPLE__

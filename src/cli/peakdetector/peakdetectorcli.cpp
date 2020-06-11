@@ -715,11 +715,14 @@ void PeakDetectorCLI::saveEmdb()
         set<Compound*> compoundSet(mavenParameters->compounds.begin(),
                                    mavenParameters->compounds.end());
         sessionDb->saveCompounds(compoundSet);
+        delete sessionDb;
 
         _log->info() << "Finished saving emDB project." << std::flush;
         return;
     }
-    _log->error() << "Unable to open SQLite DB." << _projectName.toStdString();
+    _log->error() << "Unable to open SQLite DB."
+                  << _projectName.toStdString()
+                  << std::flush;
 }
 
 void PeakDetectorCLI::_makeSampleCohortFile(QString sampleCohortFilename,
