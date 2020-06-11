@@ -33,7 +33,7 @@ public:
 	QString eicToTextBuffer(); //TODO: Sahil Added while merging eicwidget
 	void addPeakPositions();
 	void setBarplotPosition(PeakGroup* group);
-        void renderPdf(PeakGroup* group, QPainter* painter);
+    void renderPdf(shared_ptr<PeakGroup> group, QPainter* painter);
 
 public Q_SLOTS:
 	void setMzSlice(float mz1, float mz2 = 0.0);
@@ -44,15 +44,15 @@ public Q_SLOTS:
 
 	void setRtWindow(float rtmin, float rtmax);
 	void setSrmId(string srmId);
-	void setPeakGroup(PeakGroup* group);
+    void setPeakGroup(shared_ptr<PeakGroup> group);
 	/**
 	 * @brief updates EIC widget for the selected compound
 	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
 	 * @param selected compound object
 	 **/
 	void setCompound(Compound* c);
-        void setSelectedGroup(PeakGroup* group);
-        PeakGroup* getSelectedGroup();
+    void setSelectedGroup(shared_ptr<PeakGroup> group);
+    shared_ptr<PeakGroup> getSelectedGroup();
     void addEICLines(bool showSpline,
                      bool showEic,
                      bool overlayingIntegratedArea = false,
@@ -65,13 +65,13 @@ public Q_SLOTS:
 	void addMergedEIC();
 	void setFocusLine(float rt);
 	void addFocusLine(PeakGroup*);
-	void addBarPlot(PeakGroup*);
-	void addBoxPlot(PeakGroup*);
+    void addBarPlot(shared_ptr<PeakGroup>);
+    void addBoxPlot(shared_ptr<PeakGroup>);
 	void addFitLine(PeakGroup*);
     void addMS2Events(float mzmin, float mzmax);
     void integrateRegion(float rtMin, float rtMax);
 	void recompute();
-	void replot(PeakGroup*);
+    void replot(shared_ptr<PeakGroup> group);
 	void replot();
 	void replotForced();
 	void print(QPaintDevice* printer);
@@ -148,7 +148,7 @@ public Q_SLOTS:
 	void markGroupBad();
         void copyToClipboard();
 	void freezeView(bool freeze);
-    void unSetPeakTableGroup(PeakGroup*);
+    void unSetPeakTableGroup(shared_ptr<PeakGroup>);
 
     /**
      * @brief Set whether the EIC widget should respond to requests for
@@ -180,13 +180,13 @@ protected:
 	void setScan(Scan*);
 	void addAxes();
 	void showAllPeaks();
-	void addPeakPositions(PeakGroup* group);
+    void addPeakPositions(shared_ptr<PeakGroup> group);
 
 Q_SIGNALS:
 	void viewSet(float, float, float, float);
     void scanChanged(Scan*); //TODO: Sahil Added while mergin eicWidget
 	void peakMarkedEicWidget();
-    void groupSet(PeakGroup*);
+    void groupSet(shared_ptr<PeakGroup>);
     void compoundSet(Compound*);
 
 private:

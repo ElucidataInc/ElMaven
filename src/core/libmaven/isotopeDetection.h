@@ -15,7 +15,7 @@ using namespace std;
 class IsotopeDetection
 {
   public:
-	enum IsotopeDetectionType {PeakDetection=0, IsoWidget=1, BarPlot=2};
+    enum IsotopeDetectionType {PeakDetection=0, BarPlot=2};
 
 	IsotopeDetection(
     	MavenParameters *mavenParameters,
@@ -63,8 +63,8 @@ class IsotopeDetection
 	void childStatistics(PeakGroup* parentgroup, PeakGroup &child, string isotopeName);
 	bool filterLabel(string isotopeName);
 	void addChild(PeakGroup *parentgroup, PeakGroup &child, string isotopeName);
-	bool checkChildExist(vector<PeakGroup> &children, string isotopeName);
-
+    bool checkChildExists(vector<shared_ptr<PeakGroup> > children,
+                          string isotopeName);
 };
 
 #endif // ISOTOPEDETECTION_H

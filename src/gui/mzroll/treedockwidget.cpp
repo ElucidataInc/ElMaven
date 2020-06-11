@@ -99,7 +99,10 @@ void TreeDockWidget::showInfo() {
                                 if (c) mainwindow->setCompoundFocus(c);
                         } else if ( itemType == PeakGroupType ) {
                                 PeakGroup* group =  v.value<PeakGroup*>();
-                                if (group) mainwindow->setPeakGroup(group);
+                                if (group != nullptr) {
+                                    auto g = make_shared<PeakGroup>(*group);
+                                    mainwindow->setPeakGroup(g);
+                                }
                         } else if ( itemType == ScanType ) {
                                 Scan*  scan =  v.value<Scan*>();
                                 if (scan) {
@@ -182,8 +185,8 @@ void TreeDockWidget::unlinkGroup() {
 
         if (cpd) {
     	mainwindow->setCompoundFocus(cpd);
-	} else if (group && group->parent) {
-		PeakGroup* parentGroup = group->parent;
+    } else if (group && group->parent) {
+        auto parentGroup = make_shared<PeakGroup>(*(group->parent));
 		if ( parentGroup->deleteChild(group) ) {
                         auto parentItem = item->parent();
 			if ( parentItem ) { parentItem->removeChild(item); delete(item); }
@@ -401,7 +404,8 @@ QTreeWidgetItem* TreeDockWidget::addPeakGroup(PeakGroup* group, QTreeWidgetItem*
     item->setExpanded(true);
     item->setData(0, Qt::UserRole,QVariant::fromValue(group));
     //for(int i=0; i < group->peaks.size(); i++ ) addPeak(&(group->peaks[i]), item);
-    for(int i=0; i < group->childCount(); i++ ) addPeakGroup(&(group->children[i]), item);
+    for(int i=0; i < group->childCount(); i++)
+        addPeakGroup(group->children[i].get(), item);
     return item;
 }
 

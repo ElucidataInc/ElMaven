@@ -71,8 +71,6 @@ void BackgroundPeakUpdate::run(void) {
                 processMassSlices();
         } else if (runFunction == "pullIsotopes") {
                 pullIsotopes(mavenParameters->_group);
-        } else if (runFunction == "pullIsotopesIsoWidget") {
-                pullIsotopesIsoWidget(mavenParameters->_group);
         } else if (runFunction == "pullIsotopesBarPlot") {
                 pullIsotopesBarPlot(mavenParameters->_group);
         } else if (runFunction == "computePeaks") {
@@ -366,25 +364,6 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
 	isotopeDetection.pullIsotopes(parentgroup);
 }
 
-void BackgroundPeakUpdate::pullIsotopesIsoWidget(PeakGroup* parentgroup) {
-	bool C13Flag = mavenParameters->C13Labeled_BPE;
-	bool N15Flag = mavenParameters->N15Labeled_BPE;
-	bool S34Flag = mavenParameters->S34Labeled_BPE;
-	bool D2Flag = mavenParameters->D2Labeled_BPE;
-
-        IsotopeDetection::IsotopeDetectionType isoType;
-        isoType = IsotopeDetection::IsoWidget;
-
-	IsotopeDetection isotopeDetection(
-                mavenParameters,
-                isoType,
-                C13Flag,
-                N15Flag,
-                S34Flag,
-                D2Flag);
-	isotopeDetection.pullIsotopes(parentgroup);
-}
-
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
 
 	bool C13Flag = mavenParameters->C13Labeled_Barplot;
@@ -431,14 +410,14 @@ bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
         return testOut.exists();
 }
 
-void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
+void BackgroundPeakUpdate::updateGroups(QList<shared_ptr<PeakGroup>> groups,
                                         vector<mzSample *> samples,
                                         MavenParameters* mavenParameters)
 {
 
-    for(PeakGroup& group : groups)
+    for(auto group : groups)
     {
-        auto slice = group.getSlice();
+        auto slice = group->getSlice();
         slice.rtmin = samples[0]->minRt;
         slice.rtmax = samples[0]->maxRt;
 
@@ -447,7 +426,7 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                                            mavenParameters);
         for(auto eic : eics)
         {
-            for(Peak& peak :  group.peaks)
+            for(Peak& peak :  group->peaks)
             {
                 if (eic->getSample() ==
                     peak.getSample()){
@@ -455,11 +434,11 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                 }
             }
         }
-        group.groupStatistics();
+        group->groupStatistics();
 
-        if (!group.isIsotope() && group.childCount() > 0)
+        if (!group->isIsotope() && group->childCount() > 0)
         {
-            group.children.clear();
+            group->children.clear();
             bool C13Flag = mavenParameters->C13Labeled_BPE;
             bool N15Flag = mavenParameters->N15Labeled_BPE;
             bool S34Flag = mavenParameters->S34Labeled_BPE;
@@ -475,15 +454,13 @@ void BackgroundPeakUpdate::updateGroups(QList<PeakGroup> &groups,
                 N15Flag,
                 S34Flag,
                 D2Flag);
-            isotopeDetection.pullIsotopes(&group);
-            for (PeakGroup& child : group.children) {
-                child.setTableName(group.tableName());
-            }
+            isotopeDetection.pullIsotopes(group.get());
+            for (auto child : group->children)
+                child->setTableName(group->tableName());
         }
     }
 
     mavenParameters->allgroups.clear();
-    for (auto& group : groups) {
-        mavenParameters->allgroups.push_back(group);
-    }
+    for (auto group : groups)
+        mavenParameters->allgroups.push_back(*(group.get()));
 }

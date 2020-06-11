@@ -1332,8 +1332,8 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
                     group.meanMz, compoundMz, mavenParameters->massCutoffMerge);
                 if (cutoffDist
                     < mavenParameters->massCutoffMerge->getMassCutoff()) {
-                    PeakGroup childGroup = group;
-                    childGroup.tagString = "C12 PARENT";
+                    auto childGroup = make_shared<PeakGroup>(group);
+                    childGroup->tagString = "C12 PARENT";
                     newGroup.children.push_back(childGroup);
                     csvreports->addGroup(&newGroup);
                     continue;

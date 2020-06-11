@@ -44,7 +44,7 @@ public:
                     void replot();
                     void spectraToClipboard();
                     void spectraToClipboardTop();
-                    void overlayPeakGroup(PeakGroup* group);
+                    void overlayPeakGroup(shared_ptr<PeakGroup> group);
                     void overlayPeptideFragmentation(QString proteinSeq,MassCutoff *productMassCutoff); //TODO: Sahil, Added while merging point
                     void overlayCompoundFragmentation(Compound* c);
 

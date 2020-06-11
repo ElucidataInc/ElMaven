@@ -17,8 +17,8 @@ public:
 	string _formula;
 	float _charge;
 	vector<mzLink> links;
-	Scan* _scan;
-	PeakGroup* _group;
+    Scan* _scan;
+    shared_ptr<PeakGroup> _group;
 	Compound* _compound;
 	MassCalculator mcalc;
 	Compound* tempCompound;

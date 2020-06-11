@@ -137,9 +137,9 @@ void ScatterPlot::setTable(TableDockWidget* peakTable) {
 
     MainWindow* mw = (MainWindow*) parent();
     _table = new ScatterplotTableDockWidget(mw);
-    QList<PeakGroup *> groups = peakTable->getGroups();
-    Q_FOREACH (PeakGroup *group, groups) {
-        _table->addPeakGroup(group);
+    QList<shared_ptr<PeakGroup>> groups = peakTable->getGroups();
+    Q_FOREACH (shared_ptr<PeakGroup> group, groups) {
+        _table->addPeakGroup(group.get());
     }
     compareSamplesDialog->setTableWidget(_table);
 }
@@ -555,7 +555,7 @@ void ScatterPlot::draw() {
 
 	if (!_table) return;
 
-	QList<PeakGroup*>allgroups = _table->getGroups();
+    QList<shared_ptr<PeakGroup>> allgroups = _table->getGroups();
 	if (allgroups.size() == 0) return;
 
     float _maxPvalue  = 0.01;
@@ -591,9 +591,8 @@ void ScatterPlot::draw() {
     if (set1.size() == 0) return;
     if (set2.size() == 0) return;
 
-	for(int i=0; i < allgroups.size(); i++ ) {
+    for(shared_ptr<PeakGroup> group : allgroups) {
 		//filter display
-		PeakGroup* group = allgroups[i];
 		if(group->changePValue > _maxPvalue) continue;
 		if(group->maxIntensity < _minIntensity ) continue;
 		// updated abs to fabs  - Kiran
@@ -623,8 +622,8 @@ void ScatterPlot::draw() {
 		float mA=groupA.mean();
 		float mB=groupB.mean();
 		meanA.push_back(mA);
-		meanB.push_back(mB);
-		goodgroups.push_back(group);
+        meanB.push_back(mB);
+        goodgroups.push_back(group.get());
 	}
         // Updated with new enum values  - Kiran
         if(plotType == FLOWRPLOT) drawFlower(goodgroups);
@@ -636,7 +635,7 @@ void ScatterPlot::showSimilar(PeakGroup* group) {
 	if (!showSimilarFlag) return;
 	if (!_table) return;
 
-    QList<PeakGroup*>allgroups = _table->getGroups();
+    QList<shared_ptr<PeakGroup>> allgroups = _table->getGroups();
     if (!group->clusterId) _table->clusterGroups();
 
     QSet<PeakGroup*>similar;
@@ -644,7 +643,7 @@ void ScatterPlot::showSimilar(PeakGroup* group) {
     for(int i=0; i < allgroups.size(); i++ ) {
         if ( group->clusterId ) {
             if ( allgroups[i]->clusterId == group->clusterId ) {
-                similar.insert(allgroups[i]);
+                similar.insert(allgroups[i].get());
             }
         }
     }

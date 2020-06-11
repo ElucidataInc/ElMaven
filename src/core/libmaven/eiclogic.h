@@ -30,31 +30,37 @@ public:
      * access the original peak group, which is still selected in whatever
      * widget it came from, while the visualization might have been modified to
      * show different slices related to this group.
-     * @return Pointer to a `PeakGroup` object.
+     * @return Shared pointer to a `PeakGroup` object.
      */
-    inline PeakGroup* selectedGroup() { return _selectedGroup; }
+    inline shared_ptr<PeakGroup> selectedGroup() { return _selectedGroup; }
 
     /**
      * @brief Get the currently displayed peak group in EIC.
      * @details This will point to nothing, in case the EIC is only showing a
      * slice and not an actual materialized group. Use `selectedGroup` instead
      * to access a group that was originally shown but has now been modified.
-     * @return Pointer to a `PeakGroup` object.
+     * @return shared pointer to a `PeakGroup` object.
      */
-    inline PeakGroup* displayedGroup() { return _displayedGroup; }
+    inline shared_ptr<PeakGroup> displayedGroup() { return _displayedGroup; }
 
     /**
      * @brief Set the currently selected group in whichever widget that last
      * commanded EIC widget to diplay a peak group.
-     * @param group Pointer to a `PeakGroup` object.
+     * @param group Shared pointer to a `PeakGroup` object.
      */
-    inline void setSelectedGroup(PeakGroup* group) { _selectedGroup = group; }
+    inline void setSelectedGroup(shared_ptr<PeakGroup> group)
+    {
+        _selectedGroup = group;
+    }
 
     /**
      * @brief Set the peak group currently visible in the associated EIC widget.
-     * @param group Pointer to a `PeakGroup` object.
+     * @param group Shared pointer to a `PeakGroup` object.
      */
-    inline void setDisplayedGroup(PeakGroup* group) { _displayedGroup = group; }
+    inline void setDisplayedGroup(shared_ptr<PeakGroup> group)
+    {
+        _displayedGroup = group;
+    }
 
 	mzSlice& getMzSlice() {
 		return _slice;
@@ -86,12 +92,11 @@ public:
 	vector<EIC*> eics;				// vectors mass slices one from each sample
 	deque<EIC*> tics;				// vectors total chromatogram intensities
 	vector<PeakGroup> peakgroups;	    //peaks grouped across samples
-    PeakGroup* integratedGroup; // manually integrated peak group
 
 private:
 	void addPeakGroup(PeakGroup& group);
-    PeakGroup* _selectedGroup;
-    PeakGroup* _displayedGroup;
+    shared_ptr<PeakGroup> _selectedGroup;
+    shared_ptr<PeakGroup> _displayedGroup;
 };
 
 #endif // EICLOGIC_H

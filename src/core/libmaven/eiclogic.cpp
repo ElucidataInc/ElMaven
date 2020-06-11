@@ -10,7 +10,6 @@ EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);
     _selectedGroup = nullptr;
     _displayedGroup = nullptr;
-    integratedGroup = nullptr;
 }
 
 void EICLogic::addPeakGroup(PeakGroup& group) {

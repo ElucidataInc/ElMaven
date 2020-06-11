@@ -37,11 +37,11 @@ public:
      * @details This is the main method that will update the values of almost
      * every visual and data element of peak-editor. Retains state until the
      * next call to this method.
-     * @param group Pointer to a `PeakGroup` object whose attributes will be
+     * @param group Shared pointer to a `PeakGroup` whose attributes will be
      * used to set-up the editor. This same reference will also be updated, when
      * the user choses to apply edits.
      */
-    void setPeakGroup(PeakGroup* group);
+    void setPeakGroup(shared_ptr<PeakGroup> group);
 
 private:
     Ui::PeakEditor* ui;
@@ -62,10 +62,10 @@ private:
     ClassifierNeuralNet* _clsf;
 
     /**
-     * @brief Reference to a peak-group object that is currently displayed and
-     * being edited.
+     * @brief Shared reference to a peak-group object that is currently
+     * displayed and being edited.
      */
-    PeakGroup* _group;
+    shared_ptr<PeakGroup> _group;
 
     /**
      * @brief A mapping of each sample to the currently set peak boundaries (a

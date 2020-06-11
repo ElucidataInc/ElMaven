@@ -1072,13 +1072,14 @@ QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
         _lastCohortFileWasValid = _pollyIntegration->validSampleCohort(sampleCohortFileName);
 
         CSVReports csvrpt;
-        QList<PeakGroup *> selectedGroups = peakTable->getSelectedGroups();
+        QList<shared_ptr<PeakGroup>> selectedGroups =
+            peakTable->getSelectedGroups();
         std::list<PeakGroup> groups;
 
-        for (int i = 0; i < peakTable->allgroups.size(); i++) {
-            if (selectedGroups.contains(&peakTable->allgroups[i])) {
-                  groups.push_back(peakTable->allgroups[i]);
-            }
+        auto tableGroups = peakTable->getGroups();
+        for (auto group : tableGroups) {
+            if (selectedGroups.contains(group))
+                groups.push_back(PeakGroup(*(group.get())));
         }
         QString modelFile = _writeableTempDir
                             + QDir::separator()

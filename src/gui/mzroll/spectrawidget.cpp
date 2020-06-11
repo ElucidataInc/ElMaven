@@ -275,7 +275,7 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
     overlaySpectralHit(hit);
 }
 
-void SpectraWidget::overlayPeakGroup(PeakGroup* group)
+void SpectraWidget::overlayPeakGroup(shared_ptr<PeakGroup> group)
 {
     _currentGroup =
         PeakGroup(make_shared<MavenParameters>(*mainwindow->mavenParameters),

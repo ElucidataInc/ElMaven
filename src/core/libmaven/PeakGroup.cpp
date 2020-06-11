@@ -169,6 +169,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedBadByCloudModel = o.markedBadByCloudModel;
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
+    _tableName = o._tableName;
+
     copyChildren(o);
     _parameters = make_shared<MavenParameters>(*(o._parameters.get()));
     _integrationType = o.integrationType();
@@ -180,15 +182,26 @@ PeakGroup::~PeakGroup() {
 }
 
 void PeakGroup::copyChildren(const PeakGroup& o) {
-    children = o.children;
-    childrenBarPlot = o.childrenBarPlot;
-    for(unsigned int i=0; i < children.size(); i++ ) children[i].parent = this;
-    for(unsigned int i=0; i < childrenBarPlot.size(); i++ )
-        childrenBarPlot[i].parent = this;
+    children.clear();
+    for (auto child : o.children) {
+        auto childCopy = make_shared<PeakGroup>(*(child.get()));
+        childCopy->parent = this;
+        children.push_back(childCopy);
+    }
 
-    childAdducts = o.childAdducts;
-    for (auto& adductGroup : childAdducts)
-        adductGroup.parent = this;
+    childrenBarPlot.clear();
+    for (auto child : o.childrenBarPlot) {
+        auto childCopy = make_shared<PeakGroup>(*(child.get()));
+        childCopy->parent = this;
+        childrenBarPlot.push_back(childCopy);
+    }
+
+    childAdducts.clear();
+    for (auto child : o.childAdducts) {
+        auto childCopy = make_shared<PeakGroup>(*(child.get()));
+        childCopy->parent = this;
+        childAdducts.push_back(childCopy);
+    }
 }
 
 void PeakGroup::clear() {
@@ -281,7 +294,7 @@ void PeakGroup::deletePeaks() {
 }
 
 bool PeakGroup::deletePeak(unsigned int index) {
-    if ( index < children.size() ) {
+    if (index < peakCount()) {
         peaks.erase(peaks.begin()+index);
         return true;
     }
@@ -324,7 +337,7 @@ void PeakGroup::deleteChildren() {
 }
 
 bool PeakGroup::deleteChild(unsigned int index) {
-    if ( index < children.size() ) {
+    if (index < children.size()) {
         children.erase(children.begin()+index);
         return true;
     }
@@ -338,8 +351,8 @@ bool PeakGroup::deleteChild(PeakGroup* child ) {
     auto preDeletionChildCount = children.size();
     children.erase(remove_if(begin(children),
                              end(children),
-                             [&](PeakGroup& group) {
-                                 return child == &group;
+                             [&](shared_ptr<PeakGroup> group) {
+                                 return child == group.get();
                              }),
                    children.end());
 
@@ -533,9 +546,9 @@ void PeakGroup::setLabel(char label)
         return;
     }
 
-    for (auto& child : children) {
-        if (child.tagString == "C12 PARENT" && child.label != label)
-            child.setLabel(label);
+    for (auto child : children) {
+        if (child->tagString == "C12 PARENT" && child->label != label)
+            child->setLabel(label);
     }
 }
 
@@ -755,11 +768,14 @@ void PeakGroup::summary() {
             << "ovp:" << peaks[i].groupOverlapFrac << endl;
     }
 
-    for(unsigned int i=0; i < children.size(); i++ ) children[i].summary();
+    for(unsigned int i=0; i < children.size(); i++ ) children[i]->summary();
 }
 
-PeakGroup::PeakGroup(const PeakGroup& o)  {
+PeakGroup::PeakGroup(const PeakGroup& o, IntegrationType integrationType)
+{
     copyObj(o);
+    if (integrationType != IntegrationType::Inherit)
+        _integrationType = integrationType;
 }
 
 PeakGroup& PeakGroup::operator=(const PeakGroup& o)  {
@@ -961,6 +977,6 @@ string PeakGroup::tableName() const
 void PeakGroup::setTableName(string tableName)
 {
     _tableName = tableName;
-    for (auto& child : children)
-        child.setTableName(tableName);
+    for (auto child : children)
+        child->setTableName(tableName);
 }

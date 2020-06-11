@@ -129,9 +129,6 @@ void RconsoleWidget::setupEditor()
 }
 
 void RconsoleWidget::updateStatus() {
-    int groupCount = 0;
-    if (_linkedTable) groupCount = _linkedTable->getSelectedGroups().size();
-    setStatusLabel(tr("Linked to %1 groups").arg(groupCount));
 }
 
 void RconsoleWidget::runAnalysis() {
@@ -252,57 +249,4 @@ void RconsoleWidget::readStdErr() {
 
 void RconsoleWidget::exportGroupsToTable()
 {
-    if( _linkedTable) groups = _linkedTable->getSelectedGroups();
-
-    //prepare data
-    QFile peaks(groupsTableFile);
-
-    //Added to pass into csvreports file when merged with Maven776 - Kiran
-    bool includeSetNames=false;
-    if(peaks.open(QFile::WriteOnly | QFile::Truncate)) {
-        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
-        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-   
-        auto prmGroupAt = find_if(begin(groups),
-                                  end(groups),
-                                  [] (PeakGroup* group) {
-                                      return group->getCompound()->type() == Compound::Type::MS2;
-                                  });
-        bool prmGroupExists = prmGroupAt != end(groups);
-
-        CSVReports* csvreports = new CSVReports(groupsTableFile.toStdString(),
-                                                CSVReports::ReportType::GroupReport, vsamples,
-                                                _mainwindow->getUserQuantType(),
-                                                prmGroupExists,includeSetNames,
-                                                _mainwindow->mavenParameters);
-
-        for(int i=0; i<groups.size(); i++ ) {
-            csvreports->addGroup(groups[i]);
-        }
-
-
-        peaks.close();
-    } else {
-       errorLog->appendPlainText("Can't write to " + groupsTableFile);
-    }
-
-    //prepare data
-    QFile sampleInfo(groupsTableFile+".info");
-    if(sampleInfo.open(QFile::WriteOnly | QFile::Truncate)) {
-        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
-        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-        QTextStream stream(&sampleInfo);
-        stream << "sampleName" << "\t" << "setName" << "\t" << "sampleColor" << endl;
-        for(int i=0; i < vsamples.size(); i++) {
-            mzSample* sample = vsamples[i];
-            QColor color = QColor::fromRgbF( sample->color[0], sample->color[1], sample->color[2], 1 );
-            stream << QString(vsamples[i]->sampleName.c_str())
-                   << "\t" << QString(vsamples[i]->_setName.c_str())
-                   << "\t" << color.name()
-                   << endl;
-        }
-        sampleInfo.close();
-    } else {
-       errorLog->appendPlainText("Can't write sample info " + groupsTableFile);
-    }
 }

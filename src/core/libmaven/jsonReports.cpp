@@ -284,15 +284,15 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
         } else {
             //output all relevant isotope info otherwise
             //does this work? is children[0] always the same as grp (parent)?
-            grp.metaGroupId = ++ metaGroupId;
-            for (unsigned int k = 0; k < grp.children.size(); k++) {
-                grp.children[k].metaGroupId = grp.metaGroupId;
-                grp.children[k].groupId = ++groupId;
+            grp.metaGroupId = ++metaGroupId;
+            for (auto child : grp.children) {
+                child->metaGroupId = grp.metaGroupId;
+                child->groupId = ++groupId;
                 if(groupId > 1) file << "\n,";
-                _writeGroup(grp.children[k], file);
-                if( grp.children[k].hasCompoundLink() )
+                _writeGroup(*(child.get()), file);
+                if (child->hasCompoundLink())
                     _writeCompoundLink(grp, file);
-                _writePeak(grp.children[k], file, samples);
+                _writePeak(*(child.get()), file, samples);
             }
         }
     }

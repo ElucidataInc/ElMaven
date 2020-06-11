@@ -9,10 +9,10 @@
 #include "PeakGroup.h"
 #include "ui_groupsettingslog.h"
 
-GroupSettingsLog::GroupSettingsLog(QWidget *parent, PeakGroup* group) :
-      QDialog(parent),
-      _group(group),
-      ui(new Ui::GroupSettingsLog)
+GroupSettingsLog::GroupSettingsLog(QWidget *parent, shared_ptr<PeakGroup> group)
+    : QDialog(parent)
+    , _group(group)
+    , ui(new Ui::GroupSettingsLog)
 {
     setModal(true);
     ui->setupUi(this);

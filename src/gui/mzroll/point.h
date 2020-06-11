@@ -15,21 +15,24 @@ class EicPoint : public QObject, public QGraphicsItem {
 
 public:
     enum POINTSHAPE { CIRCLE, SQUARE, TRIANGLE_UP, TRIANGLE_DOWN };
+    enum { Type = UserType + 20 };
+
     EicPoint(QObject *parent = 0);
     EicPoint(float x, float y, Peak* peak, MainWindow* mw);
         ~EicPoint();
     void setColor(QColor &c)  { _color = c; _pen.setColor(c); _brush.setColor(c); }
     void setPen(QPen &p)  { _pen = p;  }
     void setBrush(QBrush &b)  { _brush = b; }
-    void setPeakGroup(PeakGroup* g) { _group = g; }
+    void setPeakGroup(shared_ptr<PeakGroup> g) { _group = g; }
     void setPeak(Peak* p) { _peak=p; }
     void setScan(Scan* x) { _scan=x; }
     Peak* getPeak() { return _peak; }
-    PeakGroup* getPeakGroup() { return _group; }
+    shared_ptr<PeakGroup> getPeakGroup() { return _group; }
     void setPointShape(POINTSHAPE shape) { pointShape=shape; }
     void forceFillColor(bool flag) { _forceFill = flag; }
     void setSize(float size) { _cSize=size; }
     void removeFromScene();
+    int type() const {  return Type; }
 
 protected:
     QRectF boundingRect() const;
@@ -46,7 +49,7 @@ private:
     float _y;
     Scan* _scan;
     Peak* _peak;
-    PeakGroup* _group;
+    shared_ptr<PeakGroup> _group;
     MainWindow* _mw;
     QColor _color;
     QPen _pen;
@@ -56,7 +59,7 @@ private:
     float _cSize;
 
     static void _updateWidgetsForPeakGroup(MainWindow* mw,
-                                           PeakGroup* group,
+                                           shared_ptr<PeakGroup> group,
                                            Peak* peak);
     static void _updateWidgetsForScan(MainWindow* mw, Scan* scan);
 
@@ -68,9 +71,9 @@ private Q_SLOTS:
         void setClipboardToIsotopes();
 Q_SIGNALS:
     void peakSelected(Peak*);
-    void peakGroupSelected(PeakGroup*);
+    void peakGroupSelected(shared_ptr<PeakGroup>);
     void spectaFocused(Peak*);
-    void peakGroupFocus(PeakGroup*);
+    void peakGroupFocus(shared_ptr<PeakGroup>);
     void ms2MarkerSelected(Scan*);
 };
 

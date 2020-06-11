@@ -71,14 +71,18 @@ void CompareSamplesLogic::shuffle(StatisticsVector<float>& groupA,
 
 }
 
-void CompareSamplesLogic::FDRCorrection(QList<PeakGroup*> allgroups,
-		int correction) {
-
+void CompareSamplesLogic::FDRCorrection(QList<shared_ptr<PeakGroup>> allgroups,
+                                        int correction)
+{
 	int Ngroups = allgroups.size();
-	int j = 0;
-	sort(allgroups.begin(), allgroups.end(), PeakGroup::compPvalue);
+    int j = 0;
+    sort(allgroups.begin(),
+         allgroups.end(),
+         [](shared_ptr<PeakGroup> a, shared_ptr<PeakGroup> b) {
+             return a->changePValue < b->changePValue;
+         });
 	for (int i = 0; i < Ngroups; i++) {
-		PeakGroup* group = allgroups[i];
+        auto group = allgroups[i];
 		if (group->changeFoldRatio == 0)
 			continue;
 		//cerr << group->changePValue << " " ;
@@ -94,14 +98,12 @@ void CompareSamplesLogic::FDRCorrection(QList<PeakGroup*> allgroups,
 		//cerr << group->changePValue << endl;
 		j++;
 	}
-
 }
 
-void CompareSamplesLogic::computeMinPValue(QList<PeakGroup*> allgroups) {
+void CompareSamplesLogic::computeMinPValue(QList<shared_ptr<PeakGroup>> allgroups) {
 
 	std::sort(rand_scores.begin(), rand_scores.end()); //sort random scores,
-	for (int i = 0; i < allgroups.size(); i++) {
-		PeakGroup* group = allgroups[i];
+    for (auto group : allgroups) {
 		if (group->changeFoldRatio == 0)
 			continue;
 		int rank = countBelow(rand_scores, group->changePValue); //calculate p-value

@@ -275,7 +275,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     saveGroupSettings(group, lastInsertedGroupId);
 
     for (auto child: group->children)
-        saveGroupAndPeaks(&child, lastInsertedGroupId, tableName);
+        saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
 
     return lastInsertedGroupId;
 }
@@ -1594,8 +1594,8 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
     string tableName = group->tableName();
     vector<int> selectedGroups;
     selectedGroups.push_back(group->groupId);
-    for (const auto& child : group->children)
-        selectedGroups.push_back(child.groupId);
+    for (const auto child : group->children)
+        selectedGroups.push_back(child->groupId);
 
     if (selectedGroups.size() == 0)
         return;
