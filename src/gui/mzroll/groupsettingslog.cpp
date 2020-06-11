@@ -91,7 +91,8 @@ void GroupSettingsLog::_displayGroupSettings()
     auto secondBaselineParamAndValue = [mp] {
         if (mp->aslsBaselineMode) {
             return make_pair(tr("Asymmetry"),
-                             tr("%1").arg(mp->aslsAsymmetry));
+                             tr("%1").arg(static_cast<float>(mp->aslsAsymmetry)
+                                          / 100.0f));
         }
         return make_pair(tr("Baseline smoothing"),
                          tr("%1 scans").arg(mp->baseline_smoothingWindow));
