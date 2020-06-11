@@ -734,28 +734,25 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     reportType = CSVReports::ReportType::GroupReport;
   }
 
-    CSVReports* csvreports;
-
-    csvreports = new CSVReports(fileName.toStdString(),
-                                reportType,
-                                samples,
-                                _mainwindow->getUserQuantType(),
-                                ms2GroupExists,
-                                includeSetNamesLines,
-                                _mainwindow->mavenParameters);
-
+  CSVReports csvreports(fileName.toStdString(),
+                        reportType,
+                        samples,
+                        _mainwindow->getUserQuantType(),
+                        ms2GroupExists,
+                        includeSetNamesLines,
+                        _mainwindow->mavenParameters);
   QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
-  csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+  csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
 
   for (auto group : _topLevelGroups) {
     if (selectedGroups.contains(group))
-      csvreports->addGroup(group.get());
+      csvreports.addGroup(group.get());
   }
  
-  if (csvreports->getErrorReport() != "") {
+  if (csvreports.getErrorReport() != "") {
     QMessageBox msgBox(_mainwindow);
     msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(csvreports->getErrorReport());
+    msgBox.setText(csvreports.getErrorReport());
     msgBox.exec();
   }
 }
@@ -831,31 +828,30 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     } else if (sFilterSel == peaksTAB) {
         reportType = CSVReports::ReportType::PeakReport;
     }
-    CSVReports* csvreports;
-    csvreports = new CSVReports(fileName.toStdString(),
-                                reportType,
-                                samples,
-                                _mainwindow->getUserQuantType(),
-                                ms2GroupExists,
-                                includeSetNamesLines,
-                                _mainwindow->mavenParameters,
-                                true);
+    CSVReports csvreports(fileName.toStdString(),
+                          reportType,
+                          samples,
+                          _mainwindow->getUserQuantType(),
+                          ms2GroupExists,
+                          includeSetNamesLines,
+                          _mainwindow->mavenParameters,
+                          true);
 
     QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
-    csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+    csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
 
     for (auto group : _topLevelGroups) {
         // we do not set untargeted groups to Polly yet, remove this when we
         // can.
         if (selectedGroups.contains(group) && group->hasCompoundLink()) {
-            csvreports->addGroup(group.get());
+            csvreports.addGroup(group.get());
         }
     }
 
-    if (csvreports->getErrorReport() != "") {
+    if (csvreports.getErrorReport() != "") {
         QMessageBox msgBox(_mainwindow);
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setText(csvreports->getErrorReport());
+        msgBox.setText(csvreports.getErrorReport());
         msgBox.exec();
     }
 }

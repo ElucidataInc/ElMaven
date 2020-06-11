@@ -127,7 +127,8 @@ public:
 
     static std::vector<EIC*> pullEICs(const mzSlice *slice,
                                       std::vector<mzSample*>& samples,
-                                      MavenParameters* mp);
+                                      MavenParameters* mp,
+                                      bool filterUnselectedSamples = true);
 
     /**
      * @brief This method can be used to identify features found by performing

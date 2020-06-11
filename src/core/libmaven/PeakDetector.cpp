@@ -33,22 +33,21 @@ void PeakDetector::resetProgressBar() {
 
 vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                                     std::vector<mzSample*>& samples,
-                                    MavenParameters* mp)
+                                    MavenParameters* mp,
+                                    bool filterUnselectedSamples)
 {
     vector<EIC*> eics;
     vector<mzSample*> vsamples;
+    for (auto sample : samples) {
+        if (sample == nullptr)
+            continue;
+        if (filterUnselectedSamples && !sample->isSelected)
+            continue;
+        vsamples.push_back(sample);
+    }
+
 #pragma omp parallel default(shared)
     {
-#pragma omp for
-        for (unsigned int i = 0; i < samples.size(); i++) {
-            if (samples[i] == NULL)
-                continue;
-            if (samples[i]->isSelected == false)
-                continue;
-#pragma omp critical
-            vsamples.push_back(samples[i]);
-        }
-
         // single threaded version - getting EICs of selected samples.
         // #pragma omp parallel for ordered
 #pragma omp for

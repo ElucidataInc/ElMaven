@@ -106,6 +106,10 @@ PeakEditor::PeakEditor(MainWindow *parent,
             &QPushButton::clicked,
             this,
             &PeakEditor::_applyEdits);
+    connect(ui->yAxisFitCheckBox,
+            &QCheckBox::toggled,
+            _gallery,
+            &GalleryWidget::setScaleForHighestPeak);
 }
 
 PeakEditor::~PeakEditor()
