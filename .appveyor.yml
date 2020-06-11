@@ -36,7 +36,7 @@ install:
     - bash -lc "pacman -S --needed --noconfirm zlib-devel"
     - bash -lc "pacman -S --noconfirm mingw64/mingw-w64-x86_64-curl"
     - bash -lc "pacman -S --noconfirm rsync"
-    - bash -lc "pacman -S --noconfirm mingw-w64-x86_64-python-pandas"
+    - C:\Python38\Scripts\pip.exe install pandas
     - bash -lc "wget https://github.com/linux-test-project/lcov/releases/download/v1.12/lcov-1.12.tar.gz"
     - bash -lc "tar -xzf lcov-1.12.tar.gz"
     - bash -lc "ln -s $PWD/lcov-1.12/bin/lcov /c/msys64/mingw64/bin/lcov"
@@ -70,7 +70,7 @@ build_script:
               bash -lc "lcov -b /c/Projects/ElMaven/src/core/libmaven/ --capture --directory /c/projects/build/tmp/maven/ --output-file /c/projects/ElMaven/lcov.info --no-external"
               &{ bash -lc "lcov --summary /c/projects/ElMaven/lcov.info" 2>&1 | %{ "$_" } }
 
-              &{ bash -lc "cd /c/projects/ElMaven/ ; python3 tests/test-scripts/test_gen_reports.py" 2>&1 | %{ "$_" } }
+              &{ bash -lc "cd /c/projects/ElMaven/ ; /c/Python38/python tests/test-scripts/test_gen_reports.py" 2>&1 | %{ "$_" } }
               if ( $LASTEXITCODE -ne 0 ) {
                   exit 1
               }
