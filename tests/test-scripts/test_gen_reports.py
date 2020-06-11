@@ -131,7 +131,7 @@ def test_regular_lcms_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-regular.raw.dat.peaks.tab', peaks_report)
 
-    print()
+    print("\nTests passed!\n")
 
 
 def test_labeled_lcms_reports(output_dir):
@@ -156,7 +156,7 @@ def test_labeled_lcms_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-labeled.dat.peaks.tab', peaks_report)
 
-    print()
+    print("\nTests passed!\n")
 
 
 def test_feature_detection_reports(output_dir):
@@ -181,7 +181,7 @@ def test_feature_detection_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-features.dat.peaks.tab', peaks_report)
 
-    print()
+    print("\nTests passed!\n")
 
 
 def main():
