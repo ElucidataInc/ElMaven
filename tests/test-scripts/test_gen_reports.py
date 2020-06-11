@@ -66,8 +66,6 @@ def generate_reports(output_dir, project_path, peakdetector_args, has_db=True):
         print("Error: no project file was created.")
         sys.exit(1)
 
-    print()
-
     # run report-generation on the emDB
     subprocess.run(" ".join(["python3",
                              script_file_path,
@@ -131,7 +129,7 @@ def test_regular_lcms_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-regular.raw.dat.peaks.tab', peaks_report)
 
-    print("\nTests passed!\n")
+    print("Tests passed!\n")
 
 
 def test_labeled_lcms_reports(output_dir):
@@ -156,7 +154,7 @@ def test_labeled_lcms_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-labeled.dat.peaks.tab', peaks_report)
 
-    print("\nTests passed!\n")
+    print("Tests passed!\n")
 
 
 def test_feature_detection_reports(output_dir):
@@ -181,7 +179,7 @@ def test_feature_detection_reports(output_dir):
                    ignore_cols=[17]) # ignore comparison of group rank
     match_contents('expected-features.dat.peaks.tab', peaks_report)
 
-    print("\nTests passed!\n")
+    print("Tests passed!\n")
 
 
 def main():
