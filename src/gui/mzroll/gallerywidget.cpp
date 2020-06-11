@@ -90,7 +90,8 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
     }
     _eics = PeakDetector::pullEICs(&slice,
                                    group->samples,
-                                   group->parameters().get());
+                                   group->parameters().get(),
+                                   false);
     sort(begin(_eics), end(_eics), [this](EIC* first, EIC* second) {
         return first->sample->getSampleOrder()
                < second->sample->getSampleOrder();
