@@ -8,14 +8,6 @@ if [ -f bin/MavenTests ]; then
     printf "\"MavenTests\" exit code: %s\n" "$VAR"
     # ignoring exit code from MavenTests on MacOS because of known failures
 fi
-if [ -f ./bin/MavenTests.exe ]; then
-    ./bin/MavenTests.exe -xml
-    VAR=$?
-    printf "\"MavenTests\" exit code: %s\n" "$VAR"
-    if [ $VAR != 0 ]; then
-        exit 1
-    fi
-fi
 if [ -f ./bin/test-libmaven* ]; then
     ./bin/test-libmaven
     VAR=$?
