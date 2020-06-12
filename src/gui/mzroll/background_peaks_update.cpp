@@ -377,10 +377,6 @@ void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {
                 S34Flag,
                 D2Flag);
         isotopeDetection.pullIsotopes(parentgroup);
-
-    parentgroup->computeFragPattern(mavenParameters->fragmentTolerance);
-    parentgroup->matchFragmentation(mavenParameters->fragmentTolerance,
-                                    mavenParameters->scoringAlgo);
 }
 
 bool BackgroundPeakUpdate::covertToMzXML(QString filename, QString outfile) {
