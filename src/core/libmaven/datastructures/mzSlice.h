@@ -116,6 +116,7 @@ class mzSlice
             srmId = b.srmId;
             mz = b.mz;
             rt = b.rt;
+            precursorMz = b.precursorMz;
             return *this;
         }
 

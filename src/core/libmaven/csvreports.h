@@ -33,20 +33,22 @@ class CSVReports
          * the acquisition mode for their data.
          * @param groups A vector of PeakGroup objects.
          */
-        static AcquisitionMode guessAcquisitionMode(const vector<PeakGroup>& groups)
+        static AcquisitionMode
+        guessAcquisitionMode(const vector<PeakGroup*>& groups)
         {
-            auto ms2GroupAt = find_if(begin(groups),
-                                      end(groups),
-                                      [](const PeakGroup& group) {
-                                          if (group.getCompound()) {
-                                            return (group.getCompound()->type()
-                                                    == Compound::Type::MS2);
-                                          }
-                                          return false;
-                                      });
+            auto ms2GroupAt =
+                find_if(begin(groups),
+                        end(groups),
+                        [](const PeakGroup* group) {
+                            if (group->hasCompoundLink()) {
+                                return (group->getCompound()->type()
+                                        == Compound::Type::MS2);
+                            }
+                            return false;
+                        });
             if (ms2GroupAt != end(groups)) {
-                const PeakGroup& group = *ms2GroupAt;
-                if (group.fragmentGroups().empty()) {
+                const PeakGroup* group = *ms2GroupAt;
+                if (group->fragmentGroups().empty()) {
                     return AcquisitionMode::DDA;
                 } else {
                     return AcquisitionMode::DIA;

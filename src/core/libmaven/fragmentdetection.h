@@ -12,14 +12,10 @@ namespace FragmentDetection
     using namespace std;
 
     /**
-     * @brief This object must be set before attempting to use any of the
-     * detection functions in this namespace.
-     */
-    extern MavenParameters* parameters;
-
-    /**
      * @brief Search for features and perform peak detection using DIA MS2 scans
      * for a given precursor m/z and RT, in an untargeted fashion.
+     * @param parameters A `MavenParameters` object that will be used for
+     * detection settings and populating peak-groups.
      * @param precursorMz The m/z value of the precursor ion for which fragment
      * groups will be detected.
      * @param precursorRt The RT value of the precursor ion for which fragment
@@ -32,13 +28,17 @@ namespace FragmentDetection
      * @return A vector of PeakGroup objects that were detected. Additional
      * filtering might need to be done to get the best matching fragment groups.
      */
-    vector<PeakGroup> detectFragmentsUntargeted(float precursorMz,
-                                                float precursorRt,
-                                                float rtDeviationLimit);
+    vector<PeakGroup>
+    detectFragmentsUntargeted(MavenParameters *parameters,
+                              float precursorMz,
+                              float precursorRt,
+                              float rtDeviationLimit);
 
     /**
      * @brief Extract and perform peak detection on slices created using DIA MS2
      * scans for a given precursor m/z and RT, in a targeted fashion.
+     * @param parameters A `MavenParameters` object that will be used for
+     * detection settings and populating peak-groups.
      * @param precursorMz The m/z value of the precursor ion for which fragment
      * groups will be detected.
      * @param precursorRt The RT value of the precursor ion for which fragment
@@ -48,9 +48,11 @@ namespace FragmentDetection
      * @return A vector of PeakGroup objects that were detected. Additional
      * filtering might need to be done to get the best matching fragment groups.
      */
-    vector<PeakGroup> detectFragmentsTargeted(float precursorMz,
-                                              float precursorRt,
-                                              vector<float> targetFragmentMzs);
+    vector<PeakGroup>
+    detectFragmentsTargeted(MavenParameters* parameters,
+                            float precursorMz,
+                            float precursorRt,
+                            vector<float> targetFragmentMzs);
 
     /**
      * @brief Perform peak detection at MS/MS level looking for specific

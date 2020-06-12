@@ -502,7 +502,7 @@ void EicWidget::addEICLines(bool showSpline,
     // sort EICs by peak height of selected group, tallest go at the back
     vector<Peak> peaks;
     if (eicParameters->displayedGroup() != nullptr && !_plottingMs2) {
-        PeakGroup* group = eicParameters->displayedGroup();
+        auto group = eicParameters->displayedGroup();
         peaks = group->getPeaks();
         sort(peaks.begin(), peaks.end(), Peak::compIntensity);
     } else {
@@ -1824,7 +1824,6 @@ void EicWidget::showFragmentForSelectedGroup(float fragmentMz)
     if (precursorGroup == nullptr)
         return;
 
-    precursorGroup = new PeakGroup(*precursorGroup);
     const PeakGroup* fragmentGroup =
         precursorGroup->nearestFragmentGroup(fragmentMz);
     if (fragmentGroup == nullptr)
@@ -2043,12 +2042,11 @@ void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
         auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
         if (fragmentGroup != nullptr) {
             // make a non-const copy
-            auto fragmentGroupCopy = new PeakGroup(*fragmentGroup);
+            auto fragmentGroupCopy = make_shared<PeakGroup>(*fragmentGroup);
             if (_showBarPlot)
                 addBarPlot(fragmentGroupCopy);
             if (_showBoxPlot)
                 addBoxPlot(fragmentGroupCopy);
-            delete fragmentGroupCopy;
         }
     } else {
         if (_showBarPlot)

@@ -1786,9 +1786,11 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["adductPercentCorrelation"] = static_cast<double>(mp->adductPercentCorrelation);
 
     settingsMap["matchFragmentation"] = static_cast<int>(mp->matchFragmentationFlag);
+    settingsMap["scoringAlgo"] = mp->scoringAlgo == "HyperGeomScore" ? 1 : 0;
     settingsMap["minFragMatchScore"] = static_cast<double>(mp->minFragMatchScore);
     settingsMap["fragmentTolerance"] = static_cast<double>(mp->fragmentTolerance);
     settingsMap["minFragMatch"] = static_cast<double>(mp->minFragMatch);
+    settingsMap["fragAnnotationLimit"] = mp->fragAnnotationLimit;
 
     settingsMap["reportIsotopes"] = static_cast<int>(mp->pullIsotopesFlag);
 

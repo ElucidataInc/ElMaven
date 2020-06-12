@@ -10,20 +10,20 @@
 #include "PeakGroup.h"
 #include "RealVector.h"
 
-MavenParameters* FragmentDetection::parameters = nullptr;
-
 vector<PeakGroup>
-FragmentDetection::detectFragmentsUntargeted(float precursorMz,
+FragmentDetection::detectFragmentsUntargeted(MavenParameters* parameters,
+                                             float precursorMz,
                                              float precursorRt,
                                              float rtDeviationLimit)
 {
     if (parameters == nullptr)
         return {};
 
+    auto mp = make_shared<MavenParameters>(*parameters);
     MassSlices slicing;
     slicing.disableSignals = true;
-    slicing.setSamples(parameters->samples);
-    slicing.setMavenParameters(parameters);
+    slicing.setSamples(mp->samples);
+    slicing.setMavenParameters(mp.get());
     slicing.setMsLevel(2, precursorMz);
     slicing.setMinRt(precursorRt - rtDeviationLimit);
     slicing.setMaxRt(precursorRt + rtDeviationLimit);
@@ -32,10 +32,10 @@ FragmentDetection::detectFragmentsUntargeted(float precursorMz,
     slicing.setMinIntensity(100.0f);
 
     MassCutoff massCutoff;
-    massCutoff.setMassCutoffAndType(parameters->fragmentTolerance, "ppm");
+    massCutoff.setMassCutoffAndType(mp->fragmentTolerance, "ppm");
 
     // TODO: step size - MS/MS slice width should be user adjustable
-    slicing.algorithmB(&massCutoff, parameters->rtStepSize * 10);
+    slicing.algorithmB(&massCutoff, mp->rtStepSize * 10);
     if (slicing.slices.empty())
         return {};
 
@@ -45,9 +45,9 @@ FragmentDetection::detectFragmentsUntargeted(float precursorMz,
          mzSlice::compIntensity);
 
     PeakDetector detector;
-    detector.setMavenParameters(parameters);
+    detector.setMavenParameters(mp.get());
     detector.processSlices(slicing.slices);
-    auto msMsGroups = parameters->allgroups;
+    auto msMsGroups = mp->allgroups;
 
     // cleanup
     delete_all(slicing.slices);
@@ -55,7 +55,8 @@ FragmentDetection::detectFragmentsUntargeted(float precursorMz,
 }
 
 vector<PeakGroup>
-FragmentDetection::detectFragmentsTargeted(float precursorMz,
+FragmentDetection::detectFragmentsTargeted(MavenParameters* parameters,
+                                           float precursorMz,
                                            float precursorRt,
                                            vector<float> targetFragmentMzs)
 {
@@ -105,24 +106,6 @@ FragmentDetection::detectFragmentsTargeted(float precursorMz,
 
 void FragmentDetection::findFragments(PeakGroup* precursor)
 {
-    if (parameters == nullptr)
-        return;
-
-    int precursorIndex = -1;
-    for (int i = 0; i < parameters->allgroups.size(); ++i) {
-        if (&(parameters->allgroups[i]) == precursor)
-            precursorIndex = i;
-    }
-
-    // backup all MS1 groups in peak-detector's parameters object
-    auto msGroups = parameters->allgroups;
-
-    // if the precursor was in `parameters->allgroups` and we are going to
-    // replace the whole set at the end, we should instead be modifying the
-    // peak-group that eventually survives
-    if (precursorIndex != -1)
-        precursor = &(msGroups.at(precursorIndex));
-
     // TODO: should come from the user
     float fiveSeconds = 5.0f / 60.0f;
     vector<PeakGroup> groups;
@@ -131,11 +114,13 @@ void FragmentDetection::findFragments(PeakGroup* precursor)
     if (precursor->hasCompoundLink()
         && !precursor->getCompound()->fragmentMzValues().empty()) {
         auto targetFragmentMzs = precursor->getCompound()->fragmentMzValues();
-        groups = detectFragmentsTargeted(precursor->meanMz,
+        groups = detectFragmentsTargeted(precursor->parameters().get(),
+                                         precursor->meanMz,
                                          precursor->meanRt,
                                          targetFragmentMzs);
     } else {
-        groups = detectFragmentsUntargeted(precursor->meanMz,
+        groups = detectFragmentsUntargeted(precursor->parameters().get(),
+                                           precursor->meanMz,
                                            precursor->meanRt,
                                            fiveSeconds);
     }
@@ -175,14 +160,10 @@ void FragmentDetection::findFragments(PeakGroup* precursor)
     }
 
     // build a consensus spectrum across all samples
-    fragment.buildConsensus(parameters->fragmentTolerance);
+    fragment.buildConsensus(precursor->parameters()->fragmentTolerance);
     fragment.consensus->sortByMz();
     precursor->fragmentationPattern = fragment.consensus;
     precursor->setFragmentGroups(fragmentGroups);
-
-    // re-install MS1 precursor groups after MS/MS detection
-    // TODO: this operation when repeated many times is inefficient and wasteful
-    parameters->allgroups = msGroups;
 }
 
 vector<PeakGroup>

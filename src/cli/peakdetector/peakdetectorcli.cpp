@@ -1258,8 +1258,12 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
         return;
 
     bool includeSetNamesLine = false;
-    auto reportMode =
-        CSVReports::guessAcquisitionMode(mavenParameters->allgroups);
+
+    vector<PeakGroup*> groupVector;
+    for (auto& group : mavenParameters->allgroups)
+        groupVector.push_back(&group);
+    auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
+
     csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
                                 mavenParameters->samples, quantitationType,  
                                 reportMode, includeSetNamesLine,
