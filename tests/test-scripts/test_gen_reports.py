@@ -106,7 +106,7 @@ def match_contents(expected_file_name, generated_report_path, ignore_cols=[]):
     pd.testing.assert_frame_equal(exp_df,
                                   gen_df, 
                                   check_exact=False, 
-                                  check_less_precise=4)
+                                  check_less_precise=3)
 
 
 def test_regular_lcms_reports(output_dir):
