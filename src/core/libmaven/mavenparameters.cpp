@@ -310,6 +310,8 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     // NOTE: we intentionally do not copy `allgroups` & `compounds` since these
     // vectors are meant to be used only by the global `MavenParameters` object,
     // which will not be created by a copy operation like this.
+    allgroups = {};
+    compounds = {};
     samples = mp.samples;
 }
 

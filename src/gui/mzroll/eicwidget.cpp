@@ -511,7 +511,7 @@ void EicWidget::addEICLines(bool showSpline,
     // sort EICs by peak height of selected group, tallest go at the back
     vector<Peak> peaks;
     if (eicParameters->displayedGroup() != nullptr && !_plottingMs2) {
-        PeakGroup* group = eicParameters->displayedGroup();
+        auto group = eicParameters->displayedGroup();
         peaks = group->getPeaks();
         sort(peaks.begin(), peaks.end(), Peak::compIntensity);
     } else {
@@ -1330,7 +1330,7 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
     {
         // qDebug <<" EicWidget::addAxes()";
         //	 qDebug() << "EicWidget: addAxes() " << _minY << " " << _maxY <<
-        //endl;
+        // endl;
         Axes* x = new Axes(0, _minX, _maxX, 11);
         Axes* y = new Axes(1, _minY, _maxY, 9);
         scene()->addItem(x);
@@ -1936,11 +1936,9 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
     {
         if (getMainWindow()->sampleCount() == 0)
             return;
-
         vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
         if (samples.empty())
             return;
-
         auto precursorGroup = getSelectedGroup();
         if (precursorGroup == nullptr)
             return;
@@ -1950,17 +1948,40 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
             precursorGroup->nearestFragmentGroup(fragmentMz);
         if (fragmentGroup == nullptr)
             return;
-
         auto fragmentSlice = fragmentGroup->getSlice();
         eicParameters->_slice.mz = fragmentSlice.mz;
         eicParameters->_slice.mzmin = fragmentSlice.mzmin;
         eicParameters->_slice.mzmax = fragmentSlice.mzmax;
         eicParameters->_slice.precursorMz = precursorGroup->getSlice().mz;
-
         _plottingMs2 = true;
         cleanup();
         computeEICs();
         replot(precursorGroup);
+    }
+
+    void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
+    {
+        if (_frozen)
+            return;
+        if (_plottingMs2) {
+            float fragmentMz = eicParameters->_slice.mz;
+            auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
+            if (fragmentGroup != nullptr) {
+                // make a non-const copy
+                auto fragmentGroupCopy = make_shared<PeakGroup>(*fragmentGroup);
+                if (_showBarPlot)
+                    addBarPlot(fragmentGroupCopy);
+                if (_showBoxPlot)
+                    addBoxPlot(fragmentGroupCopy);
+            }
+        } else {
+            if (_showBarPlot)
+                addBarPlot(group);
+            if (_showBoxPlot)
+                addBoxPlot(group);
+        }
+        eicParameters->setDisplayedGroup(group);
+        eicParameters->setSelectedGroup(group);
     }
 
     void EicWidget::groupPeaks()

@@ -383,7 +383,6 @@ MainWindow::MainWindow(Controller* controller, QWidget* parent)
                                     + QDir::separator() + "lastRun.xml")
                                 .toStdString());
     _massCutoffWindow = new MassCutoff();
-    FragmentDetection::parameters = mavenParameters;
 
     QString clsfModelFilename;
     QString weightsFile;

@@ -835,19 +835,21 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
     reportType = CSVReports::ReportType::GroupReport;
   }
 
-    auto reportMode =
-        CSVReports::guessAcquisitionMode(allgroups.toVector().toStdVector());
-    CSVReports* csvreports;
-    csvreports = new CSVReports(fileName.toStdString(),
-                                reportType,
-                                samples,
-                                _mainwindow->getUserQuantType(),
-                                reportMode,
-                                includeSetNamesLines,
-                                _mainwindow->mavenParameters);
+    vector<PeakGroup*> groupVector;
+    for (auto group : _topLevelGroups)
+        groupVector.push_back(group.get());
+    auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
 
-  QList<PeakGroup *> selectedGroups = getSelectedGroups();
-  csvreports->setSelectionFlag(static_cast<int>(peakTableSelection));
+    CSVReports csvreports(fileName.toStdString(),
+                          reportType,
+                          samples,
+                          _mainwindow->getUserQuantType(),
+                          reportMode,
+                          includeSetNamesLines,
+                          _mainwindow->mavenParameters);
+
+  QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
+  csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
 
   for (auto group : selectedGroups) {
     csvreports.addGroup(group.get());
@@ -922,17 +924,20 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     } else if (sFilterSel == peaksTAB) {
         reportType = CSVReports::ReportType::PeakReport;
     }
-    auto reportMode =
-        CSVReports::guessAcquisitionMode(allgroups.toVector().toStdVector());
-    CSVReports* csvreports;
-    csvreports = new CSVReports(fileName.toStdString(),
-                                reportType,
-                                samples,
-                                _mainwindow->getUserQuantType(),
-                                reportMode,
-                                includeSetNamesLines,
-                                _mainwindow->mavenParameters,
-                                true);
+
+    vector<PeakGroup*> groupVector;
+    for (auto group : _topLevelGroups)
+        groupVector.push_back(group.get());
+    auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
+
+    CSVReports csvreports(fileName.toStdString(),
+                          reportType,
+                          samples,
+                          _mainwindow->getUserQuantType(),
+                          reportMode,
+                          includeSetNamesLines,
+                          _mainwindow->mavenParameters,
+                          true);
 
     QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
     csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
