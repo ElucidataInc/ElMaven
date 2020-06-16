@@ -23,7 +23,10 @@ environment:
     secure: z3ZI9fB/7hbyMhWdZv9HVMdAqGGB2GmtIeqGPxCOiSNjfLwQIVsNtuOFxSTC3Pty
   UPDATE_REPO_URL:
     secure: JDDxl2ZAdBCu+BvfRCt4jkbEnCctwtGBoTdA3l74mwRS5LDPRyEfGxOyrxK43rbwhHaYk5w/7iIrP0vxFYiM9vYjBSsSlO3s/TWiprifBrg=
-
+  PEAKML_AWS_ACCESS_KEY:
+    secure: n6Uo7PP2LUS6gpVfdRBYO7rZXQSV7yC7Zr5gShtkeKo=
+  PEAKML_AWS_SECRET_KEY:
+    secure: l2hh3CDbyeBAOzo5CfxIpUxdKqre+l7wtv13Qy4e4eVMc1RTGk8W7ezY6KA8VM5i
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 

@@ -74,7 +74,9 @@ mac {
 }
 
 CONFIG(release, debug|release) {
-    DEFINES += "UPDATE_REPO_URL_BASE64=$$(UPDATE_REPO_URL_BASE64)"
+    DEFINES += "UPDATE_REPO_URL_BASE64=$$(UPDATE_REPO_URL_BASE64)"  \
+               "PEAKML_AWS_ACCESS_KEY_BASE64=$$(PEAKML_AWS_ACCESS_KEY_BASE64)"  \
+               "PEAKML_AWS_SECRET_KEY_BASE64=$$(PEAKML_AWS_SECRET_KEY_BASE64)"
 }
 
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
@@ -113,7 +115,7 @@ LIBS +=  -lmaven \
          -lpollyCLI \
          -lprojectDB \
          -lcommon \
-         -lmgf
+         -lmgf 
 
 macx {
 
