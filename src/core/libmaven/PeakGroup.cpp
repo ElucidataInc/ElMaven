@@ -813,23 +813,36 @@ void PeakGroup::reorderSamples() {
 
 string PeakGroup::getName() {
     string tag;
-    //compound is assigned in case of targeted search
-    if (hasSlice() && _slice.compound != NULL) tag = _slice.compound->name();
-    // add name of external charged species fused with adduct
-    if (_adduct != nullptr) tag +=  " | " + _adduct->getName();
-    //add isotopic label
-    if (!tagString.empty()) tag += " | " + tagString;
-    //add SRM ID for MS/MS data 
-    if (!srmId.empty()) tag +=  " | " + srmId;
-    //no compound in case of untargeted peak detection
-    //group is referenced as MeanMz@MeanRT
+
+    // compound is assigned in case of targeted search
+    if (hasSlice() && _slice.compound != NULL)
+        tag = _slice.compound->name();
+
+    // no compound in case of untargeted peak detection
+    // group is referenced as MeanMz@MeanRT
     if (tag.empty() && meanMz && meanRt) {
         stringstream stream;
-        stream << fixed << setprecision(6) << meanMz << "@" << setprecision(2) << meanRt;
+        stream << fixed << setprecision(6) << meanMz << "@" << setprecision(2)
+               << meanRt;
         tag = stream.str();
     }
-    //if all else fails, use group ID
-    if (tag.empty()) tag = integer2string(groupId);
+
+    // add name of external charged species fused with adduct
+    if (_adduct != nullptr)
+        tag += " | " + _adduct->getName();
+
+    // add isotopic label
+    if (!tagString.empty())
+        tag += " | " + tagString;
+
+    // add SRM ID for MS/MS data
+    if (!srmId.empty())
+        tag += " | " + srmId;
+
+    // if all else fails, use group ID
+    if (tag.empty())
+        tag = integer2string(groupId);
+
     return tag;
 }
 

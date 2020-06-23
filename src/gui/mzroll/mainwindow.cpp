@@ -1450,6 +1450,8 @@ shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
         bookmarkedPeaks->showAllGroups();
 		bookmarkedPeaks->updateTable();
         bookmarkedPeaks->selectPeakGroup(bookmarkedGroup);
+    } else {
+        setStatusText("Peak-group already exists in bookmark table");
     }
     return bookmarkedGroup;
 }

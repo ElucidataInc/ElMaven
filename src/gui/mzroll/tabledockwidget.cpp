@@ -2390,30 +2390,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnMin);
 
   setTitleBarWidget(toolBar);
-
-  promptDialog = new QDialog(this);
-  promptDialogLayout = new QVBoxLayout();
-
-  cancel = new QPushButton();
-  cancel->setText("cancel");
-  connect(cancel, SIGNAL(clicked()), this, SLOT(rejectGroup()));
-
-  save = new QPushButton();
-  save->setText("save");
-  connect(save, SIGNAL(clicked()), this, SLOT(acceptGroup()));
-
-  buttonLayout = new QHBoxLayout();
-  buttonLayout->addWidget(cancel);
-  buttonLayout->addWidget(save);
-
-  upperLabel = new QLabel();
-  upperLabel->setText(
-      "Groups with same mz and rt.\nSelect and (ctrl+c) to copy");
-  lowerLabel = new QLabel();
-  lowerLabel->setText("Add this group too ?");
-
-  listTextView = new ListView();
-  stringModel = new QStringListModel(promptDialog);
 }
 
 BookmarkTableDockWidget::~BookmarkTableDockWidget() {
@@ -2511,40 +2487,31 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
                                           status);
 }
 
-void BookmarkTableDockWidget::acceptGroup() {
-  addSameMzRtGroup = true;
-  promptDialog->close();
-}
-
-void BookmarkTableDockWidget::rejectGroup() {
-  addSameMzRtGroup = false;
-  promptDialog->close();
-}
-
 void BookmarkTableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash) {
 
-  QStringList list;
+  QMessageBox prompt(_mainwindow);
+  prompt.setWindowTitle("Bookmarking possible duplicate");
 
-  for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
-    // saving all compound name of same rt and mz value to <list> variable
-    list.append(sameMzRtGroups[sameMzRtGroupIndexHash][i]);
-    qDebug() << sameMzRtGroups[sameMzRtGroupIndexHash][i];
+  QString compoundList = "";
+  for (QString groupName : sameMzRtGroups[sameMzRtGroupIndexHash])
+    compoundList += "<li>" + groupName;
+  auto htmlText = QString("<p>The table already contains one or more "
+                          "peak-groups having m/z and RT values same as the "
+                          "group being currently bookmarked:</p>"
+                          "<ul>%1</ul>").arg(compoundList);
+  htmlText += "<p>Do you want to add it anyway?</p>";
+  prompt.setText(htmlText);
+
+  auto discardButton = prompt.addButton("Discard", QMessageBox::RejectRole);
+  auto addButton = prompt.addButton("Add", QMessageBox::AcceptRole);
+  prompt.setDefaultButton(discardButton);
+
+  prompt.exec();
+  if (prompt.clickedButton() == addButton) {
+    addSameMzRtGroup = true;
+  } else {
+    addSameMzRtGroup = false;
   }
-
-  stringModel->setStringList(list);
-
-  listTextView->setModel(stringModel);
-  listTextView->setData(list);
-  listTextView->setSelectionMode(QAbstractItemView::MultiSelection);
-  listTextView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-  // set all widget and labels to prompt dailog
-  promptDialogLayout->insertWidget(0, upperLabel);
-  promptDialogLayout->insertWidget(1, listTextView);
-  promptDialogLayout->insertWidget(2, lowerLabel);
-  promptDialogLayout->insertLayout(3, buttonLayout);
-  promptDialog->setLayout(promptDialogLayout);
-  promptDialog->exec();
 }
 
 bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
@@ -2565,23 +2532,11 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
   }
 
   for (auto g : _topLevelGroups) {
-    if (g.get() == group)
-      return true;
-    if ((double)std::abs(group->meanMz - g->meanMz) < 1e-5 &&
-        (double)std::abs(group->meanRt - g->meanRt) < 1e-5) {
+    if (mzUtils::almostEqual(group->meanMz, g->meanMz)
+        && mzUtils::almostEqual(group->meanRt, g->meanRt)) {
       addSameMzRtGroup = false;
-      if (!sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+      showSameGroup(sameMzRtGroupIndexHash);
 
-        showSameGroup(sameMzRtGroupIndexHash);
-        /**
-         * if bookmarked list has group with same mz and rt, loop will hold the
-         * execution of this method after showing the prompt dialog to choose
-         * whether to add this group by above method <showSameGroup>.
-         */
-        QEventLoop loop;
-        connect(save, SIGNAL(clicked()), &loop, SLOT(quit()));
-        connect(cancel, SIGNAL(clicked()), &loop, SLOT(quit()));
-      }
       if (addSameMzRtGroup) {
         /**
          * if user pressed <save> button <addSameMzRtGroup> will be set to true
@@ -2590,6 +2545,7 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
          * these string next time if a group with same rt and mz is encountered.
          */
         sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+
         /**
          * return false such that calling method will add this group to
          * bookmarked group.
