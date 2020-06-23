@@ -415,15 +415,17 @@ void BackgroundPeakUpdate::updateGroups(QList<shared_ptr<PeakGroup>> groups,
                                         MavenParameters* mavenParameters)
 {
 
+    
     for(auto group : groups)
     {
+        MavenParameters* mp = group->parameters().get();
         auto slice = group->getSlice();
         slice.rtmin = samples[0]->minRt;
         slice.rtmax = samples[0]->maxRt;
 
         auto eics  = PeakDetector::pullEICs(&slice,
                                            samples,
-                                           mavenParameters);
+                                           mp);
         for(auto eic : eics)
         {
             for(Peak& peak :  group->peaks)
@@ -439,16 +441,16 @@ void BackgroundPeakUpdate::updateGroups(QList<shared_ptr<PeakGroup>> groups,
         if (!group->isIsotope() && group->childCount() > 0)
         {
             group->children.clear();
-            bool C13Flag = mavenParameters->C13Labeled_BPE;
-            bool N15Flag = mavenParameters->N15Labeled_BPE;
-            bool S34Flag = mavenParameters->S34Labeled_BPE;
-            bool D2Flag = mavenParameters->D2Labeled_BPE;
+            bool C13Flag = mp->C13Labeled_BPE;
+            bool N15Flag = mp->N15Labeled_BPE;
+            bool S34Flag = mp->S34Labeled_BPE;
+            bool D2Flag = mp->D2Labeled_BPE;
 
             IsotopeDetection::IsotopeDetectionType isoType;
             isoType = IsotopeDetection::PeakDetection;
 
             IsotopeDetection isotopeDetection(
-                mavenParameters,
+                mp,
                 isoType,
                 C13Flag,
                 N15Flag,
