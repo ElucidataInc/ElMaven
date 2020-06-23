@@ -134,6 +134,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         peakupdater = new BackgroundPeakUpdate(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
+        _inDetectionMode = false;
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
