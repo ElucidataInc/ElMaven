@@ -2178,7 +2178,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnEditPeakGroup") {
     QToolButton *btnEditPeakGroup = new QToolButton(parent);
     btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
-    btnEditPeakGroup->setToolTip("Edit Peakgroup");
+    btnEditPeakGroup->setToolTip("Edit the peak area or baseline for individual peaks of the selected peak-group.");
     connect(btnEditPeakGroup,
             &QToolButton::clicked,
             td,
@@ -2187,7 +2187,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnSettingsLog") {
     QToolButton *btnSettingsLog = new QToolButton(parent);
     btnSettingsLog->setIcon(QIcon(rsrcPath + "/settingsLog.png"));
-    btnSettingsLog->setToolTip("Intergration Settings");
+    btnSettingsLog->setToolTip("Show a log of settings that were used while integrating the selected peak-group.");
     connect(btnSettingsLog,
             &QToolButton::clicked,
             td,
