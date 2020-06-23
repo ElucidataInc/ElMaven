@@ -168,11 +168,11 @@ void GroupSettingsLog::_displayGroupSettings()
             "Peak-grouping settings",
             {
                 {"RT weight",
-                 tr("%1").arg(mp->distXWeight)},
+                 tr("%1").arg(mp->distXWeight/10)},
                 {"Intensity weight",
-                 tr("%1").arg(mp->distYWeight)},
+                 tr("%1").arg(mp->distYWeight/10)},
                 {"Overlap weight",
-                 tr("%1").arg(mp->overlapWeight)},
+                 tr("%1").arg(mp->overlapWeight/10)},
                 {"Consider overlap",
                  tr("%1").arg(mp->useOverlap ? "Yes" : "No")},
             }

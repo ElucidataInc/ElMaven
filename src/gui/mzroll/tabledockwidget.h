@@ -347,33 +347,6 @@ public:
   BookmarkTableDockWidget (MainWindow *mw);
   ~BookmarkTableDockWidget();
 
-  /**
-   * @param promptDialog is main dialog box to show user prompt for already
-   * bookmarked groups with same mz and rt value. It will hold <save>, <cancel>,
-   * text labels (<upperLabel> and <lowerLabel>), list of already
-   * bookmarked groups <listTextView>.
-   */
-  QDialog *promptDialog;
-  QHBoxLayout *buttonLayout;
-  QVBoxLayout *promptDialogLayout;
-
-  /**
-   * @param- holds all widget (upperLabel,listTextView,lowerLabel) and
-   * <buttonLayout>
-   */
-  QLabel *upperLabel;
-  QLabel *lowerLabel;
-  QPushButton *cancel;
-  QPushButton *save;
-  ListView *listTextView;
-
-  /**
-   * @param-  holds all already group's corresponding
-   * compound name
-   * @param-  model of compound name, will be set to <listTextView>
-   */
-  QStringListModel *stringModel;
-
   QMap<QPair<int, int>, QList<QString>> sameMzRtGroups;
   bool addSameMzRtGroup;
 
@@ -403,23 +376,6 @@ public Q_SLOTS:
    * @param pointer to QAction that stores the selected peak table
    */
   void mergeGroupsIntoPeakTable(QAction *action);
-
-  /**
-   * @details This is a slot tied with <save> button of prompt dialog
-   * <promptDialog> to show already bookmarked group with same mz and rt value.
-   * If user press <save> button <addSameMzRtGroup> sets to true which will be
-   * used to add this group's corresponding compound name to already bookmarked
-   * group of same rt and mz value.
-   */
-  void acceptGroup();
-
-  /**
-   * @details This is a slot tied with <save> button of prompt dialog
-   * <promptDialog> to show already bookmarked group with same mz and rt value.
-   * If user press <cancel> button <addSameMzRtGroup> sets to false which will
-   * be used to reject this group's corresponding compound name.
-   */
-  void rejectGroup();
 
   void deleteGroup(PeakGroup *groupX);
   void markGroupGood();
