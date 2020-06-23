@@ -70,6 +70,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 //Linear Algebra
 #include <../Eigen/Core>
