@@ -243,9 +243,7 @@ class PeakGroup{
          */
         inline PeakGroup* getParent() { return parent; }
 
-
-        inline vector<Peak>& getPeaks() { return peaks; }
-
+        inline const vector<Peak>& getPeaks() const { return peaks; }
 
         inline const vector<shared_ptr<PeakGroup>> getChildren() { return children; }
 

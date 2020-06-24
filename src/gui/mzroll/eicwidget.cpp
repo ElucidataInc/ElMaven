@@ -501,9 +501,15 @@ void EicWidget::addEICLines(bool showSpline,
 {
     // sort EICs by peak height of selected group, tallest go at the back
     vector<Peak> peaks;
-    if (eicParameters->displayedGroup() != nullptr && !_plottingMs2) {
+    if (eicParameters->displayedGroup() != nullptr) {
         auto group = eicParameters->displayedGroup();
-        peaks = group->getPeaks();
+        if (_plottingMs2) {
+            auto fragmentGroup =
+                group->nearestFragmentGroup(eicParameters->getMzSlice().mz);
+            peaks = fragmentGroup->getPeaks();
+        } else {
+            peaks = group->getPeaks();
+        }
         sort(peaks.begin(), peaks.end(), Peak::compIntensity);
     } else {
       sort(eicParameters->eics.begin(),
