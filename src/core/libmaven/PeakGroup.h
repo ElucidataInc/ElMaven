@@ -258,7 +258,7 @@ class PeakGroup
         return parent;
     }
 
-    inline vector<Peak>& getPeaks()
+    inline const vector<Peak>& getPeaks() const
     {
         return peaks;
     }

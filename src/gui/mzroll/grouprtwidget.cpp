@@ -276,7 +276,7 @@ void GroupRtWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
 
 vector<mzSample*> GroupRtWidget::getSamplesFromGroup(PeakGroup group) {
 
-    vector<Peak>& peaks = group.getPeaks();
+    const vector<Peak>& peaks = group.getPeaks();
     vector<mzSample*> samples;
     for(unsigned int i=0; i < peaks.size(); i++ ) {
         mzSample* s = peaks[i].getSample();

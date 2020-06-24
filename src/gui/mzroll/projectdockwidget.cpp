@@ -1061,7 +1061,7 @@ void ProjectDockWidget::unloadSample(mzSample* sample) {
     Q_FOREACH(peaksTable, peaksTableList) {
         QList<shared_ptr<PeakGroup>> groups = peaksTable->getGroups();
         Q_FOREACH (shared_ptr<PeakGroup> grp, groups) {
-            vector<Peak>& peaks = grp->getPeaks();
+            vector<Peak>& peaks = grp->peaks;
             for(unsigned int j=0; j< peaks.size(); j++) {
                 Peak p = peaks.at(j);
                 if (p.getSample()->sampleName == sample->sampleName) {
