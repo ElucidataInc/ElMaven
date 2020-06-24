@@ -2037,7 +2037,7 @@ void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
     if (_frozen)
 		return;
 
-    if (_plottingMs2) {
+    if (_plottingMs2 && group != nullptr) {
         float fragmentMz = eicParameters->_slice.mz;
         auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
         if (fragmentGroup != nullptr) {
@@ -2048,7 +2048,7 @@ void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
             if (_showBoxPlot)
                 addBoxPlot(fragmentGroupCopy);
         }
-    } else {
+    } else if (group != nullptr) {
         if (_showBarPlot)
             addBarPlot(group);
         if (_showBoxPlot)
