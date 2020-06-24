@@ -1121,8 +1121,6 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         addTicLine();
     if (_showMergedEIC)
         addMergedEIC();
-    if (_focusLineRt >0)
-        setFocusLine(_focusLineRt);
     if (_showMS2Events && eicParameters->_slice.mz > 0) 
         addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
 
