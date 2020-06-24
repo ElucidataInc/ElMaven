@@ -27,6 +27,7 @@ SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra)
    _lowerLabel = nullptr;
    _upperLabel = nullptr;
    _overlayMode = isFragSpectra ? OverlayMode::Raw : OverlayMode::None;
+   _showAsMirrorPlot = true;
 
     initPlot();
 
@@ -85,8 +86,6 @@ void SpectraWidget::initPlot()
 
 void SpectraWidget::setCurrentScan(Scan* scan)
 {
-    qDebug() << "setCurrentScan: " << scan;
-
     if (!_currentScan) {
         _currentScan = new Scan(0,0,0,0,0,0); //empty scan;
     }
@@ -147,8 +146,11 @@ void SpectraWidget::_placeLabels()
         _lowerLabel->setVisible(true);
     }
     int lowerLabelWidth = _lowerLabel->boundingRect().width();
+    int lowerLabelHeight = _lowerLabel->boundingRect().height();
+    int lowerLabelYPos = _showAsMirrorPlot ? scene()->height() - lowerLabelHeight
+                                           : scene()->height() / 2;
     _lowerLabel->setPos(scene()->width() - lowerLabelWidth,
-                        scene()->height() / 2);
+                        lowerLabelYPos);
 }
 
 void SpectraWidget::setTitle(QString titleText) 
@@ -178,7 +180,6 @@ void SpectraWidget::setScan(Scan* scan)
 {
     if ( scan == NULL ) return;
     setCurrentScan(scan);
-    cerr << "SpectraWidget::setScan(scan) " << endl;
     findBounds(true,true);
     drawGraph();
     repaint();
@@ -187,7 +188,6 @@ void SpectraWidget::setScan(Scan* scan)
 void SpectraWidget::setScan(Scan* scan, float mzmin, float mzmax)
 {
     if ( scan == NULL ) return;
-    cerr << "SpectraWidget::setScan(scan,min,max) : " << scan->scannum << endl;
     setCurrentScan(scan);
     _minX = mzmin;
     _maxX = mzmax;
@@ -206,7 +206,6 @@ void SpectraWidget::setScan(mzSample* sample, int scanNum=-1)
 
     if ( scanNum >= 0 && scanNum < sample->scans.size() ) {
         setCurrentScan(sample->scans[ scanNum ]);
-        cerr << "SpectraWidget::setScan(scan) " << endl;
         findBounds(false,true);
         drawGraph();
         repaint();
@@ -215,7 +214,6 @@ void SpectraWidget::setScan(mzSample* sample, int scanNum=-1)
 
 void SpectraWidget::setScan(Peak* peak)
 {
-    cerr << "SpectraWidget::setScan(peak) " << endl;
     links.clear();
 
     if (peak == NULL ) return;
@@ -241,7 +239,6 @@ void SpectraWidget::setScan(Peak* peak)
 
 void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff)
 {
-    qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productMassCutoff->getMassCutoff() << endl;
     if(!_currentScan) return;
 	if(peptideSeq.isEmpty()) return;
 
@@ -263,7 +260,6 @@ void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *p
         int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz, productMassCutoff);
         if(pos != -1 and seen[pos] == false) {
             ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
-            qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
 
             hit.mzList << _currentScan->mz[pos];
             hit.intensityList << _currentScan->intensity[pos];
@@ -323,7 +319,6 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 
     _spectralHit = hit;
 
-    cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name() << " " << c->precursorMz() << endl;
 
     if (_currentScan && _currentScan->mslevel == 2) {
         _showOverlay = true;
@@ -383,7 +378,6 @@ void SpectraWidget::overlayScan(Scan *scan)
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
 {
-    qDebug() << "showConsensusSpectra()";
     if (!group) return;
     _scanset.clear();
 
@@ -405,10 +399,10 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit)
     double maxIntensity = hit.getMaxIntensity();
 
     QPen redpen(Qt::red, 1);
-    QPen bluepen(Qt::blue, 2);
-    QPen graypen(Qt::gray, 1);
+    QPen bluepen(QColor("#1e90ff"), 2);
 
     float SCALE = 0.45;
+    float OFFSET = scene()->height() / 2.0 + 2.0;
 
     QGraphicsTextItem* text = new QGraphicsTextItem(hit.compoundId);
     text->setFont(_title->font());
@@ -417,47 +411,31 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit)
     _items.push_back(text);
 
     for(int i = 0; i < hit.mzList.size(); i++) {
-        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i], massCutoffWindow);
+        int pos = _currentScan->findHighestIntensityPos(hit.mzList[i],
+                                                        massCutoffWindow);
         double hitIntensity = 0;
         if (i < hit.intensityList.size())
             hitIntensity = hit.intensityList[i];
 
         int x = toX(hit.mzList[i]);
         int y = toY((hitIntensity / maxIntensity) * _maxY, SCALE);
-
-        QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, toY(0), 0);
+        QGraphicsLineItem* line = nullptr;
+        if (_showAsMirrorPlot) {
+            y = OFFSET + (scene()->height() - y);
+            line = new QGraphicsLineItem(x, y, x, OFFSET, 0);
+        } else {
+            line = new QGraphicsLineItem(x, y, x, toY(0), 0);
+        }
         pos >= 0 ? line->setPen(bluepen) : line->setPen(redpen);
         scene()->addItem(line);
         _items.push_back(line);
-
-        if (pos >= 0 && pos < _currentScan->nobs()) {
-            //matched peak
-            int x = toX(_currentScan->mz[pos]);
-            int y = toY(_maxY * (hitIntensity / maxIntensity));
-            QGraphicsLineItem* line = new QGraphicsLineItem(x, y, x, toY(0), 0);
-            line->setPen(graypen);
-            scene()->addItem(line);
-            _items.push_back(line);
-        } else {
-            /*
-			//unmatched paek
-            int x = toX(hit.mzList[i]);
-            int y = toY(_maxY*(hitIntensity/maxIntensityHit));
-            QGraphicsLineItem* line = new QGraphicsLineItem(x,y,x,toY(0),0);
-            line->setPen(redpen);
-            scene()->addItem(line);
-            _items.push_back(line);
-        	text->setPos(x-2,y-20);
-            */
-        }
     }
     scene()->update();
     delete massCutoffWindow;
 }
 
-void SpectraWidget::clearGraph() {
-    qDebug() << "drawSpectra() mzrange= " << _minX << "-" << _maxX;
-
+void SpectraWidget::clearGraph()
+{
     //clean up previous plot
     if ( _arrow ) _arrow->setVisible(false);
     if (_upperLabel)
@@ -617,20 +595,20 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
 
         if (!mzUtils::almostEqual(_focusedMz, 0.0f)
             && abs(scan->mz[j] - _focusedMz) < 0.005) {
-            QPen redpen(Qt::red, 3);
+            QPen greenPen(QColor("#32cd32"), 2);
             QGraphicsLineItem* line = new QGraphicsLineItem(x, y,
                                                             x, yzero,
                                                             nullptr);
             scene()->addItem(line);
-            line->setPen(redpen);
+            line->setPen(greenPen);
             _items.push_back(line);
         }
     }
     scene()->update();
 }
 
-void SpectraWidget::drawScanSet(vector<Scan*>& scanset) {
-    qDebug() << "drawScanSet() " << scanset.size();
+void SpectraWidget::drawScanSet(vector<Scan*>& scanset)
+{
  /*
     _minX = scanset[0]->minMz();
     _maxX = scanset[0]->maxMz();
@@ -734,8 +712,6 @@ void SpectraWidget::drawGraph()
     
     if (_currentScan == NULL) return;
 
-    qDebug() << "showSpectra() mzrange= " << _minX << "-" << _maxX;
-
     QColor sampleColor(Qt::black);
     if (_currentScan->sample) {
         mzSample* sample = _currentScan->sample;
@@ -749,17 +725,18 @@ void SpectraWidget::drawGraph()
     if (_spectralHit.mzList.size() > 0) {
         setGroupTitle();
         _placeLabels();
-        if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.1f)
+        if (fabs(_spectralHit.precursorMz - _currentScan->precursorMz) < 0.1f) {
             drawSpectralHit(_spectralHit);
-        else {
+        } else {
             //TODO: either remove the check or inform user on the UI in case of failure
-            qDebug() << " overlaySpectra() skipped: "
+            qDebug() << "spectra overlay skipped: "
                      << _spectralHit.precursorMz
                      << " "
                      << _currentScan->precursorMz;
         }
-    } else
+    } else {
         setScanTitle();
+    }
 
     // TODO: show Y-axis correctly for both reference and observed spectra,
     // hiding Y-axis until then
@@ -779,7 +756,7 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
 
     // TODO: similarly size of `_spectralHit->mzList` can also be checked here
     if (_currentScan->mz.size() == 0) {
-        qDebug() << "Empty scan: " << _currentScan->scannum << endl;
+        qDebug() << "empty scan: " << _currentScan->scannum << endl;
         return;
     }
 
@@ -801,9 +778,6 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
     // the picture fully
     minMZ -= 20;
     maxMZ += 20;
-
-    cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
-    cerr << "findBounds(): range [" << minMZ << ", " << maxMZ << "]" << endl;
 
     if (_minX < minMZ)
         _minX = minMZ;
@@ -1260,11 +1234,9 @@ void SpectraWidget::zoomIn()
     float _centerX = _minX+D;
 
     if (_focusCoord.x() != 0 && _focusCoord.x() > _minX && _focusCoord.x() < _maxX ) _centerX = _focusCoord.x();
-	//cerr << "zoomIn center=" << _centerX << " D=" << D <<  " focus=" << _focusCoord.x() << endl;
 
     _minX = _centerX-D/2;
     _maxX = _centerX+D/2;
-    //cerr << _centerX << " " << _minX << " " << _maxX << " " << _minZ << " " << _maxZ << endl;
     findBounds(false,true);
     replot();
 
@@ -1272,7 +1244,6 @@ void SpectraWidget::zoomIn()
 
 void SpectraWidget::zoomOut()
 {
-	cerr << "zoomOut" << endl;
     _minX = _minX * 0.9;
     _maxX = _maxX * 1.1;
     findBounds(false,true);
@@ -1319,8 +1290,17 @@ void SpectraWidget::contextMenuEvent(QContextMenuEvent * event)
     QAction* a5 = menu.addAction("Centroided Mode");
     connect(a5, SIGNAL(triggered()), SLOT(setCentroidedMode()));
 
+    if (_showOverlay) {
+        QAction* a6 = menu.addAction("Show as mirror plot");
+        a6->setCheckable(true);
+        a6->setChecked(_showAsMirrorPlot);
+        connect(a6, &QAction::triggered, [this](bool checked) {
+            _showAsMirrorPlot = checked;
+            replot();
+        });
+    }
 
-    QAction *selectedAction = menu.exec(event->globalPos());
+    menu.exec(event->globalPos());
 }
 
 void SpectraWidget::spectraToClipboard()
@@ -1453,7 +1433,6 @@ void SpectraWidget::constructAverageScan(float rtmin, float rtmax)
 
     if (_currentScan && _currentScan->getSample()) {
         Scan* avgScan = _currentScan->getSample()->getAverageScan(rtmin,rtmax,_currentScan->mslevel,_currentScan->getPolarity(),(float)100.0);
-        qDebug() << "constructAverageScan() " << rtmin << " " << rtmax << " mslevel=" << _currentScan->mslevel << endl;
         avgScan->simpleCentroid();
         if(avgScan) setScan(avgScan);
     }

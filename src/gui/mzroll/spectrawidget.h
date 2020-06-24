@@ -136,6 +136,7 @@ public:
                     vector<int> peakClusters;
 
                     OverlayMode _overlayMode;
+                    bool _showAsMirrorPlot;
 
                     void initPlot();
                     void addAxes();
