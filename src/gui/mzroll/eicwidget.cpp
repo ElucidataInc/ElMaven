@@ -1670,9 +1670,12 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
     if (_autoZoom && group->parent != NULL) {
         eicParameters->_slice.rtmin = group->parent->minRt - 2 * _zoomFactor;
         eicParameters->_slice.rtmax = group->parent->maxRt + 2 * _zoomFactor;
-    } else if (_autoZoom) {
+    } else if (_autoZoom && group->peakCount() > 0) {
         eicParameters->_slice.rtmin = group->minRt - 2 * _zoomFactor;
         eicParameters->_slice.rtmax = group->maxRt + 2 * _zoomFactor;
+    } else if (_autoZoom) {
+        eicParameters->_slice.rtmin = group->meanRt - 2.5f * _zoomFactor;
+        eicParameters->_slice.rtmax = group->meanRt + 2.5f * _zoomFactor;
     }
 
     //make sure that plot region is within visible samPle bounds;

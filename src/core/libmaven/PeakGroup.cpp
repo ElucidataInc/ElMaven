@@ -710,9 +710,12 @@ void PeakGroup::groupStatistics() {
     weightedAvgPeakQuality = weightedSum/sumWeights;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
-    if ( nonZeroCount ) {
+    if (nonZeroCount) {
         meanRt = rtSum/nonZeroCount;
         meanMz = mzSum/nonZeroCount;
+    } else {
+        meanRt = (_slice.rtmin + _slice.rtmax) / 2.0f;
+        meanMz = (_slice.mzmin + _slice.mzmax) / 2.0f;
     }
 
     groupOverlapMatrix();
