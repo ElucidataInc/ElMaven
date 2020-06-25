@@ -134,6 +134,11 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
         emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
     }
 
+    // possible when all peaks are zeroed
+    if (_minRt == numeric_limits<float>::max()
+        && _maxRt == numeric_limits<float>::min()) {
+        _minRt = _maxRt = group->meanRt;
+    }
     _minRt -= _rtBuffer;
     _maxRt += _rtBuffer;
 
