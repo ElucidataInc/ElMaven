@@ -206,18 +206,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
 
-        if (matchRt->isChecked()) {
-            compoundRTWindow->setEnabled(true);
-        } else {
-            compoundRTWindow->setEnabled(false);
-        }
-
-        if (identificationMatchRt->isChecked()) {
-            identificationRtWindow->setEnabled(true);
-        } else {
-            identificationRtWindow->setEnabled(false);
-        }
-
         connect(classificationModelFilename,
                 SIGNAL(textChanged(QString)),
                 this,
@@ -460,6 +448,18 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         toggleFragmentation();
 
         _setAdductWindowState();
+
+        if (matchRt->isChecked()) {
+            compoundRTWindow->setEnabled(true);
+        } else {
+            compoundRTWindow->setEnabled(false);
+        }
+
+        if (identificationMatchRt->isChecked()) {
+            identificationRtWindow->setEnabled(true);
+        } else {
+            identificationRtWindow->setEnabled(false);
+        }
 
         QDialog::exec();
     }

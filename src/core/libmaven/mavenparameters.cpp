@@ -167,7 +167,8 @@ MavenParameters::MavenParameters(const MavenParameters& mp)
 
 MavenParameters::~MavenParameters()
 {
-    saveSettings(lastUsedSettingsPath.c_str());
+    if (!lastUsedSettingsPath.empty())
+        saveSettings(lastUsedSettingsPath.c_str());
 }
 
 MavenParameters& MavenParameters::operator=(const MavenParameters& mp)
@@ -290,7 +291,9 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     overlapWeight = mp.overlapWeight;
     useOverlap = mp.useOverlap;
 
-    lastUsedSettingsPath = mp.lastUsedSettingsPath;
+    // intentionally set this empty, so that it does not write to session
+    // setting when being destroyed
+    lastUsedSettingsPath = "";
     defaultSettingsData = mp.defaultSettingsData;
     mavenSettings = mp.mavenSettings;
 

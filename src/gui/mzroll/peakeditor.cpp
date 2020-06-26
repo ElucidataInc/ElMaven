@@ -174,8 +174,10 @@ void PeakEditor::_setRtRangeAndValues()
         }
     } else if (_group->isIsotope() && _group->parent != nullptr) {
         PeakGroup* parentGroup = _group->parent;
-        minRt = parentGroup->minRt - rtBuffer;
-        maxRt = parentGroup->maxRt + rtBuffer;
+        if (parentGroup->peakCount() > 0) {
+            minRt = parentGroup->minRt - rtBuffer;
+            maxRt = parentGroup->maxRt + rtBuffer;
+        }
         for (auto child : parentGroup->children) {
             if (child->peakCount() == 0)
                 continue;
@@ -335,6 +337,7 @@ void PeakEditor::_applyEdits()
             _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
         }
         group->groupStatistics();
+        qDebug() << group->getName().c_str() << group->meanMz << group->meanRt;
     };
 
     // lambda: obtain full range EICs for the given peak-group

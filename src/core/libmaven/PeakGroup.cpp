@@ -710,7 +710,7 @@ void PeakGroup::groupStatistics() {
     weightedAvgPeakQuality = weightedSum/sumWeights;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
-    if ( nonZeroCount ) {
+    if (nonZeroCount) {
         meanRt = rtSum/nonZeroCount;
         meanMz = mzSum/nonZeroCount;
     }

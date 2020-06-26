@@ -241,13 +241,13 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 
   //score group quality
   groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
-  if (groupClsf != NULL) {
+  if (group->peakCount() > 0 && groupClsf != NULL) {
       groupClsf->classify(group.get());
   }
 
   //get probability good/bad from svm
   svmPredictor* groupPred = _mainwindow->getSVMPredictor();
-  if (groupPred != NULL) {
+  if (group->peakCount() > 0 && groupPred != NULL) {
       groupPred->predict(group.get());
   }
 
@@ -397,8 +397,6 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
 
   if (group == nullptr)
     return;
-  if (group->peakCount() == 0)
-    return;
   if (group->meanMz <= 0) {
     return;
   }
@@ -458,13 +456,13 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
 
     //TODO: Move this to peak detector or peakgroup
     groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
-    if (groupClsf != NULL) {
+    if (group->peakCount() > 0 && groupClsf != NULL) {
         groupClsf->classify(group.get());
     }
 
     //Get prediction labels from svm
     svmPredictor* groupPred = _mainwindow->getSVMPredictor();
-    if (groupPred != NULL) {
+    if (group->peakCount() > 0 && groupPred != NULL) {
         groupPred->predict(group.get());
     }
   } else if (viewType == peakView) {
@@ -1611,7 +1609,11 @@ void TableDockWidget::editSelectedPeakGroup()
   editor->exec();
 
   auto currentItem = treeWidget->currentItem();
-  updateItem(currentItem, true);
+  if (currentItem->parent() != nullptr) {
+    updateItem(currentItem->parent(), true);
+  } else {
+    updateItem(currentItem, true);
+  }
 
   auto groupToSave = group;
   if (group->isIsotope() && group->parent != nullptr) {
