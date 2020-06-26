@@ -713,9 +713,6 @@ void PeakGroup::groupStatistics() {
     if (nonZeroCount) {
         meanRt = rtSum/nonZeroCount;
         meanMz = mzSum/nonZeroCount;
-    } else {
-        meanRt = (_slice.rtmin + _slice.rtmax) / 2.0f;
-        meanMz = (_slice.mzmin + _slice.mzmax) / 2.0f;
     }
 
     groupOverlapMatrix();

@@ -1609,7 +1609,11 @@ void TableDockWidget::editSelectedPeakGroup()
   editor->exec();
 
   auto currentItem = treeWidget->currentItem();
-  updateItem(currentItem, true);
+  if (currentItem->parent() != nullptr) {
+    updateItem(currentItem->parent(), true);
+  } else {
+    updateItem(currentItem, true);
+  }
 
   auto groupToSave = group;
   if (group->isIsotope() && group->parent != nullptr) {
