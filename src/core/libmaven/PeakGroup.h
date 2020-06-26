@@ -32,6 +32,13 @@ class PeakGroup
 
     enum class GroupType { None, Adduct, Isotope, Covariant, Fragment };
 
+    enum class FragmentationType {
+        None,
+        MsMsWithEvents,
+        MsMsWithFragments,
+        Srm,
+    };
+
     enum QType {
         AreaTop = 0,
         Area = 1,
@@ -151,8 +158,6 @@ class PeakGroup
     // for sample contrasts  ratio and pvalue
     float changeFoldRatio;
     float changePValue;
-
-    bool isMS1();
 
     /**
      * [hasSrmId ]
@@ -283,7 +288,7 @@ class PeakGroup
      * @brief find all MS2 scans for this group
      * @return vector of all MS2 scans for this group
      */
-    vector<Scan*> getFragmentationEvents();
+    vector<Scan*> getFragmentationEvents() const;
 
     /**
      * @brief build a consensus fragment spectra for this group
@@ -720,6 +725,11 @@ class PeakGroup
     }
     void setFragmentGroups(const vector<PeakGroup>& groups);
     const PeakGroup* nearestFragmentGroup(const float mz) const;
+
+    int msLevelOfPeaks() const;
+    FragmentationType fragmentationType() const;
+    bool hasDdaPeaks() const;
+    bool hasDiaPeaks() const;
 
     private:
     int _groupId;
