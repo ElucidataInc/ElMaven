@@ -221,20 +221,6 @@ void PeakGroup::clear() {
     groupRank=INT_MAX;
 }
 
-bool PeakGroup::isMS1()
-{
-    if (peaks.size() == 0) return false;
-
-    Peak peak = peaks[0];
-    if (peak.getSample()) {
-        Scan* scan = peak.getSample()->getScan(peak.scan);
-        if (scan && scan->mslevel == 1)
-            return true;
-    }
-
-    return false;
-}
-
 bool PeakGroup::hasCompoundLink() const
 {
     if(hasSlice() && _slice.compound != NULL)
@@ -866,10 +852,11 @@ vector<Scan*> PeakGroup::getRepresentativeFullScans() {
     return matchedscans;
 }
 
-vector<Scan*> PeakGroup::getFragmentationEvents()
+vector<Scan*> PeakGroup::getFragmentationEvents() const
 {
     vector<Scan*> matchedScans;
-    if (!this->isMS1()) return matchedScans;
+    if (msLevelOfPeaks() != 1)
+        return matchedScans;
     
     for(auto peak : peaks) {
         mzSample* sample = peak.getSample();
@@ -911,20 +898,12 @@ void PeakGroup::_computeDdaFragPattern(float productPpmTolr)
 
 void PeakGroup::computeFragPattern(float productPpmTolr)
 {
-    if (!isMS1())
+    if (msLevelOfPeaks() != 1)
         return;
 
-    bool hasDiaSamples = false;
-    bool hasDdaSamples = false;
-    for (auto& peak : peaks) {
-        if (peak.getSample()->diaScanCount() > 0)
-            hasDiaSamples = true;
-        if (peak.getSample()->ms2ScanCount() > 0)
-            hasDdaSamples = true;
-    }
-    if (hasDiaSamples && _fragmentGroups.empty()) {
+    if (hasDiaPeaks() && _fragmentGroups.empty()) {
         FragmentDetection::findFragments(this);
-    } else if (hasDdaSamples) {
+    } else if (hasDdaPeaks()) {
         _computeDdaFragPattern(productPpmTolr);
     }
 }
@@ -1047,4 +1026,62 @@ const PeakGroup* PeakGroup::nearestFragmentGroup(const float mz) const
         }
     }
     return nearestFragmentPeakGroup;
+}
+
+int PeakGroup::msLevelOfPeaks() const
+{
+    if (peaks.empty())
+        return 0;
+
+    Peak peak = peaks.at(0);
+    if (peak.getSample() != nullptr) {
+        Scan* scan = peak.getSample()->getScan(peak.scan);
+        if (scan)
+            return scan->mslevel;
+    }
+    return 0;
+}
+
+PeakGroup::FragmentationType PeakGroup::fragmentationType() const
+{
+    int msLevel = msLevelOfPeaks();
+    if (msLevel == 0)
+        return FragmentationType::None;
+
+    if (msLevel == 1) {
+        if (!_fragmentGroups.empty()) {
+            return FragmentationType::MsMsWithFragments;
+        } else if (ms2EventCount > 0) {
+            return FragmentationType::MsMsWithEvents;
+        } else {
+            return FragmentationType::None;
+        }
+    } else if (msLevel == 2) {
+        bool hasTransition = hasCompoundLink()
+                             && getCompound()->productMz() > 0.0f;
+        if (hasTransition || hasSrmId())
+            return FragmentationType::Srm;
+    }
+
+    return FragmentationType::None;
+}
+
+bool PeakGroup::hasDdaPeaks() const
+{
+    bool hasDdaSamples = false;
+    for (auto& peak : peaks) {
+        if (peak.getSample()->ms2ScanCount() > 0)
+            hasDdaSamples = true;
+    }
+    return hasDdaSamples && (!getFragmentationEvents().empty());
+}
+
+bool PeakGroup::hasDiaPeaks() const
+{
+    bool hasDiaSamples = false;
+    for (auto& peak : peaks) {
+        if (peak.getSample()->diaScanCount() > 0)
+            hasDiaSamples = true;
+    }
+    return hasDiaSamples;
 }

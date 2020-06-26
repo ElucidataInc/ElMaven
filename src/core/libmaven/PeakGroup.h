@@ -28,16 +28,33 @@ class PeakGroup{
             Inherit
         };
 
-        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5, Fragment };
+        enum class GroupType {
+            None=0,
+            C13=1,
+            Adduct=2,
+            Covariant=4,
+            Isotope=5,
+            Fragment
+        };
 
-        enum QType	   {AreaTop=0,
-                        Area=1,
-                        Height=2,
-                        AreaNotCorrected=3,
-                        RetentionTime=4,
-                        Quality=5,
-                        SNRatio=6,
-                        AreaTopNotCorrected=7};
+        enum class FragmentationType {
+            None,
+            MsMsWithEvents,
+            MsMsWithFragments,
+            Srm,
+        };
+
+        enum QType{
+            AreaTop=0,
+            Area=1,
+            Height=2,
+            AreaNotCorrected=3,
+            RetentionTime=4,
+            Quality=5,
+            SNRatio=6,
+            AreaTopNotCorrected=7
+        };
+
         PeakGroup(shared_ptr<MavenParameters> parameters,
                   IntegrationType integrationType);
         PeakGroup(const PeakGroup& o,
@@ -159,8 +176,6 @@ class PeakGroup{
         float changeFoldRatio;
         float changePValue;
 
-        bool isMS1();
-
         /**
          * [hasSrmId ]
          * @method hasSrmId
@@ -253,7 +268,7 @@ class PeakGroup{
          * @brief find all MS2 scans for this group
          * @return vector of all MS2 scans for this group
          */
-        vector<Scan*> getFragmentationEvents();
+        vector<Scan*> getFragmentationEvents() const;
 
         /**
          * @brief build a consensus fragment spectra for this group
@@ -644,6 +659,11 @@ class PeakGroup{
         vector<PeakGroup> fragmentGroups() const { return _fragmentGroups; }
         void setFragmentGroups(const vector<PeakGroup>& groups);
         const PeakGroup* nearestFragmentGroup(const float mz) const;
+
+        int msLevelOfPeaks() const;
+        FragmentationType fragmentationType() const;
+        bool hasDdaPeaks() const;
+        bool hasDiaPeaks() const;
 
     private:
         Adduct* _adduct;

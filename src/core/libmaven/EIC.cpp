@@ -1129,7 +1129,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         //Feng note: fillInPeaks is unecessary
         grp.groupStatistics();
         grp.computeAvgBlankArea(eics);
-        if (grp.getFragmentationEvents().size()) {
+        if (grp.hasDdaPeaks()) {
             grp.computeFragPattern(mp->fragmentTolerance);
             grp.matchFragmentation(mp->fragmentTolerance, mp->scoringAlgo);
         }

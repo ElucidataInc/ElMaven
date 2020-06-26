@@ -331,11 +331,15 @@ void BackgroundPeakUpdate::setRunFunction(QString functionName) {
         runFunction = functionName.toStdString();
 }
 
-void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
+void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup)
+{
+    parentgroup->computeFragPattern(mavenParameters->fragmentTolerance);
+    parentgroup->matchFragmentation(mavenParameters->fragmentTolerance,
+                                    mavenParameters->scoringAlgo);
 
 	bool isotopeFlag = mavenParameters->pullIsotopesFlag;
-
-        if (!isotopeFlag) return;
+    if (!isotopeFlag)
+        return;
 
 	bool C13Flag = mavenParameters->C13Labeled_BPE;
 	bool N15Flag = mavenParameters->N15Labeled_BPE;
@@ -353,10 +357,6 @@ void BackgroundPeakUpdate::pullIsotopes(PeakGroup* parentgroup) {
                 S34Flag,
                 D2Flag);
 	isotopeDetection.pullIsotopes(parentgroup);
-
-    parentgroup->computeFragPattern(mavenParameters->fragmentTolerance);
-    parentgroup->matchFragmentation(mavenParameters->fragmentTolerance,
-                                    mavenParameters->scoringAlgo);
 }
 
 void BackgroundPeakUpdate::pullIsotopesBarPlot(PeakGroup* parentgroup) {

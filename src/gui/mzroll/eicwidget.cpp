@@ -226,14 +226,6 @@ void EicWidget::integrateRegion(float rtMin, float rtMax)
     }
 
     integratedGroup->groupStatistics();
-    int ms2Events =
-        integratedGroup->getFragmentationEvents().size();
-    if (ms2Events) {
-        float ppm = parameters->fragmentTolerance;
-        string scoringAlgo = parameters->scoringAlgo;
-        integratedGroup->computeFragPattern(ppm);
-        integratedGroup->matchFragmentation(ppm, scoringAlgo);
-    }
     getMainWindow()->isotopeWidget->setPeakGroupAndMore(integratedGroup, true);
 }
 
