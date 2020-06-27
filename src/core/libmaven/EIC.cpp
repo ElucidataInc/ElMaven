@@ -424,7 +424,53 @@ Peak *EIC::addPeak(int peakPos)
     return &peaks[peaks.size() - 1];
 }
 
-void EIC::getPeakPositions(int smoothWindow)
+void EIC::reduceToRtRange(float minRt, float maxRt)
+{
+    if (rt.empty())
+        return;
+
+    if (minRt <= rt.front() && maxRt >= rt.back())
+        return;
+
+    auto lower = lower_bound(begin(rt), end(rt), minRt - 0.001);
+    auto upper = upper_bound(begin(rt), end(rt), maxRt + 0.001);
+    if (lower != end(rt) && upper != end(rt)) {
+        int start = distance(begin(rt), lower);
+        int stop = distance(begin(rt), upper);
+        rt = vector<float>(begin(rt) + start, begin(rt) + stop);
+        mz = vector<float>(begin(mz) + start, begin(mz) + stop);
+        intensity = vector<float>(begin(intensity) + start,
+                                  begin(intensity) + stop);
+        scannum = vector<int>(begin(scannum) + start, begin(scannum) + stop);
+
+        totalIntensity = 0.0f;
+        maxIntensity = 0.0f;
+        for (size_t i = 0; i < intensity.size(); ++i) {
+            float eicIntensity = intensity[i];
+            totalIntensity += eicIntensity;
+            if (eicIntensity > maxIntensity) {
+                maxIntensity = eicIntensity;
+                rtAtMaxIntensity = rt[i];
+                mzAtMaxIntensity = mz[i];
+            }
+        }
+
+        if (baseline != nullptr) {
+            float* oldBaseline = baseline;
+            baseline = new float[rt.size()];
+            copy(oldBaseline + start, oldBaseline + stop, baseline);
+            delete[] oldBaseline;
+        }
+        if (spline != nullptr) {
+            float* oldSpline = spline;
+            spline = new float[rt.size()];
+            copy(oldSpline + start, oldSpline + stop, spline);
+            delete[] oldSpline;
+        }
+    }
+}
+
+void EIC::getPeakPositions(int smoothWindow, bool recomputeBaseline)
 {
     unsigned int N = intensity.size();
     if (N == 0)
@@ -436,7 +482,9 @@ void EIC::getPeakPositions(int smoothWindow)
 
     findPeaks();
 
-    computeBaseline();
+    if (baseline == nullptr || recomputeBaseline)
+        computeBaseline();
+
     getPeakStatistics();
 
     filterPeaks();
