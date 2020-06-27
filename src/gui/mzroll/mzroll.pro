@@ -6,10 +6,11 @@ include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
-QT += multimedia multimediawidgets network
-QT += concurrent widgets
+QT += concurrent widgets multimedia multimediawidgets network printsupport
+QT -= qmltest
 
-CONFIG += qt thread warn_off sql svg console precompile_header resources_big
+CONFIG += qt thread warn_off sql svg precompile_header resources_big
+win32: CONFIG += windows
 
 #Faster build + C++11 ++ OpenMP
 
@@ -35,9 +36,6 @@ RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
 win32: RESOURCES += win_pollyphi.qrc
 ICON = maven.icns
-
-
-QT += sql network xml printsupport
 
 linux {
     QMAKE_LFLAGS += -L$$top_builddir/libs/
