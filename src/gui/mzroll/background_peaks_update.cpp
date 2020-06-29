@@ -291,11 +291,11 @@ void BackgroundPeakUpdate::qtSignalSlot(const string& progressText, unsigned int
 
 }
 
-void BackgroundPeakUpdate::completeStop() {
-
+void BackgroundPeakUpdate::completeStop()
+{
     peakDetector->resetProgressBar();
-        mavenParameters->stop = true;
-        stop();
+    mavenParameters->stop = true;
+    stop();
 }
 
 void BackgroundPeakUpdate::computePeaks() {
