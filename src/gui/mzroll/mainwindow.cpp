@@ -2494,11 +2494,6 @@ void MainWindow::loadPathwaysFolder(QString& pathwaysFolder) {
 BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
 	BackgroundPeakUpdate* workerThread = new BackgroundPeakUpdate(this);
 	workerThread->setMainWindow(this);
-
-	connect(workerThread, SIGNAL(updateProgressBar(QString,int,int)),
-			alignmentDialog, SLOT(setProgressBar(QString, int,int)));
-	connect(workerThread, SIGNAL(samplesAligned(bool)), alignmentDialog, SLOT(samplesAligned(bool)));
-        connect(workerThread, SIGNAL(samplesAligned(bool)), this, SLOT(updateTablePostAlignment()));
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
 	return workerThread;
@@ -3544,6 +3539,19 @@ void MainWindow::Align()
                 SIGNAL(restoreAlignment()),
                 alignmentDialog,
                 SLOT(updateRestoreStatus()));
+        connect(workerThread,
+                &BackgroundPeakUpdate::updateProgressBar,
+                alignmentDialog,
+                &AlignmentDialog::setProgressBar);
+        connect(workerThread,
+                &BackgroundPeakUpdate::samplesAligned,
+                alignmentDialog,
+                &AlignmentDialog::samplesAligned);
+        connect(workerThread,
+                &BackgroundPeakUpdate::finished,
+                this,
+                &MainWindow::updateTablePostAlignment);
+
         workerThread->start();
         return;
     }
@@ -3562,6 +3570,18 @@ void MainWindow::Align()
 
     connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
     connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
+    connect(workerThread,
+            &BackgroundPeakUpdate::updateProgressBar,
+            alignmentDialog,
+            &AlignmentDialog::setProgressBar);
+    connect(workerThread,
+            &BackgroundPeakUpdate::samplesAligned,
+            alignmentDialog,
+            &AlignmentDialog::samplesAligned);
+    connect(workerThread,
+            &BackgroundPeakUpdate::finished,
+            this,
+            &MainWindow::updateTablePostAlignment);
 
     mavenParameters->minGoodGroupCount =
         alignmentDialog->minGoodPeakCount->value();
