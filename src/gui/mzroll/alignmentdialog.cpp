@@ -53,6 +53,8 @@ void AlignmentDialog::setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThrea
                 alignAlgo->setEnabled(true);
                 alignButton->setEnabled(true);
                 UndoAlignment->setEnabled(true);
+                QCoreApplication::processEvents();
+                _mw->mavenParameters->allgroups.clear();
             });
 }
 
@@ -63,7 +65,7 @@ void AlignmentDialog::samplesAligned(bool status)
 
 void AlignmentDialog::updateRestoreStatus()
 {
-	showInfo("Restoring to last saved point..");
+    showInfo("Restoring to last saved point…");
 }
 
 void AlignmentDialog::refSampleChanged()
@@ -80,12 +82,10 @@ void AlignmentDialog::setInitPenalty(bool checked)
 
 void AlignmentDialog::cancel()
 {
-	showInfo("Canceling..");
-    if (workerThread) {
-        if (workerThread->isRunning()) {
-            workerThread->completeStop();
-            return;
-        }
+    showInfo("Canceling…");
+    if (workerThread && workerThread->isRunning()) {
+        workerThread->completeStop();
+        return;
     }
     close();
 }

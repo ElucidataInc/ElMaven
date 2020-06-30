@@ -112,10 +112,20 @@ class EIC
     void deletePeak(unsigned int i);
 
     /**
-    * @brief find peak positions after smoothing, baseline calculation and peak filtering
-    * @param smoothWindow number of scans used for smoothing in each iteration
+     * @brief Keep datapoints only within the given retention time range.
+     * @param minRt The lower bound of the desired RT range.
+     * @param maxRt The upper bound of the desired RT range.
+     */
+    void reduceToRtRange(float minRt, float maxRt);
+
+    /**
+    * @brief Find peak positions after smoothing, baseline calculation and peak
+    * filtering.
+    * @param smoothWindow Number of scans used for smoothing in each iteration.
+    * @param recomputeBaseline Whether to recompute the baseline. If baseline
+    * has not been computed, then it will be anyway.
     */
-    void getPeakPositions(int smoothWindow);
+    void getPeakPositions(int smoothWindow, bool recomputeBaseline = true);
 
     /**
     * @brief set values for all members of a peak object

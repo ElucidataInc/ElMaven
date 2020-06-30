@@ -72,8 +72,8 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
             } else {
                 e = sample->getEIC(slice->mzmin,
                                    slice->mzmax,
-                                   slice->rtmin,
-                                   slice->rtmax,
+                                   sample->minRt,
+                                   sample->maxRt,
                                    1,
                                    mp->eicType,
                                    mp->filterline);
@@ -95,10 +95,10 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                     e->setBaselineSmoothingWindow(mp->baseline_smoothingWindow);
                     e->setBaselineDropTopX(mp->baseline_dropTopX);
                 }
+                e->computeBaseline();
+                e->reduceToRtRange(slice->rtmin, slice->rtmax);
                 e->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
-                e->getPeakPositions(mp->eic_smoothingWindow);
-                // smoohing over
-
+                e->getPeakPositions(mp->eic_smoothingWindow, false);
 #pragma omp critical
                 // push eic to all eics vector
                 eics.push_back(e);

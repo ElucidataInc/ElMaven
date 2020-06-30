@@ -154,11 +154,7 @@ private:
 	void alignUsingDatabase();
 	void alignWithObiWarp();
 
-	/**
-	 * [write CSV Report]
-	 * @param setName [name of the set]
-	 */
-	void writeCSVRep(string setName);
+    void emitGroups();
 
 	/**
 	 * [get ProcessSlices Settings]

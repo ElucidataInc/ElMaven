@@ -305,17 +305,13 @@ PeakDetectionDialog::~PeakDetectionDialog() {
 /**
  * PeakDetectionDialog::cancel Stoping the peak detection process
  */
-void PeakDetectionDialog::cancel() {
-    
-    if (peakupdater) {
-        if (peakupdater->isRunning()) {
-            peakupdater->completeStop();
-            return;
-        }
+void PeakDetectionDialog::cancel()
+{
+    if (peakupdater && peakupdater->isRunning()) {
+        setProgressBar("Cancelling…", 0, 0);
+        peakupdater->completeStop();
+        setProgressBar("Cancelled", 0, 1);
     }
-    setDetectionMode(false);
-    setProgressBar("Cancelled", 0, 1);
-    close();
 }
 
 void PeakDetectionDialog::initPeakDetectionDialogWindow(
@@ -615,6 +611,7 @@ void PeakDetectionDialog::findPeaks()
             &BackgroundPeakUpdate::finished,
             this,
             [this] {
+                mainwindow->mavenParameters->allgroups.clear();
                 setDetectionMode(false);
                 close();
             });

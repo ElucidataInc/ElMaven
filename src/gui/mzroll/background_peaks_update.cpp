@@ -126,40 +126,12 @@ void BackgroundPeakUpdate::alignWithObiWarp()
     Q_EMIT(samplesAligned(true));
 
 }
-void BackgroundPeakUpdate::writeCSVRep(string setName)
+void BackgroundPeakUpdate::emitGroups()
 {
-    auto prmGroupAt = find_if(begin(mavenParameters->allgroups),
-                              end(mavenParameters->allgroups),
-                              [] (PeakGroup& group) {
-                                  if (group.getCompound())
-                                    return (group.getCompound()->type()
-                                            == Compound::Type::MS2);
-                                  return false;
-                              });
-    bool prmGroupExists = prmGroupAt != end(mavenParameters->allgroups);
-    //write reports
-
-    CSVReports* csvreports = nullptr;
-    if (mavenParameters->writeCSVFlag) {
-        //Added to pass into csvreports file when merged with Maven776 - Kiran
-        bool includeSetNamesLine=true;
-        string groupfilename = mavenParameters->outputdir + setName + ".csv";
-        
-        CSVReports* csvreports = new CSVReports(groupfilename,CSVReports::ReportType::GroupReport,
-                                                  mavenParameters->samples, 
-                                                  mainwindow->getUserQuantType(),
-                                                  prmGroupExists, includeSetNamesLine,
-                                                  mavenParameters);
-    }
     peakDetector->pullAllIsotopes();
-
-    for (int j = 0; j < mavenParameters->allgroups.size(); j++) {
-        PeakGroup& group = mavenParameters->allgroups[j];
-        if (csvreports != NULL)
-            csvreports->addGroup(&group);
-
+    for (PeakGroup& group : mavenParameters->allgroups) {
         if (mavenParameters->keepFoundGroups) {
-            Q_EMIT(newPeakGroup(&(mavenParameters->allgroups[j])));
+            emit newPeakGroup(&group);
             QCoreApplication::processEvents();
         }
     }
@@ -279,7 +251,7 @@ void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
                                            mavenParameters);
             emit (updateProgressBar("Filtering out false adducts…", 0, 0));
         }
-        writeCSVRep(setName);
+        emitGroups();
 }
 
 void BackgroundPeakUpdate::qtSlot(const string& progressText, unsigned int progress, int totalSteps)
@@ -309,7 +281,7 @@ void BackgroundPeakUpdate::processMassSlices() {
 
         align();
 
-        writeCSVRep("allslices");
+        emitGroups();
         Q_EMIT(updateProgressBar("Status", 0, 100));
 }
 
@@ -319,11 +291,11 @@ void BackgroundPeakUpdate::qtSignalSlot(const string& progressText, unsigned int
 
 }
 
-void BackgroundPeakUpdate::completeStop() {
-
+void BackgroundPeakUpdate::completeStop()
+{
     peakDetector->resetProgressBar();
-        mavenParameters->stop = true;
-        stop();
+    mavenParameters->stop = true;
+    stop();
 }
 
 void BackgroundPeakUpdate::computePeaks() {
