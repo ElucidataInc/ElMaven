@@ -75,6 +75,11 @@ script:
       if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
         qmake CONFIG+=debug -o Makefile build.pro;
         make -j4;
+        if [ $? != 0 ]; then
+          echo "An error occurred during build step"
+          exit 1
+        fi
+
         ./run_tests.sh;
       else
         # to export the path to sentry-native dynamic library
@@ -104,7 +109,17 @@ script:
         export QTEST_FUNCTION_TIMEOUT=1200000
         echo $QTEST_FUNCTION_TIMEOUT
         echo no | ./run.sh
+        if [ $? != 0 ]; then
+          echo "An error occurred during build step"
+          exit 1
+        fi
+
         ./run_tests.sh
+        if [ $? != 0 ]; then
+          echo "One or more tests failing"
+          exit 1
+        fi
+
         lcov -b src/core/libmaven/ --capture --directory ../build/tmp/maven/ --output-file lcov.info --no-external
         lcov --summary lcov.info
       else
