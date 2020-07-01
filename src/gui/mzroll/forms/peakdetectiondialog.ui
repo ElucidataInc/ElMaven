@@ -128,7 +128,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_matchAtLeastX">
             <property name="text">
-             <string>Match at least X peaks</string>
+             <string>Match at least X fragments</string>
             </property>
            </widget>
           </item>
@@ -507,16 +507,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Match Retention Time (+/-)</string>
-            </property>
-            <property name="checked" stdset="0">
-             <string>Limit Number of Reported Groups per Compound</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="2">
            <widget class="QDoubleSpinBox" name="compoundPPMWindow">
             <property name="suffix">
@@ -619,6 +609,16 @@
           </item>
           <item row="0" column="2">
            <widget class="QComboBox" name="compoundDatabase"/>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Limit number of reported groups per compound</string>
+            </property>
+            <property name="checked" stdset="0">
+             <string>Limit Number of Reported Groups per Compound</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
