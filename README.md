@@ -25,6 +25,7 @@
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 - [References](#references)
+- [How to cite](#how-to-cite)
 - [Acknowledgment](#acknowledgment)
 - [Copyright and license](#copyright-and-license)
 
