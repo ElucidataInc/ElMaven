@@ -1,5 +1,5 @@
 <h1 align="center">El-MAVEN</h1>
-<p align="center">An intuitive, opensource LC-MS data processing tool</p>
+<p align="center">An intuitive, open-source LC-MS data processing tool</p>
 <p align="center">from</p>
 <p align="center">
   <a href="http://www.elucidata.io">
@@ -39,7 +39,7 @@
 
 El-MAVEN is robust, faster and with more user friendly features compared to Maven, and includes the following additional capabilities:
 * Adduct calculator
-* Fragmention spectra matching
+* Fragmentation spectra matching
 * Peak editor
 
 
@@ -259,7 +259,7 @@ Any and all contributions/corrections to the documentation itself will also be v
 ## References
 To understand [El-MAVEN](https://elucidatainc.github.io/ElMaven/)'s workflows and features, please refer to following literature on El-MAVEN and MAVEN:
 * [El-MAVEN: A Fast, Robust, and User-Friendly Mass Spectrometry Data Processing Engine for Metabolomics](https://doi.org/10.1007/978-1-4939-9236-2_19), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
-* [Metabolomic Analysis and Visualization Engine for LC-MSData](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
+* [Metabolomic Analysis and Visualization Engine for LC-MS Data](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
 
 ## How to Cite
 Cite the protocol as:
