@@ -258,8 +258,9 @@ Any and all contributions/corrections to the documentation itself will also be v
 
 ## References
 To understand [El-MAVEN](https://elucidatainc.github.io/ElMaven/)'s workflows and features, please refer to following literature on El-MAVEN and MAVEN:
-* [El-MAVEN: A Fast, Robust, and User-Friendly Mass Spectrometry Data Processing Engine for Metabolomics](https://doi.org/10.1007/978-1-4939-9236-2_19), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
-* [Metabolomic Analysis and Visualization Engine for LC-MS Data](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826
+* [El-MAVEN: A Fast, Robust, and User-Friendly Mass Spectrometry Data Processing Engine for Metabolomics](https://doi.org/10.1007/978-1-4939-9236-2_19), Shubhra Agrawal, Sahil Kumar, Raghav Sehgal, Sabu George, Rishabh Gupta, Surbhi Poddar, Abhishek Jha and Swetabh Pathak (2019), D'Alessandro A. (eds) High-Throughput Metabolomics. Methods in Molecular Biology, vol 1978.
+* [LC‐MS Data Processing with MAVEN: A Metabolomic Analysis and Visualization Engine](https://doi.org/10.1002/0471250953.bi1411s37), Clasquin, M. F., Melamud, E. and Rabinowitz, J. D. 2012, Current Protocols in Bioinformatics. 37:14.11.1-14.11.23.
+* [Metabolomic Analysis and Visualization Engine for LC-MS Data](http://pubs.acs.org/doi/abs/10.1021/ac1021166), Eugene Melamud, Livia Vastag, and Joshua D. Rabinowitz, Analytical Chemistry 2010 82 (23), 9818-9826.
 
 ## How to Cite
 Cite the protocol as:
