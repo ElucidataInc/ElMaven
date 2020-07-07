@@ -26,6 +26,7 @@ public:
     void setLastOpenedProject(QString filename);
     QColor getSampleColor(mzSample* sample);
     QIcon getSampleIcon(mzSample* sample);
+    void updateSampleColor();
 
     /**
      * @brief Restores the state of samples as it was before
