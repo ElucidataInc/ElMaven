@@ -15,18 +15,22 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledock)
     _scene.setSceneRect(0, 0, 676, 267);
     _sceneView = new QGraphicsView(&_scene);
     _sceneView->setRenderHints(QPainter::Antialiasing);
-    _group = _tableDock->getSelectedGroup();
-    _sumNegativeWeights = 0;
-    _sumPositiveWeights = 0;
-}
-
-void ClassificationWidget::showClassification()
-{
     _layout->addWidget(_sceneView);
     _inferenceVisual->setLayout(_layout);
     _inferenceVisual->resize(QSize(900, 400));
     _inferenceVisual->setWindowTitle("Classification inference");
 
+    _group = _tableDock->getSelectedGroup();
+    _sumNegativeWeights = 0;
+    _sumPositiveWeights = 0;
+    _absoluteTotalWeight = 0;
+    _totalWeight = 0;
+    
+    initialiseLabelName();
+}
+
+void ClassificationWidget::showClassification()
+{
     setTitle();
 
     auto predictionInference = _group->predictionInference();
@@ -34,7 +38,8 @@ void ClassificationWidget::showClassification()
     int counter = 0;
     int startPosition = _scene.width() - 500;
 
-    //getting total weights.
+    // Only top 3 attributes taken in account.
+    // getting total weights.
     for (auto it = predictionInference.begin();
          it != predictionInference.end() && counter <  5;
          ++it)
@@ -52,120 +57,85 @@ void ClassificationWidget::showClassification()
         counter++;
     }
 
-    counter = 0;
+    _absoluteTotalWeight = abs(_sumNegativeWeights) + _sumPositiveWeights;
+    _totalWeight = _sumNegativeWeights + _sumPositiveWeights;
+    setOutputValue();
 
+    counter = 0;
     //making left side arrows with negatives
     for (auto it = predictionInference.begin();
          it != predictionInference.end() && counter <  5;
          ++it)
     {
         if (counter == 0){
-            minNegative = it->first;
-            startPosition = makeArrowForNegatives(it->first, it->second, counter, startPosition);
+            startPosition = makeArrowForNegatives(it->first, 
+                                                  it->second, 
+                                                  counter, 
+                                                  startPosition);
         }
         else
-            startPosition = makeArrowForNegatives(it->first, it->second, counter, startPosition + 4);
-        if(counter == 4)
-            maxNegative = it->first;
+            startPosition = makeArrowForNegatives(it->first, 
+                                                  it->second, 
+                                                  counter, 
+                                                  startPosition + 4);
+
         counter++;
     }
 
-    plotAxes(0, _scene.width() - 500, startPosition, minNegative, maxNegative);
-    float startPositive = startPosition;
     counter = 0;
     //making right side arrows with positives
     for (auto it = predictionInference.rbegin();
          it != predictionInference.rend() && counter < 5;
          ++it)
-    {
+    {   
         if(counter == 0){
-            maxPositive = it->first;
-            startPosition = makeArrowForPositives(it->first, it->second, counter, startPosition);
+            startPosition = makeArrowForPositives(it->first, 
+                                                  it->second, 
+                                                  counter, 
+                                                  startPosition);
         }
         else
-            startPosition = makeArrowForPositives(it->first, it->second, counter, startPosition + 4);
-        if(counter == 4)
-            minPositive = it->first;
+            startPosition = makeArrowForPositives(it->first, 
+                                                  it->second, 
+                                                  counter, 
+                                                  startPosition + 4);
         counter++;
-    }
-    plotAxes(1, startPositive, startPosition, minPositive, maxPositive);
+     }
     _inferenceVisual->exec();
 }
 
-void ClassificationWidget::plotAxes(int type, float startX, float endX, float min, float max)
+int ClassificationWidget::makeArrowForNegatives(float shapValue, 
+                                                string label, 
+                                                int counter, 
+                                                int startPosition)
 {
-    QPen pen;
-    pen.setWidth(1);
-    pen.setColor(Qt::black);
-
-    QFont font = QApplication::font();
-    int pxSize = _scene.height() * 0.02;
-    if (pxSize < 8)
-        pxSize = 8;
-    font.setPixelSize(pxSize);
-
-    if(type == 0) {
-        auto line = _scene.addLine(startX, 130, endX, 130, pen);
-
-        line  = _scene.addLine(startX, 130 - 5, startX, 130 + 5, pen);
-        string val = mzUtils::float2string(min, 2);
-        QString value = QString(val.c_str());
-        auto text = _scene.addText(value, font);
-        text->setPos(startX - 1 , 135);
-
-        line = _scene.addLine(endX - 10 , 130 - 5 , endX - 10, 130 +5, pen);
-        val = mzUtils::float2string(max, 2);
-        value = QString(val.c_str());
-        text = _scene.addText(value, font);
-        text->setPos(endX - 25 , 135);
-
-        line = _scene.addLine(startX + (endX - startX)/2, 130 - 5, startX + (endX - startX)/2, 130 + 5, pen);
-        val = mzUtils::float2string((max + min) /2, 2);
-        value = QString(val.c_str());
-        text = _scene.addText(value, font);
-        text->setPos(startX + (endX - startX)/2 - 1 , 135);
-    } else {
-
-        auto line = _scene.addLine(startX, 130, endX, 130, pen);
-
-        line  = _scene.addLine(startX + 30, 130 - 5, startX+30, 130 + 5, pen);
-        string val = mzUtils::float2string(max, 2);
-        QString value = QString(val.c_str());
-        auto text = _scene.addText(value, font);
-        text->setPos(startX +30 , 135);
-
-        line = _scene.addLine(endX , 130 - 5 , endX, 130 +5, pen);
-        val = mzUtils::float2string(min, 2);
-        value = QString(val.c_str());
-        text = _scene.addText(value, font);
-        text->setPos(endX - 1 , 135);
-    }
-
-}
-
-int ClassificationWidget::makeArrowForNegatives(float width, string label, int counter, int startPosition)
-{
+    // Setting pens and brush
     QPen pen;
     pen.setWidth(1);
     pen.setColor(Qt::red);
     auto color = pen.color();
-    int x_displacement;
-    int upperLimitWidth = 60;
-    int lowerLimitWidth = 10;
-
-    double f = 0.8 - (width / _sumNegativeWeights);
-
-    color.setAlphaF(f);
+    double alpha = 0.8 - (shapValue / _sumNegativeWeights);
+    color.setAlphaF(alpha);
     QBrush brush;
     brush.setColor(color);
     brush.setStyle(Qt::SolidPattern);
     pen.setColor(color);
 
+    // Setting font for labelling.
+    QFont font = QApplication::font();
+    int pxSize = _scene.height() * 0.01;
+    if (pxSize < 10)
+        pxSize = 10;
+    font.setPixelSize(pxSize);
+    
+    // Calculating percentage for shap value. 
+    // and width of the arrow.
+    shapValue  = 0.5 + shapValue; // to normalize negative value. as (-0.1 > -0.4).
+    float percentage = (abs(shapValue)/_absoluteTotalWeight) * 100;
+    int x_displacement = percentage * 4; // for width of arrow.
+
     if (counter != 4) {
-
-        float widthScaled = 0.7 - abs(width);
-        x_displacement = lowerLimitWidth + (upperLimitWidth - lowerLimitWidth) * widthScaled;
-
+        // for proper arrow shape.
         QPolygonF polygon;
         polygon << QPoint(startPosition, 150);
         polygon << QPoint(startPosition + x_displacement, 150);
@@ -175,17 +145,9 @@ int ClassificationWidget::makeArrowForNegatives(float width, string label, int c
         polygon << QPoint(startPosition + 20, 170);
         _scene.addPolygon(polygon, pen, brush);
 
-    } else {
-
-        float widthScaled = 0.7 - abs(width);
-        x_displacement = lowerLimitWidth + (upperLimitWidth - lowerLimitWidth) * widthScaled;
-        x_displacement += 10;     //done because no arrow shape gives less width in visualization
-                                  //as compared to other arrows
-
-        QBrush brush;
-        brush.setColor(color);
-        brush.setStyle(Qt::SolidPattern);
-
+    } else { 
+        // for the 5th arrow, straight line in front.
+        x_displacement += 20;
         QPolygonF polygon;
         polygon << QPoint(startPosition, 150);
         polygon << QPoint(startPosition + x_displacement, 150);
@@ -200,53 +162,60 @@ int ClassificationWidget::makeArrowForNegatives(float width, string label, int c
     Linepen.setWidth(2);
     Linepen.setColor(color);
     auto line = _scene.addLine(QLineF(startPosition + x_displacement/2 ,190,
-                                      startPosition + x_displacement/2 - 70 ,
+                                      startPosition + x_displacement/2 - 150,
                                       220),
                                Linepen);
-    line = _scene.addLine(QLineF(startPosition + x_displacement/2 - 70,
-                                 220, startPosition + x_displacement/2 - 70 ,
+    line = _scene.addLine(QLineF(startPosition + x_displacement/2 - 150,
+                                 220, startPosition + x_displacement/2 - 150,
                                  250 + (4 - counter) * 10),
                           Linepen);
-    label += " = ";
-    label += mzUtils::float2string(width, 2);
 
-    QString peakFeature = QString(label.c_str());
+
+    string shapValueString = mzUtils::float2string(shapValue, 3);
+    string changedLabel = _changedLabelName[label];                      
+    changedLabel += " = ";
+    changedLabel += shapValueString;
+
+    QString peakFeature = QString(changedLabel.c_str());
     QString featureText = tr("%1").arg(peakFeature);
 
-    QFont font = QApplication::font();
-    int pxSize = _scene.height() * 0.02;
-    if (pxSize < 8)
-        pxSize = 8;
-    font.setPixelSize(pxSize);
-
     QGraphicsTextItem* title = _scene.addText(featureText, font);
-    title->setHtml(featureText);
-    title->setPos(startPosition - 70, 250 + (4 - counter) * 10);
-
+    title->setPos(startPosition - 150, 
+                  250 + (4 - counter) * 10);
+    
     return (startPosition + x_displacement);
 }
 
-int ClassificationWidget::makeArrowForPositives(float width, string label, int counter, int startPosition)
+int ClassificationWidget::makeArrowForPositives(float shapValue, 
+                                                string label, 
+                                                int counter, 
+                                                int startPosition)
 {
+    // Setting pens and brush
     QPen pen;
     pen.setWidth(1);
     pen.setColor(Qt::blue);
     auto color = pen.color();
-    int upperLimitWidth = 60;
-    int lowerLimitWidth = 10;
-
-    double f = abs(width) / _sumPositiveWeights;
-    color.setAlphaF(f+0.2);
-    pen.setColor(color);
+    double alpha = shapValue / _sumPositiveWeights;
+    color.setAlphaF(alpha);
     QBrush brush;
     brush.setColor(color);
     brush.setStyle(Qt::SolidPattern);
+    pen.setColor(color);
 
-    int x_displacement;
+    // Setting font for labelling.
+    QFont font = QApplication::font();
+    int pxSize = _scene.height() * 0.01;
+    if (pxSize < 10)
+        pxSize = 10;
+    font.setPixelSize(pxSize);
+
+    // Calculating percentage for shap value. 
+    // and width of the arrow.
+    float percentage = (shapValue/_absoluteTotalWeight) * 100;
+    int x_displacement = percentage * 3; // for width of arrow.
 
     if (counter == 0) {
-
-        x_displacement = lowerLimitWidth + (upperLimitWidth - lowerLimitWidth) * width;
 
         QPolygonF polygon;
         polygon << QPoint(startPosition, 150);
@@ -257,8 +226,6 @@ int ClassificationWidget::makeArrowForPositives(float width, string label, int c
         _scene.addPolygon(polygon, pen, brush);
 
     } else {
-
-        x_displacement = lowerLimitWidth + (upperLimitWidth - lowerLimitWidth) * width;
 
         QPolygonF polygon;
         polygon << QPoint(startPosition, 150);
@@ -283,26 +250,27 @@ int ClassificationWidget::makeArrowForPositives(float width, string label, int c
                                  220, startPosition + x_displacement/2 + 70 ,
                                  250 + counter * 10),
                           Linepen);
-    label += " = ";
-    label += mzUtils::float2string(width, 2);
-    QString peakFeature = QString(label.c_str());
-    QString featureText = tr("%1").arg(peakFeature);
 
-    QFont font = QApplication::font();
-    int pxSize = _scene.height() * 0.02;
-    if (pxSize < 8)
-        pxSize = 8;
-    font.setPixelSize(pxSize);
+
+    string shapValueString = mzUtils::float2string(shapValue, 3);
+    string changedLabel = _changedLabelName[label];                      
+    changedLabel += " = ";
+    changedLabel += shapValueString;
+    QString peakFeature = QString(changedLabel.c_str());
+    QString featureText = tr("%1").arg(peakFeature);
 
     QGraphicsTextItem* title = _scene.addText(featureText, font);
     title->setHtml(featureText);
 
-    if(peakFeature.size() < 25)
-        title->setPos(startPosition +x_displacement - 10, 250 + counter * 10);
+    if (featureText.size() < 30)
+        title->setPos(startPosition + x_displacement + 40, 250 + counter * 10);
+    else if (featureText.size() < 40)
+        title->setPos(startPosition + x_displacement, 250 + counter * 10);
     else
-        title->setPos(startPosition +x_displacement - 40, 250 + counter * 10);
+        title->setPos(startPosition + x_displacement - changedLabel.size(), 
+                      250 + counter * 10);
 
-    return (startPosition + x_displacement);
+    return (startPosition + x_displacement); 
 }
 
 void ClassificationWidget::setTitle()
@@ -327,8 +295,33 @@ void ClassificationWidget::setTitle()
 
     QGraphicsTextItem* title = _scene.addText(titleText, font);
     title->setHtml(titleText);
-    int titleWith = title->boundingRect().width();
-    title->setPos(_scene.width() / 2 - titleWith / 2, 10);
+    int titleWidth = title->boundingRect().width();
+    title->setPos(_scene.width() / 2 - titleWidth / 2, 10);
     title->update();
+}
+
+void ClassificationWidget::setOutputValue()
+{
+    QString tagString;
+    tagString = "Output Value = ";
+    QString outputString = tr("<b>%1</b>").arg(tagString);
+    
+    string outputValue = mzUtils::float2string(_totalWeight, 3);
+
+    outputString += QString::fromStdString(outputValue);
+
+    QFont font = QApplication::font();
+    int pxSize = _scene.height() * 0.03;
+    if (pxSize < 14)
+        pxSize = 14;
+    if (pxSize > 20)
+        pxSize = 20;
+    font.setPixelSize(pxSize);
+
+    QGraphicsTextItem* outputTitle = _scene.addText(outputString, font);
+    outputTitle->setHtml(outputString);
+    int titleWidth = outputTitle->boundingRect().width();
+    outputTitle->setPos(_scene.width() / 2 - titleWidth / 2, 100);
+    outputTitle->update();
 }
 
