@@ -306,6 +306,7 @@ Q_OBJECT
      void sqliteDBUnrecognizedVersion(QString);
      void settingsLoaded(map<string, variant>);
      void appSettingsUpdated();
+     void unsupportedFileFormat(QStringList);
 
     protected:
       /**

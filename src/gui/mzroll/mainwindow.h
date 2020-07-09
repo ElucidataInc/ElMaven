@@ -448,6 +448,12 @@ public Q_SLOTS:
      */
     void updateTablePostAlignment();
 
+	/**
+	 * @brief Creates a message box that notifies the user about sample 
+	 * uploaded is not supported in El-MAVEN.
+	 */ 
+	void unsupportedFormat(QStringList unsupportedFileList);
+
     /**
      * @brief The peak-editor is a widget that will allow the user to edit the
      * RT bounds of individual peaks in a peak-group.
