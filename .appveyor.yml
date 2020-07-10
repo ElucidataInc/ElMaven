@@ -309,11 +309,11 @@ deploy:
           APPVEYOR_REPO_TAG: true      # deploy updates for release builds only
 
 
-on_success:
-    - ps: |
-          if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
-              bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
-          }
+# on_success:
+#     - ps: |
+#           if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
+#              bash -lc "cd /c/projects/ElMaven/ ; bash <(curl -s https://codecov.io/bash)"
+#           }
 
 
 notifications:
