@@ -157,7 +157,13 @@ public:
    * peak detection  process.
    */
   void noPeakFound();
-
+  
+  /*
+   * @brief Raises the warning for user if the user tries to delete
+   * all the peakgroups from the table at once.
+   */ 
+  bool deleteAllgroupsWarning();
+  
 public Q_SLOTS:
   void updateCompoundWidget();
   shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);

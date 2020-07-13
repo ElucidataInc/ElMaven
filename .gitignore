@@ -30,6 +30,7 @@
 bin/crashreporter
 bin/El-MAVEN
 bin/test-libmaven
+bin/node_bin
 
 # Project Files
 */tmp/
