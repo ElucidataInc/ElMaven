@@ -156,6 +156,37 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
 }
 
+void ProjectDockWidget::saveState()
+{
+    QTreeWidgetItemIterator it(_treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        ++it; //next item
+        if (item->type() == SampleType) {
+            if (item->checkState(0) == Qt::Checked)
+                saveSampleState[item] = true;
+            else
+                saveSampleState[item] = false;
+        }
+    }
+}
+
+void ProjectDockWidget::restoreSampleState()
+{
+    QTreeWidgetItemIterator it(_treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        ++it; //next item
+        if (item->type() == SampleType) {
+            bool state = saveSampleState[item];
+            if (state)
+                item->setCheckState(0, Qt::Checked);
+            else
+                item->setCheckState(0, Qt::Unchecked);
+        }
+    } 
+}
+
 QString ProjectDockWidget::getProjectDescription() {
     return _editor->toPlainText();
 }
@@ -330,6 +361,10 @@ void ProjectDockWidget::changeSampleOrder() {
 }
 
 void ProjectDockWidget::filterTreeItems(QString filterString) {
+    disconnect(_treeWidget,
+                SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
+                this,
+                SLOT(saveState()));
     QRegExp regexp(filterString,Qt::CaseInsensitive,QRegExp::RegExp);
 
     QTreeWidgetItemIterator it(_treeWidget);
@@ -340,7 +375,7 @@ void ProjectDockWidget::filterTreeItems(QString filterString) {
             if (filterString.isEmpty()) {
                 item->setHidden(false);
                 QVariant v = item->data(0,Qt::UserRole);
-                item->setCheckState(0, Qt::Checked);
+                restoreSampleState();
                 _treeWidget->update();
                 Q_EMIT(clicked());
             } else if (item->text(0).contains(regexp) || item->text(1).contains(regexp) || item->text(2).contains(regexp)) {
@@ -356,7 +391,10 @@ void ProjectDockWidget::filterTreeItems(QString filterString) {
             }
         }
     }
-
+    connect(_treeWidget,
+            SIGNAL(itemChanged(QTreeWidgetItem*, int)), 
+            this,
+            SLOT(saveState()));
 }
 
 void ProjectDockWidget::changeColors() {
@@ -661,6 +699,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeSampleSet(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeNormalizationConstant(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(showSample(QTreeWidgetItem*,int)));
+    connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(saveState()));
     connect(_treeWidget,
             SIGNAL(itemDropped(QTreeWidgetItem*)),
             SLOT(changeSampleOrder()));
@@ -671,6 +710,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 }
 
 void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
+   
     if (item == NULL) return;
     bool checked = (item->checkState(0) != Qt::Unchecked );
     QTreeWidgetItem* parent = item->parent();

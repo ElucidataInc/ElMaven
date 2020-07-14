@@ -27,6 +27,19 @@ public:
     QColor getSampleColor(mzSample* sample);
     QIcon getSampleIcon(mzSample* sample);
 
+    /**
+     * @brief Map stores the item along with its 
+     * checked and unchecked state.
+     */ 
+    map<QTreeWidgetItem*, bool> saveSampleState; 
+
+    /**
+     * @brief Restores the state of samples as it was before
+     * filtering.
+     */ 
+    void restoreSampleState();
+    
+
 Q_SIGNALS:
     void samplesDeleted();
     /**
@@ -47,6 +60,13 @@ public Q_SLOTS:
      * of the samples
      */ 
     void replotWidget();
+
+    /**
+     * @brief Saves sample state everytime when a selection of item is changed. 
+     */ 
+    void saveState();
+
+    
 
     /**
      * @brief Bring up a file dialog and allow the user to save current session
