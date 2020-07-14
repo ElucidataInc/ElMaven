@@ -2767,9 +2767,9 @@ void MainWindow::createMenus() {
     connect(loadSettings, &QAction::triggered, this ,&MainWindow::loadSettings);
     fileMenu->addAction(loadSettings);
 
-	QAction* settingsAct = new QAction(tr("Options"), this);
+	QAction* settingsAct = new QAction(tr("Option"),this);
 	settingsAct->setToolTip(tr("Set program options"));
-	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
+	connect(settingsAct, SIGNAL(triggered()), this, SLOT(showsettingsForm()));
 	fileMenu->addAction(settingsAct);
 
 	QAction* awsDialog = new QAction(tr("Add S3 credentials"), this);
