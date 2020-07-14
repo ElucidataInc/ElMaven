@@ -29,6 +29,10 @@ public:
 
 Q_SIGNALS:
     void samplesDeleted();
+    /**
+     * @brief Signal emitted when the item in treeWidget is clicked.
+     */ 
+    void clicked();
 
 public Q_SLOTS:
     void showInfo();
@@ -37,6 +41,12 @@ public Q_SLOTS:
     void setInfo(vector<mzSample*>&samples);
     void changeSampleOrder();
     void updateSampleList();
+
+    /**
+     * @brief Replots the eic widget according to the change in selection
+     * of the samples
+     */ 
+    void replotWidget();
 
     /**
      * @brief Bring up a file dialog and allow the user to save current session
