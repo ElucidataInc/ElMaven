@@ -924,7 +924,7 @@ void MainWindow::threadSave(const QString filename, const bool saveRawData)
     if (saveWorker->isRunning()) {
         QMessageBox::information(this,
                                  "Save already in progress",
-                                 "Please wait, another project save is in"
+                                 "Please wait, another project save is in "
                                  "progress. You can try again once the "
                                  "current save operation is complete.");
         return;
@@ -947,7 +947,7 @@ void MainWindow::saveProject(bool explicitSave)
     if (saveWorker->isRunning()) {
         QMessageBox::information(this,
                                  "Save already in progress",
-                                 "Please wait, another project save is in"
+                                 "Please wait, another project save is in "
                                  "progress. You can try again once the "
                                  "current save operation is complete.");
         return;
@@ -1337,6 +1337,7 @@ void MainWindow::setTotalCharge()
     mavenParameters->charge = charge;
     fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
     totalCharge = mavenParameters->ionizationMode * charge;
+    DB.updateChargesForZeroCharges(totalCharge);
     ligandWidget->updateTable();
 }
 

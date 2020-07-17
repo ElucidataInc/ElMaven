@@ -540,7 +540,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :fragment_mzs          \
                       , :fragment_intensity    \
                       , :fragment_ion_types    \
-                      , :note                  )");
+                      , :note                  \
+                      , :original_name         )");
 
     _connection->begin();
 
@@ -585,6 +586,7 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":compound_id", c->id());
         compoundsQuery->bind(":db_name", c->db());
         compoundsQuery->bind(":name", c->name());
+        compoundsQuery->bind(":original_name", c->originalName());
         compoundsQuery->bind(":formula", c->formula());
         compoundsQuery->bind(":smile_string", c->smileString());
         compoundsQuery->bind(":srm_id", c->srmId());
@@ -1332,6 +1334,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
     while (compoundsQuery->next()) {
         string id = compoundsQuery->stringValue("compound_id");
         string name = compoundsQuery->stringValue("name");
+        string originalName = compoundsQuery->stringValue("original_name");
         string formula = compoundsQuery->stringValue("formula");
         int charge = compoundsQuery->integerValue("charge");
         float mass = compoundsQuery->floatValue("mass");
@@ -1343,8 +1346,9 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
             continue;
 
         // the neutral mass is computed automatically inside the constructor
-        Compound* compound = new Compound(id, name, formula, charge);
-        compound->setDb (db);
+        Compound* compound = new Compound(id, originalName, formula, charge);
+        compound->setName(name);
+        compound->setDb(db);
         compound->setExpectedRt( expectedRt);
 
         if (formula.empty()) {
@@ -1422,7 +1426,9 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         }
         compound->setFragmentIonTypes(ionTypes);
 
-        _compoundIdMap[compound->id()  + compound->name() + compound->db()] = compound;
+        _compoundIdMap[compound->id()
+                       + compound->name()
+                       + compound->db()] = compound;
         compounds.push_back(compound);
         loadCount++;
     }

@@ -31,6 +31,8 @@ class Compound{
         */
         string _name;
 
+        string _originalName;
+
         /**
          *@param -  formula of compound
         */
@@ -187,6 +189,12 @@ class Compound{
         void setName(string name);
 
         string name();
+
+        /**
+         * Original name of this compound from the DB. This does not change once
+         * assigned during construction.
+         */
+        string originalName();
 
         void setFormula(string formula);
 

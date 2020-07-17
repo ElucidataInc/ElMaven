@@ -802,6 +802,8 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peaks ADD COLUMN spectrum_mz TEXT;"
         "ALTER TABLE peaks ADD COLUMN spectrum_intensity TEXT;"
 
+        "ALTER TABLE compounds ADD COLUMN original_name TEXT;"
+
         "COMMIT;"
     }
 };

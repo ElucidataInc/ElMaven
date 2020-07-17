@@ -58,6 +58,13 @@ class Database {
 	vector<string> getCompoundReactions(string compound_id);
 
 	bool addCompound(Compound* c);
+
+    /**
+     * @brief Set the charge values for all compounds that have a charge of 0.
+     * @param charge The integral charge value to be set.
+     */
+    void updateChargesForZeroCharges(int charge);
+
 	void loadReactions(string modelName);
 
     vector<Compound*> getCompoundsSubset(string database);
@@ -114,7 +121,8 @@ class Database {
 	vector<Adduct*> adductsDB;
 	vector<Adduct*> fragmentsDB;
 
-	deque<Compound*> compoundsDB;
+    vector<Compound*> _compoundsWithZeroCharge;
+    deque<Compound*> compoundsDB;
 	deque<Reaction*> reactionsDB;
 	deque<Pathway*> pathwayDB;
 	deque<Molecule2D*> coordinatesDB;

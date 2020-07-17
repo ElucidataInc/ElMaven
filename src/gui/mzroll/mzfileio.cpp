@@ -1016,19 +1016,6 @@ QString mzFileIO::openSQLiteProject(QString filename)
 
 void mzFileIO::_beginSQLiteProjectLoad()
 {
-    emit updateStatusString("Loading compounds…");
-    auto compounds = _currentProject->loadCompounds();
-    QRegularExpression re("(.*)\\s\\(\\d+\\)");
-    for (auto compound : compounds) {
-        QRegularExpressionMatch match =
-            re.match(QString::fromStdString(compound->name()));
-        if (match.hasMatch()) {
-            string nameWithoutPrefix = match.captured(1).toStdString();
-            compound->setName (nameWithoutPrefix);
-        }
-        DB.addCompound(compound);
-    }
-
     emit updateStatusString("Loading user settings…");
     auto settings = _currentProject->loadGlobalSettings();
     for (const auto& it : settings)
@@ -1142,8 +1129,18 @@ void mzFileIO::_promptForMissingSamples(QList<QString> foundSamples)
 
 void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSamples)
 {
-    if (!_currentProject)
+    if (!_currentProject || newSamples.empty())
         return;
+
+    emit updateStatusString("Loading compounds…");
+    int totalCharge = _mainwindow->mavenParameters->charge
+                      * newSamples.at(0)->getPolarity();
+    DB.updateChargesForZeroCharges(totalCharge);
+    auto compounds = _currentProject->loadCompounds();
+    for (auto compound : compounds) {
+        cerr << compound->originalName() << " & " << compound->name() << endl;
+        DB.addCompound(compound);
+    }
 
     // set of compound databases that need to be communicated with ligand widget
     vector<QString> dbNames;
