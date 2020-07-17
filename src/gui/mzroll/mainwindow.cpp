@@ -2697,10 +2697,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
     writeSettings();
 
+    QMessageBox *msgBox = nullptr;
     if (saveWorker->isRunning()) {
-        // creating a persistent message box, which will be cleared when
-        // the application exits anyway
-        QMessageBox *msgBox = new QMessageBox(this);
+        msgBox = new QMessageBox(this);
         msgBox->setText("Please wait. A project save is in progress…");
         msgBox->setStandardButtons(QMessageBox::NoButton);
         msgBox->setModal(true);
@@ -2710,6 +2709,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
         while(saveWorker->isRunning())
             QApplication::processEvents();
     }
+    if (msgBox != nullptr)
+        delete msgBox;
+
     event->accept();
 }
 
