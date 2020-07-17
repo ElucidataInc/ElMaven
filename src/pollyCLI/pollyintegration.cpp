@@ -16,6 +16,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     setObjectName("PollyIntegration");
 
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
+    cookieFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cookie.json";
 
     // It's important to look for node in the system first, as it might not always be present in the bin dir.
      nodePath = QStandardPaths::findExecutable("node");
@@ -321,7 +322,7 @@ ErrorStatus PollyIntegration::checkLoginStatus() {
 ErrorStatus PollyIntegration::authenticateLogin(QString username, QString password) {
     QString command = "authenticate";
     
-    QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile << username << password);
+    QList<QByteArray> resultAndError = runQtProcess(command, QStringList() << credFile << username << password << cookieFile);
     if (_hasError(resultAndError))
         return ErrorStatus::Error;
 
@@ -365,6 +366,8 @@ void PollyIntegration::logout() {
     file.remove();
     QFile refreshTokenFile (credFile + "_refreshToken");
     refreshTokenFile.remove();
+    QFile cookie_file (cookieFile);
+    cookie_file.remove();
 }
 
 // name OF FUNCTION: getUserProjects
