@@ -499,9 +499,9 @@ void CSVReports::writeDataForPolly(const std::string& file,
 
 ///////////////////////////Test Cases//////////////////////////////
 
-TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
+TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
 {
-    SUBCASE("Testing Group File")
+    SUBCASE("Testing group report")
     {
         targetedGroup();
         auto sample = samples();
@@ -599,7 +599,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
         remove("groupReport.csv");
     }
 
-    SUBCASE("Testing Peak File")
+    SUBCASE("Testing peak report")
     {
         targetedGroup();
         string peakReport = "peakReport.csv";
@@ -747,7 +747,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
         remove("polly.csv");
     }
 
-    SUBCASE("Testing Untargeted Group File")
+    SUBCASE("Testing feature group report")
     {
         untargetedGroup();
         auto sample = samples();
@@ -837,7 +837,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing Targeted Groups")
         remove("groupReport.csv");
     }
 
-    SUBCASE("Testing Untargeted Peak File")
+    SUBCASE("Testing feature peak report")
     {
         untargetedGroup();
         string peakReport = "peakReport.csv";
