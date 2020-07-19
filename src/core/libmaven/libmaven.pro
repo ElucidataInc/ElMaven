@@ -72,6 +72,7 @@ macx{
 
 message($$INCLUDEPATH)
 SOURCES = base64.cpp \
+          massslicer.cpp \
           mzMassCalculator.cpp \
           mzPatterns.cpp \
           mzSample.cpp \
@@ -80,7 +81,6 @@ SOURCES = base64.cpp \
           elementMass.cpp \
           mzFit.cpp \
           mzAligner.cpp \
-          mzMassSlicer.cpp \
 	      PeakGroup.cpp \
           Fragment.cpp \
 	      EIC.cpp \
@@ -118,10 +118,10 @@ SOURCES = base64.cpp \
 
 HEADERS += constants.h \
            base64.h \
+           massslicer.h \
            mzFit.h \
            Peak.h \
            mzAligner.h \
-           mzMassSlicer.h \
 	       PeakGroup.h \
            mzSample.h \
            PeptideRecord.h \

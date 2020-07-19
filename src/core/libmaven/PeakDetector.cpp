@@ -11,7 +11,7 @@
 #include "mzAligner.h"
 #include "constants.h"
 #include "classifier.h"
-#include "mzMassSlicer.h"
+#include "massslicer.h"
 #include "peakFiltering.h"
 #include "groupFiltering.h"
 #include "mavenparameters.h"
@@ -164,7 +164,7 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
     // TODO: cant this be in background_peaks_update parameter setting function
     mavenParameters->setAverageScanTime();  // find avgScanTime
 
-    MassSlices massSlices;
+    MassSlicer massSlices;
     massSlices.setSamples(mavenParameters->samples);
     massSlices.setMavenParameters(mavenParameters);
 
@@ -174,11 +174,8 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
     massSlices.setMinRt (mavenParameters->minRt);
     massSlices.setMaxMz (mavenParameters->maxMz);
     massSlices.setMinMz	(mavenParameters->minMz);
-    massSlices.algorithmB(mavenParameters->massCutoffMerge, mavenParameters->rtStepSize);  // perform algorithmB for samples
-
-    if (massSlices.slices.size() == 0)
-        massSlices.algorithmA();  // if no slices present, perform algorithmA
-                                  // TODO WHY?!
+    massSlices.findFeatureSlices(mavenParameters->massCutoffMerge,
+                                 mavenParameters->rtStepSize);
 
     // sort the massslices based on their intensities to enurmerate good slices.
     sort(massSlices.slices.begin(), massSlices.slices.end(),

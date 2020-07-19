@@ -27,7 +27,7 @@
 #include "csvreports.h"
 #include "database.h"
 #include "jsonReports.h"
-#include "mzMassSlicer.h"
+#include "massslicer.h"
 #include "mzSample.h"
 #include "options.h"
 #include "parseoptions.h"

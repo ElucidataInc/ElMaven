@@ -2,7 +2,7 @@
 #include <QJsonValue>
 
 #include "mzAligner.h"
-#include "mzMassSlicer.h"
+#include "massslicer.h"
 #include "mzSample.h"
 #include "PolyAligner.h"
 #include "mzSample.h"
