@@ -4,7 +4,7 @@
 #include <boost/lexical_cast.hpp>
 #include "Compound.h"
 #include "datastructures/adduct.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "classifierNeuralNet.h"
 #include "constants.h"
 #include "database.h"

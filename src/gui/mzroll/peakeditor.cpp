@@ -7,7 +7,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "peakeditor.h"
 #include "Scan.h"
 #include "ui_peakeditor.h"

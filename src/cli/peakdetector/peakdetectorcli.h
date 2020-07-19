@@ -22,7 +22,7 @@
 #include "QString"
 #include "QStringList"
 
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "classifierNeuralNet.h"
 #include "csvreports.h"
 #include "database.h"
@@ -115,6 +115,12 @@ public:
      * @param filenames [description]
      */
     void loadSamples(vector<string>& filenames);
+
+    /**
+     * @brief Align samples using the given alignment method.
+     * @method alignSamples
+     */
+    void alignSamples(const int& method);
 
     /**
      * [reduce number of Groups]

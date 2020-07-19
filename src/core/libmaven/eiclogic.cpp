@@ -4,7 +4,7 @@
 #include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 
 EICLogic::EICLogic() {
 	_slice = mzSlice(0, 0.01, 0, 0.01);

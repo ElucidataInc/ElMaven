@@ -23,7 +23,7 @@
 #include "mzAligner.h"
 #include "mzSample.h"
 #include "obiwarp.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "samplertwidget.h"
 #include "EIC.h"
 
@@ -218,13 +218,9 @@ void BackgroundPeakUpdate::align() {
         Q_EMIT(samplesAligned(true));
 }
 
-void BackgroundPeakUpdate::alignUsingDatabase() {
-
-    vector<mzSlice*> slices =
-        peakDetector->processCompounds(mavenParameters->compounds, "compounds");
-        processSlices(slices, "compounds");
-
-
+void BackgroundPeakUpdate::alignUsingDatabase()
+{
+    peakDetector->processCompounds(mavenParameters->compounds, "compounds");
 }
 
 void BackgroundPeakUpdate::processSlices(vector<mzSlice*>&slices,
@@ -268,16 +264,14 @@ void BackgroundPeakUpdate::processCompounds(vector<Compound*> set,
 
     Q_EMIT(updateProgressBar("Processing Compounds", 0, 0));
 
-    vector<mzSlice*> slices = peakDetector->processCompounds(set, setName);
-    processSlices(slices, setName);
-    delete_all(slices);
+    peakDetector->processCompounds(set, setName);
     Q_EMIT(updateProgressBar("Status", 0, 100));
 }
 
 void BackgroundPeakUpdate::processMassSlices() {
         Q_EMIT (updateProgressBar("Computing Mass Slices", 0, 0));
         mavenParameters->sig.connect(boost::bind(&BackgroundPeakUpdate::qtSignalSlot, this, _1, _2, _3));
-        peakDetector->processMassSlices(mavenParameters->compounds);
+        peakDetector->processFeatures(mavenParameters->compounds);
 
         align();
 

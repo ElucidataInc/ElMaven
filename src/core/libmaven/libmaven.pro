@@ -77,6 +77,7 @@ SOURCES = base64.cpp \
           mzPatterns.cpp \
           mzSample.cpp \
           mzUtils.cpp \
+          peakdetector.cpp \
           statistics.cpp \
           elementMass.cpp \
           mzFit.cpp \
@@ -90,7 +91,6 @@ SOURCES = base64.cpp \
 	      Compound.cpp \
 	      savgol.cpp \
        	  SavGolSmoother.cpp \
-          PeakDetector.cpp \
           mavenparameters.cpp \
           classifier.cpp \
           classifierNaiveBayes.cpp \
@@ -130,10 +130,10 @@ HEADERS += constants.h \
            mzMassCalculator.h \
            mzPatterns.h \
            mzUtils.h \
+           peakdetector.h \
            standardincludes.h \
            statistics.h \
            SavGolSmoother.h \
-           PeakDetector.h \
            mavenparameters.h\
            classifier.h \
            classifierNaiveBayes.h \

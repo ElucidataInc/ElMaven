@@ -6,7 +6,7 @@
 #include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "PeakGroup.h"
 #include "utilities.h"
 
@@ -60,9 +60,7 @@ void TestIsotopeDetection::testgetIsotopes() {
 
     maventests::database.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
-                                                            "compounds");
-    peakDetector.processSlices(slices, "compounds");
+    peakDetector.processCompounds(compounds, "compounds");
     PeakGroup* parentgroup = &mavenparameters->allgroups[0];
 
     string formula = parentgroup->getCompound()->formula();
@@ -138,10 +136,7 @@ void TestIsotopeDetection::testpullIsotopes() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
-                                                            "compounds");
-    peakDetector.processSlices(slices, "compounds");
-    
+    peakDetector.processCompounds(compounds, "compounds");
     PeakGroup& parent = mavenparameters->allgroups[0];
 
     IsotopeDetection isotopeDetection1(

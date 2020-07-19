@@ -11,7 +11,7 @@
 #include "mzSample.h"
 #include "node.h"
 #include "pathwaywidget.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "projectdockwidget.h"
 #include "tinyplot.h"
 #include "widgets/qprog.h"
@@ -687,7 +687,7 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event) {
 	connect(e4, SIGNAL(toggled(bool)), SLOT(showEnzymes(bool)));
 
         MavenParameters* mavenParameters =
-            workerThread->peakDetector->getMavenParameters();
+            workerThread->peakDetector->mavenParameters();
 
 	QAction* e2 = options.addAction("Show Isotopes");
 	e2->setCheckable(true);
@@ -1131,7 +1131,7 @@ void PathwayWidget::showCofactors(bool flag) {
 void PathwayWidget::calculateIsotopes(bool flag) {
 	if (workerThread) {
             MavenParameters* mavenParameters =
-                workerThread->peakDetector->getMavenParameters();
+                workerThread->peakDetector->mavenParameters();
 		mavenParameters->pullIsotopesFlag = flag;
 	}
 

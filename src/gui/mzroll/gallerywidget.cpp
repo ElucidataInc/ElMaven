@@ -8,7 +8,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "Peak.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "PeakGroup.h"
 #include "Scan.h"
 #include "statistics.h"

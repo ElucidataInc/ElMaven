@@ -14,7 +14,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "numeric_treewidgetitem.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "Peptide.hpp"
 #include "Scan.h"
 #include "spectralhit.h"

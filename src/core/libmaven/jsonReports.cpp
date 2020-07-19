@@ -11,7 +11,7 @@
 #include "datastructures/mzSlice.h"
 #include "database.h"
 #include "classifierNeuralNet.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 
 using json = nlohmann::json;
 

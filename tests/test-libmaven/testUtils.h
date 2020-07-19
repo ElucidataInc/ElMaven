@@ -8,7 +8,7 @@
 #include "datastructures/mzSlice.h"
 #include "database.h"
 #include "classifierNeuralNet.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "isotopeDetection.h"
 
 class SampleLoadingFixture
@@ -67,9 +67,7 @@ class SampleLoadingFixture
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
         peakDetector.setMavenParameters(_mavenparameters);
-        vector<mzSlice*> slices =
-            peakDetector.processCompounds(compounds, "compounds");
-        peakDetector.processSlices(slices, "compounds");
+        peakDetector.processCompounds(compounds, "compounds");
         return _mavenparameters->allgroups;
     }
 
@@ -78,7 +76,7 @@ class SampleLoadingFixture
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
         peakDetector.setMavenParameters(_mavenparameters);
-        peakDetector.processMassSlices();
+        peakDetector.processFeatures();
         return _mavenparameters->allgroups;
     }
 

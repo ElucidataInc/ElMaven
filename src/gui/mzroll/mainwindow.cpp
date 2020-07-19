@@ -42,7 +42,7 @@
 #include "notificator.h"
 #include "pathwaywidget.h"
 #include "peakdetectiondialog.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "peakeditor.h"
 #include "Peptide.hpp"
 #include "peptidefragmentation.h"

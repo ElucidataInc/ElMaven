@@ -5,7 +5,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 
 mzSlice* AdductDetection::createSliceForCompoundAdduct(Compound *compound,
                                                        Adduct *adduct,
@@ -41,7 +41,7 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
                              const vector<Adduct *>& adductsList,
                              PeakDetector* detector)
 {
-    MavenParameters *mp = detector->getMavenParameters();
+    MavenParameters *mp = detector->mavenParameters();
     vector<PeakGroup> adducts = parentIons;
 
     vector<mzSlice*> slices;

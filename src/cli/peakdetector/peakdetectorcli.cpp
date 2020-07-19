@@ -8,7 +8,9 @@
 #include "common/logger.h"
 #include "mavenparameters.h"
 #include "masscutofftype.h"
+#include "mzAligner.h"
 #include "mzUtils.h"
+#include "obiwarp.h"
 #include "peakdetectorcli.h"
 #include "projectDB/projectdatabase.h"
 
@@ -702,6 +704,50 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
          << " seconds.\n";
 #endif
 }
+
+void PeakDetectorCLI::alignSamples(const int& method)
+{
+    if (mavenParameters->samples.size() > 1) {
+        switch (method) {
+        case 1: {
+            cerr << "Starting OBI-WARP alignment" << std::endl;
+            // TODO: move the hard coded values in  default_settings.xml and
+            // instead of using obi params make use mavenParameters to access all
+            // the values.
+            ObiParams params(
+                "cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
+            Aligner mzAligner;
+            mzAligner.alignWithObiWarp(
+                mavenParameters->samples, &params, mavenParameters);
+        }
+        break;
+
+        case 2: {
+            mavenParameters->writeCSVFlag = false;
+            peakDetector->processFeatures();
+
+            cerr << "Starting PolyFit alignment using "
+                 << mavenParameters->allgroups.size()
+                 << " groups"
+                 << endl;
+
+            vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
+            for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
+                agroups[i] = &mavenParameters->allgroups[i];
+
+            // init aligner
+            Aligner aligner;
+            aligner.doAlignment(agroups);
+            mavenParameters->writeCSVFlag = true;
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+}
+
 
 void PeakDetectorCLI::saveEmdb()
 {

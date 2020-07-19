@@ -11,7 +11,7 @@
 #include "masscutofftype.h"
 #include "mzUtils.h"
 #include "Matrix.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "Scan.h"
 
 using namespace mzUtils;

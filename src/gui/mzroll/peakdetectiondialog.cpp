@@ -13,7 +13,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "peakdetectiondialog.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "tabledockwidget.h"
 #include "videoplayer.h"
 

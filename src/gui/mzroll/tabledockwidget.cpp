@@ -38,7 +38,7 @@
 #include "spectrawidget.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "background_peaks_update.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
