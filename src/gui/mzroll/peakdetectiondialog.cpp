@@ -4,7 +4,7 @@
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "classifierNeuralNet.h"
 #include "database.h"
 #include "ligandwidget.h"
@@ -131,7 +131,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         massCutoffType = "ppm";
         peakSettings = new PeakDetectionSettings(this);
 
-        peakupdater = new BackgroundPeakUpdate(this);
+        peakupdater = new BackgroundOpsThread(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
         _inDetectionMode = false;
@@ -352,7 +352,7 @@ void PeakDetectionDialog::show() {
 
     mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
-    peakupdater = new BackgroundPeakUpdate(this);
+    peakupdater = new BackgroundOpsThread(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
@@ -608,7 +608,7 @@ void PeakDetectionDialog::findPeaks()
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
     connect(peakupdater,
-            &BackgroundPeakUpdate::finished,
+            &BackgroundOpsThread::finished,
             this,
             [this] {
                 mainwindow->mavenParameters->allgroups.clear();
@@ -621,7 +621,7 @@ void PeakDetectionDialog::findPeaks()
 
     // RUN THREAD
     if (_featureDetectionType == FullSpectrum)
-        runBackgroupJob("processMassSlices");
+        runBackgroupJob("findFeatures");
     else
         runBackgroupJob("computePeaks");
 

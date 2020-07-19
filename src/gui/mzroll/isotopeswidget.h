@@ -7,7 +7,7 @@
 class QAction;
 class QMenu;
 class QTextEdit;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class MainWindow;
 class IsotopeDetection;
 class IsotopeLogic;
@@ -25,9 +25,9 @@ Q_OBJECT
 public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
-	BackgroundPeakUpdate* workerThread;
+	BackgroundOpsThread* workerThread;
 
- 	BackgroundPeakUpdate* workerThreadBarplot;
+ 	BackgroundOpsThread* workerThreadBarplot;
 
 
 public Q_SLOTS:

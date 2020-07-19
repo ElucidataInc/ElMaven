@@ -1,4 +1,4 @@
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "Compound.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
@@ -51,7 +51,7 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 		S34Flag, 
 		D2Flag);
 
-	workerThread = new BackgroundPeakUpdate(mw);
+	workerThread = new BackgroundOpsThread(mw);
 	workerThread->setRunFunction("pullIsotopes");
 	workerThread->setMainWindow(mw);
 
@@ -62,7 +62,7 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 	connect(workerThread, SIGNAL(finished()), _mw->getEicWidget()->scene(), SLOT(update()));
 
 	//Thread for bar plot
-	workerThreadBarplot = new BackgroundPeakUpdate(mw);
+	workerThreadBarplot = new BackgroundOpsThread(mw);
 	workerThreadBarplot->setRunFunction("pullIsotopesBarPlot");
 	workerThreadBarplot->setMainWindow(mw);
 	workerThreadBarplot->setMavenParameters(mavenParameters);
@@ -363,7 +363,7 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group)
 
     vector<mzSample*> vsamples = _mw->getVisibleSamples();
     if (workerThread->stopped()) {
-        workerThread->started();
+        workerThread->setStopped(false);
 
         // TODO: mavenParameters->-group is not thread-safe. Accessing it might
         // lead to crashes
@@ -390,7 +390,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
 
     vector<mzSample*> vsamples = _mw->getVisibleSamples();
     if (workerThreadBarplot->stopped()) {
-        workerThreadBarplot->started();
+        workerThreadBarplot->setStopped(false);
 
         // TODO: mavenParameters->-group is not thread-safe. Accessing it might
         // lead to crashes
@@ -423,7 +423,7 @@ void IsotopeWidget::setClipboard()
             _mw->autoSaveSignal({group});
 		}
 	}
-	workerThread->stop();
+    workerThread->setStopped(true);
 
 	if (_mw->threadCompound != NULL)
 	{
@@ -439,7 +439,7 @@ void IsotopeWidget::updateIsotopicBarplot()
     {
         _mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group.get());
 	}
-	workerThreadBarplot->stop();
+    workerThreadBarplot->setStopped(true);
 
 	if (_mw->threadCompound != NULL)
 	{

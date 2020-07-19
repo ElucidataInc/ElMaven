@@ -12,7 +12,7 @@
 #include "common/mixpanel.h"
 #include "animationcontrol.h"
 #include "awsbucketcredentialsdialog.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
@@ -2580,8 +2580,8 @@ void MainWindow::loadPathwaysFolder(QString& pathwaysFolder) {
 	}
 }
 
-BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
-	BackgroundPeakUpdate* workerThread = new BackgroundPeakUpdate(this);
+BackgroundOpsThread* MainWindow::newWorkerThread(QString funcName) {
+    BackgroundOpsThread* workerThread = new BackgroundOpsThread(this);
 	workerThread->setMainWindow(this);
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
@@ -3733,7 +3733,7 @@ void MainWindow::Align()
     if (sampleCount() < 2)
         return;
 
-    BackgroundPeakUpdate* workerThread;
+    BackgroundOpsThread* workerThread;
 
     if (alignmentDialog->alignAlgo->currentIndex() == 0) {
         analytics->hitEvent("Alignment", "Obi-Warp");
@@ -3753,15 +3753,15 @@ void MainWindow::Align()
                 alignmentDialog,
                 SLOT(updateRestoreStatus()));
         connect(workerThread,
-                &BackgroundPeakUpdate::updateProgressBar,
+                &BackgroundOpsThread::updateProgressBar,
                 alignmentDialog,
                 &AlignmentDialog::setProgressBar);
         connect(workerThread,
-                &BackgroundPeakUpdate::samplesAligned,
+                &BackgroundOpsThread::samplesAligned,
                 alignmentDialog,
                 &AlignmentDialog::samplesAligned);
         connect(workerThread,
-                &BackgroundPeakUpdate::finished,
+                &BackgroundOpsThread::finished,
                 this,
                 &MainWindow::updateTablePostAlignment);
 
@@ -3771,28 +3771,28 @@ void MainWindow::Align()
 
     if (alignmentDialog->peakDetectionAlgo->currentText()
         == "Compound Database Search") {
-        workerThread = newWorkerThread("alignUsingDatabase");
+        workerThread = newWorkerThread("computePeaks");
         mavenParameters->setCompounds(DB.getCompoundsSubset(
             alignmentDialog->selectDatabaseComboBox->currentText()
                 .toStdString()));
         alignmentDialog->setWorkerThread(workerThread);
     } else {
-        workerThread = newWorkerThread("processMassSlices");
+        workerThread = newWorkerThread("findFeatures");
         alignmentDialog->setWorkerThread(workerThread);
     }
 
     connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
     connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
     connect(workerThread,
-            &BackgroundPeakUpdate::updateProgressBar,
+            &BackgroundOpsThread::updateProgressBar,
             alignmentDialog,
             &AlignmentDialog::setProgressBar);
     connect(workerThread,
-            &BackgroundPeakUpdate::samplesAligned,
+            &BackgroundOpsThread::samplesAligned,
             alignmentDialog,
             &AlignmentDialog::samplesAligned);
     connect(workerThread,
-            &BackgroundPeakUpdate::finished,
+            &BackgroundOpsThread::finished,
             this,
             &MainWindow::updateTablePostAlignment);
 

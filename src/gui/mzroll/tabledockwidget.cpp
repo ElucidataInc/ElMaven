@@ -39,7 +39,7 @@
 #include "svmPredictor.h"
 #include "tabledockwidget.h";
 #include "peakdetector.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -146,7 +146,7 @@ void TableDockWidget::sortBy(int col) {
 
 void TableDockWidget::updateTableAfterAlignment()
 {
-    BackgroundPeakUpdate::updateGroups(_topLevelGroups,
+    BackgroundOpsThread::updateGroups(_topLevelGroups,
                                        _mainwindow->getVisibleSamples(),
                                        _mainwindow->mavenParameters);
     showAllGroups();

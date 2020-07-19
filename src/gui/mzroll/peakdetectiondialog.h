@@ -6,7 +6,7 @@
 
 class MainWindow;
 class TableDockWidget;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class PeakDetectionSettings;
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
@@ -76,7 +76,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
         private:
 				QSettings *settings;
 				MainWindow *mainwindow;
-                BackgroundPeakUpdate* peakupdater;
+                BackgroundOpsThread* peakupdater;
 				FeatureDetectionType _featureDetectionType;
                 PeakDetectionSettings* peakSettings;
                 bool _inDetectionMode;

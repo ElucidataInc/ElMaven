@@ -24,7 +24,7 @@ class VideoPlayer;
 class SettingsForm;
 class EicWidget;
 class PlotDockWidget;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class PeakDetectionDialog;
 class PollyElmavenInterfaceDialog;
 class AwsBucketCredentialsDialog;
@@ -387,7 +387,7 @@ public Q_SLOTS:
 	//Added when merging with Maven776 - Kiran
     void removePeaksTable(TableDockWidget*);
     void removeAllPeakTables();
-	BackgroundPeakUpdate* newWorkerThread(QString funcName);
+	BackgroundOpsThread* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
     void saveSettings();

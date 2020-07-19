@@ -1,7 +1,7 @@
 #include "Compound.h"
 #include "Matrix.h"
 #include "animationcontrol.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "edge.h"
 #include "eicwidget.h"
 #include "enzyme_node.h"
@@ -74,7 +74,7 @@ PathwayWidget::PathwayWidget(MainWindow* parent) {
 	setTimerMaxSteps(0);
 	setTimerSpeed(50);
 
-	workerThread = new BackgroundPeakUpdate(mw);
+    workerThread = new BackgroundOpsThread(mw);
 	workerThread->setMainWindow(mw);
 
 	connect(workerThread, SIGNAL(finished()), this,
@@ -183,7 +183,7 @@ void PathwayWidget::checkCompoundExistance() {
 	//cerr << "PathwayWidget::checkCompoundExistance() force=" << _forceUpdate << endl;
 
 	if (workerThread->isRunning()) {
-		workerThread->stop();
+        workerThread->setStopped(true);
 		workerThread->wait(10);
 	}
 	if (workerThread->isRunning())

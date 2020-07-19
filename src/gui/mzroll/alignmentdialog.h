@@ -5,7 +5,7 @@
 #include "projectdatabase.h"
 #include "ui_alignmentdialog.h"
 
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class Database;
 class MainWindow;
 class mzSample;
@@ -17,9 +17,9 @@ class AlignmentDialog : public QDialog, public Ui_AlignmentDialog {
         AlignmentDialog(MainWindow* parent);
 		~AlignmentDialog();
 		void setMainWindow(MainWindow* mw);
-                void setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread);
+                void setWorkerThread(BackgroundOpsThread* alignmentWorkerThread);
 		MainWindow* _mw;
-        BackgroundPeakUpdate* workerThread;
+        BackgroundOpsThread* workerThread;
         void updateUiFromValues(map<string, variant> settings);
         void saveValuesForUi();
 

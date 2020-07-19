@@ -2,7 +2,7 @@
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "Compound.h"
 #include "globals.h"
 #include "ligandwidget.h"
@@ -20,7 +20,7 @@ AlignmentDialog::AlignmentDialog(MainWindow* parent) : QDialog(parent) {
     setMainWindow(parent);
 
 	workerThread = NULL;
-	workerThread = new BackgroundPeakUpdate(this);
+    workerThread = new BackgroundOpsThread(this);
 
         connect(alignAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
 	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
@@ -40,7 +40,7 @@ AlignmentDialog::~AlignmentDialog()
 	if (workerThread) delete (workerThread);
 }
 
-void AlignmentDialog::setWorkerThread(BackgroundPeakUpdate* alignmentWorkerThread)
+void AlignmentDialog::setWorkerThread(BackgroundOpsThread* alignmentWorkerThread)
 {
     workerThread = alignmentWorkerThread;
     connect(workerThread,

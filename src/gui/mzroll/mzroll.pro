@@ -172,6 +172,7 @@ FORMS = forms/settingsform.ui  \
         forms/groupsettingslog.ui
 
 HEADERS += stable.h \
+           backgroundopsthread.h \
            globals.h \
            infodialog.h \
            librarymanager.h \
@@ -184,7 +185,6 @@ HEADERS += stable.h \
            pathwaywidget.h \
            graphwidget.h \
            settingsform.h \
-           background_peaks_update.h \
            isotopeplot.h\
            barplot.h \
            boxplot.h \
@@ -250,6 +250,7 @@ HEADERS += stable.h \
            projectsaveworker.h
 
 SOURCES += mainwindow.cpp  \
+           backgroundopsthread.cpp \
            infodialog.cpp \
            librarymanager.cpp \
            plotdock.cpp \
@@ -262,7 +263,6 @@ SOURCES += mainwindow.cpp  \
            graphwidget.cpp \
            pathwaywidget.cpp \
            settingsform.cpp \
-           background_peaks_update.cpp \
            isotopeplot.cpp \
            barplot.cpp \
            boxplot.cpp \
