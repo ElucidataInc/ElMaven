@@ -1226,14 +1226,13 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         PeakGroup::IntegrationType::Programmatic);
 
     group->groupId = xml.attributes().value("groupId").toString().toInt();
-    group->tagString =
-        xml.attributes().value("tagString").toString().toStdString();
     group->metaGroupId =
         xml.attributes().value("metaGroupId").toString().toInt();
     group->clusterId = xml.attributes().value("clusterId").toString().toInt();
     group->groupRank = xml.attributes().value("grouRank").toString().toFloat();
-    group->expectedMz =
-        xml.attributes().value("expectedMz").toString().toFloat();
+    group->tagIsotope(xml.attributes().value("tagString").toString().toStdString(),
+                      xml.attributes().value("expectedMz").toString().toFloat(),
+                      0.0f);
     group->label = xml.attributes().value("label").toString().toInt();
     group->setType((PeakGroup::GroupType)xml.attributes()
                        .value("type")

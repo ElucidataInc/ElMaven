@@ -32,6 +32,12 @@ bool Cursor::bind(const std::string& param, int value)
     return sqlite3_bind_int(_statement, index, value) == SQLITE_OK;
 }
 
+bool Cursor::bind(const std::string& param, long value)
+{
+    int index = sqlite3_bind_parameter_index(_statement, param.c_str());
+    return sqlite3_bind_int64(_statement, index, value) == SQLITE_OK;
+}
+
 bool Cursor::bind(const std::string& param, double value)
 {
     int index = sqlite3_bind_parameter_index(_statement, param.c_str());

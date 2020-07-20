@@ -1,6 +1,11 @@
 #ifndef PROJECTDATABASE_H
 #define PROJECTDATABASE_H
 
+#define BINT(x) boost::get<int>(x)
+#define BFLOAT(x) boost::get<float>(x)
+#define BDOUBLE(x) boost::get<double>(x)
+#define BSTRING(x) boost::get<string>(x)
+
 #include <iostream>
 #include <map>
 #include <set>

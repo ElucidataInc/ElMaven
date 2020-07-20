@@ -15,11 +15,6 @@
 #include "Scan.h"
 #include "schema.h"
 
-#define BINT(x) boost::get<int>(x)
-#define BFLOAT(x) boost::get<float>(x)
-#define BDOUBLE(x) boost::get<double>(x)
-#define BSTRING(x) boost::get<string>(x)
-
 ProjectDatabase::ProjectDatabase(const string& dbFilename,
                                  const string& version)
 {
@@ -81,24 +76,31 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
     _assignSampleIds(samples);
 
     auto samplesQuery = _connection->prepare(
-        "REPLACE INTO samples         \
-               VALUES ( :sample_id    \
-                      , :name         \
-                      , :filename     \
-                      , :set_name     \
-                      , :sample_order \
-                      , :is_blank     \
-                      , :is_selected  \
-                      , :color_red    \
-                      , :color_green  \
-                      , :color_blue   \
-                      , :color_alpha  \
-                      , :norml_const  \
-                      , :transform_a0 \
-                      , :transform_a1 \
-                      , :transform_a2 \
-                      , :transform_a4 \
-                      , :transform_a5 )");
+        "REPLACE INTO samples           \
+               VALUES ( :sample_id      \
+                      , :name           \
+                      , :filename       \
+                      , :set_name       \
+                      , :sample_order   \
+                      , :is_blank       \
+                      , :is_selected    \
+                      , :color_red      \
+                      , :color_green    \
+                      , :color_blue     \
+                      , :color_alpha    \
+                      , :norml_const    \
+                      , :transform_a0   \
+                      , :transform_a1   \
+                      , :transform_a2   \
+                      , :transform_a4   \
+                      , :transform_a5   \
+                      , :injection_time \
+                      , :polarity       \
+                      , :manufacturer   \
+                      , :model          \
+                      , :ionisation     \
+                      , :mass_analyzer  \
+                      , :detector       )");
 
     _connection->begin();
 
@@ -123,6 +125,31 @@ void ProjectDatabase::saveSamples(const vector<mzSample*>& samples)
         samplesQuery->bind(":transform_a2", 0);
         samplesQuery->bind(":transform_a4", 0);
         samplesQuery->bind(":transform_a5", 0);
+
+        samplesQuery->bind(":injection_time",
+                           static_cast<long>(s->injectionTime));
+        samplesQuery->bind(":polarity", s->getPolarity());
+
+        if (s->instrumentInfo.count("msManufacturer")) {
+            samplesQuery->bind(":manufacturer",
+                               s->instrumentInfo["msManufacturer"]);
+        }
+        if (s->instrumentInfo.count("msModel")) {
+            samplesQuery->bind(":model",
+                               s->instrumentInfo["msModel"]);
+        }
+        if (s->instrumentInfo.count("msIonisation")) {
+            samplesQuery->bind(":ionisation",
+                               s->instrumentInfo["msIonisation"]);
+        }
+        if (s->instrumentInfo.count("msMassAnalyzer")) {
+            samplesQuery->bind(":mass_analyzer",
+                               s->instrumentInfo["msMassAnalyzer"]);
+        }
+        if (s->instrumentInfo.count("msDetector")) {
+            samplesQuery->bind(":detector",
+                               s->instrumentInfo["msDetector"]);
+        }
 
         if (!samplesQuery->execute()) {
             cerr << "Error: failed to save sample " << s->getSampleName()
@@ -202,9 +229,14 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":table_group_id", group->groupId);
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
-    groupsQuery->bind(":expected_mz", group->expectedMz);
+
+    auto expectedMz = 0.0f;
+    if (group->hasCompoundLink())
+        expectedMz = group->getExpectedMz(group->getCompound()->charge());
+    groupsQuery->bind(":expected_mz", expectedMz);
+
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff()); // do we need this anymore?
-    groupsQuery->bind(":expected_abundance", group->expectedAbundance);
+    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
     groupsQuery->bind(":type", static_cast<int>(group->type()));
@@ -705,7 +737,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :identification_rt_window         \
                      , :search_adducts                   \
                      , :adduct_search_window             \
-                     , :adduct_percent_correlation       )");
+                     , :adduct_percent_correlation       \
+                     , :alignment_algorithm              )");
     return cursor;
 }
 
@@ -811,6 +844,28 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":main_window_charge", BINT(settingsMap.at("mainWindowCharge")));
     settingsQuery->bind(":main_window_peak_quantitation", BINT(settingsMap.at("mainWindowPeakQuantitation")));
     settingsQuery->bind(":main_window_mass_resolution", BDOUBLE(settingsMap.at("mainWindowMassResolution")));
+
+    // alignment settings, using the same key as DB column name
+    settingsQuery->bind(":alignment_algorithm", BINT(settingsMap.at("alignment_algorithm")));
+    settingsQuery->bind(":alignment_good_peak_count", BINT(settingsMap.at("alignment_good_peak_count")));
+    settingsQuery->bind(":alignment_limit_group_count", BINT(settingsMap.at("alignment_limit_group_count")));
+    settingsQuery->bind(":alignment_peak_grouping_window", BINT(settingsMap.at("alignment_peak_grouping_window")));
+    settingsQuery->bind(":alignment_min_peak_intensity", BDOUBLE(settingsMap.at("alignment_min_peak_intensity")));
+    settingsQuery->bind(":alignment_min_signal_noise_ratio", BINT(settingsMap.at("alignment_min_signal_noise_ratio")));
+    settingsQuery->bind(":alignment_min_peak_width", BINT(settingsMap.at("alignment_min_peak_width")));
+    settingsQuery->bind(":alignment_peak_detection", BINT(settingsMap.at("alignment_peak_detection")));
+    settingsQuery->bind(":poly_fit_num_iterations", BINT(settingsMap.at("poly_fit_num_iterations")));
+    settingsQuery->bind(":poly_fit_polynomial_degree", BINT(settingsMap.at("poly_fit_polynomial_degree")));
+    settingsQuery->bind(":obi_warp_reference_sample", BSTRING(settingsMap.at("obi_warp_reference_sample")));
+    settingsQuery->bind(":obi_warp_show_advance_params", BINT(settingsMap.at("obi_warp_show_advance_params")));
+    settingsQuery->bind(":obi_warp_score", BSTRING(settingsMap.at("obi_warp_score")));
+    settingsQuery->bind(":obi_warp_response", BDOUBLE(settingsMap.at("obi_warp_response")));
+    settingsQuery->bind(":obi_warp_bin_size", BDOUBLE(settingsMap.at("obi_warp_bin_size")));
+    settingsQuery->bind(":obi_warp_gap_init", BDOUBLE(settingsMap.at("obi_warp_gap_init")));
+    settingsQuery->bind(":obi_warp_gap_extend", BDOUBLE(settingsMap.at("obi_warp_gap_extend")));
+    settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
+    settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
+    settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
 }
 
 void
@@ -906,6 +961,9 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
         float color_alpha = samplesQuery->floatValue("color_alpha");
         float norml_const = samplesQuery->floatValue("norml_const");
 
+        // injection time and instrument information will be read from the
+        // sample files when they are loaded, so we do not extract them here
+
         if (norml_const == 0.0f)
             norml_const = 1.0f;
 
@@ -963,11 +1021,14 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
 
         group->groupId = groupsQuery->integerValue("table_group_id");
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
-        group->tagString = groupsQuery->stringValue("tag_string");
         group->metaGroupId = groupsQuery->integerValue("meta_group_id");
-        group->expectedMz = groupsQuery->floatValue("expected_mz");
-        group->expectedAbundance =
-            groupsQuery->floatValue("expected_abundance");
+
+        auto tagString = groupsQuery->stringValue("tag_string");
+        auto expectedMz = groupsQuery->floatValue("expected_mz");
+        auto expectedAbundance = groupsQuery->floatValue("expected_abundance");
+        if (tagString != "" && expectedMz > 0.0f && expectedAbundance > 0.0f)
+            group->tagIsotope(tagString, expectedMz, expectedAbundance);
+
         group->groupRank = groupsQuery->floatValue("group_rank");
         group->label = groupsQuery->stringValue("label")[0];
         group->ms2EventCount = groupsQuery->integerValue("ms2_event_count");
@@ -1460,6 +1521,29 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
     settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
 
+    // alignment settings, using the same key as DB column name
+    settingsMap["alignment_algorithm"] = settingsQuery->integerValue("alignment_algorithm");
+    settingsMap["alignment_good_peak_count"] = settingsQuery->integerValue("alignment_good_peak_count");
+    settingsMap["alignment_limit_group_count"] = settingsQuery->integerValue("alignment_limit_group_count");
+    settingsMap["alignment_peak_grouping_window"] = settingsQuery->integerValue("alignment_peak_grouping_window");
+    settingsMap["alignment_min_peak_intensity"] = settingsQuery->doubleValue("alignment_min_peak_intensity");
+    settingsMap["alignment_min_signal_noise_ratio"] = settingsQuery->integerValue("alignment_min_signal_noise_ratio");
+    settingsMap["alignment_min_peak_width"] = settingsQuery->integerValue("alignment_min_peak_width");
+    settingsMap["alignment_peak_detection"] = settingsQuery->integerValue("alignment_peak_detection");
+    settingsMap["poly_fit_num_iterations"] = settingsQuery->integerValue("poly_fit_num_iterations");
+    settingsMap["poly_fit_polynomial_degree"] = settingsQuery->integerValue("poly_fit_polynomial_degree");
+    settingsMap["obi_warp_reference_sample"] = settingsQuery->stringValue("obi_warp_reference_sample");
+    settingsMap["obi_warp_show_advance_params"] = settingsQuery->integerValue("obi_warp_show_advance_params");
+    settingsMap["obi_warp_score"] = settingsQuery->stringValue("obi_warp_score");
+    settingsMap["obi_warp_response"] = settingsQuery->doubleValue("obi_warp_response");
+    settingsMap["obi_warp_bin_size"] = settingsQuery->doubleValue("obi_warp_bin_size");
+    settingsMap["obi_warp_gap_init"] = settingsQuery->doubleValue("obi_warp_gap_init");
+    settingsMap["obi_warp_gap_extend"] = settingsQuery->doubleValue("obi_warp_gap_extend");
+    settingsMap["obi_warp_factor_diag"] = settingsQuery->doubleValue("obi_warp_factor_diag");
+    settingsMap["obi_warp_factor_gap"] = settingsQuery->doubleValue("obi_warp_factor_gap");
+    settingsMap["obi_warp_no_standard_normal"] = settingsQuery->integerValue("obi_warp_no_standard_normal");
+    settingsMap["obi_warp_local"] = settingsQuery->integerValue("obi_warp_local");
+
     return settingsQuery->stringValue("domain");
 }
 
@@ -1798,6 +1882,28 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["minPeakWidth"] = static_cast<int>(mp->minNoNoiseObs);
     settingsMap["minGoodPeakCount"] = mp->minGoodGroupCount;
     settingsMap["peakClassifierFile"] = string(); // does this even change?
+
+    // alignment settings do not apply to single groups (yet)
+    settingsMap["alignment_algorithm"]= 0;
+    settingsMap["alignment_good_peak_count"]= 0;
+    settingsMap["alignment_limit_group_count"]= 0;
+    settingsMap["alignment_peak_grouping_window"]= 0;
+    settingsMap["alignment_min_peak_intensity"]= 0.0;
+    settingsMap["alignment_min_signal_noise_ratio"]= 0;
+    settingsMap["alignment_min_peak_width"]= 0;
+    settingsMap["alignment_peak_detection"]= 0;
+    settingsMap["poly_fit_num_iterations"]= 0;
+    settingsMap["poly_fit_polynomial_degree"]= 0;
+    settingsMap["obi_warp_reference_sample"]= string();
+    settingsMap["obi_warp_show_advance_params"]= 0;
+    settingsMap["obi_warp_score"]= string();
+    settingsMap["obi_warp_response"]= 0.0;
+    settingsMap["obi_warp_bin_size"]= 0.0;
+    settingsMap["obi_warp_gap_init"]= 0.0;
+    settingsMap["obi_warp_gap_extend"]= 0.0;
+    settingsMap["obi_warp_factor_diag"]= 0.0;
+    settingsMap["obi_warp_no_standard_normal"]= 0;
+    settingsMap["obi_warp_local"]= 0;
 
     settingsMap["mainWindowSelectedDbName"] = string(); // not-necessary for groups
     settingsMap["mainWindowCharge"] = mp->ionizationMode; // always 1 for now
