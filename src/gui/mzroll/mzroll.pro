@@ -6,7 +6,7 @@ include($$mzroll_pri)
 DESTDIR = $$top_srcdir/bin/
 #TEMPLATE = app
 
-QT += concurrent widgets multimedia multimediawidgets network printsupport
+QT += concurrent widgets multimedia multimediawidgets network printsupport sql
 QT -= qmltest
 
 CONFIG += qt thread warn_off sql svg precompile_header resources_big

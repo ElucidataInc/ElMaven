@@ -103,8 +103,9 @@ int main(int argc, char *argv[]) {
 	//write report
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
-	}
-    else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
+        if (peakdetectorCLI->saveAnalysisAsProject())
+            peakdetectorCLI->saveEmdb();
+    } else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
         log.info() << "No peaks found. Please try again with different "
                       "parameters."
                    << flush;
@@ -113,7 +114,8 @@ int main(int argc, char *argv[]) {
     //cleanup
     delete_all(peakdetectorCLI->mavenParameters->samples);
     peakdetectorCLI->mavenParameters->samples.clear();
-    peakdetectorCLI->mavenParameters->allgroups.clear();
+    // clearing `allgroups` crashes on Windows - also undebuggable
+    // peakdetectorCLI->mavenParameters->allgroups.clear();
     delete peakdetectorCLI;
 
 #ifndef __APPLE__

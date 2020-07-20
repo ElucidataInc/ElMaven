@@ -151,40 +151,75 @@ public:
 
     int prepareCompoundDbForPolly(QString fileName);
 
+    bool saveAnalysisAsProject() { return !_projectName.isEmpty(); }
+
+    /**
+     * @brief Save the analysis (mostly just peak-group information) as an
+     * emDB project.
+     */
+    void saveEmdb();
+
     inline const vector<char*> getOptions()
     {
         const vector<char*> options = {
             "a?alignSamples: Enter 1 for Obi-Warp alignment, 2 for Polyfit.",
-            "b?minGoodGroupCount: Enter minimum number of good peaks per group. <int>",
-            "c?matchRtFlag: Enter non-zero integer to match retention time to the database values. <int>",
+            "b?minGoodGroupCount: Enter minimum number of good peaks per "
+                "group. <int>",
+            "c?matchRtFlag: Enter non-zero integer to match retention time to "
+                "the database values. <int>",
             "C?compoundPPMWindow: Enter ppm window for m/z. <float>",
             "d?db: Enter full path to database file. <string>",
-            "e?processAllSlices: Enter non-zero integer to run untargeted peak detection. <int>",
-            "f?pullIsotopes: Enter 1111 to pull all isotopic labels, 0000 for no isotopes. <int>",
-            "g?grouping_maxRtWindow: Enter the maximum Rt difference between peaks in a group. <float>",
-            "h?help: Print this help message. Refer to \"https://github.com/ElucidataInc/ElMaven/wiki/El-MAVEN-Command-Line-Interface\" for more details.",
-            "i?minGroupIntensity: Enter min group intensity threshold for a group. <float>",
-            "I?quantileIntensity: Specify required percentage of peaks above the intensity threshold. <float>",
-            "j?saveEicJson: Enter non-zero integer to save EIC JSON in the output folder. <int>",
+            "e?processAllSlices: Enter non-zero integer to run untargeted peak "
+                "detection. <int>",
+            "f?pullIsotopes: Enter 1111 to pull all isotopic labels, 0000 for "
+                "no isotopes. <int>",
+            "g?grouping_maxRtWindow: Enter the maximum Rt difference between "
+                "peaks in a group. <float>",
+            "h?help: Print this help message. Refer to \"https://github.com/"
+                "ElucidataInc/ElMaven/wiki/El-MAVEN-Command-Line-Interface\" "
+                "for more details.",
+            "i?minGroupIntensity: Enter min group intensity threshold for a "
+                "group. <float>",
+            "I?quantileIntensity: Specify required percentage of peaks above "
+                "the intensity threshold. <float>",
+            "j?saveEicJson: Enter non-zero integer to save EIC JSON in the "
+                "output folder. <int>",
             "k?charge: Enter the magnitude of charge on each compound. <int>",
             "m?model: Enter full path to the model file. <string>",
-            "n?eicMaxGroups: Enter maximum number of groups reported per compound. <int>",
+            "n?eicMaxGroups: Enter maximum number of groups reported per "
+                "compound. <int>",
             "o?outputdir: Enter full path to output folder. <string>",
-            "p?ppmMerge: Enter ppm window for untargeted peak detection and removing duplicate groups. <float>",
-            "q?minQuality: Enter min peak quality threshold for a group. <float>",
-            "Q?quantileQuality: Specify required percentage of peaks above quality threshold. <float>",
-            "r?rtStepSize: Enter retention time window for untargeted peak detection. <float>",
+            "p?ppmMerge: Enter ppm window for untargeted peak detection and "
+                "removing duplicate groups. <float>",
+            "q?minQuality: Enter min peak quality threshold for a group. "
+                "<float>",
+            "Q?quantileQuality: Specify required percentage of peaks above "
+                "quality threshold. <float>",
+            "r?rtStepSize: Enter retention time window for untargeted peak "
+                "detection. <float>",
+            "s?saveProject: If set to a <name>, the analysis will be saved as "
+                "<name>.emDB project. If given <name> contains the string "
+                "\".raw\" in it, the emDB will be saved with raw peak data. "
+                "<string>",
             "v?ionizationMode: Enter 0, -1 or 1 ionization mode. <int>",
             "w?minPeakWidth: Enter min peak width threshold in a group. <int>",
-            "x?xml: Enter full path to the config file or a settings file from El-MAVEN. <string>",
+            "x?xml: Enter full path to the config file or a settings file from "
+                "El-MAVEN. <string>",
             "X?defaultXml: Create a template config file.",
-            "y?eicSmoothingWindow: Enter number of scans used for smoothing at a time. <int>",
-            "z?minSignalBaseLineRatio: Enter min signal to baseline ratio threshold for a group. <float>",
-            "P?pollyCred: Polly sign in credentials, username, password provided in xml file. <string>",
-            "A?pollyApp: Polly application to upload to after peak detection finishes. Enter 1 for PollyPhi or 2 for QuantFit. <int>",
-            "N?pollyProject: Polly project where we want to upload our files. <string>",
-            "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. <string>",
-            "E?pollyExtra: Any miscellaneous information that needs to be sent to Polly. <string>",
+            "y?eicSmoothingWindow: Enter number of scans used for smoothing at "
+                "a time. <int>",
+            "z?minSignalBaseLineRatio: Enter min signal to baseline ratio "
+                "threshold for a group. <float>",
+            "A?pollyApp: Polly application to upload to after peak detection "
+                "finishes. Enter 1 for PollyPhi or 2 for QuantFit. <int>",
+            "E?pollyExtra: Any miscellaneous information that needs to be sent "
+                "to Polly. <string>",
+            "N?pollyProject: Polly project where we want to upload our files. "
+                "<string>",
+            "P?pollyCred: Polly sign in credentials, username, password "
+                "provided in xml file. <string>",
+            "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. "
+                "<string>",
             nullptr
         };
         return options;
@@ -205,6 +240,7 @@ private:
     QString _pollyExtraInfo;
     Logger *_log;
     Analytics* _analytics;
+    QString _projectName;
 
     /**
      * [Load Arguments for Options Dialog]

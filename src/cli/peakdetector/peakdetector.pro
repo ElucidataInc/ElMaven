@@ -1,11 +1,12 @@
 include($$mac_compiler)
 include($$mzroll_pri)
+include($$info_pri)
 
 DESTDIR = $$top_srcdir/bin
 MOC_DIR = $$top_builddir/tmp/peakdetector/
 OBJECTS_DIR = $$top_builddir/tmp/peakdetector/
 
-QT += network
+QT += network xml
 TEMPLATE = app
 TARGET = peakdetector
 
@@ -39,10 +40,11 @@ LIBS +=  -lmaven         \
          -lz             \
          -lobiwarp       \
          -lpollyCLI      \
-         -lcommon
+         -lcommon        \
+         -lprojectDB
 
-unix: LIBS += -lboost_system -lboost_filesystem
-win32: LIBS += -lboost_system-mt -lboost_filesystem-mt
+unix: LIBS += -lboost_system -lboost_filesystem -lsqlite3
+win32: LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
 
 !macx: LIBS += -fopenmp
 

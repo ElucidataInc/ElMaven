@@ -33,6 +33,7 @@ QMAKE_CXXFLAGS += -fopenmp
                 QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
                 QMAKE_LFLAGS += -lgcov --coverage
             }
+            macx: QMAKE_CXXFLAGS -= -O3
         }
     }
 }

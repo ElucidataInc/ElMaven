@@ -986,8 +986,9 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
             groupVector.clear();
         }
         sessionDb->saveCompounds(compoundSet);
-        qDebug() << "finished writing to project" << filename;
         sessionDb->vacuum();
+        delete sessionDb;
+        qDebug() << "finished writing to project" << filename;
         return true;
     }
     qDebug() << "cannot write to closed project" << filename;

@@ -7,12 +7,11 @@ include($$mzroll_pri)
 TEMPLATE = app
 TARGET = MavenTests
 
-
-
-QT += testlib network
+QT += testlib network xml
 QT -= gui
 
-CONFIG += qtestlib warn_off
+CONFIG += qtestlib warn_off console
+CONFIG -= app_bundle
 
 QMAKE_CXXFLAGS +=  -std=c++11
 QMAKE_CXXFLAGS += -DOMP_PARALLEL
@@ -33,9 +32,23 @@ macx {
 }
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf -lobiwarp -lpollyCLI -lcommon
-unix: LIBS += -lboost_system -lboost_filesystem
-win32: LIBS += -lboost_system-mt -lboost_filesystem-mt
+LIBS += -lmaven         \
+        -lpugixml       \
+        -lneural        \
+        -lcsvparser     \
+        -lpls           \
+        -lErrorHandling \
+        -lLogger        \
+        -lcdfread       \
+        -lz             \
+        -lnetcdf        \
+        -lobiwarp       \
+        -lpollyCLI      \
+        -lcommon        \
+        -lprojectDB
+
+unix: LIBS += -lboost_system -lboost_filesystem -lsqlite3
+win32: LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3
 !macx: LIBS += -fopenmp
 
 macx {
