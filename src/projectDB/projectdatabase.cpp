@@ -343,11 +343,10 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     }
 
     string correlatedGroups = "";
-    if (group->parent == nullptr && 
-        (group->predictedLabel() == 
+    if (group->predictedLabel() == 
         PeakGroup::ClassifiedLabel::Correlation
         || group->predictedLabel() == 
-        PeakGroup::ClassifiedLabel::CorrelationAndPattern))
+        PeakGroup::ClassifiedLabel::CorrelationAndPattern)
     {
         correlatedGroups += "{";
         auto correlatedGroupMap = group->getCorrelatedGroups();
@@ -1245,7 +1244,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         string compoundName = groupsQuery->stringValue("compound_name");
 
         string correlatedGroups = groupsQuery->stringValue("correlated_groups");
-        if (correlatedGroups.size() > 0)
+        
+        // removing json brackets.
+        if (correlatedGroups.size() > 2)
         {  
             correlatedGroups = correlatedGroups.substr(1, 
                                correlatedGroups.size() - 2);

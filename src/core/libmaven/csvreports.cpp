@@ -568,9 +568,34 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
 }
 
 bool CSVReports::writeDataForPeakMl(const string& filePath,
-                                    const vector<PeakGroup>& groups)
+                                    vector<PeakGroup>& groups)
 {
     ofstream file(filePath);
+
+    auto writePeakInfo = [&] (PeakGroup group, int groupId)
+                        {
+                            for (auto& peak : group.peaks) {
+                                file << groupId << ","
+                                    << "\"" << peak.getSample()->getSampleName() << "\"" << ","
+                                    << "\"" << peak.getSample()->getSetName() << "\"" << ","
+                                    << peak.peakArea << ","
+                                    << peak.peakAreaTop << ","
+                                    << peak.peakAreaFractional << ","
+                                    << peak.peakIntensity << ","
+                                    << peak.peakMz << ","
+                                    << peak.rt << ","
+                                    << peak.rtmin << ","
+                                    << peak.rtmax << ","
+                                    << peak.quality << ","
+                                    << peak.width << ","
+                                    << peak.gaussFitR2 << ","
+                                    << peak.noNoiseFraction << ","
+                                    << peak.symmetry << ","
+                                    << peak.signalBaselineRatio << ","
+                                    << peak.groupOverlap << "\n";
+                            }
+                        };
+
     if (file.is_open()) {
         file << "groupId" << ","
              << "sampleName" << ","
@@ -591,28 +616,21 @@ bool CSVReports::writeDataForPeakMl(const string& filePath,
              << "signalBaselineRatio" << ","
              << "groupOverlap" << "\n";
         file << fixed << setprecision(6);
+
+        // Unique Id is used for identifying child group
+        // uniquely while exporting for classification.
+        int lastUniqueId = 0;
         for (auto& group : groups) {
-            for (auto& peak : group.peaks) {
-                file << group.groupId << ","
-                     << "\"" << peak.getSample()->getSampleName() << "\"" << ","
-                     << "\"" << peak.getSample()->getSetName() << "\"" << ","
-                     << peak.peakArea << ","
-                     << peak.peakAreaTop << ","
-                     << peak.peakAreaFractional << ","
-                     << peak.peakIntensity << ","
-                     << peak.peakMz << ","
-                     << peak.rt << ","
-                     << peak.rtmin << ","
-                     << peak.rtmax << ","
-                     << peak.quality << ","
-                     << peak.width << ","
-                     << peak.gaussFitR2 << ","
-                     << peak.noNoiseFraction << ","
-                     << peak.symmetry << ","
-                     << peak.signalBaselineRatio << ","
-                     << peak.groupOverlap << "\n";
-            }
+            group.setUniqueId(group.groupId);
+            writePeakInfo(group, group.uniqueId());
+            lastUniqueId = group.uniqueId();
         }
+        for (auto& group : groups) {
+            for (auto&child : group.children) {
+                child.setUniqueId(++lastUniqueId);
+                writePeakInfo(child, child.uniqueId());
+            }
+        } 
         file.close();
         return true;
     }

@@ -229,7 +229,7 @@ public slots:
 
   void showClusterDialog();
 
-  void displayNextGroupInCorrelationTable(int groupId);
+  void displayNextGroupInCorrelationTable(string groupName);
 
   inline void selectedPeaks() {
     peakTableSelection = PeakTableSubsetType::Selected;

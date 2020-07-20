@@ -153,9 +153,9 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   
   // selections in correlation table will trigger selection in this table
   connect(mw->getCorrelationTable(),
-          SIGNAL(groupIdSelected(int)),
+          SIGNAL(groupNameSelected(string)),
           this,
-          SLOT(displayNextGroupInCorrelationTable(int)));
+          SLOT(displayNextGroupInCorrelationTable(string)));
 
   setupFiltersDialog();
 
@@ -227,12 +227,12 @@ void TableDockWidget::undoLabel()
     }
 }
 
-void TableDockWidget::displayNextGroupInCorrelationTable(int groupId)
+void TableDockWidget::displayNextGroupInCorrelationTable(string groupName)
 {
   if (_mainwindow->getCorrelationTable()->currentTable() == this) {
     auto wasBlocked = treeWidget->blockSignals(true);
     for (auto item : _cycleBuffer) {
-      if (item->text(1).toInt() == groupId) {
+      if (item->text(2).toStdString() == groupName) {
         treeWidget->setCurrentItem(item);
         treeWidget->scrollTo(treeWidget->currentIndex(),
                               QAbstractItemView::PositionAtCenter);
@@ -1577,6 +1577,7 @@ void TableDockWidget::_refreshCycleBuffer()
   _cycleBuffer.clear();
 
   auto correlatedGroups = selectedGroup->getCorrelatedGroups();
+  
   if (correlatedGroups.empty()) {
     _mainwindow->getCorrelationTable()->setVisible(false);
     return;
@@ -1588,7 +1589,7 @@ void TableDockWidget::_refreshCycleBuffer()
   QTreeWidgetItemIterator itr(treeWidget);
   while (*itr) {
     QTreeWidgetItem *item = (*itr);
-    if (item && item->parent() == nullptr) {
+    if (item) {
       QVariant v = item->data(1, Qt::UserRole);
       PeakGroup *group = v.value<PeakGroup *>();
       if (group == nullptr)
@@ -1597,9 +1598,9 @@ void TableDockWidget::_refreshCycleBuffer()
       if (group == selectedGroup)
         _cycleBuffer.append(item);
 
-      if (correlatedGroups.count(group->groupId)) {
+      if (correlatedGroups.count(group->uniqueId())) {
         _cycleBuffer.append(item);
-        auto corr = correlatedGroups.at(group->groupId);
+        auto corr = correlatedGroups.at(group->uniqueId());
         _mainwindow->getCorrelationTable()->addCorrelatedPeakGroup(group, corr);
       }
     }

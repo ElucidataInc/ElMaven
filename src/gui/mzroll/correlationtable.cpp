@@ -17,9 +17,9 @@ CorrelationTable::CorrelationTable(QWidget *parent) :
 
 void CorrelationTable::displayNext()
 {
-    int currentGroupId =
-                    ui->treeWidget->currentItem()->text(0).toInt();
-    emit groupIdSelected(currentGroupId);
+    auto currentGroupName =
+                    ui->treeWidget->currentItem()->text(1).toStdString();
+    emit groupNameSelected(currentGroupName);
 }
 
 CorrelationTable::~CorrelationTable()

@@ -784,12 +784,25 @@ class PeakGroup{
             return -1;
         }
 
+        void setUniqueId (int id)
+        {
+            _uniqueId = id;
+        }
+
+        int uniqueId()
+        {
+            return _uniqueId;
+        }
+
     private:
         int _groupId;
         int _metaGroupId;
 
         mzSlice _slice;
         bool _sliceSet;
+        // used in peakML in exporting groups for 
+        // classification including child.
+        int _uniqueId;
 
         float _expectedMz;
         float _expectedAbundance;

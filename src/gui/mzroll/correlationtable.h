@@ -26,7 +26,7 @@ public:
     void selectGroupId(int groupId);
 
 signals:
-    void groupIdSelected(int);
+    void groupNameSelected(string);
 
 public Q_SLOTS:
     void displayNext();
