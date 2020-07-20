@@ -338,6 +338,12 @@ class PeakGroup{
         }
 
         inline void setGroupIdForChildren() { for (auto child : children) child->groupId = groupId; }
+        inline void setMetaGroupIdForChildren()
+        {
+            metaGroupId = groupId;
+            for (auto& child : children)
+                child->metaGroupId = groupId;
+        }
 
         /**
          * [getPeak ]

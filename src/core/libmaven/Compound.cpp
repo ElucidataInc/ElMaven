@@ -14,6 +14,7 @@ Compound::Compound(string id, string name, string formula, int charge,
                    float productMz, float collisionEnergy, string note) {
     this->_id = id;
     this->_name = name;
+    this->_originalName = name;
     this->_formula = formula;
     this->_charge = charge;
     this->_expectedRt = expectedRt;
@@ -40,6 +41,7 @@ bool Compound::operator == (const Compound& rhs) const
 {
     return (_id == rhs._id
             && _name == rhs._name
+            && _originalName == rhs._originalName
             && _formula == rhs._formula
             && _kegg_id == rhs._kegg_id
             && _pubchem_id == rhs._pubchem_id
@@ -83,6 +85,7 @@ Compound* Compound::operator = (const Compound& rhs)
 {
     _id = rhs._id;
     _name = rhs._name;
+    _originalName = rhs._originalName;
     _formula = rhs._formula;
     _kegg_id = rhs._kegg_id;
     _pubchem_id = rhs._pubchem_id;
@@ -190,6 +193,11 @@ string Compound::name()
 void Compound::setName(string name)
 {
     this->_name = name;
+}
+
+string Compound::originalName()
+{
+    return this->_originalName;
 }
 
 void Compound::setFormula(string formula) {

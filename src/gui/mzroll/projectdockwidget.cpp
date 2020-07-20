@@ -15,6 +15,7 @@
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
 #include "projectdockwidget.h"
+#include "projectsaveworker.h"
 #include "Scan.h"
 #include "samplertwidget.h"
 #include "spectrawidget.h"
@@ -37,7 +38,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     lastUsedSampleColor = QColor(Qt::green);
     setLastOpenedProject("");
-    setLastSavedProject("");
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);
@@ -57,6 +57,11 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
+    QString style = "";
+    style += "QToolBar { background:    white;               }";
+    style += "QToolBar { border:        none;                }";
+    style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    toolBar->setStyleSheet(style);
 
     QToolButton* exportMetadataButton = new QToolButton(toolBar);
     // TODO: Replace this icon with something more appropriate
@@ -724,36 +729,12 @@ QString ProjectDockWidget::getLastOpenedProject()
     return _lastOpenedProject;
 }
 
-std::chrono::time_point<std::chrono::system_clock>
-ProjectDockWidget::getLastOpenedTime()
-{
-    return _lastLoad;
-}
-
 void ProjectDockWidget::setLastOpenedProject(QString filename)
 {
     _lastOpenedProject = filename;
-    _lastLoad = std::chrono::system_clock::now();
 }
 
-QString ProjectDockWidget::getLastSavedProject()
-{
-    return _lastSavedProject;
-}
-
-std::chrono::time_point<std::chrono::system_clock>
-ProjectDockWidget::getLastSavedTime()
-{
-    return _lastSave;
-}
-
-void ProjectDockWidget::setLastSavedProject(QString filename)
-{
-    _lastSavedProject = filename;
-    _lastSave = std::chrono::system_clock::now();
-}
-
-void ProjectDockWidget::saveProjectAsSQLite()
+void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
 {
     QSettings* settings = _mainwindow->getSettings();
 
@@ -777,14 +758,10 @@ void ProjectDockWidget::saveProjectAsSQLite()
     if (!fileName.endsWith(".emDB", Qt::CaseInsensitive))
         fileName = fileName + ".emDB";
 
-    _mainwindow->threadSave(fileName);
-}
+    if (QFile::exists(fileName))
+        QFile::remove(fileName);
 
-void ProjectDockWidget::saveSQLiteProject(QString filename)
-{
-    auto success = _mainwindow->fileLoader->writeSQLiteProject(filename);
-    if (success && !_mainwindow->timestampFileExists)
-        setLastSavedProject(filename);
+    _mainwindow->threadSave(fileName, saveRawData);
 }
 
 void ProjectDockWidget::saveSQLiteProject()
@@ -793,21 +770,6 @@ void ProjectDockWidget::saveSQLiteProject()
         _mainwindow->threadSave(_mainwindow->getLatestUserProject());
     } else {
         saveProjectAsSQLite();
-    }
-}
-
-void ProjectDockWidget::savePeakGroupInSQLite(PeakGroup* group,
-                                              QString filename)
-{
-    if (group == nullptr)
-        return;
-
-    if (!_mainwindow->fileLoader->sqliteProjectIsOpen()
-            && !filename.isEmpty()) {
-        saveSQLiteProject(filename);
-    } else {
-        auto tableName = QString::fromStdString(group->tableName());
-        _mainwindow->fileLoader->updateGroup(group, tableName);
     }
 }
 
@@ -832,17 +794,14 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         QMessageBox::No | QMessageBox::Yes,
         QMessageBox::Yes
     );
-    if (reply == QMessageBox::Yes) {
+    if (reply == QMessageBox::Yes)
         saveSQLiteProject();
-    } else {
-        _mainwindow->resetAutosave();
-    }
 
     // if an existing project is being saved, stall before clearing the session
-    while(_mainwindow->autosave->isRunning());
+    while(_mainwindow->autosaveWorker->isRunning());
+    while(_mainwindow->saveWorker->isRunning());
 
     _mainwindow->fileLoader->closeSQLiteProject();
-    setLastSavedProject("");
     setLastOpenedProject("");
 
     // clear session regardless of whether the project was saved

@@ -119,31 +119,31 @@ bool Database::addCompound(Compound* newCompound)
     // existing compound, change its name according to the number of
     // compounds with the same ID
     if (compoundIdenticalCount.count(newCompound->id()
-                                     + newCompound->name()
+                                     + newCompound->originalName()
                                      + newCompound->db())) {
         int loadOrder = compoundIdenticalCount.at(newCompound->id()
-                                                  + newCompound->name()
+                                                  + newCompound->originalName()
                                                   + newCompound->db());
 
         // return false if any of the compounds having the same ID are the
         // exact same in all aspects.
-        auto originalName = newCompound->name();
+        auto originalName = newCompound->originalName();
         for (int i = 0; i < loadOrder; ++i) {
             string nameWithSuffix = originalName;
             if (i != 0)
                 nameWithSuffix = originalName + " (" + to_string(i) + ")";
 
-            newCompound->setName (nameWithSuffix);
+            newCompound->setName(nameWithSuffix);
             Compound* possibleCopy = compoundIdNameDbMap[newCompound->id()
                                                          + nameWithSuffix
                                                          + newCompound->db()];
             if (possibleCopy != nullptr && *newCompound == *possibleCopy)
                 return false;
 
-            newCompound->setName (originalName);
+            newCompound->setName(originalName);
         }
 
-        newCompound->setName (originalName + " (" + to_string(loadOrder) + ")");
+        newCompound->setName(originalName + " (" + to_string(loadOrder) + ")");
         compoundIdenticalCount[newCompound->id()
                                + originalName
                                + newCompound->db()] = ++loadOrder;
@@ -157,7 +157,15 @@ bool Database::addCompound(Compound* newCompound)
                         + newCompound->name()
                         + newCompound->db()] = newCompound;
     compoundsDB.push_back(newCompound);
+    if (newCompound->charge() == 0)
+        _compoundsWithZeroCharge.push_back(newCompound);
     return true;
+}
+
+void Database::updateChargesForZeroCharges(int charge)
+{
+    for (auto compound : _compoundsWithZeroCharge)
+        compound->setCharge(charge);
 }
 
 void Database::loadSpecies(string db) {

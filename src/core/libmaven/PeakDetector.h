@@ -126,8 +126,8 @@ public:
                                            std::string setName);
 
     static std::vector<EIC*> pullEICs(const mzSlice *slice,
-                                      std::vector<mzSample*>& samples,
-                                      MavenParameters* mp,
+                                      const std::vector<mzSample*>& samples,
+                                      const MavenParameters* mp,
                                       bool filterUnselectedSamples = true);
 
     /**

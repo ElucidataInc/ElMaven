@@ -17,6 +17,7 @@
 class Adduct;
 class Compound;
 class Connection;
+class MavenParameters;
 class mzSample;
 class PeakGroup;
 class Scan;
@@ -52,8 +53,12 @@ public:
      * @param dbFilename Absolute filename for the database file to be used.
      * @param version Version string for the application. This value will be
      * used to deduce whether the database needs schema upgrade.
+     * @param Boolean that decides whether or not the project should save raw
+     * EIC and spectra for peaks. Once set this property cannot be changed.
      */
-    ProjectDatabase(const string& dbFilename, const string& version);
+    ProjectDatabase(const string& dbFilename,
+                    const string& version,
+                    const bool saveRawData = false);
 
     /**
      * @brief Destroy the object and close database connection.
@@ -83,6 +88,8 @@ public:
      * is preferable when there is a need to write multiple peak groups.
      * @param groups A vector of pointers to PeakGroup objects to be saved.
      * @param tableName An optional parameter to save table name for groups.
+     * @param mp Global parameters that may be needed for obtaining certain
+     * information.
      */
     void saveGroups(const vector<PeakGroup*>& groups,
                     const string& tableName="");
@@ -110,7 +117,8 @@ public:
      * @param group The peak group whose peaks need to be saved.
      * @param databaseId A unique ID for the group (as saved in the database).
      */
-    void saveGroupPeaks(PeakGroup* group, const int databaseId);
+    void saveGroupPeaks(PeakGroup* group,
+                        const int databaseId);
 
     /**
      * @brief Save compounds linked to a given set of groups.
@@ -423,6 +431,13 @@ public:
     MavenParameters fromMaptoParameters(map<string, variant> settingsMap,
                                         const MavenParameters *super);
 
+    /* @brief Check whether this project file contains raw EIC or spectral data
+     * saved within.
+     * @return A boolean, which if `true` means that the project has been
+     * configured to save EIC and spectra data for peaks.
+     */
+    bool hasRawDataSaved();
+
 private:
     /**
      * @brief _connection A Connection object mediating connection with a SQLite
@@ -442,6 +457,12 @@ private:
      * and need not be loaded again.
      */
     map<string, Compound*> _compoundIdMap;
+
+    /**
+     * @brief _saveRawData If set to true, while project construction, each peak
+     * will be saved with raw data (EIC & spectra).
+     */
+    bool _saveRawData;
 
     /**
      * @brief Assign each sample in the given vector with a unique ID.
@@ -511,6 +532,21 @@ private:
      * @param version The integer version to set for database.
      */
     void _setVersion(int version);
+
+    /**
+     * @brief Sets the internal `_saveRawData` flag, by checking if the project
+     * path already exists on filesystem and contains non-empty raw EIC and
+     * spectra values for the first peak (and therefore all peaks). If the given
+     * parameter `saveRawData` is `true`, then the project is set to save raw
+     * data anyways.
+     * @details This method should be called to set the internal flag, before a
+     * connection is created, otherwise the filePath check will always evaluate
+     * to true.
+     * @param filePath Path of file, which will be checked for existence.
+     * @param _saveRawData Whether the EIC and spectral information should be
+     * saved for peaks.
+     */
+    void _setSaveRawData(const string& filePath, const bool saveRawData);
 };
 
 #endif // PROJECTDATABASE_H

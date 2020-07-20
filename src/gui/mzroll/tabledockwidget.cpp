@@ -69,6 +69,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
   setPalette(pal);
+  setDefaultStyle();
 
   viewType = groupView;
   maxPeaks = 0; //Maximum Number of Peaks in a Group
@@ -110,9 +111,9 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SLOT(clearClusters()));
 
   connect(this,
-          SIGNAL(updateProgressBar(QString, int, int)),
+          SIGNAL(updateProgressBar(QString, int, int, bool)),
           _mainwindow,
-          SLOT(setProgressBar(QString, int, int)));
+          SLOT(setProgressBar(QString, int, int, bool)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
 
@@ -1516,10 +1517,6 @@ void TableDockWidget::printPdfReport() {
   if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
     fileName = fileName + ".pdf";
 
-  QString title = "Saving PDF export for table…";
-  _mainwindow->setStatusText(title);
-
-
   auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
 }
 
@@ -1556,7 +1553,10 @@ void TableDockWidget::renderPdf(QString fileName)
 
     for (int i = 0; i < selected.size(); i++) {
         shared_ptr<PeakGroup> grp = selected[i];
-        emit updateProgressBar("", i, selected.size());
+        emit updateProgressBar("Saving PDF export for table…",
+                               i + 1,
+                               selected.size(),
+                               true);
         _mainwindow->getEicWidget()->renderPdf(grp, &painter);
 
         if(!printer.newPage())
@@ -1582,7 +1582,7 @@ void TableDockWidget::pdfReadyNotification()
                                                             message,
                                                            this);
     title = "Your PDF has been saved successfully.";
-    _mainwindow->setStatusText(title, true);
+    _mainwindow->setStatusText(title);
 }
 
 void TableDockWidget::showHeatMap() {
@@ -1686,7 +1686,7 @@ void TableDockWidget::focusInEvent(QFocusEvent *event) {
   if (event->gotFocus()) {
     pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
     setPalette(pal);
-    updateCompoundWidget();
+    _mainwindow->setActiveTable(this);
   }
 }
 
@@ -2004,6 +2004,20 @@ int TableDockWidget::lastTableId()
   return -1;
 }
 
+void TableDockWidget::setDefaultStyle(bool isActive)
+{
+    QString style = "";
+    style += "QLabel       { margin:        0px 6px;             }";
+    style += "QToolBar     { background:    white;               }";
+    style += "QToolBar     { border:        none;                }";
+    style += "QToolBar     { border-bottom: 1px solid lightgray; }";
+    style += "QTreeView    { border:        none;                }";
+    if (isActive) {
+        style += "QToolBar { background:    #ebeafa;             }";
+    }
+    setStyleSheet(style);
+}
+
 QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   if (btnName == "titlePeakTable") {
 
@@ -2011,7 +2025,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     QFont font;
     font.setPointSize(14);
     td->titlePeakTable->setFont(font);
-    td->setStyleSheet("QLabel { margin: 0px 6px; }");
 
     td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
 

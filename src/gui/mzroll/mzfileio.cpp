@@ -6,8 +6,8 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "common/analytics.h"
 #include "base64.h"
+#include "common/analytics.h"
 #include "Compound.h"
 #include "datastructures/adduct.h"
 #include "errorcodes.h"
@@ -23,6 +23,7 @@
 #include "mzUtils.h"
 #include "projectdatabase.h"
 #include "projectdockwidget.h"
+#include "projectsaveworker.h"
 #include "Scan.h"
 #include "spectralhitstable.h"
 #include "tabledockwidget.h"
@@ -45,7 +46,8 @@ mzFileIO::mzFileIO(QWidget*) {
             SIGNAL(appSettingsUpdated()),
             SLOT(_readSamplesFromCurrentSQLiteProject()));
 
-    _sqliteDBLoadInProgress = false;
+    _sqliteDbLoadInProgress = false;
+    _sqliteDbSaveInProgress = false;
 }
 
 void mzFileIO::setMainWindow(MainWindow* mw) {
@@ -416,7 +418,7 @@ mzSample* mzFileIO::parseMzData(QString fileName) {
 
 void mzFileIO::run(void)
 {
-    if (_sqliteDBLoadInProgress) {
+    if (_sqliteDbLoadInProgress) {
         auto samples = _mainwindow->getSamples();
         _currentProject->updateSamples(samples);
         Q_EMIT(sqliteDBSamplesLoaded());
@@ -430,7 +432,7 @@ void mzFileIO::run(void)
         // assuming this was the last step in loading of a SQLite project
         Q_EMIT(projectLoaded());
 
-        _sqliteDBLoadInProgress = false;
+        _sqliteDbLoadInProgress = false;
     }
 
     try {
@@ -743,6 +745,16 @@ void mzFileIO::insertSettingForSave(const string key, const variant var)
     _settingsMap[key] = var;
 }
 
+variant mzFileIO::querySavedSetting(const string key) const
+{
+    if (_currentProject != nullptr) {
+        auto settings = _currentProject->loadGlobalSettings();
+        if (settings.count(key))
+            return settings.at(key);
+    }
+    return variant(string());
+}
+
 bool mzFileIO::sqliteProjectIsOpen()
 {
     return _currentProject != nullptr;
@@ -759,15 +771,21 @@ void mzFileIO::closeSQLiteProject()
 
 void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
 {
+    _sqliteDbSaveInProgress = true;
     vector<PeakGroup*> groupVector;
     set<Compound*> compoundSet;
     if (_currentProject) {
         _currentProject->deleteTableGroups(tableName.toStdString());
+        MavenParameters* mp = _mainwindow->mavenParameters;
         for (auto group : groups) {
             // assuming all groups are parent groups.
+            group->setMetaGroupIdForChildren();
             groupVector.push_back(group);
-            if (group->getCompound())
-                compoundSet.insert(group->getCompound());
+            if (group->hasCompoundLink()) {
+                auto compound = group->getCompound();
+                compound->setCharge(mp->getCharge(compound));
+                compoundSet.insert(compound);
+            }
         }
         _currentProject->saveGroups(groupVector, tableName.toStdString());
         _currentProject->saveCompounds(compoundSet);
@@ -776,10 +794,12 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
                                   .arg(tableName))
         );
     }
+    _sqliteDbSaveInProgress = false;
 }
 
 void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
 {
+    _sqliteDbSaveInProgress = true;
     if (_currentProject) {
         _currentProject->deletePeakGroup(group);
         auto parentGroupId = group->parent == nullptr ? 0
@@ -789,78 +809,144 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
                                            tableName.toStdString());
         Q_EMIT(updateStatusString("Updated group attributes"));
     }
+    _sqliteDbSaveInProgress = false;
 }
 
-bool mzFileIO::writeSQLiteProject(QString filename)
+bool mzFileIO::writeSQLiteProject(const QString filename,
+                                  const bool saveRawData,
+                                  const bool isTempProject)
 {
-    if (filename.isEmpty())
+    _sqliteDbSaveInProgress = true;
+
+    if (filename.isEmpty()) {
+        _sqliteDbSaveInProgress = false;
         return false;
+    }
+
     qDebug() << "saving SQLite project " << filename << endl;
 
     std::vector<mzSample*> sampleSet = _mainwindow->getSamples();
-    if (sampleSet.size() == 0)
+    if (sampleSet.size() == 0) {
+        _sqliteDbSaveInProgress = false;
         return false;
+    }
 
     auto projectIsAlreadyOpen = false;
     if (_currentProject) {
         auto currentName = QString::fromStdString(_currentProject->projectName());
         auto currentPath = QString::fromStdString(_currentProject->projectPath());
         auto currentFilename = currentPath + QDir::separator() + currentName;
-        qDebug() << currentFilename;
-        qDebug() << filename;
         if (currentFilename == filename)
             projectIsAlreadyOpen = true;
     }
+    auto projectFileExists = QFile::exists(filename);
 
-    if (projectIsAlreadyOpen) {
+    if (projectIsAlreadyOpen && projectFileExists) {
         qDebug() << "saving in existing project…";
     } else {
         qDebug() << "closing the current project…";
         closeSQLiteProject();
 
-        // if file already exists, delete it before opening a new one
-        QFile projectFile(filename);
-        if (projectFile.exists())
-            projectFile.remove();
-
         qDebug() << "creating new project to save…";
         auto version = _mainwindow->appVersion().toStdString();
-        _currentProject = new ProjectDatabase(filename.toStdString(), version);
+        _currentProject = new ProjectDatabase(filename.toStdString(),
+                                              version,
+                                              saveRawData);
     }
 
     if (_currentProject) {
         _currentProject->deleteAll();  // this is crazy
-        _currentProject->saveGlobalSettings(_settingsMap);
-        _currentProject->saveSamples(sampleSet);
-        _currentProject->saveAlignment(sampleSet);
 
-        vector<PeakGroup*> groupVector;
-        set<Compound*> compoundSet;
-        int topLevelGroupCount = 0;
         auto allTablesList = _mainwindow->getPeakTableList();
         allTablesList.push_back(_mainwindow->bookmarkedPeaks);
+        int topLevelGroupCount = 0;
+        for (const auto& peakTable : allTablesList)
+            topLevelGroupCount += peakTable->topLevelGroupCount();
+
+        _currentProject->saveGlobalSettings(_settingsMap);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   1 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->saveSamples(sampleSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   2 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->saveAlignment(sampleSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   3 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        int counter = 0;
+        vector<PeakGroup*> groupVector;
+        set<Compound*> compoundSet;
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
-                topLevelGroupCount++;
+                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
-                if (group->hasCompoundLink())
-                    compoundSet.insert(group->getCompound());
+                if (group->hasCompoundLink()) {
+                    auto compound = group->getCompound();
+                    compound->setCharge(group->parameters()->getCharge(compound));
+                    compoundSet.insert(compound);
+                }
+                ++counter;
+                if (!isTempProject) {
+                    emit updateProgressBar("Saving project…",
+                                           3 * topLevelGroupCount
+                                               + 4 * counter,
+                                           10 * topLevelGroupCount,
+                                           true);
+                }
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
             _currentProject->saveGroups(groupVector, tableName);
             groupVector.clear();
         }
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   8 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
         _currentProject->saveCompounds(compoundSet);
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   9 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
+        _currentProject->vacuum();
+        if (!isTempProject) {
+            emit updateProgressBar("Saving project…",
+                                   10 * topLevelGroupCount,
+                                   10 * topLevelGroupCount,
+                                   true);
+        }
+
         qDebug() << "finished writing to project" << filename;
-        if (!_mainwindow->timestampFileExists)
+        if (!isTempProject) {
             Q_EMIT(updateStatusString(
                 QString("Project successfully saved to %1").arg(filename)
             ));
-        _currentProject->vacuum();
+        }
+        _sqliteDbSaveInProgress = false;
         return true;
     }
     qDebug() << "cannot write to closed project" << filename;
+    _sqliteDbSaveInProgress = false;
     return false;
 }
 
@@ -886,9 +972,13 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
+                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
-                if (group->hasCompoundLink())
-                    compoundSet.insert(group->getCompound());
+                if (group->hasCompoundLink()) {
+                    auto compound = group->getCompound();
+                    compound->setCharge(group->parameters()->getCharge(compound));
+                    compoundSet.insert(compound);
+                }
             }
             string tableName = peakTable->titlePeakTable
                                         ->text().toStdString();
@@ -926,19 +1016,6 @@ QString mzFileIO::openSQLiteProject(QString filename)
 
 void mzFileIO::_beginSQLiteProjectLoad()
 {
-    emit updateStatusString("Loading compounds…");
-    auto compounds = _currentProject->loadCompounds();
-    QRegularExpression re("(.*)\\s\\(\\d+\\)");
-    for (auto compound : compounds) {
-        QRegularExpressionMatch match =
-            re.match(QString::fromStdString(compound->name()));
-        if (match.hasMatch()) {
-            string nameWithoutPrefix = match.captured(1).toStdString();
-            compound->setName (nameWithoutPrefix);
-        }
-        DB.addCompound(compound);
-    }
-
     emit updateStatusString("Loading user settings…");
     auto settings = _currentProject->loadGlobalSettings();
     for (const auto& it : settings)
@@ -1052,8 +1129,18 @@ void mzFileIO::_promptForMissingSamples(QList<QString> foundSamples)
 
 void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSamples)
 {
-    if (!_currentProject)
+    if (!_currentProject || newSamples.empty())
         return;
+
+    emit updateStatusString("Loading compounds…");
+    int totalCharge = _mainwindow->mavenParameters->charge
+                      * newSamples.at(0)->getPolarity();
+    DB.updateChargesForZeroCharges(totalCharge);
+    auto compounds = _currentProject->loadCompounds();
+    for (auto compound : compounds) {
+        cerr << compound->originalName() << " & " << compound->name() << endl;
+        DB.addCompound(compound);
+    }
 
     // set of compound databases that need to be communicated with ligand widget
     vector<QString> dbNames;
@@ -1124,7 +1211,7 @@ void mzFileIO::_postSampleLoadOperations()
         }
     }
 
-    _sqliteDBLoadInProgress = true;
+    _sqliteDbLoadInProgress = true;
     start();
 }
 

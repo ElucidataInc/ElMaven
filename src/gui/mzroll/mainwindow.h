@@ -69,6 +69,8 @@ class MavenParameters;
 class LibraryManager;
 class Mixpanel;
 class InfoDialog;
+class ProjectSaveWorker;
+class TempProjectSaveWorker;
 
 extern Database DB;
 
@@ -96,7 +98,8 @@ public:
 		return analytics;
 	}
 
-	AutoSave* autosave;
+    ProjectSaveWorker* saveWorker;
+    TempProjectSaveWorker* autosaveWorker;
 	MavenParameters* mavenParameters;
 	QDoubleSpinBox *massCutoffWindowBox;
 	QComboBox *massCutoffComboBox;
@@ -260,13 +263,16 @@ public:
      */
     void saveProjectForFilename(QList<shared_ptr<PeakGroup> > groupsToBeSaved);
 
-    /**
-     * @brief Stores whether a timestamp file is being used to save in the
-     * background.
-     */
-    bool timestampFileExists;
-
 	void loadPollySettings(QString fileName);
+
+    /**
+     * @brief Obtain the currently "active" table, being browsed, in the main
+     * window. By default, the "Bookmark Table" is the active (set upon its
+     * creation) table until a new one is created.
+     * @return Pointer to the `TableDockWidget` recognized as the active table.
+     */
+    TableDockWidget* activeTable();
+
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();
@@ -288,12 +294,15 @@ public Q_SLOTS:
     void toggleSampleRtWidget();
 	void showAlignmentErrorDialog(QString errorMessage);
 	void setMassCutoffType(QString massCutoffType);
-    void autosaveGroup(QList<shared_ptr<PeakGroup> > groups = {});
+    void autosaveGroups(QList<shared_ptr<PeakGroup>> groups = {});
     void autosaveProject();
 	QDockWidget* createDockWidget(QString title, QWidget* w);
 	void showPeakInfo(Peak*);
-	void setProgressBar(QString, int step, int totalSteps);
-        void setStatusText(QString text = QString::null, bool highPriority = false);
+    void setProgressBar(QString text,
+                        int progress,
+                        int totalSteps,
+                        bool highPriority = false);
+    void setStatusText(QString text = "");
 	void setMzValue();
 	void setMzValue(float mz1, float mz2 = 0.0);
 	void loadModel();
@@ -397,14 +406,10 @@ public Q_SLOTS:
     /**
      * @brief Save a session in a filename using a background thread.
      * @param filename String name of a  project file to save to.
+     * @param saveRawData Whether the emDB should be saved with raw EIC and
+     * spectra for peaks. `false` by default.
      */
-    void threadSave(QString filename);
-
-    /**
-     * @brief Reset the status of autosave for current El-MAVEN session. Should
-     * be called whenever a new project is loaded into the session.
-     */
-    void resetAutosave();
+    void threadSave(const QString filename, const bool saveRawData = false);
 
     /**
      * @brief Get the latest project that was loaded/saved by the user.
@@ -449,6 +454,13 @@ public Q_SLOTS:
      * @return A pointer to the global peak-editor widget, owned by main window.
      */
     PeakEditor* peakEditor() const { return _peakEditor; }
+
+    /**
+     * @brief Tells main window to recognize the given table as the "active"
+     * one.
+     * @param table Pointer to a `TableDockWidget` object.
+     */
+    void setActiveTable(TableDockWidget* table);
 
 private Q_SLOTS:
 	void createMenus();
@@ -522,6 +534,7 @@ private:
     vector<string> unloadableFiles;
 
     QProgressDialog* _loadProgressDialog;
+    int _statusPriority;
 
     /**
      * @brief A small tool that allows the user to manage their compound
@@ -535,23 +548,21 @@ private:
         QToolButton* addDockWidgetButton(QToolBar*, QDockWidget*, QIcon, QString);
 
     /**
-     * @brief Name of the project to which all threaded saving will be done.
-     */
-    QString _currentProjectName;
-
-    /**
      * @brief Name of the project that was last loaded or saved and will be used
      * when saving from explicit user command or final save when exiting app.
      */
     QString _latestUserProjectName;
 
-    QString newFileName;
-
     Mixpanel* _usageTracker;
     InfoDialog* _infoDialog;
 
-    QString _newAutosaveFile();
-    void _setProjectFilenameIfEmpty();
+    /**
+     * @brief The table currently being browsed by the user. Defaults to the
+     * "Bookmark Table".
+     */
+    TableDockWidget* _activeTable;
+
+    QString _getNewProjectFilename();
     QString _getProjectFilenameFromProjectDockWidget();
     void checkCorruptedSampleInjectionOrder();
     void warningForInjectionOrders(QMap<int, QList<mzSample*>>, QList<mzSample*>);
@@ -609,20 +620,6 @@ class MainWindowWidgetAction : public QWidgetAction
 
     private:
         QString btnName;
-};
-
-class AutoSave : public QThread
-{
-    Q_OBJECT
-
-public:
-    AutoSave(MainWindow*);
-    void saveProjectWorker(QList<shared_ptr<PeakGroup> > groupsToBeSaved = {});
-    MainWindow* _mainwindow;
-
-private:
-    QList<shared_ptr<PeakGroup>> groupsToBeSaved;
-    void run();
 };
 
 #endif

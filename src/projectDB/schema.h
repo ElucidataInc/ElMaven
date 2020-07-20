@@ -82,7 +82,12 @@
                                       , local_max_flag          REAL                              \
                                       , from_blank_sample       INTEGER                           \
                                       , label                   INTEGER                           \
-                                      , peak_spline_area        REAL                              );"
+                                      , peak_spline_area        REAL                              \
+                                      , eic_rt                  TEXT                              \
+                                      , eic_original_rt         TEXT                              \
+                                      , eic_intensity           TEXT                              \
+                                      , spectrum_mz             TEXT                              \
+                                      , spectrum_intensity      TEXT                              );"
 
 #define CREATE_PEAK_GROUPS_TABLE \
     "CREATE TABLE IF NOT EXISTS peakgroups ( group_id                           INTEGER PRIMARY KEY AUTOINCREMENT \
@@ -143,6 +148,7 @@
                                           , fragment_intensity    TEXT               \
                                           , fragment_ion_types    TEXT               \
                                           , note                  TEXT               \
+                                          , original_name         TEXT               \
                                           , PRIMARY KEY (compound_id, name, db_name) );"
 
 #define CREATE_ALIGNMENT_TABLE \
@@ -257,7 +263,8 @@
                                               , search_adducts                   INTEGER \
                                               , adduct_search_window             REAL    \
                                               , adduct_percent_correlation       REAL    \
-                                              , alignment_algorithm              INTEGER );"
+                                              , alignment_algorithm              INTEGER \
+                                              , active_table_name                TEXT    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

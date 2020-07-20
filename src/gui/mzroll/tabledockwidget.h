@@ -273,6 +273,13 @@ public Q_SLOTS:
    */
   void showIntegrationSettings();
 
+  /**
+   * @brief Sets the default styling for this dock widget.
+   * @param isActive If set to true, some additional styling will be added to
+   * make it distinct from non-active widgets.
+   */
+  void setDefaultStyle(bool isActive = false);
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
@@ -291,7 +298,7 @@ protected:
   void focusOutEvent(QFocusEvent *event);
 
 Q_SIGNALS:
-  void updateProgressBar(QString, int, int);
+  void updateProgressBar(QString, int, int, bool = false);
   void UploadPeakBatch();
   void renderedPdf();
 

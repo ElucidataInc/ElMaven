@@ -246,7 +246,8 @@ HEADERS += stable.h \
            autoupdater.h \
            updatedialog.h \
            peakeditor.h \
-           groupsettingslog.h
+           groupsettingslog.h \
+           projectsaveworker.h
 
 SOURCES += mainwindow.cpp  \
            database.cpp \
@@ -320,7 +321,8 @@ SOURCES += mainwindow.cpp  \
            autoupdater.cpp \
            updatedialog.cpp \
            peakeditor.cpp \
-           groupsettingslog.cpp
+           groupsettingslog.cpp \
+           projectsaveworker.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

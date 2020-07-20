@@ -32,11 +32,10 @@ void PeakDetector::resetProgressBar() {
 }
 
 vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
-                                    std::vector<mzSample*>& samples,
-                                    MavenParameters* mp,
+                                    const std::vector<mzSample*>& samples,
+                                    const MavenParameters* mp,
                                     bool filterUnselectedSamples)
 {
-    vector<EIC*> eics;
     vector<mzSample*> vsamples;
     for (auto sample : samples) {
         if (sample == nullptr)
@@ -46,11 +45,11 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
         vsamples.push_back(sample);
     }
 
-#pragma omp parallel default(shared)
+    vector<EIC*> eics;
+#pragma omp parallel
     {
-        // single threaded version - getting EICs of selected samples.
-        // #pragma omp parallel for ordered
-#pragma omp for
+        vector<EIC*> sharedEics;
+#pragma omp for nowait
         for (unsigned int i = 0; i < vsamples.size(); i++) {
             // Samples been selected
             mzSample* sample = vsamples[i];
@@ -98,12 +97,14 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                 e->computeBaseline();
                 e->reduceToRtRange(slice->rtmin, slice->rtmax);
                 e->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
-                e->getPeakPositions(mp->eic_smoothingWindow, false);
-#pragma omp critical
-                // push eic to all eics vector
-                eics.push_back(e);
+                e->getPeakPositions(mp->eic_smoothingWindow);
+
+                // push eic to shared EIC vector
+                sharedEics.push_back(e);
             }
         }
+#pragma omp critical
+        eics.insert(begin(eics), begin(sharedEics), end(sharedEics));
     }
     return eics;
 }

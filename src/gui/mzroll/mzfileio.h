@@ -89,6 +89,14 @@ Q_OBJECT
         void insertSettingForSave(const string key, const variant var);
 
         /**
+         * @brief Obtain the currently saved value for the given setting.
+         * @param key The name of the setting whose value is needed.
+         * @return A variant storing the value for the given setting, if
+         * available in current project, an empty string otherwise.
+         */
+        variant querySavedSetting(const string key) const;
+
+        /**
          * @brief Check whether the filename ends with a ".mzroll" extension.
          * @param filename String name of the file to be checked.
          * @return true if the filename ends with ".mzroll" extension, false
@@ -155,9 +163,16 @@ Q_OBJECT
          * database. This database also becomes the currently open project.
          * @param filename String representing absolute path of the file to be
          * treated as a SQLite database.
+         * @param saveRawData Passing `true` here would create new project files
+         * that store peak EIC and spectra data. This is a project level flag,
+         * and once set cannot be changed.
+         * @param isTempProject If false, then the writer will emit signals to
+         * notify any listeners about the progress of save operation.
          * @return true if the write operation was successful, false otherwise.
          */
-        bool writeSQLiteProject(QString filename);
+        bool writeSQLiteProject(const QString filename,
+                                const bool saveRawData = false,
+                                const bool isTempProject = true);
 
         /**
          * @brief Create a `ProjectDatabase` instance for the given filename.
@@ -168,6 +183,9 @@ Q_OBJECT
          * @return Return the filename of the opened project.
          */
         QString openSQLiteProject(QString filename);
+
+        bool sqliteDbLoadInProgress() const { return _sqliteDbLoadInProgress; }
+        bool sqliteDbSaveInProgress() const { return _sqliteDbSaveInProgress; }
 
         /**
          * @brief Create a new file name from the given file name, with its
@@ -271,7 +289,7 @@ Q_OBJECT
      * @param int     [total value]
      */
      void updateStatusString(QString);
-     void updateProgressBar(QString,int,int);
+     void updateProgressBar(QString, int, int, bool = false);
      void sampleLoaded();
      void sampleLoadFailed(QList<QString>, bool);
      void spectraLoaded();
@@ -327,7 +345,8 @@ Q_OBJECT
          */
         ProjectDatabase* _currentProject;
 
-        bool _sqliteDBLoadInProgress;
+        bool _sqliteDbLoadInProgress;
+        bool _sqliteDbSaveInProgress;
 
         /**
          * @brief A vector containing names of samples that were not found, and

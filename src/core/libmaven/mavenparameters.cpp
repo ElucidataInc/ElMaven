@@ -699,19 +699,15 @@ void MavenParameters::setAverageScanTime() {
 
 //TODO: a member of the class is called 'charge'. Rename the function
 //to avoid mistaking it as a getter function for that variable
-int MavenParameters::getCharge(Compound* compound){
-	int charge;
-        if(compound != nullptr && !this->formulaFlag){
-                if(compound->charge() !=0){
-                        charge = compound->charge();
-                } else {
-                        charge = this->ionizationMode*this->charge;
-                }
-        }
-        else{
-                charge = this->ionizationMode*this->charge;
-        }
-	return charge;
+int MavenParameters::getCharge(Compound* compound)
+{
+    if (compound != nullptr
+        && !this->formulaFlag
+        && compound->charge() != 0) {
+        return compound->charge();
+    } else {
+        return this->ionizationMode * this->charge;
+    }
 }
 
 /**

@@ -7,17 +7,22 @@
 #include "cursor.h"
 #include "datastructures/adduct.h"
 #include "masscutofftype.h"
+#include "EIC.h"
 #include "mavenparameters.h"
+#include "masscutofftype.h"
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
+#include "PeakDetector.h"
 #include "projectversioning.h"
 #include "Scan.h"
 #include "schema.h"
 
 ProjectDatabase::ProjectDatabase(const string& dbFilename,
-                                 const string& version)
+                                 const string& version,
+                                 const bool saveRawData)
 {
+    _setSaveRawData(dbFilename, saveRawData);
     _connection = new Connection(dbFilename);
 
     // figure out whether this database needs upgrade
@@ -230,12 +235,10 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":meta_group_id", group->metaGroupId);
     groupsQuery->bind(":tag_string", group->tagString);
 
-    auto expectedMz = 0.0f;
-    if (group->hasCompoundLink())
-        expectedMz = group->getExpectedMz(group->getCompound()->charge());
+    auto expectedMz = group->getExpectedMz(group->parameters()->ionizationMode);
     groupsQuery->bind(":expected_mz", expectedMz);
 
-    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff()); // do we need this anymore?
+    groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
     groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
@@ -312,11 +315,36 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     return lastInsertedGroupId;
 }
 
-void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
+void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
+                                     const int databaseId)
 {
     if (!_connection->prepare(CREATE_PEAKS_TABLE)->execute()) {
         cerr << "Error: failed to create peaks table" << endl;
         return;
+    }
+
+    vector<EIC*> eics;
+    if (_saveRawData && group->hasSlice()) {
+        mzSlice eicSlice = group->getSlice();
+        float rtPadding = 2.0f;
+        if (group->sliceIsZero()) {
+            // this group came from an old emDB with missing slice information
+            MassCutoff* cutoff = group->parameters()->compoundMassCutoffWindow;
+            auto mzDelta = cutoff->massCutoffValue(group->meanMz);
+            float mzMin = group->meanMz - mzDelta;
+            float mzMax = group->meanMz + mzDelta;
+            float rtMin = max(group->minRt - rtPadding, 0.0f);
+            float rtMax = group->maxRt + rtPadding;
+            eicSlice = mzSlice(mzMin, mzMax, rtMin, rtMax);
+        } else {
+            if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
+                eicSlice.rtmin = max(group->minRt - rtPadding, 0.0f);
+            if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
+                eicSlice.rtmax = group->maxRt + rtPadding;
+        }
+        eics = PeakDetector::pullEICs(&eicSlice,
+                                      group->samples,
+                                      group->parameters().get());
     }
 
     auto peaksQuery = _connection->prepare(
@@ -359,7 +387,12 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
                      , :local_max_flag          \
                      , :from_blank_sample       \
                      , :label                   \
-                     , :peak_spline_area        )");
+                     , :peak_spline_area        \
+                     , :eic_rt                  \
+                     , :eic_original_rt         \
+                     , :eic_intensity           \
+                     , :spectrum_mz             \
+                     , :spectrum_intensity      )");
 
     for (Peak p : group->peaks) {
         peaksQuery->bind(":group_id", databaseId);
@@ -401,9 +434,66 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group, const int databaseId)
         peaksQuery->bind(":from_blank_sample", p.fromBlankSample);
         peaksQuery->bind(":label", string(1, p.label));
 
+        if (_saveRawData && !eics.empty()) {
+            auto iter = find_if(begin(eics), end(eics), [&](EIC* eic) {
+                            return (p.getSample() == eic->getSample());
+                        });
+            if (iter != end(eics)) {
+                EIC* eic = *iter;
+                stringstream rts;
+                stringstream orts;
+                stringstream ins;
+                rts << setprecision(4) << fixed;
+                orts << setprecision(4) << fixed;
+                ins << setprecision(2) << fixed;
+
+                // write comma-delimited RT and intensity values
+                for (int i = 0; i < eic->rt.size(); ++i) {
+                    rts << eic->rt[i] << ",";
+                    ins << eic->intensity[i] << ",";
+
+                    auto scannum = eic->scannum[i];
+                    orts << eic->sample->scans[scannum]->originalRt << ",";
+                }
+                string rtString = rts.str();
+                string ortString = orts.str();
+                string inString = ins.str();
+                rtString = rtString.substr(0, rtString.size() - 1);
+                ortString = ortString.substr(0, ortString.size() - 1);
+                inString = inString.substr(0, inString.size() - 1);
+                peaksQuery->bind(":eic_rt", rtString);
+                peaksQuery->bind(":eic_original_rt", ortString);
+                peaksQuery->bind(":eic_intensity", inString);
+            }
+        }
+
+        // spectrum at peak apex
+        if (_saveRawData) {
+            Scan* scan = p.getSample()->getScan(p.scan);
+            if (scan != nullptr) {
+                stringstream mzs;
+                stringstream ins;
+                mzs << setprecision(6);
+                ins << setprecision(2);
+
+                // write comma-delimited m/z and intensity values
+                for(int i = 0; i < scan->nobs(); ++i) {
+                    mzs << scan->mz[i] << ",";
+                    ins << scan->intensity[i] << ",";
+                }
+                string mzString = mzs.str();
+                string inString = ins.str();
+                mzString = mzString.substr(0, mzString.size() - 1);
+                inString = inString.substr(0, inString.size() - 1);
+                peaksQuery->bind(":spectrum_mz", mzString);
+                peaksQuery->bind(":spectrum_intensity", inString);
+            }
+        }
+
         if (!peaksQuery->execute())
             cerr << "Error: failed to write peak" << endl;
     }
+    mzUtils::delete_all(eics);
 }
 
 void ProjectDatabase::saveCompounds(const vector<PeakGroup>& groups)
@@ -450,7 +540,8 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
                       , :fragment_mzs          \
                       , :fragment_intensity    \
                       , :fragment_ion_types    \
-                      , :note                  )");
+                      , :note                  \
+                      , :original_name         )");
 
     _connection->begin();
 
@@ -495,6 +586,7 @@ void ProjectDatabase::saveCompounds(const set<Compound*>& seenCompounds)
         compoundsQuery->bind(":compound_id", c->id());
         compoundsQuery->bind(":db_name", c->db());
         compoundsQuery->bind(":name", c->name());
+        compoundsQuery->bind(":original_name", c->originalName());
         compoundsQuery->bind(":formula", c->formula());
         compoundsQuery->bind(":smile_string", c->smileString());
         compoundsQuery->bind(":srm_id", c->srmId());
@@ -738,7 +830,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :search_adducts                   \
                      , :adduct_search_window             \
                      , :adduct_percent_correlation       \
-                     , :alignment_algorithm              )");
+                     , :alignment_algorithm              \
+                     , :active_table_name                )");
     return cursor;
 }
 
@@ -866,6 +959,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
     settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
     settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
+    settingsQuery->bind(":active_table_name", BSTRING(settingsMap.at("activeTableName")));
 }
 
 void
@@ -1240,6 +1334,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
     while (compoundsQuery->next()) {
         string id = compoundsQuery->stringValue("compound_id");
         string name = compoundsQuery->stringValue("name");
+        string originalName = compoundsQuery->stringValue("original_name");
         string formula = compoundsQuery->stringValue("formula");
         int charge = compoundsQuery->integerValue("charge");
         float mass = compoundsQuery->floatValue("mass");
@@ -1251,8 +1346,9 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
             continue;
 
         // the neutral mass is computed automatically inside the constructor
-        Compound* compound = new Compound(id, name, formula, charge);
-        compound->setDb (db);
+        Compound* compound = new Compound(id, originalName, formula, charge);
+        compound->setName(name);
+        compound->setDb(db);
         compound->setExpectedRt( expectedRt);
 
         if (formula.empty()) {
@@ -1330,15 +1426,18 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         }
         compound->setFragmentIonTypes(ionTypes);
 
-        _compoundIdMap[compound->id()  + compound->name() + compound->db()] = compound;
+        _compoundIdMap[compound->id()
+                       + compound->name()
+                       + compound->db()] = compound;
         compounds.push_back(compound);
         loadCount++;
     }
 
     sort(compounds.begin(), compounds.end(), Compound::compMass);
-    cerr << "Loaded: " << loadCount << " compounds" << endl;
-    if (loadCount > 0 and !databaseName.empty())
+    if (loadCount > 0 and !databaseName.empty()) {
+        cerr << "Loaded: " << loadCount << " compounds" << endl;
         _loadedCompoundDatabases.push_back(databaseName);
+    }
 
     return compounds;
 }
@@ -1543,6 +1642,8 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["obi_warp_factor_gap"] = settingsQuery->doubleValue("obi_warp_factor_gap");
     settingsMap["obi_warp_no_standard_normal"] = settingsQuery->integerValue("obi_warp_no_standard_normal");
     settingsMap["obi_warp_local"] = settingsQuery->integerValue("obi_warp_local");
+
+    settingsMap["activeTableName"] = settingsQuery->stringValue("active_table_name");
 
     return settingsQuery->stringValue("domain");
 }
@@ -1910,6 +2011,9 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["mainWindowPeakQuantitation"] = mp->peakQuantitation;
     settingsMap["mainWindowMassResolution"] = mp->compoundMassCutoffWindow->getMassCutoff();
 
+    // active table is a session-level setting only
+    settingsMap["activeTableName"] = string();
+
     return settingsMap;
 }
 
@@ -2020,6 +2124,11 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     // ?? settingsMap["mainWindowMassResolution"];
 
     return mp;
+}
+
+bool ProjectDatabase::hasRawDataSaved()
+{
+    return _saveRawData;
 }
 
 void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
@@ -2133,4 +2242,39 @@ void ProjectDatabase::_setVersion(int version)
     auto query = _connection->prepare("PRAGMA user_version = "
                                       + to_string(version));
     query->execute();
+}
+
+void ProjectDatabase::_setSaveRawData(const string& filePath,
+                                      const bool saveRawData)
+{
+    if (saveRawData) {
+        _saveRawData = true;
+        return;
+    }
+
+    bool fileAlreadyExists = false;
+    if (boost::filesystem::exists(boost::filesystem::path(filePath)))
+        fileAlreadyExists = true;
+
+    if (!fileAlreadyExists) {
+        _saveRawData = false;
+        return;
+    }
+
+    Connection connection(filePath);
+    auto firstPeakQuery = connection.prepare("SELECT * FROM peaks LIMIT 1");
+    while (firstPeakQuery->next()) {
+        string eicRtValues = firstPeakQuery->stringValue("eic_rt");
+        string eicIntensityValues = firstPeakQuery->stringValue("eic_intensity");
+        string spectrumMzValues = firstPeakQuery->stringValue("spectrum_mz");
+        string spectrumIntensityValues = firstPeakQuery->stringValue("spectrum_intensity");
+        if (!eicRtValues.empty()
+            && !eicIntensityValues.empty()
+            && !spectrumMzValues.empty()
+            && !spectrumIntensityValues.empty()) {
+            _saveRawData = true;
+            return;
+        }
+    }
+    _saveRawData = false;
 }
