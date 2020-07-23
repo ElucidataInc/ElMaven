@@ -3677,16 +3677,17 @@ void MainWindow::showSRMList() {
      }
 }
 
-void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group) {
-    qDebug() << "setPeakgroup(group)" << endl;
-	if (group == NULL)
-		return;
+void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
+{
+    if (group == nullptr)
+        return;
 
     searchText->setText(QString::number(group->meanMz, 'f', 8));
-
-	if (eicWidget && eicWidget->isVisible()) {
+    if (eicWidget && eicWidget->isVisible())
         eicWidget->setPeakGroup(group);
-	}
+
+    if (groupRtDockWidget->isVisible())
+        groupRtWidget->plotGraph(group.get());
 
     if (isotopeWidget != nullptr
         && isotopeWidget->isVisible()
@@ -3701,31 +3702,26 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group) {
 
     if (group->hasCompoundLink()) {
         if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
-		if (fragSpectraDockWidget->isVisible()) {
+        if (fragSpectraDockWidget->isVisible())
             fragSpectraWidget->overlayPeakGroup(group);
-		}
         QString compoundName(group->getCompound()->name().c_str());
-        if (! setPeptideSequence(compoundName)) {
+        if (! setPeptideSequence(compoundName))
             setUrl(group->getCompound());
-        }
         if (massCalcWidget)
             massCalcWidget->setPeakGroup(group.get());
     }
 
-    if (scatterDockWidget->isVisible()) {
+    if (scatterDockWidget->isVisible())
         ((ScatterPlot*) scatterDockWidget)->showSimilar(group.get());
-	}
 
     if (group->peaks.size() > 0) {
-        vector<Scan*>scanset = group->getRepresentativeFullScans(); //TODO: Sahil-Kiran, Added while merging mainwindow
-        spectraWidget->setScanSet(scanset); //TODO: Sahil-Kiran, Added while merging mainwindow
-        spectraWidget->replot(); //TODO: Sahil-Kiran, Added while merging mainwindow
+        vector<Scan*>scanset = group->getRepresentativeFullScans();
+        spectraWidget->setScanSet(scanset);
+        spectraWidget->replot();
     }
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    if (spectralHitsDockWidget->isVisible()) {
+    if (spectralHitsDockWidget->isVisible())
         spectralHitsDockWidget->limitPrecursorMz(group->meanMz);
-    }
 }
 
 void MainWindow::Align()

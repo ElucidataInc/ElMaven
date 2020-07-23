@@ -333,31 +333,13 @@ class PeakGroup{
          * @method addPeak
          * @param  peak    []
          */
-        void addPeak(const Peak& peak); 
+        void addPeak(const Peak& peak);
 
-        inline void addIsotopeChild(const PeakGroup& child)
-        {
-            auto childCopy = make_shared<PeakGroup>(child);
-            childCopy->parent = this;
-            childCopy->_metaGroupId = _groupId;
-            _childIsotopes.push_back(childCopy);
-        }
+        void addIsotopeChild(const PeakGroup& child);
 
-        inline void addAdductChild(const PeakGroup& child)
-        {
-            auto childCopy = make_shared<PeakGroup>(child);
-            childCopy->parent = this;
-            childCopy->_metaGroupId = _groupId;
-            _childAdducts.push_back(childCopy);
-        }
+        void addAdductChild(const PeakGroup& child);
 
-        inline void addIsotopeChildBarPlot(const PeakGroup& child)
-        {
-            auto childCopy = make_shared<PeakGroup>(child);
-            childCopy->parent = this;
-            childCopy->_metaGroupId = _groupId;
-            _childIsotopesBarPlot.push_back(childCopy);
-        }
+        void addIsotopeChildBarPlot(const PeakGroup& child);
 
         /**
          * [getPeak ]
@@ -650,11 +632,7 @@ class PeakGroup{
             return _parameters;
         }
 
-        IntegrationType integrationType() const {
-            if (_type == GroupType::Isotope && parent != nullptr)
-                return parent->integrationType();
-            return _integrationType;
-        }
+        IntegrationType integrationType() const { return _integrationType; }
 
         int groupId() const { return _groupId; }
         int metaGroupId() const { return _metaGroupId; }

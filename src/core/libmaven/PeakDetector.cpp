@@ -614,9 +614,17 @@ void PeakDetector::performMetaGrouping()
                 make_shared<MavenParameters>(*_mavenParameters),
                 PeakGroup::IntegrationType::Ghost);
             container.push_back(parentGroup);
-            parentGroup = container.back();
+
+            // set an appropriate slice for ghost parent
+            mzSlice slice;
+            slice.compound = compound;
+            slice.calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
+                                    _mavenParameters->getCharge(compound));
+            slice.calculateRTMinMax(false, 0.0f);
+            container.back().setSlice(slice);
+
             size_t totalSize = container.size();
-            parentGroup.setGroupId(totalSize);
+            container.back().setGroupId(totalSize);
             metaGroups[totalSize - 1] = {};
             for (auto child : orphans)
                 metaGroups[totalSize - 1].push_back(child);

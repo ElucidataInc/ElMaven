@@ -1681,7 +1681,9 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
     }
 
     auto parentGroup = group->parent == nullptr ? group.get() : group->parent;
-    if (_autoZoom && parentGroup->peakCount() > 0) {
+    if (parentGroup->isGhost()) {
+        resetZoom();
+    } else if (_autoZoom && !parentGroup->isEmpty()) {
         eicParameters->_slice.rtmin = parentGroup->minRt - 2 * _zoomFactor;
         eicParameters->_slice.rtmax = parentGroup->maxRt + 2 * _zoomFactor;
     } else if (_autoZoom) {

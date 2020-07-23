@@ -356,7 +356,7 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
   if (viewType != peakView)
     return;
 
-  int firstColumn = 4;
+  int firstColumn = 5;
   StatisticsVector<float> values;
   float sum = 0;
   for (unsigned int i = firstColumn; i < item->columnCount(); i++) {
@@ -394,13 +394,12 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
 }
 
 void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
-                             QTreeWidgetItem *root) {
-
+                             QTreeWidgetItem *root)
+{
   if (group == nullptr)
     return;
-  if (group->meanMz <= 0) {
+  if (group->meanMz <= 0 && !group->isGhost())
     return;
-  }
 
   NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
   item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled |
@@ -414,7 +413,6 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
   int charge = group->parameters()->getCharge(group->getCompound());
   if (group->getExpectedMz(charge) != -1) {
     float mz = group->getExpectedMz(charge);
-
     item->setText(3, QString::number(mz, 'f', 4));
   } else {
     item->setText(3, "NA");
@@ -446,7 +444,6 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
     item->setText(14, QString::number(group->groupRank, 'e', 6));
 
     if (group->changeFoldRatio != 0) {
-
       item->setText(15, QString::number(group->changeFoldRatio, 'f', 2));
       item->setText(16, QString::number(group->changePValue, 'e', 4));
     }
@@ -471,18 +468,25 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
     vector<float> yvalues = group->getOrderedIntensityVector(
         vsamples, _mainwindow->getUserQuantType());
-    for (unsigned int i = 0; i < yvalues.size(); i++) {
-
+    for (unsigned int i = 0; i < yvalues.size(); i++)
       item->setText(5 + i, QString::number(yvalues[i]));
-    }
     heatmapBackground(item);
   }
+  if (group->isGhost()) {
+      for (int i = 0; i < treeWidget->columnCount(); ++i)
+      item->setForeground(i, QColor::fromRgb(150, 150, 150));
+  }
+
   if (root == NULL)
     treeWidget->addTopLevelItem(item);
   updateItem(item);
 
   if (group->childIsotopeCount() > 0) {
     for (auto child : group->childIsotopes())
+      addRow(child, item);
+  }
+  if (group->childAdductsCount() > 0) {
+    for (auto child : group->childAdducts())
       addRow(child, item);
   }
 }
@@ -618,6 +622,8 @@ void TableDockWidget::showAllGroups() {
     vScroll->setSliderPosition(vScroll->maximum());
   }
   treeWidget->setSortingEnabled(true);
+  treeWidget->sortByColumn(0, Qt::AscendingOrder);
+  treeWidget->header()->setStretchLastSection(false);
   updateStatus();
   updateCompoundWidget();
   //@Kailash: Check and validate all groups automatically
@@ -1065,11 +1071,8 @@ void TableDockWidget::showSelectedGroup() {
 
   QVariant v = item->data(0, Qt::UserRole);
   shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
-  _mainwindow->groupRtWidget->plotGraph(group.get());
-
-  if (group != nullptr && _mainwindow != nullptr) {
+  if (group != nullptr)
     _mainwindow->setPeakGroup(group);
-  }
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()

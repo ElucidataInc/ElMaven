@@ -105,13 +105,12 @@ void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
 	//window then only calculate the rt min and max else set
 	//it in such a way that it will look in all the rt values
 	//possible
-    if (matchRtFlag && this->compound->expectedRt() > 0)
-	{
+    if (matchRtFlag
+        && this->compound != nullptr
+        && this->compound->expectedRt() > 0) {
         this->rtmin = this->compound->expectedRt() - compoundRTWindow;
         this->rtmax = this->compound->expectedRt() + compoundRTWindow;
-	}
-	else
-	{
+    } else {
 		// As its time min value will be 0
 		this->rtmin = 0;
 		//TODO: max value shoould be set as the max of the
