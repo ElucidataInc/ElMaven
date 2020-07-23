@@ -231,8 +231,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :integration_type                   )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
-    groupsQuery->bind(":table_group_id", group->groupId);
-    groupsQuery->bind(":meta_group_id", group->metaGroupId);
+    groupsQuery->bind(":table_group_id", group->groupId());
+    groupsQuery->bind(":meta_group_id", group->metaGroupId());
     groupsQuery->bind(":tag_string", group->tagString);
 
     auto expectedMz = group->getExpectedMz(group->parameters()->ionizationMode);
@@ -267,8 +267,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":fragmentation_num_matches",
                       group->fragMatchScore.numMatches);
 
-    groupsQuery->bind(":adduct_name", group->getAdduct()
-                                          ? group->getAdduct()->getName() : "");
+    groupsQuery->bind(":adduct_name", group->adduct()
+                                          ? group->adduct()->getName() : "");
 
     groupsQuery->bind(":compound_id",
                       group->getCompound() ? group->getCompound()->id() : "");
@@ -309,7 +309,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     saveGroupPeaks(group, lastInsertedGroupId);
     saveGroupSettings(group, lastInsertedGroupId);
 
-    for (auto child: group->children)
+    for (auto child: group->childIsotopes())
         saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
 
     return lastInsertedGroupId;
@@ -1113,9 +1113,8 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
                                   integrationType);
         }
 
-        group->groupId = groupsQuery->integerValue("table_group_id");
+        group->setGroupId(groupsQuery->integerValue("table_group_id"));
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
-        group->metaGroupId = groupsQuery->integerValue("meta_group_id");
 
         auto tagString = groupsQuery->stringValue("tag_string");
         auto expectedMz = groupsQuery->floatValue("expected_mz");
@@ -1154,17 +1153,10 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
         string compoundName = groupsQuery->stringValue("compound_name");
-        string adductName = groupsQuery->stringValue("adduct_name");
 
         string srmId = groupsQuery->stringValue("srm_id");
         if (!srmId.empty())
             group->setSrmId(srmId);
-
-        if (!adductName.empty()) {
-            group->setAdduct(_findAdductByName(adductName));
-        } else {
-            group->setAdduct(nullptr);
-        }
 
         if (!compoundId.empty()) {
             Compound* compound = _findSpeciesByIdAndName(compoundId,
@@ -1197,6 +1189,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             }
         }
 
+        string adductName = groupsQuery->stringValue("adduct_name");
         float sliceMzMin = groupsQuery->doubleValue("slice_mz_min");
         float sliceMzMax = groupsQuery->doubleValue("slice_mz_max");
         float sliceRtMin = groupsQuery->doubleValue("slice_rt_min");
@@ -1206,6 +1199,9 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         slice.ionCount = sliceIonCount;
         slice.srmId = group->srmId;
         slice.compound = group->getCompound();
+        if (!adductName.empty())
+            slice.adduct = _findAdductByName(adductName);
+
         group->setSlice(slice);
 
         loadGroupPeaks(group, databaseId, loaded);
@@ -1225,7 +1221,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         auto child = pair.first;
         for (auto idGroupPair : databaseIdForGroups) {
             if (idGroupPair.first == pair.second) {
-                idGroupPair.second->addChild(*child);
+                idGroupPair.second->addIsotopeChild(*child);
                 foundParent = true;
                 break;
             }
@@ -1778,9 +1774,9 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
 
     string tableName = group->tableName();
     vector<int> selectedGroups;
-    selectedGroups.push_back(group->groupId);
-    for (const auto child : group->children)
-        selectedGroups.push_back(child->groupId);
+    selectedGroups.push_back(group->groupId());
+    for (const auto child : group->childIsotopes())
+        selectedGroups.push_back(child->groupId());
 
     if (selectedGroups.size() == 0)
         return;

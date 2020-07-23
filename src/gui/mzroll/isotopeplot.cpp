@@ -65,9 +65,12 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
     //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
     if ( group == NULL ) return;
 
-    if (!group->tableName().empty())
-        group->childrenBarPlot = group->children;
-    if (group->childCountBarPlot() == 0) return;
+    if (!group->tableName().empty()) {
+        group->deleteChildIsotopesBarPlot();
+        for (auto child : group->childIsotopes())
+            group->addIsotopeChildBarPlot(*child);
+    }
+    if (group->childIsotopeCountBarPlot() == 0) return;
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
@@ -89,7 +92,7 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 	    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     _isotopes.clear();
-    for(auto child : _group->childrenBarPlot) {
+    for(auto child : _group->childIsotopesBarPlot()) {
         if (child->isIsotope()) {
             PeakGroup isotope = *(child.get());
             _isotopes.push_back(isotope);

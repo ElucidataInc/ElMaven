@@ -128,7 +128,7 @@ vector<PeakGroup> TestUtils::getGroupsFromProcessCompounds()
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processCompounds(compounds);
 
     return mavenparameters->allgroups;
 }

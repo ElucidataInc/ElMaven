@@ -3,6 +3,8 @@
 
 #include "standardincludes.h"
 
+class Adduct;
+class Compound;
 class MassCutoff;
 class MavenParameters;
 class mzSample;
@@ -17,7 +19,7 @@ using namespace std;
 class MassSlicer {
 
     public:
-        MassSlicer();
+        MassSlicer(MavenParameters* mp);
         ~MassSlicer();
 
         void sendSignal(const string& progressText,
@@ -26,6 +28,16 @@ class MassSlicer {
 
         vector<mzSlice*> slices;
 
+        void generateCompoundSlices(vector<Compound*> compounds,
+                                    bool clearPrevious = true);
+
+        void generateIsotopeSlices(vector<Compound*> compounds,
+                                   bool clearPrevious = true);
+
+        void generateAdductSlices(vector<Compound*> compounds,
+                                  bool ignoreParentAdducts = false,
+                                  bool clearPrevious = true);
+
         /**
          * @brief This function is responsible for creating slices that can be
          * used to perform feature detection.
@@ -33,34 +45,15 @@ class MassSlicer {
          * slice. These are then reduced (see _reduceSlices), merged (see
          * _mergeSlices and _compareSlices) and adjusted (see _adjustSlices) to
          * finally obtain regions over which peak detection can be performed.
-         * @param massCutoff The user defined mass tolerance for m/z domain.
-         * @param rtStep Minimum time range for a slice over RT domain.
          */
-        void findFeatureSlices(MassCutoff *massCutoff, int rtStep);
+        void findFeatureSlices(bool clearPrevious = true);
 
-        void setSamples(vector<mzSample*> samples)  { this->_samples = samples; }
-        void setMaxIntensity( float v) {  _maxIntensity=v; }
-        void setMinIntensity( float v) {  _minIntensity=v; }
-        void setMinRt       ( float v) {  _minRt = v; }
-        void setMaxRt	    ( float v) {  _maxRt = v; }
-        void setMaxMz       ( float v) {  _maxMz = v; }
-        void setMinMz	    ( float v) {  _minMz = v; }
-        void setMinCharge   ( float v) {  _minCharge = v; }
-        void setMaxCharge   ( float v) {  _maxCharge = v; }
-        void setMavenParameters(MavenParameters* mp) { _mavenParameters = mp;}
-        void stopSlicing();
+        /**
+         * @brief Deallocate and clear `slices` vector if it contains anything.
+         */
+        void clearSlices();
 
     private:
-        unsigned int _maxSlices;
-        float _minRt;
-        float _maxRt;
-        float _minMz;
-        float _maxMz;
-        float _maxIntensity;
-        float _minIntensity;
-        int _minCharge;
-        int _maxCharge;
-        MassCutoff *_massCutoff;
         vector<mzSample*> _samples;
         MavenParameters* _mavenParameters;
 
@@ -115,13 +108,17 @@ class MassSlicer {
         /**
          * @brief This method will reduce the internal slice vector by merging
          * and resizing them if they share a signifant region of interest.
+         * @param massCutoff A `MassCutoff` object that will be used to check
+         * proximity of two slices in m/z domain.
          */
-        void _reduceSlices();
+        void _reduceSlices(MassCutoff *massCutoff);
 
         /**
          * @brief Adjust all slices in m/z domain such that they are centered
          * around its current highest intensity.
+         * @param massCutoff A `MassCutoff` object that will be used for EIC
+         * extraction.
          */
-        void _adjustSlices();
+        void _adjustSlices(MassCutoff *massCutoff);
 };
 #endif

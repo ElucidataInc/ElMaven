@@ -1,4 +1,5 @@
 #include "datastructures/adduct.h"
+#include "datastructures/isotope.h"
 #include "mzMassCalculator.h"
 #include "constants.h"
 #include "Compound.h"

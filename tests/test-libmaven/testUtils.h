@@ -67,7 +67,7 @@ class SampleLoadingFixture
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
         peakDetector.setMavenParameters(_mavenparameters);
-        peakDetector.processCompounds(compounds, "compounds");
+        peakDetector.processCompounds(compounds);
         return _mavenparameters->allgroups;
     }
 

@@ -20,10 +20,8 @@ GroupFiltering::GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice)
 
 void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
 {
-
-    unsigned int i = 0;
-    while (i < peakgroups.size())
-    {
+    size_t i = 0;
+    while (i < peakgroups.size()) {
         if (filterByMS1(peakgroups[i]))
         {
             peakgroups.erase(peakgroups.begin() + i);
@@ -47,7 +45,7 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
             continue;
         }
 
-        i++;
+        ++i;
     }
 
 }

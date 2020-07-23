@@ -2,6 +2,7 @@
 #include "classifierNeuralNet.h"
 #include "constants.h"
 #include "datastructures/adduct.h"
+#include "datastructures/isotope.h"
 #include "EIC.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
@@ -38,8 +39,8 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
         return;
     if (parentgroup->getCompound()->formula().empty() == true)
         return;
-    if (parentgroup->getAdduct() != nullptr
-        && !parentgroup->getAdduct()->isParent()) {
+    if (parentgroup->adduct() != nullptr
+        && !parentgroup->adduct()->isParent()) {
         return;
     }
     if (_mavenParameters->samples.size() == 0)
@@ -55,7 +56,7 @@ void IsotopeDetection::pullIsotopes(PeakGroup* parentgroup)
                                         _N15Flag,
                                         _S34Flag,
                                         _D2Flag,
-                                        parentgroup->getAdduct());
+                                        parentgroup->adduct());
 
     map<string, PeakGroup> isotopes = getIsotopes(parentgroup, masslist);
 
@@ -264,7 +265,6 @@ void IsotopeDetection::addIsotopes(PeakGroup* parentgroup, map<string, PeakGroup
     for (itrIsotope = isotopes.begin(); itrIsotope != isotopes.end(); ++itrIsotope, index++) {
         string isotopeName = (*itrIsotope).first;
         PeakGroup& child = (*itrIsotope).second;
-        child.metaGroupId = index;
         childStatistics(parentgroup, child, isotopeName);
         bool isotopeAdded = filterLabel(isotopeName);
         if (!isotopeAdded) continue;
@@ -281,12 +281,14 @@ void IsotopeDetection::addChild(PeakGroup *parentgroup, PeakGroup &child, string
     switch (_isoType)
     {
         case IsotopeDetectionType::PeakDetection:
-            childExist = checkChildExists(parentgroup->children, isotopeName);
-            if (!childExist) parentgroup->addChild(child);
+            childExist = checkChildExists(parentgroup->childIsotopes(),
+                                          isotopeName);
+            if (!childExist) parentgroup->addIsotopeChild(child);
             break;
         case IsotopeDetectionType::BarPlot:
-            childExist = checkChildExists(parentgroup->childrenBarPlot, isotopeName);
-            if (!childExist) parentgroup->addChildBarPlot(child);
+            childExist = checkChildExists(parentgroup->childIsotopesBarPlot(),
+                                          isotopeName);
+            if (!childExist) parentgroup->addIsotopeChildBarPlot(child);
             break;
     }
 }
@@ -311,7 +313,7 @@ void IsotopeDetection::childStatistics(
 {
 
     child.tagString = isotopeName;
-    child.groupId = parentgroup->groupId;
+    child.setGroupId(parentgroup->groupId());
     child.parent = parentgroup;
     child.setType(PeakGroup::GroupType::Isotope);
     child.groupStatistics();

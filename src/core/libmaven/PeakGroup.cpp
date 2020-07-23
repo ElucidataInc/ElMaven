@@ -1,6 +1,7 @@
 #include "PeakGroup.h"
 #include "Compound.h"
 #include "datastructures/adduct.h"
+#include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
 #include "mzSample.h"
 #include "EIC.h"
@@ -15,8 +16,8 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     _parameters = parameters;
     _integrationType = integrationType;
 
-    groupId=0;
-    metaGroupId=0;
+    _groupId=0;
+    _metaGroupId=0;
     clusterId = 0;
     groupRank=INT_MAX;
 
@@ -70,11 +71,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     minMz=0;
     maxMz=0;
 
-    parent = NULL;
-    parentIon = nullptr;
-
-    // TODO: MAVEN (upstream) strikes again. Why was it commented out?
-    _adduct = NULL;
+    parent = nullptr;
 
     isFocused=false;
     label=0;    //classification label
@@ -87,13 +84,12 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
 
     changePValue=0;
     changeFoldRatio=0;
-    //children.reserve(0);
     peaks.resize(0);
 }
 
 void PeakGroup::copyObj(const PeakGroup& o)  {
-    groupId= o.groupId;
-    metaGroupId= o.metaGroupId;
+    _groupId= o._groupId;
+    _metaGroupId= o._metaGroupId;
     clusterId = o.clusterId;
     groupRank= o.groupRank;
 
@@ -113,7 +109,6 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
-    _adduct = o.getAdduct();
 
     blankMax=o.blankMax;
     blankSampleCount=o.blankSampleCount;
@@ -149,7 +144,6 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     maxMz=o.maxMz;
 
     parent = o.parent;
-    parentIon = o.parentIon;
     setSlice(o.getSlice());
 
     srmId=o.srmId;
@@ -182,31 +176,24 @@ PeakGroup::~PeakGroup() {
 }
 
 void PeakGroup::copyChildren(const PeakGroup& o) {
-    children.clear();
-    for (auto child : o.children) {
-        auto childCopy = make_shared<PeakGroup>(*(child.get()));
-        childCopy->parent = this;
-        children.push_back(childCopy);
-    }
+    _childIsotopes.clear();
+    for (auto child : o.childIsotopes())
+        addIsotopeChild(*child);
 
-    childrenBarPlot.clear();
-    for (auto child : o.childrenBarPlot) {
-        auto childCopy = make_shared<PeakGroup>(*(child.get()));
-        childCopy->parent = this;
-        childrenBarPlot.push_back(childCopy);
-    }
+    _childAdducts.clear();
+    for (auto child : o.childAdducts())
+        addAdductChild(*child);
 
-    childAdducts.clear();
-    for (auto child : o.childAdducts) {
-        auto childCopy = make_shared<PeakGroup>(*(child.get()));
-        childCopy->parent = this;
-        childAdducts.push_back(childCopy);
-    }
+    _childIsotopesBarPlot.clear();
+    for (auto child : o.childIsotopesBarPlot())
+        addIsotopeChildBarPlot(*child);
 }
 
 void PeakGroup::clear() {
     deletePeaks();
-    deleteChildren();
+    deleteChildIsotopes();
+    deleteChildAdducts();
+    deleteChildIsotopesBarPlot();
     meanMz  = 0;
     _expectedMz = 0;
     groupRank=INT_MAX;
@@ -236,9 +223,6 @@ bool PeakGroup::hasCompoundLink() const
 
 Compound* PeakGroup::getCompound() const
 {
-    if (parent != nullptr)
-        return parent->getCompound();
-
     if (hasSlice()) {
         return _slice.compound;
     }
@@ -254,13 +238,20 @@ void PeakGroup::setCompound(Compound* compound)
 void PeakGroup::addPeak(const Peak &peak)
 {
 	peaks.push_back(peak);
-	peaks.back().groupNum = groupId;
+    peaks.back().groupNum = _groupId;
 }
 
 void PeakGroup::setSlice(const mzSlice& slice)
 {
     _slice = slice;
     _sliceSet = true;
+    if (!_slice.isotope.isNone()) {
+        tagIsotope(_slice.isotope.name,
+                   _slice.isotope.mass,
+                   _slice.isotope.abundance);
+        isotopeC13count = _slice.isotope.C13;
+    }
+    _updateType();
 }
 
 const mzSlice& PeakGroup::getSlice() const
@@ -335,35 +326,55 @@ float PeakGroup::expectedRtDiff()
     return -1.0f;
 }
 
-void PeakGroup::deleteChildren() {
-    children.clear();
+void PeakGroup::deleteChildIsotopes()
+{
+    for (auto child : _childIsotopes)
+        child.reset();
+    _childIsotopes.clear();
 }
 
-bool PeakGroup::deleteChild(unsigned int index) {
-    if (index < children.size()) {
-        children.erase(children.begin()+index);
-        return true;
-    }
-    return false;
+void PeakGroup::deleteChildAdducts()
+{
+    for (auto child : _childAdducts)
+        child.reset();
+    _childAdducts.clear();
 }
 
-bool PeakGroup::deleteChild(PeakGroup* child ) {
+void PeakGroup::deleteChildIsotopesBarPlot()
+{
+    for (auto child : _childIsotopesBarPlot)
+        child.reset();
+    _childIsotopesBarPlot.clear();
+}
+
+bool PeakGroup::removeChild(PeakGroup* child) {
     if (!child)
         return false;
 
-    auto preDeletionChildCount = children.size();
-    children.erase(remove_if(begin(children),
-                             end(children),
-                             [&](shared_ptr<PeakGroup> group) {
-                                 return child == group.get();
-                             }),
-                   children.end());
+    auto removeChildFromContainer =
+        [this, child](vector<shared_ptr<PeakGroup>> children) {
+            children.erase(remove_if(begin(children),
+                                     end(children),
+                                     [&](shared_ptr<PeakGroup>& group) {
+                                         return child == group.get();
+                                     }),
+                           children.end());
+        };
 
-    // child was found and removed
-    if (children.size() != preDeletionChildCount)
-        return true;
+    auto preDeletionChildCount = _childIsotopes.size()
+                                 + _childAdducts.size()
+                                 + _childIsotopesBarPlot.size();
+    removeChildFromContainer(_childIsotopes);
+    removeChildFromContainer(_childAdducts);
+    removeChildFromContainer(_childIsotopesBarPlot);
 
-    return false;
+    auto postDeletionChildCount = _childIsotopes.size()
+                                  + _childAdducts.size()
+                                  + _childIsotopesBarPlot.size();
+    if (postDeletionChildCount == preDeletionChildCount)
+        return false; // nothing was removed
+
+    return true;
 }
 
 //return intensity vectory ordered by samples 
@@ -543,16 +554,6 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
 void PeakGroup::setLabel(char label)
 {
     this->label = label;
-
-    if (parent != nullptr && tagString == "C12 PARENT") {
-        parent->setLabel(label);
-        return;
-    }
-
-    for (auto child : children) {
-        if (child->tagString == "C12 PARENT" && child->label != label)
-            child->setLabel(label);
-    }
 }
 
 float PeakGroup::massCutoffDist(float cmass,MassCutoff *massCutoff)
@@ -598,7 +599,6 @@ double PeakGroup::getExpectedMz(int charge) {
     float mz = 0;
 
     if (isIsotope()
-        && childCount() == 0
         && hasSlice()
         && _slice.compound != NULL
         && !_slice.compound->formula().empty()
@@ -606,10 +606,10 @@ double PeakGroup::getExpectedMz(int charge) {
         return _expectedMz;
     }
     else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mz() > 0) {
-        if (!_slice.compound->formula().empty() && _adduct != nullptr) {
+        if (!_slice.compound->formula().empty() && adduct() != nullptr) {
             auto mass =
                 MassCalculator::computeNeutralMass(_slice.compound->formula());
-            mz = _adduct->computeAdductMz(mass);
+            mz = adduct()->computeAdductMz(mass);
         } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass() != 0.0f) {
             mz = _slice.compound->adjustedMass(charge);
         } else {
@@ -757,36 +757,6 @@ void PeakGroup::groupOverlapMatrix() {
     for(unsigned int i=0; i< peaks.size(); i++) peaks[i].groupOverlapFrac /= peaks.size();
 }
 
-void PeakGroup::summary() {
-    cerr << tagString << endl;
-    cerr
-        <<"\t" << "meanRt=" << meanRt << endl
-        <<"\t" << "meanMz=" << meanMz << endl
-        <<"\t" << "expectedMz=" << _expectedMz << endl
-        <<"\t" << "goodPeakCount=" << goodPeakCount << endl
-        <<"\t" << "maxQuality=" <<  maxQuality << endl
-        <<"\t" << "maxNoNoiseObs=" << maxNoNoiseObs << endl
-        <<"\t" << "sampleCount=" << sampleCount << endl
-        <<"\t" << "maxSignalBaselineRatio=" << maxSignalBaselineRatio << endl
-        <<"\t" << "maxPeakFracionalArea=" << maxPeakFracionalArea << endl
-        <<"\t" << "blankMean=" << blankMean << endl
-        <<"\t" << "sampleMean=" << sampleMean << endl
-        <<"\t" << "maxIntensity=" << maxIntensity << endl
-        << endl;
-
-    for (unsigned int i=0; i < peaks.size(); i++ ) {
-        cerr << "\t\t" << "Q:" << peaks[i].quality<< " "
-            << "pAf:" << peaks[i].peakAreaFractional<< " "
-            << "noNf" << peaks[i].noNoiseFraction << " "
-            << "noObs:" << peaks[i].noNoiseObs   << " "
-            << "w:"<< peaks[i].width<< " "
-            << "sn:" << peaks[i].signalBaselineRatio << " "
-            << "ovp:" << peaks[i].groupOverlapFrac << endl;
-    }
-
-    for(unsigned int i=0; i < children.size(); i++ ) children[i]->summary();
-}
-
 PeakGroup::PeakGroup(const PeakGroup& o, IntegrationType integrationType)
 {
     copyObj(o);
@@ -844,8 +814,8 @@ string PeakGroup::getName() {
     }
 
     // add name of external charged species fused with adduct
-    if (_adduct != nullptr)
-        tag += " | " + _adduct->getName();
+    if (adduct() != nullptr)
+        tag += " | " + adduct()->getName();
 
     // add isotopic label
     if (!tagString.empty())
@@ -857,7 +827,7 @@ string PeakGroup::getName() {
 
     // if all else fails, use group ID
     if (tag.empty())
-        tag = integer2string(groupId);
+        tag = integer2string(_groupId);
 
     return tag;
 }
@@ -981,21 +951,32 @@ void PeakGroup::setSelectedSamples(vector<mzSample*> vsamples){
     }
 }
 
-void PeakGroup::setAdduct(Adduct* adduct)
+Adduct* PeakGroup::adduct() const
 {
-    _adduct = adduct;
-    if (_adduct != nullptr
-        && _adduct->getName() != MassCalculator::MinusHAdduct->getName()
-        && _adduct->getName() != MassCalculator::PlusHAdduct->getName()) {
-        _type = GroupType::Adduct;
-    }
+    return getSlice().adduct;
 }
 
-Adduct* PeakGroup::getAdduct() const
+void PeakGroup::setAdduct(Adduct* adduct)
 {
-    if (isIsotope() && parent != nullptr)
-        return parent->getAdduct();
-    return _adduct;
+    _slice.adduct = adduct;
+    _updateType();
+}
+
+Isotope PeakGroup::isotope() const
+{
+    return getSlice().isotope;
+}
+
+void PeakGroup::setIsotope(Isotope isotope)
+{
+    _slice.isotope = isotope;
+    if (_slice.isotope.mass > 0.0) {
+        tagIsotope(_slice.isotope.name,
+                   _slice.isotope.mass,
+                   _slice.isotope.abundance);
+        isotopeC13count = _slice.isotope.C13;
+    }
+    _updateType();
 }
 
 string PeakGroup::tableName() const
@@ -1006,6 +987,35 @@ string PeakGroup::tableName() const
 void PeakGroup::setTableName(string tableName)
 {
     _tableName = tableName;
-    for (auto child : children)
+    for (auto child : _childIsotopes)
         child->setTableName(tableName);
+    for (auto child : _childAdducts)
+        child->setTableName(tableName);
+}
+
+void PeakGroup::_updateType()
+{
+    if (_slice.adduct != nullptr
+        && _slice.adduct->getName() != MassCalculator::MinusHAdduct->getName()
+        && _slice.adduct->getName() != MassCalculator::PlusHAdduct->getName()) {
+        _type = GroupType::Adduct;
+    } else if (!_slice.isotope.isNone() && !_slice.isotope.isParent()) {
+        _type = GroupType::Isotope;
+    } else {
+        _type = GroupType::None;
+    }
+}
+void PeakGroup::setGroupId(int groupId)
+{
+    _groupId = groupId;
+    _metaGroupId = groupId;
+    for (auto child : _childIsotopes)
+        child->_metaGroupId = groupId;
+    for (auto child : _childAdducts)
+        child->_metaGroupId = groupId;
+    for (auto child : _childIsotopesBarPlot)
+        child->_metaGroupId = groupId;
+    for (auto& peak : peaks) {
+        peak.groupNum = groupId;
+    }
 }

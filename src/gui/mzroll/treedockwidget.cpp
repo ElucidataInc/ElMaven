@@ -187,8 +187,9 @@ void TreeDockWidget::unlinkGroup() {
     	mainwindow->setCompoundFocus(cpd);
     } else if (group && group->parent) {
         auto parentGroup = make_shared<PeakGroup>(*(group->parent));
-		if ( parentGroup->deleteChild(group) ) {
-                        auto parentItem = item->parent();
+        if (parentGroup->removeChild(group)) {
+            delete group;
+            auto parentItem = item->parent();
 			if ( parentItem ) { parentItem->removeChild(item); delete(item); }
 			mainwindow->getEicWidget()->setPeakGroup(parentGroup);
 		}
@@ -198,7 +199,9 @@ void TreeDockWidget::unlinkGroup() {
 					item->setHidden(true);
 					treeWidget->removeItemWidget(item,0); delete(item);
 					group->deletePeaks();
-					group->deleteChildren();
+                    group->deleteChildIsotopes();
+                    group->deleteChildAdducts();
+                    group->deleteChildIsotopesBarPlot();
 
 					break;
 
@@ -404,8 +407,8 @@ QTreeWidgetItem* TreeDockWidget::addPeakGroup(PeakGroup* group, QTreeWidgetItem*
     item->setExpanded(true);
     item->setData(0, Qt::UserRole,QVariant::fromValue(group));
     //for(int i=0; i < group->peaks.size(); i++ ) addPeak(&(group->peaks[i]), item);
-    for(int i=0; i < group->childCount(); i++)
-        addPeakGroup(group->children[i].get(), item);
+    for(int i=0; i < group->childIsotopeCount(); i++)
+        addPeakGroup(group->childIsotopes()[i].get(), item);
     return item;
 }
 

@@ -100,7 +100,6 @@ private:
     void pullIsotopes(PeakGroup* group);
     void pullIsotopesBarPlot(PeakGroup* group);
 
-    void postProcessGroups();
     void computePeaks();
     void findFeatures();
 

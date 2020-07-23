@@ -30,7 +30,7 @@ Adduct::Adduct(const Adduct& a)
     this->_mz = a._mz;
 }
 
-bool Adduct::operator ==(const Adduct& other)
+bool Adduct::operator==(const Adduct& other)
 {
     return (_name == other._name
             && _nmol == other._nmol
@@ -38,6 +38,15 @@ bool Adduct::operator ==(const Adduct& other)
             && mzUtils::almostEqual(_mass, other._mass)
             && _mz == other._mz
             && isParent() == other.isParent());
+}
+
+bool Adduct::operator<(const Adduct& other)
+{
+    if (_charge != other._charge)
+        return _charge < other._charge;
+    if (_nmol != other._nmol)
+        return _nmol < other._nmol;
+    return _name < other._name;
 }
 
 string Adduct::getName()

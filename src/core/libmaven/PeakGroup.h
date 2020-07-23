@@ -25,17 +25,28 @@ class PeakGroup{
             Manual,
             Automated,
             Programmatic,
-            Inherit
+            Inherit,
+            Ghost
         };
-        enum class GroupType {None=0, C13=1, Adduct=2, Covariant=4, Isotope=5 };
-        enum QType	   {AreaTop=0,
-                        Area=1,
-                        Height=2,
-                        AreaNotCorrected=3,
-                        RetentionTime=4,
-                        Quality=5,
-                        SNRatio=6,
-                        AreaTopNotCorrected=7};
+
+        enum class GroupType {
+            None,
+            Adduct,
+            Isotope,
+            Covariant
+        };
+
+        enum QType {
+            AreaTop=0,
+            Area=1,
+            Height=2,
+            AreaNotCorrected=3,
+            RetentionTime=4,
+            Quality=5,
+            SNRatio=6,
+            AreaTopNotCorrected=7
+        };
+
         PeakGroup(shared_ptr<MavenParameters> parameters,
                   IntegrationType integrationType);
         PeakGroup(const PeakGroup& o,
@@ -61,16 +72,7 @@ class PeakGroup{
 
         PeakGroup* parent;
 
-        /**
-         * @brief This parent group represents a group for the parent (primary)
-         * ion, from which this adduct group would have formed.
-         */
-        PeakGroup* parentIon;
-
         vector<Peak> peaks;
-        vector<shared_ptr<PeakGroup>> children;
-        vector<shared_ptr<PeakGroup>> childAdducts;
-        vector<shared_ptr<PeakGroup>> childrenBarPlot;
         vector<mzSample*> samples;  //this varibale will hold only those sample which has been
                                     //used for peak detection
         string srmId;
@@ -90,8 +92,6 @@ class PeakGroup{
 
         QType quantitationType;
 
-        int groupId;
-        int metaGroupId;
         int clusterId;
 
         bool deletedFlag;
@@ -185,12 +185,9 @@ class PeakGroup{
          */
         bool hasCompoundLink() const;
 
-        /**
-         * [isEmpty ]
-         * @method isEmpty
-         * @return []
-         */
-        inline bool isEmpty() const   { if(peaks.size() == 0) return true; return false; }
+        inline bool isEmpty() const { return peaks.empty(); }
+
+        inline bool isGhost() const { return _integrationType == IntegrationType::Ghost; }
 
         /**
          * [peakCount ]
@@ -199,14 +196,9 @@ class PeakGroup{
          */
         inline unsigned int peakCount()  const { return peaks.size(); 	  }
 
-        /**
-         * [childCount ]
-         * @method childCount
-         * @return []
-         */
-        inline unsigned int childCount() const { return children.size(); }
-
-        inline unsigned int childCountBarPlot() const { return childrenBarPlot.size(); }
+        inline unsigned int childIsotopeCount() const { return _childIsotopes.size(); }
+        inline unsigned int childAdductsCount() const { return _childAdducts.size(); }
+        inline unsigned int childIsotopeCountBarPlot() const { return _childIsotopesBarPlot.size(); }
 
         Compound* getCompound() const;
 
@@ -242,7 +234,18 @@ class PeakGroup{
         inline vector<Peak>& getPeaks() { return peaks; }
 
 
-        inline const vector<shared_ptr<PeakGroup>> getChildren() { return children; }
+        inline const vector<shared_ptr<PeakGroup>> childIsotopes() const
+        {
+            return _childIsotopes;
+        }
+        inline const vector<shared_ptr<PeakGroup>> childAdducts() const
+        {
+            return _childAdducts;
+        }
+        inline const vector<shared_ptr<PeakGroup>> childIsotopesBarPlot() const
+        {
+            return _childIsotopesBarPlot;
+        }
 
         vector<Scan*> getRepresentativeFullScans(); //TODO: Sahil - Kiran, Added while merging mainwindow
 
@@ -290,6 +293,12 @@ class PeakGroup{
         void setLabel(char label);
 
         /**
+         * @brief Get the adduct form for this `PeakGroup`.
+         * @return Pointer to the `Adduct` object set for this group.
+         */
+        Adduct* adduct() const;
+
+        /**
          * @brief Set the adduct form for this `PeakGroup`.
          * @details If the adduct is a type of parent ion, then this group's
          * `_type` attribute is set to `GroupType::Adduct`.
@@ -298,10 +307,18 @@ class PeakGroup{
         void setAdduct(Adduct* adduct);
 
         /**
-         * @brief Get the adduct form for this `PeakGroup`.
-         * @return Pointer to the `Adduct` object set for this group.
+         * @brief Get the isotope (if any) associated to this `PeakGroup`.
+         * @return Copy of the `Isotope` object associated to this group.
          */
-        Adduct* getAdduct() const;
+        Isotope isotope() const;
+
+        /**
+         * @brief Set an `Isotope` tag for this `PeakGroup`.
+         * @details If the isotope has a name other than C12 parent name, then
+         * this group's `_type` attribute is set to `GroupType::Isotope`.
+         * @param isotope An `Isotope` object to be assigned.
+         */
+        void setIsotope(Isotope isotope);
 
         /**
          * [ppmDist ]
@@ -318,31 +335,28 @@ class PeakGroup{
          */
         void addPeak(const Peak& peak); 
 
-        /**
-         * [addChild ]
-         * @method addChild
-         * @param  child    []
-         */
-        inline void addChild(const PeakGroup& child)
+        inline void addIsotopeChild(const PeakGroup& child)
         {
             auto childCopy = make_shared<PeakGroup>(child);
             childCopy->parent = this;
-            children.push_back(childCopy);
+            childCopy->_metaGroupId = _groupId;
+            _childIsotopes.push_back(childCopy);
         }
 
-        inline void addChildBarPlot(const PeakGroup& child)
+        inline void addAdductChild(const PeakGroup& child)
         {
             auto childCopy = make_shared<PeakGroup>(child);
             childCopy->parent = this;
-            childrenBarPlot.push_back(childCopy);
+            childCopy->_metaGroupId = _groupId;
+            _childAdducts.push_back(childCopy);
         }
 
-        inline void setGroupIdForChildren() { for (auto child : children) child->groupId = groupId; }
-        inline void setMetaGroupIdForChildren()
+        inline void addIsotopeChildBarPlot(const PeakGroup& child)
         {
-            metaGroupId = groupId;
-            for (auto& child : children)
-                child->metaGroupId = groupId;
+            auto childCopy = make_shared<PeakGroup>(child);
+            childCopy->parent = this;
+            childCopy->_metaGroupId = _groupId;
+            _childIsotopesBarPlot.push_back(childCopy);
         }
 
         /**
@@ -384,12 +398,6 @@ class PeakGroup{
          * @return []
          */
         inline bool isAdduct() const {  return _type == GroupType::Adduct; }
-
-        /**
-         * [summary ]
-         * @method summary
-         */
-        void summary();
 
         /**
          * [groupStatistics ]
@@ -482,27 +490,20 @@ class PeakGroup{
          */
         void clear();
 
-        /**
-         * [deleteChildren ]
-         * @method deleteChildren
-         */
-        void deleteChildren();
+        void deleteChildIsotopes();
+        void deleteChildAdducts();
+        void deleteChildIsotopesBarPlot();
 
         /**
-         * [deleteChild ]
-         * @method deleteChild
-         * @param  index       []
-         * @return []
+         * @brief Removes a child peak-group (based on pointer equality) from
+         * all of the child containers (isotopes and adducts). The child itself
+         * is not garbage collected.
+         * @param child Pointer to a peak-group, that could be present in this
+         * parent group.
+         * @return Returns `true` if a removal was performed (if found), `false`
+         * otherwise.
          */
-        bool deleteChild(unsigned int index);
-
-        /**
-         * [deleteChild ]
-         * @method deleteChild
-         * @param  child       []
-         * @return []
-         */
-        bool deleteChild(PeakGroup* child);
+        bool removeChild(PeakGroup* child);
 
         /**
          * [copyChildren ]
@@ -608,7 +609,12 @@ class PeakGroup{
          * @param  b             []
          * @return []
          */
-        static bool compMetaGroup(const PeakGroup& a, const PeakGroup& b) { return(a.metaGroupId < b.metaGroupId); }
+        static bool compMetaGroup(const PeakGroup& a,
+                                  const PeakGroup& b)
+        {
+            return(a.metaGroupId() < b.metaGroupId());
+        }
+
         bool operator< (const PeakGroup* b) const { return this->maxIntensity < b->maxIntensity; }
 
         void calGroupRank(bool deltaRtCheckFlag,
@@ -650,16 +656,28 @@ class PeakGroup{
             return _integrationType;
         }
 
+        int groupId() const { return _groupId; }
+        int metaGroupId() const { return _metaGroupId; }
+        void setGroupId(int groupId);
+
     private:
-        Adduct* _adduct;
+        int _groupId;
+        int _metaGroupId;
+
         mzSlice _slice;
         bool _sliceSet;
 
         float _expectedMz;
         float _expectedAbundance;
 
+        vector<shared_ptr<PeakGroup>> _childIsotopes;
+        vector<shared_ptr<PeakGroup>> _childAdducts;
+        vector<shared_ptr<PeakGroup>> _childIsotopesBarPlot;
+
         string _tableName;
         shared_ptr<MavenParameters> _parameters;
         IntegrationType _integrationType;
+
+        void _updateType();
 };
 #endif

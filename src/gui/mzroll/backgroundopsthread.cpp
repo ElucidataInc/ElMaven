@@ -234,7 +234,6 @@ void BackgroundOpsThread::alignWithObiWarp()
 
 void BackgroundOpsThread::emitGroups()
 {
-    peakDetector->pullAllIsotopes();
     for (PeakGroup& group : mavenParameters->allgroups) {
         if (mavenParameters->keepFoundGroups) {
             emit newPeakGroup(&group);
@@ -243,39 +242,15 @@ void BackgroundOpsThread::emitGroups()
     }
 }
 
-void BackgroundOpsThread::postProcessGroups()
-{
-    if (runFunction == "alignUsingDatabase") align();
-
-    if (mavenParameters->showProgressFlag
-        && mavenParameters->pullIsotopesFlag) {
-            emit updateProgressBar("Calculating Isotopes", 1, 100);
-    }
-
-    if (mavenParameters->searchAdducts) {
-        mavenParameters->allgroups = AdductDetection::findAdducts(
-            mavenParameters->allgroups,
-            mavenParameters->getChosenAdductList(),
-            peakDetector);
-
-        // we remove adducts for which parent ion's RT is too different
-        AdductDetection::filterAdducts(mavenParameters->allgroups,
-                                       mavenParameters);
-        emit updateProgressBar("Filtering out false adducts…", 0, 0);
-    }
-}
-
 void BackgroundOpsThread::computePeaks()
 {
     vector<Compound*> set = mavenParameters->compounds;
-    string setName = "groups";
     if (set.size() == 0)
         return;
 
     emit updateProgressBar("Processing Compounds", 0, 0);
 
-    peakDetector->processCompounds(set, setName);
-    postProcessGroups();
+    peakDetector->processCompounds(set);
     emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
@@ -288,7 +263,6 @@ void BackgroundOpsThread::findFeatures()
         boost::bind(&BackgroundOpsThread::qtSignalSlot, this, _1, _2, _3));
 
     peakDetector->processFeatures(mavenParameters->compounds);
-    postProcessGroups();
     emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
@@ -368,8 +342,8 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
         }
         group->groupStatistics();
 
-        if (!group->isIsotope() && group->childCount() > 0) {
-            group->children.clear();
+        if (!group->isIsotope() && group->childIsotopeCount() > 0) {
+            group->deleteChildIsotopes();
             bool C13Flag = mp->C13Labeled_BPE;
             bool N15Flag = mp->N15Labeled_BPE;
             bool S34Flag = mp->S34Labeled_BPE;
@@ -385,7 +359,7 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
                                               D2Flag);
             isotopeDetection.pullIsotopes(group.get());
 
-            for (auto child : group->children)
+            for (auto child : group->childIsotopes())
                 child->setTableName(group->tableName());
         }
     }

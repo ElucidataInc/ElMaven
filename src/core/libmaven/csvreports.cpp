@@ -184,7 +184,7 @@ void CSVReports::addGroup(PeakGroup* group)
         _writePeakInfo(group);
 
     if (_reportType == ReportType::GroupReport) {
-        if (group->getCompound() == NULL || group->childCount() == 0) {
+        if (group->getCompound() == NULL || group->childIsotopeCount() == 0) {
             _writeGroupInfo(group);
         } else {
             _insertIsotopes(group);
@@ -198,10 +198,8 @@ void CSVReports::_insertIsotopes(PeakGroup* group,
     if (userSelectedIsotopesOnly) {
         _insertUserSelectedIsotopes(group);
     } else {
-        for (auto subGroup : group->children) {
-            subGroup->metaGroupId = group->metaGroupId;
+        for (auto subGroup : group->childIsotopes())
             _writeGroupInfo(subGroup.get());
-        }
     }
 }
 
@@ -216,7 +214,7 @@ void CSVReports::_insertUserSelectedIsotopes(PeakGroup* group)
     // check if the subgroup contains the isotope's name as tagstring
     // before writing it to the report. If any of the unselected
     // labels are found, we discard the child group.
-    for (auto subGroup : group->children) {
+    for (auto subGroup : group->childIsotopes()) {
         if (!C13Flag && subGroup->tagString.find("C13") != std::string::npos)
             continue;
         if (!N15Flag && subGroup->tagString.find("N15") != std::string::npos)
@@ -226,7 +224,6 @@ void CSVReports::_insertUserSelectedIsotopes(PeakGroup* group)
         if (!D2Flag && subGroup->tagString.find("D2") != std::string::npos)
             continue;
 
-        subGroup->metaGroupId = group->metaGroupId;
         _writeGroupInfo(subGroup.get());
     }
 }
@@ -270,10 +267,10 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     sprintf(label, "%c", group->label);
 
     string adductName = "";
-    if (group->getAdduct() != nullptr)
-        adductName = group->getAdduct()->getName();
+    if (group->adduct() != nullptr)
+        adductName = group->adduct()->getName();
 
-    _reportStream << label << SEP << parentGroup->groupId << SEP << _groupId
+    _reportStream << label << SEP << parentGroup->groupId() << SEP << _groupId
                   << SEP << group->goodPeakCount << fixed << SEP
                   << setprecision(6) << group->meanMz << SEP << setprecision(3)
                   << group->meanRt << SEP << setprecision(6)
@@ -384,8 +381,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     }
 
     string adductName = "";
-    if (group->getAdduct() != nullptr)
-        adductName = group->getAdduct()->getName();
+    if (group->adduct() != nullptr)
+        adductName = group->adduct()->getName();
 
     if (selectionFlag == 2) {
         if (group->label != 'g')
@@ -420,7 +417,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                 _sanitizeString(sample->sampleName.c_str()).toStdString();
         }
 
-        _reportStream << fixed << setprecision(6) << group->groupId << SEP
+        _reportStream << fixed << setprecision(6) << group->groupId() << SEP
                       << compoundName << SEP << compoundID << SEP << formula
                       << SEP << sampleName << SEP << adductName << SEP << peak.peakMz
                       << SEP << peak.mzmin << SEP << peak.mzmax << setprecision(3)
@@ -444,7 +441,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
             sampleName =
                 _sanitizeString(sample->sampleName.c_str()).toStdString();
         }
-        _reportStream << fixed << setprecision(6) << group->groupId << SEP
+        _reportStream << fixed << setprecision(6) << group->groupId() << SEP
                       << compoundName << SEP << compoundID << SEP << formula
                       << SEP << sampleName << SEP << adductName<< SEP << 0.0f
                       << SEP << 0.0f << SEP << 0.0f << setprecision(3) << SEP
@@ -468,7 +465,7 @@ void CSVReports::writeDataForPolly(const std::string& file,
         _reportStream << endl;
 
         for (auto grp : groups) {
-            for (auto child : grp.children) {
+            for (auto child : grp.childIsotopes()) {
                 int mlLabel = (child->markedGoodByCloudModel)
                                   ? 1
                                   : (child->markedBadByCloudModel) ? 0 : -1;

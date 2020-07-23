@@ -168,7 +168,7 @@ void IsotopePlotDockWidget::recompute()
     if (_mw->getEicWidget()->isVisible()) {
         auto group = _mw->getEicWidget()->getParameters()->displayedGroup();
         if (group && group->tableName().empty()) {
-            group->childrenBarPlot.clear();
+            group->deleteChildIsotopesBarPlot();
             _mw->isotopeWidget->updateIsotopicBarplot(group);
         } else {
             _mw->isotopeWidget->updateIsotopicBarplot();

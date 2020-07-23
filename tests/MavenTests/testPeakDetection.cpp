@@ -48,7 +48,7 @@ void TestPeakDetection::testProcessCompound() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processCompounds(compounds);
 
     QVERIFY(true);
 

@@ -253,7 +253,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   }
 
   // Updating the peakid
-  item->setText(0, QString::number(group->groupId));
+  item->setText(0, QString::number(group->groupId()));
   item->setText(1, QString(group->getName().c_str()));
   item->setText(2, QString::number(group->meanMz, 'f', 4));
 
@@ -407,7 +407,7 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
                  Qt::ItemIsDragEnabled);
   item->setData(0, Qt::UserRole, QVariant::fromValue(group));
 
-  item->setText(0, QString::number(group->groupId));
+  item->setText(0, QString::number(group->groupId()));
   item->setText(1, QString(group->getName().c_str()));
   item->setText(2, QString::number(group->meanMz, 'f', 4));
 
@@ -481,8 +481,8 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
     treeWidget->addTopLevelItem(item);
   updateItem(item);
 
-  if (group->childCount() > 0) {
-    for (auto child : group->children)
+  if (group->childIsotopeCount() > 0) {
+    for (auto child : group->childIsotopes())
       addRow(child, item);
   }
 }
@@ -499,17 +499,20 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
   if (group != NULL) {
     shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*group);
     _topLevelGroups.push_back(sharedGroup);
-    if (sharedGroup->childCount() > 0)
+    if (sharedGroup->childIsotopeCount() > 0)
       _labeledGroups++;
     if (sharedGroup->getCompound())
       _targetedGroups++;
     if (_topLevelGroups.size() > 0) {
       shared_ptr<PeakGroup> g = _topLevelGroups.back();
       g->setTableName(this->titlePeakTable->text().toStdString());
-      for (int i = 0; i < _topLevelGroups.size(); ++i) {
-        auto group = _topLevelGroups[i];
-        group->groupId = i + 1;
-        group->setGroupIdForChildren();
+      int groupId = 1;
+      for (auto topLevelGroup : _topLevelGroups) {
+          topLevelGroup->setGroupId(groupId++);
+          for (auto child : topLevelGroup->childIsotopes())
+              child->setGroupId(groupId++);
+          for (auto child : topLevelGroup->childAdducts())
+              child->setGroupId(groupId++);
       }
       return g;
     }
@@ -1155,7 +1158,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     if (group != nullptr and group.get() == groupX) {
       item->setHidden(true);
 
-      if (!group->children.empty())
+      if (!group->childIsotopeCount() == 0)
         _labeledGroups--;
       if (group->hasCompoundLink())
         _targetedGroups--;
@@ -1171,10 +1174,13 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
     ++it;
   }
 
-  for (int i = 0; i < _topLevelGroups.size(); ++i) {
-    auto group = _topLevelGroups[i];
-    group->groupId = i + 1;
-    group->setGroupIdForChildren();
+  int groupId = 1;
+  for (auto group : _topLevelGroups) {
+      group->setGroupId(groupId++);
+      for (auto child : group->childIsotopes())
+          child->setGroupId(groupId++);
+      for (auto child : group->childAdducts())
+          child->setGroupId(groupId++);
   }
   updateTable();
   updateCompoundWidget();
@@ -1257,13 +1263,13 @@ void TableDockWidget::deleteSelectedItems()
 
         auto parentGroup = group->parent;
         if (parentGroup == nullptr){
-            if (!group->children.empty())
+            if (!group->childIsotopeCount() == 0)
                 _labeledGroups--;
             if (group->hasCompoundLink())
                 _targetedGroups--;
             itemsToDelete.insert(item);
             groupsToDelete.insert(group);
-        } else if (parentGroup && parentGroup->childCount() > 0) {
+        } else if (parentGroup && parentGroup->childIsotopeCount() > 0) {
             auto parentItem = item->parent();
             if (parentItem == nullptr)
                 continue;
@@ -1272,8 +1278,10 @@ void TableDockWidget::deleteSelectedItems()
                 continue;
             }
 
-            if (!parentGroup->deleteChild(group.get()))
+            if (!parentGroup->removeChild(group.get())) {
+                group.reset();
                 continue;
+            }
 
             itemsToDelete.insert(item);
 
@@ -1288,12 +1296,12 @@ void TableDockWidget::deleteSelectedItems()
 
                 auto name = child->text(1).toStdString();
                 auto childGroupIter =
-                    find_if(begin(parentGroup->children),
-                            end(parentGroup->children),
+                    find_if(begin(parentGroup->childIsotopes()),
+                            end(parentGroup->childIsotopes()),
                             [&](shared_ptr<PeakGroup> g) {
                                 return g->getName() == name;
                             });
-                if (childGroupIter != end(parentGroup->children)) {
+                if (childGroupIter != end(parentGroup->childIsotopes())) {
                     auto& childGroup = *childGroupIter;
                     child->setData(0,
                                    Qt::UserRole,
@@ -2663,7 +2671,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
     if (group != nullptr and group.get() == groupX) {
         item->setHidden(true);
 
-    if (!group->children.empty())
+    if (!group->childIsotopeCount() == 0)
       _labeledGroups--;
     if (group->getCompound())
       _targetedGroups--;
@@ -2698,10 +2706,13 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
     ++it;
   }
 
-  for (int i = 0; i < _topLevelGroups.size(); ++i) {
-    auto group = _topLevelGroups[i];
-    group->groupId = i + 1;
-    group->setGroupIdForChildren();
+  int groupId = 1;
+  for (auto group : _topLevelGroups) {
+    group->setGroupId(groupId++);
+    for (auto child : group->childIsotopes())
+        child->setGroupId(groupId++);
+    for (auto child : group->childAdducts())
+        child->setGroupId(groupId++);
   }
   updateTable();
   updateCompoundWidget();

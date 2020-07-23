@@ -4005,8 +4005,8 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 		if (s != NULL)
 			sampleName = s->sampleName;
 
-		peakinfo << QString(sampleName.c_str())
-				<< QString::number(group->groupId) << compoundName
+        peakinfo << QString(sampleName.c_str())
+                 << QString::number(group->groupId()) << compoundName
 				<< QString::number(expectedRt, 'f', 4)
 				<< QString::number(peak.peakMz, 'f', 4)
 				<< QString::number(peak.medianMz, 'f', 4)
@@ -4612,9 +4612,9 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
-	for (int i = 0; i < group->childCountBarPlot(); i++) {
-        if (group->childrenBarPlot[i]->isIsotope()) {
-            PeakGroup* isotope = group->childrenBarPlot[i].get();
+    for (int i = 0; i < group->childIsotopeCountBarPlot(); i++) {
+        if (group->childIsotopesBarPlot()[i]->isIsotope()) {
+            PeakGroup* isotope = group->childIsotopesBarPlot()[i].get();
 			isotopes.push_back(isotope);
 		}
 	}
@@ -4646,9 +4646,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	vector<PeakGroup*> isotopes;
 	string delimIsotopic = "C13-label-";
 	string delimParent = "C12 PARENT";
-    for (int i = 0; i < group->childCount(); i++) {
-        if (group->children[i]->isIsotope()) {
-            PeakGroup* isotope = group->children[i].get();
+    for (int i = 0; i < group->childIsotopes().size(); i++) {
+        if (group->childIsotopes()[i]->isIsotope()) {
+            PeakGroup* isotope = group->childIsotopes()[i].get();
 			isotopes.push_back(isotope);
 			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
 				if (isotope->tagString.find(delimParent) != string::npos) {

@@ -70,14 +70,11 @@ public:
      */
     void identifyFeatures(const std::vector<Compound*>& identificationSet);
 
-    void pullAllIsotopes();
-
     /**
      * @brief Perform peak-detection for a given set of compounds.
-     * @param set A vector of compounds for which slices should be found.
-     * @param setName Name of the compound set. Not being used currently.
+     * @param compounds A vector of compounds for which slices should be found.
      */
-    void processCompounds(std::vector<Compound*> set, std::string setName);
+    void processCompounds(std::vector<Compound*> compounds);
 
     /**
      * @brief For each slice in the given slice vector, perform peak detection.
@@ -86,6 +83,8 @@ public:
      * names will be emitted with the detection progress signals.
      */
     void processSlices(std::vector<mzSlice*>& slices, std::string setName);
+
+    void performMetaGrouping();
 
 private:
     MavenParameters* _mavenParameters;

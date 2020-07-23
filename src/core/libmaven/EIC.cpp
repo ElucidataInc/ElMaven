@@ -1019,11 +1019,9 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
 
     for (unsigned int i = 0; i < m->peaks.size(); i++) {
         PeakGroup grp(mp, integrationType);
-        grp.groupId = i;
-        if (slice) {
+        grp.setGroupId(i);
+        if (slice)
             grp.setSlice(*slice);
-            grp.setAdduct(slice->adduct);
-        }
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }
@@ -1102,7 +1100,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             {
                 PeakGroup grp(mp, integrationType);
                 pgroups.push_back(grp);
-                grp.groupId = pgroups.size() + 1;
+                grp.setGroupId(pgroups.size() + 1);
                 grp.setSlice(*slice);
                 grp.addPeak(b);
                 b.groupOverlap = 0;

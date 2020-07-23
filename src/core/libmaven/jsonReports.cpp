@@ -32,7 +32,7 @@ void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
 
     filename << setprecision(10);
     filename << "{\n";
-    filename << "\"groupId\": " << grp.groupId ;
+    filename << "\"groupId\": " << grp.groupId();
 
     filename << ",\n" << "\"label\": ";
     filename << "\"";
@@ -44,7 +44,7 @@ void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
         filename  << ",\n" << "\"ml-label\": " << mlLabel;
     }
 
-    filename << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
+    filename << ",\n" << "\"metaGroupId\": " << grp.metaGroupId();
     filename << ",\n" << "\"meanMz\": " << grp.meanMz  ;
     filename << ",\n" << "\"meanRt\": " << grp.meanRt ;
     filename << ",\n" << "\"rtmin\": " << grp.minRt ;
@@ -266,15 +266,11 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
     file << "{\"groups\": [" <<endl;
 
     int groupId = 0;
-    int metaGroupId = 0;
-
     for(size_t i=0; i < allgroups.size() ; i++ ) {
         PeakGroup& grp = allgroups[i];
-
         //if compound is unknown, output only the unlabeled form information
-        if(grp.getCompound() == NULL || grp.childCount() == 0) {
-            grp.groupId = ++groupId;
-            grp.metaGroupId = ++metaGroupId;
+        if(grp.getCompound() == NULL || grp.childIsotopeCount() == 0) {
+            grp.setGroupId(++groupId);
             if(groupId > 1) file<< "\n,";
             _writeGroup(grp,file);
             if(grp.hasCompoundLink())
@@ -284,10 +280,8 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
         } else {
             //output all relevant isotope info otherwise
             //does this work? is children[0] always the same as grp (parent)?
-            grp.metaGroupId = ++metaGroupId;
-            for (auto child : grp.children) {
-                child->metaGroupId = grp.metaGroupId;
-                child->groupId = ++groupId;
+            for (auto child : grp.childIsotopes()) {
+                child->setGroupId(++groupId);
                 if(groupId > 1) file << "\n,";
                 _writeGroup(*(child.get()), file);
                 if (child->hasCompoundLink())

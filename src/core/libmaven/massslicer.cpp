@@ -4,9 +4,12 @@
 #include <boost/bind.hpp>
 
 #include "massslicer.h"
+#include "Compound.h"
 #include "EIC.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
+#include "datastructures/adduct.h"
+#include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
 #include "masscutofftype.h"
 #include "mzUtils.h"
@@ -16,21 +19,15 @@
 
 using namespace mzUtils;
 
-MassSlicer::MassSlicer()
+MassSlicer::MassSlicer(MavenParameters* mp) : _mavenParameters(mp)
 {
-    _maxSlices = numeric_limits<int>::max();
-    _minRt = numeric_limits<float>::min();
-    _minMz = numeric_limits<float>::min();
-    _minIntensity = numeric_limits<float>::min();
-    _maxRt = numeric_limits<float>::max();
-    _maxMz = numeric_limits<float>::max();
-    _maxIntensity = numeric_limits<float>::max();
-    _minCharge = 0;
-    _maxCharge = numeric_limits<int>::max();
-    _massCutoff = nullptr;
+    _samples = _mavenParameters->samples;
 }
 
-MassSlicer::~MassSlicer() { delete_all(slices); }
+MassSlicer::~MassSlicer()
+{
+    delete_all(slices);
+}
 
 void MassSlicer::sendSignal(const string& progressText,
                 unsigned int completed_samples,
@@ -39,21 +36,167 @@ void MassSlicer::sendSignal(const string& progressText,
     _mavenParameters->sig(progressText, completed_samples, total_samples);
 }
 
-void MassSlicer::stopSlicing() {
+void MassSlicer::clearSlices()
+{
     if (slices.size() > 0) {
         delete_all(slices);
         slices.clear();
     }
 }
 
-void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
+void MassSlicer::generateCompoundSlices(vector<Compound*> compounds,
+                                        bool clearPrevious)
 {
-    // clear all previous data
-    delete_all(slices);
-    slices.clear();
+    if (clearPrevious)
+        clearSlices();
+    if (_samples.empty())
+        return;
 
-    float rtWindow = 2.0f;
-    this->_massCutoff = massCutoff;
+    Adduct* adduct = nullptr;
+    for (auto parentAdduct : _mavenParameters->getDefaultAdductList()) {
+        if (SIGN(parentAdduct->getCharge())
+            == SIGN(_mavenParameters->ionizationMode)) {
+            adduct = parentAdduct;
+        }
+    }
+
+    if (adduct == nullptr)
+        return;
+
+    for(auto compound : compounds) {
+        if (_mavenParameters->stop) {
+            delete_all(slices);
+            break;
+        }
+
+        if (compound == nullptr)
+            continue;
+
+        if (compound->type() == Compound::Type::MRM) {
+            mzSlice* slice = new mzSlice();
+            slice->compound = compound;
+            slice->setSRMId();
+            slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
+                                     _mavenParameters->compoundRTWindow);
+            slices.push_back(slice);
+        } else {
+            mzSlice* slice = new mzSlice;
+            slice->compound = compound;
+            slice->adduct = adduct;
+            slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
+                                     adduct->getCharge());
+            slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
+                                     _mavenParameters->compoundRTWindow);
+            slices.push_back(slice);
+        }
+    }
+}
+
+void MassSlicer::generateIsotopeSlices(vector<Compound*> compounds,
+                                       bool clearPrevious)
+{
+    if (clearPrevious)
+        clearSlices();
+    if (_samples.empty())
+        return;
+
+    for (auto compound : compounds) {
+        if (_mavenParameters->stop) {
+            clearSlices();
+            break;
+        }
+
+        if (compound == nullptr)
+            continue;
+        if (compound->formula().empty())
+            continue;
+
+        string formula = compound->formula();
+        int charge = _mavenParameters->getCharge(compound);
+
+        Adduct* adduct = nullptr;
+        for (auto parentAdduct : _mavenParameters->getDefaultAdductList()) {
+            if (SIGN(parentAdduct->getCharge()) == SIGN(charge)) {
+                adduct = parentAdduct;
+            }
+        }
+        if (adduct == nullptr)
+            continue;
+
+        vector<Isotope> massList =
+            MassCalculator::computeIsotopes(formula,
+                                            charge,
+                                            _mavenParameters->C13Labeled_BPE,
+                                            _mavenParameters->N15Labeled_BPE,
+                                            _mavenParameters->S34Labeled_BPE,
+                                            _mavenParameters->D2Labeled_BPE,
+                                            adduct);
+        for (auto isotope : massList) {
+            mzSlice* slice = new mzSlice;
+            slice->compound = compound;
+            slice->adduct = adduct;
+            slice->isotope = isotope;
+            slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
+                                     adduct->getCharge());
+            slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
+                                     _mavenParameters->compoundRTWindow);
+            slices.push_back(slice);
+        }
+    }
+}
+
+void MassSlicer::generateAdductSlices(vector<Compound*> compounds,
+                                      bool ignoreParentAdducts,
+                                      bool clearPrevious)
+{
+    if (clearPrevious)
+        clearSlices();
+    if (_samples.empty())
+        return;
+
+    MassCalculator massCalc;
+    for (auto compound : compounds) {
+        if (_mavenParameters->stop) {
+            clearSlices();
+            break;
+        }
+
+        for (auto adduct : _mavenParameters->getChosenAdductList()) {
+            if (adduct->isParent() && ignoreParentAdducts)
+                continue;
+
+            float neutralMass = compound->neutralMass();
+            if (!compound->formula().empty())
+                neutralMass = massCalc.computeNeutralMass(compound->formula());
+
+            // we have to have a neutral mass for non-parent adducts
+            if (neutralMass <= 0.0f && !adduct->isParent())
+                continue;
+
+            mzSlice* slice = new mzSlice;
+            slice->compound = compound;
+            slice->adduct = adduct;
+            slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
+                                     adduct->getCharge());
+            slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
+                                     _mavenParameters->compoundRTWindow);
+            slices.push_back(slice);
+        }
+    }
+}
+
+void MassSlicer::findFeatureSlices(bool clearPrevious)
+{
+    if (clearPrevious)
+        clearSlices();
+
+    MassCutoff* massCutoff = _mavenParameters->massCutoffMerge;
+    float minFeatureRt = _mavenParameters->minRt;
+    float maxFeatureRt = _mavenParameters->maxRt;
+    float minFeatureMz = _mavenParameters->minMz;
+    float maxFeatureMz = _mavenParameters->maxMz;
+    float minFeatureIntensity = _mavenParameters->minIntensity;
+    float maxFeatureIntensity = _mavenParameters->maxIntensity;
 
     int totalScans = 0;
     int currentScans = 0;
@@ -64,6 +207,8 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
 
     // Calculating the rt window using average distance between RTs and
     // mutiplying it with rtStep (default 2.0)
+    float rtWindow = 2.0f;
+    int rtStep = _mavenParameters->rtStepSize;
     if (_samples.size() > 0 and rtStep > 0) {
         rtWindow = accumulate(begin(_samples),
                               end(_samples),
@@ -77,14 +222,11 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
 
     sendSignal("Status", 0 , 1);
 
-    // #pragma omp parallel for ordered
-    // Looping over every sample
+    // looping over every sample
     for (unsigned int i = 0; i < _samples.size(); i++) {
-        if (slices.size() > _maxSlices) break;
-
-        // Check if Peak detection has been cancelled by the user
+        // Check if peak detection has been cancelled by the user
         if (_mavenParameters->stop) {
-            stopSlicing();
+            clearSlices();
             break;
         }
 
@@ -103,7 +245,7 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
         for (auto scan : _samples[i]->scans) {
             // Check if Peak detection has been cancelled by the user
             if (_mavenParameters->stop) {
-                stopSlicing();
+                clearSlices();
                 break;
             }
 
@@ -113,7 +255,7 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
                 continue;
 
             // Checking if RT is in the given min to max RT range
-            if (_maxRt && !isBetweenInclusive(scan->rt, _minRt, _maxRt))
+            if (!isBetweenInclusive(scan->rt, minFeatureRt, maxFeatureRt))
                 continue;
 
             float rt = scan->rt;
@@ -123,14 +265,12 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
                 float intensity = scan->intensity[k];
 
                 // Checking if mz, intensity are within specified ranges
-                if (_maxMz && !isBetweenInclusive(mz,
-                                                  _minMz,
-                                                  _maxMz)) {
+                if (!isBetweenInclusive(mz, minFeatureMz, maxFeatureMz))
                     continue;
-                }
-                if (_maxIntensity && !isBetweenInclusive(intensity,
-                                                         _minIntensity,
-                                                         _maxIntensity)) {
+
+                if (!isBetweenInclusive(intensity,
+                                        minFeatureIntensity,
+                                        maxFeatureIntensity)) {
                     continue;
                 }
 
@@ -171,13 +311,13 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
              }
              return slice->mz < compSlice->mz;
          });
-    _reduceSlices();
+    _reduceSlices(massCutoff);
 
     cerr << "Reduced to " << slices.size() << " slices" << endl;
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
     _mergeSlices(massCutoff, rtWindow);
-    _adjustSlices();
+    _adjustSlices(massCutoff);
 
     cerr << "After final merging and adjustments, "
          << slices.size()
@@ -186,11 +326,11 @@ void MassSlicer::findFeatureSlices(MassCutoff* massCutoff, int rtStep )
     sendSignal("Mass slicing done.", 1 , 1);
 }
 
-void MassSlicer::_reduceSlices()
+void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
 {
     for (auto first = begin(slices); first != end(slices); ++first) {
         if (_mavenParameters->stop) {
-            stopSlicing();
+            clearSlices();
             break;
         }
 
@@ -236,7 +376,7 @@ void MassSlicer::_reduceSlices()
 
                 firstSlice->mz = (firstSlice->mzmin + firstSlice->mzmax) / 2.0f;
                 firstSlice->rt = (firstSlice->rtmin + firstSlice->rtmax) / 2.0f;
-                float cutoff = _massCutoff->massCutoffValue(firstSlice->mz);
+                float cutoff = massCutoff->massCutoffValue(firstSlice->mz);
 
                 // make sure that mz window does not get out of control
                 if (firstSlice->mzmin < firstSlice->mz - cutoff)
@@ -297,7 +437,7 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
 
     for(auto it = begin(slices); it != end(slices); ++it) {
         if (_mavenParameters->stop) {
-            stopSlicing();
+            clearSlices();
             break;
         }
 
@@ -485,12 +625,12 @@ pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
     return make_pair(false, true);
 }
 
-void MassSlicer::_adjustSlices()
+void MassSlicer::_adjustSlices(MassCutoff* massCutoff)
 {
     size_t progressCount = 0;
     for (auto slice : slices) {
         if (_mavenParameters->stop) {
-            stopSlicing();
+            clearSlices();
             break;
         }
 
@@ -508,8 +648,7 @@ void MassSlicer::_adjustSlices()
                 }
             }
         }
-        float cutoff = _mavenParameters->massCutoffMerge
-                                       ->massCutoffValue(mzAtHighestIntensity);
+        float cutoff = massCutoff->massCutoffValue(mzAtHighestIntensity);
         slice->mzmin =  mzAtHighestIntensity - cutoff;
         slice->mzmax =  mzAtHighestIntensity + cutoff;
         slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;

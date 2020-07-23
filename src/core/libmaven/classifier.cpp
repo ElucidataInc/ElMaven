@@ -62,8 +62,8 @@ void Classifier::saveFeatures(vector<PeakGroup*>& groups, string filename) {
 			continue;
 		for (unsigned int j = 0; j < grp->peaks.size(); j++) {
 			vector<float> features = getFeatures(grp->peaks[j]);
-			fout << grp->peaks[j].label << ",";
-			fout << grp->groupId << ",";
+            fout << grp->peaks[j].label << ",";
+            fout << grp->groupId() << ",";
 			fout << grp->peaks[j].quality << ",";
 			for (int i = 0; i < num_features; i++) {
 				fout << features[i];

@@ -157,8 +157,7 @@ void TestCLI::testReduceGroups() {
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
         peakdetectorCLI->peakDetector->processCompounds(
-            peakdetectorCLI->mavenParameters->compounds,
-            "compounds");
+            peakdetectorCLI->mavenParameters->compounds);
         QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 23);
         peakdetectorCLI->reduceGroups();
         QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 21);
@@ -190,8 +189,7 @@ void TestCLI::testWriteReport() {
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
         peakdetectorCLI->peakDetector->processCompounds(
-            peakdetectorCLI->mavenParameters->compounds,
-            "compounds");
+            peakdetectorCLI->mavenParameters->compounds);
 
         peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv", false);
         QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));

@@ -1,5 +1,6 @@
 #include "backgroundopsthread.h"
 #include "Compound.h"
+#include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
@@ -313,8 +314,9 @@ void IsotopeWidget::populateByParentGroup(vector<Isotope> masslist, double paren
 		return;
 
     map<string, PeakGroup> isotopes;
-    if (!parentGroup->children.empty() && !parentGroup->tableName().empty()) {
-        for (auto child : parentGroup->children) {
+    if (!parentGroup->childIsotopes().empty()
+        && !parentGroup->tableName().empty()) {
+        for (auto child : parentGroup->childIsotopes()) {
             isotopes.insert(map<string, PeakGroup>::value_type(child->tagString,
                                                                *(child.get())));
         }
@@ -491,8 +493,8 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 		tag = QString(group->srmId.c_str());
 	if (tag.isEmpty() && group->meanMz > 0)
 		tag = QString::number(group->meanMz, 'f', 6) + "@" + QString::number(group->meanRt, 'f', 2);
-	if (tag.isEmpty())
-		tag = QString::number(group->groupId);
+    if (tag.isEmpty())
+        tag = QString::number(group->groupId());
 	QString isotopeInfo;
 
 	vector<mzSample *> vsamples = _mw->getVisibleSamples();
@@ -520,11 +522,11 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 
 	//get isotopic groups
 	vector<PeakGroup *> isotopes;
-	for (int i = 0; i < group->childCount(); i++)
+    for (int i = 0; i < group->childIsotopeCount(); i++)
     {
-        if (group->children[i]->isIsotope())
+        if (group->childIsotopes()[i]->isIsotope())
         {
-            PeakGroup *isotope = group->children[i].get();
+            PeakGroup *isotope = group->childIsotopes()[i].get();
 			isotopes.push_back(isotope);
 		}
 	}

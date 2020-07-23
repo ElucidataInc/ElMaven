@@ -22,6 +22,13 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
 macx: QMAKE_CXXFLAGS += -O3
 QMAKE_CXXFLAGS += -fopenmp
 
+CONFIG(debug, debug|release) {
+    linux|win32 {
+        QMAKE_CXXFLAGS -= -Ofast -ffast-math
+    }
+    macx: QMAKE_CXXFLAGS -= -O3
+}
+
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
     !isEmpty(IS_TRAVIS_PR)|!isEmpty(IS_APPVEYOR_PR) {
         CONFIG(debug, debug|release) {
@@ -29,11 +36,9 @@ QMAKE_CXXFLAGS += -fopenmp
                 message("adding gcov compiler flags")
                 QMAKE_CCFLAGS += -fprofile-arcs -ftest-coverage
                 QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
-                QMAKE_CXXFLAGS -= -Ofast -ffast-math
                 QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
                 QMAKE_LFLAGS += -lgcov --coverage
             }
-            macx: QMAKE_CXXFLAGS -= -O3
         }
     }
 }
@@ -114,7 +119,8 @@ SOURCES = base64.cpp \
           svmPredictor.cpp \
           zlib.cpp \
           adductdetection.cpp \
-          spectrallibexport.cpp
+          spectrallibexport.cpp \
+          datastructures/isotope.cpp
 
 HEADERS += constants.h \
            base64.h \
@@ -161,4 +167,5 @@ HEADERS += constants.h \
            groupFeatures.h \
            svmPredictor.h \
            adductdetection.h \
-           spectrallibexport.h
+           spectrallibexport.h \
+           datastructures/isotope.h

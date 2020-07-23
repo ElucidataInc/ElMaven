@@ -1025,7 +1025,6 @@ void SpectralHitsDockWidget::integrateMS1() {
                    ProteinHit* prot = proteinAccessionMap[cpd->name().c_str()];
                    if (prot) {
                         nearestGrp->tagString=prot->geneSymbol.toStdString();
-                        nearestGrp->metaGroupId=prot->proteinGroup;
                    }
                }
            }

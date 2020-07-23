@@ -11,7 +11,8 @@ class Adduct {
         Adduct(string name, int nmol, int charge, float mass);
         Adduct(const Adduct& a);
 
-        bool operator ==(const Adduct& other);
+        bool operator==(const Adduct& other);
+        bool operator<(const Adduct& other);
         string getName();
         int getCharge();
         int getNmol();

@@ -788,7 +788,6 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
         MavenParameters* mp = _mainwindow->mavenParameters;
         for (auto group : groups) {
             // assuming all groups are parent groups.
-            group->setMetaGroupIdForChildren();
             groupVector.push_back(group);
             if (group->hasCompoundLink()) {
                 auto compound = group->getCompound();
@@ -812,7 +811,7 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
     if (_currentProject) {
         _currentProject->deletePeakGroup(group);
         auto parentGroupId = group->parent == nullptr ? 0
-                                                      : group->parent->groupId;
+                                                      : group->parent->groupId();
         _currentProject->saveGroupAndPeaks(group,
                                            parentGroupId,
                                            tableName.toStdString());
@@ -901,7 +900,6 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         set<Compound*> compoundSet;
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
-                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
@@ -981,7 +979,6 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
-                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
@@ -1168,9 +1165,6 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
             dbNames.push_back(QString::fromStdString(group->getCompound()->db()));
         }
 
-        if (group->getAdduct() != nullptr)
-            group->setAdduct(DB.findAdductByName(group->getAdduct()->getName()));
-
         // assign group to bookmark table if none exists
         if (group->tableName().empty())
             group->setTableName("Bookmark Table");
@@ -1322,9 +1316,7 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         make_shared<MavenParameters>(*_mainwindow->mavenParameters),
         PeakGroup::IntegrationType::Programmatic);
 
-    group->groupId = xml.attributes().value("groupId").toString().toInt();
-    group->metaGroupId =
-        xml.attributes().value("metaGroupId").toString().toInt();
+    group->setGroupId(xml.attributes().value("groupId").toString().toInt());
     group->clusterId = xml.attributes().value("clusterId").toString().toInt();
     group->groupRank = xml.attributes().value("grouRank").toString().toFloat();
     group->tagIsotope(xml.attributes().value("tagString").toString().toStdString(),
@@ -1381,9 +1373,9 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     }
 
     if (parent) {
-        parent->addChild(*group);
-        if (parent->childCount() > 0)
-            group = parent->children[parent->children.size() - 1].get();
+        parent->addIsotopeChild(*group);
+        if (parent->childIsotopeCount() > 0)
+            group = parent->childIsotopes()[parent->childIsotopeCount() - 1].get();
     }
 
     return group;
@@ -1504,11 +1496,11 @@ vector<PeakGroup*> mzFileIO::readGroupsXML(QString fileName)
            if (xml.name() == "children") {
                 if (stack.size() > 0)
                     parent = stack.pop();
-                if (parent && parent->childCount()) {
-                    for (int i = 0; i < parent->children.size(); i++) {
-                        parent->children[i]->minQuality =
+                if (parent && parent->childIsotopeCount()) {
+                    for (int i = 0; i < parent->childIsotopes().size(); i++) {
+                        parent->childIsotopes()[i]->minQuality =
                             _mainwindow->mavenParameters->minQuality;
-                        parent->children[i]->groupStatistics();
+                        parent->childIsotopes()[i]->groupStatistics();
                     }
                 }
                 if (stack.size() == 0)

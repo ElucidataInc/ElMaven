@@ -165,8 +165,8 @@ void PeakEditor::_setRtRangeAndValues()
     // find min/max RT limit across isotopologues
     float minRt = rtBounds.first;
     float maxRt = rtBounds.second;
-    if (_group->childCount() > 0) {
-        for (auto child : _group->children) {
+    if (_group->childIsotopeCount() > 0) {
+        for (auto child : _group->childIsotopes()) {
             if (child->peakCount() == 0)
                 continue;
             minRt = min(minRt, child->minRt - rtBuffer);
@@ -178,7 +178,7 @@ void PeakEditor::_setRtRangeAndValues()
             minRt = parentGroup->minRt - rtBuffer;
             maxRt = parentGroup->maxRt + rtBuffer;
         }
-        for (auto child : parentGroup->children) {
+        for (auto child : parentGroup->childIsotopes()) {
             if (child->peakCount() == 0)
                 continue;
             minRt = min(minRt, child->minRt - rtBuffer);
@@ -200,7 +200,7 @@ void PeakEditor::_setRtRangeAndValues()
 
 void PeakEditor::_setSyncRtCheckbox()
 {
-    if (_group->childCount() == 0 && !_group->isIsotope()) {
+    if (_group->childIsotopeCount() == 0 && !_group->isIsotope()) {
         ui->syncRtCheckBox->setChecked(false);
         ui->syncRtCheckBox->setEnabled(false);
         return;
@@ -210,7 +210,8 @@ void PeakEditor::_setSyncRtCheckbox()
 
     MavenParameters* parameters = _group->parameters().get();
     if (parameters->linkIsotopeRtRange
-        && (_group->childCount() > 0 || _group->tagString == "C12 PARENT")) {
+        && (_group->childIsotopeCount() > 0
+            || _group->tagString == "C12 PARENT")) {
         ui->syncRtCheckBox->setChecked(true);
     } else {
         ui->syncRtCheckBox->setChecked(false);
@@ -360,7 +361,7 @@ void PeakEditor::_applyEdits()
         mp->linkIsotopeRtRange = true;
 
         PeakGroup* parentGroup = nullptr;
-        if (_group->childCount() > 0) {
+        if (_group->childIsotopeCount() > 0) {
             parentGroup = _group.get();
         } else if (_group->isIsotope()) {
             parentGroup = _group->parent;
@@ -374,7 +375,7 @@ void PeakEditor::_applyEdits()
 
         auto eics = getEicsForGroup(parentGroup);
         editGroup(parentGroup, eics);
-        for (auto child : parentGroup->children) {
+        for (auto child : parentGroup->childIsotopes()) {
             eics = getEicsForGroup(child.get());
             editGroup(child.get(), eics);
         }

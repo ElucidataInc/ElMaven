@@ -64,7 +64,7 @@ void TestMzAligner::testObiWarp()
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processCompounds(compounds);
 
     for(PeakGroup grp: mavenparameters->allgroups) {
 

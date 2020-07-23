@@ -2,6 +2,7 @@
 #include "Compound.h"
 #include "constants.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/isotope.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
@@ -60,7 +61,7 @@ void TestIsotopeDetection::testgetIsotopes() {
 
     maventests::database.loadCompoundCSVFile(loadCompoundDB);
     vector<Compound*> compounds = maventests::database.getCompoundsSubset("qe3_v11_2016_04_29");
-    peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processCompounds(compounds);
     PeakGroup* parentgroup = &mavenparameters->allgroups[0];
 
     string formula = parentgroup->getCompound()->formula();
@@ -136,7 +137,7 @@ void TestIsotopeDetection::testpullIsotopes() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    peakDetector.processCompounds(compounds, "compounds");
+    peakDetector.processCompounds(compounds);
     PeakGroup& parent = mavenparameters->allgroups[0];
 
     IsotopeDetection isotopeDetection1(
@@ -151,7 +152,7 @@ void TestIsotopeDetection::testpullIsotopes() {
     isotopeDetection1.pullIsotopes(&parent);
     
     //verify number of isotopes
-    QVERIFY(parent.childCount() == 2);
+    QVERIFY(parent.childIsotopeCount() == 2);
 
     //verify if isotopic correlation filter works
     mavenparameters->minIsotopicCorrelation = 1;
@@ -169,7 +170,7 @@ void TestIsotopeDetection::testpullIsotopes() {
     isotopeDetection2.pullIsotopes(&parent);
 
     //childCount for this group is 3 for minIsotopicCorrelation = 0.2
-    QVERIFY(parent.childCount() == 1);
+    QVERIFY(parent.childIsotopeCount() == 1);
 
     //verify if peaks are within specified rt distance
     mavenparameters->minIsotopicCorrelation = 0.2;
@@ -193,9 +194,9 @@ void TestIsotopeDetection::testpullIsotopes() {
     isotopeDetection3.pullIsotopes(&parent);
     
     int outlier = 0;
-    for (int i = 0; i < parent.children.size(); i++) 
+    for (int i = 0; i < parent.childIsotopeCount(); i++)
     {
-        auto child = parent.children[i];
+        auto child = parent.childIsotopes()[i];
         Peak* childPeak = child->getPeak(sample);
         if (!childPeak) continue;
         float rtDiff = abs(parentRt - childPeak->rt);
@@ -227,9 +228,9 @@ void TestIsotopeDetection::testpullIsotopes() {
     int N15_BPE = 0;
     int D2_BPE = 0;
     int C13_BPE = 0;
-    for (int i = 0; i < parent.children.size(); i++)
+    for (int i = 0; i < parent.childIsotopeCount(); i++)
     {
-        auto child = parent.children[i];
+        auto child = parent.childIsotopes()[i];
         string isotopeName = child->tagString;
         if (isotopeName.find(N15_LABEL) != string::npos || isotopeName.find(C13N15_LABEL) != string::npos)
             N15_BPE++;

@@ -45,8 +45,8 @@ void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
         out << "CATEGORY: "
             << mzUtils::join(compound->category(), ", ") << "\n";
         out << "SMILE: " << compound->smileString() << "\n";
-        if (group->getAdduct() != nullptr) {
-            out << "PRECURSORTYPE: " << group->getAdduct()->getName() << "\n";
+        if (group->adduct() != nullptr) {
+            out << "PRECURSORTYPE: " << group->adduct()->getName() << "\n";
         } else if (fragmentationProfile.polarity < 0) {
             out << "PRECURSORTYPE: [M-H]-\n";
         } else if (fragmentationProfile.polarity > 0) {

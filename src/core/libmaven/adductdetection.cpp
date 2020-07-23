@@ -51,8 +51,8 @@ AdductDetection::findAdducts(const vector<PeakGroup>& parentIons,
 
         auto compound = parentGroup.getCompound();
         for (const auto adduct : adductsList) {
-            if (parentGroup.getAdduct()) {
-                if (*adduct == *(parentGroup.getAdduct()))
+            if (parentGroup.adduct()) {
+                if (*adduct == *(parentGroup.adduct()))
                     continue;
             }
             if (SIGN(adduct->getCharge()) != SIGN(mp->ionizationMode))
@@ -89,15 +89,15 @@ void AdductDetection::filterAdducts(vector<PeakGroup>& groups,
 {
     for (auto it = begin(groups); it != end(groups); ) {
         auto& group = *it;
-        if (group.getAdduct() != nullptr && !group.getAdduct()->isParent()) {
+        if (group.adduct() != nullptr && !group.adduct()->isParent()) {
             // there can be multiple parent groups at different RT values
             vector<PeakGroup*> parentIons;
             for_each(begin(groups),
                      end(groups),
                      [&](PeakGroup& candidate) {
                          if (candidate.getCompound() == group.getCompound()
-                             && candidate.getAdduct() != nullptr
-                             && candidate.getAdduct()->isParent()) {
+                             && candidate.adduct() != nullptr
+                             && candidate.adduct()->isParent()) {
                              parentIons.push_back(&candidate);
                          }
                      });
@@ -174,9 +174,7 @@ void AdductDetection::filterAdducts(vector<PeakGroup>& groups,
                 continue;
             }
 
-            group.parentIon = bestMatch;
-            auto sharedGroup = make_shared<PeakGroup>(group);
-            bestMatch->childAdducts.push_back(sharedGroup);
+            bestMatch->addAdductChild(group);
         }
         ++it;
     }
