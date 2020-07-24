@@ -164,7 +164,7 @@ public:
    */ 
   bool deleteAllgroupsWarning();
   
-public Q_SLOTS:
+public slots:
   void updateCompoundWidget();
   shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
@@ -309,10 +309,11 @@ protected:
   void focusInEvent(QFocusEvent *event);
   void focusOutEvent(QFocusEvent *event);
 
-Q_SIGNALS:
+signals:
   void updateProgressBar(QString, int, int, bool = false);
   void UploadPeakBatch();
   void renderedPdf();
+  void ghostPeakGroupSelected(bool);
 
 protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
@@ -352,10 +353,10 @@ private:
 private:
   void cleanUp();
 
-private Q_SLOTS:
+private slots:
   void showDeletionDialog();
 
-Q_SIGNALS:
+signals:
   void unSetFromEicWidget(shared_ptr<PeakGroup>);
 };
 

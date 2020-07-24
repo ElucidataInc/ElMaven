@@ -1012,16 +1012,24 @@ bool TableDockWidget::selectPeakGroup(shared_ptr<PeakGroup> group)
   return false;
 }
 
-void TableDockWidget::showSelectedGroup() {
-
+void TableDockWidget::showSelectedGroup()
+{
   QTreeWidgetItem *item = treeWidget->currentItem();
   if (!item)
     return;
 
   QVariant v = item->data(0, Qt::UserRole);
   shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
-  if (group != nullptr)
-    _mainwindow->setPeakGroup(group);
+  if (group == nullptr)
+    return;
+
+  if (group->isGhost()) {
+    emit ghostPeakGroupSelected(true);
+  } else {
+    emit ghostPeakGroupSelected(false);
+  }
+
+  _mainwindow->setPeakGroup(group);
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
@@ -2035,35 +2043,30 @@ void TableDockWidget::setDefaultStyle(bool isActive)
     setStyleSheet(style);
 }
 
-QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
+QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
+{
   if (btnName == "titlePeakTable") {
-
     td->titlePeakTable = new QLabel(parent);
     QFont font;
     font.setPointSize(14);
     td->titlePeakTable->setFont(font);
-
     td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
-
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
     td->setWindowTitle(td->titlePeakTable->text());
-
     return td->titlePeakTable;
   } else if (btnName == "btnSwitchView") {
-
     QToolButton *btnSwitchView = new QToolButton(parent);
     btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
     btnSwitchView->setToolTip("Switch between Group and Peak Views");
     connect(btnSwitchView, SIGNAL(clicked()), td, SLOT(switchTableView()));
     return btnSwitchView;
   } else if (btnName == "btnGroupCSV") {
-
     QToolButton *btnGroupCSV = new QToolButton(parent);
-
     btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
     btnGroupCSV->setToolTip(tr("Export Groups To SpreadSheet (.csv) "));
     btnGroupCSV->setMenu(new QMenu("Export Groups"));
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
+
     QAction *exportSelected =
         btnGroupCSV->menu()->addAction(tr("Export selected groups"));
     QAction *exportAll =
@@ -2115,7 +2118,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     connect(exportBad, SIGNAL(triggered()), td, SLOT(showNotification()));
     return btnGroupCSV;
   } else if (btnName == "btnSaveJson") {
-
     QToolButton *btnSaveJson = new QToolButton(parent);
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
     btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
@@ -2123,53 +2125,60 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
-
     QToolButton *btnScatter = new QToolButton(parent);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
     btnScatter->setToolTip("Show ScatterPlot");
     connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
     return btnScatter;
   } else if (btnName == "btnCluster") {
-
     QToolButton *btnCluster = new QToolButton(parent);
     btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
     btnCluster->setToolTip("Cluster Groups");
     connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
     return btnCluster;
   } else if (btnName == "btnGood") {
-
     QToolButton *btnGood = new QToolButton(parent);
     btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
     btnGood->setToolTip("Mark selected group as good");
     connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
+    connect(td,
+            &TableDockWidget::ghostPeakGroupSelected,
+            btnGood,
+            &QToolButton::setDisabled);
     return btnGood;
   } else if (btnName == "btnBad") {
-
     QToolButton *btnBad = new QToolButton(parent);
     btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
     btnBad->setToolTip("Mark selected group as bad");
     connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
+    connect(td,
+            &TableDockWidget::ghostPeakGroupSelected,
+            btnBad,
+            &QToolButton::setDisabled);
     return btnBad;
   } else if (btnName == "btnUnmark") {
     QToolButton *btnUnmark = new QToolButton(parent);
     btnUnmark->setIcon(QIcon(rsrcPath + "/unmark.png"));
     btnUnmark->setToolTip("Unmark selected group from good/bad");
     connect(btnUnmark, SIGNAL(clicked()), td, SLOT(unmarkGroup()));
+    connect(td,
+            &TableDockWidget::ghostPeakGroupSelected,
+            btnUnmark,
+            &QToolButton::setDisabled);
     return btnUnmark;
-  } else if (btnName == "btnHeatmapelete") {
-
-    QToolButton *btnHeatmapelete = new QToolButton(parent);
-    btnHeatmapelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
-    btnHeatmapelete->setToolTip("Delete Group");
-    connect(btnHeatmapelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
-    return btnHeatmapelete;
+  } else if (btnName == "btnDelete") {
+    QToolButton *btnDelete = new QToolButton(parent);
+    btnDelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
+    btnDelete->setToolTip("Delete Group");
+    connect(btnDelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
+    return btnDelete;
   } else if (btnName == "btnPDF") {
-
     QToolButton *btnPDF = new QToolButton(parent);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
     btnPDF->setToolTip("Generate PDF Report");
     btnPDF->setMenu(new QMenu("Export Groups"));
     btnPDF->setPopupMode(QToolButton::InstantPopup);
+
     QAction *exportSelected =
         btnPDF->menu()->addAction(tr("Export selected groups"));
     QAction *exportAll =
@@ -2182,18 +2191,13 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
     connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
     connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
-
-
-
     return btnPDF;
   } else if (btnName == "btnX") {
-
     QToolButton *btnX = new QToolButton(parent);
     btnX->setIcon(td->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
     return btnX;
   } else if (btnName == "btnMin") {
-
     QToolButton *btnMin = new QToolButton(parent);
     btnMin->setIcon(td->style()->standardIcon(QStyle::SP_TitleBarMinButton));
     connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
@@ -2210,23 +2214,33 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent) {
   } else if (btnName == "btnEditPeakGroup") {
     QToolButton *btnEditPeakGroup = new QToolButton(parent);
     btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
-    btnEditPeakGroup->setToolTip("Edit the peak area or baseline for individual peaks of the selected peak-group.");
+    btnEditPeakGroup->setToolTip("Edit the peak area or baseline for "
+                                 "individual peaks of the selected peak-group.");
     connect(btnEditPeakGroup,
             &QToolButton::clicked,
             td,
             &TableDockWidget::editSelectedPeakGroup);
+    connect(td,
+            &TableDockWidget::ghostPeakGroupSelected,
+            btnEditPeakGroup,
+            &QToolButton::setDisabled);
     return btnEditPeakGroup;
   } else if (btnName == "btnSettingsLog") {
     QToolButton *btnSettingsLog = new QToolButton(parent);
     btnSettingsLog->setIcon(QIcon(rsrcPath + "/settingsLog.png"));
-    btnSettingsLog->setToolTip("Show a log of settings that were used while integrating the selected peak-group.");
+    btnSettingsLog->setToolTip("Show a log of settings that were used while "
+                               "integrating the selected peak-group.");
     connect(btnSettingsLog,
             &QToolButton::clicked,
             td,
             &TableDockWidget::showIntegrationSettings);
+    connect(td,
+            &TableDockWidget::ghostPeakGroupSelected,
+            btnSettingsLog,
+            &QToolButton::setDisabled);
     return btnSettingsLog;
   } else {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2264,8 +2278,8 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnBad");
   QWidgetAction *btnUnmark =
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnHeatmapelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnDelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnSettingsLog =
@@ -2282,7 +2296,7 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnHeatmapelete);
+  toolBar->addAction(btnDelete);
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
@@ -2389,8 +2403,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnBad");
   QWidgetAction *btnUnmark =
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnHeatmapelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnDelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnSettingsLog =
@@ -2406,7 +2420,7 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnHeatmapelete);
+  toolBar->addAction(btnDelete);
   toolBar->addWidget(btnMerge);
 
   toolBar->addSeparator();
@@ -2714,8 +2728,8 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnBad");
   QWidgetAction *btnUnmark =
       new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnHeatmapelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnHeatmapelete");
+  QWidgetAction *btnDelete =
+      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
   QWidgetAction *btnEditPeakGroup =
       new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
   QWidgetAction *btnSettingsLog =
@@ -2731,7 +2745,7 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnHeatmapelete);
+  toolBar->addAction(btnDelete);
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
