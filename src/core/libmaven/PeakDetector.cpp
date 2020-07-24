@@ -251,14 +251,14 @@ void PeakDetector::processCompounds(vector<Compound*> compounds)
     if (_mavenParameters->pullIsotopesFlag
         && _mavenParameters->searchAdducts
         && !srmTransitionPresent) {
-        setName = "isotopologue and adduct groups";
+        setName = "isotopologues and adducts";
         massSlicer.generateIsotopeSlices(compounds);
         massSlicer.generateAdductSlices(compounds, true, false);
     } else if (_mavenParameters->pullIsotopesFlag && !srmTransitionPresent) {
-        setName = "isotopologue groups";
+        setName = "isotopologues";
         massSlicer.generateIsotopeSlices(compounds);
     } else if (_mavenParameters->searchAdducts && !srmTransitionPresent) {
-        setName = "adduct groups";
+        setName = "adducts";
         massSlicer.generateAdductSlices(compounds);
     } else {
         massSlicer.generateCompoundSlices(compounds);
@@ -609,25 +609,28 @@ void PeakDetector::performMetaGrouping()
                 metaGroups[parentIndex].push_back(childIndex);
             }
 
-            // for orphans, create a ghost, that will act as an empty parent
-            PeakGroup parentGroup(
-                make_shared<MavenParameters>(*_mavenParameters),
-                PeakGroup::IntegrationType::Ghost);
-            container.push_back(parentGroup);
+            if (!orphans.empty()) {
+                // for orphans, create a ghost, that will act as an empty parent
+                PeakGroup parentGroup(
+                    make_shared<MavenParameters>(*_mavenParameters),
+                    PeakGroup::IntegrationType::Ghost);
+                container.push_back(parentGroup);
 
-            // set an appropriate slice for ghost parent
-            mzSlice slice;
-            slice.compound = compound;
-            slice.calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
-                                    _mavenParameters->getCharge(compound));
-            slice.calculateRTMinMax(false, 0.0f);
-            container.back().setSlice(slice);
+                // set an appropriate slice for ghost parent
+                mzSlice slice;
+                slice.compound = compound;
+                slice.calculateMzMinMax(
+                    _mavenParameters->compoundMassCutoffWindow,
+                    _mavenParameters->getCharge(compound));
+                slice.calculateRTMinMax(false, 0.0f);
+                container.back().setSlice(slice);
 
-            size_t totalSize = container.size();
-            container.back().setGroupId(totalSize);
-            metaGroups[totalSize - 1] = {};
-            for (auto child : orphans)
-                metaGroups[totalSize - 1].push_back(child);
+                size_t totalSize = container.size();
+                container.back().setGroupId(totalSize);
+                metaGroups[totalSize - 1] = {};
+                for (auto child : orphans)
+                    metaGroups[totalSize - 1].push_back(child);
+            }
 
             return metaGroups;
         };
