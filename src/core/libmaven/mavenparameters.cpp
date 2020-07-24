@@ -49,6 +49,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 
         // to allow adduct matching
         searchAdducts = false;
+        filterAdductsAgainstParent = true;
         adductSearchWindow = 0.1f;
         adductPercentCorrelation = 90.0f;
 
@@ -100,6 +101,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         amuQ3 = 0.5;
         filterline = "";
 
+        filterIsotopesAgainstParent = true;
         maxIsotopeScanDiff = 10;
         minIsotopicCorrelation = 0;
         linkIsotopeRtRange = true;
@@ -211,6 +213,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     limitGroupCount = mp.limitGroupCount;
 
     searchAdducts = mp.searchAdducts;
+    filterAdductsAgainstParent = mp.filterAdductsAgainstParent;
     adductSearchWindow = mp.adductSearchWindow;
     adductPercentCorrelation = mp.adductPercentCorrelation;
     setChosenAdductList(mp.getChosenAdductList());
@@ -264,6 +267,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     amuQ3 = mp.amuQ3;
     filterline = mp.filterline;
 
+    filterIsotopesAgainstParent = mp.filterIsotopesAgainstParent;
     maxIsotopeScanDiff = mp.maxIsotopeScanDiff;
     minIsotopicCorrelation = mp.minIsotopicCorrelation;
     linkIsotopeRtRange = mp.linkIsotopeRtRange;
@@ -312,7 +316,7 @@ std::map<string, string>& MavenParameters::getSettings()
     return mavenSettings;
 }
 
-void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* value)
+void MavenParameters::setIsotopeDialogSettings(const char* key, const char* value)
 {
     if(key[0] == '\0' || value[0] == '\0')
         return;
@@ -334,6 +338,9 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
     if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
 
+    if(strcmp(key, "filterIsotopesAgainstParent") == 0)
+        filterIsotopesAgainstParent = atoi(value);
+
     if(strcmp(key, "minIsotopeParentCorrelation") == 0)
         minIsotopicCorrelation = atof(value);
 
@@ -342,6 +349,22 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
 
     if(strcmp(key, "linkIsotopeRtRange") == 0)
         linkIsotopeRtRange = atoi(value);
+}
+
+void MavenParameters::setAdductsDialogSettings(const char* key,
+                                               const char* value)
+{
+    if(strcmp(key, "searchAdducts") == 0)
+        searchAdducts = atof(value);
+
+    if(strcmp(key, "filterAdductsAgainstParent") == 0)
+        filterAdductsAgainstParent = atof(value);
+
+    if(strcmp(key, "adductSearchWindow") == 0)
+        adductSearchWindow = atof(value);
+
+    if(strcmp(key, "adductPercentCorrelation") == 0)
+        adductPercentCorrelation = atof(value);
 }
 
 std::vector<Adduct*> MavenParameters::getDefaultAdductList()
@@ -438,15 +461,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if(strcmp(key, "limitGroupsPerCompound") == 0 )
         eicMaxGroups = atof(value);
-
-    if(strcmp(key, "searchAdducts") == 0 )
-        searchAdducts = atof(value);
-
-    if(strcmp(key, "adductSearchWindow") == 0 )
-        adductSearchWindow = atof(value);
-
-    if(strcmp(key, "adductPercentCorrelation") == 0 )
-        adductPercentCorrelation = atof(value);
 
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);

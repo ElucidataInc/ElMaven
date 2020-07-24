@@ -171,6 +171,7 @@ class MavenParameters
 
         // to allow adduct matching
         bool searchAdducts;
+        bool filterAdductsAgainstParent;
         float adductSearchWindow;
         float adductPercentCorrelation;
 
@@ -225,6 +226,7 @@ class MavenParameters
         float minQuality;
         string ligandDbFilename;
 
+        bool filterIsotopesAgainstParent;
         double maxIsotopeScanDiff;
         double minIsotopicCorrelation;
         bool linkIsotopeRtRange;
@@ -289,6 +291,13 @@ class MavenParameters
          */
         void setIsotopeDialogSettings(const char* key, const char* value);
         
+        /**
+         * @brief Update settings related to adduct detection.
+         * @param key Name of the setting.
+         * @param value Value to be set.
+         */
+        void setAdductsDialogSettings(const char* key, const char* value);
+
         /*
          * @brief update maveSettings(map) and settings related to peak detection
          */

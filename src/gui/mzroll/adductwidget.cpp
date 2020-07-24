@@ -1,4 +1,5 @@
 #include "adductwidget.h"
+#include "common/analytics.h"
 #include "Compound.h"
 #include "database.h"
 #include "datastructures/adduct.h"
@@ -11,15 +12,72 @@
 #include "numeric_treewidgetitem.h"
 #include "Scan.h"
 
+AdductsDialogSettings::AdductsDialogSettings(AdductWidget* dialog) : id(dialog)
+{
+    settings.insert("searchAdducts", QVariant::fromValue(id->searchAdducts));
+    settings.insert("filterAdductsAgainstParent", QVariant::fromValue(id->filterAdductsAgainstParent));
+    settings.insert("adductSearchWindow", QVariant::fromValue(id->adductSearchWindow));
+    settings.insert("adductPercentCorrelation", QVariant::fromValue(id->adductPercentCorrelation));
+}
+
+void AdductsDialogSettings::updateAdductsDialogSettings(string key,
+                                                        string value)
+{
+    QString k(QString(key.c_str()));
+    if (settings.find(k) != settings.end()
+        && !value.empty()) {
+        const QVariant& v = settings[k];
+        // convert the val to proper type;
+        if(QString(v.typeName()).contains("QDoubleSpinBox"))
+            v.value<QDoubleSpinBox*>()->setValue(std::stod(value));
+
+        if(QString(v.typeName()).contains("QGroupBox"))
+            v.value<QGroupBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QCheckBox"))
+            v.value<QCheckBox*>()->setChecked(std::stod(value));
+
+        if(QString(v.typeName()).contains("QSpinBox"))
+            v.value<QSpinBox*>()->setValue(std::stod(value));
+
+        emit id->settingsUpdated(k, v);
+    }
+}
+
 AdductWidget::AdductWidget(MainWindow* parent) :
     QDialog(parent)
 {
     _mw = parent;
     setupUi(this);
     setModal(false);
-    setWindowTitle("Adducts");
+    setWindowTitle("Adduct settings");
 
     qRegisterMetaType<Adduct*>("Adduct*");
+    _adductSettings = new AdductsDialogSettings(this);
+
+    connect(resetToDefaults,
+            &QPushButton::clicked,
+            this,
+            &AdductWidget::onReset);
+    connect(this,
+            &AdductWidget::settingsChanged,
+            _adductSettings,
+            &AdductsDialogSettings::updateAdductsDialogSettings);
+    connect(this,
+            &QDialog::rejected,
+            this,
+            &AdductWidget::triggerSettingsUpdate);
+
+    connect(searchAdducts,
+            &QCheckBox::toggled,
+            [this](const bool checked)
+            {
+                QString state = checked? "On" : "Off";
+                _mw->getAnalytics()->hitEvent("Peak Detection",
+                                              "Adduct Detection Swtiched",
+                                              state);
+                _updateWindowState();
+            });
 
     connect(adductList,
             &QTreeWidget::itemChanged,
@@ -92,6 +150,23 @@ void AdductWidget::selectAdductsForCurrentPolarity()
     _mw->mavenParameters->setChosenAdductList(getSelectedAdducts());
 }
 
+void AdductWidget::triggerSettingsUpdate()
+{
+    emit updateSettings(_adductSettings);
+}
+
+void AdductWidget::onReset()
+{
+    emit resetSettings(_adductSettings->getSettings().keys());
+}
+
+void AdductWidget::show()
+{
+    if (_mw == nullptr) return;
+    _mw->getAnalytics()->hitScreenView("AdductDialog");
+    QDialog::exec();
+}
+
 void AdductWidget::showEvent(QShowEvent* event)
 {
     QDialog::showEvent(event);
@@ -102,4 +177,16 @@ void AdductWidget::hideEvent(QHideEvent* event)
 {
     _mw->mavenParameters->setChosenAdductList(getSelectedAdducts());
     QDialog::hideEvent(event);
+}
+
+void AdductWidget::_updateWindowState()
+{
+    if (searchAdducts->isChecked()) {
+        filterAdductsAgainstParent->setEnabled(true);
+        adductList->setEnabled(true);
+    } else {
+        filterAdductsAgainstParent->setChecked(false);
+        filterAdductsAgainstParent->setEnabled(false);
+        adductList->setEnabled(false);
+    }
 }

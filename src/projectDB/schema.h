@@ -264,7 +264,9 @@
                                               , adduct_search_window             REAL    \
                                               , adduct_percent_correlation       REAL    \
                                               , alignment_algorithm              INTEGER \
-                                              , active_table_name                TEXT    );"
+                                              , active_table_name                TEXT    \
+                                              , filter_isotopes_against_parent   INTEGER \
+                                              , filter_adducts_against_parent    INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

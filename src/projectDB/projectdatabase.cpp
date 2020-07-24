@@ -873,6 +873,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":n15_label_bpe", BINT(settingsMap.at("N15LabelBPE")));
     settingsQuery->bind(":s34_label_bpe", BINT(settingsMap.at("S34LabelBPE")));
 
+    settingsQuery->bind(":filter_isotopes_against_parent", BINT(settingsMap.at("filterIsotopesAgainstParent")));
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
     settingsQuery->bind(":max_isotope_scan_diff", BINT(settingsMap.at("maxIsotopeScanDiff")));
     settingsQuery->bind(":link_isotope_rt_range", BINT(settingsMap.at("linkIsotopeRtRange")));
@@ -910,6 +911,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":compound_rt_window", BDOUBLE(settingsMap.at("compoundRtWindow")));
     settingsQuery->bind(":limit_groups_per_compound", BINT(settingsMap.at("limitGroupsPerCompound")));
     settingsQuery->bind(":search_adducts", BINT(settingsMap.at("searchAdducts")));
+    settingsQuery->bind(":filter_adducts_against_parent", BINT(settingsMap.at("filterAdductsAgainstParent")));
     settingsQuery->bind(":adduct_search_window", BDOUBLE(settingsMap.at("adductSearchWindow")));
     settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
 
@@ -1551,6 +1553,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
     settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
 
+    settingsMap["filterIsotopesAgainstParent"] = variant(settingsQuery->integerValue("filter_isotopes_against_parent"));
     settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
     settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
     settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
@@ -1587,7 +1590,9 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
     settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
     settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
+
     settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
+    settingsMap["filterAdductsAgainstParent"] = variant(settingsQuery->integerValue("filter_adducts_against_parent"));
     settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
     settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
 
@@ -1920,6 +1925,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["N15LabelBPE"] = static_cast<int>(mp->N15Labeled_BPE);
     settingsMap["S34LabelBPE"] = static_cast<int>(mp->S34Labeled_BPE);
 
+    settingsMap["filterIsotopesAgainstParent"] = static_cast<int>(mp->filterIsotopesAgainstParent);
     settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
     settingsMap["maxIsotopeScanDiff"] = static_cast<int>(mp->maxIsotopeScanDiff);
     settingsMap["linkIsotopeRtRange"] = static_cast<int>(mp->linkIsotopeRtRange);
@@ -1957,6 +1963,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["compoundRtWindow"] = static_cast<double>(mp->compoundRTWindow);
     settingsMap["limitGroupsPerCompound"] = mp->eicMaxGroups;
     settingsMap["searchAdducts"] = static_cast<int>(mp->searchAdducts);
+    settingsMap["filterAdductsAgainstParent"] = static_cast<int>(mp->filterAdductsAgainstParent);
     settingsMap["adductSearchWindow"] = static_cast<double>(mp->adductSearchWindow);
     settingsMap["adductPercentCorrelation"] = static_cast<double>(mp->adductPercentCorrelation);
 
@@ -2054,6 +2061,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.N15Labeled_BPE = static_cast<bool>(BINT(settingsMap["N15LabelBPE"]));
     mp.S34Labeled_BPE = static_cast<bool>(BINT(settingsMap["S34LabelBPE"]));
 
+    mp.filterIsotopesAgainstParent = static_cast<bool>(BINT(settingsMap["filterIsotopesAgainstParent"]));
     mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
     mp.maxIsotopeScanDiff = BINT(settingsMap["maxIsotopeScanDiff"]);
     mp.linkIsotopeRtRange = static_cast<bool>(BINT(settingsMap["linkIsotopeRtRange"]));
@@ -2091,6 +2099,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.compoundRTWindow = BDOUBLE(settingsMap["compoundRtWindow"]);
     mp.eicMaxGroups = BINT(settingsMap["limitGroupsPerCompound"]);
     mp.searchAdducts = static_cast<bool>(BINT(settingsMap["searchAdducts"]));
+    mp.filterAdductsAgainstParent = static_cast<bool>(BINT(settingsMap["filterAdductsAgainstParent"]));
     mp.adductSearchWindow = BDOUBLE(settingsMap["adductSearchWindow"]);
     mp.adductPercentCorrelation = BDOUBLE(settingsMap["adductPercentCorrelation"]);
 

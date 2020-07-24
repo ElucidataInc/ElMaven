@@ -1,4 +1,3 @@
-#include "adductwidget.h"
 #include "Compound.h"
 #include "ligandwidget.h"
 #include "alignmentdialog.h"
@@ -40,8 +39,6 @@ LigandWidget::LigandWidget(MainWindow* mw)
   connect(treeWidget,
           SIGNAL(itemClicked(QTreeWidgetItem*, int)),
           SLOT(showLigand()));
-
-  adductWidget = new AdductWidget(_mw);
   
   QToolBar *toolBar = new QToolBar(this);
   toolBar->setFloatable(false);
@@ -69,14 +66,8 @@ LigandWidget::LigandWidget(MainWindow* mw)
           _mw->getLibraryManager(),
           &LibraryManager::exec);
 
-  btnAdducts = new QToolButton(toolBar);
-  btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
-  btnAdducts->setToolTip("Open Adducts widget");
-  connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
-
   toolBar->addWidget(databaseSelect);
   toolBar->addWidget(libraryButton);
-  toolBar->addWidget(btnAdducts);
 
   //Feature updated when merging with Maven776- Filter out compounds based on a keyword.
   filterEditor = new QLineEdit(toolBar);
@@ -94,16 +85,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
   setTitleBarWidget(toolBar);
   setWindowTitle("Compounds");
 
-  // Fetches and reads compounds from a remote location when fetch button is clicked - Kiran
-  disconnect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()));
-  connect(_mw->settingsForm->fetchCompounds,SIGNAL(clicked()),this,SLOT(fetchRemoteCompounds()));
-  connect(this, SIGNAL(mzrollSetDB(QString)), _mw, SLOT(mzrollLoadDB(QString)));
-
-  m_manager = new QNetworkAccessManager(this);
-  connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
-
     QDirIterator itr(":/databases/");
-
     while(itr.hasNext()) {
         auto filename = itr.next().toStdString();
         string dbname = mzUtils::cleanFilename(filename);
@@ -132,27 +114,8 @@ LigandWidget::LigandWidget(MainWindow* mw)
   while (i.hasNext())
       databaseSelect->addItem(i.next());
 
-  QDirIterator adductItr(":/databases/Adducts/");
-
-    while (adductItr.hasNext()) {
-        auto filename = adductItr.next().toStdString();
-        int lineCount = 0;
-        QFile file(QString(filename.c_str()));
-        if (!file.open(QFile::ReadOnly)) 
-            return;
-        while (!file.atEnd()) {
-            QString tempLine = file.readLine().trimmed();
-            if (tempLine.isEmpty()) continue;
-            lineCount++;
-            DB.loadAdducts(tempLine.toStdString(), lineCount); 
-        }
-    }
-
-    adductWidget->loadAdducts();
-
   connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
   connect(databaseSelect, SIGNAL(currentIndexChanged(QString)), this, SLOT(setDatabase(QString)));
-
 }
 
 QString LigandWidget::getDatabaseName() {

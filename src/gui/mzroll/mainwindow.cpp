@@ -696,6 +696,21 @@ using namespace mzUtils;
 
 	showNormal();	//return from full screen on startup
 
+    QDirIterator adductItr(":/databases/Adducts/");
+    while (adductItr.hasNext()) {
+        auto filename = adductItr.next().toStdString();
+        int lineCount = 0;
+        QFile file(QString(filename.c_str()));
+        if (!file.open(QFile::ReadOnly))
+            return;
+        while (!file.atEnd()) {
+            QString tempLine = file.readLine().trimmed();
+            if (tempLine.isEmpty()) continue;
+            lineCount++;
+            DB.loadAdducts(tempLine.toStdString(), lineCount);
+        }
+    }
+    adductWidget->loadAdducts();
 
 	//Starting server to fetch remote data - Kiran
 	//Added when merged with Maven776
@@ -1300,7 +1315,7 @@ void MainWindow::setIonizationModeLabel() {
 	ionizationModeLabel->setText(ionMode);
 
     isotopeWidget->setCharge(mode);
-    ligandWidget->getAdductWidget()->selectAdductsForCurrentPolarity();
+    adductWidget->selectAdductsForCurrentPolarity();
 	setTotalCharge();
 }
 
@@ -3176,65 +3191,75 @@ void MainWindow::createToolBars() {
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
     toolBar->setStyleSheet(style);
-
+    
+    QString tooltipStyle = "QToolTip {"
+                           " color: #000000;"
+                           " background-color: #fbfbd5;"
+                           " border: 1px solid black;"
+                           " padding: 1px;"
+                           "}";
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
 	btnOpen->setIcon(QIcon(rsrcPath + "/fileopen.png"));
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnOpen->setToolTip(tr("Sample uploads"));
+    btnOpen->setStyleSheet(tooltipStyle);
+    btnOpen->setToolTip(tr("Import samples or projects"));
 
     connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
    
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
-	btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnAlign->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnAlign->setToolTip(tr("Peak Alignment settings"));
+    btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnAlign->setStyleSheet(tooltipStyle);
+    btnAlign->setToolTip(tr("Peak alignment settings"));
 
     QToolButton *btnIsotope = new QToolButton(toolBar);
     btnIsotope->setText("Isotopes");
     btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
     btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnIsotope->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solic black; padding: 1px;}");
-    btnIsotope->setToolTip(tr("Isotope settings"));
+    btnIsotope->setStyleSheet(tooltipStyle);
+    btnIsotope->setToolTip(tr("Isotope detection settings"));
 
-	//TODO: Sahil-Kiran, Removed while merging mainwindow
-	//QToolButton *btnDbSearch = new QToolButton(toolBar);
-	//btnDbSearch->setText("Databases");
-	//btnDbSearch->setIcon(QIcon(rsrcPath + "/dbsearch.png"));
-	//btnDbSearch->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	//btnDbSearch->setToolTip(tr("Database Search"));
+    QToolButton *btnAdducts = new QToolButton(toolBar);
+    btnAdducts->setText("Adducts");
+    btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
+    btnAdducts->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnAdducts->setStyleSheet(tooltipStyle);
+    btnAdducts->setToolTip("Adduct detection settings");
 
 	QToolButton *btnFeatureDetect = new QToolButton(toolBar);
 	btnFeatureDetect->setText("Peaks");
 	btnFeatureDetect->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
-	btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnFeatureDetect->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnFeatureDetect->setToolTip(tr("Peak Detection and Group Filtering Settings"));
+    btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnFeatureDetect->setStyleSheet(tooltipStyle);
+    btnFeatureDetect->setToolTip(tr("Peak detection and group filtering settings"));
 
 	QToolButton *btnPollyBridge = new QToolButton(toolBar);
-	btnPollyBridge->setText("Polly");
+    btnPollyBridge->setText("Polly™");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
-	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPollyBridge->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnPollyBridge->setToolTip(tr("Send Peaks to Polly to store, collaborate, analyse and visualise your data"));
-
-	// QToolButton *btnSpectraMatching = new QToolButton(toolBar);
-	// btnSpectraMatching->setText("Match");
-	// btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
-	// btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	// btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	// btnSpectraMatching->setToolTip(
-	// 		tr("Matching Spectra for Fragmentation Patterns"));
+    btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnPollyBridge->setStyleSheet(tooltipStyle);
+    btnPollyBridge->setToolTip(tr("Send peaks to Polly™ to store, collaborate, "
+                                  "analyse and visualise your data"));
 
 	QToolButton *btnSettings = new QToolButton(toolBar);
 	btnSettings->setText("Options");
 	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
-	btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnSettings->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnSettings->setToolTip(tr("1. Instrumentation: Ionization settings\n2. File Import: Scan filter settings\n3. Peak Detection: EIC smoothing and baseline settings\n4. Peak Filtering: Parent and Isotopic peak filtering settings\n5. Isotope Detection: Isotopic label filters\n6. EIC (XIC): EIC type selection\n7. Peak Grouping: Peak Grouping Score calculation\n8. Group Rank: Group Rank calculation - Group Rank decides which groups are selected for a given m/z"));
+    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnSettings->setStyleSheet(tooltipStyle);
+    btnSettings->setToolTip(tr("1. Instrumentation: ionization settings\n"
+                               "2. File import: scan filter settings\n"
+                               "3. Peak detection: EIC smoothing and baseline "
+                               "settings\n"
+                               "4. Peak filtering: parent and isotopic peak "
+                               "filtering settings\n"
+                               "5. Isotope detection: isotopic label filters\n"
+                               "6. EIC (XIC): EIC type selection\n"
+                               "7. Peak grouping: peak-group score "
+                               "calculation\n"
+                               "8. Group rank: group rank calculation decides "
+                               "which groups are selected for a given m/z"));
 
     QToolButton *btnInfo = new QToolButton(toolBar);
     btnInfo->setText("Support");
@@ -3251,8 +3276,8 @@ void MainWindow::createToolBars() {
 
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
-	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
-	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
+    connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
+    connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
 	//connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
@@ -3264,7 +3289,8 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
     toolBar->addWidget(btnIsotope);
-	toolBar->addWidget(btnFeatureDetect);
+    toolBar->addWidget(btnAdducts);
+    toolBar->addWidget(btnFeatureDetect);
 	//toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
@@ -3280,12 +3306,6 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox=  new QComboBox(hBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
-    /*if(settings->value("massCutoffType")=="mDa"){
-        massCutoffComboBox->setCurrentText("mDa");
-    }
-    else{
-        massCutoffComboBox->setCurrentText("ppm");
-    }*/
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
 

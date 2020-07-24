@@ -5,6 +5,7 @@
 
 class DownloadManager;
 class IsotopeDialogSettings;
+class AdductsDialogSettings;
 class PollyIntegration;
 class MainWindow;
 class PeakDetectionSettings;
@@ -26,9 +27,6 @@ public:
     PollyIntegration* iPolly;
 
 public Q_SLOTS:
-    void updateIsotopeDialogSettings(IsotopeDialogSettings* id);
-    void updatePeakDetectionSettings(PeakDetectionSettings* pd);
-    void updateOptionsDialogSettings(OptionsDialogSettings* od);
     void updateUi();
     void resetMP(QList<QString> keys);
 
@@ -44,7 +42,14 @@ private:
     template<typename T>
     void _syncMpWithUi(T* dialogPtr);
 
+    template<typename T>
+    void _updateDialogSettings(T* settings);
+
 private Q_SLOTS:
+    void _updateIsotopeDialogSettings(IsotopeDialogSettings* id);
+    void _updateAdductsDialogSettings(AdductsDialogSettings* id);
+    void _updatePeakDetectionSettings(PeakDetectionSettings* pd);
+    void _updateOptionsDialogSettings(OptionsDialogSettings* od);
     void _updateSettingsForSave(const QString& k, const QVariant& v);
     void _updateSettingsFromLoad(const map<string, variant>& settingsMap);
 };

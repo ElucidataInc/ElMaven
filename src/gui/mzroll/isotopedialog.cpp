@@ -10,6 +10,7 @@ IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
     settings.insert("N15LabelBPE", QVariant::fromValue(id->N15Labeled_BPE));
     settings.insert("S34LabelBPE", QVariant::fromValue(id->S34Labeled_BPE));
     
+    settings.insert("filterIsotopesAgainstParent", QVariant::fromValue(id->filterIsotopesAgainstParent));
     settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(id->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(id->maxIsotopeScanDiff));
     settings.insert("linkIsotopeRtRange", QVariant::fromValue(id->linkIsotopeRtRange));
@@ -46,9 +47,6 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
     _mw = parent;
     isotopeSettings = new IsotopeDialogSettings(this);
 
-    resetButton->setDefault(false);
-    resetButton->setAutoDefault(false);
-
     connect(resetButton, &QPushButton::clicked, this, &IsotopeDialog::onReset);
     connect(this, &IsotopeDialog::settingsChanged,
             isotopeSettings, &IsotopeDialogSettings::updateIsotopeDialogSettings);
@@ -67,13 +65,17 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                     if (!D2Labeled_BPE->isChecked()
                         && !C13Labeled_BPE->isChecked()
                         && !N15Labeled_BPE->isChecked()
-                        && !S34Labeled_BPE->isChecked())
+                        && !S34Labeled_BPE->isChecked()) {
                         C13Labeled_BPE->setChecked(true);
+                    }
+                    filterIsotopesAgainstParent->setEnabled(true);
                 } else {
                     C13Labeled_BPE->setChecked(false);
                     D2Labeled_BPE->setChecked(false);
                     N15Labeled_BPE->setChecked(false);
                     S34Labeled_BPE->setChecked(false);
+                    filterIsotopesAgainstParent->setChecked(false);
+                    filterIsotopesAgainstParent->setEnabled(false);
                 }
             });
 
