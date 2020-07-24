@@ -78,10 +78,12 @@ public Q_SLOTS:
 	void matchFragmentation();
 
     /**
-     * @brief change the color of the compound which is present is peaks table
-     * @param compound pointer to class Compound
+     * @brief Change the color of a compound's entry which is present in the
+     * active peak table.
+     * @param compound Pointer to a `Compound` object that is present.
+     * @param isProxy Whether the compound is only a proxy for its other forms.
      */
-    void markAsDone(Compound* compound);
+    void markAsDone(Compound* compound, bool isProxy = false);
 
     /**
      * @brief Obtain the adduct widget owned by this ligand widget.

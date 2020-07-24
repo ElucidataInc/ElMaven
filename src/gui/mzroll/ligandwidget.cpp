@@ -466,19 +466,20 @@ void LigandWidget::setHash()
     }
 }
 
-void LigandWidget::markAsDone(Compound* compound) 
+void LigandWidget::markAsDone(Compound* compound, bool isProxy)
 {
-    if(compound == nullptr)
+    if (compound == nullptr)
         return;
     
-    QHash<Compound *, QTreeWidgetItem *>::const_iterator i = CompoundsHash.find(compound);
-    
+    auto color = QColor(101, 243, 124, 100); // green
+    if (isProxy)
+        color = QColor(253, 204, 101, 100); // yellow
+    auto i = CompoundsHash.find(compound);
     if (i != CompoundsHash.end() & i.key() == compound) {
         QTreeWidgetItem* item = i.value();  
         if (item != nullptr) {
-            for (int col = 0; col < treeWidget->columnCount(); col++) {
-                item->setBackground(col,QBrush(QColor(61, 204, 85, 100)));
-            }
+            for (int col = 0; col < treeWidget->columnCount(); col++)
+                item->setBackground(col, color);
         }
     }    
 }

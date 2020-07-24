@@ -283,12 +283,24 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
     item->setText(13, QString::number(group->ms2EventCount));
-    item->setText(14, QString::number(group->groupRank, 'e', 6));
+    if (group->isGhost()) {
+        item->setText(14, "NA");
+    } else {
+        item->setText(14, QString::number(group->groupRank, 'e', 6));
+    }
 
     if (fabs(group->changeFoldRatio) >= 0) {
       item->setText(15, QString::number(group->changeFoldRatio, 'f', 3));
       item->setText(16, QString::number(group->changePValue, 'f', 6));
     }
+  } else if (viewType == peakView) {
+    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
+    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+    vector<float> yvalues = group->getOrderedIntensityVector(
+        vsamples, _mainwindow->getUserQuantType());
+    for (unsigned int i = 0; i < yvalues.size(); i++)
+      item->setText(5 + i, QString::number(yvalues[i]));
+    heatmapBackground(item);
   }
 
   int good = 0;
@@ -338,18 +350,21 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 
 void TableDockWidget::updateCompoundWidget() {
   _mainwindow->ligandWidget->resetColor();
-  QTreeWidgetItemIterator itr(treeWidget);
-  while (*itr) {
-    QTreeWidgetItem *item = (*itr);
-    if (item) {
-      QVariant v = item->data(0, Qt::UserRole);
-      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
-      if (group == nullptr)
-        continue;
-      _mainwindow->ligandWidget->markAsDone(group->getCompound());
+  QMap<Compound*, bool> parentCompounds;
+  for (auto& group : _topLevelGroups) {
+    if (group == nullptr || !group->hasCompoundLink())
+      continue;
+
+    Compound* compound = group->getCompound();
+    if (parentCompounds.contains(compound)) {
+        parentCompounds[compound] = parentCompounds[compound]
+                                    || !group->isGhost();
+    } else {
+        parentCompounds[compound] = !group->isGhost();
     }
-    ++itr;
   }
+  for (auto compound : parentCompounds.keys())
+    _mainwindow->ligandWidget->markAsDone(compound, !parentCompounds[compound]);
 }
 
 void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
@@ -406,80 +421,14 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
                  Qt::ItemIsDragEnabled);
   item->setData(0, Qt::UserRole, QVariant::fromValue(group));
 
-  item->setText(0, QString::number(group->groupId()));
-  item->setText(1, QString(group->getName().c_str()));
-  item->setText(2, QString::number(group->meanMz, 'f', 4));
+  if (root == nullptr)
+    treeWidget->addTopLevelItem(item);
 
-  int charge = group->parameters()->getCharge(group->getCompound());
-  if (group->getExpectedMz(charge) != -1) {
-    float mz = group->getExpectedMz(charge);
-    item->setText(3, QString::number(mz, 'f', 4));
-  } else {
-    item->setText(3, "NA");
-  }
-
-  item->setText(4, QString::number(group->meanRt, 'f', 2));
-
-  if (group->label == 'g')
-    item->setIcon(0, QIcon(":/images/good.png"));
-  if (group->label == 'b')
-    item->setIcon(0, QIcon(":/images/bad.png"));
-
-  if (viewType == groupView) {
-    auto expectedRtDiff = group->expectedRtDiff();
-    if (expectedRtDiff == -1.0f) {
-      item->setText(5, "NA");
-    } else {
-      item->setText(5, QString::number(expectedRtDiff, 'f', 2));
-    }
-    item->setText(6, QString::number(group->sampleCount
-                                     + group->blankSampleCount));
-    item->setText(7, QString::number(group->goodPeakCount));
-    item->setText(8, QString::number(group->maxNoNoiseObs));
-    item->setText(9, QString::number(extractMaxIntensity(group.get()), 'g', 3));
-    item->setText(10, QString::number(group->maxSignalBaselineRatio, 'f', 0));
-    item->setText(11, QString::number(group->maxQuality, 'f', 2));
-    item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
-    item->setText(13, QString::number(group->ms2EventCount));
-    item->setText(14, QString::number(group->groupRank, 'e', 6));
-
-    if (group->changeFoldRatio != 0) {
-      item->setText(15, QString::number(group->changeFoldRatio, 'f', 2));
-      item->setText(16, QString::number(group->changePValue, 'e', 4));
-    }
-
-    //Find maximum number of peaks
-    if (maxPeaks < group->peakCount())
-        maxPeaks = group->peakCount();
-
-    //TODO: Move this to peak detector or peakgroup
-    groupClassifier* groupClsf = _mainwindow->getGroupClassifier();
-    if (group->peakCount() > 0 && groupClsf != NULL) {
-        groupClsf->classify(group.get());
-    }
-
-    //Get prediction labels from svm
-    svmPredictor* groupPred = _mainwindow->getSVMPredictor();
-    if (group->peakCount() > 0 && groupPred != NULL) {
-        groupPred->predict(group.get());
-    }
-  } else if (viewType == peakView) {
-    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
-    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-    vector<float> yvalues = group->getOrderedIntensityVector(
-        vsamples, _mainwindow->getUserQuantType());
-    for (unsigned int i = 0; i < yvalues.size(); i++)
-      item->setText(5 + i, QString::number(yvalues[i]));
-    heatmapBackground(item);
-  }
+  updateItem(item, false);
   if (group->isGhost()) {
       for (int i = 0; i < treeWidget->columnCount(); ++i)
       item->setForeground(i, QColor::fromRgb(150, 150, 150));
   }
-
-  if (root == NULL)
-    treeWidget->addTopLevelItem(item);
-  updateItem(item);
 
   if (group->childIsotopeCount() > 0) {
     for (auto child : group->childIsotopes())
@@ -621,8 +570,8 @@ void TableDockWidget::showAllGroups() {
   if (vScroll) {
     vScroll->setSliderPosition(vScroll->maximum());
   }
-  treeWidget->setSortingEnabled(true);
   treeWidget->sortByColumn(0, Qt::AscendingOrder);
+  treeWidget->setSortingEnabled(true);
   treeWidget->header()->setStretchLastSection(false);
   updateStatus();
   updateCompoundWidget();

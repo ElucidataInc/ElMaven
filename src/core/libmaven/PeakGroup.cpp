@@ -814,7 +814,7 @@ string PeakGroup::getName() {
     }
 
     // add name of external charged species fused with adduct
-    if (adduct() != nullptr)
+    if (isAdduct())
         tag += " | " + adduct()->getName();
 
     // add isotopic label
