@@ -13,7 +13,12 @@ using namespace std;
 class GroupFiltering
 {
 
-  public:
+public:
+    enum class ChildFilterType {
+        Isotope,
+        Adduct
+    };
+
 	/**
 	 * @brief Constructor of class GroupFiltering
 	 * @param mavenParameters Pointer to class MavenParameters
@@ -34,9 +39,15 @@ class GroupFiltering
 
     void filter(vector<PeakGroup> &peakgroups);
 
-		bool filterByMS1(PeakGroup &peakgroup);
+    bool filterByMS1(PeakGroup &peakgroup);
 
-		bool filterByMS2(PeakGroup& peakgroup);
+    bool filterByMS2(PeakGroup& peakgroup);
+
+    void filterBasedOnParent(PeakGroup& parent,
+                             ChildFilterType type,
+                             float maxRtDeviation,
+                             float minPercentCorrelation,
+                             MassCutoff* massCutoff);
 
 	/**
 	 * [apply peak selection filters to group; if x percentage of peaks in the group are above the user input threshold for a parameter, do not reject the group]

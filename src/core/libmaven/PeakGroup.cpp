@@ -352,7 +352,7 @@ bool PeakGroup::removeChild(PeakGroup* child) {
         return false;
 
     auto removeChildFromContainer =
-        [this, child](vector<shared_ptr<PeakGroup>> children) {
+        [this, child](vector<shared_ptr<PeakGroup>>& children) {
             children.erase(remove_if(begin(children),
                                      end(children),
                                      [&](shared_ptr<PeakGroup>& group) {

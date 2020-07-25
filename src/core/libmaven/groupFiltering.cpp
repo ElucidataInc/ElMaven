@@ -122,6 +122,67 @@ bool GroupFiltering::filterByMS2(PeakGroup& peakgroup)
     return false;
 }
 
+void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
+                                         GroupFiltering::ChildFilterType type,
+                                         float maxRtDeviation,
+                                         float minPercentCorrelation,
+                                         MassCutoff* massCutoff)
+{
+    auto possibleChildren = parent.childIsotopes();
+    if (type == ChildFilterType::Adduct)
+        possibleChildren = parent.childAdducts();
+
+    vector<PeakGroup*> nonChildren;
+    for (auto& child : possibleChildren) {
+        bool tooFarFromParent = false;
+        int numSamplesShared = 0;
+        for (auto sample : _mavenParameters->samples) {
+            auto childPeak = child->getPeak(sample);
+            auto parentPeak = parent.getPeak(sample);
+            if (parentPeak == nullptr || childPeak == nullptr)
+                continue;
+            ++numSamplesShared;
+            auto childApexRt = childPeak->rt;
+            auto parentApexRt = parentPeak->rt;
+            auto deviation = abs(childApexRt - parentApexRt) * 60.0f;
+            if (deviation > maxRtDeviation) {
+                tooFarFromParent = true;
+                break;
+            }
+        }
+        if (numSamplesShared > 0 && tooFarFromParent)
+            nonChildren.push_back(child.get());
+    }
+
+    for (auto& child : possibleChildren) {
+        float corrSum = 0.0f;
+        int numSamples = 0;
+        for (auto sample : _mavenParameters->samples) {
+            auto parentPeak = parent.getPeak(sample);
+            if (!parentPeak)
+                continue;
+
+            auto deviation = maxRtDeviation / 60.0f; // seconds to minutes
+            double corr = sample->correlation(parent.meanMz,
+                                              child->meanMz,
+                                              massCutoff,
+                                              parentPeak->rtmin - deviation,
+                                              parentPeak->rtmax + deviation,
+                                              _mavenParameters->eicType,
+                                              _mavenParameters->filterline);
+            corrSum += corr;
+            ++numSamples;
+        }
+        float avgPercentCorr = corrSum / static_cast<float>(numSamples)
+                               * 100.0f;
+        if (avgPercentCorr < minPercentCorrelation)
+            nonChildren.push_back(child.get());
+    }
+
+    for (auto group : nonChildren)
+        parent.removeChild(group);
+}
+
 bool GroupFiltering::quantileFilters(PeakGroup *group) {
     if (group->maxIntensity < _mavenParameters->minGroupIntensity){
         return true;

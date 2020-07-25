@@ -104,14 +104,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="suffix">
+            <string> %</string>
+           </property>
            <property name="maximum">
-            <double>1.000000000000000</double>
+            <double>100.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>0.100000000000000</double>
+            <double>5.000000000000000</double>
            </property>
            <property name="value">
-            <double>0.200000000000000</double>
+            <double>20.000000000000000</double>
            </property>
           </widget>
          </item>
@@ -130,18 +133,21 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QSpinBox" name="maxIsotopeScanDiff">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QDoubleSpinBox" name="maxIsotopeScanDiff">
            <property name="suffix">
-            <string> scans</string>
+            <string> seconds</string>
+           </property>
+           <property name="minimum">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>5.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
            </property>
            <property name="value">
-            <number>15</number>
+            <double>0.500000000000000</double>
            </property>
           </widget>
          </item>

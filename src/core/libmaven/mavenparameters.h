@@ -227,6 +227,8 @@ class MavenParameters
         string ligandDbFilename;
 
         bool filterIsotopesAgainstParent;
+        // even though this says "scan" diff, we actually store time (seconds)
+        // in this variable
         double maxIsotopeScanDiff;
         double minIsotopicCorrelation;
         bool linkIsotopeRtRange;
