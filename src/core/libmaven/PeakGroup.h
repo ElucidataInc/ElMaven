@@ -445,26 +445,24 @@ class PeakGroup{
         void groupOverlapMatrix();
 
         /**
-         * [getSamplePeak ]
-         * @method getSamplePeak
-         * @param  sample        []
-         * @return []
-         */
-        Peak* getSamplePeak(mzSample* sample);
-
-        /**
-         * [deletePeaks ]
-         * @method deletePeaks
+         * @brief Clears all peaks in this peak-group, but does not reset the
+         * group's stored statistics.
          */
         void deletePeaks();
 
         /**
-         * [deletePeak ]
-         * @method deletePeak
-         * @param  index      []
-         * @return []
+         * @brief Delete peak at given index.
+         * @param index The index of the peak in this group's peak vector.
+         * @return `true` if deletion was successful, `false` otherwise.
          */
         bool deletePeak(unsigned int index);
+
+        /**
+         * @brief Delete this group's peak for the given sample, if found.
+         * @param sample The `mzSample` whose peak needs to be deleted.
+         * @return `true` if deletion was successful, `false` otherwise.
+         */
+        bool deletePeak(mzSample* sample);
 
         /**
          * [clear ]

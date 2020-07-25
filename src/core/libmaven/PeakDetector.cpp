@@ -108,7 +108,13 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
                 }
                 e->computeBaseline();
                 e->reduceToRtRange(slice->rtmin, slice->rtmax);
-                e->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+                if (slice->isotope.isNone()) {
+                    e->setFilterSignalBaselineDiff(
+                        mp->minSignalBaselineDifference);
+                } else {
+                    e->setFilterSignalBaselineDiff(
+                        mp->isotopicMinSignalBaselineDifference);
+                }
                 e->getPeakPositions(mp->eic_smoothingWindow);
 
                 // push eic to shared EIC vector
@@ -141,7 +147,7 @@ void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
 
     sendBoostSignal("Peak Detection", 0, 1);
 
-    processSlices(massSlicer.slices, "groups");
+    processSlices(massSlicer.slices, "feature groups");
     delete_all(massSlicer.slices);
 
     // identify features with known targets
@@ -235,15 +241,19 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             continue;
 
         if (group.hasCompoundLink()
-            && _mavenParameters->pullIsotopesFlag
-            && _mavenParameters->filterIsotopesAgainstParent) {
+            && _mavenParameters->pullIsotopesFlag) {
+            if (_mavenParameters->linkIsotopeRtRange)
+                linkParentIsotopeRange(group);
+
             sendBoostSignal("Filtering isotopologues…", 0, 0);
-            filter.filterBasedOnParent(
-                group,
-                GroupFiltering::ChildFilterType::Isotope,
-                _mavenParameters->maxIsotopeScanDiff,
-                _mavenParameters->minIsotopicCorrelation,
-                _mavenParameters->massCutoffMerge);
+            if (_mavenParameters->filterIsotopesAgainstParent) {
+                filter.filterBasedOnParent(
+                    group,
+                    GroupFiltering::ChildFilterType::Isotope,
+                    _mavenParameters->maxIsotopeScanDiff,
+                    _mavenParameters->minIsotopicCorrelation,
+                    _mavenParameters->massCutoffMerge);
+            }
         }
         if (group.hasCompoundLink()
             && _mavenParameters->searchAdducts
@@ -301,7 +311,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds)
 
     performMetaGrouping();
 
-    GroupFiltering filter(_mavenParameters);
+    GroupFiltering groupFilter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
         if (group.isGhost())
             continue;
@@ -311,22 +321,25 @@ void PeakDetector::processCompounds(vector<Compound*> compounds)
 
         if (group.hasCompoundLink()
             && _mavenParameters->pullIsotopesFlag
-            && _mavenParameters->filterIsotopesAgainstParent
             && !srmTransitionPresent) {
+            if (_mavenParameters->linkIsotopeRtRange)
+                linkParentIsotopeRange(group);
+
             sendBoostSignal("Filtering isotopologues…", 0, 0);
-            filter.filterBasedOnParent(
-                group,
-                GroupFiltering::ChildFilterType::Isotope,
-                _mavenParameters->maxIsotopeScanDiff,
-                _mavenParameters->minIsotopicCorrelation,
-                _mavenParameters->compoundMassCutoffWindow);
+            if (_mavenParameters->filterIsotopesAgainstParent)
+                groupFilter.filterBasedOnParent(
+                    group,
+                    GroupFiltering::ChildFilterType::Isotope,
+                    _mavenParameters->maxIsotopeScanDiff,
+                    _mavenParameters->minIsotopicCorrelation,
+                    _mavenParameters->compoundMassCutoffWindow);
         }
         if (group.hasCompoundLink()
             && _mavenParameters->searchAdducts
             && _mavenParameters->filterAdductsAgainstParent
             && !srmTransitionPresent) {
             sendBoostSignal("Filtering adducts…", 0, 0);
-            filter.filterBasedOnParent(
+            groupFilter.filterBasedOnParent(
                 group,
                 GroupFiltering::ChildFilterType::Adduct,
                 _mavenParameters->adductSearchWindow,
@@ -769,5 +782,36 @@ void PeakDetector::performMetaGrouping()
     for (size_t index : indexesToErase) {
         _mavenParameters->allgroups[index] = _mavenParameters->allgroups.back();
         _mavenParameters->allgroups.pop_back();
+    }
+}
+
+void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup)
+{
+    PeakFiltering peakFilter(_mavenParameters, true);
+    for (auto& child : parentGroup.childIsotopes()) {
+        auto eics = pullEICs(&child->getSlice(),
+                             _mavenParameters->samples,
+                             _mavenParameters);
+        for (auto eic : eics) {
+            if (eic == nullptr)
+                continue;
+
+            mzSample* sample = eic->sample;
+            auto parentPeak = parentGroup.getPeak(sample);
+            auto childPeak = child->getPeak(sample);
+            if (parentPeak == nullptr || childPeak == nullptr)
+                continue;
+
+            eic->adjustPeakBounds(*childPeak,
+                                  parentPeak->rtmin,
+                                  parentPeak->rtmax);
+            eic->getPeakDetails(*childPeak);
+            if (_mavenParameters->clsf->hasModel())
+                _mavenParameters->clsf->scorePeak(*childPeak);
+            if (peakFilter.filter(*childPeak))
+                child->deletePeak(sample);
+        }
+        child->updateQuality();
+        child->groupStatistics();
     }
 }

@@ -85,6 +85,7 @@ public:
     void processSlices(std::vector<mzSlice*>& slices, std::string setName);
 
     void performMetaGrouping();
+    void linkParentIsotopeRange(PeakGroup& parentGroup);
 
 private:
     MavenParameters* _mavenParameters;

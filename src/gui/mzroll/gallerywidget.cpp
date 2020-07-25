@@ -108,7 +108,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
                                         eic->sample->color[2],
                                         0.5);
 
-        Peak* samplePeak = group->getSamplePeak(eic->sample);
+        Peak* samplePeak = group->getPeak(eic->sample);
         float peakRtMin = -1.0f;
         float peakRtMax = -1.0f;
         if (samplePeak != nullptr) {

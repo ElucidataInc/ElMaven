@@ -337,8 +337,8 @@ void PeakEditor::_applyEdits()
             auto rtMax = elem.second.second;
             _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
         }
+        group->updateQuality();
         group->groupStatistics();
-        qDebug() << group->getName().c_str() << group->meanMz << group->meanRt;
     };
 
     // lambda: obtain full range EICs for the given peak-group

@@ -275,14 +275,6 @@ bool PeakGroup::sliceIsZero() const
     return false;
 }
 
-//TODO: a duplicate function getPeak exists. Delete this function
-Peak* PeakGroup::getSamplePeak(mzSample* sample) {
-    for (unsigned int i=0; i< peaks.size(); i++ ) {
-        if (peaks[i].getSample() == sample ) return &peaks[i];
-    }
-    return NULL;
-}
-
 void PeakGroup::deletePeaks() {
     peaks.clear();
 }
@@ -293,6 +285,16 @@ bool PeakGroup::deletePeak(unsigned int index) {
         return true;
     }
     return false;
+}
+
+bool PeakGroup::deletePeak(mzSample* sample)
+{
+    auto peakIter = find_if(begin(peaks), end(peaks), [sample](Peak& peak) {
+        return peak.getSample() == sample;
+    });
+    if (peakIter == end(peaks))
+        return false;
+    return deletePeak(distance(begin(peaks), peakIter));
 }
 
 float PeakGroup::meanRtW() {
