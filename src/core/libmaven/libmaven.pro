@@ -111,14 +111,12 @@ SOURCES = base64.cpp \
           masscutofftype.cpp \
           peakFiltering.cpp \
           groupFiltering.cpp \
-          isotopeDetection.cpp \
           datastructures/adduct.cpp \
           datastructures/mzSlice.cpp \
           groupClassifier.cpp \
           groupFeatures.cpp \
           svmPredictor.cpp \
           zlib.cpp \
-          adductdetection.cpp \
           spectrallibexport.cpp \
           datastructures/isotope.cpp
 
@@ -159,13 +157,11 @@ HEADERS += constants.h \
            masscutofftype.h \
            peakFiltering.h \
            groupFiltering.h \
-           isotopeDetection.h \
            datastructures/adduct.h \
            datastructures/mzSlice.h \
            settings.h \
            groupClassifier.h \
            groupFeatures.h \
            svmPredictor.h \
-           adductdetection.h \
            spectrallibexport.h \
            datastructures/isotope.h

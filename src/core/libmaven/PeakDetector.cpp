@@ -5,9 +5,9 @@
 
 #include <boost/bind.hpp>
 
-#include "adductdetection.h"
-#include "datastructures/adduct.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/adduct.h"
+#include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
 #include "peakdetector.h"
 #include "EIC.h"
@@ -21,7 +21,6 @@
 #include "groupFiltering.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
-#include "isotopeDetection.h"
 #include "Scan.h"
 
 PeakDetector::PeakDetector() {
@@ -144,8 +143,6 @@ void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
 
     if (massSlicer.slices.empty())
         return;
-
-    sendBoostSignal("Peak Detection", 0, 1);
 
     processSlices(massSlicer.slices, "feature groups");
     delete_all(massSlicer.slices);
