@@ -40,14 +40,10 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 	workerThread = new BackgroundOpsThread(mw);
 	workerThread->setMainWindow(mw);
 
-    MavenParameters *mavenParameters = mw->mavenParameters;
-
 	//Thread for bar plot
 	workerThreadBarplot = new BackgroundOpsThread(mw);
     workerThreadBarplot->setRunFunction("pullIsotopesForBarPlot");
 	workerThreadBarplot->setMainWindow(mw);
-	workerThreadBarplot->setMavenParameters(mavenParameters);
-	workerThreadBarplot->setPeakDetector(new PeakDetector(mavenParameters));
 	connect(workerThreadBarplot, SIGNAL(finished()), this, SLOT(updateIsotopicBarplot()));
 }
 
@@ -110,14 +106,15 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
     }
 }
 
-void IsotopeWidget::updateIsotopicBarplot(shared_ptr<PeakGroup> grp)
+void IsotopeWidget::updateIsotopicBarplot(shared_ptr<PeakGroup> group)
 {
-    if (grp == nullptr)
+    if (group == nullptr)
 		return;
 
-    isotopeParametersBarPlot->_group = grp;
-    if (grp && grp->type() != PeakGroup::GroupType::Isotope)
+    if (group->hasCompoundLink() && !group->isIsotope()) {
+        isotopeParametersBarPlot->_group = group;
         pullIsotopesForBarplot(isotopeParametersBarPlot->_group.get());
+    }
 }
 
 void IsotopeWidget::setCompound(Compound *compound)
@@ -258,6 +255,8 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
 {
     while(workerThread->isRunning())
         QCoreApplication::processEvents();
+    if (workerThread->stopped())
+        workerThread->setStopped(false);
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -352,7 +351,7 @@ void IsotopeWidget::computeIsotopes(string formula)
         if (parentGroup == nullptr || parentGroup->isIsotope())
             return;
 
-        if (!parentGroup->childIsotopes().empty()) {
+        if (!parentGroup->tableName().empty()) {
             _insertLinkForPeakGroup(parentGroup);
             for (auto& child : parentGroup->childIsotopes())
                 _insertLinkForPeakGroup(child.get());
@@ -403,6 +402,12 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
     if (workerThreadBarplot->stopped())
         workerThreadBarplot->setStopped(false);
 
+    if (workerThreadBarplot->mavenParameters != nullptr)
+        delete workerThreadBarplot->mavenParameters;
+    auto mp = new MavenParameters(*_mw->mavenParameters);
+    workerThreadBarplot->setMavenParameters(mp);
+    workerThreadBarplot->peakDetector->setMavenParameters(mp);
+
     // TODO: mavenParameters->group is not thread-safe. Accessing it might
     // lead to crashes
     workerThreadBarplot->mavenParameters->setPeakGroup(group);
@@ -413,22 +418,53 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
         _mw->getUserMassCutoff();
 
     workerThreadBarplot->start();
-    _mw->setStatusText("Pulling isotopes…");
 }
 
 void IsotopeWidget::updateIsotopicBarplot()
 {
-    isotopeParametersBarPlot->_group = _mw->getEicWidget()->getParameters()->displayedGroup();
-	if (isotopeParametersBarPlot->_group)
-    {
-        _mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group.get());
-	}
+    float leastRtDiff = numeric_limits<float>::max();
+    PeakGroup* closestParent = nullptr;
+    if (workerThreadBarplot->mavenParameters->allgroups.size() == 1) {
+        closestParent = &workerThreadBarplot->mavenParameters->allgroups[0];
+    } else {
+        float expectedRt = workerThreadBarplot->mavenParameters->_group->meanRt;
+        for (auto& group : workerThreadBarplot->mavenParameters->allgroups) {
+            float rtDiff = abs(group.meanRt - expectedRt);
+            if (rtDiff < leastRtDiff) {
+                closestParent = &group;
+                leastRtDiff = rtDiff;
+            }
+        }
+    }
+    if (closestParent == nullptr)
+        return;
+
+    isotopeParameters->_group = make_shared<PeakGroup>(*closestParent);
+    _mw->isotopePlot->setPeakGroup(isotopeParameters->_group.get());
     workerThreadBarplot->setStopped(true);
 }
 
 void IsotopeWidget::setClipboard()
 {
-    if (isotopeParameters->_group) {
+    float leastRtDiff = numeric_limits<float>::max();
+    PeakGroup* closestParent = nullptr;
+    if (workerThread->mavenParameters->allgroups.size() == 1) {
+        closestParent = &workerThread->mavenParameters->allgroups[0];
+    } else {
+        float expectedRt = workerThread->mavenParameters->_group->meanRt;
+        for (auto& group : workerThread->mavenParameters->allgroups) {
+            float rtDiff = abs(group.meanRt - expectedRt);
+            if (rtDiff < leastRtDiff) {
+                closestParent = &group;
+                leastRtDiff = rtDiff;
+            }
+        }
+    }
+    if (closestParent == nullptr)
+        return;
+
+    isotopeParameters->_group = make_shared<PeakGroup>(*closestParent);
+    if (isotopeParameters->_group != nullptr) {
         // update clipboard
         setClipboard(isotopeParameters->_group.get());
 

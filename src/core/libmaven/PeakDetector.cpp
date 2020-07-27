@@ -307,7 +307,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     processSlices(massSlicer.slices, setName);
     delete_all(massSlicer.slices);
 
-    performMetaGrouping();
+    performMetaGrouping(findBarplotIsotopes);
 
     GroupFiltering groupFilter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
@@ -604,7 +604,7 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
     return make_pair(nonOrphans, orphans);
 }
 
-void PeakDetector::performMetaGrouping()
+void PeakDetector::performMetaGrouping(bool barplotIsotopes)
 {
     sendBoostSignal("Performing meta-grouping…", 0, 0);
 
@@ -766,8 +766,11 @@ void PeakDetector::performMetaGrouping()
             auto& childIndexes = metaGroup.second;
             for (auto childIndex : childIndexes) {
                 PeakGroup& child = _mavenParameters->allgroups[childIndex];
-                if (child.isIsotope())
+                if (child.isIsotope() && barplotIsotopes) {
+                    parent.addIsotopeChildBarPlot(child);
+                } else if (child.isIsotope()) {
                     parent.addIsotopeChild(child);
+                }
                 if (child.isAdduct())
                     parent.addAdductChild(child);
                 indexesToErase.push_back(childIndex);

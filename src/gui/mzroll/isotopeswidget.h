@@ -52,7 +52,7 @@ public Q_SLOTS:
     void setClipboard(QList<shared_ptr<PeakGroup> > &groups);
 	void pullIsotopes(PeakGroup* group);
 	void pullIsotopesForBarplot(PeakGroup* group);
-    void updateIsotopicBarplot(shared_ptr<PeakGroup> grp);
+    void updateIsotopicBarplot(shared_ptr<PeakGroup> group);
 	void updateIsotopicBarplot();
 	/**
 	 * @brief set peak and group if a specific peak is selected

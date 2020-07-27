@@ -582,6 +582,12 @@ class PeakGroup{
          */
         static bool compC13(const PeakGroup* a, const PeakGroup* b) { return(a->isotopeC13count < b->isotopeC13count); }
 
+        static bool compIsotopeLabel(const PeakGroup* a,
+                                     const PeakGroup* b)
+        {
+            return a->tagString < b->tagString;
+        }
+
         /**
          * [compMetaGroup ]
          * @method compMetaGroup

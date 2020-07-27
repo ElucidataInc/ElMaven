@@ -4614,12 +4614,14 @@ MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
 
 	//get isotopic groups
 	vector<PeakGroup*> isotopes;
+    isotopes.push_back(group);
     for (int i = 0; i < group->childIsotopeCountBarPlot(); i++) {
         if (group->childIsotopesBarPlot()[i]->isIsotope()) {
             PeakGroup* isotope = group->childIsotopesBarPlot()[i].get();
 			isotopes.push_back(isotope);
 		}
 	}
+    sort(begin(isotopes), end(isotopes), PeakGroup::compIsotopeLabel);
 
 	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
 	MM.setZero();

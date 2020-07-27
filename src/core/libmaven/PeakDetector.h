@@ -85,7 +85,7 @@ public:
      */
     void processSlices(std::vector<mzSlice*>& slices, std::string setName);
 
-    void performMetaGrouping();
+    void performMetaGrouping(bool barplotIsotopes = false);
     void linkParentIsotopeRange(PeakGroup& parentGroup);
 
 private:

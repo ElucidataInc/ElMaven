@@ -62,15 +62,17 @@ void IsotopePlot::replot()
 }
 
 void IsotopePlot::setPeakGroup(PeakGroup* group) {
-    //cerr << "IsotopePlot::setPeakGroup()" << group << endl;
-    if ( group == NULL ) return;
+    if (group == nullptr)
+        return;
 
+    // for peak-groups from tables, we plot the isotopes as they are in table
     if (!group->tableName().empty()) {
         group->deleteChildIsotopesBarPlot();
         for (auto child : group->childIsotopes())
             group->addIsotopeChildBarPlot(*child);
     }
-    if (group->childIsotopeCountBarPlot() == 0) return;
+    if (group->childIsotopeCountBarPlot() == 0)
+        return;
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
@@ -92,12 +94,17 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
 	    sort(_samples.begin(), _samples.end(), mzSample::compRevSampleOrder);
 
     _isotopes.clear();
+    _isotopes.push_back(*_group);
     for(auto child : _group->childIsotopesBarPlot()) {
-        if (child->isIsotope()) {
-            PeakGroup isotope = *(child.get());
-            _isotopes.push_back(isotope);
-        }
+        PeakGroup isotope = *(child.get());
+        _isotopes.push_back(isotope);
     }
+    if (_isotopes.empty())
+        return;
+
+    sort(begin(_isotopes), end(_isotopes), [](PeakGroup& a, PeakGroup& b) {
+        return a.tagString < b.tagString;
+    });
 
     showBars();
 }
@@ -147,8 +154,11 @@ void IsotopePlot::showBars() {
 
     title = new QCPTextElement(_mw->customPlot);
 
+    QFont font = title->font();
+    font.setPixelSize(18);
+    title->setFont(font);
+
     title->setText(_isotopes[0].getCompound()->name().c_str());
-    title->setFont(QFont("Helvetica", 12, QFont::Bold));
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 
     bottomAxisRect = new QCPAxisRect(_mw->customPlot);
@@ -164,7 +174,6 @@ void IsotopePlot::showBars() {
     for(int j=0; j < MM.cols()+1; j++ )
     {
         isotopesType[j] = new QCPBars(_mw->customPlot->yAxis, _mw->customPlot->xAxis);
-        isotopesType[j]->setAntialiased(true); // gives more crisp, pixel aligned bar borders
         isotopesType[j]->setStackingGap(0);
         int h = j % 10;
         isotopesType[j]->setPen(barPen);
@@ -227,26 +236,27 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     int x = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
 
     if (y < labels.count() && y >= 0) {
-        QString name = labels.at(y);
+        QString name = QString(" %1 ").arg(labels.at(y));
         if (MMDuplicate.cols() != _isotopes.size()) return;
         float pool = 0;
 
         for(int j=0; j < MMDuplicate.cols(); j++ ) {
             if (y >= MMDuplicate.rows()) return;
-            if (MMDuplicate(y,j)*100 > _poolThreshold) 
-            {
-                name += tr("\n %1 : %2\%").arg(_isotopes[j].tagString.c_str(),
-                            QString::number(MMDuplicate(y,j)*100, 'f', 2));
+            if (MMDuplicate(y,j)*100 > _poolThreshold) {
+                name += tr("\n  %1: %2\% ").arg(
+                    _isotopes[j].tagString.c_str(),
+                    QString::number(MMDuplicate(y,j)*100, 'f', 2));
             }
             else pool += MMDuplicate(y,j);
         }
 
-        if (pool)
-            name += tr("\nOther: %1\%").arg(QString::number(pool*100, 'f', 2));
+        if (pool) {
+            name += tr("\n  Other: %1\% ").arg(
+                QString::number(pool*100, 'f', 2));
+        }
 
         if(!mpMouseText) return;
 
-        mpMouseText->setFont(QFont("Helvetica", 12));
         mpMouseText->position->setType(QCPItemPosition::ptPlotCoords);
         mpMouseText->setPositionAlignment(Qt::AlignLeft);
         mpMouseText->position->setCoords(QPointF(0, 0));
@@ -255,6 +265,10 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
         mpMouseText->setBrush(QColor::fromRgb(255,255,255));
         mpMouseText->setTextAlignment(Qt::AlignLeft);
         mpMouseText->setClipToAxisRect(true);
+
+        QFont font = mpMouseText->font();
+        font.setPixelSize(12);
+        mpMouseText->setFont(font);
         
         int g = QString::compare(name, labels.at(y), Qt::CaseInsensitive);
         if(g == 0) {
@@ -266,7 +280,6 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
         double xPos = _mw->customPlot->xAxis->pixelToCoord(event->pos().x());
         double yPos = _mw->customPlot->yAxis->pixelToCoord(event->pos().y());
         mpMouseText->position->setCoords(xPos, yPos);
-        mpMouseText->setFont(QFont("Helvetica", 9, QFont::Bold));
         QRectF textRect(mpMouseText->topLeft->pixelPosition(), mpMouseText->bottomRight->pixelPosition  ());
         QRectF plotRect = _mw->customPlot->axisRect()->rect();
 
