@@ -31,8 +31,10 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 			SLOT(userChangedFormula(QString)));
 	connect(ionization, SIGNAL(valueChanged(double)), this,
 			SLOT(setCharge(double)));
-	connect(sampleList, SIGNAL(currentIndexChanged(int)),
-			SLOT(updateSelectedSample(int)));
+    connect(sampleList,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &IsotopeWidget::updateSelectedSample);
 
 	ionization->setValue(isotopeParameters->_charge);
 	bookmarkflag = true;
@@ -69,8 +71,16 @@ void IsotopeWidget::peakSelected(Peak *peak, shared_ptr<PeakGroup> group)
     _selectedSample = peak->getSample();
     setPeakGroupAndMore(group);
 
+    disconnect(sampleList,
+               QOverload<int>::of(&QComboBox::currentIndexChanged),
+               nullptr,
+               nullptr);
     sampleList->setCurrentText(
         QString::fromStdString(_selectedSample->sampleName));
+    connect(sampleList,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &IsotopeWidget::updateSelectedSample);
 }
 
 void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
@@ -89,20 +99,21 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
     setCompound(isotopeParameters->_group->getCompound());
 
     // TODO: move bookmarking functionality out of isotopeWidget
-    if (bookmark)
+    if (bookmark) {
         pullIsotopes(isotopeParameters->_group.get());
-
-    // select first sample if no peak or sample is selected
-    if (_selectedSample == nullptr) {
-        updateSelectedSample(0);
     } else {
-        Peak *peak = isotopeParameters->_group->getPeak(_selectedSample);
-        if (peak != nullptr) {
-            isotopeParameters->_scan = peak->getScan();
+        // select first sample if no peak or sample is selected
+        if (_selectedSample == nullptr) {
+            updateSelectedSample(0);
         } else {
-            isotopeParameters->_scan = nullptr;
+            Peak *peak = isotopeParameters->_group->getPeak(_selectedSample);
+            if (peak != nullptr) {
+                isotopeParameters->_scan = peak->getScan();
+            } else {
+                isotopeParameters->_scan = nullptr;
+            }
+            computeIsotopes(isotopeParameters->_formula);
         }
-        computeIsotopes(isotopeParameters->_formula);
     }
 }
 
@@ -286,7 +297,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
             }
         }
         if (closestParent == nullptr)
-            return; // TODO: clear the table as well?
+            return;
 
         _insertLinkForPeakGroup(closestParent);
         for (auto& child : closestParent->childIsotopes())
