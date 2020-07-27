@@ -144,10 +144,10 @@ win32 {
 INSTALLS += sources target
 
 FORMS = forms/settingsform.ui  \
+        forms/isotopeswidget.ui \
         forms/librarymanager.ui \
         forms/masscalcwidget.ui \
     #	forms/ligandwidget.ui \
-        forms/isotopeswidget.ui \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
@@ -175,6 +175,7 @@ HEADERS += stable.h \
            backgroundopsthread.h \
            globals.h \
            infodialog.h \
+           isotopeswidget.h \
            librarymanager.h \
            mainwindow.h \
            tinyplot.h \
@@ -195,7 +196,6 @@ HEADERS += stable.h \
            plot_axes.h \
            spectrawidget.h\
            masscalcgui.h \
-           isotopeswidget.h \
            ligandwidget.h \
            eicwidget.h \
            peakdetectiondialog.h \
@@ -252,6 +252,7 @@ HEADERS += stable.h \
 SOURCES += mainwindow.cpp  \
            backgroundopsthread.cpp \
            infodialog.cpp \
+           isotopeswidget.cpp \
            librarymanager.cpp \
            plotdock.cpp \
            spectralhit.cpp \
@@ -271,7 +272,6 @@ SOURCES += mainwindow.cpp  \
            history.cpp \
            spectrawidget.cpp \
            masscalcgui.cpp \
-           isotopeswidget.cpp \
            ligandwidget.cpp \
            main.cpp \
            eicwidget.cpp \

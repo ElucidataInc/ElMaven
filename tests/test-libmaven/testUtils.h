@@ -9,7 +9,6 @@
 #include "database.h"
 #include "classifierNeuralNet.h"
 #include "peakdetector.h"
-#include "isotopeDetection.h"
 
 class SampleLoadingFixture
 {
@@ -101,7 +100,6 @@ class SampleLoadingFixture
         _allgroups = _getTargetedGroupsFromProcessCompounds();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
     }
 
     void untargetedGroup()
@@ -109,25 +107,6 @@ class SampleLoadingFixture
         _allgroups = _getUntargetedGroups();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
-    }
-    /**
-     * @brief detectIsotopes Detects isotopes in the group.
-     * @param isotopeGroups  List of peakGroups.
-     */
-    void detectIsotopes(list<PeakGroup> isotopeGroups)
-    {
-        for (auto it = isotopeGroups.begin(); it != isotopeGroups.end(); it++) {
-            PeakGroup& parent = *it;
-            IsotopeDetection isotopeDetection(mavenparameters(),
-                                              IsotopeDetection::PeakDetection,
-                                              mavenparameters()->C13Labeled_BPE,
-                                              mavenparameters()->N15Labeled_BPE,
-                                              mavenparameters()->S34Labeled_BPE,
-                                              mavenparameters()->D2Labeled_BPE);
-            isotopeDetection.pullIsotopes(&parent);
-            _isotopeGroups.push_back(parent);
-        }
     }
 
     /**

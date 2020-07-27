@@ -8,7 +8,6 @@
 #include "classifierNeuralNet.h"
 #include "constants.h"
 #include "database.h"
-#include "isotopeDetection.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
 #include "mzSample.h"

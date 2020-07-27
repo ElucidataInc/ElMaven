@@ -266,7 +266,8 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
     }
 }
 
-void PeakDetector::processCompounds(vector<Compound*> compounds)
+void PeakDetector::processCompounds(vector<Compound*> compounds,
+                                    bool findBarplotIsotopes)
 {
     if (compounds.size() == 0)
         return;
@@ -291,11 +292,11 @@ void PeakDetector::processCompounds(vector<Compound*> compounds)
         && _mavenParameters->searchAdducts
         && !srmTransitionPresent) {
         setName = "isotopologues and adducts";
-        massSlicer.generateIsotopeSlices(compounds);
+        massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
         massSlicer.generateAdductSlices(compounds, true, false);
     } else if (_mavenParameters->pullIsotopesFlag && !srmTransitionPresent) {
         setName = "isotopologues";
-        massSlicer.generateIsotopeSlices(compounds);
+        massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
     } else if (_mavenParameters->searchAdducts && !srmTransitionPresent) {
         setName = "adducts";
         massSlicer.generateAdductSlices(compounds);

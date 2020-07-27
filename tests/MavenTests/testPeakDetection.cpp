@@ -7,7 +7,6 @@
 #include "mzSample.h"
 #include "peakdetector.h"
 #include "mavenparameters.h"
-#include "isotopeDetection.h"
 #include "classifierNeuralNet.h"
 
 TestPeakDetection::TestPeakDetection() {

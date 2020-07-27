@@ -4,7 +4,6 @@
 #include "testLoadSamples.h"
 #include "testMassCalculator.h"
 #include "testPeakDetection.h"
-#include "testIsotopeDetection.h"
 #include "testMzSlice.h"
 #include "testLoadDB.h"
 #include "testScan.h"
@@ -15,7 +14,6 @@
 #include "testCLI.h"
 #include "testCharge.h"
 #include "testSRMList.h"
-#include "testIsotopeLogic.h"
 
 int readLog(QString);
 
@@ -47,12 +45,6 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestPeakDetection, argc, argv);
     result|=readLog("testPeakDetection.xml");
     mzUtils::stopTimer(timer, "testPeakDetection");
-
-    timer = mzUtils::startTimer();
-    if (freopen("testIsotopeDetection.xml", "w", stdout))
-        result |= QTest::qExec(new TestIsotopeDetection, argc, argv);
-    result|=readLog("testIsotopeDetection.xml");
-    mzUtils::stopTimer(timer, "testIsotopeDetection");
 
     timer = mzUtils::startTimer();
     if(freopen("testCharge.xml",  "w", stdout))
@@ -101,12 +93,6 @@ int main(int argc, char** argv) {
         result |= QTest::qExec(new TestSRMList, argc, argv);
     result|=readLog("testSRMList.xml");
     mzUtils::stopTimer(timer, "testSRMList");
-
-    timer = mzUtils::startTimer();
-    if (freopen("testIsotopeLogic.xml", "w", stdout))
-        result |= QTest::qExec(new TestIsotopeLogic, argc, argv);
-    result|=readLog("testIsotopeLogic.xml");
-    mzUtils::stopTimer(timer, "testIsotopeLogic");
 
     timer = mzUtils::startTimer();
     if (freopen("testMzAligner.xml", "w", stdout)) {

@@ -74,7 +74,8 @@ public:
      * @brief Perform peak-detection for a given set of compounds.
      * @param compounds A vector of compounds for which slices should be found.
      */
-    void processCompounds(std::vector<Compound*> compounds);
+    void processCompounds(std::vector<Compound*> compounds,
+                          bool findBarplotIsotopes = false);
 
     /**
      * @brief For each slice in the given slice vector, perform peak detection.

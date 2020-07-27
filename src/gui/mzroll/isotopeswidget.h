@@ -25,23 +25,23 @@ Q_OBJECT
 public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
-	BackgroundOpsThread* workerThread;
 
- 	BackgroundOpsThread* workerThreadBarplot;
-
+    BackgroundOpsThread* workerThread;
+    BackgroundOpsThread* workerThreadBarplot;
 
 public Q_SLOTS:
 	void setCharge(double charge);
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
-	void computeIsotopes(string f);
+    void computeIsotopes(string formula);
+
 	/**
 	 * @brief sets necessary variables when a group is selected
 	 * @details sets peakgroup, sample (1st sample if none are selected),
 	 * scan, compound and formula for calculation of isotopes
 	**/
-    void setPeakGroupAndMore(shared_ptr<PeakGroup> grp,
-                             bool bookmarkflg = false);
+    void setPeakGroupAndMore(shared_ptr<PeakGroup> group,
+                             bool bookmark = false);
 	/**
 	 * @brief sets compound, window title and formula
 	**/
@@ -82,18 +82,18 @@ private Q_SLOTS:
 	void updateSelectedSample(int index);
 
 private:
-	  IsotopeLogic* isotopeParameters;
-	  IsotopeLogic* isotopeParametersBarPlot;
-	  IsotopeDetection* isotopeDetector;
-      MainWindow* _mw;
-	  bool bookmarkflag;
-	  mzSample* _selectedSample;
+    IsotopeLogic* isotopeParameters;
+    IsotopeLogic* isotopeParametersBarPlot;
+    MainWindow* _mw;
+    bool bookmarkflag;
+    mzSample* _selectedSample;
 
-	  void clearWidget();
-	  void reset();
-	  void populateByParentGroup(vector<Isotope> masslist, double parentMass);
-      QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
-
+    void clearWidget();
+    void reset();
+    QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader);
+    void _insertLinkForPeakGroup(PeakGroup* group);
+    void _pullIsotopesForFormula(string formula);
+    void _pullIsotopesForGroup(PeakGroup *group);
 };
 
 #endif

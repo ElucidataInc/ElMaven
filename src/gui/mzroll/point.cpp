@@ -27,8 +27,8 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _y = y;
     _mw = mw;
     _peak = peak;
+    _scan = nullptr;
     _group = nullptr;
-    _scan = NULL;
     _cSize = 10;
     _color=QColor(Qt::black);
     _pen=QPen(_color);
@@ -224,10 +224,8 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     setZValue(10);
-    if (_group != nullptr) {
-        cerr << "GROUP EXISTS!" << endl;
+    if (_group != nullptr)
         emit peakGroupSelected(_group);
-    }
 
     if (_peak) {
         emit peakSelected(_peak);
@@ -237,17 +235,20 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 
     // make changes through static functions, since this object might be
     // destroyed during the execution period of those functions.
-    _updateWidgetsForPeakGroup(_mw, _group, _peak);
-    _updateWidgetsForScan(_mw, _scan);
+    EicPoint::_updateWidgetsForScan(_mw, _scan);
+    EicPoint::_updateWidgetsForPeakGroup(_mw, _group, _peak);
 }
 
 void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
                                           shared_ptr<PeakGroup> group,
                                           Peak* peak)
 {
+    if (mw == nullptr)
+        return;
+
     if (group != nullptr)
         mw->groupRtWidget->plotGraph(group.get());
-    if (group != nullptr && group->isIsotope() == false )
+    if (group != nullptr && !group->isIsotope())
         mw->isotopeWidget->updateIsotopicBarplot(group);
     if (peak && group != nullptr && mw->isotopeWidget->isVisible())
         mw->isotopeWidget->peakSelected(peak, group);
@@ -260,7 +261,7 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 
 void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
 {
-    if(scan) {
+    if (scan != nullptr && mw != nullptr) {
         if (mw->spectraWidget)
             mw->spectraWidget->setScan(scan);
         if (mw->fragSpectraWidget) {

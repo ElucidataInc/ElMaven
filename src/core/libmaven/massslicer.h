@@ -32,6 +32,7 @@ class MassSlicer {
                                     bool clearPrevious = true);
 
         void generateIsotopeSlices(vector<Compound*> compounds,
+                                   bool sliceBarplotIsotopes = false,
                                    bool clearPrevious = true);
 
         void generateAdductSlices(vector<Compound*> compounds,

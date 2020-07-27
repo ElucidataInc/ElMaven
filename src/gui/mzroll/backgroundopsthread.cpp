@@ -9,13 +9,11 @@
 #include <QJsonObject>
 
 #include "Compound.h"
-#include "adductdetection.h"
 #include "alignmentdialog.h"
 #include "common/analytics.h"
 #include "backgroundopsthread.h"
 #include "database.h"
 #include "grouprtwidget.h"
-#include "isotopeDetection.h"
 #include "mainwindow.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
@@ -32,8 +30,13 @@ BackgroundOpsThread::BackgroundOpsThread(QWidget*)
         _stopped = true;
         setTerminationEnabled(true);
         runFunction = "";
+        mavenParameters = nullptr;
         peakDetector = nullptr;
         setPeakDetector(new PeakDetector());
+
+        _isotopeFormula = "";
+        _isotopeCharge = 0;
+        _isotopeExpectedRt = -1.0f;
 }
 
 BackgroundOpsThread::~BackgroundOpsThread()
@@ -91,10 +94,14 @@ void BackgroundOpsThread::run(void)
         findFeatures();
     } else if (runFunction == "computePeaks") {
         computePeaks();
-    } else if (runFunction == "pullIsotopes") {
-        pullIsotopes(mavenParameters->_group);
-    } else if (runFunction == "pullIsotopesBarPlot") {
-        pullIsotopesBarPlot(mavenParameters->_group);
+    } else if (runFunction == "pullIsotopesForFormula") {
+        pullIsotopesForFormula(_isotopeFormula,
+                               _isotopeCharge,
+                               _isotopeExpectedRt);
+    } else if (runFunction == "pullIsotopesForGroup") {
+        pullIsotopesForGroup(mavenParameters->_group);
+    } else if (runFunction == "pullIsotopesForBarPlot") {
+        pullIsotopesForBarPlot(mavenParameters->_group);
     } else {
         qWarning() << QString("Unknown function: \"%1\"")
                           .arg(runFunction.c_str());
@@ -280,52 +287,62 @@ void BackgroundOpsThread::setRunFunction(QString functionName)
     runFunction = functionName.toStdString();
 }
 
-void BackgroundOpsThread::pullIsotopes(PeakGroup* parentgroup)
+void BackgroundOpsThread::pullIsotopesForFormula(string formula,
+                                                 int charge,
+                                                 float expectedRt)
 {
-    bool isotopeFlag = mavenParameters->pullIsotopesFlag;
-
-    if (!isotopeFlag)
+    if (!mavenParameters->pullIsotopesFlag
+        || formula.empty()
+        || expectedRt < 0.0f) {
         return;
+    }
 
-    bool C13Flag = mavenParameters->C13Labeled_BPE;
-    bool N15Flag = mavenParameters->N15Labeled_BPE;
-    bool S34Flag = mavenParameters->S34Labeled_BPE;
-    bool D2Flag = mavenParameters->D2Labeled_BPE;
-
-    IsotopeDetection::IsotopeDetectionType isoType;
-    isoType = IsotopeDetection::PeakDetection;
-
-    IsotopeDetection isotopeDetection(mavenParameters,
-                                      isoType,
-                                      C13Flag,
-                                      N15Flag,
-                                      S34Flag,
-                                      D2Flag);
-    isotopeDetection.pullIsotopes(parentgroup);
+    Compound tempCompound("tmp_id", "tmp_name", formula, charge, expectedRt);
+    peakDetector->processCompounds({&tempCompound});
 }
 
-void BackgroundOpsThread::pullIsotopesBarPlot(PeakGroup* parentgroup)
+void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
 {
-    bool C13Flag = mavenParameters->C13Labeled_Barplot;
-    bool N15Flag = mavenParameters->N15Labeled_Barplot;
-    bool S34Flag = mavenParameters->S34Labeled_Barplot;
-    bool D2Flag = mavenParameters->D2Labeled_Barplot;
+    if (!mavenParameters->pullIsotopesFlag
+        || !parentGroup->hasCompoundLink()
+        || parentGroup->getCompound()->formula().empty()
+        || parentGroup->isIsotope()) {
+        return;
+    }
 
-    IsotopeDetection::IsotopeDetectionType isoType;
-    isoType = IsotopeDetection::BarPlot;
+    peakDetector->processCompounds({parentGroup->getCompound()});
+    for (auto& group : mavenParameters->allgroups) {
+        if (almostEqual(group.meanMz, parentGroup->meanMz)
+            && almostEqual(group.meanRt, parentGroup->meanRt)) {
+            parentGroup->deleteChildIsotopes();
+            for (auto& child : group.childIsotopes())
+                parentGroup->addIsotopeChild(*child);
+        }
+    }
+}
 
-    IsotopeDetection isotopeDetection(mavenParameters,
-                                      isoType,
-                                      C13Flag,
-                                      N15Flag,
-                                      S34Flag,
-                                      D2Flag);
-    isotopeDetection.pullIsotopes(parentgroup);
+void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
+{
+    if (!mavenParameters->pullIsotopesFlag
+        || !parentGroup->hasCompoundLink()
+        || parentGroup->isIsotope()) {
+        return;
+    }
+
+    peakDetector->processCompounds({parentGroup->getCompound()}, true);
+    for (auto& group : mavenParameters->allgroups) {
+        if (almostEqual(group.meanMz, parentGroup->meanMz)
+            && almostEqual(group.meanRt, parentGroup->meanRt)) {
+            parentGroup->deleteChildIsotopesBarPlot();
+            for (auto& child : group.childIsotopesBarPlot())
+                parentGroup->addIsotopeChildBarPlot(*child);
+        }
+    }
 }
 
 void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
-                                        vector<mzSample*> samples,
-                                        MavenParameters* mavenParameters)
+                                       vector<mzSample*> samples,
+                                       MavenParameters* mavenParameters)
 {
     for(auto group : groups) {
         MavenParameters* mp = group->parameters().get();
@@ -344,23 +361,8 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
 
         if (!group->isIsotope() && group->childIsotopeCount() > 0) {
             group->deleteChildIsotopes();
-            bool C13Flag = mp->C13Labeled_BPE;
-            bool N15Flag = mp->N15Labeled_BPE;
-            bool S34Flag = mp->S34Labeled_BPE;
-            bool D2Flag = mp->D2Labeled_BPE;
-
-            IsotopeDetection::IsotopeDetectionType isoType;
-            isoType = IsotopeDetection::PeakDetection;
-            IsotopeDetection isotopeDetection(mp,
-                                              isoType,
-                                              C13Flag,
-                                              N15Flag,
-                                              S34Flag,
-                                              D2Flag);
-            isotopeDetection.pullIsotopes(group.get());
-
-            for (auto child : group->childIsotopes())
-                child->setTableName(group->tableName());
+            group->deleteChildAdducts();
+            // TODO: shift child groups as well
         }
     }
 
