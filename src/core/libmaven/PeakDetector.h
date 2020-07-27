@@ -75,6 +75,7 @@ public:
      * @param compounds A vector of compounds for which slices should be found.
      */
     void processCompounds(std::vector<Compound*> compounds,
+                          bool applyGroupFilters = true,
                           bool findBarplotIsotopes = false);
 
     /**
@@ -82,10 +83,15 @@ public:
      * @param slices Reference to a vector of pointers to mzSlice.
      * @param setName A string denoting the type of peaks being detected. These
      * names will be emitted with the detection progress signals.
+     * @param applyGroupFilters Whether to apply group-level thresholds on each
+     * detected parent group or not.
      */
-    void processSlices(std::vector<mzSlice*>& slices, std::string setName);
+    void processSlices(std::vector<mzSlice*>& slices,
+                       std::string setName,
+                       bool applyGroupFilters = true);
 
-    void performMetaGrouping(bool barplotIsotopes = false);
+    void performMetaGrouping(bool applyGroupFilters = true,
+                             bool barplotIsotopes = false);
     void linkParentIsotopeRange(PeakGroup& parentGroup);
 
 private:

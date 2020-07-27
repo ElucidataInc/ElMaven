@@ -298,7 +298,7 @@ void BackgroundOpsThread::pullIsotopesForFormula(string formula,
     }
 
     Compound tempCompound("tmp_id", "tmp_name", formula, charge, expectedRt);
-    peakDetector->processCompounds({&tempCompound});
+    peakDetector->processCompounds({&tempCompound}, false);
 }
 
 void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
@@ -310,7 +310,7 @@ void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
         return;
     }
 
-    peakDetector->processCompounds({parentGroup->getCompound()});
+    peakDetector->processCompounds({parentGroup->getCompound()}, false);
     for (auto& group : mavenParameters->allgroups) {
         if (almostEqual(group.meanMz, parentGroup->meanMz)
             && almostEqual(group.meanRt, parentGroup->meanRt)) {
@@ -329,7 +329,9 @@ void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
         return;
     }
 
-    peakDetector->processCompounds({parentGroup->getCompound()}, true);
+    // TODO: here, and possibly elsewhere in pulling isotopes, group filtering
+    // is mistakenly being applied when it should not
+    peakDetector->processCompounds({parentGroup->getCompound()}, false, true);
     for (auto& group : mavenParameters->allgroups) {
         if (almostEqual(group.meanMz, parentGroup->meanMz)
             && almostEqual(group.meanRt, parentGroup->meanRt)) {

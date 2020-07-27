@@ -65,14 +65,15 @@ void IsotopePlot::setPeakGroup(PeakGroup* group) {
     if (group == nullptr)
         return;
 
+    if (group->isotope().isNone())
+        return;
+
     // for peak-groups from tables, we plot the isotopes as they are in table
     if (!group->tableName().empty()) {
         group->deleteChildIsotopesBarPlot();
         for (auto child : group->childIsotopes())
             group->addIsotopeChildBarPlot(*child);
     }
-    if (group->childIsotopeCountBarPlot() == 0)
-        return;
 
     if (group->isIsotope() && group->getParent() ) {
         setPeakGroup(group->getParent());
