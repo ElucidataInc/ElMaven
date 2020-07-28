@@ -273,6 +273,9 @@ public:
      */
     TableDockWidget* activeTable();
 
+	void loadPollySettings(QString fileName);
+	void showLargeFilesNotification(QStringList, QFileInfo);
+	
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();
@@ -356,7 +359,23 @@ public Q_SLOTS:
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
     bool setPeptideSequence(QString peptideSeq);
-	void open();
+	/**
+	 * @brief Open dialog which provides the option for
+	 * opening only the sample files. 
+	 */ 
+	void open_sampleFiles();
+	/**
+	 * @brief Open dialog which provides the option for
+	 * opening only the project files. 
+	 */ 
+	void open_projectFiles();
+	/**
+	 * @brief Called by open_sampleFiles and open_projectFiles
+	 * for handling open options. 
+	 * @param filelist List of files to be opened. 
+	 */ 
+	void open(QStringList filelist, QFileInfo fileInfo);
+
 	void print();
 	void exportPDF();
     void exportSVG();

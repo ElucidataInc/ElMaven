@@ -1666,59 +1666,57 @@ void MainWindow::analyticsAverageSpectra(){
     analytics->hitEvent("Average Spectra", "Clicked");
 }
 
-void MainWindow::open()
+void MainWindow::open(QStringList filelist, QFileInfo fileInfo)
 {
-    // TODO: temporarily added for informing user, remove after a few releases
-    if (!_versionRecordExists()) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("El-MAVEN");
-        msgBox.setText("El-MAVEN is now capable of reading files containing "
-                       "zlib compressed data. Please feel free to load such "
-                       "files, if you have any.");
-        msgBox.setIcon(QMessageBox::Information);
-        QPushButton* b = msgBox.addButton("Continue", QMessageBox::AcceptRole);
-        msgBox.exec();
+    
+    // Changing the title of the main window after selecting the samples
+    setWindowTitle(programName
+                   + " "
+                   + STR(EL_MAVEN_VERSION)
+                   + " "
+                   + fileInfo.fileName());
+
+    QString emdbProjectBeingLoaded = "";
+    Q_FOREACH (QString filename, filelist) {
+        if (fileLoader->isEmdbProject(filename)) {
+            emdbProjectBeingLoaded = filename;
+            analytics->hitEvent("Project Load", "emDB");
+        } else if (fileLoader->isMzrollDbProject(filename)) {
+            emdbProjectBeingLoaded = fileLoader->swapFilenameExtension(filename,
+                                                                       "emDB");
+            analytics->hitEvent("Project Load", "mzrollDB");
+            quantType->setCurrentText("AreaTopNotCorrected");
+        } else if (fileLoader->isMzRollProject(filename)) {
+            analytics->hitEvent("Project Load", "mzroll");
+        }
+        fileLoader->addFileToQueue(filename);
     }
 
-    QString dir = ".";
+    if (!emdbProjectBeingLoaded.isEmpty()) {
+        projectDockWidget->saveAndCloseCurrentSQLiteProject();
+        _latestUserProjectName = emdbProjectBeingLoaded;
 
-    if (settings->contains("lastDir")) {
-        QString ldir = settings->value("lastDir").value<QString>();
-        QDir test(ldir);
-        if (test.exists())
-            dir = ldir;
+        // reset filename in the title to overwrite any saves while closing last
+        // SQLite project
+        QFileInfo projectFileInfo(_latestUserProjectName);
+        setWindowTitle(programName
+                       + " "
+                       + STR(EL_MAVEN_VERSION)
+                       + " "
+                       + projectFileInfo.fileName());
     }
 
-    QStringList filelist = QFileDialog::getOpenFileNames(
-        this,
-        "Select projects, peaks, samples to open:",
-        dir,
-        tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks *.mzXML "
-           "*.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
-            + tr("mzXML Format(*.mzXML *.mzxml);;")
-            + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
-            + tr("mzML Format(*.mzml *.mzML);;")
-            + tr("NetCDF Format(*.cdf *.nc);;")
-            + tr("Thermo (*.raw);;")  // TODO: Sahil-Kiran, Added while merging
-                                      // mainwindow
-            + tr("Maven Project File (*.mzroll *.emDB);;")
-            + tr("Maven Peaks File (*.mzPeaks);;")
-            + tr("Peptide XML(*.pep.xml *.pepXML);;")
-            + tr("Peptide idpDB(*.idpDB);;") + tr("All Files(*.*)"));
+    bool cancelUploading = false;
+    cancelUploading = updateSamplePathinMzroll(filelist);
+    if (!cancelUploading) {
+        fileLoader->start();
+    } else {
+        fileLoader->removeAllFilefromQueue();
+    }
+}
 
-    if (filelist.size() == 0)
-        return;
-
-    analytics->hitEvent("Project Dock Widget", "Open");
-
-    // Saving the file location into the QSettings class so that it can be
-    // used the next time the user opens
-    QString absoluteFilePath(filelist[0]);
-    QFileInfo fileInfo(absoluteFilePath);
-    QDir tmp = fileInfo.absoluteDir();
-    if (tmp.exists())
-        settings->setValue("lastDir", tmp.absolutePath());
-
+void MainWindow::showLargeFilesNotification(QStringList filelist, QFileInfo fileInfo)
+{
     qint64 firstFileSize = fileInfo.size();
     qint64 cumulativeSize = std::accumulate(next(begin(filelist)),
                                             end(filelist),
@@ -1759,29 +1757,82 @@ void MainWindow::open()
 
         Q_UNUSED(continueButton);
     }
+}
 
-    // Changing the title of the main window after selecting the samples
-    setWindowTitle(programName
-                   + " "
-                   + STR(EL_MAVEN_VERSION)
-                   + " "
-                   + fileInfo.fileName());
+void MainWindow::open_projectFiles()
+{
+    // TODO: temporarily added for informing user, remove after a few releases
+    if (!_versionRecordExists()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("El-MAVEN");
+        msgBox.setText("El-MAVEN is now capable of reading files containing "
+                       "zlib compressed data. Please feel free to load such "
+                       "files, if you have any.");
+        msgBox.setIcon(QMessageBox::Information);
+        QPushButton* b = msgBox.addButton("Continue", QMessageBox::AcceptRole);
+        msgBox.exec();
+    }
 
-    QString emdbProjectBeingLoaded = "";
-    Q_FOREACH (QString filename, filelist) {
-        if (fileLoader->isEmdbProject(filename)) {
-            emdbProjectBeingLoaded = filename;
-            analytics->hitEvent("Project Load", "emDB");
-        } else if (fileLoader->isMzrollDbProject(filename)) {
-            emdbProjectBeingLoaded = fileLoader->swapFilenameExtension(filename,
-                                                                       "emDB");
-            analytics->hitEvent("Project Load", "mzrollDB");
-            quantType->setCurrentText("AreaTopNotCorrected");
-        } else if (fileLoader->isMzRollProject(filename)) {
-            analytics->hitEvent("Project Load", "mzroll");
+    QString dir = ".";
+
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select projects, peaks, samples to open:",
+        dir,
+        tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks);;")
+            + tr("Maven Project File (*.mzroll *.emDB);;")
+            + tr("Maven Peaks File (*.mzPeaks);;") + tr("All Files(*.*)"));
+
+    if (filelist.size() == 0)
+        return;
+
+    analytics->hitEvent("Project Dock Widget", "Open");
+
+    // Saving the file location into the QSettings class so that it can be
+    // used the next time the user opens
+    QString absoluteFilePath(filelist[0]);
+    QFileInfo fileInfo(absoluteFilePath);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastDir", tmp.absolutePath());
+
+
+    int countSampleFilesLoaded = 0; 
+    QStringList sampleFileList;
+    for (auto file : filelist)
+    {
+        if (fileLoader->isEmdbProject(file)
+            || fileLoader->isMzrollDbProject(file)
+            || fileLoader->isMzRollProject(file)) {
+                continue;
+        }
+        sampleFileList << file;
+        filelist.removeOne(file); 
+        countSampleFilesLoaded++;
+    }
+
+    if (countSampleFilesLoaded) {
+
+        QString notUploadedFiles;
+        for (QString filePath : sampleFileList) {
+            auto filePathSplit = mzUtils::split(filePath.toStdString(), "/");
+            string fileName = filePathSplit[filePathSplit.size() - 1];
+            notUploadedFiles += "<li>" + QString::fromStdString(fileName);
         }
 
-        fileLoader->addFileToQueue(filename);
+        auto htmlText = QString("<p>Project files do not include the followings: </p>"
+                            "<ul>%1</ul>").arg(notUploadedFiles);
+        htmlText += "<p>Some files are not uploaded.</p>";
+        auto reply = QMessageBox::critical(this, 
+                                            tr(""), 
+                                            htmlText);
     }
 
     if (!emdbProjectBeingLoaded.isEmpty()) {
@@ -1804,23 +1855,106 @@ void MainWindow::open()
         projectDockWidget->saveAndCloseCurrentSQLiteProject();
         _latestUserProjectName = emdbProjectBeingLoaded;
 
-        // reset filename in the title to overwrite any saves while closing last
-        // SQLite project
-        QFileInfo fileInfo(_latestUserProjectName);
-        setWindowTitle(programName
-                       + " "
-                       + STR(EL_MAVEN_VERSION)
-                       + " "
-                       + fileInfo.fileName());
+    if (!filelist.size())
+        return;
+    else if (filelist.size() > 1) {
+        auto htmlText = QString("<p>Only one project file can be loaded at a time.</p>");
+        htmlText += "<p>Some files are not uploaded.</p>";
+        auto reply = QMessageBox::critical(this, 
+                                            tr(""), 
+                                            htmlText);
+        auto fileToOpen = filelist[0];
+        filelist.clear();
+        filelist << fileToOpen;
     }
 
-    bool cancelUploading = false;
-    cancelUploading = updateSamplePathinMzroll(filelist);
-    if (!cancelUploading) {
-        fileLoader->start();
-    } else {
-        fileLoader->removeAllFilefromQueue();
+    open(filelist, fileInfo);
+
+}
+
+void MainWindow::open_sampleFiles()
+{
+    // TODO: temporarily added for informing user, remove after a few releases
+    if (!_versionRecordExists()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("El-MAVEN");
+        msgBox.setText("El-MAVEN is now capable of reading files containing "
+                       "zlib compressed data. Please feel free to load such "
+                       "files, if you have any.");
+        msgBox.setIcon(QMessageBox::Information);
+        QPushButton* b = msgBox.addButton("Continue", QMessageBox::AcceptRole);
+        msgBox.exec();
     }
+
+    QString dir = ".";
+
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+
+    QStringList filelist = QFileDialog::getOpenFileNames(
+        this,
+        "Select projects, peaks, samples to open:",
+        dir,
+        tr("All Known Formats(*.mzXML *.mzxml *.mzdata *.mzData"
+           " *.mzData.xml *.cdf *.nc *.mzML);;")
+            + tr("mzXML Format(*.mzXML *.mzxml);;")
+            + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
+            + tr("mzML Format(*.mzml *.mzML);;")
+            + tr("NetCDF Format(*.cdf *.nc);;")
+            + tr("Thermo (*.raw);;")  // TODO: Sahil-Kiran, Added while merging
+                                      // mainwindow
+            + tr("Peptide XML(*.pep.xml *.pepXML);;")
+            + tr("Peptide idpDB(*.idpDB);;") + tr("All Files(*.*)"));
+
+    if (filelist.size() == 0)
+        return;
+
+    analytics->hitEvent("Project Dock Widget", "Open");
+
+    // Saving the file location into the QSettings class so that it can be
+    // used the next time the user opens
+    QString absoluteFilePath(filelist[0]);
+    QFileInfo fileInfo(absoluteFilePath);
+    QDir tmp = fileInfo.absoluteDir();
+    if (tmp.exists())
+        settings->setValue("lastDir", tmp.absolutePath());
+
+    int countProjectFilesLoaded = 0; 
+    QStringList projectFileList;
+    for (auto file : filelist)
+    {
+        if (fileLoader->isEmdbProject(file)
+            || fileLoader->isMzrollDbProject(file)
+            || fileLoader->isMzRollProject(file)) {
+                projectFileList << file;
+                filelist.removeOne(file); 
+                countProjectFilesLoaded++;
+        }
+    }
+
+    if (countProjectFilesLoaded) {
+
+        QString notUploadedFiles;
+        for (QString filePath : projectFileList) {
+            auto filePathSplit = mzUtils::split(filePath.toStdString(), "/");
+            string fileName = filePathSplit[filePathSplit.size() - 1];
+            notUploadedFiles += "<li>" + QString::fromStdString(fileName);
+        }
+
+        auto htmlText = QString("<p>Sample files do not include the followings: </p>"
+                            "<ul>%1</ul>").arg(notUploadedFiles);
+        htmlText += "<p>Some files are not uploaded.</p>";
+        auto reply = QMessageBox::critical(this, 
+                                            tr(""), 
+                                            htmlText);
+    }
+
+    showLargeFilesNotification(filelist, fileInfo);
+    open(filelist, fileInfo);    
 }
 
 bool MainWindow::updateSamplePathinMzroll(QStringList filelist) {
@@ -3132,6 +3266,16 @@ void MainWindow::createToolBars() {
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnOpen->setToolTip(tr("Sample uploads"));
+    //function(open) at line 1685 would b changed. 
+    btnOpen->setMenu(new QMenu("Uplpad Samples"));
+    btnOpen->setPopupMode(QToolButton::InstantPopup);
+    QAction *sampleFiles =
+        btnOpen->menu()->addAction(tr("Upload sample files"));
+    QAction *projectFiles =
+        btnOpen->menu()->addAction(tr("Upload project files"));
+
+    connect(sampleFiles, SIGNAL(triggered()), this, SLOT(open_sampleFiles()));
+    connect(projectFiles, SIGNAL(triggered()), this, SLOT(open_projectFiles()));
 
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
@@ -3196,7 +3340,6 @@ void MainWindow::createToolBars() {
     btnInfo->setToolTip(tr("Documentaion, information and technical "
                            "support for El-MAVEN."));
 
-	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
