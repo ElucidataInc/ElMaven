@@ -92,7 +92,8 @@ public:
 
     void performMetaGrouping(bool applyGroupFilters = true,
                              bool barplotIsotopes = false);
-    void linkParentIsotopeRange(PeakGroup& parentGroup);
+    void linkParentIsotopeRange(PeakGroup& parentGroup,
+                                bool findBarplotIsotopes = false);
 
 private:
     MavenParameters* _mavenParameters;

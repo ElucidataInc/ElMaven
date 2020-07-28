@@ -129,8 +129,11 @@ void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
                                          MassCutoff* massCutoff)
 {
     auto possibleChildren = parent.childIsotopes();
-    if (type == ChildFilterType::Adduct)
+    if (type == ChildFilterType::BarplotIsotope) {
+        possibleChildren = parent.childIsotopesBarPlot();
+    } else if (type == ChildFilterType::Adduct) {
         possibleChildren = parent.childAdducts();
+    }
 
     vector<PeakGroup*> nonChildren;
     for (auto& child : possibleChildren) {

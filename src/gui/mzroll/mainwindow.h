@@ -206,7 +206,7 @@ public:
 
         LibraryManager* getLibraryManager() { return _libraryManager; }
 
-	MatrixXf getIsotopicMatrix(PeakGroup* group);
+    MatrixXf getIsotopicMatrix(PeakGroup* group, bool barplot = false);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
     void autoSaveSignal(QList<shared_ptr<PeakGroup>> groups = {});

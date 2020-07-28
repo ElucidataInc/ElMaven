@@ -129,7 +129,7 @@ void IsotopePlot::showBars() {
     PeakGroup::QType qtype = PeakGroup::AreaTop;
     if ( _mw ) qtype = _mw->getUserQuantType();
 
-    MatrixXf MM = _mw->getIsotopicMatrix(_group);
+    MatrixXf MM = _mw->getIsotopicMatrix(_group, true);
 
     if (scene()) {
         _width =   scene()->width()*0.20;
@@ -322,18 +322,6 @@ void IsotopePlot::showPointToolTip(QMouseEvent *event) {
     _mw->customPlot->replot();
 }
 
-
-void IsotopePlot::contextMenuEvent(QContextMenuEvent * event) {
-    QMenu menu;
-
-    SettingsForm* settingsForm = _mw->settingsForm;
-
-    QAction* d = menu.addAction("Isotope Detection Options");
-    connect(d, SIGNAL(triggered()), settingsForm, SLOT(showIsotopeDetectionTab()));
-    connect(d, SIGNAL(triggered()), settingsForm, SLOT(show()));
-
-    menu.exec(event->globalPos());
-
-}
-
-void IsotopePlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) { return; }
+void IsotopePlot::paint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *, QWidget *)
+{}

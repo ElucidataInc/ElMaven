@@ -322,16 +322,20 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
             && _mavenParameters->pullIsotopesFlag
             && !srmTransitionPresent) {
             if (_mavenParameters->linkIsotopeRtRange)
-                linkParentIsotopeRange(group);
+                linkParentIsotopeRange(group, findBarplotIsotopes);
 
             sendBoostSignal("Filtering isotopologues…", 0, 0);
-            if (_mavenParameters->filterIsotopesAgainstParent)
+            auto childType = GroupFiltering::ChildFilterType::Isotope;
+            if (findBarplotIsotopes)
+                childType = GroupFiltering::ChildFilterType::BarplotIsotope;
+            if (_mavenParameters->filterIsotopesAgainstParent) {
                 groupFilter.filterBasedOnParent(
                     group,
-                    GroupFiltering::ChildFilterType::Isotope,
+                    childType,
                     _mavenParameters->maxIsotopeScanDiff,
                     _mavenParameters->minIsotopicCorrelation,
                     _mavenParameters->compoundMassCutoffWindow);
+            }
         }
         if (group.hasCompoundLink()
             && _mavenParameters->searchAdducts
@@ -797,10 +801,13 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     }
 }
 
-void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup)
+void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
+                                          bool findBarplotIsotopes)
 {
     PeakFiltering peakFilter(_mavenParameters, true);
-    for (auto& child : parentGroup.childIsotopes()) {
+    auto isotopes = findBarplotIsotopes ? parentGroup.childIsotopesBarPlot()
+                                        : parentGroup.childIsotopes();
+    for (auto& child : isotopes) {
         auto eics = pullEICs(&child->getSlice(),
                              _mavenParameters->samples,
                              _mavenParameters);

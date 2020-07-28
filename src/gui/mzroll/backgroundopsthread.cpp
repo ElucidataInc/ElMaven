@@ -36,7 +36,6 @@ BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 
         _isotopeFormula = "";
         _isotopeCharge = 0;
-        _isotopeExpectedRt = -1.0f;
 }
 
 BackgroundOpsThread::~BackgroundOpsThread()
@@ -96,8 +95,7 @@ void BackgroundOpsThread::run(void)
         computePeaks();
     } else if (runFunction == "pullIsotopesForFormula") {
         pullIsotopesForFormula(_isotopeFormula,
-                               _isotopeCharge,
-                               _isotopeExpectedRt);
+                               _isotopeCharge);
     } else if (runFunction == "pullIsotopesForGroup") {
         pullIsotopesForGroup(mavenParameters->_group);
     } else if (runFunction == "pullIsotopesForBarPlot") {
@@ -287,17 +285,12 @@ void BackgroundOpsThread::setRunFunction(QString functionName)
     runFunction = functionName.toStdString();
 }
 
-void BackgroundOpsThread::pullIsotopesForFormula(string formula,
-                                                 int charge,
-                                                 float expectedRt)
+void BackgroundOpsThread::pullIsotopesForFormula(string formula, int charge)
 {
-    if (!mavenParameters->pullIsotopesFlag
-        || formula.empty()
-        || expectedRt < 0.0f) {
+    if (!mavenParameters->pullIsotopesFlag || formula.empty())
         return;
-    }
 
-    Compound tempCompound("tmp_id", "tmp_name", formula, charge, expectedRt);
+    Compound tempCompound("tmp_id", "tmp_name", formula, charge);
     peakDetector->processCompounds({&tempCompound}, false);
 }
 

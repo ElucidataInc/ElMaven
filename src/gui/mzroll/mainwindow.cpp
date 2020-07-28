@@ -4605,35 +4605,39 @@ void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {
 	}
 }
 
-MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
-
+MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group, bool barplot)
+{
 	PeakGroup::QType qtype = getUserQuantType();
-	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
 	sort(vsamples.begin(), vsamples.end(), mzSample::compRevSampleOrder);
 
-	//get isotopic groups
 	vector<PeakGroup*> isotopes;
     isotopes.push_back(group);
-    for (int i = 0; i < group->childIsotopeCountBarPlot(); i++) {
-        if (group->childIsotopesBarPlot()[i]->isIsotope()) {
-            PeakGroup* isotope = group->childIsotopesBarPlot()[i].get();
-			isotopes.push_back(isotope);
-		}
-	}
-    sort(begin(isotopes), end(isotopes), PeakGroup::compIsotopeLabel);
+    if (barplot) {
+        for (auto& child : group->childIsotopesBarPlot())
+            isotopes.push_back(child.get());
+    } else {
+        for (auto& child : group->childIsotopes())
+            isotopes.push_back(child.get());
+    }
+    sort(begin(isotopes),
+         end(isotopes),
+         PeakGroup::compIsotopeLabel);
 
-	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
+     // rows=samples, cols=isotopes
+    MatrixXf MM((int) vsamples.size(), (int) isotopes.size());
 	MM.setZero();
 
 	for (int i = 0; i < isotopes.size(); i++) {
 		if (!isotopes[i])
 			continue;
-		vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
-				qtype); //sort isotopes by sample
-		for (int j = 0; j < values.size(); j++)
-			MM(j, i) = values[j];  //rows=samples, columns=isotopes
-	}
+
+        // sort isotopes by sample
+        vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
+                                                                      qtype);
+        for (int j = 0; j < values.size(); j++)
+            MM(j, i) = values[j]; // rows=samples, columns=isotopes
+    }
 	normalizeIsotopicMatrix(MM);
 	return MM;
 }

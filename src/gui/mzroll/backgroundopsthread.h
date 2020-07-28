@@ -39,13 +39,10 @@ public:
     PeakDetector* getPeakDetector() { return peakDetector; }
 
     void setRunFunction(QString functionName);
-    void setPullIsotopesForFormulaArgs(string formula,
-                                       int charge,
-                                       float expectedRt)
+    void setPullIsotopesForFormulaArgs(string formula, int charge)
     {
         _isotopeFormula = formula;
         _isotopeCharge = charge;
-        _isotopeExpectedRt = expectedRt;
     }
 
     void setStopped(bool stopped) { _stopped = stopped; }
@@ -105,7 +102,7 @@ private:
 
     void emitGroups();
 
-    void pullIsotopesForFormula(string formula, int charge, float expectedRt);
+    void pullIsotopesForFormula(string formula, int charge);
     void pullIsotopesForGroup(PeakGroup* parentGroup);
     void pullIsotopesForBarPlot(PeakGroup* parentGroup);
 
@@ -117,7 +114,6 @@ private:
     // arguments for `pullIsotopesForFormula` method
     string _isotopeFormula;
     int _isotopeCharge;
-    float _isotopeExpectedRt;
 };
 
 #endif

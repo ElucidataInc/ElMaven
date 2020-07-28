@@ -279,7 +279,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
     auto mp = new MavenParameters(*_mw->mavenParameters);
     workerThread->setMavenParameters(mp);
     workerThread->peakDetector->setMavenParameters(mp);
-    workerThread->setPullIsotopesForFormulaArgs(formula, charge, expectedRt);
+    workerThread->setPullIsotopesForFormulaArgs(formula, charge);
     workerThread->setRunFunction("pullIsotopesForFormula");
 
     auto callback = [this, expectedRt]() {
@@ -299,6 +299,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
         if (closestParent == nullptr)
             return;
 
+        _mw->getIsotopicMatrix(closestParent);
         _insertLinkForPeakGroup(closestParent);
         for (auto& child : closestParent->childIsotopes())
             _insertLinkForPeakGroup(child.get());

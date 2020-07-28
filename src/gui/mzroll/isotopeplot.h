@@ -44,8 +44,6 @@ private Q_SLOTS:
 	
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void contextMenuEvent(QContextMenuEvent * event);
-
 
 private:
     float _width;

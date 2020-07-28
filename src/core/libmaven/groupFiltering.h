@@ -16,6 +16,7 @@ class GroupFiltering
 public:
     enum class ChildFilterType {
         Isotope,
+        BarplotIsotope,
         Adduct
     };
 
