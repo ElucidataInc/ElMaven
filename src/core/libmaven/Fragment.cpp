@@ -621,12 +621,12 @@ float Fragment::weightedDotProduct(Fragment* other, float fragmentTolerance)
 
     // calculate the ratio of actual number of matches
     // to expected number of matches
-    int numMatches = 0;
+    set<int> uniqueIndexes;
     for (int rank : ranksForThis) {
         if (rank != -1)
-            ++numMatches;
+            uniqueIndexes.insert(rank);
     }
-    float ratioOfMatches = static_cast<float>(numMatches)
+    float ratioOfMatches = static_cast<float>(uniqueIndexes.size())
                            / static_cast<float>(ranksForOther.size());
 
     // non-matching peaks in library spectra will be halved
@@ -636,6 +636,14 @@ float Fragment::weightedDotProduct(Fragment* other, float fragmentTolerance)
     denseVectorForOther = weightedDenseVector(other, ranksForOther);
     float reverseDotProduct = mzUtils::correlation(denseVectorForOther,
                                                    denseVectorForThis);
+    if ((ratioOfMatches + dotProduct + reverseDotProduct) / 3.0f > 1.0f) {
+        cerr << "dot product: " << dotProduct << endl;
+        cerr << "num matches: " << uniqueIndexes.size()
+             << " (" << ranksForThis.size()
+             << " vs. "
+             << ranksForOther.size() << ")\n";
+        cerr << "reverse dot product: " << reverseDotProduct << endl;
+    }
 
     return (ratioOfMatches + dotProduct + reverseDotProduct) / 3.0f;
 }

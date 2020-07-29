@@ -162,31 +162,30 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
         QStringList peakReportcolnames;
         peakReportcolnames << "groupId"
                            << "compound"
-                           << "compoundId"
+                           << "compoundId";
 
-            if (_acquisitionMode == AcquisitionMode::DIA) peakReportcolnames
-                           << "fragment";
+        if (_acquisitionMode == AcquisitionMode::DIA)
+            peakReportcolnames << "fragment";
 
-        << "formula"
-        << "sample"
-        << "adductName"
-        << "isotopeLabel"
-        << "peakMz"
-        << "mzmin"
-        << "mzmax"
-        << "rt"
-        << "rtmin"
-        << "rtmax"
-        << "quality"
-        << "peakIntensity"
-        << "peakArea"
-        << "peakSplineArea"
-        << "peakAreaTop"
-        << "peakAreaCorrected"
-        << "peakAreaTopCorrected"
-        << "noNoiseObs"
-        << "signalBaseLineRatio"
-        << "fromBlankSample";
+        peakReportcolnames << "formula"
+                           << "adductName"
+                           << "sample"
+                           << "peakMz"
+                           << "mzmin"
+                           << "mzmax"
+                           << "rt"
+                           << "rtmin"
+                           << "rtmax"
+                           << "quality"
+                           << "peakIntensity"
+                           << "peakArea"
+                           << "peakSplineArea"
+                           << "peakAreaTop"
+                           << "peakAreaCorrected"
+                           << "peakAreaTopCorrected"
+                           << "noNoiseObs"
+                           << "signalBaseLineRatio"
+                           << "fromBlankSample";
 
         QString header = peakReportcolnames.join(SEP.c_str());
         _reportStream << header.toStdString() << endl;
