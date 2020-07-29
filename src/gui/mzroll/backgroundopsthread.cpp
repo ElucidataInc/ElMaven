@@ -27,7 +27,6 @@
 BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 {
         mainwindow = NULL;
-        _stopped = true;
         setTerminationEnabled(true);
         runFunction = "";
         mavenParameters = nullptr;
@@ -86,7 +85,6 @@ void BackgroundOpsThread::run(void)
 
     mavenParameters->stop = false;
 
-    setStopped(false);
     if (runFunction == "alignWithObiWarp") {
         alignWithObiWarp();
     } else if (runFunction == "findFeatures") {
@@ -210,12 +208,12 @@ void BackgroundOpsThread::alignWithObiWarp()
     aligner.setAlignmentProgress.connect(
         boost::bind(&BackgroundOpsThread::qtSlot, this, _1, _2, _3));
 
-    _stopped = aligner.alignWithObiWarp(mavenParameters->samples,
-                                        obiParams,
-                                        mavenParameters);
+    auto stopped = aligner.alignWithObiWarp(mavenParameters->samples,
+                                            obiParams,
+                                            mavenParameters);
     delete obiParams;
 
-    if (_stopped) {
+    if (stopped) {
         emit restoreAlignment();
 
         // restore previous RTs
@@ -277,7 +275,6 @@ void BackgroundOpsThread::completeStop()
 {
     peakDetector->resetProgressBar();
     mavenParameters->stop = true;
-    setStopped(true);
 }
 
 void BackgroundOpsThread::setRunFunction(QString functionName)

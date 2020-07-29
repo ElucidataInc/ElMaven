@@ -45,8 +45,6 @@ public:
         _isotopeCharge = charge;
     }
 
-    void setStopped(bool stopped) { _stopped = stopped; }
-    bool stopped() { return _stopped; }
     void completeStop();
 
     void setMainWindow(MainWindow* mw) { mainwindow = mw; }
@@ -108,8 +106,6 @@ private:
 
     void computePeaks();
     void findFeatures();
-
-    volatile bool _stopped;
 
     // arguments for `pullIsotopesForFormula` method
     string _isotopeFormula;

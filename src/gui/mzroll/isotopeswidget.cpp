@@ -6,6 +6,7 @@
 #include "eicwidget.h"
 #include "globals.h"
 #include "isotopelogic.h"
+#include "isotopeplotdockwidget.h"
 #include "isotopeplot.h"
 #include "isotopeswidget.h"
 #include "mainwindow.h"
@@ -27,8 +28,10 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 
 	setupUi(this);
 	connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
-	connect(formula, SIGNAL(textEdited(QString)), this,
-			SLOT(userChangedFormula(QString)));
+    connect(formula,
+            &QLineEdit::textEdited,
+            this,
+            &IsotopeWidget::userChangedFormula);
 	connect(ionization, SIGNAL(valueChanged(double)), this,
 			SLOT(setCharge(double)));
     connect(sampleList,
@@ -138,7 +141,16 @@ void IsotopeWidget::setCompound(Compound *compound)
     QString formula = QString(compound->formula().c_str());
     isotopeParameters->_compound = compound;
     setWindowTitle("Isotopes: " + QString(compound->name().c_str()));
+
+    disconnect(this->formula,
+               &QLineEdit::textEdited,
+               this,
+               &IsotopeWidget::userChangedFormula);
     setFormula(formula);
+    connect(this->formula,
+            &QLineEdit::textEdited,
+            this,
+            &IsotopeWidget::userChangedFormula);
 }
 
 void IsotopeWidget::setIonizationMode(int mode)
@@ -154,7 +166,7 @@ void IsotopeWidget::userChangedFormula(QString f)
 	isotopeParameters->_formula = f.toStdString();
 	isotopeParameters->userChangedFormula();
 
-	setWindowTitle("Unknown_" + f);
+    setWindowTitle("Compound formula: " + f);
 	computeIsotopes(isotopeParameters->_formula);
 }
 
@@ -266,8 +278,6 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
 {
     while(workerThread->isRunning())
         QCoreApplication::processEvents();
-    if (workerThread->stopped())
-        workerThread->setStopped(false);
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -299,7 +309,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
         if (closestParent == nullptr)
             return;
 
-        _mw->getIsotopicMatrix(closestParent);
+        clearWidget();
         _insertLinkForPeakGroup(closestParent);
         for (auto& child : closestParent->childIsotopes())
             _insertLinkForPeakGroup(child.get());
@@ -311,6 +321,11 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
     };
 
     connect(workerThread, &BackgroundOpsThread::finished, this, callback);
+    connect(workerThread,
+            &BackgroundOpsThread::finished,
+            this,
+            [this]() { setEnabled(true); });
+    this->setDisabled(true);
     workerThread->start();
 }
 
@@ -318,8 +333,6 @@ void IsotopeWidget::_pullIsotopesForGroup(PeakGroup* group)
 {
     while(workerThread->isRunning())
         QCoreApplication::processEvents();
-    if (workerThread->stopped())
-        workerThread->setStopped(false);
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -344,6 +357,11 @@ void IsotopeWidget::_pullIsotopesForGroup(PeakGroup* group)
             &BackgroundOpsThread::finished,
             this,
             QOverload<>::of(&IsotopeWidget::setClipboard));
+    connect(workerThread,
+            &BackgroundOpsThread::finished,
+            this,
+            [this]() { setEnabled(true); });
+    this->setDisabled(true);
     workerThread->start();
 }
 
@@ -363,7 +381,10 @@ void IsotopeWidget::computeIsotopes(string formula)
         if (parentGroup == nullptr || parentGroup->isIsotope())
             return;
 
-        if (!parentGroup->tableName().empty()) {
+        if (parentGroup->childIsotopeCount() > 0
+            || !parentGroup->tableName().empty()
+            || !parentGroup->isotope().isNone()) {
+            clearWidget();
             _insertLinkForPeakGroup(parentGroup);
             for (auto& child : parentGroup->childIsotopes())
                 _insertLinkForPeakGroup(child.get());
@@ -411,8 +432,6 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
 
     while(workerThreadBarplot->isRunning())
         QCoreApplication::processEvents();
-    if (workerThreadBarplot->stopped())
-        workerThreadBarplot->setStopped(false);
 
     if (workerThreadBarplot->mavenParameters != nullptr)
         delete workerThreadBarplot->mavenParameters;
@@ -429,11 +448,14 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
     workerThreadBarplot->mavenParameters->compoundMassCutoffWindow =
         _mw->getUserMassCutoff();
 
+    _mw->isotopePlotDockWidget->setDisabled(true);
     workerThreadBarplot->start();
 }
 
 void IsotopeWidget::updateIsotopicBarplot()
 {
+    _mw->isotopePlotDockWidget->setEnabled(true);
+
     float leastRtDiff = numeric_limits<float>::max();
     PeakGroup* closestParent = nullptr;
     if (workerThreadBarplot->mavenParameters->allgroups.size() == 1) {
@@ -451,9 +473,8 @@ void IsotopeWidget::updateIsotopicBarplot()
     if (closestParent == nullptr)
         return;
 
-    isotopeParameters->_group = make_shared<PeakGroup>(*closestParent);
-    _mw->isotopePlot->setPeakGroup(isotopeParameters->_group.get());
-    workerThreadBarplot->setStopped(true);
+    isotopeParametersBarPlot->_group = make_shared<PeakGroup>(*closestParent);
+    _mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group.get());
 }
 
 void IsotopeWidget::setClipboard()
@@ -490,7 +511,6 @@ void IsotopeWidget::setClipboard()
         }
     }
     _mw->setStatusText("Isotopes pulled");
-    workerThread->setStopped(true);
 }
 
 void IsotopeWidget::setClipboard(QList<shared_ptr<PeakGroup>>& groups)

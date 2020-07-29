@@ -182,10 +182,6 @@ void PathwayWidget::recalculateConcentrations() {
 void PathwayWidget::checkCompoundExistance() {
 	//cerr << "PathwayWidget::checkCompoundExistance() force=" << _forceUpdate << endl;
 
-	if (workerThread->isRunning()) {
-        workerThread->setStopped(true);
-		workerThread->wait(10);
-	}
 	if (workerThread->isRunning())
 		return;
 

@@ -1486,11 +1486,12 @@ void MainWindow::setCompoundFocus(Compound*c) {
 		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
-        } else if (isotopeWidget
-                   && isotopePlot
-                   && isotopePlot->isVisible()
-                   && selectedGroup
-                   && selectedGroup->getCompound() != NULL) {
+        }
+        if (isotopeWidget
+            && isotopePlot
+            && isotopePlot->isVisible()
+            && selectedGroup
+            && selectedGroup->getCompound() != NULL) {
             isotopeWidget->updateIsotopicBarplot(selectedGroup);
         }
 
@@ -3699,10 +3700,11 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
         && isotopeWidget->isVisible()
         && group->hasCompoundLink()) {
         isotopeWidget->setPeakGroupAndMore(group);
-    } else if (isotopeWidget
-               && isotopePlot
-               && isotopePlot->isVisible()
-               && group->hasCompoundLink()) {
+    }
+    if (isotopeWidget
+        && isotopePlot
+        && isotopePlot->isVisible()
+        && group->hasCompoundLink()) {
         isotopeWidget->updateIsotopicBarplot(group);
     }
 
