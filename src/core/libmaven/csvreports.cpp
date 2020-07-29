@@ -166,7 +166,8 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
         if (_acquisitionMode == AcquisitionMode::DIA)
             peakReportcolnames << "fragment";
 
-        peakReportcolnames     << "formula"                               << "adductName"
+        peakReportcolnames     << "formula"
+                               << "adductName"
                                << "sample"
                                << "peakMz"
                                << "mzmin"
@@ -470,7 +471,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
             _reportStream << SEP << fragment;
 
         _reportStream << SEP << formula << SEP << adductName
-                      << SEP << sampleName << SEP << peak.peakMz << SEP                      << peak.mzmin << SEP << peak.mzmax << setprecision(3)
+                      << SEP << sampleName << SEP << peak.peakMz << SEP
+                      << peak.mzmin << SEP << peak.mzmax << setprecision(3)
                       << SEP << peak.rt << SEP << peak.rtmin << SEP
                       << peak.rtmax << SEP
                       << peak.quality

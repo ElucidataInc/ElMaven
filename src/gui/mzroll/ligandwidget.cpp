@@ -752,8 +752,6 @@ void LigandWidget::matchFragmentation() {
                 .arg(QString::number(ints, 'f', 2));
     }
 
-	qDebug() << "Search: " << searchText << endl;
-
 	_mw->spectraMatchingForm->fragmentsText->setPlainText(searchText.join("\n"));
 	_mw->spectraMatchingForm->precursorMz->setText(QString::number(precursorMz,'f',6));
 
