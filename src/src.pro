@@ -6,5 +6,4 @@ SUBDIRS += core/libmaven \
            common \
            pollyCLI \
            projectDB \
-           gui/mzroll \
            cli/peakdetector
