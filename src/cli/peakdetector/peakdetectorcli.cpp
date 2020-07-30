@@ -625,7 +625,7 @@ void PeakDetectorCLI::loadCompoundsFile()
     mavenParameters->processAllSlices = false;
     _log->info() << "Loading compound database…" << std::flush;
     int loadCount = _db.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
-    auto compoundsDB = _db.getCompoundsDB();
+    auto compoundsDB = _db.compoundsDB();
     vector<Compound*> v(compoundsDB.begin(),compoundsDB.end());
     mavenParameters->compounds = v;
 

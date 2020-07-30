@@ -94,9 +94,6 @@ private Q_SLOTS:
     void showLigand();
     void showTable();
     void databaseChanged(int index);
-    void readRemoteData(QNetworkReply* reply);
-    void fetchRemoteCompounds();
-    QList<Compound*> parseXMLRemoteCompounds();
 
 private:
 

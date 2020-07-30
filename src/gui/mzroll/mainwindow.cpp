@@ -1984,7 +1984,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
     string dbName = mzUtils::cleanFilename(filename.toStdString());
 
     bool reloading = false;
-    deque<Compound*> compoundsDB = DB.getCompoundsDB();
+    deque<Compound*> compoundsDB = DB.compoundsDB();
     for (int i = 0; i < compoundsDB.size(); i++) {
         Compound* currentCompound = compoundsDB[i];
         if (currentCompound->db() == dbName) {
@@ -3669,7 +3669,7 @@ void MainWindow::showSRMList() {
 
 		bool associateCompoundNames = true;
 
-        deque<Compound*> compoundsDB = DB.getCompoundsDB();
+        deque<Compound*> compoundsDB = DB.compoundsDB();
 
 		double amuQ1 = getSettings()->value("amuQ1").toDouble();
         double amuQ3 = getSettings()->value("amuQ3").toDouble();

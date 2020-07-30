@@ -1712,10 +1712,10 @@ TEST_CASE("Testing database class")
         string csvFile = "tests/test-libmaven/test_loadCSV.csv";
         int rescsv = db.loadCompoundCSVFile(csvFile);
 
-        REQUIRE(db.getCompoundsDB().size() == 30);
+        REQUIRE(db.compoundsDB().size() == 30);
         // Remove Database.
         db.removeDatabase("test_Mascot");
-        REQUIRE(db.getCompoundsDB().size() == 20);
+        REQUIRE(db.compoundsDB().size() == 20);
 
 
         // Get database name

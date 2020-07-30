@@ -294,7 +294,7 @@ void AlignmentDialog::setDatabase()
 	selectDatabaseComboBox->disconnect(SIGNAL(currentIndexChanged(QString)));
 	selectDatabaseComboBox->clear();
 	QSet<QString>set;
-    auto compoundsDB = DB.getCompoundsDB();
+    auto compoundsDB = DB.compoundsDB();
 	for(int i=0; i< compoundsDB.size(); i++) {
                 if (! set.contains( compoundsDB[i]->db().c_str() ) )
                         set.insert( compoundsDB[i]->db().c_str() );
