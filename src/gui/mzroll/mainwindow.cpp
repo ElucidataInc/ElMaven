@@ -318,7 +318,6 @@ using namespace mzUtils;
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
-    setActiveTable(bookmarkedPeaks);
 
     sampleRtWidget = new SampleRtWidget(this);
     sampleRtWidget->setWidget(sampleRtVizPlot);
@@ -729,6 +728,7 @@ using namespace mzUtils;
 	settings->setValue("closeEvent", 0);
 	peakDetectionDialog->setMavenParameters(settings);
 
+    setActiveTable(bookmarkedPeaks);
 
 	readSettings();
 
@@ -1405,8 +1405,7 @@ shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
     if (bookmarkedPeaks->topLevelGroupCount() == 0)
 		analytics->hitEvent("New Table", "Bookmark Table");
 
-    if (bookmarkedPeaks->hasPeakGroup(group.get()) == false) {
-
+    if (!bookmarkedPeaks->hasPeakGroup(group.get())) {
         float rtDiff = group->expectedRtDiff();
 		double A = (double) mavenParameters->qualityWeight/10;
         double B = (double) mavenParameters->intensityWeight/10;
@@ -1453,38 +1452,27 @@ void MainWindow::setPathwayFocus(Pathway* p) {
 	}
 }
 
-void MainWindow::setCompoundFocus(Compound*c) {
-	if (c == NULL)
+void MainWindow::setCompoundFocus(Compound* compound,
+                                  Isotope isotope,
+                                  Adduct *adduct)
+{
+    if (compound == nullptr)
 		return;
 
 	int charge = 0;
-	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-	// 	charge = 1;
-	// if (getIonizationMode())
-	// 	charge = getIonizationMode(); //user specified ionization mode
-	charge = mavenParameters->getCharge(c);
-        qDebug() << "setCompoundFocus:" << c->name().c_str() << " " << charge << " "
-                        << c->expectedRt();
-
-        float mz = c->mz();
-        if (!c->formula().empty() || c->neutralMass() != 0.0f)
-		mz = c->adjustedMass(charge);
+    charge = mavenParameters->getCharge(compound);
+    float mz = compound->mz();
+    if (!compound->formula().empty() || compound->neutralMass() != 0.0f)
+    mz = compound->adjustedMass(charge);
     searchText->setText(QString::number(mz, 'f', 8));
 
-	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
-	//  pathwayWidget->clear();
-	//    pathwayWidget->setCompound(c);
-	//}
-	
-	if (massCalcWidget && massCalcWidget->isVisible()) {
+    if (massCalcWidget && massCalcWidget->isVisible())
 		massCalcWidget->setMass(mz);
-	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-        eicWidget->setCompound(c);
+        eicWidget->setCompound(compound, isotope, adduct);
         shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
 		if (isotopeWidget && isotopeWidget->isVisible()) {
-			isotopeWidget->setCompound(c);
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
         }
         if (isotopeWidget
@@ -1502,17 +1490,11 @@ void MainWindow::setCompoundFocus(Compound*c) {
     if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
-    QString compoundName(c->name().c_str());
+    QString compoundName(compound->name().c_str());
     setPeptideSequence(compoundName);
 
-	/*
-	 if( peaksPanel->isVisible() && c->hasGroup() ) {
-	 peaksPanel->setInfo(c->getPeakGroup());
-	 }
-	 */
-
-	if (c)
-		setUrl(c);
+    if (compound)
+        setUrl(compound);
 }
 
 /*

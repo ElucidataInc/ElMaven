@@ -5,6 +5,8 @@
 
 #include "stable.h"
 
+#include "datastructures/isotope.h"
+
 class EIC;
 class EICLogic;
 class EicLine;
@@ -19,6 +21,7 @@ class Compound;
 class Peak;
 class Scan;
 class mzSlice;
+class Adduct;
 
 class EicWidget: public QGraphicsView {
 Q_OBJECT
@@ -50,7 +53,7 @@ public Q_SLOTS:
 	 * @details sets appropriate mzSlice in the EIC widget and focusLine for expected Rt
 	 * @param selected compound object
 	 **/
-	void setCompound(Compound* c);
+    void setCompound(Compound* compound, Isotope isotope, Adduct* adduct);
     void setSelectedGroup(shared_ptr<PeakGroup> group);
     shared_ptr<PeakGroup> getSelectedGroup();
     void addEICLines(bool showSpline,

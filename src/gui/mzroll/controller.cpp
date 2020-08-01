@@ -95,6 +95,7 @@ Controller::Controller()
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();
+    _mw->adductWidget->triggerSettingsUpdate();
 
 #ifndef Q_OS_LINUX
     _updater = new AutoUpdater();

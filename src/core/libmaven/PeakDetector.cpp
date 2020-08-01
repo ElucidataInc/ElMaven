@@ -312,6 +312,11 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
 
     GroupFiltering groupFilter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
+        if (_mavenParameters->stop) {
+            _mavenParameters->allgroups.clear();
+            return;
+        }
+
         if (group.isGhost())
             continue;
 
@@ -391,8 +396,10 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
     _mavenParameters->allgroups.clear();
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
     for (unsigned int s = 0; s < slices.size(); s++) {
-        if (_mavenParameters->stop)
+        if (_mavenParameters->stop) {
+            _mavenParameters->allgroups.clear();
             break;
+        }
 
         mzSlice* slice = slices[s];
         vector<EIC*> eics = pullEICs(slice,
@@ -619,11 +626,17 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
 void PeakDetector::performMetaGrouping(bool applyGroupFilters,
                                        bool barplotIsotopes)
 {
+    if (_mavenParameters->allgroups.empty())
+        return;
+
     sendBoostSignal("Performing meta-grouping…", 0, 0);
 
     // separate parent groups, then filter for the N-best groups per compound
     unordered_map<Compound*, vector<size_t>> parentCompounds;
     for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
+        if (_mavenParameters->stop)
+            return;
+
         PeakGroup& group = _mavenParameters->allgroups[i];
         Compound* compound = group.getCompound();
         if (compound == nullptr)
@@ -645,6 +658,9 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     unordered_map<Compound*, vector<size_t>> nonParentIsotopologues;
     unordered_map<Compound*, vector<size_t>> nonParentAdducts;
     for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
+        if (_mavenParameters->stop)
+            return;
+
         PeakGroup& group = _mavenParameters->allgroups[i];
         Compound* compound = group.getCompound();
         if (compound == nullptr)
@@ -731,6 +747,9 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
     // find isotope meta-groups
     for (auto& elem : nonParentIsotopologues) {
+        if (_mavenParameters->stop)
+            return;
+
         Compound* compound = elem.first;
         auto& isotopeIndexes = elem.second;
         auto metaIsotopeGroups = makeMeta(compound,
@@ -744,6 +763,9 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
     // find adduct meta-groups
     for (auto& elem : nonParentAdducts) {
+        if (_mavenParameters->stop)
+            return;
+
         Compound* compound = elem.first;
         auto& adductIndexes = elem.second;
         auto metaAdductGroups = makeMeta(compound,
@@ -775,6 +797,11 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     // perform final meta-grouping and queue children to be erased
     vector<size_t> indexesToErase;
     for (auto& elem : metaGroups) {
+        if (_mavenParameters->stop) {
+            _mavenParameters->allgroups.clear();
+            return;
+        }
+
         auto& compoundMetaGroups = elem.second;
         for (auto& metaGroup : compoundMetaGroups) {
             PeakGroup& parent = _mavenParameters->allgroups[metaGroup.first];

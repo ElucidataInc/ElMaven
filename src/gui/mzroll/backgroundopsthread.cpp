@@ -35,12 +35,12 @@ BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 
         _isotopeFormula = "";
         _isotopeCharge = 0;
+        _parentGroup = nullptr;
 }
 
 BackgroundOpsThread::~BackgroundOpsThread()
 {
     delete peakDetector;
-    mavenParameters->cleanup();  // remove allgroups
 }
 
 /**
@@ -95,9 +95,9 @@ void BackgroundOpsThread::run(void)
         pullIsotopesForFormula(_isotopeFormula,
                                _isotopeCharge);
     } else if (runFunction == "pullIsotopesForGroup") {
-        pullIsotopesForGroup(mavenParameters->_group);
+        pullIsotopesForGroup(_parentGroup.get());
     } else if (runFunction == "pullIsotopesForBarPlot") {
-        pullIsotopesForBarPlot(mavenParameters->_group);
+        pullIsotopesForBarPlot(_parentGroup.get());
     } else {
         qWarning() << QString("Unknown function: \"%1\"")
                           .arg(runFunction.c_str());
@@ -302,6 +302,9 @@ void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
 
     peakDetector->processCompounds({parentGroup->getCompound()}, false);
     for (auto& group : mavenParameters->allgroups) {
+        if (mavenParameters->stop)
+            return;
+
         if (almostEqual(group.meanMz, parentGroup->meanMz)
             && almostEqual(group.meanRt, parentGroup->meanRt)) {
             parentGroup->deleteChildIsotopes();
@@ -323,6 +326,9 @@ void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
     // is mistakenly being applied when it should not
     peakDetector->processCompounds({parentGroup->getCompound()}, false, true);
     for (auto& group : mavenParameters->allgroups) {
+        if (mavenParameters->stop)
+            return;
+
         if (almostEqual(group.meanMz, parentGroup->meanMz)
             && almostEqual(group.meanRt, parentGroup->meanRt)) {
             parentGroup->deleteChildIsotopesBarPlot();

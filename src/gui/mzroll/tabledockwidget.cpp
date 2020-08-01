@@ -1008,6 +1008,7 @@ bool TableDockWidget::selectPeakGroup(shared_ptr<PeakGroup> group)
         treeWidget->setCurrentItem(item);
       return true;
     }
+    ++it;
   }
   return false;
 }

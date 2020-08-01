@@ -45,6 +45,13 @@ public:
         _isotopeCharge = charge;
     }
 
+    void setParentGroup(shared_ptr<PeakGroup> group)
+    {
+        _parentGroup = make_shared<PeakGroup>(*group);
+    }
+
+    shared_ptr<PeakGroup> parentGroup() { return _parentGroup; }
+
     void completeStop();
 
     void setMainWindow(MainWindow* mw) { mainwindow = mw; }
@@ -110,6 +117,9 @@ private:
     // arguments for `pullIsotopesForFormula` method
     string _isotopeFormula;
     int _isotopeCharge;
+
+    // argument for `pullIsotopesForGroup` and `pullIsotopesForBarplot`
+    shared_ptr<PeakGroup> _parentGroup;
 };
 
 #endif

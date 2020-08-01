@@ -330,22 +330,16 @@ float PeakGroup::expectedRtDiff()
 
 void PeakGroup::deleteChildIsotopes()
 {
-    for (auto child : _childIsotopes)
-        child.reset();
     _childIsotopes.clear();
 }
 
 void PeakGroup::deleteChildAdducts()
 {
-    for (auto child : _childAdducts)
-        child.reset();
     _childAdducts.clear();
 }
 
 void PeakGroup::deleteChildIsotopesBarPlot()
 {
-    for (auto child : _childIsotopesBarPlot)
-        child.reset();
     _childIsotopesBarPlot.clear();
 }
 

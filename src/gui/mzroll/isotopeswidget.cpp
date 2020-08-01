@@ -54,6 +54,15 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 
 IsotopeWidget::~IsotopeWidget()
 {
+    while (workerThread->isRunning())
+        QApplication::processEvents();
+    delete workerThread->mavenParameters;
+    delete workerThread;
+    while (workerThreadBarplot->isRunning())
+        QApplication::processEvents();
+    delete workerThreadBarplot->mavenParameters;
+    delete workerThreadBarplot;
+
 	isotopeParameters->links.clear();
 	isotopeParametersBarPlot->links.clear();
 }
@@ -91,19 +100,25 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
 {
 	clearWidget();
 
-    if (group == nullptr)
+    if (group == nullptr || !group->hasCompoundLink())
 		return;
 
     // set compound, formula, window title
-    isotopeParameters->_group = make_shared<PeakGroup>(*group);
-    if (group->isIsotope() && group->parent != nullptr)
+    if (group->isIsotope()
+        && group->parent != nullptr
+        && group->parent->isGhost()) {
+        return; // for now we ignore ghost parent-groups
+    } else if (group->isIsotope() && group->parent != nullptr) {
         isotopeParameters->_group = make_shared<PeakGroup>(*(group->parent));
+    } else {
+        isotopeParameters->_group = make_shared<PeakGroup>(*group);
+    }
 
     setCompound(isotopeParameters->_group->getCompound());
 
     // TODO: move bookmarking functionality out of isotopeWidget
     if (bookmark) {
-        pullIsotopes(isotopeParameters->_group.get());
+        pullIsotopes(isotopeParameters->_group);
     } else {
         // select first sample if no peak or sample is selected
         if (_selectedSample == nullptr) {
@@ -127,7 +142,7 @@ void IsotopeWidget::updateIsotopicBarplot(shared_ptr<PeakGroup> group)
 
     if (group->hasCompoundLink() && !group->isIsotope()) {
         isotopeParametersBarPlot->_group = group;
-        pullIsotopesForBarplot(isotopeParametersBarPlot->_group.get());
+        pullIsotopesForBarplot(isotopeParametersBarPlot->_group);
     }
 }
 
@@ -276,8 +291,10 @@ void IsotopeWidget::_insertLinkForPeakGroup(PeakGroup* group)
 
 void IsotopeWidget::_pullIsotopesForFormula(string formula)
 {
-    while(workerThread->isRunning())
+    while (workerThread->isRunning()) {
+        workerThread->completeStop();
         QCoreApplication::processEvents();
+    }
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -318,6 +335,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
              end(isotopeParameters->links),
              mzLink::compMz);
         showTable();
+        _mw->setStatusText("Isotopes pulled");
     };
 
     connect(workerThread, &BackgroundOpsThread::finished, this, callback);
@@ -329,10 +347,12 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
     workerThread->start();
 }
 
-void IsotopeWidget::_pullIsotopesForGroup(PeakGroup* group)
+void IsotopeWidget::_pullIsotopesForGroup(shared_ptr<PeakGroup> group)
 {
-    while(workerThread->isRunning())
+    while (workerThread->isRunning()) {
+        workerThread->completeStop();
         QCoreApplication::processEvents();
+    }
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -343,9 +363,7 @@ void IsotopeWidget::_pullIsotopesForGroup(PeakGroup* group)
     workerThread->setMavenParameters(mp);
     workerThread->peakDetector->setMavenParameters(mp);
 
-    // TODO: mavenParameters->group is not thread-safe. Accessing it might
-    // lead to crashes
-    workerThread->mavenParameters->setPeakGroup(group);
+    workerThread->setParentGroup(group);
 
     vector<mzSample*> vsamples = _mw->getVisibleSamples();
     workerThread->mavenParameters->setSamples(vsamples);
@@ -401,9 +419,9 @@ void IsotopeWidget::computeIsotopes(string formula)
     }
 }
 
-void IsotopeWidget::pullIsotopes(PeakGroup* group)
+void IsotopeWidget::pullIsotopes(shared_ptr<PeakGroup> group)
 {
-    if (!group)
+    if (group == nullptr)
         return;
 
     // clear clipboard
@@ -419,19 +437,18 @@ void IsotopeWidget::pullIsotopes(PeakGroup* group)
     _mw->setStatusText("Pulling isotopes…");
 }
 
-void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
+void IsotopeWidget::pullIsotopesForBarplot(shared_ptr<PeakGroup> group)
 {
-    if (!group)
+    if (group == nullptr)
         return;
 
-    if (group->getCompound() == nullptr) {
-        _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
-                               .arg(group->tagString.c_str()));
+    if (!group->hasCompoundLink())
         return;
-    }
 
-    while(workerThreadBarplot->isRunning())
+    while (workerThreadBarplot->isRunning()) {
+        workerThreadBarplot->completeStop();
         QCoreApplication::processEvents();
+    }
 
     if (workerThreadBarplot->mavenParameters != nullptr)
         delete workerThreadBarplot->mavenParameters;
@@ -439,9 +456,7 @@ void IsotopeWidget::pullIsotopesForBarplot(PeakGroup* group)
     workerThreadBarplot->setMavenParameters(mp);
     workerThreadBarplot->peakDetector->setMavenParameters(mp);
 
-    // TODO: mavenParameters->group is not thread-safe. Accessing it might
-    // lead to crashes
-    workerThreadBarplot->mavenParameters->setPeakGroup(group);
+    workerThreadBarplot->setParentGroup(group);
 
     vector<mzSample*> vsamples = _mw->getVisibleSamples();
     workerThreadBarplot->mavenParameters->setSamples(vsamples);
@@ -456,61 +471,32 @@ void IsotopeWidget::updateIsotopicBarplot()
 {
     _mw->isotopePlotDockWidget->setEnabled(true);
 
-    float leastRtDiff = numeric_limits<float>::max();
-    PeakGroup* closestParent = nullptr;
-    if (workerThreadBarplot->mavenParameters->allgroups.size() == 1) {
-        closestParent = &workerThreadBarplot->mavenParameters->allgroups[0];
-    } else {
-        float expectedRt = workerThreadBarplot->mavenParameters->_group->meanRt;
-        for (auto& group : workerThreadBarplot->mavenParameters->allgroups) {
-            float rtDiff = abs(group.meanRt - expectedRt);
-            if (rtDiff < leastRtDiff) {
-                closestParent = &group;
-                leastRtDiff = rtDiff;
-            }
-        }
-    }
-    if (closestParent == nullptr)
+    shared_ptr<PeakGroup> parentGroup = workerThreadBarplot->parentGroup();
+    if (parentGroup == nullptr)
         return;
 
-    isotopeParametersBarPlot->_group = make_shared<PeakGroup>(*closestParent);
+    isotopeParametersBarPlot->_group = make_shared<PeakGroup>(*parentGroup);
     _mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group.get());
 }
 
 void IsotopeWidget::setClipboard()
 {
-    float leastRtDiff = numeric_limits<float>::max();
-    PeakGroup* closestParent = nullptr;
-    if (workerThread->mavenParameters->allgroups.size() == 1) {
-        closestParent = &workerThread->mavenParameters->allgroups[0];
-    } else {
-        float expectedRt = workerThread->mavenParameters->_group->meanRt;
-        for (auto& group : workerThread->mavenParameters->allgroups) {
-            float rtDiff = abs(group.meanRt - expectedRt);
-            if (rtDiff < leastRtDiff) {
-                closestParent = &group;
-                leastRtDiff = rtDiff;
-            }
-        }
-    }
-    if (closestParent == nullptr)
+    shared_ptr<PeakGroup> parentGroup = workerThread->parentGroup();
+    if (parentGroup == nullptr)
         return;
 
-    isotopeParameters->_group = make_shared<PeakGroup>(*closestParent);
-    if (isotopeParameters->_group != nullptr) {
-        // update clipboard
+    isotopeParameters->_group = make_shared<PeakGroup>(*parentGroup);
+
+    // TODO: move bookmarking functionality out of isotopeWidget
+    if (bookmarkflag) {
+        auto group = _mw->bookmarkPeakGroup();
+        bookmarkflag = true;
+        _mw->autoSaveSignal({group});
+        setClipboard(group.get());
+    } else {
         setClipboard(isotopeParameters->_group.get());
-
-        // update eic widget
         _mw->getEicWidget()->setSelectedGroup(isotopeParameters->_group);
-
-        if (bookmarkflag) {
-            auto group = _mw->bookmarkPeakGroup();
-            bookmarkflag = true;
-            _mw->autoSaveSignal({group});
-        }
     }
-    _mw->setStatusText("Isotopes pulled");
 }
 
 void IsotopeWidget::setClipboard(QList<shared_ptr<PeakGroup>>& groups)
@@ -737,9 +723,5 @@ QString IsotopeWidget::groupTextEport(PeakGroup *group)
 
 void IsotopeWidget::refreshForCurrentPeak()
 {
-    if (_mw->mavenParameters->_group != nullptr) {
-        isotopeParameters->_group =
-            make_shared<PeakGroup>(*_mw->mavenParameters->_group);
-    }
     computeIsotopes(isotopeParameters->_formula);
 }

@@ -7,6 +7,7 @@
 #include "barplot.h"
 #include "boxplot.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
 #include "globals.h"
@@ -1555,15 +1556,9 @@ void EicWidget::setSrmId(string srmId) {
 	replot();
 }
 
-void EicWidget::setCompound(Compound* c)
+void EicWidget::setCompound(Compound* compound, Isotope isotope, Adduct* adduct)
 {
-	//qDebug << "EicWidget::setCompound()";
-	//benchmark
-//	timespec tS;
-	//timespec tE;
-	//clock_gettime(CLOCK_REALTIME, &tS);
-
-	if (c == NULL)
+    if (compound == NULL)
 		return;
 	if (getMainWindow()->sampleCount() == 0)
 		return;
@@ -1572,59 +1567,49 @@ void EicWidget::setCompound(Compound* c)
 	if (samples.size() == 0)
 		return;
 
-	int ionizationMode = samples[0]->getPolarity();
-	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
-
 	MassCutoff* massCutoff=getMainWindow()->getUserMassCutoff(); 
 	float mz = 0;
 
-        if (!c->formula().empty() || c->neutralMass() != 0.0f) {
-		int charge = getMainWindow()->mavenParameters->getCharge(c);
-		mz = c->adjustedMass(charge);
+    if (!compound->formula().empty() || compound->neutralMass() != 0.0f) {
+        int charge = getMainWindow()->mavenParameters->getCharge(compound);
+        mz = compound->adjustedMass(charge);
 	} else {
-                mz = c->mz();
+        mz = compound->mz();
 	}
 
-	cerr<<"massCutoffValue   eicWidget\n";
 	float minmz = mz -massCutoff->massCutoffValue(mz);
 	float maxmz = mz + massCutoff->massCutoffValue(mz);
 	float rtmin = eicParameters->_slice.rtmin;
 	float rtmax = eicParameters->_slice.rtmax;
 
 	if (_autoZoom) {
-                if (c->expectedRt() > 0) {
-                        rtmin = c->expectedRt() - 2;
-                        rtmax = c->expectedRt() + 2;
+        if (compound->expectedRt() > 0) {
+            rtmin = compound->expectedRt() - 2;
+            rtmax = compound->expectedRt() + 2;
 		}
 	}
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 
 	mzSlice slice(minmz, maxmz, rtmin, rtmax);
-	slice.compound = c;
-        if (!c->srmId().empty())
-                slice.srmId = c->srmId();
+    slice.compound = compound;
+    slice.isotope = isotope;
+    slice.adduct = adduct;
+    if (!compound->srmId().empty())
+        slice.srmId = compound->srmId();
     setMzSlice(slice);
-    emit compoundSet(c);
-
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
+    emit compoundSet(compound);
 
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++)
-		eicParameters->peakgroups[i].setCompound(c);
-        if (c->expectedRt() > 0) {
-                setFocusLine(c->expectedRt());
-                selectGroupNearRt(c->expectedRt());
+        eicParameters->peakgroups[i].setCompound(compound);
+        if (compound->expectedRt() > 0) {
+                setFocusLine(compound->expectedRt());
+                selectGroupNearRt(compound->expectedRt());
 	}
 	else {
 		//remove previous focusline
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
-		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 }
 
 void EicWidget::setMzSlice(const mzSlice& slice)
@@ -1941,7 +1926,6 @@ void EicWidget::selectGroupNearRt(float rt) {
         auto sharedGroup = make_shared<PeakGroup>(*selGroup);
         setSelectedGroup(sharedGroup);
 	}
-	getMainWindow()->mavenParameters->setPeakGroup(selGroup);
 }
 
 void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)

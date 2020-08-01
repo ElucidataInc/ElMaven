@@ -50,8 +50,8 @@ public Q_SLOTS:
 	void setClipboard();
 	void setClipboard(PeakGroup* group);
     void setClipboard(QList<shared_ptr<PeakGroup> > &groups);
-	void pullIsotopes(PeakGroup* group);
-	void pullIsotopesForBarplot(PeakGroup* group);
+    void pullIsotopes(shared_ptr<PeakGroup> group);
+    void pullIsotopesForBarplot(shared_ptr<PeakGroup> group);
     void updateIsotopicBarplot(shared_ptr<PeakGroup> group);
 	void updateIsotopicBarplot();
 	/**
@@ -93,7 +93,7 @@ private:
     QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader);
     void _insertLinkForPeakGroup(PeakGroup* group);
     void _pullIsotopesForFormula(string formula);
-    void _pullIsotopesForGroup(PeakGroup *group);
+    void _pullIsotopesForGroup(shared_ptr<PeakGroup> group);
 };
 
 #endif

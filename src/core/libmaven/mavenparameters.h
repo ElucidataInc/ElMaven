@@ -69,15 +69,6 @@ class MavenParameters
         }
 
         /**
-        * [set Peak Group]
-        * @method setPeakGroup
-        * @param  p            [pointer to Peak Group]
-        */
-        void setPeakGroup(PeakGroup* p) {
-            _group = p;
-        }
-
-        /**
         * [set Average Scan Time]
         * @method setAverageScanTime
         */
@@ -258,7 +249,6 @@ class MavenParameters
         int alignButton;
         MassCalculator mcalc;
         ClassifierNeuralNet* clsf;
-        PeakGroup* _group;
         vector<mzSample*> samples;
         vector<Compound*> compounds;
         vector<mzSlice*> _slices;

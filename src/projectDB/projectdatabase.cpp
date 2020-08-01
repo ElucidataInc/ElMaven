@@ -831,7 +831,9 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :adduct_search_window             \
                      , :adduct_percent_correlation       \
                      , :alignment_algorithm              \
-                     , :active_table_name                )");
+                     , :active_table_name                \
+                     , :filter_isotopes_against_parent   \
+                     , :filter_adducts_against_parent    )");
     return cursor;
 }
 
@@ -875,7 +877,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
 
     settingsQuery->bind(":filter_isotopes_against_parent", BINT(settingsMap.at("filterIsotopesAgainstParent")));
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
-    settingsQuery->bind(":max_isotope_scan_diff", BINT(settingsMap.at("maxIsotopeScanDiff")));
+    settingsQuery->bind(":max_isotope_scan_diff", BDOUBLE(settingsMap.at("maxIsotopeScanDiff")));
     settingsQuery->bind(":link_isotope_rt_range", BINT(settingsMap.at("linkIsotopeRtRange")));
 
     settingsQuery->bind(":eic_type", BINT(settingsMap.at("eicType")));
@@ -1555,7 +1557,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
 
     settingsMap["filterIsotopesAgainstParent"] = variant(settingsQuery->integerValue("filter_isotopes_against_parent"));
     settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
-    settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
+    settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->doubleValue("max_isotope_scan_diff"));
     settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
 
     settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
@@ -1927,7 +1929,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
 
     settingsMap["filterIsotopesAgainstParent"] = static_cast<int>(mp->filterIsotopesAgainstParent);
     settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
-    settingsMap["maxIsotopeScanDiff"] = static_cast<int>(mp->maxIsotopeScanDiff);
+    settingsMap["maxIsotopeScanDiff"] = static_cast<double>(mp->maxIsotopeScanDiff);
     settingsMap["linkIsotopeRtRange"] = static_cast<int>(mp->linkIsotopeRtRange);
 
     settingsMap["eicType"] = mp->eicType;
@@ -1962,6 +1964,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["matchRt"] = static_cast<int>(mp->matchRtFlag);
     settingsMap["compoundRtWindow"] = static_cast<double>(mp->compoundRTWindow);
     settingsMap["limitGroupsPerCompound"] = mp->eicMaxGroups;
+
     settingsMap["searchAdducts"] = static_cast<int>(mp->searchAdducts);
     settingsMap["filterAdductsAgainstParent"] = static_cast<int>(mp->filterAdductsAgainstParent);
     settingsMap["adductSearchWindow"] = static_cast<double>(mp->adductSearchWindow);
@@ -2063,7 +2066,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
 
     mp.filterIsotopesAgainstParent = static_cast<bool>(BINT(settingsMap["filterIsotopesAgainstParent"]));
     mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
-    mp.maxIsotopeScanDiff = BINT(settingsMap["maxIsotopeScanDiff"]);
+    mp.maxIsotopeScanDiff = BDOUBLE(settingsMap["maxIsotopeScanDiff"]);
     mp.linkIsotopeRtRange = static_cast<bool>(BINT(settingsMap["linkIsotopeRtRange"]));
 
     mp.eicType = BINT(settingsMap["eicType"]);
