@@ -13,6 +13,7 @@
 #include "common/analytics.h"
 #include "backgroundopsthread.h"
 #include "database.h"
+#include "groupFiltering.h"
 #include "grouprtwidget.h"
 #include "mainwindow.h"
 #include "masscutofftype.h"
@@ -310,6 +311,18 @@ void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
             parentGroup->deleteChildIsotopes();
             for (auto& child : group.childIsotopes())
                 parentGroup->addIsotopeChild(*child);
+
+            if (mavenParameters->linkIsotopeRtRange)
+                peakDetector->linkParentIsotopeRange(*parentGroup);
+            if (mavenParameters->filterIsotopesAgainstParent) {
+                GroupFiltering groupFilter(mavenParameters);
+                groupFilter.filterBasedOnParent(
+                    *parentGroup,
+                    GroupFiltering::ChildFilterType::Isotope,
+                    mavenParameters->maxIsotopeScanDiff,
+                    mavenParameters->minIsotopicCorrelation,
+                    mavenParameters->compoundMassCutoffWindow);
+            }
         }
     }
 }
@@ -322,8 +335,6 @@ void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
         return;
     }
 
-    // TODO: here, and possibly elsewhere in pulling isotopes, group filtering
-    // is mistakenly being applied when it should not
     peakDetector->processCompounds({parentGroup->getCompound()}, false, true);
     for (auto& group : mavenParameters->allgroups) {
         if (mavenParameters->stop)
@@ -334,6 +345,18 @@ void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
             parentGroup->deleteChildIsotopesBarPlot();
             for (auto& child : group.childIsotopesBarPlot())
                 parentGroup->addIsotopeChildBarPlot(*child);
+
+            if (mavenParameters->linkIsotopeRtRange)
+                peakDetector->linkParentIsotopeRange(*parentGroup, true);
+            if (mavenParameters->filterIsotopesAgainstParent) {
+                GroupFiltering groupFilter(mavenParameters);
+                groupFilter.filterBasedOnParent(
+                    *parentGroup,
+                    GroupFiltering::ChildFilterType::BarplotIsotope,
+                    mavenParameters->maxIsotopeScanDiff,
+                    mavenParameters->minIsotopicCorrelation,
+                    mavenParameters->compoundMassCutoffWindow);
+            }
         }
     }
 }
