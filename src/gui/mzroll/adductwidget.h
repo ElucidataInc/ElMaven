@@ -19,6 +19,7 @@ class AdductWidget : public QDialog, public Ui_AdductWidget {
         explicit AdductWidget(MainWindow* parent = nullptr);
         void loadAdducts();
         vector<Adduct*> getSelectedAdducts();
+        Adduct* defaultAdduct();
 
     public slots:
         void selectAdductsForCurrentPolarity();

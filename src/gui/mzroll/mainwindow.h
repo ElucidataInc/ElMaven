@@ -349,7 +349,6 @@ public Q_SLOTS:
     shared_ptr<PeakGroup> bookmarkPeakGroup(shared_ptr<PeakGroup> group);
 	void setClipboardToGroup(PeakGroup* group);
 	// void bookmarkPeakGroup();
-    shared_ptr<PeakGroup> bookmarkPeakGroup();
 	void reorderSamples(PeakGroup* group);
 	void findCovariants(Peak* _peak);
 	void reportBugs();

@@ -125,6 +125,18 @@ vector<Adduct*> AdductWidget::getSelectedAdducts()
     return selectedAdducts;
 }
 
+Adduct* AdductWidget::defaultAdduct()
+{
+    Adduct* adduct = nullptr;
+    for (auto parentAdduct : _mw->mavenParameters->getDefaultAdductList()) {
+        if (SIGN(parentAdduct->getCharge())
+            == SIGN(_mw->mavenParameters->getCharge())) {
+            adduct = parentAdduct;
+        }
+    }
+    return adduct;
+}
+
 void AdductWidget::selectAdductsForCurrentPolarity()
 {
     QTreeWidgetItemIterator it(adductList);

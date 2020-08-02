@@ -489,7 +489,7 @@ void IsotopeWidget::setClipboard()
 
     // TODO: move bookmarking functionality out of isotopeWidget
     if (bookmarkflag) {
-        auto group = _mw->bookmarkPeakGroup();
+        auto group = _mw->bookmarkPeakGroup(isotopeParameters->_group);
         bookmarkflag = true;
         _mw->autoSaveSignal({group});
         setClipboard(group.get());

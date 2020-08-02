@@ -1,4 +1,5 @@
 #include "ligandwidget.h"
+#include "adductwidget.h"
 #include "Compound.h"
 #include "Scan.h"
 #include "alignmentdialog.h"
@@ -587,11 +588,40 @@ void LigandWidget::showLigand()
 
     Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
         QVariant v = item->data(0, Qt::UserRole);
-        Compound* c = v.value<Compound*>();
-        if (c)
-            _mw->setCompoundFocus(c);
-        if (c)
+        Compound* compound = v.value<Compound*>();
+        if (compound != nullptr) {
+            Isotope isotope;
+            Adduct* adduct = nullptr;
+            if (_mw->mavenParameters->searchAdducts)
+                adduct = _mw->adductWidget->defaultAdduct();
+            if (_mw->mavenParameters->pullIsotopesFlag
+                && !compound->formula().empty()) {
+                adduct = _mw->adductWidget->defaultAdduct();
+                bool findC13 = _mw->mavenParameters->C13Labeled_BPE;
+                bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
+                bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
+                bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
+                int charge = _mw->mavenParameters->getCharge(compound);
+                auto isotopes =
+                    MassCalculator::computeIsotopes(compound->formula(),
+                                                    charge,
+                                                    findC13,
+                                                    findN15,
+                                                    findS34,
+                                                    findD2,
+                                                    adduct);
+                auto c12IsotopePos = find_if(begin(isotopes),
+                                             end(isotopes),
+                                             [] (Isotope iso) {
+                                                 return (iso.name
+                                                         == C12_PARENT_LABEL);
+                                             });
+                if (c12IsotopePos != end(isotopes))
+                    isotope = *c12IsotopePos;
+            }
+            _mw->setCompoundFocus(compound, isotope, adduct);
             matchFragmentation();
+        }
     }
 }
 

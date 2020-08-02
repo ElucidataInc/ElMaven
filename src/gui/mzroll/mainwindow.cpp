@@ -1382,16 +1382,6 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
 	return vsamples;
 }
 
-shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup()
-{
-    if (eicWidget != nullptr
-        && eicWidget->getParameters() != nullptr
-        && eicWidget->getParameters()->displayedGroup() != nullptr) {
-        return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
-    }
-    return shared_ptr<PeakGroup>(nullptr);
-}
-
 shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
 {
     if ( bookmarkedPeaks == NULL ) return NULL;
