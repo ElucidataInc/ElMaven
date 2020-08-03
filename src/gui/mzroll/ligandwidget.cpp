@@ -121,11 +121,11 @@ LigandWidget::LigandWidget(MainWindow* mw)
     while (i.hasNext())
         databaseSelect->addItem(i.next());
 
-    connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
     connect(databaseSelect,
             SIGNAL(currentIndexChanged(QString)),
             this,
             SLOT(setDatabase(QString)));
+    connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
 }
 
 QString LigandWidget::getDatabaseName()
@@ -135,9 +135,8 @@ QString LigandWidget::getDatabaseName()
 
 void LigandWidget::setDatabaseNames()
 {
-    // TODO: do not setup signals and slots here. do it only once in the
-    // constructor. just add the new db in set and add it in the combo box
     databaseSelect->disconnect(SIGNAL(currentIndexChanged(QString)));
+
     databaseSelect->clear();
     QSet<QString> set;
     auto compoundsDB = DB.compoundsDB();
@@ -158,26 +157,7 @@ void LigandWidget::setDatabaseNames()
             SIGNAL(currentIndexChanged(QString)),
             _mw->alignmentDialog,
             SLOT(setDatabase(QString)));
-}
-
-QTreeWidgetItem* LigandWidget::addItem(QTreeWidgetItem* parentItem,
-                                       string key,
-                                       float value)
-{
-    QTreeWidgetItem* item = new QTreeWidgetItem(parentItem);
-    item->setText(0, QString(key.c_str()));
-    item->setText(1, QString::number(value, 'f', 3));
-    return item;
-}
-
-QTreeWidgetItem* LigandWidget::addItem(QTreeWidgetItem* parentItem,
-                                       string key,
-                                       string value)
-{
-    QTreeWidgetItem* item = new QTreeWidgetItem(parentItem);
-    item->setText(0, QString(key.c_str()));
-    item->setText(1, QString(value.c_str()));
-    return item;
+    connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
 }
 
 void LigandWidget::loadCompoundDBMzroll(QString fileName)
@@ -260,7 +240,6 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname)
 
 void LigandWidget::setDatabase(QString dbname)
 {
-    int currentIndex = databaseSelect->currentIndex();
     int index = databaseSelect->findText(dbname, Qt::MatchExactly);
     if (index != -1) {
         databaseSelect->setCurrentIndex(index);
@@ -363,90 +342,120 @@ void LigandWidget::updateCurrentItemData()
 
 void LigandWidget::showTable()
 {
-    //	treeWidget->clear();
     treeWidget->clear();
-    treeWidget->setColumnCount(4);
     QStringList header;
-    header << "name"
+    header << "Name"
+           << "Formula"
            << "m/z"
-           << "rt"
-           << "category"
-           << "notes";
+           << "RT"
+           << "# fragments"
+           << "Category"
+           << "Notes";
     treeWidget->setHeaderLabels(header);
     treeWidget->setSortingEnabled(false);
 
+    int numCompoundsWithFormula = 0;
+    int numCompoundsWithRt = 0;
+    int numCompoundsWithFragments = 0;
+    int numCompoundsWithCategory = 0;
+    int numCompoundsWithNotes = 0;
     string dbname = databaseSelect->currentText().toStdString();
     auto compoundsDB = DB.compoundsDB();
     for (unsigned int i = 0; i < compoundsDB.size(); i++) {
         Compound* compound = compoundsDB[i];
         if (compound->db() != dbname)
             continue;  // skip compounds from other databases
-        NumericTreeWidgetItem* parent =
-            new NumericTreeWidgetItem(treeWidget, CompoundType);
 
-        QString name(compound->name().c_str());
-        parent->setText(0, name);
+        NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,
+                                                                CompoundType);
+        item->setText(0, QString::fromStdString(compound->name()));
+        item->setData(0, Qt::UserRole, QVariant::fromValue(compound));
+        item->setFlags(Qt::ItemIsSelectable
+                         | Qt::ItemIsDragEnabled
+                         | Qt::ItemIsEnabled);
+
+        if (!compound->formula().empty()) {
+            item->setText(1, QString::fromStdString(compound->formula()));
+            ++numCompoundsWithFormula;
+        }
 
         float mz;
         float precursorMz = compound->precursorMz();
         float productMz = compound->productMz();
-
-        if (compound->formula().length() || compound->neutralMass() != 0.0f) {
+        if (!compound->formula().empty() || compound->neutralMass() > 0.0f) {
             int charge = _mw->mavenParameters->getCharge(compound);
             mz = compound->adjustedMass(charge);
         } else {
             mz = compound->mz();
         }
-
         if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
-            parent->setText(1,
-                            QString::number(precursorMz, 'f', 3) + "/"
-                                + QString::number(productMz, 'f', 3));
+            QString transitionString = QString("%1 / %2 (CE: %3)").arg(
+                QString::number(precursorMz, 'f', 3),
+                QString::number(productMz, 'f', 3),
+                QString::number(compound->collisionEnergy(), 'f', 2));
+            item->setText(2, transitionString);
         } else {
-            parent->setText(1, QString::number(mz, 'f', 6));
+            item->setText(2, QString::number(mz, 'f', 6));
         }
 
-        if (compound->expectedRt() > 0)
-            parent->setText(2, QString::number(compound->expectedRt()));
-        parent->setData(0, Qt::UserRole, QVariant::fromValue(compound));
-        parent->setFlags(Qt::ItemIsSelectable | Qt::ItemIsDragEnabled
-                         | Qt::ItemIsEnabled);
+        if (compound->expectedRt() > 0) {
+            item->setText(3, QString::number(compound->expectedRt(), 'f', 2));
+            ++numCompoundsWithRt;
+        }
 
-        if (compound->charge())
-            addItem(parent, "Charge", compound->charge());
-        if (compound->formula().length())
-            addItem(parent, "Formula", compound->formula().c_str());
-        if (compound->precursorMz() && compound->fragmentMzValues().size() == 0)
-            addItem(parent, "Precursor Mz", compound->precursorMz());
-        if (compound->productMz())
-            addItem(parent, "Product Mz", compound->productMz());
-        if (compound->collisionEnergy())
+        if (!compound->fragmentMzValues().empty()) {
+            item->setText(4,
+                          QString::number(compound->fragmentMzValues().size()));
+            ++numCompoundsWithFragments;
+        }
 
-            addItem(parent, "Collision Energy", compound->collisionEnergy());
-
-        if (compound->category().size() > 0) {
+        if (!compound->category().empty()) {
             QStringList catList;
             auto category = compound->category();
             for (unsigned int i = 0; i < category.size(); i++) {
                 catList << category[i].c_str();
             }
-            parent->setText(3, catList.join(";"));
+            item->setText(5, catList.join(", "));
+            ++numCompoundsWithCategory;
         }
 
         if (!compound->note().empty()) {
-            parent->setText(4, QString::fromStdString(compound->note()));
-        }
-
-        if (compound->fragmentMzValues().size()) {
-            QStringList mzList;
-            auto mzValues = compound->fragmentMzValues();
-            for (unsigned int i = 0; i < mzValues.size(); i++) {
-                mzList << QString::number(mzValues[i], 'f', 2);
-            }
-            QTreeWidgetItem* child = addItem(parent, "Fragments", mzValues[0]);
-            child->setText(1, mzList.join(";"));
+            item->setText(6, QString::fromStdString(compound->note()));
+            ++numCompoundsWithNotes;
         }
     }
+
+    treeWidget->setColumnWidth(0, 250);
+    treeWidget->resizeColumnToContents(2);
+    if (numCompoundsWithFormula == 0) {
+        treeWidget->hideColumn(1);
+    } else {
+        treeWidget->showColumn(1);
+        treeWidget->resizeColumnToContents(1);
+    }
+    if (numCompoundsWithRt == 0) {
+        treeWidget->hideColumn(3);
+    } else {
+        treeWidget->showColumn(3);
+        treeWidget->resizeColumnToContents(3);
+    }
+    if (numCompoundsWithFragments == 0) {
+        treeWidget->hideColumn(4);
+    } else {
+        treeWidget->showColumn(4);
+        treeWidget->resizeColumnToContents(4);
+    }
+    if (numCompoundsWithCategory == 0) {
+        treeWidget->hideColumn(5);
+    } else {
+        treeWidget->showColumn(5);
+    }
+    if (numCompoundsWithNotes == 0) {
+        treeWidget->hideColumn(6);
+    } else {
+        treeWidget->showColumn(6);
+    }
+
     setHash();
     treeWidget->sortByColumn(0, Qt::AscendingOrder);
     treeWidget->setSortingEnabled(true);
@@ -459,6 +468,9 @@ void LigandWidget::setHash()
 
     while (*itr) {
         QTreeWidgetItem* item = (*itr);
+        if (item->parent() != nullptr)
+            continue;
+
         QVariant v = item->data(0, Qt::UserRole);
         Compound* c = v.value<Compound*>();
         CompoundsHash.insert(c, item);

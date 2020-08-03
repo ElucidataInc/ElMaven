@@ -106,8 +106,6 @@ private:
 
     MainWindow* _mw;
     QString filterString;
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
     void readCompoundXML(QXmlStreamReader& xml, string dbname);
 
     QNetworkAccessManager* m_manager;
