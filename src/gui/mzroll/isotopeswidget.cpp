@@ -40,7 +40,6 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
             &IsotopeWidget::updateSelectedSample);
 
 	ionization->setValue(isotopeParameters->_charge);
-	bookmarkflag = true;
 
 	workerThread = new BackgroundOpsThread(mw);
 	workerThread->setMainWindow(mw);
@@ -118,7 +117,13 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
 
     // TODO: move bookmarking functionality out of isotopeWidget
     if (bookmark) {
-        pullIsotopes(isotopeParameters->_group);
+        if (group->isIsotope() || group->isAdduct()) {
+            // Note: this group is not actually a parent group
+            workerThread->setParentGroup(isotopeParameters->_group);
+            bookmarkCurrentGroup();
+        } else {
+            pullIsotopes(isotopeParameters->_group);
+        }
     } else {
         // select first sample if no peak or sample is selected
         if (_selectedSample == nullptr) {
@@ -374,7 +379,7 @@ void IsotopeWidget::_pullIsotopesForGroup(shared_ptr<PeakGroup> group)
     connect(workerThread,
             &BackgroundOpsThread::finished,
             this,
-            QOverload<>::of(&IsotopeWidget::setClipboard));
+            QOverload<>::of(&IsotopeWidget::bookmarkCurrentGroup));
     connect(workerThread,
             &BackgroundOpsThread::finished,
             this,
@@ -428,10 +433,8 @@ void IsotopeWidget::pullIsotopes(shared_ptr<PeakGroup> group)
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->clear(QClipboard::Clipboard);
 
-    if (group->getCompound() == NULL) {
-        _mw->setStatusText(tr("Unknown compound. Clipboard set to %1")
-                               .arg(group->tagString.c_str()));
-    }
+    if (!group->hasCompoundLink())
+        return;
 
     _pullIsotopesForGroup(group);
     _mw->setStatusText("Pulling isotopes…");
@@ -479,7 +482,7 @@ void IsotopeWidget::updateIsotopicBarplot()
     _mw->isotopePlot->setPeakGroup(isotopeParametersBarPlot->_group.get());
 }
 
-void IsotopeWidget::setClipboard()
+void IsotopeWidget::bookmarkCurrentGroup()
 {
     shared_ptr<PeakGroup> parentGroup = workerThread->parentGroup();
     if (parentGroup == nullptr)
@@ -487,16 +490,10 @@ void IsotopeWidget::setClipboard()
 
     isotopeParameters->_group = make_shared<PeakGroup>(*parentGroup);
 
-    // TODO: move bookmarking functionality out of isotopeWidget
-    if (bookmarkflag) {
-        auto group = _mw->bookmarkPeakGroup(isotopeParameters->_group);
-        bookmarkflag = true;
-        _mw->autoSaveSignal({group});
+    auto group = _mw->bookmarkPeakGroup(isotopeParameters->_group);
+    _mw->autoSaveSignal({group});
+    if (!group->isIsotope() && !group->isAdduct())
         setClipboard(group.get());
-    } else {
-        setClipboard(isotopeParameters->_group.get());
-        _mw->getEicWidget()->setSelectedGroup(isotopeParameters->_group);
-    }
 }
 
 void IsotopeWidget::setClipboard(QList<shared_ptr<PeakGroup>>& groups)
@@ -533,8 +530,8 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 	if (group == NULL)
 		return "";
 	//header line
-	QString tag(group->tagString.c_str());
-	if (group->isIsotope())
+    QString tag(group->tagString.c_str());
+    if (group->isIsotope() && group->parent != nullptr)
 		tag = QString(group->parent->tagString.c_str());
 	if (tag.isEmpty() && group->getCompound() != NULL)
                 tag = QString(group->getCompound()->name().c_str());

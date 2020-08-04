@@ -335,11 +335,11 @@ class PeakGroup{
          */
         void addPeak(const Peak& peak);
 
-        void addIsotopeChild(const PeakGroup& child);
+        shared_ptr<PeakGroup> addIsotopeChild(const PeakGroup& child);
 
-        void addAdductChild(const PeakGroup& child);
+        shared_ptr<PeakGroup> addAdductChild(const PeakGroup& child);
 
-        void addIsotopeChildBarPlot(const PeakGroup& child);
+        shared_ptr<PeakGroup> addIsotopeChildBarPlot(const PeakGroup& child);
 
         /**
          * [getPeak ]

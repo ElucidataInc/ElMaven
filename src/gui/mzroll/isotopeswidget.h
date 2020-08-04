@@ -47,7 +47,7 @@ public Q_SLOTS:
 	**/
 	void setCompound(Compound* compound);
 	void setIonizationMode(int mode);
-	void setClipboard();
+    void bookmarkCurrentGroup();
 	void setClipboard(PeakGroup* group);
     void setClipboard(QList<shared_ptr<PeakGroup> > &groups);
     void pullIsotopes(shared_ptr<PeakGroup> group);
@@ -85,7 +85,6 @@ private:
     IsotopeLogic* isotopeParameters;
     IsotopeLogic* isotopeParametersBarPlot;
     MainWindow* _mw;
-    bool bookmarkflag;
     mzSample* _selectedSample;
 
     void clearWidget();

@@ -958,12 +958,13 @@ void PeakGroup::setAdduct(Adduct* adduct)
     _updateType();
 }
 
-void PeakGroup::addAdductChild(const PeakGroup& child)
+shared_ptr<PeakGroup> PeakGroup::addAdductChild(const PeakGroup& child)
 {
     auto childCopy = make_shared<PeakGroup>(child);
     childCopy->parent = this;
     childCopy->_metaGroupId = _groupId;
     _childAdducts.push_back(childCopy);
+    return _childAdducts.back();
 }
 
 Isotope PeakGroup::isotope() const
@@ -983,24 +984,22 @@ void PeakGroup::setIsotope(Isotope isotope)
     _updateType();
 }
 
-void PeakGroup::addIsotopeChild(const PeakGroup& child)
+shared_ptr<PeakGroup> PeakGroup::addIsotopeChild(const PeakGroup& child)
 {
-    if (child.isGhost())
-        cerr << "incoming is ghost" << endl;
     auto childCopy = make_shared<PeakGroup>(child);
-    if (childCopy->isGhost())
-        cerr << "copied is ghost" << endl;
     childCopy->parent = this;
     childCopy->_metaGroupId = _groupId;
     _childIsotopes.push_back(childCopy);
+    return _childIsotopes.back();
 }
 
-void PeakGroup::addIsotopeChildBarPlot(const PeakGroup& child)
+shared_ptr<PeakGroup> PeakGroup::addIsotopeChildBarPlot(const PeakGroup& child)
 {
     auto childCopy = make_shared<PeakGroup>(child);
     childCopy->parent = this;
     childCopy->_metaGroupId = _groupId;
     _childIsotopesBarPlot.push_back(childCopy);
+    return _childIsotopesBarPlot.back();
 }
 
 string PeakGroup::tableName() const

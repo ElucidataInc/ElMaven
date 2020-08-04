@@ -447,31 +447,77 @@ void ListView::keyPressEvent(QKeyEvent *event) {
   }
 }
 
+PeakGroup createGhostParent(Compound* compound, MavenParameters* mp)
+{
+    PeakGroup parentGroup(make_shared<MavenParameters>(*mp),
+                          PeakGroup::IntegrationType::Ghost);
+
+    // set an appropriate slice for ghost parent
+    mzSlice slice;
+    slice.compound = compound;
+    slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
+                            mp->getCharge(compound));
+    slice.calculateRTMinMax(false, 0.0f);
+    parentGroup.setSlice(slice);
+
+    return parentGroup;
+}
+
 shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
 {
-  if (group != NULL) {
-    shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*group);
+  if (group == nullptr)
+    return nullptr;
+
+  auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
+    shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*topLevelGroup);
     _topLevelGroups.push_back(sharedGroup);
     if (sharedGroup->childIsotopeCount() > 0)
       _labeledGroups++;
     if (sharedGroup->getCompound())
       _targetedGroups++;
-    if (_topLevelGroups.size() > 0) {
-      shared_ptr<PeakGroup> g = _topLevelGroups.back();
-      g->setTableName(this->titlePeakTable->text().toStdString());
-      int groupId = 1;
-      for (auto topLevelGroup : _topLevelGroups) {
-          topLevelGroup->setGroupId(groupId++);
-          for (auto child : topLevelGroup->childIsotopes())
-              child->setGroupId(groupId++);
-          for (auto child : topLevelGroup->childAdducts())
-              child->setGroupId(groupId++);
+    return _topLevelGroups.back();
+  };
+
+  shared_ptr<PeakGroup> insertedGroup = nullptr;
+  if (group->isIsotope() || group->isAdduct()) {
+    for (auto& parentGroup : _topLevelGroups) {
+      if (parentGroup->isGhost()
+          && parentGroup->getCompound() == group->getCompound()) {
+        if (group->isIsotope()) {
+          insertedGroup = parentGroup->addIsotopeChild(*group);
+        } else if (group->isAdduct()) {
+          insertedGroup = parentGroup->addAdductChild(*group);
+        }
       }
-      return g;
+    }
+
+    if (insertedGroup == nullptr) {
+      PeakGroup parentGroup = createGhostParent(group->getCompound(),
+                                                group->parameters().get());
+      auto topLevelGroup = newTopLevelGroup(&parentGroup);
+      if (topLevelGroup != nullptr && group->isIsotope()) {
+        insertedGroup = topLevelGroup->addIsotopeChild(*group);
+      } else if (topLevelGroup != nullptr && group->isAdduct()) {
+        insertedGroup = topLevelGroup->addAdductChild(*group);
+      }
+    }
+  } else {
+    insertedGroup = newTopLevelGroup(group);
+  }
+
+  if (_topLevelGroups.size() > 0) {
+    insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
+    int groupId = 1;
+    for (auto topLevelGroup : _topLevelGroups) {
+      topLevelGroup->setGroupId(groupId++);
+      for (auto child : topLevelGroup->childIsotopes())
+        child->setGroupId(groupId++);
+      for (auto child : topLevelGroup->childAdducts())
+        child->setGroupId(groupId++);
     }
   }
 
-  return NULL;
+  return insertedGroup;
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
