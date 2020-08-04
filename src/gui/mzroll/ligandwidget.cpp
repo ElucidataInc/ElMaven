@@ -491,20 +491,66 @@ void LigandWidget::setHash()
     }
 }
 
+void LigandWidget::markAsDone(QTreeWidgetItem* item, bool isProxy)
+{
+    auto color = QColor(101, 243, 124, 100);  // green
+    if (isProxy)
+        color = QColor(253, 204, 101, 100);   // yellow
+
+    if (item != nullptr && item->treeWidget() == treeWidget) {
+        for (int col = 0; col < treeWidget->columnCount(); col++)
+            item->setBackground(col, color);
+    }
+}
+
 void LigandWidget::markAsDone(Compound* compound, bool isProxy)
 {
     if (compound == nullptr)
         return;
 
-    auto color = QColor(101, 243, 124, 100);  // green
-    if (isProxy)
-        color = QColor(253, 204, 101, 100);   // yellow
     auto i = compoundsHash.find(compound);
-    if (i != compoundsHash.end() & i.key() == compound) {
+    if (i != compoundsHash.end() && i.key() == compound)
+        markAsDone(i.value(), isProxy);
+}
+
+void LigandWidget::markAsDone(Compound* compound, Isotope isotope)
+{
+    if (compound == nullptr)
+        return;
+
+    auto i = compoundsHash.find(compound);
+    if (i != compoundsHash.end() && i.key() == compound) {
         QTreeWidgetItem* item = i.value();
-        if (item != nullptr) {
-            for (int col = 0; col < treeWidget->columnCount(); col++)
-                item->setBackground(col, color);
+        QTreeWidgetItemIterator it(item);
+        while (*it) {
+            QTreeWidgetItem* childItem = *it;
+            QVariant var = childItem->data(0, Qt::UserRole);
+            if (var.canConvert<Isotope>()
+                && var.value<Isotope>().name == isotope.name) {
+                markAsDone(childItem);
+            }
+            ++it;
+        }
+    }
+}
+
+void LigandWidget::markAsDone(Compound* compound, Adduct* adduct)
+{
+    if (compound == nullptr)
+        return;
+
+    auto i = compoundsHash.find(compound);
+    if (i != compoundsHash.end() && i.key() == compound) {
+        QTreeWidgetItem* item = i.value();
+        QTreeWidgetItemIterator it(item);
+        while (*it) {
+            QTreeWidgetItem* childItem = *it;
+            QVariant var = childItem->data(0, Qt::UserRole);
+            if (var.canConvert<Adduct*>()
+                && var.value<Adduct*>() == adduct) {
+                markAsDone(childItem);
+            }
+            ++it;
         }
     }
 }

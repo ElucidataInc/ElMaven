@@ -39,6 +39,7 @@ class QTextEdit;
 class MainWindow;
 class Database;
 class Compound;
+class Adduct;
 
 using namespace std;
 
@@ -81,6 +82,8 @@ public Q_SLOTS:
 
     void showTable(bool insertIsotopesAndAdducts = true);
 
+    void markAsDone(QTreeWidgetItem* item, bool isProxy = false);
+
     /**
      * @brief Change the color of a compound's entry which is present in the
      * active peak table.
@@ -88,6 +91,9 @@ public Q_SLOTS:
      * @param isProxy Whether the compound is only a proxy for its other forms.
      */
     void markAsDone(Compound* compound, bool isProxy = false);
+
+    void markAsDone(Compound* compound, Isotope isotope);
+    void markAsDone(Compound* compound, Adduct* adduct);
 
     /**
      * @brief Refreshes the list of isotope and adduct child items under each

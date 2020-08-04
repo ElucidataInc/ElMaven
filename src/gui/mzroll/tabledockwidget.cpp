@@ -351,6 +351,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 void TableDockWidget::updateCompoundWidget() {
   _mainwindow->ligandWidget->resetColor();
   QMap<Compound*, bool> parentCompounds;
+  QMap<Compound*, vector<Isotope>> compoundIsotopeForms;
+  QMap<Compound*, vector<Adduct*>> compoundAdductForms;
   for (auto& group : _topLevelGroups) {
     if (group == nullptr || !group->hasCompoundLink())
       continue;
@@ -362,9 +364,31 @@ void TableDockWidget::updateCompoundWidget() {
     } else {
         parentCompounds[compound] = !group->isGhost();
     }
+
+    if (!compoundIsotopeForms.contains(compound))
+      compoundIsotopeForms.insert(compound, {});
+    for (auto& child : group->childIsotopes())
+      compoundIsotopeForms[compound].push_back(child->isotope());
+
+    if (!compoundAdductForms.contains(compound))
+      compoundAdductForms.insert(compound, {});
+    for (auto& child : group->childAdducts())
+      compoundAdductForms[compound].push_back(child->adduct());
   }
+
   for (auto compound : parentCompounds.keys())
     _mainwindow->ligandWidget->markAsDone(compound, !parentCompounds[compound]);
+
+  for (auto compound : compoundIsotopeForms.keys()) {
+    auto isotopes = compoundIsotopeForms[compound];
+    for (auto& isotope : isotopes)
+      _mainwindow->ligandWidget->markAsDone(compound, isotope);
+  }
+  for (auto compound : compoundAdductForms.keys()) {
+    auto adducts = compoundAdductForms[compound];
+    for (auto& adduct : adducts)
+      _mainwindow->ligandWidget->markAsDone(compound, adduct);
+  }
 }
 
 void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
