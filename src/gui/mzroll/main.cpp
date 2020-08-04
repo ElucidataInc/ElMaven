@@ -129,15 +129,14 @@ int main(int argc, char *argv[])
     splash.show();
     app.processEvents();
 
-
     Controller contrl;
     qInstallMessageHandler(customMessageHandler);
 
     for (int i = 1; i < argc; ++i)
         contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
 
-    splash.finish(contrl.getMainWindow());
     contrl.getMainWindow()->show();
+    splash.finish(contrl.getMainWindow());
     contrl.getMainWindow()->fileLoader->start();
     int rv = app.exec();
 

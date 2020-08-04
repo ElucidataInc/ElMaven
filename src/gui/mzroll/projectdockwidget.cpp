@@ -147,6 +147,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(_treeWidget);
+    layout->setSpacing(6);
     window->setLayout(layout);
 
     setTitleBarWidget(toolBar);

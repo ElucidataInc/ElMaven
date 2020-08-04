@@ -29,6 +29,10 @@
 #include <QNetworkReply>
 #include <QHash>
 
+#include "datastructures/isotope.h"
+
+Q_DECLARE_METATYPE(Isotope)
+
 class QAction;
 class QMenu;
 class QTextEdit;
@@ -62,7 +66,7 @@ public:
 
 public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
-    void setDatabase(QString dbname);
+    void setDatabase(QString dbname, bool insertIsotopesAndAdducts = true);
     void setFilterString(QString s);
     void showMatches(QString needle);
 
@@ -72,9 +76,10 @@ public Q_SLOTS:
     void resetColor();
 
     void saveCompoundList(QString fileName,QString dbname);
-    void updateTable() { showTable(); }
     void updateCurrentItemData();
 	void matchFragmentation();
+
+    void showTable(bool insertIsotopesAndAdducts = true);
 
     /**
      * @brief Change the color of a compound's entry which is present in the
@@ -84,15 +89,23 @@ public Q_SLOTS:
      */
     void markAsDone(Compound* compound, bool isProxy = false);
 
+    /**
+     * @brief Refreshes the list of isotope and adduct child items under each
+     * compound depending on the current set global state.
+     */
+    void updateIsotopesAndAdducts();
+
 Q_SIGNALS:
     void urlChanged(QString url);
     void compoundFocused(Compound* c);
     void databaseChanged(QString dbname);
     void mzrollSetDB(QString dbname);
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private Q_SLOTS:
     void showLigand();
-    void showTable();
     void databaseChanged(int index);
 
 private:
@@ -102,7 +115,7 @@ private:
     QToolButton *libraryButton;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
-    QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
+    QHash<Compound *, QTreeWidgetItem *> compoundsHash;
 
     MainWindow* _mw;
     QString filterString;

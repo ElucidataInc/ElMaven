@@ -4,10 +4,9 @@
 #include "database.h"
 #include "datastructures/adduct.h"
 #include "globals.h"
+#include "ligandwidget.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
-#include "mzfileio.h"
-#include "mzUtils.h"
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
 #include "Scan.h"
@@ -165,6 +164,7 @@ void AdductWidget::selectAdductsForCurrentPolarity()
 void AdductWidget::triggerSettingsUpdate()
 {
     emit updateSettings(_adductSettings);
+    _mw->ligandWidget->updateIsotopesAndAdducts();
 }
 
 void AdductWidget::onReset()

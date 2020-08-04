@@ -1,5 +1,6 @@
 #include "common/analytics.h"
 #include "isotopedialog.h"
+#include "ligandwidget.h"
 #include "mainwindow.h"
 
 IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
@@ -110,6 +111,7 @@ void IsotopeDialog::triggerSettingsUpdate()
 {
     // happens when users presses 'esc' key; 
     emit updateSettings(isotopeSettings);
+    _mw->ligandWidget->updateIsotopesAndAdducts();
 }
 
 void IsotopeDialog::onReset()

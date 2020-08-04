@@ -29,7 +29,6 @@ LigandWidget::LigandWidget(MainWindow* mw)
     treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
     treeWidget->setSortingEnabled(false);
     treeWidget->setColumnCount(3);
-    treeWidget->setRootIsDecorated(false);
     treeWidget->setUniformRowHeights(true);
     treeWidget->setHeaderHidden(false);
     treeWidget->setObjectName("CompoundTable");
@@ -75,7 +74,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
     toolBar->addWidget(libraryButton);
 
     filterEditor = new QLineEdit(toolBar);
-    filterEditor->setPlaceholderText("Compound Name Filter");
+    filterEditor->setPlaceholderText("Compound name filter");
     connect(filterEditor,
             SIGNAL(textEdited(QString)),
             this,
@@ -86,6 +85,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
     layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(treeWidget);
+    layout->setSpacing(6);
     window->setLayout(layout);
 
     setWidget(window);
@@ -238,9 +238,11 @@ void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname)
     DB.addCompound(compound);
 }
 
-void LigandWidget::setDatabase(QString dbname)
+void LigandWidget::setDatabase(QString dbname, bool insertIsotopesAndAdducts)
 {
     int index = databaseSelect->findText(dbname, Qt::MatchExactly);
+    if (index == -1 && databaseSelect->count() > 0)
+        index = 0;
     if (index != -1) {
         databaseSelect->setCurrentIndex(index);
         _mw->fileLoader->insertSettingForSave("mainWindowSelectedDbName",
@@ -252,7 +254,7 @@ void LigandWidget::setDatabase(QString dbname)
     _mw->setLastLoadedDatabase(dbPath);
     _mw->getSettings()->setValue("lastCompoundDatabase", dbName);
     Q_EMIT databaseChanged(dbName);
-    showTable();
+    showTable(insertIsotopesAndAdducts);
 }
 
 void LigandWidget::databaseChanged(int index)
@@ -272,7 +274,7 @@ void LigandWidget::setCompoundFocus(Compound* c)
 
     QString filterString(c->name().c_str());
     setWindowTitle("Compounds: " + filterString);
-    showTable();
+    showTable(true);
 }
 
 void LigandWidget::setFilterString(QString s)
@@ -292,6 +294,11 @@ void LigandWidget::showMatches(QString needle)
     QTreeWidgetItemIterator itr(treeWidget);
     while (*itr) {
         QTreeWidgetItem* item = (*itr);
+        if (item->parent() != nullptr) {
+            ++itr;
+            continue;
+        }
+
         QVariant v = item->data(0, Qt::UserRole);
         Compound* compound = v.value<Compound*>();
         if (compound) {
@@ -336,11 +343,11 @@ void LigandWidget::updateCurrentItemData()
 
     QString mass = QString::number(c->mz());
     QString rt = QString::number(c->expectedRt());
-    item->setText(1, mass);
-    item->setText(2, rt);
+    item->setText(2, mass);
+    item->setText(3, rt);
 }
 
-void LigandWidget::showTable()
+void LigandWidget::showTable(bool insertIsotopesAndAdducts)
 {
     treeWidget->clear();
     QStringList header;
@@ -424,6 +431,7 @@ void LigandWidget::showTable()
             ++numCompoundsWithNotes;
         }
     }
+    QApplication::processEvents();
 
     treeWidget->setColumnWidth(0, 250);
     treeWidget->resizeColumnToContents(2);
@@ -459,21 +467,26 @@ void LigandWidget::showTable()
     setHash();
     treeWidget->sortByColumn(0, Qt::AscendingOrder);
     treeWidget->setSortingEnabled(true);
+
+    if (insertIsotopesAndAdducts)
+        updateIsotopesAndAdducts();
 }
 
 void LigandWidget::setHash()
 {
-    CompoundsHash.clear();
+    compoundsHash.clear();
     QTreeWidgetItemIterator itr(treeWidget);
 
     while (*itr) {
         QTreeWidgetItem* item = (*itr);
-        if (item->parent() != nullptr)
+        if (item->parent() != nullptr) {
+            ++itr;
             continue;
+        }
 
         QVariant v = item->data(0, Qt::UserRole);
         Compound* c = v.value<Compound*>();
-        CompoundsHash.insert(c, item);
+        compoundsHash.insert(c, item);
         ++itr;
     }
 }
@@ -486,8 +499,8 @@ void LigandWidget::markAsDone(Compound* compound, bool isProxy)
     auto color = QColor(101, 243, 124, 100);  // green
     if (isProxy)
         color = QColor(253, 204, 101, 100);   // yellow
-    auto i = CompoundsHash.find(compound);
-    if (i != CompoundsHash.end() & i.key() == compound) {
+    auto i = compoundsHash.find(compound);
+    if (i != compoundsHash.end() & i.key() == compound) {
         QTreeWidgetItem* item = i.value();
         if (item != nullptr) {
             for (int col = 0; col < treeWidget->columnCount(); col++)
@@ -503,12 +516,82 @@ void LigandWidget::resetColor()
     while (*itr) {
         QTreeWidgetItem* item = (*itr);
         if (item) {
-            for (int col = 0; col < treeWidget->columnCount(); col++) {
+            for (int col = 0; col < treeWidget->columnCount(); col++)
                 item->setBackgroundColor(col, QColor(255, 255, 255, 100));
-            }
         }
         ++itr;
     }
+}
+
+void LigandWidget::updateIsotopesAndAdducts()
+{
+    treeWidget->setSortingEnabled(false);
+    treeWidget->setDisabled(true);
+
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (item != nullptr && item->parent() != nullptr)
+        treeWidget->clearSelection();
+
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item = (*itr);
+        if (item->parent() == nullptr && item->childCount() > 0)
+            item->takeChildren();
+        ++itr;
+    }
+    QApplication::processEvents();
+
+    Adduct* defaultAdduct = _mw->adductWidget->defaultAdduct();
+    for (auto compound : compoundsHash.keys()) {
+        QTreeWidgetItem* item = compoundsHash.value(compound, nullptr);
+        if (item == nullptr)
+            continue;
+
+        if (_mw->mavenParameters->pullIsotopesFlag
+            && !compound->formula().empty()) {
+            int charge = _mw->mavenParameters->getCharge(compound);
+            bool findC13 = _mw->mavenParameters->C13Labeled_BPE;
+            bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
+            bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
+            bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
+            auto isotopes = MassCalculator::computeIsotopes(compound->formula(),
+                                                            charge,
+                                                            findC13,
+                                                            findN15,
+                                                            findS34,
+                                                            findD2,
+                                                            defaultAdduct);
+            for (auto& isotope : isotopes) {
+                if (isotope.name == C12_PARENT_LABEL)
+                    continue; // we already have a top-level parent entry
+
+                NumericTreeWidgetItem* child = new NumericTreeWidgetItem(item,
+                                                                         0);
+                child->setText(0, QString::fromStdString(isotope.name));
+                child->setData(0, Qt::UserRole, QVariant::fromValue(isotope));
+                child->setText(2, QString::number(isotope.mass, 'f', 6));
+            }
+        }
+        if (_mw->mavenParameters->searchAdducts
+            && (!compound->formula().empty()
+                || compound->neutralMass() > 0.0f)) {
+            auto adducts = _mw->adductWidget->getSelectedAdducts();
+            for (auto adduct : adducts) {
+                if (adduct->isParent())
+                    continue; // we already have a top-level parent entry
+
+                NumericTreeWidgetItem* child = new NumericTreeWidgetItem(item,
+                                                                         0);
+                child->setText(0, QString::fromStdString(adduct->getName()));
+                child->setData(0, Qt::UserRole, QVariant::fromValue(adduct));
+
+                float mz = adduct->computeAdductMz(compound->neutralMass());
+                child->setText(2, QString::number(mz, 'f', 6));
+            }
+        }
+    }
+    treeWidget->setEnabled(true);
+    treeWidget->setSortingEnabled(true);
 }
 
 void LigandWidget::saveCompoundList(QString fileName, QString dbname)
@@ -595,45 +678,87 @@ void LigandWidget::showLast()
 
 void LigandWidget::showLigand()
 {
-    if (!_mw)
+    if (_mw == nullptr)
         return;
 
-    Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
-        QVariant v = item->data(0, Qt::UserRole);
-        Compound* compound = v.value<Compound*>();
-        if (compound != nullptr) {
-            Isotope isotope;
-            Adduct* adduct = nullptr;
-            if (_mw->mavenParameters->searchAdducts)
-                adduct = _mw->adductWidget->defaultAdduct();
-            if (_mw->mavenParameters->pullIsotopesFlag
-                && !compound->formula().empty()) {
-                adduct = _mw->adductWidget->defaultAdduct();
-                bool findC13 = _mw->mavenParameters->C13Labeled_BPE;
-                bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
-                bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
-                bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
-                int charge = _mw->mavenParameters->getCharge(compound);
-                auto isotopes =
-                    MassCalculator::computeIsotopes(compound->formula(),
-                                                    charge,
-                                                    findC13,
-                                                    findN15,
-                                                    findS34,
-                                                    findD2,
-                                                    adduct);
-                auto c12IsotopePos = find_if(begin(isotopes),
-                                             end(isotopes),
-                                             [] (Isotope iso) {
-                                                 return (iso.name
-                                                         == C12_PARENT_LABEL);
-                                             });
-                if (c12IsotopePos != end(isotopes))
-                    isotope = *c12IsotopePos;
-            }
-            _mw->setCompoundFocus(compound, isotope, adduct);
-            matchFragmentation();
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (item == nullptr)
+        return;
+
+    QVariant var = item->data(0, Qt::UserRole);
+    if (var.canConvert<Compound*>()) {
+        Compound* compound = var.value<Compound*>();
+        if (compound == nullptr)
+            return;
+
+        Isotope isotope;
+        if (_mw->mavenParameters->pullIsotopesFlag
+            && !compound->formula().empty()) {
+            auto defaultAdduct = _mw->adductWidget->defaultAdduct();
+            bool findC13 = _mw->mavenParameters->C13Labeled_BPE;
+            bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
+            bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
+            bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
+            int charge = _mw->mavenParameters->getCharge(compound);
+            auto isotopes = MassCalculator::computeIsotopes(compound->formula(),
+                                                            charge,
+                                                            findC13,
+                                                            findN15,
+                                                            findS34,
+                                                            findD2,
+                                                            defaultAdduct);
+            auto c12IsotopePos = find_if(begin(isotopes),
+                                         end(isotopes),
+                                         [] (Isotope iso) {
+                                             return (iso.name
+                                                     == C12_PARENT_LABEL);
+                                         });
+            if (c12IsotopePos != end(isotopes))
+                isotope = *c12IsotopePos;
         }
+
+        Adduct* adduct = nullptr;
+        if (_mw->mavenParameters->searchAdducts)
+            adduct = _mw->adductWidget->defaultAdduct();
+
+        _mw->setCompoundFocus(compound, isotope, adduct);
+        matchFragmentation();
+    } else if (var.canConvert<Isotope>()) {
+        auto parentItem = item->parent();
+        if (parentItem == nullptr)
+            return;
+
+        QVariant parentVar = parentItem->data(0, Qt::UserRole);
+        Compound* compound = parentVar.value<Compound*>();
+        if (compound == nullptr)
+            return;
+
+        Isotope isotope = var.value<Isotope>();
+        if (isotope.isNone())
+            return;
+
+        Adduct* adduct = nullptr;
+        if (_mw->mavenParameters->searchAdducts)
+            adduct = _mw->adductWidget->defaultAdduct();
+
+        _mw->setCompoundFocus(compound, isotope, adduct);
+    } else if (var.canConvert<Adduct*>()) {
+        auto parentItem = item->parent();
+        if (parentItem == nullptr)
+            return;
+
+        QVariant parentVar = parentItem->data(0, Qt::UserRole);
+        Compound* compound = parentVar.value<Compound*>();
+        if (compound == nullptr)
+            return;
+
+        Isotope isotope;
+
+        Adduct* adduct = var.value<Adduct*>();
+        if (adduct == nullptr)
+            return;
+
+        _mw->setCompoundFocus(compound, isotope, adduct);
     }
 }
 
@@ -687,4 +812,21 @@ void LigandWidget::matchFragmentation()
         searchText.join("\n"));
     _mw->spectraMatchingForm->precursorMz->setText(
         QString::number(precursorMz, 'f', 6));
+}
+
+void LigandWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Left) {
+        if (treeWidget->currentItem() != nullptr) {
+            if (treeWidget->currentItem()->parent() != nullptr) {
+                treeWidget->collapseItem(treeWidget->currentItem()->parent());
+                treeWidget->setCurrentItem(treeWidget->currentItem()->parent());
+            }
+        }
+    } else if (event->key() == Qt::Key_Right) {
+        if (treeWidget->currentItem() != nullptr) {
+            if (!treeWidget->currentItem()->isExpanded())
+                treeWidget->expandItem(treeWidget->currentItem());
+        }
+    }
 }

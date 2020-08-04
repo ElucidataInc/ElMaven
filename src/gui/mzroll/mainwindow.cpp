@@ -376,7 +376,6 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
-	ligandWidget->setVisible(true);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 
@@ -680,11 +679,11 @@ using namespace mzUtils;
             QString databaseSet;
             if (settings->contains("lastCompoundDatabase")) {
                 ligandWidget->setDatabase(
-                    settings->value("lastCompoundDatabase").toString());
+                    settings->value("lastCompoundDatabase").toString(), false);
                 databaseSet =
                     settings->value("lastCompoundDatabase").toString();
             } else {
-                ligandWidget->setDatabase("KNOWNS");
+                ligandWidget->setDatabase("KNOWNS", false);
                 databaseSet = "KNOWNS";
             }
         }
@@ -1367,7 +1366,9 @@ void MainWindow::setTotalCharge()
     mavenParameters->charge = charge;
     fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
     totalCharge = mavenParameters->ionizationMode * charge;
-    ligandWidget->updateTable();
+    DB.updateChargesForZeroCharges(totalCharge);
+    if (this->isVisible())
+        ligandWidget->showTable(true);
 }
 
 vector<mzSample*> MainWindow::getVisibleSamples() {
@@ -1453,8 +1454,13 @@ void MainWindow::setCompoundFocus(Compound* compound,
     charge = mavenParameters->getCharge(compound);
     float mz = compound->mz();
     if (!compound->formula().empty() || compound->neutralMass() != 0.0f)
-    mz = compound->adjustedMass(charge);
-    searchText->setText(QString::number(mz, 'f', 8));
+        mz = compound->adjustedMass(charge);
+    if (!isotope.isNone()) {
+        mz = isotope.mass;
+    } else if (adduct != nullptr) {
+        mz = adduct->computeAdductMz(compound->neutralMass());
+    }
+    searchText->setText(QString::number(mz, 'f', 6));
 
     if (massCalcWidget && massCalcWidget->isVisible())
 		massCalcWidget->setMass(mz);

@@ -1112,10 +1112,17 @@ void EicWidget::setTitle() {
 
 	QString tagString;
 
-    if (eicParameters->displayedGroup() != NULL) {
+    if (eicParameters->displayedGroup() != nullptr) {
         tagString = QString(eicParameters->displayedGroup()->getName().c_str());
-	} else if (eicParameters->_slice.compound != NULL) {
-                tagString = QString(eicParameters->_slice.compound->name().c_str());
+    } else if (eicParameters->_slice.compound != nullptr) {
+        tagString = QString(eicParameters->_slice.compound->name().c_str());
+        if (!eicParameters->_slice.isotope.isNone()) {
+            string isotopeName = eicParameters->_slice.isotope.name;
+            tagString += " | " + QString(isotopeName.c_str());
+        } else if (eicParameters->_slice.adduct != nullptr) {
+            string adductName = eicParameters->_slice.adduct->getName();
+            tagString += " | " + QString(adductName.c_str());
+        }
 	} else if (!eicParameters->_slice.srmId.empty()) {
 		tagString = QString(eicParameters->_slice.srmId.c_str());
 	}
@@ -1133,7 +1140,7 @@ void EicWidget::setTitle() {
                              3);
         m2 = "prod=" + m2;
     }
-    QString titleText = tr("<b>%1</b> m/z: %2 - %3").arg(tagString, m1, m2);
+    QString titleText = tr("<b>%1</b> (m/z: %2 ‐ %3)").arg(tagString, m1, m2);
 
 	QGraphicsTextItem* title = scene()->addText(titleText, font);
 	title->setHtml(titleText);
@@ -1558,54 +1565,51 @@ void EicWidget::setSrmId(string srmId) {
 
 void EicWidget::setCompound(Compound* compound, Isotope isotope, Adduct* adduct)
 {
-    if (compound == NULL)
-		return;
-	if (getMainWindow()->sampleCount() == 0)
+    if (compound == nullptr)
 		return;
 
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (samples.size() == 0)
+    vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+    if (samples.empty())
 		return;
 
-	MassCutoff* massCutoff=getMainWindow()->getUserMassCutoff(); 
-	float mz = 0;
-
-    if (!compound->formula().empty() || compound->neutralMass() != 0.0f) {
-        int charge = getMainWindow()->mavenParameters->getCharge(compound);
-        mz = compound->adjustedMass(charge);
-	} else {
-        mz = compound->mz();
-	}
-
-	float minmz = mz -massCutoff->massCutoffValue(mz);
-	float maxmz = mz + massCutoff->massCutoffValue(mz);
-	float rtmin = eicParameters->_slice.rtmin;
-	float rtmax = eicParameters->_slice.rtmax;
-
-	if (_autoZoom) {
-        if (compound->expectedRt() > 0) {
-            rtmin = compound->expectedRt() - 2;
-            rtmax = compound->expectedRt() + 2;
-		}
-	}
-
-	mzSlice slice(minmz, maxmz, rtmin, rtmax);
+    mzSlice slice;
     slice.compound = compound;
     slice.isotope = isotope;
     slice.adduct = adduct;
+
+    MavenParameters* mp = getMainWindow()->mavenParameters;
+    int charge = mp->getCharge(compound);
+    if (adduct != nullptr)
+        charge = adduct->getCharge();
+    slice.calculateMzMinMax(mp->compoundMassCutoffWindow, charge);
+
+    float rtmin = eicParameters->_slice.rtmin;
+    float rtmax = eicParameters->_slice.rtmax;
+    if (_autoZoom) {
+        if (compound->expectedRt() > 0) {
+            rtmin = compound->expectedRt() - 2;
+            rtmax = compound->expectedRt() + 2;
+        }
+    }
+    slice.rtmin = rtmin;
+    slice.rtmax = rtmax;
+    slice.rt = (rtmin + rtmax) / 2.0f;
+
     if (!compound->srmId().empty())
         slice.srmId = compound->srmId();
+
     setMzSlice(slice);
     emit compoundSet(compound);
 
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++)
         eicParameters->peakgroups[i].setCompound(compound);
-        if (compound->expectedRt() > 0) {
-                setFocusLine(compound->expectedRt());
-                selectGroupNearRt(compound->expectedRt());
-	}
-	else {
-		//remove previous focusline
+
+    if (compound->expectedRt() > 0) {
+        setFocusLine(compound->expectedRt());
+        selectGroupNearRt(compound->expectedRt());
+    } else {
+        // remove previous focusline
+        _focusLineRt = -1.0f;
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
 		resetZoom();
@@ -2136,9 +2140,10 @@ void EicWidget::renderPdf(shared_ptr<PeakGroup> group, QPainter* painter)
     } else if (!group->getSlice().srmId.empty()) {
         tagString = QString(group->getSlice().srmId.c_str());
     }
-    QString titleText = tr("%1 m/z: %2-%3").arg(tagString,
-                                                QString::number(group->getSlice().mzmin, 'f', 4),
-                                                QString::number(group->getSlice().mzmax, 'f', 4));
+    QString titleText = tr("%1 (m/z: %2 ‐ %3)").arg(
+        tagString,
+        QString::number(group->getSlice().mzmin, 'f', 4),
+        QString::number(group->getSlice().mzmax, 'f', 4));
 
     QGraphicsTextItem* title = scene.addText(titleText, font);
     title->setHtml(titleText);
