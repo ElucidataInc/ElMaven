@@ -4095,10 +4095,8 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
-	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
 	QWidgetAction *btnIntegrateArea = new MainWindowWidgetAction(toolBar, this,  "btnIntegrateArea");
-	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
 	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
 	QWidgetAction *btnNext = new MainWindowWidgetAction(toolBar, this,  "btnNext");
 	QWidgetAction *btnExport = new MainWindowWidgetAction(toolBar, this,  "btnExport");
@@ -4114,22 +4112,18 @@ QWidget* MainWindow::eicWidgetController() {
                                                                     this,
                                                                     "toleranceSyncSwitch");
 
-	toolBar->addAction(btnZoom);
-	toolBar->addAction(btnBookmark);
-	toolBar->addAction(btnCopyCSV);
+    toolBar->addAction(btnLast);
+    toolBar->addAction(btnNext);
+    toolBar->addAction(btnZoom);
+    toolBar->addAction(btnAutoZoom);
+    toolBar->addAction(btnShowTic);
 
 	toolBar->addSeparator();
 	toolBar->addAction(btnIntegrateArea);
-	toolBar->addAction(btnAverageSpectra);
-	toolBar->addAction(btnLast);
-	toolBar->addAction(btnNext);
 
 	toolBar->addSeparator();
-	toolBar->addAction(btnExport);
-
-	toolBar->addSeparator();
-	toolBar->addAction(btnAutoZoom);
-	toolBar->addAction(btnShowTic);
+    toolBar->addAction(btnCopyCSV);
+    toolBar->addAction(btnExport);
 
     toolBar->addSeparator();
     toolBar->addAction(btnShowBarplot);
@@ -4163,16 +4157,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnZoom;
 
 	}
-	else if (btnName == "btnBookmark") {
-
-		QToolButton *btnBookmark = new QToolButton(parent);
-		btnBookmark->setIcon(QIcon(rsrcPath + "/bookmark.png"));
-		btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
-		btnBookmark->setShortcut(tr("Ctrl+D"));
-		connect(btnBookmark, SIGNAL(clicked()), mw, SLOT(bookmarkPeakGroup()));
-		return btnBookmark;
-
-	}
 	else if (btnName == "btnCopyCSV") {
 
 		QToolButton *btnCopyCSV = new QToolButton(parent);
@@ -4198,18 +4182,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnIntegrateArea;
 
 	}
-	else if (btnName == "btnAverageSpectra") {
-
-		QToolButton *btnAverageSpectra = new QToolButton(parent);
-		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
-		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
-		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
-				SLOT(startSpectralAveraging()));
-        connect(btnAverageSpectra,SIGNAL(clicked()),mw,SLOT(analyticsAverageSpectra()));
-		return btnAverageSpectra;
-
-	}
-	else if (btnName == "btnLast") {
+    else if (btnName == "btnLast") {
 
 		QToolButton *btnLast = new QToolButton(parent);
 		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
