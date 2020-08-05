@@ -397,7 +397,7 @@ void IsotopeWidget::computeIsotopes(string formula)
     if (isotopeParameters->_scan == nullptr)
         return;
 
-    if (isotopeParameters->_group) {
+    if (isotopeParameters->_group != nullptr) {
         PeakGroup *parentGroup = isotopeParameters->_group.get();
         if (parentGroup->parent != nullptr)
             parentGroup = parentGroup->parent;
@@ -405,8 +405,7 @@ void IsotopeWidget::computeIsotopes(string formula)
             return;
 
         if (parentGroup->childIsotopeCount() > 0
-            || !parentGroup->tableName().empty()
-            || !parentGroup->isotope().isNone()) {
+            || !parentGroup->tableName().empty()) {
             clearWidget();
             _insertLinkForPeakGroup(parentGroup);
             for (auto& child : parentGroup->childIsotopes())
