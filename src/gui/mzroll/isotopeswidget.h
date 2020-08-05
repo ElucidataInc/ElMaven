@@ -33,7 +33,7 @@ public Q_SLOTS:
 	void setCharge(double charge);
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
-    void computeIsotopes(string formula);
+    void computeIsotopes(string formula, bool updateBarplot = false);
 
 	/**
 	 * @brief sets necessary variables when a group is selected
@@ -91,7 +91,7 @@ private:
     void reset();
     QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader);
     void _insertLinkForPeakGroup(PeakGroup* group);
-    void _pullIsotopesForFormula(string formula);
+    void _pullIsotopesForFormula(string formula, bool updateBarplot = false);
     void _pullIsotopesForGroup(shared_ptr<PeakGroup> group);
 };
 

@@ -1472,13 +1472,6 @@ void MainWindow::setCompoundFocus(Compound* compound,
 		if (isotopeWidget && isotopeWidget->isVisible()) {
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
         }
-        if (isotopeWidget
-            && isotopePlot
-            && isotopePlot->isVisible()
-            && selectedGroup
-            && selectedGroup->getCompound() != NULL) {
-            isotopeWidget->updateIsotopicBarplot(selectedGroup);
-        }
 
 		if (fragSpectraWidget->isVisible())
 			fragSpectraWidget->overlayPeakGroup(selectedGroup);
@@ -3679,12 +3672,6 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
         && isotopeWidget->isVisible()
         && group->hasCompoundLink()) {
         isotopeWidget->setPeakGroupAndMore(group);
-    }
-    if (isotopeWidget
-        && isotopePlot
-        && isotopePlot->isVisible()
-        && group->hasCompoundLink()) {
-        isotopeWidget->updateIsotopicBarplot(group);
     }
 
     if (group->hasCompoundLink()) {

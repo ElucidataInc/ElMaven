@@ -159,7 +159,11 @@ void IsotopePlot::showBars() {
     font.setPixelSize(18);
     title->setFont(font);
 
-    title->setText(_isotopes[0].getCompound()->name().c_str());
+    if (_isotopes[0].hasCompoundLink()) {
+        title->setText(_isotopes[0].getCompound()->name().c_str());
+    } else {
+        title->setText("Unknown compound");
+    }
     _mw->customPlot->plotLayout()->addElement(0, 0, title); 
 
     bottomAxisRect = new QCPAxisRect(_mw->customPlot);

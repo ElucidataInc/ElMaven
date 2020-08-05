@@ -54,11 +54,12 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 IsotopeWidget::~IsotopeWidget()
 {
     while (workerThread->isRunning())
-        QApplication::processEvents();
+        workerThread->completeStop();
     delete workerThread->mavenParameters;
     delete workerThread;
+
     while (workerThreadBarplot->isRunning())
-        QApplication::processEvents();
+        workerThreadBarplot->completeStop();
     delete workerThreadBarplot->mavenParameters;
     delete workerThreadBarplot;
 
@@ -98,6 +99,7 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
                                         bool bookmark)
 {
 	clearWidget();
+    _mw->isotopePlot->clear();
 
     if (group == nullptr || !group->hasCompoundLink())
 		return;
@@ -135,7 +137,7 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
             } else {
                 isotopeParameters->_scan = nullptr;
             }
-            computeIsotopes(isotopeParameters->_formula);
+            computeIsotopes(isotopeParameters->_formula, true);
         }
     }
 }
@@ -155,8 +157,11 @@ void IsotopeWidget::setCompound(Compound *compound)
 {
 	clearWidget();
 
-    if (compound == NULL)
+    if (compound == nullptr) {
+        setWindowTitle("Isotopes");
+        isotopeParameters->_compound = nullptr;
         return;
+    }
 
     QString formula = QString(compound->formula().c_str());
     isotopeParameters->_compound = compound;
@@ -185,6 +190,8 @@ void IsotopeWidget::userChangedFormula(QString f)
 
 	isotopeParameters->_formula = f.toStdString();
 	isotopeParameters->userChangedFormula();
+    isotopeParameters->_group = nullptr;
+    setCompound(nullptr);
 
     setWindowTitle("Compound formula: " + f);
 	computeIsotopes(isotopeParameters->_formula);
@@ -289,17 +296,20 @@ void IsotopeWidget::_insertLinkForPeakGroup(PeakGroup* group)
     if (group->isGhost())
         return;
 
+    if (isotopeParameters->_compound != nullptr)
+        group->setCompound(isotopeParameters->_compound);
+
     mzLink link = linkForSamplePeak();
     if (link.mz1 > 0.0f && link.mz2 > 0.0f)
         isotopeParameters->links.push_back(link);
 }
 
-void IsotopeWidget::_pullIsotopesForFormula(string formula)
+void IsotopeWidget::_pullIsotopesForFormula(string formula, bool updateBarplot)
 {
-    while (workerThread->isRunning()) {
+    // not doing QApplication::processEvents intentionally to prevent triggering
+    // of multiple requests until this one is complete
+    while (workerThread->isRunning())
         workerThread->completeStop();
-        QCoreApplication::processEvents();
-    }
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -314,7 +324,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
     workerThread->setPullIsotopesForFormulaArgs(formula, charge);
     workerThread->setRunFunction("pullIsotopesForFormula");
 
-    auto callback = [this, expectedRt]() {
+    auto callback = [this, expectedRt, updateBarplot]() {
         float leastRtDiff = numeric_limits<float>::max();
         PeakGroup* closestParent = nullptr;
         if (workerThread->mavenParameters->allgroups.size() == 1) {
@@ -340,6 +350,18 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
              end(isotopeParameters->links),
              mzLink::compMz);
         showTable();
+
+        if (updateBarplot && _mw->isotopePlot->isVisible()) {
+            isotopeParametersBarPlot->_group =
+                make_shared<PeakGroup>(*closestParent);
+            isotopeParametersBarPlot->_group->deleteChildIsotopesBarPlot();
+            for (auto& child : closestParent->childIsotopes()) {
+                isotopeParametersBarPlot->_group->addIsotopeChildBarPlot(
+                    *child);
+            }
+            _mw->isotopePlot->setPeakGroup(
+                isotopeParametersBarPlot->_group.get());
+        }
         _mw->setStatusText("Isotopes pulled");
     };
 
@@ -354,10 +376,10 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
 
 void IsotopeWidget::_pullIsotopesForGroup(shared_ptr<PeakGroup> group)
 {
-    while (workerThread->isRunning()) {
+    // not doing QApplication::processEvents intentionally to prevent triggering
+    // of multiple requests until this one is complete
+    while (workerThread->isRunning())
         workerThread->completeStop();
-        QCoreApplication::processEvents();
-    }
 
     disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
@@ -388,7 +410,7 @@ void IsotopeWidget::_pullIsotopesForGroup(shared_ptr<PeakGroup> group)
     workerThread->start();
 }
 
-void IsotopeWidget::computeIsotopes(string formula)
+void IsotopeWidget::computeIsotopes(string formula, bool updateBarplot)
 {
     clearWidget();
     if (formula.empty())
@@ -415,11 +437,23 @@ void IsotopeWidget::computeIsotopes(string formula)
                  end(isotopeParameters->links),
                  mzLink::compMz);
             showTable();
+
+            if (updateBarplot && _mw->isotopePlot->isVisible()) {
+                isotopeParametersBarPlot->_group =
+                    make_shared<PeakGroup>(*parentGroup);
+                isotopeParametersBarPlot->_group->deleteChildIsotopesBarPlot();
+                for (auto& child : parentGroup->childIsotopes()) {
+                    isotopeParametersBarPlot->_group->addIsotopeChildBarPlot(
+                        *child);
+                }
+                _mw->isotopePlot->setPeakGroup(
+                    isotopeParametersBarPlot->_group.get());
+            }
         } else {
-            _pullIsotopesForFormula(formula);
+            _pullIsotopesForFormula(formula, updateBarplot);
         }
     } else {
-        _pullIsotopesForFormula(formula);
+        _pullIsotopesForFormula(formula, updateBarplot);
     }
 }
 
@@ -447,10 +481,10 @@ void IsotopeWidget::pullIsotopesForBarplot(shared_ptr<PeakGroup> group)
     if (!group->hasCompoundLink())
         return;
 
-    while (workerThreadBarplot->isRunning()) {
+    // not doing QApplication::processEvents intentionally to prevent triggering
+    // of multiple requests until this one is complete
+    while (workerThreadBarplot->isRunning())
         workerThreadBarplot->completeStop();
-        QCoreApplication::processEvents();
-    }
 
     if (workerThreadBarplot->mavenParameters != nullptr)
         delete workerThreadBarplot->mavenParameters;

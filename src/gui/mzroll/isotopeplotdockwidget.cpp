@@ -170,8 +170,6 @@ void IsotopePlotDockWidget::recompute()
         if (group && group->tableName().empty()) {
             group->deleteChildIsotopesBarPlot();
             _mw->isotopeWidget->updateIsotopicBarplot(group);
-        } else {
-            _mw->isotopeWidget->updateIsotopicBarplot();
         }
     }
 }
