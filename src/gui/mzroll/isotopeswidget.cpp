@@ -328,7 +328,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula)
                 }
             }
         }
-        if (closestParent == nullptr)
+        if (closestParent == nullptr || closestParent->isGhost())
             return;
 
         clearWidget();

@@ -68,6 +68,7 @@ public Q_SLOTS:
 	void addMergedEIC();
 	void setFocusLine(float rt);
 	void addFocusLine(PeakGroup*);
+    void addParentRtLine(shared_ptr<PeakGroup> group);
     void addBarPlot(shared_ptr<PeakGroup>);
     void addBoxPlot(shared_ptr<PeakGroup>);
 	void addFitLine(PeakGroup*);

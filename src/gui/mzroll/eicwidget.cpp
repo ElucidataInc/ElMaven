@@ -1285,6 +1285,27 @@ void EicWidget::_clearBarPlot()
     scene()->update();
 }
 
+void EicWidget::addParentRtLine(shared_ptr<PeakGroup> group)
+{
+    if (group->parent == nullptr)
+        return;
+
+    float medianRt = group->parent->medianRt();
+    if (medianRt > 0.0f) {
+        float rt = toX(medianRt);
+        float y1 = toY(_minY);
+        float y2 = toY(_maxY);
+
+        QPen bluePen(Qt::blue, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
+        focusLine->setPen(bluePen);
+        focusLine->setLine(rt, y1, rt, y2);
+
+        scene()->addItem(focusLine);
+        scene()->update();
+    }
+}
+
 void EicWidget::addBarPlot(shared_ptr<PeakGroup> group) {
    // qDebug() <<" EicWidget::addBarPlot(PeakGroup* group )";
     if (group == nullptr || _areaIntegration)
@@ -1304,31 +1325,7 @@ void EicWidget::addBarPlot(shared_ptr<PeakGroup> group) {
     // _barplot->setPos(xpos, ypos);
     setBarplotPosition(group.get());
 	_barplot->setZValue(1000);
-
-	float medianRt = group->medianRt();
-	if (group->parent)
-		medianRt = group->parent->medianRt();
-
-	if (medianRt && group->parent) {
-		float rt = toX(medianRt);
-		float y1 = toY(_minY);
-		float y2 = toY(_maxY);
-
-        QPen pen2(Qt::blue, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
-		focusLine->setPen(pen2);
-		focusLine->setLine(rt, y1, rt, y2);
-
-		/*
-		 float x1 = toX(group->parent->minRt);
-		 float x2 = toX(group->parent->maxRt);
-		 QColor color = QColor::fromRgbF( 0.2, 0, 0 , 0.1 );
-		 QBrush brush(color);
-		 QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		 scene()->addRect(QRectF(x1,y1,x2-x1,y2-y1),pen,brush);
-		 */
-	}
-	return;
+    addParentRtLine(group);
 }
 
 void EicWidget::addBoxPlot(shared_ptr<PeakGroup> group) {
@@ -1350,10 +1347,7 @@ void EicWidget::addBoxPlot(shared_ptr<PeakGroup> group) {
 
 	_boxplot->setPos(xpos, ypos);
 	_boxplot->setZValue(1000);
-	//_boxplot->setPos(scene()->width()*0.20,scene()->height()*0.10);
-	//_boxplot->setZValue(1000);
-
-	return;
+    addParentRtLine(group);
 }
 
 void EicWidget::addFitLine(PeakGroup* group) {
