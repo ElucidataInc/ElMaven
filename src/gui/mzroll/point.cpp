@@ -4,6 +4,7 @@
 #include "eicwidget.h"
 #include "globals.h"
 #include "grouprtwidget.h"
+#include "isotopeplot.h"
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
@@ -247,7 +248,7 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 
     if (group != nullptr)
         mw->groupRtWidget->plotGraph(group.get());
-    if (group != nullptr && !group->isIsotope())
+    if (group != nullptr && !group->isIsotope() && mw->isotopePlot->isVisible())
         mw->isotopeWidget->updateIsotopicBarplot(group);
     if (peak && group != nullptr && mw->isotopeWidget->isVisible())
         mw->isotopeWidget->peakSelected(peak, group);

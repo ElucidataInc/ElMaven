@@ -834,6 +834,7 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
     PeakFiltering peakFilter(_mavenParameters, true);
     auto isotopes = findBarplotIsotopes ? parentGroup.childIsotopesBarPlot()
                                         : parentGroup.childIsotopes();
+    vector<PeakGroup*> emptyChildren;
     for (auto& child : isotopes) {
         auto eics = pullEICs(&child->getSlice(),
                              _mavenParameters->samples,
@@ -852,12 +853,24 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                                   parentPeak->rtmin,
                                   parentPeak->rtmax);
             eic->getPeakDetails(*childPeak);
+            if (mzUtils::almostEqual(childPeak->peakArea, 0.0f))
+                child->deletePeak(sample);
+
             if (_mavenParameters->clsf->hasModel())
                 _mavenParameters->clsf->scorePeak(*childPeak);
             if (peakFilter.filter(*childPeak))
                 child->deletePeak(sample);
         }
+
+        if (child->peakCount() == 0) {
+            emptyChildren.push_back(child.get());
+            continue;
+        }
+
         child->updateQuality();
         child->groupStatistics();
     }
+
+    for (auto group : emptyChildren)
+        parentGroup.removeChild(group);
 }
