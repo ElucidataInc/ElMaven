@@ -364,9 +364,9 @@ void PlotDockWidget::selectionChanged() {
 	cerr << "PlotDockWidget::selectionChanged() " << endl;
 	Q_FOREACH(QGraphicsItem *item, scene()->selectedItems()) {
 		if (item == NULL) continue;
-			QVariant v = item->data(0);
-			PeakGroup*  group =  v.value<PeakGroup*>();
-			if (group != NULL ) {
+            QVariant v = item->data(0);
+            auto group = make_shared<PeakGroup>(*(v.value<PeakGroup*>()));
+            if (group != nullptr) {
 				Q_EMIT groupSelected(group);
 				break;
 			}

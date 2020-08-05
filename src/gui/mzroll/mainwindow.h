@@ -142,7 +142,7 @@ public:
 	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
-	QDockWidget *scatterDockWidget;
+    ScatterPlot *scatterDockWidget;
 	QDockWidget *treeMapDockWidget;
 	LogWidget *logWidget;
 	ProjectDockWidget *projectDockWidget;

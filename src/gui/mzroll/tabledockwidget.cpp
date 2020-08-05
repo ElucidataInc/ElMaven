@@ -1593,9 +1593,9 @@ void TableDockWidget::showScatterPlot() {
   if (topLevelGroupCount() == 0)
     return;
   _mainwindow->scatterDockWidget->setVisible(true);
-  ((ScatterPlot *)_mainwindow->scatterDockWidget)->setTable(this);
-  ((ScatterPlot *)_mainwindow->scatterDockWidget)->replot();
-  ((ScatterPlot *)_mainwindow->scatterDockWidget)->contrastGroups();
+  _mainwindow->scatterDockWidget->setTable(this);
+  _mainwindow->scatterDockWidget->replot();
+  _mainwindow->scatterDockWidget->contrastGroups();
 }
 
 void TableDockWidget::printPdfReport() {

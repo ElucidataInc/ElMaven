@@ -2074,8 +2074,6 @@ void EicWidget::timerEvent(QTimerEvent * event) {
 
 void EicWidget::addMS2Events(float mzmin, float mzmax)
 {
-    qDebug() << "addMS2Events() " << mzmin << " " << mzmax;
-
     MainWindow* mw = getMainWindow();
     vector <mzSample*> samples = mw->getVisibleSamples();
 
@@ -2112,8 +2110,6 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
             }
         }
     }
-
-    qDebug() << "addMS2Events()  found=" << count;
 }
 
 

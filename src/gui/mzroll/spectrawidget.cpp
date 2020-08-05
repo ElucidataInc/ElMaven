@@ -709,8 +709,6 @@ void SpectraWidget::drawGraph()
     
     if (_currentScan == NULL) return;
 
-    qDebug() << "showSpectra() mzrange= " << _minX << "-" << _maxX;
-
     QColor sampleColor(Qt::black);
     if (_currentScan->sample) {
         mzSample* sample = _currentScan->sample;

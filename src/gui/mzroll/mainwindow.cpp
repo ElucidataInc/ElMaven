@@ -436,8 +436,9 @@ using namespace mzUtils;
 	spectraMatchingForm = new SpectraMatching(this);
 
     connect(scatterDockWidget,
-            SIGNAL(groupSelected(PeakGroup*)),
-			SLOT(setPeakGroup(PeakGroup*)));
+            &ScatterPlot::groupSelected,
+            this,
+            &MainWindow::setPeakGroup);
 	pathwayWidgetController();
 
 
