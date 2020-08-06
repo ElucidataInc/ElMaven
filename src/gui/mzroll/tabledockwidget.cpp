@@ -146,9 +146,7 @@ void TableDockWidget::sortBy(int col) {
 
 void TableDockWidget::updateTableAfterAlignment()
 {
-    BackgroundOpsThread::updateGroups(_topLevelGroups,
-                                       _mainwindow->getVisibleSamples(),
-                                       _mainwindow->mavenParameters);
+    BackgroundOpsThread::updateGroups(_topLevelGroups, _mainwindow->samples);
     showAllGroups();
 }
 

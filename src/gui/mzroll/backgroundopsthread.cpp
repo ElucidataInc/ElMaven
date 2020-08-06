@@ -361,11 +361,10 @@ void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
     }
 }
 
-void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
-                                       vector<mzSample*> samples,
-                                       MavenParameters* mavenParameters)
+void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
+                                       vector<mzSample*> samples)
 {
-    for(auto group : groups) {
+    auto updateGroup = [samples](PeakGroup* group) {
         MavenParameters* mp = group->parameters().get();
         auto slice = group->getSlice();
         slice.rtmin = samples[0]->minRt;
@@ -376,18 +375,20 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>> groups,
             for(Peak& peak :  group->peaks) {
                 if (eic->getSample() == peak.getSample())
                     eic->getPeakDetails(peak);
+
+                if (mp->clsf->hasModel())
+                    mp->clsf->scorePeak(peak);
             }
         }
+        group->updateQuality();
         group->groupStatistics();
+    };
 
-        if (!group->isIsotope() && group->childIsotopeCount() > 0) {
-            group->deleteChildIsotopes();
-            group->deleteChildAdducts();
-            // TODO: shift child groups as well
-        }
+    for(auto group : groups) {
+        updateGroup(group.get());
+        for (auto& child : group->childIsotopes())
+            updateGroup(child.get());
+        for (auto& child : group->childAdducts())
+            updateGroup(child.get());
     }
-
-    mavenParameters->allgroups.clear();
-    for (auto group : groups)
-        mavenParameters->allgroups.push_back(*(group.get()));
 }

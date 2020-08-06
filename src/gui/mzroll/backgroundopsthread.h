@@ -64,11 +64,9 @@ public:
      * mainwindow parameters.
      * @param groups    Updation of attributes of peakgroups.
      * @param samples   Current visible samples in the state of alignment or not
-     * @param mavenParameters current mainwindow mavenparameters.
      */
-    static void updateGroups(QList<shared_ptr<PeakGroup>> groups,
-                             vector<mzSample*> samples,
-                             MavenParameters* mavenParameters);
+    static void updateGroups(QList<shared_ptr<PeakGroup>>& groups,
+                             vector<mzSample*> samples);
 
 signals:
     void updateProgressBar(QString, int, int);
