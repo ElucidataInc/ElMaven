@@ -349,8 +349,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
 void TableDockWidget::updateCompoundWidget() {
   _mainwindow->ligandWidget->resetColor();
   QMap<Compound*, bool> parentCompounds;
-  QMap<Compound*, vector<Isotope>> compoundIsotopeForms;
-  QMap<Compound*, vector<Adduct*>> compoundAdductForms;
+  QMap<Compound*, set<Isotope>> compoundIsotopeForms;
+  QMap<Compound*, set<Adduct*>> compoundAdductForms;
   for (auto& group : _topLevelGroups) {
     if (group == nullptr || !group->hasCompoundLink())
       continue;
@@ -366,12 +366,12 @@ void TableDockWidget::updateCompoundWidget() {
     if (!compoundIsotopeForms.contains(compound))
       compoundIsotopeForms.insert(compound, {});
     for (auto& child : group->childIsotopes())
-      compoundIsotopeForms[compound].push_back(child->isotope());
+      compoundIsotopeForms[compound].insert(child->isotope());
 
     if (!compoundAdductForms.contains(compound))
       compoundAdductForms.insert(compound, {});
     for (auto& child : group->childAdducts())
-      compoundAdductForms[compound].push_back(child->adduct());
+      compoundAdductForms[compound].insert(child->adduct());
   }
 
   for (auto compound : parentCompounds.keys())

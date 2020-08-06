@@ -522,8 +522,14 @@ void LigandWidget::markAsDone(Compound* compound, Isotope isotope)
     if (i != compoundsHash.end() && i.key() == compound) {
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
+        ++it; // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
+
+            // break once we reach the next parent item
+            if (childItem->parent() == nullptr)
+                break;
+
             QVariant var = childItem->data(0, Qt::UserRole);
             if (var.canConvert<Isotope>()
                 && var.value<Isotope>().name == isotope.name) {
@@ -543,8 +549,14 @@ void LigandWidget::markAsDone(Compound* compound, Adduct* adduct)
     if (i != compoundsHash.end() && i.key() == compound) {
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
+        ++it; // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
+
+            // break once we reach the next parent item
+            if (childItem->parent() == nullptr)
+                break;
+
             QVariant var = childItem->data(0, Qt::UserRole);
             if (var.canConvert<Adduct*>()
                 && var.value<Adduct*>() == adduct) {
