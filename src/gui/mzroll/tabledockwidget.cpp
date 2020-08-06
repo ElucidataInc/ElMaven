@@ -233,6 +233,16 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   if (group == nullptr)
     return;
 
+  if (group->isGhost()) {
+    item->setText(0, QString::number(group->groupId()));
+    item->setText(1, QString(group->getName().c_str()));
+    if (updateChildren) {
+    for (int i = 0; i < item->childCount(); ++i)
+      updateItem(item->child(i));
+    }
+    return;
+  }
+
   heatmapBackground(item);
 
   //Find maximum number of peaks
