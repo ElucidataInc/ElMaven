@@ -1469,7 +1469,8 @@ void MainWindow::setCompoundFocus(Compound* compound,
 	if (eicWidget->isVisible() && samples.size() > 0) {
         eicWidget->setCompound(compound, isotope, adduct);
         shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
-		if (isotopeWidget && isotopeWidget->isVisible()) {
+        if (isotopeWidget
+            && (isotopeWidget->isVisible() || isotopePlot->isVisible())) {
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
         }
 
@@ -3668,9 +3669,9 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
     if (groupRtDockWidget->isVisible())
         groupRtWidget->plotGraph(group.get());
 
-    if (isotopeWidget != nullptr
-        && isotopeWidget->isVisible()
-        && group->hasCompoundLink()) {
+    if (group->hasCompoundLink()
+        && isotopeWidget != nullptr
+        && (isotopeWidget->isVisible() || isotopePlot->isVisible())) {
         isotopeWidget->setPeakGroupAndMore(group);
     }
 
