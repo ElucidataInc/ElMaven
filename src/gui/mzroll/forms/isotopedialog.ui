@@ -155,6 +155,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="parentIsotopeRequired">
+        <property name="toolTip">
+         <string>If checked, the search for labelled isotopologues of a metabolite will depend on whether its unlabelled ion was found or not.</string>
+        </property>
+        <property name="text">
+         <string>Parent ion (unlabelled form) must be present</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="linkIsotopeRtRange">
         <property name="text">
          <string>Link isotope peak RT range with parent peak (if found)</string>

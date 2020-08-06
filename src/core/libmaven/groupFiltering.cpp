@@ -137,29 +137,32 @@ void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
 
     vector<PeakGroup*> nonChildren;
     for (auto& child : possibleChildren) {
-        bool tooFarFromParent = false;
+        float rtDeviationSum = 0.0f;
         int numSamplesShared = 0;
         for (auto sample : _mavenParameters->samples) {
             auto childPeak = child->getPeak(sample);
             auto parentPeak = parent.getPeak(sample);
             if (parentPeak == nullptr || childPeak == nullptr)
                 continue;
+
             ++numSamplesShared;
             auto childApexRt = childPeak->rt;
             auto parentApexRt = parentPeak->rt;
             auto deviation = abs(childApexRt - parentApexRt) * 60.0f;
-            if (deviation > maxRtDeviation) {
-                tooFarFromParent = true;
-                break;
-            }
+            rtDeviationSum += deviation;
         }
-        if (numSamplesShared > 0 && tooFarFromParent)
+        if (numSamplesShared == 0)
+            continue;
+
+        float avgRtDeviation = rtDeviationSum
+                               / static_cast<float>(numSamplesShared);
+        if (avgRtDeviation > maxRtDeviation)
             nonChildren.push_back(child.get());
     }
 
     for (auto& child : possibleChildren) {
         float corrSum = 0.0f;
-        int numSamples = 0;
+        int numSamplesShared = 0;
         for (auto sample : _mavenParameters->samples) {
             auto parentPeak = parent.getPeak(sample);
             if (!parentPeak)
@@ -174,9 +177,12 @@ void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
                                               _mavenParameters->eicType,
                                               _mavenParameters->filterline);
             corrSum += corr;
-            ++numSamples;
+            ++numSamplesShared;
         }
-        float avgPercentCorr = corrSum / static_cast<float>(numSamples)
+        if (numSamplesShared == 0)
+            continue;
+
+        float avgPercentCorr = corrSum / static_cast<float>(numSamplesShared)
                                * 100.0f;
         if (avgPercentCorr < minPercentCorrelation)
             nonChildren.push_back(child.get());

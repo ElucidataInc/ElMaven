@@ -88,7 +88,8 @@ public:
      */
     void processSlices(std::vector<mzSlice*>& slices,
                        std::string setName,
-                       bool applyGroupFilters = true);
+                       bool applyGroupFilters = true,
+                       bool appendNewGroups = false);
 
     void performMetaGrouping(bool applyGroupFilters = true,
                              bool barplotIsotopes = false);

@@ -199,6 +199,8 @@ void GroupSettingsLog::_displayGroupSettings()
              tr("%1").arg(mp->minIsotopicCorrelation)},
             {"Isotope is within [X] scans of parent peak",
              tr("%1 scans").arg(mp->maxIsotopeScanDiff)},
+            {"Parent ion (unlabelled form) must be present",
+             tr("%1").arg(mp->parentIsotopeRequired ? "Yes" : "No")},
             {"Link isotope peak RT range with parent peak",
              tr("%1").arg(mp->linkIsotopeRtRange ? "Yes" : "No")},
         };

@@ -181,6 +181,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="parentAdductRequired">
+     <property name="text">
+      <string>Parent ion (default adduct form) must be present</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="resetToDefaults">
      <property name="text">
       <string>Use default parameters</string>

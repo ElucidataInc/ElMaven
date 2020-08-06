@@ -51,6 +51,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         filterAdductsAgainstParent = true;
         adductSearchWindow = 0.1f;
         adductPercentCorrelation = 90.0f;
+        parentAdductRequired = false;
 
         // peak detection
         eic_smoothingWindow = 10;
@@ -103,6 +104,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         filterIsotopesAgainstParent = true;
         maxIsotopeScanDiff = 10;
         minIsotopicCorrelation = 0;
+        parentIsotopeRequired = true;
         linkIsotopeRtRange = true;
 
 	C13Labeled_BPE = false;
@@ -215,6 +217,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     filterAdductsAgainstParent = mp.filterAdductsAgainstParent;
     adductSearchWindow = mp.adductSearchWindow;
     adductPercentCorrelation = mp.adductPercentCorrelation;
+    parentAdductRequired = mp.parentAdductRequired;
     setChosenAdductList(mp.getChosenAdductList());
 
     eic_smoothingWindow = mp.eic_smoothingWindow;
@@ -269,6 +272,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     filterIsotopesAgainstParent = mp.filterIsotopesAgainstParent;
     maxIsotopeScanDiff = mp.maxIsotopeScanDiff;
     minIsotopicCorrelation = mp.minIsotopicCorrelation;
+    parentIsotopeRequired = mp.parentIsotopeRequired;
     linkIsotopeRtRange = mp.linkIsotopeRtRange;
 
     C13Labeled_BPE = mp.C13Labeled_BPE;
@@ -346,6 +350,9 @@ void MavenParameters::setIsotopeDialogSettings(const char* key, const char* valu
     if(strcmp(key, "maxIsotopeScanDiff") == 0)
         maxIsotopeScanDiff = atof(value);
 
+    if(strcmp(key, "parentIsotopeRequired") == 0)
+        parentIsotopeRequired = atoi(value);
+
     if(strcmp(key, "linkIsotopeRtRange") == 0)
         linkIsotopeRtRange = atoi(value);
 }
@@ -364,6 +371,9 @@ void MavenParameters::setAdductsDialogSettings(const char* key,
 
     if(strcmp(key, "adductPercentCorrelation") == 0)
         adductPercentCorrelation = atof(value);
+
+    if(strcmp(key, "parentAdductRequired") == 0)
+        parentAdductRequired = atof(value);
 }
 
 std::vector<Adduct*> MavenParameters::getDefaultAdductList()

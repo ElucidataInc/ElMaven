@@ -266,7 +266,9 @@
                                               , alignment_algorithm              INTEGER \
                                               , active_table_name                TEXT    \
                                               , filter_isotopes_against_parent   INTEGER \
-                                              , filter_adducts_against_parent    INTEGER );"
+                                              , filter_adducts_against_parent    INTEGER \
+                                              , parent_isotope_required          INTEGER \
+                                              , parent_adduct_required           INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

@@ -248,8 +248,11 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 
     if (group != nullptr)
         mw->groupRtWidget->plotGraph(group.get());
-    if (peak && group != nullptr && mw->isotopeWidget->isVisible())
+    if (peak != nullptr
+        && group != nullptr
+        && (mw->isotopeWidget->isVisible() || mw->isotopePlot->isVisible())) {
         mw->isotopeWidget->peakSelected(peak, group);
+    }
     if (peak && mw->covariantsPanel->isVisible())
         mw->getLinks(peak);
     if (peak == nullptr)

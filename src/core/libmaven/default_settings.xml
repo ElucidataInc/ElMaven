@@ -23,12 +23,14 @@
         <filterAdductsAgainstParent>1</filterAdductsAgainstParent>
         <adductSearchWindow>0.5</adductSearchWindow>
         <adductPercentCorrelation>90.0</adductPercentCorrelation>
+        <parentAdductRequired>1</parentAdductRequired>
         <matchFragmentation>0</matchFragmentation>
         <fragmentTolerance>20</fragmentTolerance>
         <minFragMatch>3</minFragMatch>
         <minFragMatchScore>0.00</minFragMatchScore>
         <reportIsotopes>1</reportIsotopes>
         <filterIsotopesAgainstParent>1</filterIsotopesAgainstParent>
+        <parentIsotopeRequired>1</parentIsotopeRequired>
         <minGroupIntensity>5000</minGroupIntensity>
         <peakQuantitation>0</peakQuantitation>
         <intensityQuantile>0</intensityQuantile>

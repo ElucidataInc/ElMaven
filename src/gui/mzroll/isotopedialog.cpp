@@ -14,6 +14,7 @@ IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
     settings.insert("filterIsotopesAgainstParent", QVariant::fromValue(id->filterIsotopesAgainstParent));
     settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(id->minIsotopicCorrelation));
     settings.insert("maxIsotopeScanDiff", QVariant::fromValue(id->maxIsotopeScanDiff));
+    settings.insert("parentIsotopeRequired", QVariant::fromValue(id->parentIsotopeRequired));
     settings.insert("linkIsotopeRtRange", QVariant::fromValue(id->linkIsotopeRtRange));
 }
 
@@ -70,6 +71,7 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                         C13Labeled_BPE->setChecked(true);
                     }
                     filterIsotopesAgainstParent->setEnabled(true);
+                    parentIsotopeRequired->setEnabled(true);
                 } else {
                     C13Labeled_BPE->setChecked(false);
                     D2Labeled_BPE->setChecked(false);
@@ -77,6 +79,8 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                     S34Labeled_BPE->setChecked(false);
                     filterIsotopesAgainstParent->setChecked(false);
                     filterIsotopesAgainstParent->setEnabled(false);
+                    parentIsotopeRequired->setChecked(false);
+                    parentIsotopeRequired->setEnabled(false);
                 }
             });
 

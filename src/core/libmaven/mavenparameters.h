@@ -165,6 +165,7 @@ class MavenParameters
         bool filterAdductsAgainstParent;
         float adductSearchWindow;
         float adductPercentCorrelation;
+        bool parentAdductRequired;
 
         // Peak Group Rank
         int qualityWeight;
@@ -222,6 +223,7 @@ class MavenParameters
         // in this variable
         double maxIsotopeScanDiff;
         double minIsotopicCorrelation;
+        bool parentIsotopeRequired;
         bool linkIsotopeRtRange;
         bool C13Labeled_BPE;
         bool N15Labeled_BPE;

@@ -169,7 +169,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
         massSlicer.generateCompoundSlices(identificationSet);
     }
 
-    GroupFiltering groupFiltering(_mavenParameters);
+    GroupFiltering groupFilter(_mavenParameters);
     vector<PeakGroup> toBeMerged;
     auto iter = _mavenParameters->allgroups.begin();
     while(iter != _mavenParameters->allgroups.end()) {
@@ -199,7 +199,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                     && groupWithTarget.adduct()->isParent()
                     && groupWithTarget.isotope().isParent()
                     && groupWithTarget.ms2EventCount > 0
-                    && groupFiltering.filterByMS2(groupWithTarget)) {
+                    && groupFilter.filterByMS2(groupWithTarget)) {
                     continue;
                 }
 
@@ -229,7 +229,6 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
 
     performMetaGrouping();
 
-    GroupFiltering filter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
         if (group.isGhost())
             continue;
@@ -244,7 +243,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
 
             sendBoostSignal("Filtering isotopologues…", 0, 0);
             if (_mavenParameters->filterIsotopesAgainstParent) {
-                filter.filterBasedOnParent(
+                groupFilter.filterBasedOnParent(
                     group,
                     GroupFiltering::ChildFilterType::Isotope,
                     _mavenParameters->maxIsotopeScanDiff,
@@ -256,7 +255,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             && _mavenParameters->searchAdducts
             && _mavenParameters->filterAdductsAgainstParent) {
             sendBoostSignal("Filtering adducts…", 0, 0);
-            filter.filterBasedOnParent(
+            groupFilter.filterBasedOnParent(
                 group,
                 GroupFiltering::ChildFilterType::Adduct,
                 _mavenParameters->adductSearchWindow,
@@ -264,6 +263,22 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                 _mavenParameters->massCutoffMerge);
         }
     }
+}
+
+vector<mzSlice*> extractNonParentSlices(vector<mzSlice*>& slices,
+                                        function<bool(mzSlice*)> isParent)
+{
+    vector<mzSlice*> nonParentSlices;
+    vector<mzSlice*> remainingSlices;
+    for (auto slice : slices) {
+        if (!isParent(slice)) {
+            nonParentSlices.push_back(slice);
+        } else {
+            remainingSlices.push_back(slice);
+        }
+    }
+    slices = remainingSlices;
+    return nonParentSlices;
 }
 
 void PeakDetector::processCompounds(vector<Compound*> compounds,
@@ -292,23 +307,94 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     if (_mavenParameters->pullIsotopesFlag
         && _mavenParameters->searchAdducts
         && !srmTransitionPresent) {
-        setName = "isotopologues and adducts";
         massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
         massSlicer.generateAdductSlices(compounds, true, false);
+        setName = "isotopologues and adducts";
     } else if (_mavenParameters->pullIsotopesFlag && !srmTransitionPresent) {
-        setName = "isotopologues";
         massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
+        setName = "isotopologues";
     } else if (_mavenParameters->searchAdducts && !srmTransitionPresent) {
-        setName = "adducts";
         massSlicer.generateAdductSlices(compounds);
+        setName = "adducts";
     } else {
         massSlicer.generateCompoundSlices(compounds);
+    }
+
+    // if parent is required, keep aside any slices that represent non-parents
+    vector<mzSlice*> nonParentIsotopeSlices;
+    if (_mavenParameters->pullIsotopesFlag
+        && _mavenParameters->parentIsotopeRequired
+        && !srmTransitionPresent) {
+        nonParentIsotopeSlices = extractNonParentSlices(
+            massSlicer.slices,
+            [](mzSlice* slice) {
+                return slice->isotope.isParent();
+            });
+        setName = "parent groups";
+    }
+    vector<mzSlice*> nonParentAdductSlices;
+    if (_mavenParameters->searchAdducts
+        && _mavenParameters->parentAdductRequired
+        && !srmTransitionPresent) {
+        nonParentAdductSlices = extractNonParentSlices(
+            massSlicer.slices,
+            [](mzSlice* slice) {
+                return slice->adduct->isParent();
+            });
+        setName = "parent groups";
     }
 
     processSlices(massSlicer.slices, setName, applyGroupFilters);
     delete_all(massSlicer.slices);
 
+    unordered_set<Compound*> detectedCompounds;
+    for (auto& group : _mavenParameters->allgroups) {
+        if (group.hasCompoundLink())
+            detectedCompounds.insert(group.getCompound());
+    }
+
+    // if parent was required, search for non-parent forms of detected compounds
+    if (_mavenParameters->parentIsotopeRequired
+        && !nonParentIsotopeSlices.empty()) {
+        for (auto slice : nonParentIsotopeSlices) {
+            if (detectedCompounds.count(slice->compound) > 0)
+                massSlicer.slices.push_back(slice);
+        }
+
+        setName = "isotopologues for parent groups";
+        processSlices(massSlicer.slices, setName, applyGroupFilters, true);
+        delete_all(massSlicer.slices);
+    }
+    if (_mavenParameters->parentAdductRequired
+        && !nonParentAdductSlices.empty()) {
+        for (auto slice : nonParentAdductSlices) {
+            if (detectedCompounds.count(slice->compound) > 0)
+                massSlicer.slices.push_back(slice);
+        }
+
+        setName = "adducts for parent groups";
+        processSlices(massSlicer.slices, setName, applyGroupFilters, true);
+        delete_all(massSlicer.slices);
+    }
+
     performMetaGrouping(applyGroupFilters, findBarplotIsotopes);
+
+    // filter-out ghost parent groups if parent is required
+    vector<size_t> ghostIndexes;
+    for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
+        auto& group = _mavenParameters->allgroups[i];
+        if (_mavenParameters->parentIsotopeRequired
+            && group.isGhost()
+            && group.childIsotopeCount() > 0) {
+            ghostIndexes.push_back(i);
+        }
+        if (_mavenParameters->parentAdductRequired
+            && group.isGhost()
+            && group.childAdductsCount() > 0) {
+            ghostIndexes.push_back(i);
+        }
+    }
+    mzUtils::eraseIndexes(_mavenParameters->allgroups, ghostIndexes);
 
     GroupFiltering groupFilter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
@@ -359,7 +445,8 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
 
 void PeakDetector::processSlices(vector<mzSlice*>& slices,
                                  string setName,
-                                 bool applyGroupFilters)
+                                 bool applyGroupFilters,
+                                 bool appendNewGroups)
 {
     if (slices.empty())
         return;
@@ -393,7 +480,9 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
             make_move_iterator(peakgroups.end()));
     };
 
-    _mavenParameters->allgroups.clear();
+    if (!appendNewGroups)
+        _mavenParameters->allgroups.clear();
+
     sort(slices.begin(), slices.end(), mzSlice::compIntensity);
     for (unsigned int s = 0; s < slices.size(); s++) {
         if (_mavenParameters->stop) {
@@ -821,11 +910,7 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     }
 
     // the following index-overwrite removal does not preserve order
-    sort(begin(indexesToErase), end(indexesToErase), greater<size_t>());
-    for (size_t index : indexesToErase) {
-        _mavenParameters->allgroups[index] = _mavenParameters->allgroups.back();
-        _mavenParameters->allgroups.pop_back();
-    }
+    mzUtils::eraseIndexes(_mavenParameters->allgroups, indexesToErase);
 }
 
 void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,

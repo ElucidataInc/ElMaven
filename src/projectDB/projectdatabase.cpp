@@ -833,7 +833,9 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :alignment_algorithm              \
                      , :active_table_name                \
                      , :filter_isotopes_against_parent   \
-                     , :filter_adducts_against_parent    )");
+                     , :filter_adducts_against_parent    \
+                     , :parent_isotope_required          \
+                     , :parent_adduct_required           )");
     return cursor;
 }
 
@@ -878,6 +880,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":filter_isotopes_against_parent", BINT(settingsMap.at("filterIsotopesAgainstParent")));
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
     settingsQuery->bind(":max_isotope_scan_diff", BDOUBLE(settingsMap.at("maxIsotopeScanDiff")));
+    settingsQuery->bind(":parent_isotope_required", BINT(settingsMap.at("parentIsotopeRequired")));
     settingsQuery->bind(":link_isotope_rt_range", BINT(settingsMap.at("linkIsotopeRtRange")));
 
     settingsQuery->bind(":eic_type", BINT(settingsMap.at("eicType")));
@@ -916,6 +919,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":filter_adducts_against_parent", BINT(settingsMap.at("filterAdductsAgainstParent")));
     settingsQuery->bind(":adduct_search_window", BDOUBLE(settingsMap.at("adductSearchWindow")));
     settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
+    settingsQuery->bind(":parent_adduct_required", BINT(settingsMap.at("parentAdductRequired")));
 
     settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
@@ -1558,6 +1562,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["filterIsotopesAgainstParent"] = variant(settingsQuery->integerValue("filter_isotopes_against_parent"));
     settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
     settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->doubleValue("max_isotope_scan_diff"));
+    settingsMap["parentIsotopeRequired"] = variant(settingsQuery->integerValue("parent_isotope_required"));
     settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
 
     settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
@@ -1597,6 +1602,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["filterAdductsAgainstParent"] = variant(settingsQuery->integerValue("filter_adducts_against_parent"));
     settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
     settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
+    settingsMap["parentAdductRequired"] = variant(settingsQuery->integerValue("parent_adduct_required"));
 
     settingsMap["matchFragmentation"] = settingsQuery->integerValue("match_fragmentation");
     settingsMap["minFragMatchScore"] = variant(settingsQuery->doubleValue("min_frag_match_score"));
@@ -1930,6 +1936,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["filterIsotopesAgainstParent"] = static_cast<int>(mp->filterIsotopesAgainstParent);
     settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
     settingsMap["maxIsotopeScanDiff"] = static_cast<double>(mp->maxIsotopeScanDiff);
+    settingsMap["parentIsotopeRequired"] = static_cast<int>(mp->parentIsotopeRequired);
     settingsMap["linkIsotopeRtRange"] = static_cast<int>(mp->linkIsotopeRtRange);
 
     settingsMap["eicType"] = mp->eicType;
@@ -1969,6 +1976,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["filterAdductsAgainstParent"] = static_cast<int>(mp->filterAdductsAgainstParent);
     settingsMap["adductSearchWindow"] = static_cast<double>(mp->adductSearchWindow);
     settingsMap["adductPercentCorrelation"] = static_cast<double>(mp->adductPercentCorrelation);
+    settingsMap["parentAdductRequired"] = static_cast<int>(mp->parentAdductRequired);
 
     settingsMap["matchFragmentation"] = static_cast<int>(mp->matchFragmentationFlag);
     settingsMap["minFragMatchScore"] = static_cast<double>(mp->minFragMatchScore);
@@ -2067,6 +2075,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.filterIsotopesAgainstParent = static_cast<bool>(BINT(settingsMap["filterIsotopesAgainstParent"]));
     mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
     mp.maxIsotopeScanDiff = BDOUBLE(settingsMap["maxIsotopeScanDiff"]);
+    mp.parentIsotopeRequired = static_cast<bool>(BINT(settingsMap["parentIsotopeRequired"]));
     mp.linkIsotopeRtRange = static_cast<bool>(BINT(settingsMap["linkIsotopeRtRange"]));
 
     mp.eicType = BINT(settingsMap["eicType"]);
@@ -2105,6 +2114,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.filterAdductsAgainstParent = static_cast<bool>(BINT(settingsMap["filterAdductsAgainstParent"]));
     mp.adductSearchWindow = BDOUBLE(settingsMap["adductSearchWindow"]);
     mp.adductPercentCorrelation = BDOUBLE(settingsMap["adductPercentCorrelation"]);
+    mp.parentAdductRequired = static_cast<bool>(BINT(settingsMap["parentAdductRequired"]));
 
     mp.matchFragmentationFlag = static_cast<bool>(BINT(settingsMap["matchFragmentation"]));
     mp.minFragMatchScore = BDOUBLE(settingsMap["minFragMatchScore"]);

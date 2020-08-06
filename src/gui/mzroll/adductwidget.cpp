@@ -17,6 +17,7 @@ AdductsDialogSettings::AdductsDialogSettings(AdductWidget* dialog) : id(dialog)
     settings.insert("filterAdductsAgainstParent", QVariant::fromValue(id->filterAdductsAgainstParent));
     settings.insert("adductSearchWindow", QVariant::fromValue(id->adductSearchWindow));
     settings.insert("adductPercentCorrelation", QVariant::fromValue(id->adductPercentCorrelation));
+    settings.insert("parentAdductRequired", QVariant::fromValue(id->parentAdductRequired));
 }
 
 void AdductsDialogSettings::updateAdductsDialogSettings(string key,
@@ -196,9 +197,12 @@ void AdductWidget::_updateWindowState()
     if (searchAdducts->isChecked()) {
         filterAdductsAgainstParent->setEnabled(true);
         adductList->setEnabled(true);
+        parentAdductRequired->setEnabled(true);
     } else {
         filterAdductsAgainstParent->setChecked(false);
         filterAdductsAgainstParent->setEnabled(false);
         adductList->setEnabled(false);
+        parentAdductRequired->setChecked(false);
+        parentAdductRequired->setEnabled(false);
     }
 }

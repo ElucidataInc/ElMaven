@@ -682,6 +682,24 @@ namespace mzUtils
     }
 
     /**
+     * @brief Removes elements at given indexes from a vector. Please note, that
+     * this function will disturb the order of elements in the vector being
+     * filtered.
+     * @param vec The vector that has to be filtered.
+     * @param indexesToErase A vector of indexes to be removed from `vec`. No
+     * element should be greater than or equal to the size of `vec`.
+     */
+    template<typename T>
+    inline void eraseIndexes(vector<T>& vec, vector<size_t>& indexesToErase)
+    {
+        sort(begin(indexesToErase), end(indexesToErase), greater<size_t>());
+        for (size_t index : indexesToErase) {
+            vec[index] = vec.back();
+            vec.pop_back();
+        }
+    }
+
+    /**
      * @brief Zeroth-order modified bessel function of the first kind.
      * @param x Argument for the modified bessel function.
      * @return Solution to the bessel equation for the given argument.
