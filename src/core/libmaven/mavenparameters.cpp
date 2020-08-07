@@ -206,7 +206,6 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     matchFragmentationFlag = mp.matchFragmentationFlag;
     mustHaveFragmentation = mp.mustHaveFragmentation;
 
-    massCutoffMerge = mp.massCutoffMerge;
     mzBinStep = mp.mzBinStep;
     rtStepSize = mp.rtStepSize;
     avgScanTime = mp.avgScanTime;
@@ -261,7 +260,6 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
         mp.compoundMassCutoffWindow->getMassCutoff(),
         mp.compoundMassCutoffWindow->getMassCutoffType());
 
-    compoundMassCutoffWindow = mp.compoundMassCutoffWindow;
     compoundRTWindow = mp.compoundRTWindow;
     eicMaxGroups = mp.eicMaxGroups;
 
