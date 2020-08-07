@@ -200,7 +200,9 @@ void PeakEditor::_setRtRangeAndValues()
 
 void PeakEditor::_setSyncRtCheckbox()
 {
-    if (_group->childIsotopeCount() == 0 && !_group->isIsotope()) {
+    if ((_group->childIsotopeCount() == 0 && !_group->isIsotope())
+        || (_group->parent != nullptr && _group->parent->isGhost())
+        || _group->isAdduct()) {
         ui->syncRtCheckBox->setChecked(false);
         ui->syncRtCheckBox->setEnabled(false);
         return;
