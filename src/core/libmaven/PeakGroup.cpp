@@ -973,8 +973,13 @@ shared_ptr<PeakGroup> PeakGroup::addAdductChild(const PeakGroup& child)
     auto childCopy = make_shared<PeakGroup>(child);
     childCopy->parent = this;
     childCopy->_metaGroupId = _groupId;
-    _childAdducts.push_back(childCopy);
-    return _childAdducts.back();
+    auto iter = mzUtils::insertSorted(_childAdducts,
+                                      childCopy,
+                                      [](const shared_ptr<PeakGroup>& a,
+                                         const shared_ptr<PeakGroup>& b) {
+                                          return a->getName() < b->getName();
+                                      });
+    return *iter;
 }
 
 Isotope PeakGroup::isotope() const
@@ -999,8 +1004,13 @@ shared_ptr<PeakGroup> PeakGroup::addIsotopeChild(const PeakGroup& child)
     auto childCopy = make_shared<PeakGroup>(child);
     childCopy->parent = this;
     childCopy->_metaGroupId = _groupId;
-    _childIsotopes.push_back(childCopy);
-    return _childIsotopes.back();
+    auto iter = mzUtils::insertSorted(_childIsotopes,
+                                      childCopy,
+                                      [](const shared_ptr<PeakGroup>& a,
+                                         const shared_ptr<PeakGroup>& b) {
+                                          return a->getName() < b->getName();
+                                      });
+    return *iter;
 }
 
 shared_ptr<PeakGroup> PeakGroup::addIsotopeChildBarPlot(const PeakGroup& child)
