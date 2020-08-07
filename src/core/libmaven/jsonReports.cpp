@@ -8,6 +8,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "mavenparameters.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "database.h"
 #include "classifierNeuralNet.h"
@@ -75,15 +76,11 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
     filename << ",\n" << "\"srmID\": " << _sanitizeJSONstring(grp.srmId) ;
     filename << ",\n" << "\"tagString\": " << _sanitizeJSONstring(grp.tagString) ;
 
-    string fullTag = grp.srmId + grp.tagString;
-    string fullName = compoundName;
-    string fullID = compoundID;
-    if (fullTag.length()) {
-        fullName = compoundName + " [" + fullTag + "]";
-        fullID = compoundID + " [" + fullTag + "]";
-    }
-    filename << ",\n" << "\"fullCompoundName\": "<< _sanitizeJSONstring(fullName);
-    filename << ",\n" << "\"fullCompoundID\": "<< _sanitizeJSONstring(fullID) ;
+    string adductName = "Unknown";
+    if (grp.adduct() != nullptr)
+        adductName = _sanitizeJSONstring(grp.adduct()->getName());
+    filename << ",\n" << "\"adductName\": " <<  adductName;
+
     filename << "}" ; // compound
 }
 
@@ -263,32 +260,26 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
     ofstream file(filename.c_str());
     file << setprecision(10);
 
-    file << "{\"groups\": [" <<endl;
+    file << "{\"groups\": [" << endl;
 
-    int groupId = 0;
-    for(size_t i=0; i < allgroups.size() ; i++ ) {
-        PeakGroup& grp = allgroups[i];
-        //if compound is unknown, output only the unlabeled form information
-        if(grp.getCompound() == NULL || grp.childIsotopeCount() == 0) {
-            grp.setGroupId(++groupId);
-            if(groupId > 1) file<< "\n,";
-            _writeGroup(grp,file);
-            if(grp.hasCompoundLink())
-                _writeCompoundLink(grp, file);
-            _writePeak(grp, file, samples);
+    auto writeGroup = [this, &samples, &file](PeakGroup& group,
+                                              bool insertNewline) {
+        if (insertNewline)
+            file << "\n,";
+        _writeGroup(group, file);
+        if (group.hasCompoundLink())
+            _writeCompoundLink(group, file);
+        _writePeak(group, file, samples);
+    };
 
-        } else {
-            //output all relevant isotope info otherwise
-            //does this work? is children[0] always the same as grp (parent)?
-            for (auto child : grp.childIsotopes()) {
-                child->setGroupId(++groupId);
-                if(groupId > 1) file << "\n,";
-                _writeGroup(*(child.get()), file);
-                if (child->hasCompoundLink())
-                    _writeCompoundLink(grp, file);
-                _writePeak(*(child.get()), file, samples);
-            }
-        }
+    for (size_t i = 0; i < allgroups.size(); i++) {
+        PeakGroup& group = allgroups[i];
+        if (!group.isGhost())
+            writeGroup(group, i > 0);
+        for (auto& child : group.childIsotopes())
+            writeGroup(*child, i > 0);
+        for (auto& child : group.childAdducts())
+            writeGroup(*child, i > 0);
     }
     file << "]}"; //groups
     file.close();
