@@ -1047,8 +1047,13 @@ void TableDockWidget::exportSpectralLib()
     SpectralLibExport library(fileName.toStdString(),
                               SpectralLibExport::Format::Nist,
                               limitNumPeaks);
-    for (auto group : _topLevelGroups)
+    for (auto group : _topLevelGroups) {
         library.writePeakGroupData(group.get());
+        for (auto& child : group->childIsotopes())
+            library.writePeakGroupData(child.get());
+        for (auto& child : group->childAdducts())
+            library.writePeakGroupData(child.get());
+    }
 }
 
 vector<EIC *> TableDockWidget::getEICs(float rtmin,

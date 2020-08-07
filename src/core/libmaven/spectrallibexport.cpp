@@ -29,6 +29,9 @@ void SpectralLibExport::writePeakGroupData(PeakGroup* group)
 
 void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
 {
+    if (group->isGhost())
+        return;
+
     Fragment fragmentationProfile = group->fragmentationPattern;
     if (fragmentationProfile.nobs() == 0)
         return;
@@ -45,14 +48,18 @@ void SpectralLibExport::_writePeakGroupAsMsp(PeakGroup *group)
         out << "CATEGORY: "
             << mzUtils::join(compound->category(), ", ") << "\n";
         out << "SMILE: " << compound->smileString() << "\n";
-        if (group->adduct() != nullptr) {
-            out << "PRECURSORTYPE: " << group->adduct()->getName() << "\n";
-        } else if (fragmentationProfile.polarity < 0) {
-            out << "PRECURSORTYPE: [M-H]-\n";
-        } else if (fragmentationProfile.polarity > 0) {
-            out << "PRECURSORTYPE: [M+H]+\n";
+        if (!group->isIsotope()) {
+            if (group->adduct() != nullptr) {
+                out << "PRECURSORTYPE: " << group->adduct()->getName() << "\n";
+            } else if (fragmentationProfile.polarity < 0) {
+                out << "PRECURSORTYPE: [M-H]-\n";
+            } else if (fragmentationProfile.polarity > 0) {
+                out << "PRECURSORTYPE: [M+H]+\n";
+            } else {
+                out << "PRECURSORTYPE: [M]\n";
+            }
         } else {
-            out << "PRECURSORTYPE: [M]\n";
+            out << "PRECURSORTYPE: " << group->isotope().name << "\n";
         }
     } else {
         out << "NAME: " << group->getName() << "\n";
