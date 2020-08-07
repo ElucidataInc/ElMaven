@@ -2,10 +2,12 @@
 #include <QLabel>
 
 #include "Compound.h"
+#include "datastructures/adduct.h"
 #include "EIC.h"
 #include "groupsettingslog.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
+#include "mzUtils.h"
 #include "PeakGroup.h"
 #include "ui_groupsettingslog.h"
 
@@ -114,6 +116,23 @@ void GroupSettingsLog::_displayGroupSettings()
         return tracerNames.join(", ");
     };
 
+    // lambda: returns a newline separated string of selected adduct forms
+    auto adductForms = [mp] {
+        QStringList adductNames;
+        for (auto adduct : mp->getChosenAdductList())
+            adductNames << adduct->getName().c_str();
+        if (adductNames.isEmpty()) {
+            auto defaultAdducts = mp->getDefaultAdductList();
+            for (auto adduct : defaultAdducts) {
+                if (SIGN(adduct->getCharge()) == SIGN(mp->getCharge()))
+                    adductNames << adduct->getName().c_str();
+            }
+        }
+        if (adductNames.size() < 4)
+            return adductNames.join(", ");
+        return adductNames.join("\n");
+    };
+
     // lambda: returns a string for the set EIC type
     auto eicType = [mp] {
         auto type = static_cast<EIC::EicType>(mp->eicType);
@@ -195,17 +214,45 @@ void GroupSettingsLog::_displayGroupSettings()
         vector<pair<QString, QString>> isotopeParams = {
             {"Isotopic tracers",
              tr("%1").arg(isotopicTracers())},
-            {"Min isotope-parent peak correlation",
-             tr("%1").arg(mp->minIsotopicCorrelation)},
-            {"Isotope is within [X] scans of parent peak",
-             tr("%1 scans").arg(mp->maxIsotopeScanDiff)},
             {"Parent ion (unlabelled form) must be present",
              tr("%1").arg(mp->parentIsotopeRequired ? "Yes" : "No")},
             {"Link isotope peak RT range with parent peak",
              tr("%1").arg(mp->linkIsotopeRtRange ? "Yes" : "No")},
         };
+        if (mp->filterIsotopesAgainstParent) {
+            isotopeParams.insert(
+                begin(isotopeParams) + 1,
+                {"Max RT deviation from parent isotopologue",
+                 tr("%1 seconds").arg(mp->maxIsotopeScanDiff)});
+            isotopeParams.insert(
+                begin(isotopeParams) + 2,
+                {"Min signal correlation with parent isotopologue",
+                 tr("%1 %").arg(mp->minIsotopicCorrelation)});
+        }
         parameterGroups.push_back(make_pair("Isotope detection settings",
                                             isotopeParams));
+    }
+
+    if (mp->searchAdducts
+        && _group->hasCompoundLink()) {
+        vector<pair<QString, QString>> adductParams = {
+            {"Adduct forms",
+             tr("%1").arg(adductForms())},
+            {"Parent ion (default adduct form) must be present",
+             tr("%1").arg(mp->parentAdductRequired ? "Yes" : "No")},
+        };
+        if (mp->filterAdductsAgainstParent) {
+            adductParams.insert(
+                begin(adductParams) + 1,
+                {"Max RT deviation from parent adduct",
+                 tr("%1 seconds").arg(mp->adductSearchWindow)});
+            adductParams.insert(
+                begin(adductParams) + 2,
+                {"Min signal correlation with parent adduct",
+                 tr("%1 %").arg(mp->adductPercentCorrelation)});
+        }
+        parameterGroups.push_back(make_pair("Adduct detection settings",
+                                            adductParams));
     }
 
     if (mp->matchFragmentationFlag
@@ -222,8 +269,8 @@ void GroupSettingsLog::_displayGroupSettings()
     }
 
     QString spacerStyle = "QWidget { "
-                          "margin-bottom: 3px; "
-                          "border-bottom: 1px dotted; "
+                          "margin-top: 6px; "
+                          "border-top: 1px dotted; "
                           "}";
     for (auto& elem : parameterGroups) {
         QString parameterGroupName = elem.first;
@@ -232,8 +279,13 @@ void GroupSettingsLog::_displayGroupSettings()
         QVBoxLayout* vbox = new QVBoxLayout;
         for (auto& parameter : parameters) {
             QHBoxLayout* hbox = new QHBoxLayout;
+
             QLabel* parameterLabel = new QLabel(parameter.first);
+            parameterLabel->setAlignment(Qt::AlignTop);
+            parameterLabel->setAlignment(Qt::AlignLeft);
             QLabel* valueLabel = new QLabel(parameter.second);
+            valueLabel->setAlignment(Qt::AlignTop);
+            valueLabel->setAlignment(Qt::AlignRight);
 
             QWidget* spacer = new QWidget(nullptr);
             spacer->setSizePolicy(QSizePolicy::Expanding,
