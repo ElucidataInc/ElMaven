@@ -541,11 +541,15 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
     insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
     int groupId = 1;
     for (auto topLevelGroup : _topLevelGroups) {
-      topLevelGroup->setGroupId(groupId++);
+      int parentGroupId = groupId++;
       for (auto child : topLevelGroup->childIsotopes())
         child->setGroupId(groupId++);
       for (auto child : topLevelGroup->childAdducts())
         child->setGroupId(groupId++);
+
+      // NOTE: top-level group's ID must be set after setting the IDs of its
+      // children, so that the `metaGroupId` does not get overwritten.
+      topLevelGroup->setGroupId(parentGroupId);
     }
   }
 

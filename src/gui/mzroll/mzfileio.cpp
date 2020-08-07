@@ -1144,10 +1144,8 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
                       * newSamples.at(0)->getPolarity();
     DB.updateChargesForZeroCharges(totalCharge);
     auto compounds = _currentProject->loadCompounds();
-    for (auto compound : compounds) {
-        cerr << compound->originalName() << " & " << compound->name() << endl;
+    for (auto compound : compounds)
         DB.addCompound(compound);
-    }
 
     // lambda: if the given peak-group has an adduct with a name, assign it the
     // same adduct, but from globally shared database instead
