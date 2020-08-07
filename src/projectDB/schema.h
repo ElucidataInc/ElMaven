@@ -125,7 +125,11 @@
                                            , slice_rt_max                       REAL                              \
                                            , slice_ion_count                    REAL                              \
                                            , table_group_id                     INTEGER                           \
-                                           , integration_type                   INTEGER                           );"
+                                           , integration_type                   INTEGER                           \
+                                           , isotope_c13_count                  INTEGER                           \
+                                           , isotope_n15_count                  INTEGER                           \
+                                           , isotope_s34_count                  INTEGER                           \
+                                           , isotope_h2_count                   INTEGER                           );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \

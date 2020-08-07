@@ -127,6 +127,9 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
             pullIsotopes(isotopeParameters->_group);
         }
     } else {
+        if (group->isAdduct())
+            return; // we do not pull isotopes for non-parent adducts
+
         // select first sample if no peak or sample is selected
         if (_selectedSample == nullptr) {
             updateSelectedSample(0);

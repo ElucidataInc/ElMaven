@@ -1149,6 +1149,15 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
         DB.addCompound(compound);
     }
 
+    // lambda: if the given peak-group has an adduct with a name, assign it the
+    // same adduct, but from globally shared database instead
+    auto assignAdduct = [](PeakGroup* group, Database& db) {
+        if (group->adduct() != nullptr && !group->adduct()->getName().empty()) {
+            delete group->adduct();
+            group->setAdduct(db.findAdductByName(group->adduct()->getName()));
+        }
+    };
+
     // set of compound databases that need to be communicated with ligand widget
     vector<QString> dbNames;
 
@@ -1158,12 +1167,17 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     auto groupCount = 0;
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
-        if (group->getCompound() && !group->getCompound()->db().empty()) {
+        if (group->hasCompoundLink() && !group->getCompound()->db().empty()) {
             group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id(),
                                                          group->getCompound()->name(),
                                                          group->getCompound()->db()));
             dbNames.push_back(QString::fromStdString(group->getCompound()->db()));
         }
+        assignAdduct(group, DB);
+        for (auto& child : group->childIsotopes())
+            assignAdduct(child.get(), DB);
+        for (auto& child : group->childAdducts())
+            assignAdduct(child.get(), DB);
 
         // assign group to bookmark table if none exists
         if (group->tableName().empty())

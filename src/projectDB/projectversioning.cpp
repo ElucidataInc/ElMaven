@@ -808,6 +808,11 @@ map<int, string> dbVersionUpgradeScripts = {
 
         "ALTER TABLE compounds ADD COLUMN original_name TEXT;"
 
+        "ALTER TABLE peakgroups ADD COLUMN isotope_c13_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_n15_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_s34_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_h2_count INTEGER;"
+
         "COMMIT;"
     }
 };

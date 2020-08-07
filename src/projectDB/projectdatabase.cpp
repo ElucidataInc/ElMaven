@@ -228,18 +228,26 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :slice_rt_max                       \
                      , :slice_ion_count                    \
                      , :table_group_id                     \
-                     , :integration_type                   )");
+                     , :integration_type                   \
+                     , :isotope_c13_count                  \
+                     , :isotope_n15_count                  \
+                     , :isotope_s34_count                  \
+                     , :isotope_h2_count                   )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
     groupsQuery->bind(":meta_group_id", group->metaGroupId());
-    groupsQuery->bind(":tag_string", group->tagString);
 
+    groupsQuery->bind(":tag_string", group->tagString);
     auto expectedMz = group->getExpectedMz(group->parameters()->ionizationMode);
     groupsQuery->bind(":expected_mz", expectedMz);
+    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
+    groupsQuery->bind(":isotope_c13_count", group->isotope().C13);
+    groupsQuery->bind(":isotope_n15_count", group->isotope().N15);
+    groupsQuery->bind(":isotope_s34_count", group->isotope().S34);
+    groupsQuery->bind(":isotope_h2_count", group->isotope().H2);
 
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
-    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
     groupsQuery->bind(":type", static_cast<int>(group->type()));
@@ -310,6 +318,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     saveGroupSettings(group, lastInsertedGroupId);
 
     for (auto child: group->childIsotopes())
+        saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
+    for (auto child: group->childAdducts())
         saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
 
     return lastInsertedGroupId;
@@ -1109,8 +1119,8 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         PeakGroup* group = nullptr;
 
         int databaseId = groupsQuery->integerValue("group_id");
-        PeakGroup::IntegrationType integrationType =
-            static_cast<PeakGroup::IntegrationType>(groupsQuery->integerValue("integration_type"));
+        auto integrationType = static_cast<PeakGroup::IntegrationType>(
+            groupsQuery->integerValue("integration_type"));
         if (settings.count(databaseId)) {
             auto mp = fromMaptoParameters(settings.at(databaseId),
                                           globalParams);
@@ -1123,12 +1133,6 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
 
         group->setGroupId(groupsQuery->integerValue("table_group_id"));
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
-
-        auto tagString = groupsQuery->stringValue("tag_string");
-        auto expectedMz = groupsQuery->floatValue("expected_mz");
-        auto expectedAbundance = groupsQuery->floatValue("expected_abundance");
-        if (tagString != "" && expectedMz > 0.0f && expectedAbundance > 0.0f)
-            group->tagIsotope(tagString, expectedMz, expectedAbundance);
 
         group->groupRank = groupsQuery->floatValue("group_rank");
         group->label = groupsQuery->stringValue("label")[0];
@@ -1207,8 +1211,21 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         slice.ionCount = sliceIonCount;
         slice.srmId = group->srmId;
         slice.compound = group->getCompound();
+
+        // NOTE: the correct adduct pointer will have to be assigned later
         if (!adductName.empty())
-            slice.adduct = _findAdductByName(adductName);
+            slice.adduct = new Adduct(adductName, 0, 0, 0.0f);
+
+        Isotope isotope;
+        isotope.name = groupsQuery->stringValue("tag_string");
+        isotope.mass = groupsQuery->floatValue("expected_mz");
+        isotope.abundance = groupsQuery->floatValue("expected_abundance");
+        isotope.C13 = groupsQuery->floatValue("isotope_c13_count");
+        isotope.N15 = groupsQuery->floatValue("isotope_n15_count");
+        isotope.S34 = groupsQuery->floatValue("isotope_s34_count");
+        isotope.H2 = groupsQuery->floatValue("isotope_h2_count");
+        if (!isotope.isNone())
+            slice.isotope = isotope;
 
         group->setSlice(slice);
 
@@ -1229,16 +1246,20 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         auto child = pair.first;
         for (auto idGroupPair : databaseIdForGroups) {
             if (idGroupPair.first == pair.second) {
-                idGroupPair.second->addIsotopeChild(*child);
+                if (child->isIsotope()) {
+                    idGroupPair.second->addIsotopeChild(*child);
+                } else if (child->isAdduct()) {
+                    idGroupPair.second->addAdductChild(*child);
+                }
                 foundParent = true;
                 break;
             }
         }
+
         // failed to find a parent group, become a parent
         if (!foundParent)
             groups.push_back(child);
     }
-
 
     cerr << "Debug: Read in " << groups.size() << " groups" << endl;
     return groups;
@@ -2168,11 +2189,6 @@ void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
              << sample->getSampleId()
              << endl;
     }
-}
-
-Adduct* ProjectDatabase::_findAdductByName(string name)
-{
-    return new Adduct(name, 0, 0, 0.0f);
 }
 
 Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,

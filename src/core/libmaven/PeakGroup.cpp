@@ -596,25 +596,35 @@ double PeakGroup::getExpectedMz(int charge) {
 
     if (isIsotope()
         && hasSlice()
-        && _slice.compound != NULL
-        && !_slice.compound->formula().empty()
-        && _slice.compound->mz() > 0) {
+        && hasCompoundLink()) {
         return _expectedMz;
-    }
-    else if (!isIsotope() && hasSlice() && _slice.compound != NULL && _slice.compound->mz() > 0) {
-        if (!_slice.compound->formula().empty() && adduct() != nullptr) {
-            auto mass =
-                MassCalculator::computeNeutralMass(_slice.compound->formula());
+    } else if (!isIsotope()
+               && hasSlice()
+               && hasCompoundLink()
+               && getCompound()->mz() > 0) {
+        Compound* compound = getCompound();
+        if (adduct() != nullptr && !compound->formula().empty()) {
+            // computing the mass adjusted for adduct's mass
+            auto mass = MassCalculator::computeNeutralMass(compound->formula());
             mz = adduct()->computeAdductMz(mass);
-        } else if (!_slice.compound->formula().empty() || _slice.compound->neutralMass() != 0.0f) {
-            mz = _slice.compound->adjustedMass(charge);
-        } else {
-            mz = _slice.compound->mz();
+        } else if (adduct() != nullptr && compound->neutralMass() != 0.0f) {
+            // computing the mass adjusted for adduct's mass
+            auto mass = compound->neutralMass();
+            mz = adduct()->computeAdductMz(mass);
+        } else if (!compound->formula().empty()
+                   || compound->neutralMass() != 0.0f) {
+            // regular adjusted mass if the formula or neutral mass is given
+            mz = compound->adjustedMass(charge);
+        } else if (compound->mz() > 0) {
+            // m/z already present in the compound DB then just use that
+            mz = compound->mz();
         }
         return mz;
-    }
-    else if (hasSlice() && _slice.compound != NULL && _slice.compound->mz() == 0 && _slice.compound->productMz() > 0) {
-        mz = _slice.compound->productMz();
+    } else if (hasSlice()
+               && hasCompoundLink()
+               && getCompound()->mz() > 0
+               && getCompound()->productMz() > 0) {
+        mz = getCompound()->productMz();
         return mz;
     }
 

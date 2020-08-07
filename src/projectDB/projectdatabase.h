@@ -474,15 +474,6 @@ private:
     void _assignSampleIds(const vector<mzSample*>& samples);
 
     /**
-     * @brief Returns a filler adduct object whose name can later be used to
-     * find and assign an adduct with correct values.
-     * @param name Name of the adduct that will be used to match adducts from
-     * DB.
-     * @return Pointer to an `Adduct` object.
-     */
-    Adduct* _findAdductByName(string name);
-
-    /**
      * @brief Find compound with the given ID and name from the given database.
      * @param id A string ID for the compound (may not be unique for a NIST
      * library).
