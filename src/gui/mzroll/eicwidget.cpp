@@ -2408,36 +2408,6 @@ void EicWidget::renderPdf(shared_ptr<PeakGroup> group, QPainter* painter)
         }
     }
 
-    //Add Peak Positions
-    for (unsigned int i = 0; i < group->peaks.size(); i++) {
-        Peak& peak = group->peaks[i];
-
-        if (peak.getSample() != nullptr && peak.getSample()->isSelected == false)
-            continue;
-
-        QColor color = Qt::black;
-        if (peak.getSample() != nullptr) {
-            mzSample* s = peak.getSample();
-            color = QColor::fromRgbF(s->color[0], s->color[1], s->color[2],
-                                     s->color[3]);
-        }
-
-        QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        QBrush brush(color);
-        brush.setStyle(Qt::NoBrush);
-
-        EicPoint* p = new EicPoint(((peak.rt - _minX) / (_maxX - _minX) * scene.width()),
-                                   scene.height() - ((peak.peakIntensity - _minY) / (_maxY - _minY) * scene.height()),
-                                   &peak,
-                                   getMainWindow());
-        p->setColor(color);
-        p->forceFillColor(true);
-        p->setBrush(brush);
-        p->setPen(pen);
-        p->setPeakGroup(group);
-        scene.addItem(p);
-    }
-
     //Add Selection Line
     auto selectionLine = new QGraphicsLineItem(nullptr);
     scene.addItem(selectionLine);

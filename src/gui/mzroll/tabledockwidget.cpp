@@ -1665,19 +1665,32 @@ void TableDockWidget::renderPdf(QString fileName)
     }
 
     for (int i = 0; i < selected.size(); i++) {
-        shared_ptr<PeakGroup> grp = selected[i];
+        shared_ptr<PeakGroup> group = selected[i];
         emit updateProgressBar("Saving PDF export for table…",
                                i + 1,
                                selected.size(),
                                true);
-        _mainwindow->getEicWidget()->renderPdf(grp, &painter);
-
-        if(!printer.newPage())
-        {
-            qWarning("failed in flushing page to disk, disk full?");
-            return;
+        if (!group->isGhost()) {
+            _mainwindow->getEicWidget()->renderPdf(group, &painter);
+            if (!printer.newPage()) {
+                qWarning("failed in flushing page to disk, disk full?");
+                return;
+            }
         }
-
+        for (auto& child : group->childIsotopes()) {
+            _mainwindow->getEicWidget()->renderPdf(child, &painter);
+            if (!printer.newPage()) {
+                qWarning("failed in flushing page to disk, disk full?");
+                return;
+            }
+       }
+       for (auto& child : group->childAdducts()) {
+            _mainwindow->getEicWidget()->renderPdf(child, &painter);
+            if (!printer.newPage()) {
+                qWarning("failed in flushing page to disk, disk full?");
+                return;
+            }
+       }
    }
    painter.end();
    emit updateProgressBar("", selected.size(), selected.size());
