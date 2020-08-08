@@ -182,6 +182,16 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     if (!group)
         return -1;
 
+    if (group->isGhost()) {
+        int ghostId = -1;
+        for (auto child: group->childIsotopes())
+            saveGroupAndPeaks(child.get(), ghostId, tableName);
+        for (auto child: group->childAdducts())
+            saveGroupAndPeaks(child.get(), ghostId, tableName);
+
+        return ghostId;
+    }
+
     // skip deleted groups
     if (group->deletedFlag)
         return -1;
@@ -1256,7 +1266,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             }
         }
 
-        // failed to find a parent group, become a parent
+        // failed to find a parent group, add standalone non-parent group
         if (!foundParent)
             groups.push_back(child);
     }
@@ -1847,6 +1857,24 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
     }
 
     _connection->commit();
+}
+
+bool ProjectDatabase::compoundExists(Compound *compound)
+{
+    auto query = _connection->prepare(
+        "SELECT COUNT(*) AS compound_count \
+           FROM compounds                  \
+          WHERE compound_id = :compound_id \
+            AND db_name = :compound_db     \
+            AND name = :compound_name      ");
+    query->bind(":compound_id", compound->id());
+    query->bind(":db_name", compound->db());
+    query->bind(":name", compound->name());
+
+    int compoundCount = 0;
+    while (query->next())
+        compoundCount = query->integerValue("compound_count");
+    return compoundCount > 0;
 }
 
 vector<string> ProjectDatabase::getTableNames()

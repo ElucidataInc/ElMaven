@@ -65,6 +65,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   _mainwindow = mw;
   _labeledGroups = 0;
   _targetedGroups = 0;
+  _nextGroupId = 1;
   pal = palette();
   setAutoFillBackground(true);
   pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
@@ -507,14 +508,24 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
       _labeledGroups++;
     if (sharedGroup->getCompound())
       _targetedGroups++;
+
+    int parentGroupId = _nextGroupId++;
+    for (auto& child : _topLevelGroups.back()->childIsotopes())
+        child->setGroupId(_nextGroupId++);
+    for (auto& child : _topLevelGroups.back()->childAdducts())
+        child->setGroupId(_nextGroupId++);
+    _topLevelGroups.back()->setGroupId(parentGroupId);
+    _topLevelGroups.back()->setTableName(titlePeakTable->text().toStdString());
     return _topLevelGroups.back();
   };
 
   shared_ptr<PeakGroup> insertedGroup = nullptr;
   if (group->isIsotope() || group->isAdduct()) {
+    shared_ptr<PeakGroup> topLevelParent = nullptr;
     for (auto& parentGroup : _topLevelGroups) {
       if (parentGroup->isGhost()
           && parentGroup->getCompound() == group->getCompound()) {
+        topLevelParent = parentGroup;
         if (group->isIsotope()) {
           insertedGroup = parentGroup->addIsotopeChild(*group);
         } else if (group->isAdduct()) {
@@ -523,34 +534,24 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
       }
     }
 
-    if (insertedGroup == nullptr) {
+    if (insertedGroup == nullptr || topLevelParent == nullptr) {
       PeakGroup parentGroup = createGhostParent(group->getCompound(),
                                                 group->parameters().get());
-      auto topLevelGroup = newTopLevelGroup(&parentGroup);
-      if (topLevelGroup != nullptr && group->isIsotope()) {
-        insertedGroup = topLevelGroup->addIsotopeChild(*group);
-      } else if (topLevelGroup != nullptr && group->isAdduct()) {
-        insertedGroup = topLevelGroup->addAdductChild(*group);
+      topLevelParent = newTopLevelGroup(&parentGroup);
+      if (topLevelParent != nullptr && group->isIsotope()) {
+        insertedGroup = topLevelParent->addIsotopeChild(*group);
+      } else if (topLevelParent != nullptr && group->isAdduct()) {
+        insertedGroup = topLevelParent->addAdductChild(*group);
       }
     }
+    insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
+    insertedGroup->setGroupId(_nextGroupId++);
+
+    // NOTE: top-level group's ID must be set after setting the IDs of its
+    // children, such that each child's `metaGroupId` is overwritten
+    topLevelParent->setGroupId(topLevelParent->groupId());
   } else {
     insertedGroup = newTopLevelGroup(group);
-  }
-
-  if (_topLevelGroups.size() > 0) {
-    insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
-    int groupId = 1;
-    for (auto topLevelGroup : _topLevelGroups) {
-      int parentGroupId = groupId++;
-      for (auto child : topLevelGroup->childIsotopes())
-        child->setGroupId(groupId++);
-      for (auto child : topLevelGroup->childAdducts())
-        child->setGroupId(groupId++);
-
-      // NOTE: top-level group's ID must be set after setting the IDs of its
-      // children, so that the `metaGroupId` does not get overwritten.
-      topLevelGroup->setGroupId(parentGroupId);
-    }
   }
 
   return insertedGroup;

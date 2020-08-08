@@ -298,6 +298,7 @@ protected:
   QList<shared_ptr<PeakGroup>> _topLevelGroups;
   int _labeledGroups;
   int _targetedGroups;
+  int _nextGroupId;
 
   /**
    * @brief A map storing the unique ID of all tables mapping to their titles.

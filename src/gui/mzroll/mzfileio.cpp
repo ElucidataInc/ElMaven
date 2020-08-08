@@ -810,11 +810,19 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
     _sqliteDbSaveInProgress = true;
     if (_currentProject) {
         _currentProject->deletePeakGroup(group);
-        auto parentGroupId = group->parent == nullptr ? 0
-                                                      : group->parent->groupId();
+        auto parentGroupId = 0;
+        if (group->parent != nullptr && group->parent->isGhost()) {
+            parentGroupId = -1;
+        } else if (group->parent != nullptr) {
+            parentGroupId = group->parent->groupId();
+        }
         _currentProject->saveGroupAndPeaks(group,
                                            parentGroupId,
                                            tableName.toStdString());
+        if (group->hasCompoundLink()
+            && !_currentProject->compoundExists(group->getCompound())) {
+            _currentProject->saveCompounds({group->getCompound()});
+        }
         Q_EMIT(updateStatusString("Updated group attributes"));
     }
     _sqliteDbSaveInProgress = false;
@@ -1166,10 +1174,12 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
         if (group->hasCompoundLink() && !group->getCompound()->db().empty()) {
-            group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id(),
-                                                         group->getCompound()->name(),
-                                                         group->getCompound()->db()));
-            dbNames.push_back(QString::fromStdString(group->getCompound()->db()));
+            Compound* compound = DB.findSpeciesByIdAndName(
+                group->getCompound()->id(),
+                group->getCompound()->name(),
+                group->getCompound()->db());
+            group->setCompound(compound);
+            dbNames.push_back(QString::fromStdString(compound->db()));
         }
         assignAdduct(group, DB);
         for (auto& child : group->childIsotopes())

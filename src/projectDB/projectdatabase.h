@@ -352,6 +352,14 @@ public:
     void deletePeakGroup(PeakGroup* group);
 
     /**
+     * @brief Check whether the given compound already has an entry in the
+     * database.
+     * @param The compound to be checked.
+     * @return `true` if compound already exists, `false` otherwise.
+     */
+    bool compoundExists(Compound* compound);
+
+    /**
      * @brief Get the names of all the peak group tables present.
      * @return A vector of strings as names of search tables.
      */
