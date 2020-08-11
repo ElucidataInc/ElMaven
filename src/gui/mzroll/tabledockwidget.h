@@ -16,8 +16,34 @@ class PeakGroup;
 class EIC;
 class QHistogramSlider;
 class PeakDetector;
+class PeakGroupTreeWidget;
 
 using namespace std;
+
+struct RowData {
+    enum class ChildType {
+        Isotope,
+        Adduct,
+        None
+    };
+
+    // main attributes of interest
+    qint64 tableId;
+    quint64 parentIndex;
+    ChildType childType;
+    quint64 childIndex;
+
+    // default constructor
+    RowData();
+
+    // copy operator
+    bool operator==(const RowData& b) const;
+};
+
+Q_DECLARE_METATYPE(RowData);
+
+QDataStream& operator<<(QDataStream& stream, const RowData& rowData);
+QDataStream& operator>>(QDataStream& stream, RowData& rowData);
 
 class TableDockWidget : public QDockWidget {
   Q_OBJECT
@@ -25,7 +51,7 @@ class TableDockWidget : public QDockWidget {
 public:
   QWidget *dockWidgetContents;
   QHBoxLayout *horizontalLayout;
-  QTreeWidget *treeWidget;
+  PeakGroupTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
   int numberOfGroupsMarked = 0;
@@ -292,6 +318,10 @@ public slots:
    */
   void setDefaultStyle(bool isActive = false);
 
+  shared_ptr<PeakGroup> groupForItem(QTreeWidgetItem* item);
+
+  void refreshParentItem(QTreeWidgetItem* item);
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
@@ -305,10 +335,10 @@ protected:
    */
   static QMap<int, QString> _idTitleMap;
 
-  void dragEnterEvent(QDragEnterEvent *event);
-  void dropEvent(QDropEvent *event);
   void focusInEvent(QFocusEvent *event);
   void focusOutEvent(QFocusEvent *event);
+  void keyPressEvent(QKeyEvent *e);
+  void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
   void updateProgressBar(QString, int, int, bool = false);
@@ -316,13 +346,15 @@ signals:
   void renderedPdf();
   void ghostPeakGroupSelected(bool);
 
-protected Q_SLOTS:
-  void keyPressEvent(QKeyEvent *e);
-  void contextMenuEvent(QContextMenuEvent *event);
-
 private:
   QPalette pal;
-  void addRow(shared_ptr<PeakGroup> group, QTreeWidgetItem *root);
+
+  RowData
+  _rowDataForThisTable(size_t parentIndex,
+                       RowData::ChildType childType = RowData::ChildType::None,
+                       size_t childIndex = 0);
+
+  void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
   // TODO: investigate and remove this dialog if not being used
@@ -475,5 +507,21 @@ class UploadPeaksToCloudThread : public QThread
         void resultReady(QString sessionId);
 };
 
+class PeakGroupTreeWidget : public QTreeWidget {
+    Q_OBJECT
+
+public:
+    PeakGroupTreeWidget(TableDockWidget* parent = nullptr);
+
+    TableDockWidget* table;
+    static RowData dragData;
+    static bool moveInProgress;
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
+    Qt::DropActions supportedDropActions() const;
+    void paintEvent(QPaintEvent* event);
+};
 
 #endif

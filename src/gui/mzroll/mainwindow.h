@@ -270,6 +270,13 @@ public:
      */
     TableDockWidget* activeTable();
 
+    /**
+     * @brief Get the unique table for the given table ID.
+     * @param tableId The table ID of the desired table.
+     * @return A pointer to the desired table if found, `nullptr` otherwise.
+     */
+    TableDockWidget* tableForTableId(int tableId);
+
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();

@@ -75,18 +75,15 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   viewType = groupView;
   maxPeaks = 0; //Maximum Number of Peaks in a Group
 
-  treeWidget = new QTreeWidget(this);
+  treeWidget = new PeakGroupTreeWidget(this);
   treeWidget->setSortingEnabled(false);
-  treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
   treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  treeWidget->setAcceptDrops(false);
   treeWidget->setObjectName("PeakGroupTable");
   treeWidget->setFocusPolicy(Qt::NoFocus);
   treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
   this->setFocusPolicy(Qt::ClickFocus);
   tableSelectionFlagUp = false;
   tableSelectionFlagDown = false;
-  this->setAcceptDrops(true);
 
   setWidget(treeWidget);
   setupPeakTable();
@@ -119,8 +116,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
 
   setupFiltersDialog();
-
-  setAcceptDrops(true);
 }
 
 TableDockWidget::~TableDockWidget() {
@@ -219,6 +214,55 @@ void TableDockWidget::setupPeakTable() {
   treeWidget->setSortingEnabled(true);
 }
 
+shared_ptr<PeakGroup> TableDockWidget::groupForItem(QTreeWidgetItem *item)
+{
+  if (item == nullptr)
+    return nullptr;
+
+  auto var = item->data(0, Qt::UserRole);
+  auto rowData = var.value<RowData>();
+  auto group = _topLevelGroups.at(rowData.parentIndex);
+  if (rowData.childType == RowData::ChildType::Isotope) {
+      group = group->childIsotopes().at(rowData.childIndex);
+  } else if (rowData.childType == RowData::ChildType::Adduct) {
+      group = group->childAdducts().at(rowData.childIndex);
+  }
+  return group;
+}
+
+void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
+{
+    if (item == nullptr)
+        return;
+
+    if (item->parent() != nullptr)
+        item = item->parent();
+
+    foreach (auto i, item->takeChildren())
+        delete i;
+
+    auto var = item->data(0, Qt::UserRole);
+    auto parentRowData = var.value<RowData>();
+    auto parent = groupForItem(item);
+    if (parent->childIsotopeCount() > 0) {
+        for (size_t i = 0; i < parent->childIsotopeCount(); ++i) {
+            RowData rowData = _rowDataForThisTable(parentRowData.parentIndex,
+                                                   RowData::ChildType::Isotope,
+                                                   i);
+            addRow(rowData, item);
+        }
+    }
+    if (parent->childAdductsCount() > 0) {
+        for (size_t i = 0; i < parent->childAdductsCount(); ++i) {
+            RowData rowData = _rowDataForThisTable(parentRowData.parentIndex,
+                                                   RowData::ChildType::Adduct,
+                                                   i);
+            addRow(rowData, item);
+        }
+    }
+    // TODO: update group IDs too?
+}
+
 void TableDockWidget::updateTable() {
   QTreeWidgetItemIterator it(treeWidget);
   while (*it) {
@@ -229,8 +273,7 @@ void TableDockWidget::updateTable() {
 }
 
 void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
-  QVariant v = item->data(0, Qt::UserRole);
-  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  shared_ptr<PeakGroup> group = groupForItem(item);
   if (group == nullptr)
     return;
 
@@ -238,8 +281,8 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     item->setText(0, QString::number(group->groupId()));
     item->setText(1, QString(group->getName().c_str()));
     if (updateChildren) {
-    for (int i = 0; i < item->childCount(); ++i)
-      updateItem(item->child(i));
+      for (int i = 0; i < item->childCount(); ++i)
+        updateItem(item->child(i));
     }
     return;
   }
@@ -441,18 +484,46 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
   }
 }
 
-void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
-                             QTreeWidgetItem *root)
+RowData
+TableDockWidget::_rowDataForThisTable(size_t parentIndex,
+                                      RowData::ChildType childType,
+                                      size_t childIndex)
 {
+    RowData rowData;
+    rowData.tableId = tableId;
+    rowData.parentIndex = parentIndex;
+    rowData.childType = childType;
+    rowData.childIndex = childIndex;
+    return rowData;
+}
+
+void TableDockWidget::addRow(RowData& indexData, QTreeWidgetItem* root)
+{
+  shared_ptr<PeakGroup> group = _topLevelGroups.at(indexData.parentIndex);
+  if (root != nullptr) {
+    if (indexData.childType == RowData::ChildType::Isotope) {
+      group = group->childIsotopes().at(indexData.childIndex);
+    } else if (indexData.childType == RowData::ChildType::Adduct) {
+      group = group->childAdducts().at(indexData.childIndex);
+    }
+  }
+
   if (group == nullptr)
     return;
   if (group->meanMz <= 0 && !group->isGhost())
     return;
 
   NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
-  item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled |
-                 Qt::ItemIsDragEnabled);
-  item->setData(0, Qt::UserRole, QVariant::fromValue(group));
+  if (root == nullptr) {
+      item->setFlags(Qt::ItemIsSelectable
+                     | Qt::ItemIsEnabled
+                     | Qt::ItemIsDropEnabled);
+  } else {
+      item->setFlags(Qt::ItemIsSelectable
+                     | Qt::ItemIsEnabled
+                     | Qt::ItemIsDragEnabled);
+  }
+  item->setData(0, Qt::UserRole, QVariant::fromValue(indexData));
 
   if (root == nullptr)
     treeWidget->addTopLevelItem(item);
@@ -464,12 +535,20 @@ void TableDockWidget::addRow(shared_ptr<PeakGroup> group,
   }
 
   if (group->childIsotopeCount() > 0) {
-    for (auto child : group->childIsotopes())
-      addRow(child, item);
+    for (size_t i = 0; i < group->childIsotopeCount(); ++i) {
+      RowData rowData = _rowDataForThisTable(indexData.parentIndex,
+                                             RowData::ChildType::Isotope,
+                                             i);
+      addRow(rowData, item);
+    }
   }
   if (group->childAdductsCount() > 0) {
-    for (auto child : group->childAdducts())
-      addRow(child, item);
+    for (size_t i = 0; i < group->childAdductsCount(); ++i) {
+      RowData rowData = _rowDataForThisTable(indexData.parentIndex,
+                                             RowData::ChildType::Adduct,
+                                             i);
+      addRow(rowData, item);
+    }
   }
 }
 
@@ -567,8 +646,7 @@ void TableDockWidget::deleteAll()
   
   if (treeWidget->currentItem()) {
       _mainwindow->getEicWidget()->unSetPeakTableGroup(
-          treeWidget->currentItem()->data(0, Qt::UserRole)
-              .value<shared_ptr<PeakGroup>>());
+          groupForItem(treeWidget->currentItem()));
   }
 
   disconnect(treeWidget,
@@ -631,7 +709,10 @@ void TableDockWidget::showAllGroups() {
     setIntensityColName();
 
   QMap<int, QTreeWidgetItem *> parents;
-  for (auto group : _topLevelGroups) {
+  for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
+    auto group = _topLevelGroups[i];
+    RowData rowData = _rowDataForThisTable(i);
+
     int clusterId = group->clusterId;
     if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
       if (!parents.contains(clusterId)) {
@@ -643,9 +724,9 @@ void TableDockWidget::showAllGroups() {
         parents[clusterId]->setExpanded(true);
       }
       QTreeWidgetItem *parent = parents[clusterId];
-      addRow(group, parent);
+      addRow(rowData, parent);
     } else {
-      addRow(group, NULL);
+      addRow(rowData, nullptr);
     }
   }
 
@@ -662,8 +743,7 @@ void TableDockWidget::showAllGroups() {
   QTreeWidgetItemIterator itr(treeWidget);
   while(*itr) {
       QTreeWidgetItem* item = (*itr);
-      QVariant v = item->data(0,Qt::UserRole);
-      shared_ptr<PeakGroup> grp = v.value<shared_ptr<PeakGroup>>();
+      shared_ptr<PeakGroup> grp = groupForItem(item);
       validateGroup(grp.get(), item);
       itr++;
   }
@@ -1090,8 +1170,7 @@ bool TableDockWidget::selectPeakGroup(shared_ptr<PeakGroup> group)
   QTreeWidgetItemIterator it(treeWidget);
   while (*it) {
     QTreeWidgetItem *item = (*it);
-    QVariant v = item->data(0, Qt::UserRole);
-    shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
+    shared_ptr<PeakGroup> currentGroup = groupForItem(item);
     if (currentGroup == group) {
         treeWidget->setCurrentItem(item);
       return true;
@@ -1107,8 +1186,7 @@ void TableDockWidget::showSelectedGroup()
   if (!item)
     return;
 
-  QVariant v = item->data(0, Qt::UserRole);
-  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  shared_ptr<PeakGroup> group = groupForItem(item);
   if (group == nullptr)
     return;
 
@@ -1126,8 +1204,7 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
   QList<shared_ptr<PeakGroup>> selectedGroups;
   Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
     if (item) {
-      QVariant v = item->data(0, Qt::UserRole);
-      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+      shared_ptr<PeakGroup> group = groupForItem(item);
       if (group != nullptr) {
         selectedGroups.append(group);
       }
@@ -1146,8 +1223,7 @@ shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup()
   QTreeWidgetItem *item = treeWidget->currentItem();
   if (!item)
     return NULL;
-  QVariant v = item->data(0, Qt::UserRole);
-  shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+  shared_ptr<PeakGroup> group = groupForItem(item);
   if (group != nullptr) {
     return group;
   } else
@@ -1158,8 +1234,7 @@ void TableDockWidget::setGroupLabel(char label)
 {
   Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
     if (item) {
-      QVariant v = item->data(0, Qt::UserRole);
-      shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+      shared_ptr<PeakGroup> group = groupForItem(item);
       if (group != nullptr) {
         if (group->label != 'g' && group->label != 'b') {
           numberOfGroupsMarked+=1;
@@ -1202,8 +1277,7 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       ++it;
       continue;
     }
-    QVariant v = item->data(0, Qt::UserRole);
-    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    shared_ptr<PeakGroup> group = groupForItem(item);
     if (group != nullptr and group.get() == groupX) {
       item->setHidden(true);
 
@@ -1305,8 +1379,7 @@ void TableDockWidget::deleteSelectedItems()
         if (item == nullptr)
             continue;
 
-        auto v = item->data(0, Qt::UserRole);
-        auto group = v.value<shared_ptr<PeakGroup>>();
+        shared_ptr<PeakGroup> group = groupForItem(item);
         if (group == nullptr)
             continue;
 
@@ -1408,8 +1481,7 @@ void TableDockWidget::deleteSelectedItems()
     QTreeWidgetItemIterator it(treeWidget);
     while (*it) {
         QTreeWidgetItem *item = (*it);
-        QVariant v = item->data(0, Qt::UserRole);
-        shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
+        shared_ptr<PeakGroup> currentGroup = groupForItem(item);
         if (currentGroup == groupSelected) {
             treeWidget->setCurrentItem(item);
             break;
@@ -1747,8 +1819,7 @@ void TableDockWidget::editSelectedPeakGroup()
       QTreeWidgetItemIterator it(treeWidget);
       while (*it) {
           QTreeWidgetItem* item = (*it);
-          QVariant v = item->data(0, Qt::UserRole);
-          shared_ptr<PeakGroup> currentGroup = v.value<shared_ptr<PeakGroup>>();
+          shared_ptr<PeakGroup> currentGroup = groupForItem(item);
           if (currentGroup.get() == group->parent) {
               groupToSave = currentGroup;
               break;
@@ -2021,8 +2092,7 @@ void TableDockWidget::showFocusedGroups() {
   int N = treeWidget->topLevelItemCount();
   for (int i = 0; i < N; i++) {
     QTreeWidgetItem *item = treeWidget->topLevelItem(i);
-    QVariant v = item->data(0, Qt::UserRole);
-    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    shared_ptr<PeakGroup> group = groupForItem(item);
     if (group != nullptr && group->isFocused)
       item->setHidden(false);
     else
@@ -2031,8 +2101,7 @@ void TableDockWidget::showFocusedGroups() {
     if (item->text(0).startsWith("Cluster")) {
       bool showParentFlag = false;
       for (int j = 0; j < item->childCount(); j++) {
-        QVariant v = (item->child(j))->data(0, Qt::UserRole);
-        shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+        shared_ptr<PeakGroup> group = groupForItem(item->child(j));
         if (group != nullptr && group->isFocused) {
           item->setHidden(false);
           showParentFlag = true;
@@ -2048,24 +2117,6 @@ void TableDockWidget::showFocusedGroups() {
 void TableDockWidget::clearFocusedGroups() {
   for (auto group : _topLevelGroups)
     group->isFocused = false;
-}
-
-void TableDockWidget::dragEnterEvent(QDragEnterEvent *event) {
-  Q_FOREACH (QUrl url, event->mimeData()->urls()) {
-    std::cerr << "dragEnterEvent:" << url.toString().toStdString() << endl;
-    if (url.toString() == "ok") {
-      event->acceptProposedAction();
-      return;
-    } else {
-      return;
-    }
-  }
-}
-
-void TableDockWidget::dropEvent(QDropEvent *event) {
-  Q_FOREACH (QUrl url, event->mimeData()->urls()) {
-    std::cerr << "dropEvent:" << url.toString().toStdString() << endl;
-  }
 }
 
 void TableDockWidget::switchTableView() {
@@ -2451,11 +2502,8 @@ void PeakTableDockWidget::deleteAll()
 
 void PeakTableDockWidget::cleanUp()
 {
-  if (treeWidget->currentItem()) {
-    emit unSetFromEicWidget(
-          treeWidget->currentItem()->data(0, Qt::UserRole)
-              .value<shared_ptr<PeakGroup>>());
-  }
+  if (treeWidget->currentItem())
+    emit unSetFromEicWidget(groupForItem(treeWidget->currentItem()));
   _mainwindow->ligandWidget->resetColor();
 }
 
@@ -2734,8 +2782,7 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
       ++it;
       continue;
     }
-    QVariant v = item->data(0, Qt::UserRole);
-    shared_ptr<PeakGroup> group = v.value<shared_ptr<PeakGroup>>();
+    shared_ptr<PeakGroup> group = groupForItem(item);
     if (group != nullptr and group.get() == groupX) {
         item->setHidden(true);
 
@@ -2991,4 +3038,170 @@ void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
             grp->markedBadByCloudModel = 1;
         }
     }
+}
+
+RowData::RowData()
+{
+    tableId = 0;
+    parentIndex = 0;
+    childType = ChildType::None;
+    childIndex = 0;
+}
+
+bool RowData::operator==(const RowData& b) const
+{
+    return (tableId == b.tableId
+            && parentIndex == b.parentIndex
+            && childType == b.childType
+            && childIndex == b.childIndex);
+}
+
+QDataStream& operator<<(QDataStream& stream, const RowData& rowData)
+{
+    int childType = static_cast<int>(rowData.childType);
+    stream << rowData.tableId;
+    stream << rowData.parentIndex;
+    stream << childType;
+    stream << rowData.childIndex;
+    return stream;
+}
+
+QDataStream& operator>>(QDataStream& stream, RowData& rowData)
+{
+    int childType = 0;
+    stream >> rowData.tableId;
+    stream >> rowData.parentIndex;
+    stream >> childType;
+    stream >> rowData.childIndex;
+    rowData.childType = static_cast<RowData::ChildType>(childType);
+    return stream;
+}
+
+RowData PeakGroupTreeWidget::dragData = RowData();
+bool PeakGroupTreeWidget::moveInProgress = false;
+
+PeakGroupTreeWidget::PeakGroupTreeWidget(TableDockWidget* parent)
+    : QTreeWidget(parent)
+{
+    table = parent;
+    setDragEnabled(true);
+    viewport()->setAcceptDrops(true);
+    setDragDropMode(QAbstractItemView::DragDrop);
+    qRegisterMetaTypeStreamOperators<RowData>("RowData");
+}
+
+void PeakGroupTreeWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (!moveInProgress) {
+        if (selectedItems().size() != 1)
+            return;
+
+        auto var = currentItem()->data(0, Qt::UserRole);
+        dragData = var.value<RowData>();
+        moveInProgress = true;
+    }
+    QTreeWidget::dragEnterEvent(event);
+}
+
+void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
+{
+    QModelIndex droppedIndex = indexAt(event->pos());
+    if (!droppedIndex.isValid()) {
+        moveInProgress = false;
+        return;
+    }
+
+    auto dropPosition = dropIndicatorPosition();
+    if (dropPosition == QAbstractItemView::BelowItem
+        || dropPosition == QAbstractItemView::AboveItem) {
+        // exit since we do not care for these types of drop events
+        moveInProgress = false;
+        return;
+    }
+
+    // we do not allow dragging of parent items
+    if (dragData.childType == RowData::ChildType::None) {
+        moveInProgress = false;
+        return;
+    }
+
+    MainWindow* mw = table->getMainWindow();
+    TableDockWidget* sourceTable = mw->tableForTableId(dragData.tableId);
+    if (sourceTable == nullptr) {
+        moveInProgress = false;
+        return;
+    }
+
+    auto tableGroups = sourceTable->getGroups();
+    shared_ptr<PeakGroup> originalParent = tableGroups.at(dragData.parentIndex);
+    if (originalParent == nullptr) {
+        moveInProgress = false;
+        return;
+    }
+
+    shared_ptr<PeakGroup> child = nullptr;
+    if (dragData.childType == RowData::ChildType::Isotope) {
+        child = originalParent->childIsotopes().at(dragData.childIndex);
+    } else if (dragData.childType == RowData::ChildType::Adduct) {
+        child = originalParent->childAdducts().at(dragData.childIndex);
+    }
+    if (child == nullptr) {
+        moveInProgress = false;
+        return;
+    }
+
+    QTreeWidgetItem* item = itemFromIndex(droppedIndex);
+    if (item->parent() != nullptr)
+        item = item->parent();
+
+    shared_ptr<PeakGroup> newParent = table->groupForItem(item);
+    if (child->getCompound() != newParent->getCompound()) {
+        moveInProgress = false;
+        return;
+    }
+
+    QTreeWidget::dropEvent(event);
+    originalParent->removeChild(child.get());
+    if (child->isIsotope()) {
+        newParent->addIsotopeChild(*child);
+    } else if (child->isAdduct()) {
+        newParent->addAdductChild(*child);
+    }
+
+    // update the new parent
+    table->refreshParentItem(item);
+    item->setExpanded(true);
+
+    // update the old parent
+    QTreeWidgetItemIterator it(sourceTable->treeWidget);
+    while (*it) {
+        QTreeWidgetItem* parentItem = (*it);
+        if (parentItem->parent() != nullptr) {
+            ++it;
+            continue;
+        }
+        shared_ptr<PeakGroup> group = sourceTable->groupForItem(parentItem);
+        if (group == originalParent) {
+            sourceTable->refreshParentItem(parentItem);
+            break;
+        }
+        ++it;
+    }
+
+    QApplication::processEvents();
+    moveInProgress = false;
+}
+
+Qt::DropActions PeakGroupTreeWidget::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+void PeakGroupTreeWidget::paintEvent(QPaintEvent* event)
+{
+    auto dropPosition = dropIndicatorPosition();
+    setDropIndicatorShown(dropPosition != QAbstractItemView::BelowItem
+                          && dropPosition != QAbstractItemView::AboveItem);
+    QTreeWidget::paintEvent(event);
+    setDropIndicatorShown(true);
 }

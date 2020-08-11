@@ -1179,6 +1179,10 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
                 group->getCompound()->name(),
                 group->getCompound()->db());
             group->setCompound(compound);
+            for (auto& child : group->childIsotopes())
+                child->setCompound(compound);
+            for (auto& child : group->childAdducts())
+                child->setCompound(compound);
             dbNames.push_back(QString::fromStdString(compound->db()));
         }
         assignAdduct(group, DB);

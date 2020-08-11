@@ -32,7 +32,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
     treeWidget->setUniformRowHeights(true);
     treeWidget->setHeaderHidden(false);
     treeWidget->setObjectName("CompoundTable");
-    treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
+    treeWidget->setDragDropMode(QAbstractItemView::NoDragDrop);
     treeWidget->setMouseTracking(true);
 
     connect(treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showLigand()));
@@ -377,9 +377,7 @@ void LigandWidget::showTable(bool insertIsotopesAndAdducts)
                                                                 CompoundType);
         item->setText(0, QString::fromStdString(compound->name()));
         item->setData(0, Qt::UserRole, QVariant::fromValue(compound));
-        item->setFlags(Qt::ItemIsSelectable
-                         | Qt::ItemIsDragEnabled
-                         | Qt::ItemIsEnabled);
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
         if (!compound->formula().empty()) {
             item->setText(1, QString::fromStdString(compound->formula()));
@@ -522,7 +520,8 @@ void LigandWidget::markAsDone(Compound* compound, Isotope isotope)
     if (i != compoundsHash.end() && i.key() == compound) {
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
-        ++it; // we skip the parent item
+        if (*it)
+            ++it; // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
 
@@ -549,7 +548,8 @@ void LigandWidget::markAsDone(Compound* compound, Adduct* adduct)
     if (i != compoundsHash.end() && i.key() == compound) {
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
-        ++it; // we skip the parent item
+        if (*it)
+            ++it; // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
 

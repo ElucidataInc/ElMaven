@@ -2787,6 +2787,21 @@ TableDockWidget* MainWindow::activeTable()
     return _activeTable;
 }
 
+TableDockWidget* MainWindow::tableForTableId(int tableId)
+{
+    if (tableId == 0)
+        return bookmarkedPeaks;
+
+    auto tablePos = find_if(begin(groupTables),
+                            end(groupTables),
+                            [tableId](TableDockWidget* table) {
+                                return table->tableId == tableId;
+                            });
+    if (tablePos == end(groupTables))
+        return nullptr;
+    return *tablePos;
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     settings->setValue("closeEvent", 1);
