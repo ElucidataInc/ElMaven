@@ -4,7 +4,7 @@ OBJECTS_DIR=$$top_builddir/tmp/maven/
 include($$mzroll_pri)
 DESTDIR=$$top_builddir/libs/
 
-QT+= sql network
+QT+= core
 TEMPLATE=lib
 
 CONFIG += staticlib warn_off console silent
