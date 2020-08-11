@@ -174,8 +174,6 @@ class Compound{
                    float productMz = 0 ,float collisionEnergy =0, string note="");
 
 
-        ~Compound(){};
-
         IonizationMode ionizationMode;
 
         /**

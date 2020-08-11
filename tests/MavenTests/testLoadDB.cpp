@@ -1,6 +1,6 @@
 #include "testLoadDB.h"
 #include "Compound.h"
-#include "databases.h"
+#include "database.h"
 #include "mzSample.h"
 #include "utilities.h"
 

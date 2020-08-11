@@ -4,7 +4,7 @@
 #include <QtTest>
 #include <string>
 #include <sstream>
-#include "databases.h"
+#include "database.h"
 #include "mzSample.h"
 
 class PeakGroup;
@@ -79,7 +79,7 @@ class TestUtils {
 };
 
 namespace maventests {
-    extern Databases database;
+    extern Database database;
     extern TestSamples samples;
 }
 

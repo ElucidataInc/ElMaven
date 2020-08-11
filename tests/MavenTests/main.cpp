@@ -1,5 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
+#include "standardincludes.h"
 #include "testLoadSamples.h"
 #include "testMassCalculator.h"
 #include "testPeakDetection.h"

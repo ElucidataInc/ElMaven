@@ -205,17 +205,6 @@ using namespace mzUtils;
 	if (!QFile::exists(pathwaysFolder))
 		pathwaysFolder = dataDir + "/" + "pathways";
 
-	QString ligandDbFilename = pathwaysFolder + "/"
-			+ settings->value("ligandDbFilename").value<QString>();
-	if (QFile::exists(ligandDbFilename)) {
-		DB.connect(ligandDbFilename.toStdString());
-		DB.loadAll();
-	}
-
-	QString commonFragments = dataDir + "/" + "FRAGMENTS.csv";
-	if (QFile::exists(commonFragments))
-		DB.loadFragments(commonFragments.toStdString());
-
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
 	_massCutoffWindow = new MassCutoff();
@@ -629,7 +618,6 @@ using namespace mzUtils;
 
 
     setContextMenuPolicy(Qt::NoContextMenu);
-    pathwayPanel->setInfo(DB.pathwayDB);
 
     scatterDockWidget->hide();
     spectralHitsDockWidget->hide();
@@ -1366,7 +1354,6 @@ void MainWindow::setTotalCharge()
     mavenParameters->charge = charge;
     fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
     totalCharge = mavenParameters->ionizationMode * charge;
-    DB.updateChargesForZeroCharges(totalCharge);
     ligandWidget->updateTable();
 }
 
@@ -2053,15 +2040,15 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
                               & ~Qt::WindowCloseButtonHint);
 
         string msgString = "Following are the unknown column name(s) found:";
-        if (DB.notFoundColumns.size() > 0) {
-            for (const auto& column : DB.notFoundColumns) {
+        if (DB.notFoundColumns().size() > 0) {
+            for (const auto& column : DB.notFoundColumns()) {
                  msgString += "\n - " + column;
             }
             msgBox.setDetailedText(QString::fromStdString(msgString));
         }
         msgBox.open();
     } else {
-        if (DB.notFoundColumns.size() > 0) {
+        if (DB.notFoundColumns().size() > 0) {
             analytics->hitEvent("Load Compound DB",
                                 "Column Error",
                                 "Partial Failure");
@@ -2074,13 +2061,13 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
 
             string msgString = "Following are the unknown column name(s) "
                                "found:";
-            for (const auto& column : DB.notFoundColumns) {
+            for (const auto& column : DB.notFoundColumns()) {
                  msgString += "\n - " + column;
             }
             msgBox.setDetailedText(QString::fromStdString(msgString));
             msgBox.open();
         }
-        if (DB.invalidRows.size() > 0) {
+        if (DB.invalidRows().size() > 0) {
             analytics->hitEvent("Load Compound DB", "Row Error");
 
             QMessageBox msgBox;
@@ -2091,7 +2078,7 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
             string msgString = "The following compounds had insufficient "
                                "information for peak detection, and were not "
                                "loaded:";
-            for (auto compoundID : DB.invalidRows) {
+            for (auto compoundID : DB.invalidRows()) {
                 msgString += "\n - " + compoundID;
             }
             msgBox.setDetailedText(QString::fromStdString(msgString));

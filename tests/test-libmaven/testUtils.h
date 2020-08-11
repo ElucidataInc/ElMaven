@@ -6,7 +6,7 @@
 #include "mzUtils.h"
 #include "mavenparameters.h"
 #include "datastructures/mzSlice.h"
-#include "databases.h"
+#include "database.h"
 #include "classifierNeuralNet.h"
 #include "PeakDetector.h"
 #include "isotopeDetection.h"
@@ -18,7 +18,7 @@ class SampleLoadingFixture
     vector<PeakGroup> _allgroups;
     MavenParameters* _mavenparameters;
     std::list<PeakGroup> _isotopeGroups;
-    Databases database;
+    Database database;
 
     void _makeSampleList()
     {

@@ -45,7 +45,8 @@ LIBS += -lmaven         \
         -lobiwarp       \
         -lpollyCLI      \
         -lcommon        \
-        -lprojectDB
+        -lprojectDB     \
+        -lmgf
 
 unix: LIBS += -lboost_system -lboost_filesystem -lsqlite3
 win32: LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3

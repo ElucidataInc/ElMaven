@@ -165,25 +165,7 @@ void SuggestPopup::doSearchPathways(QString needle) {
 	QRegExp regexp(needle,Qt::CaseInsensitive,QRegExp::RegExp);
 	if (!needle.isEmpty() && !regexp.isValid()) return;
 
-
-	for(unsigned int i=0;  i < DB.pathwayDB.size(); i++ ) {
-            Pathway* p = DB.pathwayDB[i];
-            QString name(p->name.c_str() );
-            QString id(p->id.c_str() );
-            if ( name.length()==0) continue;
-            if ( !(regexp.indexIn(name) >=0  || regexp.indexIn(id) >= 0) ) continue;
-            //score
-            float c1=0; float c2=0; float c3=5;
-            if ( searchHistory.contains(name)) c1 = searchHistory.value(name);
-            c2 = regexp.matchedLength();
-            float score=1+c1+c2+c3;
-
-            if ( !scores.contains(name) || scores[name] < score ) {
-                scores[name]=score;
-                pathway_matches[name]=p;
-            }
-        }
-    }
+}
 
 void SuggestPopup::doSearchHistory(QString needle)  {
 		QRegExp regexp(needle,Qt::CaseInsensitive,QRegExp::RegExp);

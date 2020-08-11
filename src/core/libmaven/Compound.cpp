@@ -112,8 +112,6 @@ Compound* Compound::operator = (const Compound& rhs)
     return this;
 }
 
-
-
 float Compound::adjustedMass(int charge) {
      /**
     *@return    -    total mass by formula minus loss of electrons' mass

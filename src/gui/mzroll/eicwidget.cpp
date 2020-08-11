@@ -1960,8 +1960,6 @@ void EicWidget::saveRetentionTime() {
 	float rt = invX(pos.x());
     eicParameters->displayedGroup()->getCompound()->setExpectedRt(rt);
 
-    DB.saveRetentionTime(eicParameters->displayedGroup()->getCompound(), rt,
-			"user_method");
 }
 
 void EicWidget::keyPressEvent(QKeyEvent *e) {

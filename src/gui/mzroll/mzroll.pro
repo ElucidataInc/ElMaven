@@ -184,7 +184,6 @@ HEADERS += stable.h \
            pathwaywidget.h \
            graphwidget.h \
            settingsform.h \
-           database.h \
            background_peaks_update.h \
            isotopeplot.h\
            barplot.h \
@@ -251,7 +250,6 @@ HEADERS += stable.h \
            projectsaveworker.h
 
 SOURCES += mainwindow.cpp  \
-           database.cpp \
            infodialog.cpp \
            librarymanager.cpp \
            plotdock.cpp \

@@ -1,7 +1,7 @@
 #include "SRMList.h"
 #include "datastructures/mzSlice.h"
 #include "Compound.h"
-#include "databases.h"
+#include "database.h"
 #include "mzSample.h"
 #include "Scan.h"
 

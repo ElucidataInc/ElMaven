@@ -102,7 +102,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
   m_manager = new QNetworkAccessManager(this);
   connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
 
-  QDirIterator itr(":/databases/");
+  QDirIterator itr("src/gui/mzroll/databases/");
 
   while(itr.hasNext()) {
     auto filename = itr.next().toStdString();
@@ -121,7 +121,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
   while (i.hasNext())
       databaseSelect->addItem(i.next());
 
-  QDirIterator adductItr(":/databases/Adducts/");
+  QDirIterator adductItr("src/gui/mzroll/databases/Adducts/");
 
     while (adductItr.hasNext()) {
         auto filename = adductItr.next().toStdString();

@@ -675,7 +675,7 @@ int mzFileIO::loadCompoundsFromFile(QString filename)
                                     currentSteps,
                                     totalSteps));
        });
-       compoundCount = DB.loadNISTLibrary(filename, &signal);
+       compoundCount = DB.loadNISTLibrary(filename.toStdString(), &signal);
    } else if (filename.endsWith("mgf", Qt::CaseInsensitive)) {
        boost::signals2::signal<void (string, int, int)> signal;
        signal.connect([&](string message, int currentSteps, int totalSteps) {
@@ -683,7 +683,7 @@ int mzFileIO::loadCompoundsFromFile(QString filename)
                                     currentSteps,
                                     totalSteps));
        });
-       compoundCount = DB.loadMascotLibrary(filename, &signal);
+       compoundCount = DB.loadMascotLibrary(filename.toStdString(), &signal);
    } else if (filename.endsWith("massbank", Qt::CaseInsensitive)) {
        compoundCount = loadMassBankLibrary(filename);
    } else if (filename.contains("csv", Qt::CaseInsensitive)

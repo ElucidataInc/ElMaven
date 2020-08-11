@@ -6,7 +6,7 @@
 #include "utilities.h"
 
 namespace maventests {
-    Databases database;
+    Database database;
     TestSamples samples;
 }
 
