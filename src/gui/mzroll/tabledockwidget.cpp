@@ -336,11 +336,7 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     item->setText(11, QString::number(group->maxQuality, 'f', 2));
     item->setText(12, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
     item->setText(13, QString::number(group->ms2EventCount));
-    if (group->isGhost()) {
-        item->setText(14, "NA");
-    } else {
-        item->setText(14, QString::number(group->groupRank, 'e', 6));
-    }
+    item->setText(14, QString::number(group->groupRank, 'e', 6));
 
     if (fabs(group->changeFoldRatio) >= 0) {
       item->setText(15, QString::number(group->changeFoldRatio, 'f', 3));
@@ -530,10 +526,6 @@ void TableDockWidget::addRow(RowData& indexData, QTreeWidgetItem* root)
     treeWidget->addTopLevelItem(item);
 
   updateItem(item, false);
-  if (group->isGhost()) {
-      for (int i = 0; i < treeWidget->columnCount(); ++i)
-      item->setForeground(i, QColor::fromRgb(150, 150, 150));
-  }
 
   if (group->childIsotopeCount() > 0) {
     for (size_t i = 0; i < group->childIsotopeCount(); ++i) {
@@ -1298,6 +1290,8 @@ void TableDockWidget::_deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items)
             parentGroup->removeChild(childGroup);
     }
 
+    // TODO: delete peak-groups from any autosaved emDB as well
+
     // possibly the most expensive call in this whole method
     showAllGroups();
 
@@ -1695,7 +1689,7 @@ void TableDockWidget::editSelectedPeakGroup()
 
   shared_ptr<PeakGroup> group = getSelectedGroup();
   PeakEditor* editor = _mainwindow->peakEditor();
-  if (editor == nullptr || group == nullptr)
+  if (editor == nullptr || group == nullptr || group->isGhost())
     return;
 
   editor->setPeakGroup(group);

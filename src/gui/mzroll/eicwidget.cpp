@@ -1096,6 +1096,12 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
     if (_showMS2Events && eicParameters->_slice.mz > 0) 
         addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
 
+    if (group != nullptr
+        && group->peakCount() == 0
+        && !group->tableName().empty()) {
+        _drawNoPeaksMessage();
+    }
+
 	addAxes();
 	getMainWindow()->addToHistory(eicParameters->_slice);
 	scene()->update();
@@ -1159,6 +1165,33 @@ void EicWidget::setTitle() {
         text->setDefaultTextColor(QColor(200,200,200));
         text->update();
     }
+}
+
+void EicWidget::_drawNoPeaksMessage()
+{
+    QFont font = QApplication::font();
+    font.setPixelSize(24);
+    QGraphicsTextItem* noPeaksMessage =
+        scene()->addText("No peaks in this group", font);
+
+    auto messageBounds = noPeaksMessage->boundingRect();
+    int messageWidth = messageBounds.width();
+    int messageHeight = messageBounds.height();
+    int xPos = (scene()->width() / 2) - (messageWidth / 2);
+    int yPos = (scene()->height() / 2) - (messageHeight / 2);
+    noPeaksMessage->setPos(xPos, yPos);
+    noPeaksMessage->setDefaultTextColor(Qt::white);
+
+    QPainterPath path;
+    messageBounds.setHeight(messageBounds.height() + 12);
+    messageBounds.setWidth(messageBounds.width() + 24);
+    path.addRoundedRect(messageBounds, 8, 8);
+    QGraphicsPathItem* boundingRect = scene()->addPath(path,
+                                                       QPen(Qt::darkGray),
+                                                       QBrush(Qt::darkGray));
+    boundingRect->setPos(xPos - 12, yPos - 6);
+    boundingRect->setZValue(999);
+    noPeaksMessage->setZValue(1000);
 }
 
 void EicWidget::recompute() {

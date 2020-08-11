@@ -273,6 +273,8 @@ private:
     void _clearEicLines();
     void _clearEicPoints();
     void _clearBarPlot();
+
+    void _drawNoPeaksMessage();
 };
 
 #endif
