@@ -1815,7 +1815,7 @@ void TableDockWidget::editSelectedPeakGroup()
   }
 
   auto groupToSave = group;
-  if (group->isIsotope() && group->parent != nullptr) {
+  if (group->parent != nullptr) {
       QTreeWidgetItemIterator it(treeWidget);
       while (*it) {
           QTreeWidgetItem* item = (*it);
@@ -3162,15 +3162,22 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
 
     QTreeWidget::dropEvent(event);
     originalParent->removeChild(child.get());
+    shared_ptr<PeakGroup> newChild = nullptr;
     if (child->isIsotope()) {
-        newParent->addIsotopeChild(*child);
+        newChild = newParent->addIsotopeChild(*child);
     } else if (child->isAdduct()) {
-        newParent->addAdductChild(*child);
+        newChild = newParent->addAdductChild(*child);
     }
+    newChild->setGroupId(table->_nextGroupId++);
+    newParent->setGroupId(newParent->groupId());
 
     // update the new parent
     table->refreshParentItem(item);
-    item->setExpanded(true);
+    if (item->isExpanded()) {
+        table->sortChildrenAscending(item);
+    } else {
+        item->setExpanded(true);
+    }
 
     // update the old parent
     QTreeWidgetItemIterator it(sourceTable->treeWidget);
@@ -3188,6 +3195,7 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
         ++it;
     }
 
+    mw->autoSaveSignal({originalParent, newParent});
     QApplication::processEvents();
     moveInProgress = false;
 }

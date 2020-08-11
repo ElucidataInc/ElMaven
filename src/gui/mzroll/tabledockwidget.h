@@ -48,6 +48,8 @@ QDataStream& operator>>(QDataStream& stream, RowData& rowData);
 class TableDockWidget : public QDockWidget {
   Q_OBJECT
 
+  friend PeakGroupTreeWidget;
+
 public:
   QWidget *dockWidgetContents;
   QHBoxLayout *horizontalLayout;
