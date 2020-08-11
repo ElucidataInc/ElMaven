@@ -275,7 +275,7 @@ public slots:
   void showConsensusSpectra();
 
   virtual void deleteSelectedItems();
-  virtual void deleteGroup(PeakGroup *groupX);
+  virtual void deleteGroup(PeakGroup* group);
 
   void sortBy(int);
   void deleteAll();
@@ -356,6 +356,8 @@ private:
                        RowData::ChildType childType = RowData::ChildType::None,
                        size_t childIndex = 0);
 
+  void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
+
   void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
@@ -432,7 +434,7 @@ public Q_SLOTS:
    */
   void mergeGroupsIntoPeakTable(QAction *action);
 
-  void deleteGroup(PeakGroup *groupX);
+  void deleteGroup(PeakGroup* group);
   void markGroupGood();
   void markGroupBad();
 

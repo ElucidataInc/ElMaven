@@ -97,8 +97,9 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           this,
           &TableDockWidget::showSelectedGroup);
   connect(treeWidget,
-          SIGNAL(itemExpanded(QTreeWidgetItem *)), this,
-          SLOT(sortChildrenAscending(QTreeWidgetItem *)));
+          &QTreeWidget::itemExpanded,
+          this,
+          &TableDockWidget::sortChildrenAscending);
 
   clusterDialog = new ClusterDialog(this);
   connect(clusterDialog->clusterButton,
@@ -1256,20 +1257,63 @@ void TableDockWidget::setGroupLabel(char label)
   updateStatus();
 }
 
-void TableDockWidget::deleteGroup(PeakGroup *groupX) {
-  if (!groupX)
-    return;
+void TableDockWidget::_deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items)
+{
+    if (items.isEmpty())
+        return;
 
-  int pos = -1;
-  for (int i = 0; i < _topLevelGroups.size(); i++) {
-    if (_topLevelGroups[i].get() == groupX) {
-      pos = i;
-      break;
+    // temporarily disconnect selection trigger
+    disconnect(treeWidget,
+               &QTreeWidget::itemSelectionChanged,
+               this,
+               &TableDockWidget::showSelectedGroup);
+
+    QVector<shared_ptr<PeakGroup>> parentGroupsToDelete;
+    QMap<PeakGroup*, PeakGroup*> childGroupsToDelete;
+    for (auto item : items) {
+        if (item == nullptr)
+            continue;
+        if (item->parent() != nullptr && items.contains(item->parent()))
+            continue;
+
+        auto group = groupForItem(item);
+        if (group->parent != nullptr) {
+            childGroupsToDelete.insert(group.get(), group->parent);
+        } else {
+            parentGroupsToDelete.append(group);
+        }
     }
-  }
-  if (pos == -1)
+
+    for (auto& parentGroup : parentGroupsToDelete) {
+        if (parentGroup->childIsotopeCount() > 0)
+            _labeledGroups--;
+        if (parentGroup->hasCompoundLink())
+            _targetedGroups--;
+        _topLevelGroups.removeOne(parentGroup);
+    }
+
+    for (auto& childGroup : childGroupsToDelete.keys()) {
+        auto parentGroup = childGroupsToDelete.value(childGroup);
+        if (childGroup != nullptr && parentGroup != nullptr)
+            parentGroup->removeChild(childGroup);
+    }
+
+    // possibly the most expensive call in this whole method
+    showAllGroups();
+
+    // reconnect selection trigger
+    connect(treeWidget,
+            &QTreeWidget::itemSelectionChanged,
+            this,
+            &TableDockWidget::showSelectedGroup);
+}
+
+void TableDockWidget::deleteGroup(PeakGroup* group)
+{
+  if (group == nullptr)
     return;
 
+  QSet<QTreeWidgetItem*> itemsToDelete;
   QTreeWidgetItemIterator it(treeWidget);
   while (*it) {
     QTreeWidgetItem *item = (*it);
@@ -1277,39 +1321,18 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
       ++it;
       continue;
     }
-    shared_ptr<PeakGroup> group = groupForItem(item);
-    if (group != nullptr and group.get() == groupX) {
-      item->setHidden(true);
-
-      if (!group->childIsotopeCount() == 0)
-        _labeledGroups--;
-      if (group->hasCompoundLink())
-        _targetedGroups--;
-
-      // Deleting
-      int posTree = treeWidget->indexOfTopLevelItem(item);
-      if (posTree != -1)
-        treeWidget->takeTopLevelItem(posTree);
-
-      _topLevelGroups.erase(_topLevelGroups.begin() + pos);
+    shared_ptr<PeakGroup> itemGroup = groupForItem(item);
+    if (itemGroup != nullptr and itemGroup.get() == group) {
+      itemsToDelete.insert(item);
       break;
     }
     ++it;
   }
-
-  int groupId = 1;
-  for (auto group : _topLevelGroups) {
-      group->setGroupId(groupId++);
-      for (auto child : group->childIsotopes())
-          child->setGroupId(groupId++);
-      for (auto child : group->childAdducts())
-          child->setGroupId(groupId++);
-  }
-  updateTable();
+  _deleteItemsAndGroups(itemsToDelete);
   updateCompoundWidget();
 }
 
-bool TableDockWidget::deleteAllgroupsWarning() 
+bool TableDockWidget::deleteAllgroupsWarning()
 {
     QMessageBox *warning = new QMessageBox(this);
     bool selectedOption;
@@ -1319,7 +1342,7 @@ bool TableDockWidget::deleteAllgroupsWarning()
     htmlText += "<p>You can not undo this action.</p>";
     warning->setText(htmlText);
     warning->setIcon(QMessageBox::Icon::Warning);
-  
+
     auto noButton = warning->addButton(tr("No"),
                                   QMessageBox::RejectRole);
     auto yesButton = warning->addButton(tr("Yes"),
@@ -1330,166 +1353,37 @@ bool TableDockWidget::deleteAllgroupsWarning()
 
     if(warning->clickedButton() == yesButton)
         return true;
-    
+
     return false;
 }
 
 void TableDockWidget::deleteSelectedItems()
 {
-    // temporarily disconnect selection trigger
-    disconnect(treeWidget,
-               SIGNAL(itemSelectionChanged()),
-               this,
-               SLOT(showSelectedGroup()));
-
-    // extract selected items such that all parent items occur first
-    QList<QTreeWidgetItem*> selectedItems;
-    QTreeWidgetItem* nextItem = nullptr;
-    int topLevelItemsCount = 0;
+    QSet<QTreeWidgetItem*> selectedItems;
+    int topLevelItemsBeingDeleted = 0;
     for (auto item : treeWidget->selectedItems()) {
-        if (item->parent() == nullptr) {
-            selectedItems.prepend(item);
-            topLevelItemsCount++;
-            nextItem = treeWidget->itemBelow(item);
-            while(nextItem && nextItem->parent() != nullptr) {
-                nextItem = treeWidget->itemBelow(nextItem);
-            }
-        } else {
-            selectedItems.append(item);
-            nextItem = treeWidget->itemBelow(item);
-        }
+        selectedItems.insert(item);
+        if (item->parent() == nullptr)
+            ++topLevelItemsBeingDeleted;
     }
-    if (selectedItems.isEmpty())
-        return;
 
-    // checks if the selected item count is same as the no. of 
+    // checks if the selected item count is same as the no. of top-level
     // groups in the table.
-    if (topLevelItemsCount == topLevelGroupCount()) {
+    if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
         auto continueDeletion = deleteAllgroupsWarning();
-        if (continueDeletion) {
-          deleteAll();
-        }
-       return;
-    }
-    set<QTreeWidgetItem*> itemsToDelete;
-    set<shared_ptr<PeakGroup>> groupsToDelete;
-
-    for (auto item : selectedItems)
-    {
-        if (item == nullptr)
-            continue;
-
-        shared_ptr<PeakGroup> group = groupForItem(item);
-        if (group == nullptr)
-            continue;
-
-        auto parentGroup = group->parent;
-        if (parentGroup == nullptr){
-            if (!group->childIsotopeCount() == 0)
-                _labeledGroups--;
-            if (group->hasCompoundLink())
-                _targetedGroups--;
-            itemsToDelete.insert(item);
-            groupsToDelete.insert(group);
-        } else if (parentGroup && parentGroup->childIsotopeCount() > 0) {
-            auto parentItem = item->parent();
-            if (parentItem == nullptr)
-                continue;
-            if (itemsToDelete.count(parentItem) > 0
-                || itemsToDelete.count(item) > 0) {
-                continue;
-            }
-
-            if (!parentGroup->removeChild(group.get())) {
-                group.reset();
-                continue;
-            }
-
-            itemsToDelete.insert(item);
-
-            // once a child is deleted, the pointers storing the
-            // location of memory blocks of child `PeakGroup`
-            // objects, may no longer be valid, therefore we
-            // update them.
-            for (int i = 0; i < parentItem->childCount(); ++i) {
-                QTreeWidgetItem* child = parentItem->child(i);
-                if (!child)
-                    continue;
-
-                auto name = child->text(1).toStdString();
-                auto childGroupIter =
-                    find_if(begin(parentGroup->childIsotopes()),
-                            end(parentGroup->childIsotopes()),
-                            [&](shared_ptr<PeakGroup> g) {
-                                return g->getName() == name;
-                            });
-                if (childGroupIter != end(parentGroup->childIsotopes())) {
-                    auto& childGroup = *childGroupIter;
-                    child->setData(0,
-                                   Qt::UserRole,
-                                   QVariant::fromValue(childGroup));
-                }
-            }
-        }
+        if (continueDeletion)
+            deleteAll();
+        return;
     }
 
-    if (!groupsToDelete.empty()) {
-        _topLevelGroups.erase(remove_if(begin(_topLevelGroups),
-                                        end(_topLevelGroups),
-                                        [groupsToDelete](shared_ptr<PeakGroup> g) {
-                                            return groupsToDelete.count(g) > 0;
-                                        }),
-                              end(_topLevelGroups));
-    }
-
-    // reconnect selection trigger
-    connect(treeWidget,
-            SIGNAL(itemSelectionChanged()),
-            this,
-            SLOT(showSelectedGroup()));
-
-    if(nextItem){
-        treeWidget->setCurrentItem(nextItem);
-    }
-
-    /* Disconnecting selection trigger as while deleting item from
-     * tree widget selection changes and might give some null pointer
-     * for setting group which causes segment fault */
-    disconnect(treeWidget,
-               SIGNAL(itemSelectionChanged()),
-               this,
-               SLOT(showSelectedGroup()));
-    Q_FOREACH (QTreeWidgetItem* item, itemsToDelete) {
-        if(item)
-            delete(item);
-    }
-    connect(treeWidget,
-            SIGNAL(itemSelectionChanged()),
-            this,
-            SLOT(showSelectedGroup()));
-
-    auto groupSelected = getSelectedGroup();
-    showAllGroups();
+    _deleteItemsAndGroups(selectedItems);
 
     if (_topLevelGroups.empty()) {
         _mainwindow->getEicWidget()->replot(nullptr);
         _mainwindow->ligandWidget->resetColor();
         _mainwindow->removePeaksTable(this);
-        return;
     }
-
-    QTreeWidgetItemIterator it(treeWidget);
-    while (*it) {
-        QTreeWidgetItem *item = (*it);
-        shared_ptr<PeakGroup> currentGroup = groupForItem(item);
-        if (currentGroup == groupSelected) {
-            treeWidget->setCurrentItem(item);
-            break;
-        }
-        it++;
-    }
-
-    return;
+    updateCompoundWidget();
 }
 
 void TableDockWidget::setClipboard() {
@@ -2760,77 +2654,25 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
   return false;
 }
 
-void BookmarkTableDockWidget::deleteGroup(PeakGroup *groupX) {
-  if (!groupX)
-    return;
-
-  int pos = -1;
-  for (int i = 0; i < _topLevelGroups.size(); ++i) {
-    auto group = _topLevelGroups[i];
-    if (group.get() == groupX) {
-      pos = i;
-      break;
-    }
-  }
-  if (pos == -1)
-    return;
-
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    QTreeWidgetItem *item = (*it);
-    if (item->isHidden()) {
-      ++it;
-      continue;
-    }
-    shared_ptr<PeakGroup> group = groupForItem(item);
-    if (group != nullptr and group.get() == groupX) {
-        item->setHidden(true);
-
-    if (!group->childIsotopeCount() == 0)
-      _labeledGroups--;
-    if (group->getCompound())
-      _targetedGroups--;
-
-      	// Deleting
-        int posTree = treeWidget->indexOfTopLevelItem(item);
-        if (posTree != -1)
-    		treeWidget->takeTopLevelItem(posTree);
-
-        /**
-         * delete name of compound associated with this group stored in
-         * <sameMzRtGroups> with given mz and rt
-        */
-        int intMz = group->meanMz * 1e5;
-        int intRt = group->meanRt * 1e5;
-        QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-        QString compoundName = QString::fromStdString(groupX->getName());
-        if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-        	for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
-            	 ++i)
-			{
-            	if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-            	sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-            	break;
-          	}
-        }
+void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
+{
+  /**
+   * delete name of compound associated with this group stored in
+   * <sameMzRtGroups> with given mz and rt
+   */
+  int intMz = group->meanMz * 1e5;
+  int intRt = group->meanRt * 1e5;
+  QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+  QString compoundName = QString::fromStdString(group->getName());
+  if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+      for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
+          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+              sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+              break;
+          }
       }
-
-      _topLevelGroups.erase(_topLevelGroups.begin() + pos);
-      break;
-    }
-    ++it;
   }
-
-  int groupId = 1;
-  for (auto group : _topLevelGroups) {
-    group->setGroupId(groupId++);
-    for (auto child : group->childIsotopes())
-        child->setGroupId(groupId++);
-    for (auto child : group->childAdducts())
-        child->setGroupId(groupId++);
-  }
-  updateTable();
-  updateCompoundWidget();
+  TableDockWidget::deleteGroup(group);
 }
 
 void BookmarkTableDockWidget::markGroupGood() {
