@@ -115,5 +115,9 @@
         <file>images/exportmsp.png</file>
         <file>images/editPeakGroup.png</file>
         <file>images/settingsLog.png</file>
+        <file>fonts/SourceSansPro/SourceSansPro-Bold.ttf</file>
+        <file>fonts/SourceSansPro/SourceSansPro-Italic.ttf</file>
+        <file>fonts/SourceSansPro/SourceSansPro-Light.ttf</file>
+        <file>fonts/SourceSansPro/SourceSansPro-Regular.ttf</file>
     </qresource>
 </RCC>

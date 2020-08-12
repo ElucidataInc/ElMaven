@@ -27,6 +27,7 @@
 #include "mzfileio.h"
 #include "controller.h"
 #include "elmavenlogger.h"
+#include "phantomstyle.h"
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
@@ -72,13 +73,109 @@ void initializeLogger()
     ElMavenLogger::init(path.toStdString());
 }
 
+enum ThemeType : int {
+    ElMavenLight = 0,
+    ElMavenDark = 1,
+};
+
+QPalette namedColorSchemePalette(ThemeType x) {
+    struct ThemeColors {
+        QColor window;
+        QColor text;
+        QColor disabledText;
+        QColor brightText;
+        QColor highlight;
+        QColor highlightedText;
+        QColor base;
+        QColor alternateBase;
+        QColor shadow;
+        QColor button;
+        QColor disabledButton;
+        QColor tooltip;
+        QColor tooltipText;
+    };
+
+    auto themeColorsToPalette = [](const ThemeColors& x) -> QPalette {
+        QPalette pal;
+        pal.setColor(QPalette::Window, x.window);
+        pal.setColor(QPalette::WindowText, x.text);
+        pal.setColor(QPalette::Text, x.text);
+        pal.setColor(QPalette::ButtonText, x.text);
+        if (x.brightText.isValid())
+            pal.setColor(QPalette::BrightText, x.brightText);
+        pal.setColor(QPalette::Disabled, QPalette::WindowText, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::Text, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::ButtonText, x.disabledText);
+        pal.setColor(QPalette::Base, x.base);
+        pal.setColor(QPalette::AlternateBase, x.alternateBase);
+        if (x.shadow.isValid())
+            pal.setColor(QPalette::Shadow, x.shadow);
+        pal.setColor(QPalette::Button, x.button);
+        pal.setColor(QPalette::Highlight, x.highlight);
+        pal.setColor(QPalette::HighlightedText, x.highlightedText);
+        if (x.disabledButton.isValid())
+            pal.setColor(QPalette::Disabled, QPalette::Button, x.disabledButton);
+        pal.setColor(QPalette::ToolTipBase, x.tooltip);
+        pal.setColor(QPalette::ToolTipText, x.tooltipText);
+        // Used as the shadow text color on disabled menu items
+        pal.setColor(QPalette::Disabled, QPalette::Light, Qt::transparent);
+        return pal;
+    };
+
+    ThemeColors c;
+    switch (x) {
+    case ElMavenLight: {
+        QColor base(0xffffff);
+        QColor highlight(0xe3daff);
+        QColor bright(0xffffff);
+        QColor lessBright(0xf4f4f4);
+        QColor button(0xfafafa);
+        QColor text(0x141414);
+        QColor disabledText(0x9a9a9a);
+        c.window = bright;
+        c.highlight = highlight;
+        c.highlightedText = text;
+        c.base = base;
+        c.alternateBase = lessBright;
+        c.button = button;
+        c.text = text;
+        c.disabledText = disabledText;
+        c.tooltip = Qt::black;
+        c.tooltipText = Qt::white;
+        break;
+    }
+    case ElMavenDark: {
+        // TODO: maybe someday :)
+        break;
+    }
+    }
+    return themeColorsToPalette(c);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     qApp->setOrganizationName("ElucidataInc");
     qApp->setApplicationName("El-Maven");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
-    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps);
+    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+
+    // set application-wide style
+    qApp->setStyle(new PhantomStyle);
+    qApp->setPalette(namedColorSchemePalette(ElMavenLight));
+
+    // set application-wide font
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Light.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+    QFont interfaceFont("Source Sans Pro");
+    interfaceFont.setPixelSize(14);
+    qApp->setFont(interfaceFont);
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG

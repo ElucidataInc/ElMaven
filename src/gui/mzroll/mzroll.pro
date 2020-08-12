@@ -1,4 +1,5 @@
 include($$mac_compiler)
+include($$top_srcdir/3rdParty/phantomstyle/src/phantom/phantom.pri)
 
 MOC_DIR=$$top_builddir/tmp/mzroll/
 OBJECTS_DIR=$$top_builddir/tmp/mzroll/

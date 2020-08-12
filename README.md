@@ -170,10 +170,10 @@ export SENTRY_DSN_BASE64=`echo $SENTRY_DSN | base64`
 
 
 ### <a name=source-code></a> Getting the source code
-Switch to a directory to where you want the code and then clone this repo:
+Switch to a directory to where you want the code and then clone this repo (including submodules) using:
 ```
 cd <path/to/work/>
-git clone https://github.com/ElucidataInc/ElMaven.git
+git clone --recursive https://github.com/ElucidataInc/ElMaven.git
 ```
 
 
