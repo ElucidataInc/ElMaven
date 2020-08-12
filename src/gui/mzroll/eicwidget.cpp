@@ -245,9 +245,9 @@ void EicWidget::setFocusLine(float rt) {
 	if (_focusLine->scene() != scene())
 		scene()->addItem(_focusLine);
 
-	QPen pen(Qt::red, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen pen(Qt::red, 2, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
 	_focusLine->setPen(pen);
-	_focusLine->setLine(toX(rt), 0, toX(rt), height());
+    _focusLine->setLine(toX(rt), toY(_minY), toX(rt), toY(_maxY));
 }
 
 void EicWidget::setScan(Scan* scan) {
@@ -259,16 +259,20 @@ void EicWidget::setScan(Scan* scan) {
 
 }
 
-void EicWidget::_drawSelectionLine(float rtMin, float rtMax) {
-    if (_selectionLine == nullptr)
-        _selectionLine = new QGraphicsLineItem(nullptr);
-    if (_selectionLine->scene() != scene())
-        scene()->addItem(_selectionLine);
+void EicWidget::_drawSelectionLine(float rtMin, float rtMax)
+{
+    if (rtMin >= _maxX || rtMax <= _minX)
+        return;
 
     if (rtMin < _minX)
         rtMin = _minX;
     if (rtMax > _maxX)
         rtMax = _maxX;
+
+    if (_selectionLine == nullptr)
+        _selectionLine = new QGraphicsLineItem(nullptr);
+    if (_selectionLine->scene() != scene())
+        scene()->addItem(_selectionLine);
 
     QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
     _selectionLine->setPen(pen);
@@ -1079,8 +1083,8 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);
     } else {
         addEICLines(_showSpline, _showEIC);
+        showAllPeaks();
     }
-	showAllPeaks();
 
         if (group && group->getCompound() != NULL && group->getCompound()->expectedRt() > 0)
                         _focusLineRt = group->getCompound()->expectedRt();
@@ -1329,7 +1333,7 @@ void EicWidget::addParentRtLine(shared_ptr<PeakGroup> group)
         float y1 = toY(_minY);
         float y2 = toY(_maxY);
 
-        QPen bluePen(Qt::blue, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        QPen bluePen(Qt::blue, 2, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
         QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
         focusLine->setPen(bluePen);
         focusLine->setLine(rt, y1, rt, y2);
@@ -1956,6 +1960,7 @@ void EicWidget::selectGroupNearRt(float rt) {
     if (selGroup != nullptr) {
         auto sharedGroup = make_shared<PeakGroup>(*selGroup);
         setSelectedGroup(sharedGroup);
+        addPeakPositions(sharedGroup);
 	}
 }
 

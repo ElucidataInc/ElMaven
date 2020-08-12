@@ -101,7 +101,7 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
 	clearWidget();
     _mw->isotopePlot->clear();
 
-    if (group == nullptr || !group->hasCompoundLink())
+    if (group == nullptr)
 		return;
 
     // set compound, formula, window title
@@ -109,7 +109,7 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
         && group->parent != nullptr
         && group->parent->isGhost()) {
         return; // for now we ignore ghost parent-groups
-    } else if (group->isIsotope() && group->parent != nullptr) {
+    } else if (group->isIsotope() && group->parent != nullptr && !bookmark) {
         isotopeParameters->_group = make_shared<PeakGroup>(*(group->parent));
     } else {
         isotopeParameters->_group = make_shared<PeakGroup>(*group);
@@ -119,7 +119,9 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
 
     // TODO: move bookmarking functionality out of isotopeWidget
     if (bookmark) {
-        if (group->isIsotope() || group->isAdduct()) {
+        if (!group->hasCompoundLink()
+            || group->isIsotope()
+            || group->isAdduct()) {
             // Note: this group is not actually a parent group
             workerThread->setParentGroup(isotopeParameters->_group);
             bookmarkCurrentGroup();
@@ -127,8 +129,9 @@ void IsotopeWidget::setPeakGroupAndMore(shared_ptr<PeakGroup> group,
             pullIsotopes(isotopeParameters->_group);
         }
     } else {
-        if (group->isAdduct())
-            return; // we do not pull isotopes for non-parent adducts
+        // we cannot not pull isotopes for mass features or non-parent adducts
+        if (!group->hasCompoundLink() || group->isAdduct())
+            return;
 
         // select first sample if no peak or sample is selected
         if (_selectedSample == nullptr) {
