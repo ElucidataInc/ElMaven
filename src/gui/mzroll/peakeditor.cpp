@@ -332,11 +332,19 @@ void PeakEditor::_applyEdits()
     }
 
     // lambda: edits peak regions and recalculates a group's statistics
-    auto editGroup = [this](PeakGroup* group, vector<EIC*>& eics) {
+    auto editGroup = [this](PeakGroup* group,
+                            vector<EIC*>& eics,
+                            bool isIsotopologue = false) {
         for (auto& elem : _setPeakRegions) {
             auto sample = elem.first;
             auto rtMin = elem.second.first;
             auto rtMax = elem.second.second;
+
+            // for isotopes being readjusted because of the "sync" feature,
+            // check if there is a range worth syncing with
+            if (isIsotopologue && rtMin < 0.0f && rtMax < 0.0f)
+                return;
+
             _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
         }
         group->updateQuality();
@@ -376,10 +384,10 @@ void PeakEditor::_applyEdits()
         }
 
         auto eics = getEicsForGroup(parentGroup);
-        editGroup(parentGroup, eics);
+        editGroup(parentGroup, eics, (parentGroup != _group.get()));
         for (auto child : parentGroup->childIsotopes()) {
             eics = getEicsForGroup(child.get());
-            editGroup(child.get(), eics);
+            editGroup(child.get(), eics, (child != _group));
         }
     } else {
         mp->linkIsotopeRtRange = false;
