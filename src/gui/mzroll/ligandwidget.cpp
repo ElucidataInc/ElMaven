@@ -121,6 +121,13 @@ LigandWidget::LigandWidget(MainWindow* mw)
     while (i.hasNext())
         databaseSelect->addItem(i.next());
 
+    connect(this,
+            &LigandWidget::mzrollSetDB,
+            this,
+            [this](QString dbName) {
+                setDatabaseNames();
+                setDatabase(dbName);
+            });
     connect(databaseSelect,
             SIGNAL(currentIndexChanged(QString)),
             this,
@@ -243,11 +250,20 @@ void LigandWidget::setDatabase(QString dbname, bool insertIsotopesAndAdducts)
     int index = databaseSelect->findText(dbname, Qt::MatchExactly);
     if (index == -1 && databaseSelect->count() > 0)
         index = 0;
+
+    disconnect(databaseSelect,
+               SIGNAL(currentIndexChanged(QString)),
+               this,
+               SLOT(setDatabase(QString)));
     if (index != -1) {
         databaseSelect->setCurrentIndex(index);
         _mw->fileLoader->insertSettingForSave("mainWindowSelectedDbName",
                                               variant(dbname.toStdString()));
     }
+    connect(databaseSelect,
+            SIGNAL(currentIndexChanged(QString)),
+            this,
+            SLOT(setDatabase(QString)));
 
     auto dbName = getDatabaseName();
     auto dbPath = _mw->getLibraryManager()->filePathForDatabase(dbName);
@@ -429,7 +445,6 @@ void LigandWidget::showTable(bool insertIsotopesAndAdducts)
             ++numCompoundsWithNotes;
         }
     }
-    QApplication::processEvents();
 
     treeWidget->setColumnWidth(0, 250);
     treeWidget->resizeColumnToContents(2);
@@ -593,11 +608,12 @@ void LigandWidget::updateIsotopesAndAdducts()
     QTreeWidgetItemIterator itr(treeWidget);
     while (*itr) {
         QTreeWidgetItem* item = (*itr);
-        if (item->parent() == nullptr && item->childCount() > 0)
-            item->takeChildren();
+        if (item->parent() == nullptr && item->childCount() > 0) {
+            foreach (item, item->takeChildren())
+                delete item;
+        }
         ++itr;
     }
-    QApplication::processEvents();
 
     Adduct* defaultAdduct = _mw->adductWidget->defaultAdduct();
     for (auto compound : compoundsHash.keys()) {
