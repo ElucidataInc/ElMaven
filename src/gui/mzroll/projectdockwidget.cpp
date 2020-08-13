@@ -61,6 +61,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     style += "QToolBar { background:    white;               }";
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
     toolBar->setStyleSheet(style);
 
     QToolButton* exportMetadataButton = new QToolButton(toolBar);
@@ -147,7 +148,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(_treeWidget);
-    layout->setSpacing(6);
+    layout->setSpacing(8);
     window->setLayout(layout);
 
     setTitleBarWidget(toolBar);

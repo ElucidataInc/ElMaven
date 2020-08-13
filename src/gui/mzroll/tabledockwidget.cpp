@@ -2075,6 +2075,7 @@ void TableDockWidget::setDefaultStyle(bool isActive)
     style += "QToolBar     { background:    white;               }";
     style += "QToolBar     { border:        none;                }";
     style += "QToolBar     { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
     style += "QTreeView    { border:        none;                }";
     if (isActive) {
         style += "QToolBar { background:    #ebeafa;             }";

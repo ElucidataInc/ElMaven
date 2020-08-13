@@ -460,6 +460,7 @@ void TreeDockWidget::setQQQToolBar() {
     style += "QToolBar { background:    white;               }";
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
     toolBar->setStyleSheet(style);
 
     amuQ1 = new QDoubleSpinBox(toolBar);

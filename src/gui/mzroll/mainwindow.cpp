@@ -125,6 +125,91 @@ QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
 }
 
+QPalette namedColorSchemePalette(ThemeType x) {
+    struct ThemeColors {
+        QColor window;
+        QColor text;
+        QColor disabledText;
+        QColor brightText;
+        QColor highlight;
+        QColor highlightedText;
+        QColor base;
+        QColor alternateBase;
+        QColor light;
+        QColor mid;
+        QColor dark;
+        QColor shadow;
+        QColor button;
+        QColor disabledButton;
+        QColor tooltip;
+        QColor tooltipText;
+    };
+
+    auto themeColorsToPalette = [](const ThemeColors& x) -> QPalette {
+        QPalette pal;
+        pal.setColor(QPalette::Window, x.window);
+        pal.setColor(QPalette::WindowText, x.text);
+        pal.setColor(QPalette::Text, x.text);
+        pal.setColor(QPalette::ButtonText, x.text);
+        if (x.brightText.isValid())
+            pal.setColor(QPalette::BrightText, x.brightText);
+        pal.setColor(QPalette::Disabled, QPalette::WindowText, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::Text, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::ButtonText, x.disabledText);
+        pal.setColor(QPalette::Base, x.base);
+        pal.setColor(QPalette::AlternateBase, x.alternateBase);
+        if (x.shadow.isValid())
+            pal.setColor(QPalette::Shadow, x.shadow);
+        pal.setColor(QPalette::Button, x.button);
+        pal.setColor(QPalette::Highlight, x.highlight);
+        pal.setColor(QPalette::HighlightedText, x.highlightedText);
+        if (x.disabledButton.isValid())
+            pal.setColor(QPalette::Disabled, QPalette::Button, x.disabledButton);
+        pal.setColor(QPalette::Light, x.light);
+        pal.setColor(QPalette::Mid, x.mid);
+        pal.setColor(QPalette::Dark, x.dark);
+        pal.setColor(QPalette::ToolTipBase, x.tooltip);
+        pal.setColor(QPalette::ToolTipText, x.tooltipText);
+        // Used as the shadow text color on disabled menu items
+        pal.setColor(QPalette::Disabled, QPalette::Light, Qt::transparent);
+        return pal;
+    };
+
+    ThemeColors c;
+    switch (x) {
+    case ElMavenLight: {
+        QColor base(0xffffff);
+        QColor highlight(0xe3daff);
+        QColor bright(0xffffff);
+        QColor lessBright(0xf4f4f4);
+        QColor button(0xfafafa);
+        QColor text(0x141414);
+        QColor disabledText(0x9a9a9a);
+        QColor light(0xebe9fa);
+        QColor medium(0xa190da);
+        QColor dark(0x6a53b3);
+        c.window = bright;
+        c.highlight = highlight;
+        c.highlightedText = text;
+        c.base = base;
+        c.alternateBase = lessBright;
+        c.button = button;
+        c.light = light.lighter(105);
+        c.mid = medium;
+        c.dark = dark;
+        c.text = text;
+        c.disabledText = disabledText;
+        c.tooltip = Qt::black;
+        c.tooltipText = Qt::white;
+        break;
+    }
+    case ElMavenDark: {
+        // TODO: maybe someday :)
+        break;
+    }
+    }
+    return themeColorsToPalette(c);
+}
 
 void MainWindow::setValue(int value)
 {
@@ -170,9 +255,20 @@ using namespace mzUtils;
 	qRegisterMetaType<UserNote*>("UserNote*");
 	//qRegisterMetaTypeStreamOperators<UserNote*>("UserNote*");
 
-	qRegisterMetaType<QTextCursor>("QTextCursor");
+    qRegisterMetaType<QTextCursor>("QTextCursor");
 
+    QString styleSheet = "";
+    styleSheet += "QMainWindow::separator { background: lightgray; }";
+    styleSheet += "QMainWindow::separator { width: 1px; }";
+    styleSheet += "QMainWindow::separator { border: none; }";
 
+    styleSheet += "QCheckBox::indicator { width: 16px; height: 16px; }";
+    styleSheet += "QGroupBox::indicator { width: 16px; height: 16px; }";
+    styleSheet += "QTreeView::indicator { width: 14px; height: 14px; }";
+
+    styleSheet += "QComboBox { padding: 1px 6px 1px 6px; }";
+
+    setStyleSheet(styleSheet);
 
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
@@ -289,9 +385,13 @@ using namespace mzUtils;
 	setWindowIcon(QIcon(":/images/icon.png"));
 
 	//dock widgets
-	setDockOptions(
-			QMainWindow::AllowNestedDocks | QMainWindow::VerticalTabs
-					| QMainWindow::AnimatedDocks);
+    setDockOptions(QMainWindow::AllowNestedDocks
+                   | QMainWindow::AllowTabbedDocks
+                   | QMainWindow::AnimatedDocks);
+    setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::RightDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::BottomDockWidgetArea, QTabWidget::North);
 
 	//set main dock widget
 	eicWidget = new EicWidget(this);
@@ -444,11 +544,9 @@ using namespace mzUtils;
     vidPlayer = new VideoPlayer(settings, this, nullptr);
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
-	addDockWidget(Qt::LeftDockWidgetArea, pathwayPanel, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, projectDockWidget, Qt::Vertical);
 
 	ligandWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
-	pathwayPanel->setAllowedAreas(Qt::LeftDockWidgetArea);
 	projectDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
@@ -469,11 +567,6 @@ using namespace mzUtils;
 			Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea,peptideFragmentation,Qt::Horizontal);
 
-	//addDockWidget(Qt::BottomDockWidgetArea,peaksPanel,Qt::Horizontal);
-	//addDockWidget(Qt::BottomDockWidgetArea,treeMapDockWidget,Qt::Horizontal);
-	//addDockWidget(Qt::BottomDockWidgetArea,heatMapDockWidget,Qt::Horizontal);
-
-	tabifyDockWidget(ligandWidget, pathwayPanel);
 	tabifyDockWidget(ligandWidget, projectDockWidget);
 
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
@@ -1290,32 +1383,38 @@ void MainWindow::setUserMassCutoff(double x)
     mavenParameters->compoundMassCutoffWindow->setMassCutoff(x);
 }
 
-void MainWindow::setIonizationModeLabel() {
+void MainWindow::setIonizationModeLabel()
+{
+    QString ionMode = settingsForm->ionizationMode->currentText();
 
-	QString ionMode = settingsForm->ionizationMode->currentText();
+    MavenParameters::Polarity polarity;
+    if (ionMode.contains("Positive")) {
+        polarity = MavenParameters::Positive;
+    } else if (ionMode.contains("Negative")) {
+        polarity = MavenParameters::Negative;
+    } else if (ionMode.contains("Neutral")) {
+        polarity = MavenParameters::Neutral;
+    } else {
+        polarity = MavenParameters::AutoDetect;
+    }
 
-	MavenParameters::Polarity polarity;
-	if(ionMode.contains("Positive")) polarity=MavenParameters::Positive;
-	else if (ionMode.contains("Negative")) polarity=MavenParameters::Negative;
-	else if(ionMode.contains("Neutral")) polarity=MavenParameters::Neutral;
-	else polarity=MavenParameters::AutoDetect;
+    mavenParameters->setIonizationMode(polarity);
 
-	mavenParameters->setIonizationMode(polarity);
+    int mode = getIonizationMode();
+    if (polarity == MavenParameters::AutoDetect) {
+        if (mode < 0) {
+            ionMode += " (negative)";
+        } else if (mode > 0) {
+            ionMode += " (positive)";
+        }
+    }
 
-	int mode=getIonizationMode();
-	if(polarity==MavenParameters::AutoDetect ){
-		QString polarityLabel=QString::number(mode);
-		if(mode==1) polarityLabel="+1";
-		ionMode=ionMode+"("+polarityLabel+")";
-	}
-	
-	ionizationModeLabel->setText(ionMode);
+    ionizationModeLabel->setText(ionMode);
 
     isotopeWidget->setCharge(mode);
     adductWidget->selectAdductsForCurrentPolarity();
-	setTotalCharge();
+    setTotalCharge();
 }
-
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
 
@@ -3168,19 +3267,13 @@ void MainWindow::createToolBars() {
     style += "QToolBar { background:    white;               }";
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px 0 2px 2px; }";
     toolBar->setStyleSheet(style);
     
-    QString tooltipStyle = "QToolTip {"
-                           " color: #000000;"
-                           " background-color: #fbfbd5;"
-                           " border: 1px solid black;"
-                           " padding: 1px;"
-                           "}";
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
 	btnOpen->setIcon(QIcon(rsrcPath + "/fileopen.png"));
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnOpen->setStyleSheet(tooltipStyle);
     btnOpen->setToolTip(tr("Import samples or projects"));
 
     connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
@@ -3189,35 +3282,30 @@ void MainWindow::createToolBars() {
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
     btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnAlign->setStyleSheet(tooltipStyle);
     btnAlign->setToolTip(tr("Peak alignment settings"));
 
     QToolButton *btnIsotope = new QToolButton(toolBar);
     btnIsotope->setText("Isotopes");
     btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
     btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnIsotope->setStyleSheet(tooltipStyle);
     btnIsotope->setToolTip(tr("Isotope detection settings"));
 
     QToolButton *btnAdducts = new QToolButton(toolBar);
     btnAdducts->setText("Adducts");
     btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
     btnAdducts->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnAdducts->setStyleSheet(tooltipStyle);
     btnAdducts->setToolTip("Adduct detection settings");
 
 	QToolButton *btnFeatureDetect = new QToolButton(toolBar);
 	btnFeatureDetect->setText("Peaks");
 	btnFeatureDetect->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
     btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnFeatureDetect->setStyleSheet(tooltipStyle);
     btnFeatureDetect->setToolTip(tr("Peak detection and group filtering settings"));
 
 	QToolButton *btnPollyBridge = new QToolButton(toolBar);
     btnPollyBridge->setText("Polly™");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
     btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnPollyBridge->setStyleSheet(tooltipStyle);
     btnPollyBridge->setToolTip(tr("Send peaks to Polly™ to store, collaborate, "
                                   "analyse and visualise your data"));
 
@@ -3225,7 +3313,6 @@ void MainWindow::createToolBars() {
 	btnSettings->setText("Options");
 	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
     btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnSettings->setStyleSheet(tooltipStyle);
     btnSettings->setToolTip(tr("1. Instrumentation: ionization settings\n"
                                "2. File import: scan filter settings\n"
                                "3. Peak detection: EIC smoothing and baseline "
@@ -3243,12 +3330,6 @@ void MainWindow::createToolBars() {
     btnInfo->setText("Support");
     btnInfo->setIcon(QIcon(rsrcPath + "/support.png"));
     btnInfo->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnInfo->setStyleSheet("QToolTip {"
-                           "color: #000000;"
-                           "background-color: #fbfbd5;"
-                           "border: 1px solid black;"
-                           "padding: 1px;"
-                           "}");
     btnInfo->setToolTip(tr("Documentaion, information and technical "
                            "support for El-MAVEN."));
 
@@ -3274,37 +3355,97 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnPollyBridge);
     toolBar->addWidget(btnInfo);
 
-	QWidget *hBox = new QWidget(toolBar);
-	(void) toolBar->addWidget(hBox);
+    QWidget* spacer = new QWidget(toolBar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    toolBar->addWidget(spacer); // spacer
 
-	QHBoxLayout *layout = new QHBoxLayout(hBox);
-	layout->setSpacing(0);
-	layout->addWidget(new QWidget(hBox), 15); // spacer
+    // ========== now the right side of the main toolbar ==========
 
-	massCutoffComboBox=  new QComboBox(hBox);
+    QWidget *ionizationBox = new QWidget(toolBar);
+    QHBoxLayout *ionizationLayout = new QHBoxLayout(ionizationBox);
+
+    ionizationModeLabel = new QLabel(ionizationBox);
+    ionizationModeLabel->setToolTip("Ionization mode");
+    QString ionizationStyle = "";
+    ionizationStyle += "QLabel { margin: 2px 0; }";
+    ionizationStyle += "QLabel { padding: 0 4px; }";
+    ionizationStyle += "QLabel { border: 1px solid %1; }";
+    ionizationStyle += "QLabel { border-radius: 4px; }";
+    ionizationStyle += "QLabel { background: %2; }";
+    QColor border = namedColorSchemePalette(ElMavenLight).dark().color();
+    ionizationStyle = ionizationStyle.arg(border.name(QColor::HexRgb));
+    QColor background = namedColorSchemePalette(ElMavenLight).light().color();
+    ionizationStyle = ionizationStyle.arg(background.name(QColor::HexRgb));
+    ionizationModeLabel->setStyleSheet(ionizationStyle);
+
+    ionChargeBox = new QSpinBox(ionizationBox);
+    connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
+    ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
+
+    ionizationLayout->setSpacing(6);
+    ionizationLayout->addWidget(ionizationModeLabel, 0);
+    ionizationLayout->addWidget(new QLabel("Charge", ionizationBox), 0);
+    ionizationLayout->addWidget(ionChargeBox, 0);
+
+    toolBar->addWidget(ionizationBox);
+    toolBar->addSeparator();
+
+    quantType = new QComboBox(toolBar);
+    quantType->addItem("AreaTop");
+    quantType->addItem("Area");
+    quantType->addItem("Height");
+    quantType->addItem("AreaNotCorrected");
+    quantType->addItem("AreaTopNotCorrected");
+    quantType->addItem("Retention Time");
+    quantType->addItem("Quality");
+    quantType->setToolTip("Peak Quantitation Type");
+    connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
+    connect(quantType,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(refreshIntensities()));
+    connect(quantType,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            isotopeWidget,
+            &IsotopeWidget::refreshTable);
+    fileLoader->insertSettingForSave("mainWindowPeakQuantitation", variant(0));
+    QString quantTypeStyle = "";
+    quantTypeStyle += "QComboBox { margin: 0 8px 0 8px; }";
+    quantType->setStyleSheet(quantTypeStyle);
+
+    toolBar->addWidget(quantType);
+    toolBar->addSeparator();
+
+    QWidget *massBox = new QWidget(toolBar);
+    QHBoxLayout *massLayout = new QHBoxLayout(massBox);
+
+    massCutoffComboBox=  new QComboBox(massBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
-	massCutoffComboBox->setToolTip("mass cutoff unit");
-	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
+    massCutoffComboBox->setToolTip("Mass cut-off unit");
+    connect(massCutoffComboBox,
+            SIGNAL(currentIndexChanged(QString)),
+            this,
+            SLOT(setMassCutoffType(QString)));
 
-    /* note: on changing mass cut off type from mainwindow, it's important that it's also changed in peaks dialog */
-    connect(massCutoffComboBox, &QComboBox::currentTextChanged, peakDetectionDialog, &PeakDetectionDialog::setMassCutoffType);
+    // note: on changing mass cut off type from mainwindow, it's important that
+    // it's also changed in peaks dialog
+    connect(massCutoffComboBox,
+            &QComboBox::currentTextChanged,
+            peakDetectionDialog,
+            &PeakDetectionDialog::setMassCutoffType);
 
     //ppmValue
-    massCutoffWindowBox = new QDoubleSpinBox(hBox);
+    massCutoffWindowBox = new QDoubleSpinBox(massBox);
     massCutoffWindowBox->setRange(0.00, 100000.0);
-    massCutoffWindowBox->setDecimals(6);
+    massCutoffWindowBox->setDecimals(4);
     massCutoffWindowBox->setSingleStep(0.5);
-    massCutoffWindowBox->setToolTip("Mass Cut-off Unit");
-    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
-    // 		SLOT(setUserPPM(double)));
-    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
-    // 		SLOT(setPPM(double)));
+    massCutoffWindowBox->setToolTip("Mass cut-off value");
     connect(massCutoffWindowBox,
             SIGNAL(valueChanged(double)),
             this,
             SLOT(setUserMassCutoff(double)));
-    void (QDoubleSpinBox::* doubleChanged)(double) = &QDoubleSpinBox::valueChanged;
+    void (QDoubleSpinBox::* doubleChanged)(double) =
+        &QDoubleSpinBox::valueChanged;
     connect(massCutoffWindowBox,
             doubleChanged,
             [=] (double value) {
@@ -3316,11 +3457,15 @@ void MainWindow::createToolBars() {
     peakDetectionDialog->compoundPPMWindow->setValue(initMassCutoff);
     mavenParameters->compoundMassCutoffWindow->setMassCutoff(initMassCutoff);
 
-    searchText = new QLineEdit(hBox);
+    searchText = new QLineEdit(massBox);
     searchText->setMinimumWidth(100);
-    searchText->setPlaceholderText("MW / Compound");   
-    searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b> <br> MRM: <b>precursorMz-productMz</b> <br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
+    searchText->setPlaceholderText("MW / Compound");
+    searchText->setToolTip("<b>Text search avaialable as:-</b> "
+                           "<br> compound names: <b>ATP</b> "
+                           "<br> formulas: <b>C6H10*</b>"
+                           "<br> transitions: <b>precursor-mz/product-mz</b> ");
     searchText->setObjectName(QString::fromUtf8("searchText"));
+    searchText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     searchText->setShortcutEnabled(true);
     connect(searchText,
             &QLineEdit::returnPressed,
@@ -3351,52 +3496,21 @@ void MainWindow::createToolBars() {
 			SLOT(setPathwayFocus(Pathway*)));
 	connect(ligandWidget, SIGNAL(databaseChanged(QString)), suggestPopup,
 			SLOT(setDatabase(QString)));
-	layout->addSpacing(10);
 
-	ionizationModeLabel = new QLabel(hBox);
-	ionizationModeLabel->setToolTip("Ionization Mode");
-	ionizationModeLabel->setFrameShape(QFrame::Panel);
-	ionizationModeLabel->setFrameShadow(QFrame::Raised);
+    massLayout->setSpacing(2);
+    massLayout->addWidget(new QLabel("m/z", massBox), 0);
+    massLayout->addWidget(searchText, 0);
+    massLayout->addWidget(new QLabel("+/-", 0, 0));
+    massLayout->addWidget(massCutoffWindowBox, 0);
+    massLayout->addWidget(massCutoffComboBox, 0);
 
-    ionChargeBox = new QSpinBox(hBox);
-    connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
-    ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
-
-    quantType = new QComboBox(hBox);
-    quantType->addItem("AreaTop");
-    quantType->addItem("Area");
-    quantType->addItem("Height");
-    quantType->addItem("AreaNotCorrected");
-    quantType->addItem("AreaTopNotCorrected");
-    quantType->addItem("Retention Time");
-    quantType->addItem("Quality");
-    quantType->setToolTip("Peak Quantitation Type");
-    connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
-    connect(quantType,
-            SIGNAL(currentIndexChanged(int)),
-            SLOT(refreshIntensities()));
-    connect(quantType,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            isotopeWidget,
-            &IsotopeWidget::refreshTable);
-    fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
-                                     variant(0));
+    toolBar->addWidget(massBox);
 
     settings->beginGroup("searchHistory");
     QStringList keys = settings->childKeys();
     Q_FOREACH (QString key, keys)
         suggestPopup->addToHistory(key, settings->value(key).toInt());
     settings->endGroup();
-
-    layout->addWidget(ionizationModeLabel, 0);
-    layout->addWidget(new QLabel("Charge", hBox), 0);
-    layout->addWidget(ionChargeBox, 0);
-    layout->addWidget(quantType, 0);
-    layout->addWidget(new QLabel("[m/z]", hBox), 0);
-    layout->addWidget(searchText, 0);
-    layout->addWidget(new QLabel("+/-", 0, 0));
-    layout->addWidget(massCutoffWindowBox, 0);
-    layout->addWidget(massCutoffComboBox, 0);
 
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
@@ -3405,6 +3519,7 @@ void MainWindow::createToolBars() {
     sideStyle += "QToolBar { background:  white;               }";
     sideStyle += "QToolBar { border:      none;                }";
     sideStyle += "QToolBar { border-left: 1px solid lightgray; }";
+    sideStyle += "QToolBar QToolButton { margin: 2px; }";
     sideBar->setStyleSheet(sideStyle);
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
@@ -3633,7 +3748,7 @@ bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
 		samples.push_back(sample);
 		mavenParameters->samples.push_back(sample);	
-		settingsForm->setSettingsIonizationMode("Auto Detect");		
+        settingsForm->setSettingsIonizationMode("Auto-detect");
 		return true;
 	} else {
 		delete (sample);
@@ -4107,6 +4222,7 @@ QWidget* MainWindow::eicWidgetController() {
     style += "QToolBar { background:    white;               }";
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
     toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
@@ -4728,7 +4844,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
     }
      qDebug() << "MainWindow::dropEvent() fileLoader->start() ";
     fileLoader->start();
- }
+}
 
 mzSample* MainWindow::getSampleByName(QString name) {
 

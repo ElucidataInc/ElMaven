@@ -35,6 +35,13 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
+    QString style = "";
+    style += "QToolBar { background:    white;               }";
+    style += "QToolBar { border:        none;                }";
+    style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
+    toolBar->setStyleSheet(style);
+
     QLabel *title = new QLabel("Isotope Plot");
     title->setStyleSheet("QLabel { margin-left: 6px; }");
     toolBar->addWidget(title);
@@ -45,24 +52,30 @@ void IsotopePlotDockWidget::setToolBar()
     QWidget* spacer1 = new QWidget();
     toolBar->addWidget(spacer1);
 
-    _C13 = new QCheckBox("C13");
+    QWidget* labelBox = new QWidget(toolBar);
+    QHBoxLayout* labelLayout = new QHBoxLayout(labelBox);
+
+    _C13 = new QCheckBox("C13", labelBox);
     _C13->setChecked(true);
-    toolBar->addWidget(_C13);
+    labelLayout->addWidget(_C13);
 
-    _N15 = new QCheckBox("N15");
+    _N15 = new QCheckBox("N15", labelBox);
     _N15->setChecked(false);
-    toolBar->addWidget(_N15);
+    labelLayout->addWidget(_N15);
 
-    _D2 = new QCheckBox("D2");
+    _D2 = new QCheckBox("D2", labelBox);
     _D2->setChecked(false);
-    toolBar->addWidget(_D2);
+    labelLayout->addWidget(_D2);
 
-    _S34 = new QCheckBox("S34");
+    _S34 = new QCheckBox("S34", labelBox);
     _S34->setChecked(false);
-    toolBar->addWidget(_S34);
+    labelLayout->addWidget(_S34);
+
+    labelLayout->setSpacing(12);
+    toolBar->addWidget(labelBox);
 
     toolBar->addSeparator();
-    QLabel *pool = new QLabel("Other: <");
+    QLabel *pool = new QLabel("Other: < ");
     toolBar->addWidget(pool);
 
     QDoubleSpinBox *poolLabels = new QDoubleSpinBox();

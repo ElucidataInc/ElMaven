@@ -72,6 +72,13 @@ class InfoDialog;
 class ProjectSaveWorker;
 class TempProjectSaveWorker;
 
+enum ThemeType : int {
+    ElMavenLight = 0,
+    ElMavenDark = 1,
+};
+
+QPalette namedColorSchemePalette(ThemeType x);
+
 extern Database DB;
 
 class MainWindow: public QMainWindow {

@@ -48,13 +48,14 @@ LigandWidget::LigandWidget(MainWindow* mw)
     style += "QToolBar { background:    white;               }";
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
     toolBar->setStyleSheet(style);
 
     databaseSelect = new QComboBox(toolBar);
     databaseSelect->setObjectName(QString::fromUtf8("databaseSelect"));
     databaseSelect->setDuplicatesEnabled(false);
-    databaseSelect->setSizePolicy(QSizePolicy::Expanding,
-                                  QSizePolicy::MinimumExpanding);
+    databaseSelect->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    databaseSelect->setStyleSheet("QComboBox { margin: 1px 2px 1px 2px; }");
 
     connect(this,
             SIGNAL(compoundFocused(Compound*)),
@@ -82,10 +83,9 @@ LigandWidget::LigandWidget(MainWindow* mw)
 
     QWidget* window = new QWidget;
     QVBoxLayout* layout = new QVBoxLayout;
-    layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(treeWidget);
-    layout->setSpacing(6);
+    layout->setSpacing(8);
     window->setLayout(layout);
 
     setWidget(window);
