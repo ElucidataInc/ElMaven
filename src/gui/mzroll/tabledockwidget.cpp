@@ -2072,13 +2072,16 @@ void TableDockWidget::setDefaultStyle(bool isActive)
 {
     QString style = "";
     style += "QLabel       { margin:        0px 6px;             }";
-    style += "QToolBar     { background:    white;               }";
-    style += "QToolBar     { border:        none;                }";
-    style += "QToolBar     { border-bottom: 1px solid lightgray; }";
-    style += "QToolBar QToolButton { margin: 2px; }";
+    style += "QToolBar     { background:    %1;                  }";
     style += "QTreeView    { border:        none;                }";
+    style += "QToolBar QToolButton { margin: 2px; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
     if (isActive) {
-        style += "QToolBar { background:    #ebeafa;             }";
+        QColor light = themePalette.light().color();
+        style = style.arg(light.name(QColor::HexRgb));
+    } else {
+        QColor base = themePalette.base().color();
+        style = style.arg(base.name(QColor::HexRgb));
     }
     setStyleSheet(style);
 }

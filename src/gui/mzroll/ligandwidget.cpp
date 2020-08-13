@@ -44,12 +44,6 @@ LigandWidget::LigandWidget(MainWindow* mw)
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    style += "QToolBar QToolButton { margin: 2px; }";
-    toolBar->setStyleSheet(style);
 
     databaseSelect = new QComboBox(toolBar);
     databaseSelect->setObjectName(QString::fromUtf8("databaseSelect"));

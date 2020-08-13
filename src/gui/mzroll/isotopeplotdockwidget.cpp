@@ -35,13 +35,6 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    style += "QToolBar QToolButton { margin: 2px; }";
-    toolBar->setStyleSheet(style);
-
     QLabel *title = new QLabel("Isotope Plot");
     title->setStyleSheet("QLabel { margin-left: 6px; }");
     toolBar->addWidget(title);

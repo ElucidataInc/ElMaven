@@ -46,6 +46,7 @@
 #include "peakeditor.h"
 #include "Peptide.hpp"
 #include "peptidefragmentation.h"
+#include "phantomcolor.h"
 #include "pollyelmaveninterface.h"
 #include "projectdockwidget.h"
 #include "projectsaveworker.h"
@@ -123,6 +124,15 @@ QDataStream &operator<<(QDataStream &out, const SpectralHit*) {
 }
 QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
+}
+
+QColor adjustColorLightness(const QColor& color, qreal ld)
+{
+    Phantom::Hsl hsl = Phantom::Hsl::ofQColor(color);
+    const qreal gamma = 3.0;
+    hsl.l = std::pow(Phantom::saturate(std::pow(hsl.l, 1.0 / gamma) + ld * 0.8),
+                     gamma);
+    return hsl.toQColor();
 }
 
 QPalette namedColorSchemePalette(ThemeType x) {
@@ -258,15 +268,56 @@ using namespace mzUtils;
     qRegisterMetaType<QTextCursor>("QTextCursor");
 
     QString styleSheet = "";
-    styleSheet += "QMainWindow::separator { background: lightgray; }";
+    styleSheet += "QMainWindow::separator { background: %1; }";
     styleSheet += "QMainWindow::separator { width: 1px; }";
     styleSheet += "QMainWindow::separator { border: none; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
+    QColor border = themePalette.highlight().color().darker(120);
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
+
+    styleSheet += "QTabBar::tab { border: 1px solid %1; }";
+    styleSheet += "QTabBar::tab { padding: 5px 8px; }";
+    styleSheet += "QTabBar::tab { margin-top: 5px; }";
+    styleSheet += "QTabBar::tab { margin-bottom: 1px; }";
+    styleSheet += "QTabBar::tab { margin-left: -1px; }";
+    styleSheet += "QTabBar::tab:first { margin-left: 5px; }";
+    styleSheet += "QTabBar::tab:only-one { margin-left: 5px; }";
+    styleSheet += "QTabBar::tab:selected { border-bottom-color: %2; }";
+    styleSheet += "QTabBar::tab:selected { margin-top: 3px; }";
+    styleSheet += "QTabBar::tab:!selected { background-color: %3; }";
+    styleSheet += "QTabWidget::pane { border: 1px solid %4; }";
+    styleSheet += "QTabWidget::pane { top: -1px; }";
+    styleSheet += "QTabWidget > QTabBar::tab { border: 1px solid %5; }";
+    styleSheet += "QTabWidget > QTabBar::tab { margin-bottom: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:first { margin-left: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:only-one { margin-left: 0; }";
+    QColor window = themePalette.window().color();
+    QColor outline = adjustColorLightness(window, -0.1);
+    QColor divider = adjustColorLightness(window, -0.05);
+    QColor base = themePalette.base().color();
+    QColor alternateBase = themePalette.alternateBase().color();
+    styleSheet = styleSheet.arg(outline.name(QColor::HexRgb))
+                           .arg(base.name(QColor::HexRgb))
+                           .arg(alternateBase.name(QColor::HexRgb))
+                           .arg(divider.name(QColor::HexRgb))
+                           .arg(divider.name(QColor::HexRgb));
+
+    styleSheet += "QToolBar { background: white; }";
+    styleSheet += "QToolBar { border: none; }";
+    styleSheet += "QToolBar { border-bottom: 1px solid %1; }";
+    styleSheet += "QToolBar QToolButton { margin: 2px; }";
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
     styleSheet += "QCheckBox::indicator { width: 16px; height: 16px; }";
     styleSheet += "QGroupBox::indicator { width: 16px; height: 16px; }";
     styleSheet += "QTreeView::indicator { width: 14px; height: 14px; }";
 
     styleSheet += "QComboBox { padding: 1px 6px 1px 6px; }";
+
+    styleSheet += "QStatusBar { border: none; }";
+    styleSheet += "QStatusBar { border-top: 1px solid %1; }";
+    styleSheet += "QStatusBar QLabel { margin: 4px; }";
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
     setStyleSheet(styleSheet);
 
@@ -3263,12 +3314,7 @@ void MainWindow::createToolBars() {
 	toolBar->setObjectName("mainToolBar");
 	toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    style += "QToolBar QToolButton { margin: 2px 0 2px 2px; }";
-    toolBar->setStyleSheet(style);
+    toolBar->setStyleSheet("QToolBar QToolButton { margin: 2px 0 2px 2px; }");
     
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
@@ -3372,8 +3418,8 @@ void MainWindow::createToolBars() {
     ionizationStyle += "QLabel { border: 1px solid %1; }";
     ionizationStyle += "QLabel { border-radius: 4px; }";
     ionizationStyle += "QLabel { background: %2; }";
-    QColor border = namedColorSchemePalette(ElMavenLight).dark().color();
-    ionizationStyle = ionizationStyle.arg(border.name(QColor::HexRgb));
+    QColor darkBorder = namedColorSchemePalette(ElMavenLight).dark().color();
+    ionizationStyle = ionizationStyle.arg(darkBorder.name(QColor::HexRgb));
     QColor background = namedColorSchemePalette(ElMavenLight).light().color();
     ionizationStyle = ionizationStyle.arg(background.name(QColor::HexRgb));
     ionizationModeLabel->setStyleSheet(ionizationStyle);
@@ -3515,12 +3561,14 @@ void MainWindow::createToolBars() {
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
     sideBar->setIconSize(QSize(24, 24));
-    QString sideStyle = "";
-    sideStyle += "QToolBar { background:  white;               }";
-    sideStyle += "QToolBar { border:      none;                }";
-    sideStyle += "QToolBar { border-left: 1px solid lightgray; }";
-    sideStyle += "QToolBar QToolButton { margin: 2px; }";
-    sideBar->setStyleSheet(sideStyle);
+
+    QString style = "";
+    style += "QToolBar { border-bottom: none; }";
+    style += "QToolBar { border-left: 1px solid %1; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
+    QColor border = themePalette.highlight().color().darker(120);
+    style = style.arg(border.name(QColor::HexRgb));
+    sideBar->setStyleSheet(style);
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
 												  projectDockWidget,
@@ -4218,12 +4266,6 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    style += "QToolBar QToolButton { margin: 2px; }";
-    toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
