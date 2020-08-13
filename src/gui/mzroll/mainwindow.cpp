@@ -2883,6 +2883,9 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 void MainWindow::saveSettings()
 {
     QString fileName = QFileDialog::getSaveFileName(Q_NULLPTR,"Save Settings",QString());
+    if(!(fileName.contains(".xml") || fileName.contains(".XML"))){
+        fileName += ".xml";
+    }
 
     if(!mavenParameters->saveSettings(fileName.toStdString().c_str())) {
         QMessageBox msgBox;
