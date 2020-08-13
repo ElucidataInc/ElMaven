@@ -785,82 +785,72 @@ TEST_CASE("Testing database class")
         REQUIRE(rescsv == 10);
         vector<Compound*> compounds = db.getCompoundsSubset("test_loadCSV");
 
-        vector<Compound*> compoundInput;
-        Compound* c1 = new Compound("HMDB00653", "cholesteryl sulfate",
-                                    "C27H46O4S", 0);
-        c1->setExpectedRt(17.25);
-        c1->setDb("test_loadCSV");
+        vector<Compound> compoundInput;
+        Compound c1("HMDB00653", "cholesteryl sulfate",
+                    "C27H46O4S", 0);
+        c1.setExpectedRt(17.25);
+        c1.setDb("test_loadCSV");
         compoundInput.push_back(c1);
-        delete(c1);
 
-        c1 = new Compound("C05464", "Deoxycholic acid",
-                          "C26H43NO5", 0);
-        c1->setExpectedRt(16.79);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c2("C05464", "Deoxycholic acid",
+                    "C26H43NO5", 0);
+        c2.setExpectedRt(16.79);
+        c2.setDb("test_loadCSV");
+        compoundInput.push_back(c2);
+        
+        Compound c3("C15H28O7P2","trans_trans-farnesyl diphosphate",
+                    "C00448",0);
+        c3.setExpectedRt(16.74);
+        c3.setDb("test_loadCSV");
+        compoundInput.push_back(c3);
+        
+        Compound c4("HMDB00619", "Cholic acid",
+                    "C24H40O5", 0);
+        c4.setExpectedRt(16.69);
+        c4.setDb("test_loadCSV");
+        compoundInput.push_back(c4);
 
-        c1 = new Compound("C15H28O7P2","trans_trans-farnesyl diphosphate",
-                          "C00448",0);
-        c1->setExpectedRt(16.74);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c5("C00341", "Geranyl-PP",
+                    "C10H20O7P2", 0) ;
+        c5.setExpectedRt(16.46);
+        c5.setDb("test_loadCSV");
+        compoundInput.push_back(c5);
 
-        c1 = new Compound("HMDB00619", "Cholic acid",
-                          "C24H40O5", 0);
-        c1->setExpectedRt(16.69);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c6("C05463", "Taurodeoxycholic acid",
+                    "C26H45NO6S", 0);
+        c6.setExpectedRt(16.23);
+        c6.setDb("test_loadCSV");
+        compoundInput.push_back(c6);
 
-        c1 = new Compound("C00341", "Geranyl-PP",
-                          "C10H20O7P2", 0) ;
-        c1->setExpectedRt(16.46);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c7("C00725", "lipoate",
+                    "C8H14O2S2", 0);
+        c7.setExpectedRt(15.97);
+        c7.setDb("test_loadCSV");
+        compoundInput.push_back(c7);
 
-        c1 = new Compound("C05463", "Taurodeoxycholic acid",
-                          "C26H45NO6S", 0);
-        c1->setExpectedRt(16.23);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c8("C00356", "3-hydroxy-3-methylglutaryl-CoA-nega",
+                    "C27H44N7O20P3S", 0);
+        c8.setExpectedRt(15.72);
+        c8.setDb("test_loadCSV");
+        compoundInput.push_back(c8);
 
-        c1 = new Compound("C00725", "lipoate",
-                          "C8H14O2S2", 0);
-        c1->setExpectedRt(15.97);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c9("C00630", "butyryl-CoA",
+                    "C25H42N7O17P3S", 0);
+        c9.setExpectedRt(15.72);
+        c9.setDb("test_loadCSV");
+        compoundInput.push_back(c9);
 
-        c1 = new Compound("C00356", "3-hydroxy-3-methylglutaryl-CoA-nega",
-                          "C27H44N7O20P3S", 0);
-        c1->setExpectedRt(15.72);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
-
-        c1 = new Compound("C00630", "butyryl-CoA",
-                          "C25H42N7O17P3S", 0);
-        c1->setExpectedRt(15.72);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
-
-        c1 = new Compound("C00083", "malonyl-CoA",
-                          "C24H38N7O19P3S", 0);
-        c1->setExpectedRt(15.7);
-        c1->setDb("test_loadCSV");
-        compoundInput.push_back(c1);
-        delete(c1);
+        Compound c10("C00083", "malonyl-CoA",
+                    "C24H38N7O19P3S", 0);
+        c10.setExpectedRt(15.7);
+        c10.setDb("test_loadCSV");
+        compoundInput.push_back(c10);
 
         for(size_t i = 0; i < compoundInput.size(); i++ ){
             for(size_t j = 0; j < compounds.size(); j++){
-                if(compoundInput[i]->id() == compounds[j]->id())
+                if(compoundInput[i].id() == compounds[j]->id())
                 {
-                    Compound input = *compoundInput[i];
+                    Compound input = compoundInput[i];
                     Compound saved = *compounds[j];
                     REQUIRE(input == saved);
                 }
@@ -1624,46 +1614,46 @@ TEST_CASE("Testing database class")
         db.loadAdducts(adductFile);
         vector<Adduct*> adductDb = db.adductsDB();
         REQUIRE(adductDb.size() == 10);
-        vector<Adduct*> adductInput;
+        vector<Adduct> adductInput;
 
-        Adduct* a1 = new Adduct("[M+H]+", 1, 1, 1.0072277);
+        Adduct a1("[M+H]+", 1, 1, 1.0072277);
         adductInput.push_back(a1);
-        delete(a1);
-        Adduct* a2 = new Adduct("[M+NH4]+", 1, 1, 18.033823);
+        
+        Adduct a2("[M+NH4]+", 1, 1, 18.033823);
         adductInput.push_back(a2);
-        delete(a2);
-        Adduct* a3 = new Adduct("[M+H3O]+", 1, 1, 19.01839);
+        
+        Adduct a3("[M+H3O]+", 1, 1, 19.01839);
         adductInput.push_back(a3);
-        delete(a3);
-        Adduct* a4 = new Adduct("[M+Na]+", 1, 1, 22.98992);
+       
+        Adduct a4("[M+Na]+", 1, 1, 22.98992);
         adductInput.push_back(a4);
-        delete(a4);
-        Adduct* a5 = new Adduct("[M+CH3OH+H]+", 1, 1, 33.0335);
+        
+        Adduct a5("[M+CH3OH+H]+", 1, 1, 33.0335);
         adductInput.push_back(a5);
-        delete(a5);
-        Adduct* a6 = new Adduct("[M+K]+", 1, 1, 38.963158);
+       
+        Adduct a6("[M+K]+", 1, 1, 38.963158);
         adductInput.push_back(a6);
-        delete(a6);
-        Adduct* a7 = new Adduct("[M+ACN+H]+", 1, 1, 42.033777);
+        
+        Adduct a7("[M+ACN+H]+", 1, 1, 42.033777);
         adductInput.push_back(a7);
-        delete(a7);
-        Adduct* a8 = new Adduct("[M+2Na-H]+", 1, 1, 44.972616);
+       
+        Adduct a8("[M+2Na-H]+", 1, 1, 44.972616);
         adductInput.push_back(a8);
-        delete(a8);
-        Adduct* a9 = new Adduct("[M+ACN+Na]+", 1, 1, 64.016471);
+       
+        Adduct a9("[M+ACN+Na]+", 1, 1, 64.016471);
         adductInput.push_back(a9);
-        delete(a9);
-        Adduct* a10 = new Adduct("[M+NaHO2CH]+", 1, 1, 68.995402);
+        
+        Adduct a10("[M+NaHO2CH]+", 1, 1, 68.995402);
         adductInput.push_back(a10);
-        delete(a10);
+        
         for(size_t i = 0; i < adductInput.size(); i++ ){
             for(size_t j = 0; j < adductDb.size(); j++){
-                if(adductInput[i]->getName() == adductDb[j]->getName())
+                if(adductInput[i].getName() == adductDb[j]->getName())
                 {
-                    REQUIRE(adductInput[i]->getMass() == adductDb[j]->getMass());
-                    REQUIRE(adductInput[i]->getCharge() == adductDb[j]->getCharge());
-                    REQUIRE(adductInput[i]->getNmol() == adductDb[j]->getNmol());
-                    REQUIRE(adductInput[i]->getName() == adductDb[j]->getName());
+                    REQUIRE(adductInput[i].getMass() == adductDb[j]->getMass());
+                    REQUIRE(adductInput[i].getCharge() == adductDb[j]->getCharge());
+                    REQUIRE(adductInput[i].getNmol() == adductDb[j]->getNmol());
+                    REQUIRE(adductInput[i].getName() == adductDb[j]->getName());
                 }
             }
         }
