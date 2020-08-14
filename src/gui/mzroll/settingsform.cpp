@@ -14,7 +14,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
 {
     settings.insert("ionizationMode", QVariant::fromValue(sf->ionizationMode));
     settings.insert("ionizationType", QVariant::fromValue(sf->ionizationType));
-    settings.insert("instrumentType", QVariant::fromValue(sf->instrumentType));
     settings.insert("q1Accuracy", QVariant::fromValue(sf->amuQ1));
     settings.insert("q3Accuracy", QVariant::fromValue(sf->amuQ3));
     settings.insert("filterline", QVariant::fromValue(sf->filterlineComboBox));
@@ -153,14 +152,6 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(useOverlap, SIGNAL(stateChanged(int)), SLOT(toggleOverlap()));
     toggleOverlap();
 
-    //remote url used to fetch compound lists, pathways, and notes
-    connect(data_server_url, SIGNAL(textChanged(QString)), SLOT(getFormValues()));
-    connect(scriptsFolderSelect, SIGNAL(clicked()), SLOT(selectScriptsFolder()));
-    connect(pathwaysFolderSelect, SIGNAL(clicked()), SLOT(selectPathwaysFolder()));
-    connect(methodsFolderSelect, SIGNAL(clicked()), SLOT(selectMethodsFolder()));
-    connect(RProgramSelect, SIGNAL(clicked()), SLOT(selectRProgram()));
-    connect(rawExtractSelect, SIGNAL(clicked()), SLOT(selectRawExtractor()));
-
     // instrumentation settings
     connect(ionizationMode,
             SIGNAL(currentIndexChanged(int)),
@@ -267,8 +258,8 @@ void SettingsForm::setSettingsIonizationMode(QString ionMode) {
     else                                    ionizationMode->setCurrentIndex(0);
 }
 
-void SettingsForm::setWeightStatus() {
-
+void SettingsForm::setWeightStatus()
+{
     // slider int values to double
     double distX = distXSlider->value()*1.0;
     double distY = distYSlider->value()*1.0;
@@ -283,22 +274,27 @@ void SettingsForm::setWeightStatus() {
     distXStatus->setText(QString::number(distX));
     distYStatus->setText(QString::number(distY));
     overlapStatus->setText(QString::number(overlap));
-
 }
 
-void SettingsForm::toggleOverlap() {
-    bool statusOverlap;
-    if (useOverlap->checkState() > 0) {
-        statusOverlap = true;
+void SettingsForm::toggleOverlap()
+{
+    QPixmap pixmap(":/images/grouping-score.png");
+    groupScoringFormula->setMinimumWidth(467);
+    groupScoringFormula->setMaximumWidth(467);
+    if (useOverlap->isChecked()) {
+        pixmap = QPixmap(":/images/grouping-score-with-overlap.png");
+        groupScoringFormula->setMinimumHeight(248);
+        groupScoringFormula->setMaximumHeight(248);
+    } else {
+        groupScoringFormula->setMinimumHeight(208);
+        groupScoringFormula->setMaximumHeight(208);
     }
-    else {
-        statusOverlap = false;
-    }
-    formulaWithOverlap->setVisible(statusOverlap);
-    formulaWithoutOverlap->setVisible(!statusOverlap);
-    overlapSlider->setEnabled(statusOverlap);
-    label_30->setEnabled(statusOverlap);
-    overlapStatus->setEnabled(statusOverlap);
+    groupScoringFormula->setPixmap(pixmap);
+    groupScoringFormula->setScaledContents(true);
+
+    overlapSlider->setEnabled(useOverlap->isChecked());
+    label_30->setEnabled(useOverlap->isChecked());
+    overlapStatus->setEnabled(useOverlap->isChecked());
 }
 
 void SettingsForm::updateMultiprocessing() { 
@@ -344,18 +340,6 @@ void SettingsForm::updateSettingFormGUI() {
     scan_filter_min_intensity->setValue( settings->value("scanFilterMinIntensity").toInt());
     scan_filter_min_quantile->setValue(  settings->value("scanFilterMinQuantile").toInt());
 
-    QList<QLineEdit*> items;    items  << scriptsFolder << methodsFolder << pathwaysFolder << Rprogram << RawExtractProgram;
-    QStringList pathlist;        pathlist << "scriptsFolder" << "methodsFolder" << "pathwaysFolder" << "Rprogram" << "RawExtractProgram";
-
-   unsigned int itemCount=0;
-    Q_FOREACH(QString itemName, pathlist) {
-        if(settings->contains(itemName)) items[itemCount]->setText( settings->value(itemName).toString());
-        itemCount++;
-    }
-
-    if(settings->contains("data_server_url"))
-        data_server_url->setText( settings->value("data_server_url").toString());
-
     if(settings->contains("centroidScans"))
         centroid_scan_flag->setCheckState( (Qt::CheckState) settings->value("centroidScans").toInt());
 
@@ -377,8 +361,6 @@ void SettingsForm::getFormValues()
     settings->setValue("centroidScans", centroid_scan_flag->checkState() );
     settings->setValue("scanFilterMinIntensity", scan_filter_min_intensity->value());
     settings->setValue("scanFilterMinQuantile", scan_filter_min_quantile->value());
-
-    settings->setValue("data_server_url", data_server_url->text());
 
     settings->setValue("centroidScanFlag", centroid_scan_flag->checkState());
     settings->setValue("scanFilterMinIntensity", scan_filter_min_intensity->value());
@@ -454,18 +436,28 @@ void SettingsForm::setInitialGroupRank() {
     toggleDeltaRtWeight();
 }
 
-void SettingsForm::toggleDeltaRtWeight() {
+void SettingsForm::toggleDeltaRtWeight()
+{
+    QPixmap pixmap(":/images/group-ranking.png");
+    groupRankFormula->setMinimumWidth(467);
+    groupRankFormula->setMaximumWidth(467);
     if (deltaRTCheck->isChecked()) {
         deltaRtCheckFlag = true;
+        pixmap = QPixmap(":/images/group-ranking-with-rt.png");
+        groupRankFormula->setMinimumHeight(248);
+        groupRankFormula->setMaximumHeight(248);
     }
     else {
         deltaRtCheckFlag = false;
+        groupRankFormula->setMinimumHeight(204);
+        groupRankFormula->setMaximumHeight(204);
     }
+    groupRankFormula->setPixmap(pixmap);
+    groupRankFormula->setScaledContents(true);
+
     deltaRTWeight->setEnabled(deltaRtCheckFlag);
     deltaRTWeightStatus->setEnabled(deltaRtCheckFlag);
     label_drtWeight->setEnabled(deltaRtCheckFlag);
-    formulaWithRt->setVisible(deltaRtCheckFlag);
-    formulaWithoutRt->setVisible(!deltaRtCheckFlag);
 }
 
 void SettingsForm::setMavenParameters() {

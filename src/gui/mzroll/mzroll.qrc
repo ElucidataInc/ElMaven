@@ -119,5 +119,9 @@
         <file>fonts/SourceSansPro/SourceSansPro-Italic.ttf</file>
         <file>fonts/SourceSansPro/SourceSansPro-Light.ttf</file>
         <file>fonts/SourceSansPro/SourceSansPro-Regular.ttf</file>
+        <file>images/grouping-score.png</file>
+        <file>images/grouping-score-with-overlap.png</file>
+        <file>images/group-ranking.png</file>
+        <file>images/group-ranking-with-rt.png</file>
     </qresource>
 </RCC>

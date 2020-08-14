@@ -864,7 +864,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
 {
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
-    settingsQuery->bind(":instrument_type", BINT(settingsMap.at("instrumentType")));
+    // settingsQuery->bind(":instrument_type", BINT(settingsMap.at("instrumentType")));
     settingsQuery->bind(":q1_accuracy", BDOUBLE(settingsMap.at("q1Accuracy")));
     settingsQuery->bind(":q3_accuracy", BDOUBLE(settingsMap.at("q3Accuracy")));
     settingsQuery->bind(":filterline", BINT(settingsMap.at("filterline")));

@@ -3327,8 +3327,23 @@ void MainWindow::createToolBars() {
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     btnOpen->setToolTip(tr("Import samples or projects"));
 
-    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
-   
+    QToolButton *btnSettings = new QToolButton(toolBar);
+    btnSettings->setText("Settings");
+    btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
+    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnSettings->setToolTip(tr("1. File import: scan filter settings\n"
+                               "2. Instrumentation: ionization settings\n"
+                               "3. Peak detection: EIC smoothing and baseline "
+                               "settings\n"
+                               "4. Peak filtering: parent and isotopic peak "
+                               "filtering settings\n"
+                               "5. Peak grouping: peak-group score "
+                               "calculation\n"
+                               "6. Group rank: group rank calculation decides "
+                               "which groups are selected for a given m/z"
+                               "7. Advanced settings: miscellaneous advanced "
+                               "options\n"));
+
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
@@ -3360,22 +3375,6 @@ void MainWindow::createToolBars() {
     btnPollyBridge->setToolTip(tr("Send peaks to Polly™ to store, collaborate, "
                                   "analyse and visualise your data"));
 
-	QToolButton *btnSettings = new QToolButton(toolBar);
-	btnSettings->setText("Options");
-	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
-    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnSettings->setToolTip(tr("1. Instrumentation: ionization settings\n"
-                               "2. File import: scan filter settings\n"
-                               "3. Peak detection: EIC smoothing and baseline "
-                               "settings\n"
-                               "4. Peak filtering: parent and isotopic peak "
-                               "filtering settings\n"
-                               "5. EIC (XIC): EIC type selection\n"
-                               "6. Peak grouping: peak-group score "
-                               "calculation\n"
-                               "7. Group rank: group rank calculation decides "
-                               "which groups are selected for a given m/z"));
-
     QToolButton *btnInfo = new QToolButton(toolBar);
     btnInfo->setText("Support");
     btnInfo->setIcon(QIcon(rsrcPath + "/support.png"));
@@ -3383,7 +3382,8 @@ void MainWindow::createToolBars() {
     btnInfo->setToolTip(tr("Documentation, information and technical support "
                            "for El-MAVEN."));
 
-	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
+    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
+    connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
     connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
     connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
@@ -3396,12 +3396,12 @@ void MainWindow::createToolBars() {
     });
 
 	toolBar->addWidget(btnOpen);
-	toolBar->addWidget(btnAlign);
+    toolBar->addWidget(btnSettings);
+    toolBar->addWidget(btnAlign);
     toolBar->addWidget(btnIsotope);
     toolBar->addWidget(btnAdducts);
     toolBar->addWidget(btnFeatureDetect);
 	//toolBar->addWidget(btnSpectraMatching);
-	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
     toolBar->addWidget(btnInfo);
 
