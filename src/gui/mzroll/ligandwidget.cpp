@@ -59,7 +59,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
 
     libraryButton = new QToolButton(toolBar);
     libraryButton->setIcon(QIcon(rsrcPath + "/librarymanager.png"));
-    libraryButton->setToolTip("Open Library Manager");
+    libraryButton->setToolTip("Open library manager");
     connect(libraryButton,
             &QPushButton::clicked,
             _mw->getLibraryManager(),

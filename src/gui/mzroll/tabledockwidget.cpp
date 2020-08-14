@@ -2100,14 +2100,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnSwitchView") {
     QToolButton *btnSwitchView = new QToolButton(parent);
     btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
-    btnSwitchView->setToolTip("Switch between Group and Peak Views");
+    btnSwitchView->setToolTip("Switch between \"group\" and \"peak\" views");
     connect(btnSwitchView, SIGNAL(clicked()), td, SLOT(switchTableView()));
     return btnSwitchView;
   } else if (btnName == "btnGroupCSV") {
     QToolButton *btnGroupCSV = new QToolButton(parent);
     btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
-    btnGroupCSV->setToolTip(tr("Export Groups To SpreadSheet (.csv) "));
-    btnGroupCSV->setMenu(new QMenu("Export Groups"));
+    btnGroupCSV->setToolTip(tr("Export groups to spreadSheet (.csv) "));
+    btnGroupCSV->setMenu(new QMenu("Export groups"));
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
 
     QAction *exportSelected =
@@ -2163,20 +2163,20 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnSaveJson") {
     QToolButton *btnSaveJson = new QToolButton(parent);
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
-    btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
+    btnSaveJson->setToolTip(tr("Export EICs to JSON (.json)"));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
     QToolButton *btnScatter = new QToolButton(parent);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
-    btnScatter->setToolTip("Show ScatterPlot");
+    btnScatter->setToolTip("Show scatter-plot");
     connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
     return btnScatter;
   } else if (btnName == "btnCluster") {
     QToolButton *btnCluster = new QToolButton(parent);
     btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnCluster->setToolTip("Cluster Groups");
+    btnCluster->setToolTip("Cluster groups");
     connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
     return btnCluster;
   } else if (btnName == "btnGood") {
@@ -2212,13 +2212,13 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnDelete") {
     QToolButton *btnDelete = new QToolButton(parent);
     btnDelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
-    btnDelete->setToolTip("Delete Group");
+    btnDelete->setToolTip("Delete group");
     connect(btnDelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
     return btnDelete;
   } else if (btnName == "btnPDF") {
     QToolButton *btnPDF = new QToolButton(parent);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
-    btnPDF->setToolTip("Generate PDF Report");
+    btnPDF->setToolTip("Generate PDF report");
     btnPDF->setMenu(new QMenu("Export Groups"));
     btnPDF->setPopupMode(QToolButton::InstantPopup);
 
@@ -2426,8 +2426,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->setIconSize(QSize(24, 24));
   btnMerge = new QToolButton(toolBar);
   btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
-  btnMerge->setToolTip("Merge Groups With");
-  btnMergeMenu = new QMenu("Merge Groups");
+  btnMerge->setToolTip("Merge bookmarks with peak-table");
+  btnMergeMenu = new QMenu("Merge groups");
   btnMerge->setMenu(btnMergeMenu);
   btnMerge->setPopupMode(QToolButton::InstantPopup);
   connect(btnMergeMenu,

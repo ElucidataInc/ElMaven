@@ -32,16 +32,11 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     setWindowTitle("Samples");
     setObjectName("Samples");
 
-    QFont font;
-    font.setFamily("Helvetica");
-    font.setPointSize(10);
-
     lastUsedSampleColor = QColor(Qt::green);
     setLastOpenedProject("");
 
     _editor = new QTextEdit(this);
-    _editor->setFont(font);
-    _editor->setToolTip("Project Description.");
+    _editor->setToolTip("Project description");
     _editor->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MinimumExpanding);
     _editor->hide();
 
@@ -109,21 +104,21 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     QToolButton* colorButton = new QToolButton(toolBar);
     colorButton->setIcon(QIcon(rsrcPath + "/colorfill.png"));
-    colorButton->setToolTip("Change Sample Color");
+    colorButton->setToolTip("Change color assigned to selected samples");
     connect(colorButton,SIGNAL(clicked()), SLOT(changeColors()));
 
     QToolButton* removeSamples = new QToolButton(toolBar);
     removeSamples->setIcon(QIcon(rsrcPath + "/delete.png"));
-    removeSamples->setToolTip("Remove Samples");
+    removeSamples->setToolTip("Remove selected samples from session");
     connect(removeSamples,SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
 
     QToolButton* checkUncheck = new QToolButton(toolBar);
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
-    checkUncheck->setToolTip("Show / Hide Selected Samples");
+    checkUncheck->setToolTip("Show or hide selected samples");
     connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
     QToolButton* blankButton = new QToolButton(toolBar);
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
-    blankButton->setToolTip("Set As a Blank Sample");
+    blankButton->setToolTip("Set selected samples as blank");
     connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
     toolBar->addWidget(exportMetadataButton);
@@ -817,14 +812,19 @@ void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col) {
         sample->getPolarity() < 0 ? ionizationMode="Negative" :  ionizationMode="Positive";
 
         if (sample)  {
-            this->setToolTip(tr("m/z Range: %1-%2<br> rt Range: %3-%4<br> Scan#: %5 <br> Ionization: %6<br> Filename: %7").
-                   arg(sample->minMz).
-                   arg(sample->maxMz).
-                   arg(sample->minRt).
-                   arg(sample->maxRt).
-                   arg(sample->scanCount()).
-                   arg(ionizationMode).
-                   arg(sample->fileName.c_str()));
+            this->setToolTip(
+                tr("<b>m/z range</b>: %1 — %2<br>"
+                   "<b>RT range</b>: %3 — %4<br>"
+                   "<b>Scan number</b>: %5<br>"
+                   "<b>Ionization</b>: %6<br>"
+                   "<b>Filename</b>: %7")
+                   .arg(sample->minMz)
+                   .arg(sample->maxMz)
+                   .arg(sample->minRt)
+                   .arg(sample->maxRt)
+                   .arg(sample->scanCount())
+                   .arg(ionizationMode)
+                   .arg(sample->fileName.c_str()));
         }
     }
 }

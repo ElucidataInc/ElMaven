@@ -319,6 +319,11 @@ using namespace mzUtils;
     styleSheet += "QStatusBar QLabel { margin: 4px; }";
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
+    styleSheet += "QToolTip { background-color: black; }";
+    styleSheet += "QToolTip { color: white; }";
+    styleSheet += "QToolTip { border: 1px solid black; }";
+    styleSheet += "QToolTip { font-size: 16px; }";
+
     setStyleSheet(styleSheet);
 
 #ifdef Q_OS_MAC
@@ -3365,19 +3370,18 @@ void MainWindow::createToolBars() {
                                "settings\n"
                                "4. Peak filtering: parent and isotopic peak "
                                "filtering settings\n"
-                               "5. Isotope detection: isotopic label filters\n"
-                               "6. EIC (XIC): EIC type selection\n"
-                               "7. Peak grouping: peak-group score "
+                               "5. EIC (XIC): EIC type selection\n"
+                               "6. Peak grouping: peak-group score "
                                "calculation\n"
-                               "8. Group rank: group rank calculation decides "
+                               "7. Group rank: group rank calculation decides "
                                "which groups are selected for a given m/z"));
 
     QToolButton *btnInfo = new QToolButton(toolBar);
     btnInfo->setText("Support");
     btnInfo->setIcon(QIcon(rsrcPath + "/support.png"));
     btnInfo->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnInfo->setToolTip(tr("Documentaion, information and technical "
-                           "support for El-MAVEN."));
+    btnInfo->setToolTip(tr("Documentation, information and technical support "
+                           "for El-MAVEN."));
 
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
@@ -3444,7 +3448,7 @@ void MainWindow::createToolBars() {
     quantType->addItem("AreaTopNotCorrected");
     quantType->addItem("Retention Time");
     quantType->addItem("Quality");
-    quantType->setToolTip("Peak Quantitation Type");
+    quantType->setToolTip("Peak quantitation type");
     connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
     connect(quantType,
             SIGNAL(currentIndexChanged(int)),
@@ -3573,27 +3577,27 @@ void MainWindow::createToolBars() {
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
 												  projectDockWidget,
 												  QIcon(rsrcPath + "/samples.png"),
-												  "Show Samples Widget (F2)");
+                                                  "Show samples widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,
 												  ligandWidget,
 												  QIcon(rsrcPath + "/molecule.png"),
-												  "Show Compound Widget (F3)");
+                                                  "Show compound widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,
 												  spectraDockWidget,
 												  QIcon(rsrcPath + "/spectra.png"),
-												  "Show Spectra Widget (F4)");
+                                                  "Show spectra widget (F4)");
 	QToolButton* btnFragSpectra = addDockWidgetButton(sideBar,
 													  fragSpectraDockWidget,
 													  QIcon(rsrcPath + "/fragSpectra.png"),
-													  "Show Fragmentation Spectra");
+                                                      "Show fragmentation spectra");
 	QToolButton* btnFragEvents = addDockWidgetButton(sideBar,
 													 fragPanel,
 													 QIcon(rsrcPath + "/fragmentationEvents.png"),
-													 "Show MS2 Events List");
+                                                     "Show MS2 events list");
 
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
-    btnAlignment->setText("Alignment Visualizations");
+    btnAlignment->setText("Alignment visualizations");
     QMenu* alignmentMenu = new QMenu("Alignment Visualizations Menu");
 
     btnAlignment->setMenu(alignmentMenu);
@@ -3609,34 +3613,57 @@ void MainWindow::createToolBars() {
     connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
     connect(sampleRtDeviation, &QAction::triggered, this, &MainWindow::toggleSampleRtWidget);
 
-    QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
-    QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
-    QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
-    //QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
-    QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
-    QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
-    // QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
+    QToolButton* btnIsotopes =
+        addDockWidgetButton(sideBar,
+                            isotopeWidget,
+                            QIcon(rsrcPath + "/isotope.png"),
+                            "Show isotope widget (F5)");
+    QToolButton* btnFindCompound =
+        addDockWidgetButton(sideBar,
+                            massCalcWidget,
+                            QIcon(rsrcPath + "/findcompound.png"),
+                            "Show compound-match widget (F6)");
+    QToolButton* btnCovariants =
+        addDockWidgetButton(sideBar,
+                            covariantsPanel,
+                            QIcon(rsrcPath + "/covariants.png"),
+                            "Find covariants widget (F7)");
+    // QToolButton* btnPathways =
+    // addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath +
+    // "/pathway.png"), "Show Pathway Widget (F8)");
+    QToolButton* btnBookmarks =
+        addDockWidgetButton(sideBar,
+                            bookmarkedPeaks,
+                            QIcon(rsrcPath + "/showbookmarks.png"),
+                            "Show bookmarks (F10)");
+    QToolButton* btnSRM = addDockWidgetButton(sideBar,
+                                              srmDockWidget,
+                                              QIcon(rsrcPath + "/qqq.png"),
+                                              "Show SRM list (F12)");
+    // QToolButton* btnRconsole =
+    // addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath +
+    // "/R.png"), "Show R Console");
 
+    btnSamples->setShortcut(Qt::Key_F2);
+    btnLigands->setShortcut(Qt::Key_F3);
+    btnSpectra->setShortcut(Qt::Key_F4);
+    btnIsotopes->setShortcut(Qt::Key_F5);
+    btnFindCompound->setShortcut(Qt::Key_F6);
+    btnCovariants->setShortcut(Qt::Key_F7);
+    btnBookmarks->setShortcut(Qt::Key_F9);
+    btnSRM->setShortcut(Qt::Key_F10);
 
-	//btnSamples->setShortcut(Qt::Key_F2);
-	btnLigands->setShortcut(Qt::Key_F3);
-	btnSpectra->setShortcut(Qt::Key_F4);
-	btnIsotopes->setShortcut(Qt::Key_F5);
-	btnFindCompound->setShortcut(Qt::Key_F6);
-	btnCovariants->setShortcut(Qt::Key_F7);
-	//btnPathways->setShortcut(Qt::Key_F8);
-	btnBookmarks->setShortcut(Qt::Key_F9);
-	btnSRM->setShortcut(Qt::Key_F10);
+    connect(pathwayDockWidget,
+            SIGNAL(visibilityChanged(bool)),
+            pathwayPanel,
+            SLOT(setVisible(bool)));
+    connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
 
-	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
-			SLOT(setVisible(bool)));
-	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
+    sideBar->setOrientation(Qt::Vertical);
+    sideBar->setMovable(false);
 
-	sideBar->setOrientation(Qt::Vertical);
-	sideBar->setMovable(false);
-
-	sideBar->addWidget(btnSamples);
-	sideBar->addWidget(btnLigands);
+    sideBar->addWidget(btnSamples);
+    sideBar->addWidget(btnLigands);
     sideBar->addWidget(btnSpectra);
 	sideBar->addWidget(btnFragSpectra);
 	sideBar->addWidget(btnFragEvents);
@@ -4334,7 +4361,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnCopyCSV = new QToolButton(parent);
 		btnCopyCSV->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
-		btnCopyCSV->setToolTip(tr("Copy Group Information to Clipboard (Ctrl+C)"));
+        btnCopyCSV->setToolTip(tr("Copy group information to clipboard (Ctrl + C)"));
 		btnCopyCSV->setShortcut(tr("Ctrl+C"));
 		connect(btnCopyCSV, SIGNAL(clicked()), mw->getEicWidget(), SLOT(copyToClipboard()));
 		return btnCopyCSV;
@@ -4344,7 +4371,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
-		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
+        btnIntegrateArea->setToolTip(tr("Manual integration (Shift + mouse-drag)"));
                 connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
                                 SLOT(startAreaIntegration()));
                 connect(btnIntegrateArea, &QToolButton::clicked, [this]()
@@ -4359,7 +4386,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnLast = new QToolButton(parent);
 		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
-		btnLast->setToolTip(tr("History Back (Ctrl+Left)"));
+        btnLast->setToolTip(tr("History back (Ctrl + Left)"));
 		btnLast->setShortcut(tr("Ctrl+Left"));
 		connect(btnLast, SIGNAL(clicked()), mw, SLOT(historyLast()));
 		return btnLast;
@@ -4369,7 +4396,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnNext = new QToolButton(parent);
 		btnNext->setIcon(QIcon(rsrcPath + "/next.png"));
-		btnNext->setToolTip(tr("History Forward (Ctrl+Right)"));
+        btnNext->setToolTip(tr("History forward (Ctrl + Right)"));
 		btnNext->setShortcut(tr("Ctrl+Right"));
 		connect(btnNext, SIGNAL(clicked()), mw, SLOT(historyNext()));		
 		return btnNext;
@@ -4428,7 +4455,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowBarplot = new QToolButton(parent);
 		btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
-		btnShowBarplot->setToolTip(tr("Show Barplot"));
+        btnShowBarplot->setToolTip(tr("Show barplot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
 		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
@@ -4439,7 +4466,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowIsotopeplot = new QToolButton(parent);
 		btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
-		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
+        btnShowIsotopeplot->setToolTip(tr("Show isotope plot"));
 		btnShowIsotopeplot->setCheckable(true);
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
@@ -4452,7 +4479,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		
 		QToolButton *btnShowBoxplot = new QToolButton(parent);
 		btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
-		btnShowBoxplot->setToolTip(tr("Show Boxplot"));
+        btnShowBoxplot->setToolTip(tr("Show boxplot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
@@ -4523,17 +4550,17 @@ QWidget* MainWindow::pathwayWidgetController() {
 
 	QToolButton *btnResetZoom = new QToolButton(toolBar);
 	btnResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-	btnResetZoom->setToolTip(tr("ResetZoom"));
+    btnResetZoom->setToolTip(tr("Reset zoom"));
 	connect(btnResetZoom, SIGNAL(clicked()), pathwayWidget, SLOT(resetZoom()));
 
 	QToolButton *btnZoomIn = new QToolButton(toolBar);
 	btnZoomIn->setIcon(QIcon(rsrcPath + "/zoomin.png"));
-	btnZoomIn->setToolTip(tr("Zoom In"));
+    btnZoomIn->setToolTip(tr("Zoom-in"));
 	connect(btnZoomIn, SIGNAL(clicked()), pathwayWidget, SLOT(zoomIn()));
 
 	QToolButton *btnZoomOut = new QToolButton(toolBar);
 	btnZoomOut->setIcon(QIcon(rsrcPath + "/zoomout.png"));
-	btnZoomOut->setToolTip(tr("Zoom Out"));
+    btnZoomOut->setToolTip(tr("Zoom-out"));
 	connect(btnZoomOut, SIGNAL(clicked()), pathwayWidget, SLOT(zoomOut()));
 
 	QToolButton *btnTextZoomIn = new QToolButton(toolBar);
