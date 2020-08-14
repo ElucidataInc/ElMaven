@@ -25,7 +25,6 @@ AlignmentDialog::AlignmentDialog(MainWindow* parent) : QDialog(parent) {
     connect(alignAlgo, SIGNAL(currentChanged(int)), this, SLOT(algoChanged()));
 	connect(peakDetectionAlgo, SIGNAL(currentIndexChanged(int)), this, SLOT(algoChanged()));
         connect(cancelButton, &QPushButton::clicked, this, &AlignmentDialog::cancel);
-        connect(local, SIGNAL(toggled(bool)),this, SLOT(setInitPenalty(bool)));
         connect(restoreDefaultObiWarpParams, SIGNAL(clicked(bool)), this, SLOT(restorDefaultValues(bool)));
         connect(showAdvanceParams, SIGNAL(toggled(bool)), this, SLOT(showAdvanceParameters(bool)));
 	connect(this, &AlignmentDialog::changeRefSample, &Aligner::setRefSample);
@@ -77,8 +76,6 @@ void AlignmentDialog::updateUiFromValues(map<string, variant> settings)
     gapExtend->setValue(BDOUBLE(settings.at("obi_warp_gap_extend")));
     factorDiag->setValue(BDOUBLE(settings.at("obi_warp_factor_diag")));
     factorGap->setValue(BDOUBLE(settings.at("obi_warp_factor_gap")));
-    noStdNormal->setChecked(BINT(settings.at("obi_warp_no_standard_normal")));
-    local->setChecked(BINT(settings.at("obi_warp_local")));
 
     maxIterations->setValue(BINT(settings.at("poly_fit_num_iterations")));
     polynomialDegree->setValue(BINT(settings.at("poly_fit_polynomial_degree")));
@@ -114,10 +111,6 @@ void AlignmentDialog::saveValuesForUi()
                                           variant(factorDiag->value()));
     _mw->fileLoader->insertSettingForSave("obi_warp_factor_gap",
                                           variant(factorGap->value()));
-    _mw->fileLoader->insertSettingForSave("obi_warp_no_standard_normal",
-                                          variant(static_cast<int>(noStdNormal->isChecked())));
-    _mw->fileLoader->insertSettingForSave("obi_warp_local",
-                                          variant(static_cast<int>(local->isChecked())));
 
     _mw->fileLoader->insertSettingForSave("poly_fit_num_iterations",
                                           variant(maxIterations->value()));
@@ -153,12 +146,6 @@ void AlignmentDialog::refSampleChanged()
 {
     mzSample* sample = static_cast<mzSample*>(samplesBox->currentData().value<void*>());
     emit changeRefSample(sample);
-}
-
-void AlignmentDialog::setInitPenalty(bool checked)
-{
-        initPenalty->setEnabled(checked);
-        labelInitPenalty->setEnabled(checked);
 }
 
 void AlignmentDialog::cancel()
@@ -245,20 +232,13 @@ void AlignmentDialog::restorDefaultValues(bool checked)
 	gapInit->setValue(0.2);
 	binSizeObiWarp->setValue(0.6);
 	responseObiWarp->setValue(20);
-	noStdNormal->setChecked(false);
-	local->setChecked(false);
-	initPenalty->setValue(0);
 	restoreDefaultObiWarpParams->setChecked(false);
-        initPenalty->setEnabled(false);
-        labelInitPenalty->setEnabled(false);
     saveValuesForUi();
 }
 
 void AlignmentDialog::showAdvanceParameters(bool checked)
 {
     advancedParamsBox->setVisible(checked);
-    if(checked)
-        setInitPenalty(local->isChecked());
 }
 
 void AlignmentDialog::algoChanged()

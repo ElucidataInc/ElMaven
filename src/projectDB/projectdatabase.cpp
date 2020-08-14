@@ -985,8 +985,9 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":obi_warp_gap_init", BDOUBLE(settingsMap.at("obi_warp_gap_init")));
     settingsQuery->bind(":obi_warp_gap_extend", BDOUBLE(settingsMap.at("obi_warp_gap_extend")));
     settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
-    settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
-    settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
+    settingsQuery->bind(":obi_warp_factor_gap", BDOUBLE(settingsMap.at("obi_warp_factor_gap")));
+    // settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
+    // settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
     settingsQuery->bind(":active_table_name", BSTRING(settingsMap.at("activeTableName")));
 }
 
@@ -2066,6 +2067,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["obi_warp_gap_init"]= 0.0;
     settingsMap["obi_warp_gap_extend"]= 0.0;
     settingsMap["obi_warp_factor_diag"]= 0.0;
+    settingsMap["obi_warp_factor_gap"]= 0.0;
     settingsMap["obi_warp_no_standard_normal"]= 0;
     settingsMap["obi_warp_local"]= 0;
 
