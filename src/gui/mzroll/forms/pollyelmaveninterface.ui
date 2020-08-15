@@ -552,7 +552,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>156</height>
+             <height>164</height>
             </size>
            </property>
            <property name="verticalScrollBarPolicy">
@@ -575,8 +575,8 @@
            </property>
            <property name="iconSize">
             <size>
-             <width>84</width>
-             <height>84</height>
+             <width>90</width>
+             <height>90</height>
             </size>
            </property>
            <property name="textElideMode">
@@ -627,8 +627,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>12</pointsize>
-              <italic>true</italic>
+              <pointsize>16</pointsize>
              </font>
             </property>
             <property name="textAlignment">
@@ -656,8 +655,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>12</pointsize>
-              <italic>true</italic>
+              <pointsize>16</pointsize>
              </font>
             </property>
             <property name="textAlignment">
