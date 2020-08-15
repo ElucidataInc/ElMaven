@@ -189,24 +189,21 @@ QPalette namedColorSchemePalette(ThemeType x) {
     switch (x) {
     case ElMavenLight: {
         QColor base(0xffffff);
-        QColor highlight(0xe3daff);
-        QColor bright(0xffffff);
-        QColor lessBright(0xf4f4f4);
+        QColor lessBright(0xf7f7f7);
         QColor button(0xfafafa);
         QColor text(0x141414);
         QColor disabledText(0x9a9a9a);
         QColor light(0xebe9fa);
-        QColor medium(0xa190da);
         QColor dark(0x6a53b3);
-        c.window = bright;
-        c.highlight = highlight;
-        c.highlightedText = text;
+        c.light = light.lighter(106);
+        c.mid = adjustColorLightness(c.light, -0.1);
+        c.dark = dark;
+        c.window = c.light;
+        c.highlight = dark;
+        c.highlightedText = base;
         c.base = base;
         c.alternateBase = lessBright;
         c.button = button;
-        c.light = light.lighter(105);
-        c.mid = medium;
-        c.dark = dark;
         c.text = text;
         c.disabledText = disabledText;
         c.tooltip = Qt::black;
@@ -272,7 +269,8 @@ using namespace mzUtils;
     styleSheet += "QMainWindow::separator { width: 1px; }";
     styleSheet += "QMainWindow::separator { border: none; }";
     QPalette themePalette = namedColorSchemePalette(ElMavenLight);
-    QColor border = themePalette.highlight().color().darker(120);
+    QColor window = themePalette.window().color();
+    QColor border = themePalette.mid().color();
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
     styleSheet += "QTabBar::tab { border: 1px solid %1; }";
@@ -281,31 +279,47 @@ using namespace mzUtils;
     styleSheet += "QTabBar::tab { margin-bottom: 1px; }";
     styleSheet += "QTabBar::tab { margin-left: -1px; }";
     styleSheet += "QTabBar::tab:first { margin-left: 5px; }";
+    styleSheet += "QTabBar::tab:last { margin-right: 5px; }";
     styleSheet += "QTabBar::tab:only-one { margin-left: 5px; }";
-    styleSheet += "QTabBar::tab:selected { border-bottom-color: %2; }";
+    styleSheet += "QTabBar::tab:selected { background-color: %2; }";
+    styleSheet += "QTabBar::tab:selected { border-bottom-color: %3; }";
     styleSheet += "QTabBar::tab:selected { margin-top: 3px; }";
-    styleSheet += "QTabBar::tab:!selected { background-color: %3; }";
-    styleSheet += "QTabWidget::pane { border: 1px solid %4; }";
+    styleSheet += "QTabBar::tab:!selected { background-color: %4; }";
+    styleSheet += "QTabWidget::pane { border: 1px solid %5; }";
     styleSheet += "QTabWidget::pane { top: -1px; }";
-    styleSheet += "QTabWidget > QTabBar::tab { border: 1px solid %5; }";
+    styleSheet += "QTabWidget > QTabBar::tab { border: 1px solid %6; }";
     styleSheet += "QTabWidget > QTabBar::tab { margin-bottom: 0; }";
     styleSheet += "QTabWidget > QTabBar::tab:first { margin-left: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:last { margin-right: 0; }";
     styleSheet += "QTabWidget > QTabBar::tab:only-one { margin-left: 0; }";
-    QColor window = themePalette.window().color();
-    QColor outline = adjustColorLightness(window, -0.1);
-    QColor divider = adjustColorLightness(window, -0.05);
+    styleSheet += "QTabWidget > QTabBar::tab:selected { background-color: %7; }";
+    styleSheet += "QTabWidget > QTabBar::tab:selected { border-bottom-color: %8; }";
     QColor base = themePalette.base().color();
-    QColor alternateBase = themePalette.alternateBase().color();
-    styleSheet = styleSheet.arg(outline.name(QColor::HexRgb))
+    QColor alternateBase = window.darker(105);
+    QColor divider = adjustColorLightness(window, -0.05);
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb))
+                           .arg(base.name(QColor::HexRgb))
                            .arg(base.name(QColor::HexRgb))
                            .arg(alternateBase.name(QColor::HexRgb))
                            .arg(divider.name(QColor::HexRgb))
-                           .arg(divider.name(QColor::HexRgb));
+                           .arg(divider.name(QColor::HexRgb))
+                           .arg(window.name(QColor::HexRgb))
+                           .arg(window.name(QColor::HexRgb));
 
-    styleSheet += "QToolBar { background: white; }";
+    styleSheet += "QDockWidget::title { background-color: %1; }";
+    styleSheet += "QDockWidget::close-button { border: none; }";
+    styleSheet += "QDockWidget::float-button { border: none; }";
+    styleSheet += "QDockWidget > * { border: none; }";
+    styleSheet += "QDockWidget > * { border-top: 1px solid %2; }";
+    styleSheet += "*[cssClass=\"dockWithToolbar\"] { border-top: none; }";
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
+
+    styleSheet += "QToolBar { background-color: %1; }";
     styleSheet += "QToolBar { border: none; }";
-    styleSheet += "QToolBar { border-bottom: 1px solid %1; }";
+    styleSheet += "QToolBar { border-bottom: 1px solid %2; }";
     styleSheet += "QToolBar QToolButton { margin: 2px; }";
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
     styleSheet += "QCheckBox::indicator { width: 16px; height: 16px; }";
@@ -314,9 +328,11 @@ using namespace mzUtils;
 
     styleSheet += "QComboBox { padding: 1px 6px 1px 6px; }";
 
+    styleSheet += "QStatusBar { background-color: %1; }";
     styleSheet += "QStatusBar { border: none; }";
-    styleSheet += "QStatusBar { border-top: 1px solid %1; }";
+    styleSheet += "QStatusBar { border-top: 1px solid %2; }";
     styleSheet += "QStatusBar QLabel { margin: 4px; }";
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
     styleSheet += "QToolTip { background-color: black; }";
@@ -470,7 +486,7 @@ using namespace mzUtils;
 	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
-	bookmarkedPeaks = new BookmarkTableDockWidget(this);
+    bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
     sampleRtWidget = new SampleRtWidget(this);
     sampleRtWidget->setWidget(sampleRtVizPlot);
@@ -582,10 +598,6 @@ using namespace mzUtils;
         connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
                 SLOT(updateTablePostAlignment()));
 
-	//rconsole dialog
-	//rconsoleDialog	 =  new RConsoleDialog(this);
-
-
 	spectraMatchingForm = new SpectraMatching(this);
 
     connect(scatterDockWidget,
@@ -616,7 +628,6 @@ using namespace mzUtils;
 	addDockWidget(Qt::BottomDockWidgetArea, bookmarkedPeaks, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, srmDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, logWidget, Qt::Horizontal);
-	// addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, spectralHitsDockWidget,
 			Qt::Horizontal);
     addDockWidget(Qt::BottomDockWidgetArea,peptideFragmentation,Qt::Horizontal);
@@ -630,12 +641,10 @@ using namespace mzUtils;
     tabifyDockWidget(spectraDockWidget, sampleRtWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
-	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
 	tabifyDockWidget(spectraDockWidget, logWidget);
 	tabifyDockWidget(spectraDockWidget, fragSpectraDockWidget);
-	// tabifyDockWidget(rconsoleDockWidget, logWidget);
     tabifyDockWidget(peptideFragmentation,logWidget);
 
     connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
@@ -1281,7 +1290,7 @@ void MainWindow::openAWSDialog()
 }
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
-	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
+    QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     dock->setFloating(false);
 	dock->setVisible(false);
@@ -3573,7 +3582,8 @@ void MainWindow::createToolBars() {
     style += "QToolBar { border-bottom: none; }";
     style += "QToolBar { border-left: 1px solid %1; }";
     QPalette themePalette = namedColorSchemePalette(ElMavenLight);
-    QColor border = themePalette.highlight().color().darker(120);
+    QColor window = themePalette.window().color();
+    QColor border = adjustColorLightness(window, -0.1);
     style = style.arg(border.name(QColor::HexRgb));
     sideBar->setStyleSheet(style);
 

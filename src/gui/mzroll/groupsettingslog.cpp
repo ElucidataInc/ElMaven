@@ -269,7 +269,7 @@ void GroupSettingsLog::_displayGroupSettings()
     }
 
     QString spacerStyle = "QWidget { "
-                          "margin-top: 6px; "
+                          "margin-top: 10px; "
                           "border-top: 1px dotted; "
                           "}";
     for (auto& elem : parameterGroups) {

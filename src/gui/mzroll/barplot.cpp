@@ -82,7 +82,7 @@ void BarPlot::setPeakGroup(shared_ptr<PeakGroup> group) {
         _width =   scene()->width()*0.20;
         _barwidth = scene()->height()*0.75/vsamples.size();
         if (_barwidth<3)  _barwidth=3;
-        if (_barwidth>15) _barwidth=15;
+        if (_barwidth>18) _barwidth=18;
         _height = _yvalues.size()*_barwidth;
     }
 
@@ -99,7 +99,7 @@ void BarPlot::wheelEvent ( QGraphicsSceneWheelEvent * event ) {
 
 int BarPlot::intensityTextShift() {
 
-    QFont font("Helvetica");
+    QFont font;
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
     font.setPixelSize(fontsize);
@@ -125,7 +125,7 @@ void BarPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
     int barSpacer=1;
 
-    QFont font("Helvetica");
+    QFont font;
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
     font.setPixelSize(fontsize);

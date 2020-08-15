@@ -504,6 +504,7 @@ void TreeDockWidget::setQQQToolBar() {
             &TreeDockWidget::hide);
     toolBar->addWidget(closeButton);
 
+    treeWidget->setProperty("cssClass", "dockWithToolbar");
     setTitleBarWidget(toolBar);
 }
 

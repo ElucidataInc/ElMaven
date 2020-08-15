@@ -36,7 +36,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideRight</enum>
@@ -952,6 +952,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel {
+  border: 1px solid lightgray;
+  margin-top: 6px;
+}</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -1132,6 +1138,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel {
+  border: 1px solid lightgray;
+  margin-top: 6px;
+}</string>
            </property>
            <property name="text">
             <string/>
@@ -1378,15 +1390,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="classificationModelFilename">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QLineEdit" name="classificationModelFilename">
+             <property name="styleSheet">
+              <string notr="true">QLineEdit {
+  background: none;
+}</string>
              </property>
-             <property name="text">
-              <string/>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>

@@ -85,6 +85,9 @@ void OptionsDialogSettings::updateOptionsDialog(string key, string value)
         if (QString(v.typeName()).contains("QTabWidget"))
             v.value<QTabWidget*>()->setCurrentIndex(std::stoi(value));
 
+        if(QString(v.typeName()).contains("QLineEdit"))
+            v.value<QLineEdit*>()->setText(QString(value.c_str()));
+
         emit sf->settingsUpdated(k, v);
     }
 }
@@ -439,7 +442,7 @@ void SettingsForm::loadModel()
     // this gives the name of the file that is selected by the user
     const QString modelPath =
         QFileDialog::getOpenFileName(this,
-                                     "Select Classification Model",
+                                     "Select classification model",
                                      ".",
                                      tr("Model File (*.model)"));
     ClassifierNeuralNet* clsf = mainwindow->getClassifier();

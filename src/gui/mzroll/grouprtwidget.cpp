@@ -147,7 +147,9 @@ void GroupRtWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
     textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
     textLabel->position->setCoords(0.001, 0); // place position at center/top of axis rect
     textLabel->setText(message);
-    textLabel->setFont(QFont("Times", 12)); 
+    QFont font = QApplication::font();
+    font.setPixelSize(14);
+    textLabel->setFont(font);
     textLabel->setPen(QPen(Qt::black)); 
 
 }
@@ -339,7 +341,9 @@ void GroupRtWidget::mouseQCPBar(QMouseEvent *event)
         }
     }
     sampleLabel->setText(message);
-    sampleLabel->setFont(QFont("Times", 12));
+    QFont font = QApplication::font();
+    font.setPixelSize(14);
+    sampleLabel->setFont(font);
     sampleLabel->setPen(QPen(Qt::black)); 
     _mw->groupRtVizPlot->replot();
 

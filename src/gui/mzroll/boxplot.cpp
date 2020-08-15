@@ -138,7 +138,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
     int barSpacer=1;
 
-    QFont font("Helvetica");
+    QFont font;
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
     font.setPointSizeF(fontsize);

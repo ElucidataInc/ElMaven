@@ -81,6 +81,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
     layout->addWidget(treeWidget);
     layout->setSpacing(8);
     window->setLayout(layout);
+    window->setProperty("cssClass", "dockWithToolbar");
 
     setWidget(window);
     setTitleBarWidget(toolBar);

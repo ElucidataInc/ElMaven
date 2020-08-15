@@ -11,8 +11,7 @@ LogWidget::LogWidget(QMainWindow *parent, std::ostream &stream): QDockWidget("Lo
     setObjectName("Log");
 
     QFont font;
-    font.setFamily("Helvetica");
-    font.setPointSize(8);
+    font.setPointSize(10);
 
     _editor = new QTextEdit(this);
     _editor->setFont(font);

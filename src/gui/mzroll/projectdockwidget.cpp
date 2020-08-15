@@ -132,17 +132,16 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     filterEditor->setPlaceholderText("Sample name filter"); 
     connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(filterTreeItems(QString)));
 
-    QWidget *window = new QWidget;
+    QFrame *window = new QFrame(this);
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(_treeWidget);
     layout->setSpacing(8);
     window->setLayout(layout);
+    window->setProperty("cssClass", "dockWithToolbar");
 
     setTitleBarWidget(toolBar);
     setWidget(window);
-
 }
 
 void ProjectDockWidget::saveState()

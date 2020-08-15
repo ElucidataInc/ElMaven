@@ -50,8 +50,8 @@ void Axes::paintAxes(QPainter* painter,
     QPen pen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     painter->setPen(pen);
 
-    float fontSize = 8;
-    QFont font("Helvetica", fontSize);
+    QFont font;
+    font.setPixelSize(10);
     painter->setFont(font);
     QFontMetrics fm(font);
 

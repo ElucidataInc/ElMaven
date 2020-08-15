@@ -184,20 +184,20 @@ void TableDockWidget::setupPeakTable() {
   colNames << "ID";
   colNames << "Observed m/z";
   colNames << "Expected m/z";
-  colNames << "rt";
+  colNames << "RT";
 
   if (viewType == groupView) {
 
     // Add group view columns to the peak table
-    colNames << "rt delta";
-    colNames << "#peaks";
-    colNames << "#good";
-    colNames << "Max Width";
+    colNames << "Δ RT";
+    colNames << "# peaks";
+    colNames << "# good peaks";
+    colNames << "Max width";
     colNames << "Max AreaTop";
     colNames << "Max S/N";
-    colNames << "Max Quality";
-    colNames << "MS2 Score";
-    colNames << "#MS2 Events";
+    colNames << "Max quality";
+    colNames << "MS2 score";
+    colNames << "#MS2 events";
     colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -2780,25 +2780,25 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   colNames << "ID";
   colNames << "Observed m/z";
   colNames << "Expected m/z";
-  colNames << "rt";
+  colNames << "RT";
 
   if (viewType == groupView) {
 
     // Add group view columns to the table
-    colNames << "rt delta";
-    colNames << "#peaks";
-    colNames << "#good";
-    colNames << "Max Width";
+    colNames << "Δ RT";
+    colNames << "# peaks";
+    colNames << "# good";
+    colNames << "Max width";
     colNames << "Max AreaTop";
     colNames << "Max S/N";
-    colNames << "Max Quality";
-    colNames << "MS2 Score";
-    colNames << "#MS2 Events";
+    colNames << "Max quality";
+    colNames << "MS2 score";
+    colNames << "#MS2 events";
     colNames << "Rank";
 
     // add scatterplot table columns
-    colNames << "Ratio Change";
-    colNames << "P-value";
+    colNames << "Ratio change";
+    colNames << "p-value";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);

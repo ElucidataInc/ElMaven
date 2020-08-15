@@ -21,7 +21,7 @@ IsotopePlotDockWidget::IsotopePlotDockWidget(MainWindow *mw) :
 
     setToolBar();
 
-    setWindowTitle("Isotope Plot: ");
+    setWindowTitle("Isotope plot: ");
 }
 
 IsotopePlotDockWidget::~IsotopePlotDockWidget()
@@ -80,7 +80,7 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(poolLabels);
 
     QWidget* spacer = new QWidget(toolBar);
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     toolBar->addWidget(spacer);
 
     QToolButton *closeButton = new QToolButton(toolBar);

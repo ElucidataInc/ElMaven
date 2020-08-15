@@ -233,7 +233,7 @@ void Edge::drawArrow(QPainter *painter, int direction) {
 	if (_showNote) {
 			GraphWidget* g=NULL; if ( source ) g = source->getGraphWidget();
 			double fontHeight = g->getAvgEdgeLength() * 0.08;
-			QFont f( "Helvetica",fontHeight);
+            QFont f;
 			painter->setFont(f);
 			painter->save();
 			painter->translate(midPoint+QPoint(0,pen.width()+fontHeight));

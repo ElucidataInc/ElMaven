@@ -222,7 +222,8 @@ void TinyPlot::paint(QPainter *painter,
         painter->setPen(penFaded);
 
         if (_drawNoPeakMessages) {
-            QFont font("Helvetica", 14);
+            QFont font;
+            font.setPixelSize(16);
             QFontMetrics fm(font);
             painter->setFont(font);
             painter->drawText((_width / 2) - (fm.width(_noPeakMessage) / 2),

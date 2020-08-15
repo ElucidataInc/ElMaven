@@ -9,8 +9,10 @@ PlotScene::PlotScene(QObject * parent): QGraphicsScene(parent) {
 	selectionRect = new QGraphicsRectItem(); selectionRect->hide(); selectionRect->setPen(QPen(Qt::DotLine));
 	vline = new QGraphicsLineItem(); vline->hide(); vline->setPen(QPen(Qt::DotLine));
 	hline = new QGraphicsLineItem(); hline->hide();	hline->setPen(QPen(Qt::DotLine));
-	ylabel = new QGraphicsTextItem(); ylabel->hide(); ylabel->setFont(QFont("Helvetica",10)); ylabel->setRotation(-90);
-	xlabel = new QGraphicsTextItem(); xlabel->hide(); xlabel->setFont(QFont("Helvetica",10));
+    QFont font;
+    font.setPixelSize(12);
+    ylabel = new QGraphicsTextItem(); ylabel->hide(); ylabel->setFont(font); ylabel->setRotation(-90);
+    xlabel = new QGraphicsTextItem(); xlabel->hide(); xlabel->setFont(font);
     // New Variables Initialisation - Kiran
 	logBase=10;
     logX=false;
@@ -251,7 +253,7 @@ PlotDockWidget::PlotDockWidget(QWidget * parent,Qt::WindowFlags flags):QDockWidg
 	setAllowedAreas(Qt::AllDockWidgetAreas);
   	setFloating(false);
    	setVisible(false);
-	//setWidget(mainWidget);
+    view()->setProperty("cssClass", "dockWithToolbar");
 	setWidget(view());
 
 	//context menu
@@ -423,8 +425,8 @@ void PlotAxes::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 	QPen pen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 	painter->setPen(pen);
 
-    int fontsize = 8;
-    QFont font("Helvetica",fontsize);
+    QFont font;
+    font.setPixelSize(10);
 	painter->setFont(font);
 
     if (nticks == 0 ) nticks = 2;
@@ -496,8 +498,10 @@ void PlotDockWidget::exportPDF(){
 	printer.setResolution(600);
     QPainter painter(&printer);
     painter.setRenderHint(QPainter::Antialiasing);
-	scene()->setFont( QFont("Helvetica",8) );
-	painter.setFont( QFont("Helvetica", 8) );
+    QFont font;
+    font.setPixelSize(10);
+    scene()->setFont(font);
+    painter.setFont(font);
     view()->render(&painter);
 }
 

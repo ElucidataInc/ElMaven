@@ -167,6 +167,9 @@ void AlignmentDialog::show()
 {
 	_mw->getAnalytics()->hitScreenView("AlignmentDialog");
 
+    minGoodPeakCount->setMinimum(0);
+    minGoodPeakCount->setMaximum(_mw->getVisibleSamples().size());
+
     auto lastItem = samplesBox->currentText();
     samplesBox->clear();
     samplesBox->addItem("Select Randomly",
@@ -181,14 +184,15 @@ void AlignmentDialog::show()
     if (samplesBox->findText(lastItem) != -1)
         samplesBox->setCurrentText(lastItem);
 
+    setDatabase();
+    setDatabase(_mw->ligandWidget->getDatabaseName());
+
     saveValuesForUi();
 	QDialog::exec();
 }
 
 void AlignmentDialog::inputInitialValuesAlignmentDialog()
 {
-    minGoodPeakCount->setMaximum(0);
-    minGoodPeakCount->setMaximum(_mw->getVisibleSamples().size());
     minGoodPeakCount->setValue(1);
     groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
 
@@ -282,11 +286,9 @@ void AlignmentDialog::setDatabase()
                         set.insert( compoundsDB[i]->db().c_str() );
 	}
 
-	QIcon icon(rsrcPath + "/dbsearch.png");
 	QSetIterator<QString> i(set);
-	int pos=0;
 	while (i.hasNext()) { 
-		selectDatabaseComboBox->addItem(icon,i.next());
+        selectDatabaseComboBox->addItem(i.next());
 	}
 }
 
