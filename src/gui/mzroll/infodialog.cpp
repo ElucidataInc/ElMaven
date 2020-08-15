@@ -31,6 +31,18 @@ InfoDialog::InfoDialog(MainWindow* parent) :
     ui->setupUi(this);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
+    QString style = "QLabel { "
+                    "padding: 6px; "
+                    "background-color: %1; "
+                    "border: 1px solid %2; "
+                    "border-radius: 3px; "
+                    "}";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
+    QColor base = themePalette.base().color();
+    QColor border = themePalette.mid().color();
+    style = style.arg(base.name()).arg(border.name());
+    ui->contactLabel->setStyleSheet(style);
+
     auto tracker = parent->getUsageTracker();
     auto name = tracker->userAttribute("Name").toString();
     auto email = tracker->userAttribute("Email").toString();
