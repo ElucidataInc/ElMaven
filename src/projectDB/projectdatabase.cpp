@@ -855,7 +855,8 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :filter_isotopes_against_parent   \
                      , :filter_adducts_against_parent    \
                      , :parent_isotope_required          \
-                     , :parent_adduct_required           )");
+                     , :parent_adduct_required           \
+                     , :peak_width_quantile              )");
     return cursor;
 }
 
@@ -864,7 +865,6 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
 {
     settingsQuery->bind(":ionization_mode", BINT(settingsMap.at("ionizationMode")));
     settingsQuery->bind(":ionization_type", BINT(settingsMap.at("ionizationType")));
-    // settingsQuery->bind(":instrument_type", BINT(settingsMap.at("instrumentType")));
     settingsQuery->bind(":q1_accuracy", BDOUBLE(settingsMap.at("q1Accuracy")));
     settingsQuery->bind(":q3_accuracy", BDOUBLE(settingsMap.at("q3Accuracy")));
     settingsQuery->bind(":filterline", BINT(settingsMap.at("filterline")));
@@ -958,7 +958,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":min_signal_baseline_ratio", BINT(settingsMap.at("minSignalBaselineRatio")));
     settingsQuery->bind(":signal_baseline_ratio_quantile", BINT(settingsMap.at("signalBaselineRatioQuantile")));
     settingsQuery->bind(":min_peak_width", BINT(settingsMap.at("minPeakWidth")));
-    settingsQuery->bind(":min_good_peak_count", BINT(settingsMap.at("minGoodPeakCount")));
+    settingsQuery->bind(":peak_width_quantile", BINT(settingsMap.at("peakWidthQuantile")));
     settingsQuery->bind(":peak_classifier_file", BSTRING(settingsMap.at("peakClassifierFile")));
 
     settingsQuery->bind(":main_window_selected_db_name", BSTRING(settingsMap.at("mainWindowSelectedDbName")));
@@ -986,8 +986,6 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":obi_warp_gap_extend", BDOUBLE(settingsMap.at("obi_warp_gap_extend")));
     settingsQuery->bind(":obi_warp_factor_diag", BDOUBLE(settingsMap.at("obi_warp_factor_diag")));
     settingsQuery->bind(":obi_warp_factor_gap", BDOUBLE(settingsMap.at("obi_warp_factor_gap")));
-    // settingsQuery->bind(":obi_warp_no_standard_normal", BINT(settingsMap.at("obi_warp_no_standard_normal")));
-    // settingsQuery->bind(":obi_warp_local", BINT(settingsMap.at("obi_warp_local")));
     settingsQuery->bind(":active_table_name", BSTRING(settingsMap.at("activeTableName")));
 }
 
@@ -1653,7 +1651,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["minSignalBaselineRatio"] = variant(settingsQuery->doubleValue("min_signal_baseline_ratio"));
     settingsMap["signalBaselineRatioQuantile"] = settingsQuery->integerValue("signal_baseline_ratio_quantile");
     settingsMap["minPeakWidth"] = variant(settingsQuery->integerValue("min_peak_width"));
-    settingsMap["minGoodPeakCount"] = variant(settingsQuery->integerValue("min_good_peak_count"));
+    settingsMap["peakWidthQuantile"] = variant(settingsQuery->integerValue("peak_width_quantile"));
     settingsMap["peakClassifierFile"] = variant(settingsQuery->stringValue("peak_classifier_file"));
 
     settingsMap["mainWindowSelectedDbName"] = settingsQuery->stringValue("main_window_selected_db_name");
@@ -2045,7 +2043,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["minSignalBaselineRatio"] = static_cast<int>(mp->minSignalBaseLineRatio);
     settingsMap["signalBaselineRatioQuantile"] = static_cast<int>(mp->quantileSignalBaselineRatio);
     settingsMap["minPeakWidth"] = static_cast<int>(mp->minNoNoiseObs);
-    settingsMap["minGoodPeakCount"] = mp->minGoodGroupCount;
+    settingsMap["peakWidthQuantile"] = static_cast<int>(mp->quantilePeakWidth);
     settingsMap["peakClassifierFile"] = string(); // does this even change?
 
     // alignment settings do not apply to single groups (yet)
@@ -2184,7 +2182,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.minSignalBaseLineRatio = BDOUBLE(settingsMap["minSignalBaselineRatio"]);
     mp.quantileSignalBaselineRatio = BINT(settingsMap["signalBaselineRatioQuantile"]);
     mp.minNoNoiseObs = BINT(settingsMap["minPeakWidth"]);
-    mp.minGoodGroupCount = BINT(settingsMap["minGoodPeakCount"]);
+    mp.quantilePeakWidth = BINT(settingsMap["peakWidthQuantile"]);
     // ?? = settingsMap["peakClassifierFile"];
 
     // ?? = settingsMap["mainWindowSelectedDbName"];

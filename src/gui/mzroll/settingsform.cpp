@@ -1,3 +1,4 @@
+#include "classifierNeuralNet.h"
 #include "common/analytics.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
@@ -25,7 +26,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("scanFilterMinIntensity", QVariant::fromValue(sf->scan_filter_min_intensity));
     settings.insert("uploadMultiprocessing", QVariant::fromValue(sf->checkBoxMultiprocessing));
 
-    settings.insert("eicSmoothingAlgorithm", QVariant::fromValue(sf->eic_smoothingAlgorithm));
     settings.insert("eicSmoothingWindow", QVariant::fromValue(sf->eic_smoothingWindow));
     settings.insert("maxRtDiffBetweenPeaks", QVariant::fromValue(sf->grouping_maxRtWindow));
 
@@ -41,8 +41,6 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("minPeakQuality", QVariant::fromValue(sf->minPeakQuality));
     settings.insert("isotopeMinPeakQuality", QVariant::fromValue(sf->minIsotopicPeakQuality));
 
-    settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
-
     settings.insert("useOverlap", QVariant::fromValue(sf->useOverlap));
     settings.insert("distXWeight", QVariant::fromValue(sf->distXSlider));
     settings.insert("distYWeight", QVariant::fromValue(sf->distYSlider));
@@ -52,6 +50,10 @@ OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
     settings.insert("qualityWeight", QVariant::fromValue(sf->qualityWeight));
     settings.insert("intensityWeight", QVariant::fromValue(sf->intensityWeight));
     settings.insert("deltaRTWeight", QVariant::fromValue(sf->deltaRTWeight));
+
+    settings.insert("eicSmoothingAlgorithm", QVariant::fromValue(sf->eic_smoothingAlgorithm));
+    settings.insert("eicType", QVariant::fromValue(sf->eicTypeComboBox));
+    settings.insert("peakClassifierFile", QVariant::fromValue(sf->classificationModelFilename));
 }
 
 void OptionsDialogSettings::updateOptionsDialog(string key, string value)
@@ -210,6 +212,12 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
     connect(deltaRTCheck, SIGNAL(toggled(bool)), SLOT(toggleDeltaRtWeight()));
     connect(deltaRTCheck, SIGNAL(toggled(bool)), this,SLOT(getFormValues()));
     toggleDeltaRtWeight();
+
+    connect(loadModelButton,
+            &QPushButton::clicked,
+            this,
+            &SettingsForm::loadModel);
+    _updateModelPath();
 
     connect(this,&SettingsForm::settingsChanged, optionSettings, &OptionsDialogSettings::updateOptionsDialog);
     connect(this, &QDialog::rejected, this, &SettingsForm::triggerSettingsUpdate);
@@ -410,8 +418,10 @@ void SettingsForm::setAppropriatePolarity() {
     }
 }
 
-void SettingsForm::show() {
-    if (mainwindow == NULL) return;
+void SettingsForm::show()
+{
+    if (mainwindow == nullptr)
+        return;
 
     mainwindow->getAnalytics()->hitScreenView("OptionsDialog");
 
@@ -420,6 +430,34 @@ void SettingsForm::show() {
         connect(intensityWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
         connect(deltaRTWeight, SIGNAL(valueChanged(int)), mainwindow->ligandWidget, SLOT(showLigand()));
     }
+
+    _updateModelPath();
+}
+
+void SettingsForm::loadModel()
+{
+    // this gives the name of the file that is selected by the user
+    const QString modelPath =
+        QFileDialog::getOpenFileName(this,
+                                     "Select Classification Model",
+                                     ".",
+                                     tr("Model File (*.model)"));
+    ClassifierNeuralNet* clsf = mainwindow->getClassifier();
+    if (clsf)
+        clsf->loadModel(modelPath.toStdString());
+    _updateModelPath();
+}
+
+void SettingsForm::_updateModelPath()
+{
+    QString pathText("\"%1\"");
+    ClassifierNeuralNet* clsf = mainwindow->getClassifier();
+    if (clsf != nullptr) {
+        pathText = pathText.arg(clsf->getModelFilename().c_str());
+    } else {
+        pathText = pathText.arg("");
+    }
+    classificationModelFilename->setText(pathText);
 }
 
 void SettingsForm::setGroupRankStatus() {

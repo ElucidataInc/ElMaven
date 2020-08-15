@@ -5,7 +5,6 @@
 #include "alignmentdialog.h"
 #include "common/analytics.h"
 #include "backgroundopsthread.h"
-#include "classifierNeuralNet.h"
 #include "database.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
@@ -60,8 +59,7 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("minSignalBaselineRatio", QVariant::fromValue(pd->sigBaselineRatio));
     settings.insert("signalBaselineRatioQuantile", QVariant::fromValue(pd->quantileSignalBaselineRatio));
     settings.insert("minPeakWidth", QVariant::fromValue(pd->minNoNoiseObs));
-    settings.insert("minGoodPeakCount", QVariant::fromValue(pd->minGoodGroupCount));
-    settings.insert("peakClassifierFile", QVariant::fromValue(pd->classificationModelFilename));
+    settings.insert("peakWidthQuantile", QVariant::fromValue(pd->quantilePeakWidth));
 
     /* special case: there is no Ui element defined inside Peaks dialog that can be used
      * to change/access massCutOfftype. the only way to change massCutofftype is to change it from mainWindow(top right corner).
@@ -139,7 +137,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(identificationDatabase,
                 &QComboBox::currentTextChanged,
                 [this] (QString text) {
-                    if (identificationDatabase->currentIndex() == 0
+                    if (!featureOptions->isChecked()
+                        || identificationDatabase->currentIndex() == 0
                         || text == "") {
                         identificationRtWindow->setEnabled(false);
                         identificationMatchRt->setEnabled(false);
@@ -153,7 +152,16 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(computeButton, SIGNAL(clicked(bool)), SLOT(findPeaks()));
         connect(cancelButton, SIGNAL(clicked(bool)), SLOT(cancel()));
         connect(matchRt,SIGNAL(clicked(bool)),compoundRTWindow,SLOT(setEnabled(bool)));
-        connect(identificationMatchRt,SIGNAL(clicked(bool)),identificationRtWindow,SLOT(setEnabled(bool)));
+        connect(identificationMatchRt,
+                &QCheckBox::toggled,
+                identificationRtWindow,
+                [this] (bool checked) {
+                    if (checked && identificationMatchRt->isEnabled()) {
+                        identificationRtWindow->setEnabled(true);
+                    } else {
+                        identificationRtWindow->setEnabled(false);
+                    }
+                });
         connect(matchFragmentationOptions,
                 &QGroupBox::toggled,
                 [this](const bool checked)
@@ -174,12 +182,15 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SIGNAL(valueChanged(double)),
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
-        connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
         connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
         connect(quantileSignalBlankRatio, SIGNAL(valueChanged(int)), this, SLOT(showBlankQuantileStatus(int)));
+        connect(quantilePeakWidth,
+                &QSlider::valueChanged,
+                this,
+                &PeakDetectionDialog::showPeakWidthQuantileStatus);
 
         connect(this, &QDialog::rejected, this, &PeakDetectionDialog::triggerSettingsUpdate);
 
@@ -190,11 +201,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         connect(dbSearch, SIGNAL(toggled(bool)), SLOT(dbSearchClicked()));
         featureOptions->setChecked(false);
         connect(featureOptions, SIGNAL(toggled(bool)), SLOT(featureOptionsClicked()));
-
-        connect(classificationModelFilename,
-                SIGNAL(textChanged(QString)),
-                this,
-                SLOT(setModel(QString)));
 
         connect(this, &PeakDetectionDialog::settingsChanged, peakSettings, &PeakDetectionSettings::updatePeakSettings);
         connect(peakQuantitation,
@@ -348,32 +354,6 @@ void PeakDetectionDialog::show() {
 }
 
 /**
- * PeakDetectionDialog::loadModel This function works in the peakdector window
- * When theuser clicks on the Peak classifier Model file a dialog box appears
- * from which they can seect the model that is been trained
- */
-void PeakDetectionDialog::loadModel() {
-    
-    // This gives the name of the file that is selected by the user
-    const QString modelPath =
-        QFileDialog::getOpenFileName(this,
-                                     "Select Classification Model",
-                                     ".",
-                                     tr("Model File (*.model)"));
-    classificationModelFilename->setText(modelPath);
-}
-
-void PeakDetectionDialog::setModel(const QString& modelPath)
-{
-    // Getting the classifier instance from the main window
-    Classifier* clsf = mainwindow->getClassifier();
-
-    // Loading the model to the to the model instance
-    if (clsf)
-        clsf->loadModel(modelPath.toStdString());
-}
-
-/**
  * PeakDetectionDialog::show This function is being called when the
  * database search button or the feature detection button is cliecked
  * from the main window
@@ -382,17 +362,12 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
     // TODO: Why only this two variables are updated in the windows that is
     // selected by the user
     if (mainwindow != NULL) {
-        QSettings* settings = mainwindow->getSettings();
-        if (settings) {
-
-            // Peak Scoring and Filtering
-            showQualityQuantileStatus(quantileQuality->value());
-            showBaselineQuantileStatus(quantileSignalBaselineRatio->value());
-            showBlankQuantileStatus(quantileSignalBlankRatio->value());
-            showIntensityQuantileStatus(quantileIntensity->value());
-
-            classificationModelFilename->setText(settings->value("peakClassifierFile").toString());
-        }
+        // Peak Scoring and Filtering
+        showQualityQuantileStatus(quantileQuality->value());
+        showBaselineQuantileStatus(quantileSignalBaselineRatio->value());
+        showBlankQuantileStatus(quantileSignalBlankRatio->value());
+        showIntensityQuantileStatus(quantileIntensity->value());
+        showPeakWidthQuantileStatus(quantilePeakWidth->value());
 
         refreshCompoundDatabases();
 
@@ -424,16 +399,18 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         //match fragmentation only enabled during targeted detection with NIST library
         toggleFragmentation();
 
-        if (matchRt->isChecked()) {
-            compoundRTWindow->setEnabled(true);
-        } else {
+        if (!dbSearch->isChecked() || !matchRt->isChecked()) {
             compoundRTWindow->setEnabled(false);
+        } else {
+            compoundRTWindow->setEnabled(true);
         }
 
-        if (identificationMatchRt->isChecked()) {
-            identificationRtWindow->setEnabled(true);
-        } else {
+        if (!featureOptions->isChecked()
+            || !identificationMatchRt->isEnabled()
+            || !identificationMatchRt->isChecked()) {
             identificationRtWindow->setEnabled(false);
+        } else {
+            identificationRtWindow->setEnabled(true);
         }
 
         QDialog::exec();
@@ -647,6 +624,21 @@ void PeakDetectionDialog::showBlankQuantileStatus(int value) {
         qstat = QString::fromStdString(stat);
     }
     blankQuantileStatus->setText(qstat);
+}
+
+void PeakDetectionDialog::showPeakWidthQuantileStatus(int value)
+{
+    mainwindow->mavenParameters->quantilePeakWidth = value;
+    QString qstat;
+    if (value) {
+        std::string stat(std::to_string(value)
+                         + "% peaks above minimum peak width");
+        qstat = QString::fromStdString(stat);
+    } else {
+        std::string stat("1 peak above minimum peak width");
+        qstat = QString::fromStdString(stat);
+    }
+    widthQuantileStatus->setText(qstat);
 }
 
 void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {

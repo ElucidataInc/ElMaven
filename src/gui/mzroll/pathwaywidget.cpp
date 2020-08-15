@@ -220,7 +220,6 @@ void PathwayWidget::checkCompoundExistance() {
 		mavenParameters->compoundMassCutoffWindow = mw->getUserMassCutoff();
 		workerThread->setRunFunction("computePeaks");
 
-		mavenParameters->minGoodGroupCount = 1;
 		mavenParameters->minSignalBlankRatio = 2;
 		mavenParameters->minSignalBaseLineRatio = 2;
 		mavenParameters->minNoNoiseObs = 2;

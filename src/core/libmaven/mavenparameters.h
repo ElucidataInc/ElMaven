@@ -114,6 +114,7 @@ class MavenParameters
         double quantileIntensity;
         double quantileSignalBaselineRatio;
         double quantileSignalBlankRatio;
+        double quantilePeakWidth;
 
         //mass slicing parameters
         float mzBinStep;
@@ -145,7 +146,6 @@ class MavenParameters
         int eicType;
 
         //peak filtering
-        int minGoodGroupCount;
         float minSignalBlankRatio;
         float minNoNoiseObs;
         float minSignalBaseLineRatio;

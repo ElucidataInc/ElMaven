@@ -365,12 +365,16 @@ using namespace mzUtils;
     QString appDir;
 
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        appDir =  QDir::cleanPath(QApplication::applicationDirPath()) + QDir::separator();
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath())
+                  + QDir::separator();
     #endif
 
     #if defined(Q_OS_MAC)
-        appDir =  qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-              + QDir::separator();
+        appDir = qApp->applicationDirPath()
+                 + QDir::separator() + ".."
+                 + QDir::separator() + ".."
+                 + QDir::separator() + "..";
+        appDir = QDir::cleanPath(appDir) + QDir::separator();
     #endif
 
     clsfModelFilename = appDir + "default.model";
@@ -378,16 +382,10 @@ using namespace mzUtils;
     modelFile = appDir + "svm.model";
 
 	groupClsf = new groupClassifier();
-        groupClsf->loadModel(weightsFile.toStdString());
+    groupClsf->loadModel(weightsFile.toStdString());
  
   	groupPred = new svmPredictor();
-        groupPred->loadModel(modelFile.toStdString());
-
-
-   /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
-      string massCutoffType=settings->value("massCutoffType").toString().toStdString();
-      _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
-    */
+    groupPred->loadModel(modelFile.toStdString());
 
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
@@ -2825,18 +2823,23 @@ void MainWindow::readSettings() {
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 			
-    if (!settings->contains("peakClassifierFile") || settings->value("peakClassifierFile").toString().length() <=0) {
-        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-          settings->setValue("peakClassifierFile",  QApplication::applicationDirPath() + "/" + "default.model");
-        #endif
-        #if defined(Q_OS_MAC)
-          QString binPath = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-                  + QDir::separator() + "default.model";
-          settings->setValue("peakClassifierFile", binPath);
-        #endif
+    if (!settings->contains("peakClassifierFile")
+        || settings->value("peakClassifierFile").toString().isEmpty()) {
+        QString appDir;
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath())
+                  + QDir::separator();
+#endif
+#if defined(Q_OS_MAC)
+        appDir = qApp->applicationDirPath()
+                 + QDir::separator() + ".."
+                 + QDir::separator() + ".."
+                 + QDir::separator() + "..";
+        appDir = QDir::cleanPath(appDir) + QDir::separator();
+#endif
+        QString modelPath = appDir + "default.model";
+        settings->setValue("peakClassifierFile", modelPath);
     }
-
-
 
         
     // if (!settings->contains("checkBox"))
@@ -3340,9 +3343,9 @@ void MainWindow::createToolBars() {
                                "5. Peak grouping: peak-group score "
                                "calculation\n"
                                "6. Group rank: group rank calculation decides "
-                               "which groups are selected for a given m/z"
+                               "which groups are selected for a given m/z\n"
                                "7. Advanced settings: miscellaneous advanced "
-                               "options\n"));
+                               "options"));
 
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
@@ -3977,8 +3980,14 @@ void MainWindow::Align()
             this,
             &MainWindow::updateTablePostAlignment);
 
-    mavenParameters->minGoodGroupCount =
-        alignmentDialog->minGoodPeakCount->value();
+    float percentileGood = alignmentDialog->minGoodPeakCount->value()
+                           / getVisibleSamples().size()
+                           * 100.0f;
+    if (percentileGood > 100.0f)
+        percentileGood = 100.0f;
+    if (percentileGood < 1.0f)
+        percentileGood = 1.0f;
+    mavenParameters->quantileQuality = percentileGood;
     mavenParameters->limitGroupCount =
         alignmentDialog->limitGroupCount->value();
     mavenParameters->minGroupIntensity =

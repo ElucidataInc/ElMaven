@@ -34,6 +34,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setIsotopicPeakFiltering();
             void onReset();
             void setFilterline(string filterlineString);
+            void loadModel();
 
             /*
              * @brief: Sets polarity based on the ionization type selected.
@@ -85,6 +86,8 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             MainWindow *mainwindow;
             OptionsDialogSettings* optionSettings;
             QList<QMetaObject::Connection> _analyticsConnections;
+
+            void _updateModelPath();
 
       private Q_SLOTS:
             void _smoothnessChanged(int value);

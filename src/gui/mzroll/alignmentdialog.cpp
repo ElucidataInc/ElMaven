@@ -187,8 +187,10 @@ void AlignmentDialog::show()
 
 void AlignmentDialog::inputInitialValuesAlignmentDialog()
 {
-	minGoodPeakCount->setValue(_mw->mavenParameters->minGoodGroupCount);
-	groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
+    minGoodPeakCount->setMaximum(0);
+    minGoodPeakCount->setMaximum(_mw->getVisibleSamples().size());
+    minGoodPeakCount->setValue(1);
+    groupingWindow->setValue(_mw->mavenParameters->rtStepSize);
 
 	minGroupIntensity->setValue(_mw->mavenParameters->minGroupIntensity);
 	minSN->setValue(_mw->mavenParameters->minSignalBaseLineRatio);

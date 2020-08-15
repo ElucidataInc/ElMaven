@@ -42,14 +42,18 @@ void ClassifierNeuralNet::saveModel(string filename) {
 
 void ClassifierNeuralNet::loadModel(string filename) {
 	if (!fileExists(filename)) {
-		cerr << "Can't load " << filename << endl;
+        cerr << "No such file: " << filename << endl;
 		return;
 	}
 	if (brain != NULL)
 		delete (brain);
-	brain = new nnwork(num_features, hidden_layer, num_outputs);
-	brain->load((char*) filename.c_str());
-	cout << "Read in classification model " << filename << endl;
+    brain = new nnwork(num_features, hidden_layer, num_outputs);
+    if (brain->load((char*) filename.c_str())) {
+        cerr << "Read in classification model " << filename << endl;
+        _filename = filename;
+    } else {
+        cerr << "Failed to read classification model " << filename << endl;
+    }
 }
 
 vector<float> ClassifierNeuralNet::getFeatures(Peak& p) {

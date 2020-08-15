@@ -52,8 +52,6 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
 
 bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
 {
-
-    //TODO: remove compound assignment from filtering
     Compound* compound = _slice->compound;
     peakgroup.setQuantitationType((PeakGroup::QType)_mavenParameters->peakQuantitation);
     peakgroup.minQuality = _mavenParameters->minQuality;
@@ -64,12 +62,8 @@ bool GroupFiltering::filterByMS1(PeakGroup &peakgroup)
     if (_mavenParameters->clsf->hasModel()) {
         _mavenParameters->clsf->classify(&peakgroup);
         peakgroup.updateQuality();
-        if (peakgroup.goodPeakCount < _mavenParameters->minGoodGroupCount)
-            return true;
     }
 
-    if (peakgroup.maxNoNoiseObs < _mavenParameters->minNoNoiseObs)
-        return true;
     if (quantileFilters(&peakgroup))
         return true;
 
@@ -194,49 +188,69 @@ void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
 }
 
 bool GroupFiltering::quantileFilters(PeakGroup *group) {
-    if (group->maxIntensity < _mavenParameters->minGroupIntensity){
+    if (group->maxIntensity
+        < _mavenParameters->minGroupIntensity) {
         return true;
     }
-    if (group->maxSignalBaselineRatio < _mavenParameters->minSignalBaseLineRatio) {
+    if (group->maxSignalBaselineRatio
+        < _mavenParameters->minSignalBaseLineRatio) {
         return true;
     }
     if (_mavenParameters->clsf->hasModel() && 
         group->maxQuality < _mavenParameters->minQuality) {
             return true;
     }
-    if (group->maxIntensity < group->blankMax * _mavenParameters->minSignalBlankRatio){
+    if (group->maxIntensity
+        < group->blankMax * _mavenParameters->minSignalBlankRatio) {
         return true;
     }
+    if (group->maxNoNoiseObs < _mavenParameters->minNoNoiseObs)
+        return true;
+
     vector<Peak> peaks = group->getPeaks();
     int peaksAboveMinIntensity = 0;
     int peaksAboveBaselineRatio = 0;
     int peaksAboveBlankRatio = 0;
     int peaksAboveMinQuality = 0;
+    int peaksAboveMinWidth = 0;
     for (int i = 0; i < peaks.size(); i++) {
-        if (peaks[i].peakIntensity > _mavenParameters->minGroupIntensity) {
+        if (peaks[i].peakIntensity
+            >= _mavenParameters->minGroupIntensity) {
             peaksAboveMinIntensity++;
         }
-        if (peaks[i].signalBaselineRatio > _mavenParameters->minSignalBaseLineRatio) {
+        if (peaks[i].signalBaselineRatio
+            >= _mavenParameters->minSignalBaseLineRatio) {
             peaksAboveBaselineRatio++;
         }
-        if (peaks[i].peakIntensity > group->blankMax * _mavenParameters->minSignalBlankRatio){
+        if (peaks[i].peakIntensity
+            >= group->blankMax * _mavenParameters->minSignalBlankRatio) {
             peaksAboveBlankRatio++;
         }
-        if (peaks[i].quality > _mavenParameters->minQuality) {
+        if (peaks[i].quality >= _mavenParameters->minQuality) {
             peaksAboveMinQuality++;
         }
+        if (peaks[i].width >= _mavenParameters->minNoNoiseObs)
+            peaksAboveMinWidth++;
     }
     int noVisibleSamples = _mavenParameters->getVisibleSamples().size();
-    if ((1.0*peaksAboveMinIntensity/noVisibleSamples) * 100 < _mavenParameters->quantileIntensity) {
+    if ((1.0 * peaksAboveMinIntensity / noVisibleSamples) * 100
+        < _mavenParameters->quantileIntensity) {
         return true;
     }
-    if ((1.0*peaksAboveMinQuality/noVisibleSamples) * 100 < _mavenParameters->quantileQuality) {
+    if ((1.0 * peaksAboveMinQuality / noVisibleSamples) * 100
+        < _mavenParameters->quantileQuality) {
         return true;
     }
-    if ((1.0*peaksAboveBaselineRatio/noVisibleSamples)*100 < _mavenParameters->quantileSignalBaselineRatio){
+    if ((1.0 * peaksAboveBaselineRatio / noVisibleSamples) * 100
+        < _mavenParameters->quantileSignalBaselineRatio) {
         return true;
     }
-    if ((1.0*peaksAboveBlankRatio/noVisibleSamples)*100 < _mavenParameters->quantileSignalBlankRatio){
+    if ((1.0 * peaksAboveBlankRatio / noVisibleSamples) * 100
+        < _mavenParameters->quantileSignalBlankRatio) {
+        return true;
+    }
+    if ((1.0 * peaksAboveMinWidth / noVisibleSamples) * 100
+        < _mavenParameters->quantilePeakWidth) {
         return true;
     }
     return false;

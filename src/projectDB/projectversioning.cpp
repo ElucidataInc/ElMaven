@@ -799,6 +799,7 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE user_settings ADD COLUMN filter_adducts_against_parent INTEGER;"
         "ALTER TABLE user_settings ADD COLUMN parent_isotope_required INTEGER;"
         "ALTER TABLE user_settings ADD COLUMN parent_adduct_required INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN peak_width_quantile INTEGER;"
 
         "ALTER TABLE peaks ADD COLUMN eic_rt TEXT;"
         "ALTER TABLE peaks ADD COLUMN eic_original_rt TEXT;"

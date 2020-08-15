@@ -107,10 +107,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
                 _currentPollyApp = PollyApp::None;
             }
 
-        case 'b':
-            mavenParameters->minGoodGroupCount = atoi(optarg);
-            break;
-
         case 'c':
             mavenParameters->compoundRTWindow = atof(optarg);
             mavenParameters->matchRtFlag = true;
@@ -389,11 +385,7 @@ void PeakDetectorCLI::_processPeaksArgsXML(xml_node& peaksArgs)
 {
     for (xml_node node = peaksArgs.first_child(); node;
          node = node.next_sibling()) {
-        if (strcmp(node.name(), "minGoodGroupCount") == 0) {
-            mavenParameters->minGoodGroupCount =
-                atoi(node.attribute("value").value());
-
-        } else if (strcmp(node.name(), "matchRtFlag") == 0) {
+        if (strcmp(node.name(), "matchRtFlag") == 0) {
             mavenParameters->compoundRTWindow =
                 atof(node.attribute("value").value());
             mavenParameters->matchRtFlag = true;
