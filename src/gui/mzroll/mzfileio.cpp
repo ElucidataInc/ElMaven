@@ -31,7 +31,6 @@ mzFileIO::mzFileIO(QWidget*) {
     sampleId = 0;
     _mainwindow = NULL;
     _stopped = true;
-    process = NULL;
     _currentProject = nullptr;
     _encounteredMemoryError = false;
 
@@ -49,18 +48,9 @@ mzFileIO::mzFileIO(QWidget*) {
     _sqliteDbSaveInProgress = false;
 }
 
-void mzFileIO::setMainWindow(MainWindow* mw) {
-
+void mzFileIO::setMainWindow(MainWindow* mw)
+{
     _mainwindow=mw;
-    //connect(this,SIGNAL(finished()),_mainwindow,SLOT(setupSampleColors()));
-    //connect(this,SIGNAL(finished()),_mainwindow->projectDockWidget,SLOT(updateSampleList()));
-   
-	//if ( mw->srmDockWidget->isVisible()) connect(this,SIGNAL(finished()),_mainwindow,SLOT(showSRMList()));
-    
-	//process = new QProcess();
- 	//connect(process, SIGNAL(finished(int)), this, SLOT(readProcessOutput(int)));
-    //connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readThermoRawFileImport()));
-
 }
 
 void mzFileIO::loadSamples(QStringList& files) {
@@ -81,37 +71,24 @@ mzSample* mzFileIO::loadSample(const QString& filename){
     }
 
     sampleName.replace(QRegExp(".*/"),"");
-    sampleName.replace(".mzCSV","",Qt::CaseInsensitive);
-    sampleName.replace(".mzdata","",Qt::CaseInsensitive);
     sampleName.replace(".mzXML","",Qt::CaseInsensitive);
     sampleName.replace(".mzML","",Qt::CaseInsensitive);
-    sampleName.replace(".mz5","",Qt::CaseInsensitive);
-    sampleName.replace(".pepXML","",Qt::CaseInsensitive);
-    sampleName.replace(".xml","",Qt::CaseInsensitive);
     sampleName.replace(".cdf","",Qt::CaseInsensitive);
-    sampleName.replace(".raw","",Qt::CaseInsensitive);
 
     if (sampleName.isEmpty()) return NULL;
     mzSample* sample = NULL;
 
-    if (filename.contains("mzdata",Qt::CaseInsensitive)) {
-        // mzFileIO::loadPepXML(filename);
-        sample = mzFileIO::parseMzData(filename);
-    } else  if (filename.endsWith("raw",Qt::CaseInsensitive)) {
-        mzFileIO::ThermoRawFileImport(filename);
-    } else {
-        sample = new mzSample();
-        try {
-            sample->loadSample( filename.toLatin1().data() );
-        } catch (const std::bad_alloc&) {
-            cerr << "MemoryError: " << "ran out of memory" << endl;
-            mzUtils::delete_all(sample->scans);
-            _encounteredMemoryError = true;
-        }
-        if (sample->scans.empty()) {
-            delete sample;
-            sample = nullptr;
-        }
+    sample = new mzSample();
+    try {
+        sample->loadSample( filename.toLatin1().data() );
+    } catch (const std::bad_alloc&) {
+        cerr << "MemoryError: " << "ran out of memory" << endl;
+        mzUtils::delete_all(sample->scans);
+        _encounteredMemoryError = true;
+    }
+    if (sample->scans.empty()) {
+        delete sample;
+        sample = nullptr;
     }
 
     if ( sample && sample->scans.size() > 0 ) {
@@ -255,87 +232,6 @@ PK$PEAK: m/z int. rel.int.
          }
     } while (!line.isNull());
     return compoundCount;
-}
-
-//TODO: should not be here
-mzSample* mzFileIO::parseMzData(QString fileName) {
-
-    qDebug() << "Loading mzData sample: " << fileName;
-    QFile data(fileName);
-
-    if (!data.open(QFile::ReadOnly) ) {
-        qDebug() << "Can't open " << fileName; return NULL;
-    }
-
-    QXmlStreamReader xml(&data);
-    xml.setNamespaceProcessing(false);
-    QList<QStringRef> taglist;
-
-    int scannum=0;
-
-    mzSample* currentSample=NULL;
-    Scan* currentScan=NULL;
-
-    while (!xml.atEnd()) {
-        xml.readNext();
-        if (xml.isStartElement()) {
-                taglist << xml.name();
-                if (xml.name() == "spectrum") {
-                    scannum++;
-                    if (!currentSample) currentSample = new mzSample();
-                    currentScan = new Scan(currentSample,scannum,1,0,0,0);
-                } else if (xml.name() == "cvParam" && currentScan) {
-                    QString _name = xml.attributes().value("name").toString();
-                    QString _value = xml.attributes().value("value").toString();
-                   //qDebug() << _name << "->" << _value;
-
-                    if(_name.contains("TimeInMinutes",Qt::CaseInsensitive))  currentScan->rt = _value.toFloat();
-                    else if(_name.contains("time in seconds",Qt::CaseInsensitive))  currentScan->rt = _value.toFloat();
-                    else if(_name.contains("Polarity",Qt::CaseInsensitive)) {
-                        if ( _value[0] == 'p' || _value[0] == 'P') {
-                            currentScan->setPolarity(+1);
-                        } else {
-                            currentScan->setPolarity(-1);
-                        }
-                    }
-
-                    if (_name.contains("MassToChargeRatio",Qt::CaseInsensitive)) {
-                        currentScan->precursorMz = _value.toFloat();
-                    }
-
-                    if (_name.contains("CollisionEnergy",Qt::CaseInsensitive)) {
-                        currentScan->collisionEnergy = _value.toFloat();
-                    }
-
-                } else if (xml.name() == "spectrumInstrument" && currentScan) {
-                    currentScan->mslevel = xml.attributes().value("msLevel").toString().toInt();
-                    if (currentScan->mslevel <= 0 ) currentScan->mslevel=1;
-                 } else if (xml.name() == "data" && taglist.size() >= 2 && currentScan) {
-                     int precision = xml.attributes().value("precision").toString().toInt();
-
-
-                     if (taglist.at(taglist.size()-2) == "mzArrayBinary") {
-                      currentScan->mz=
-                               base64::decodeBase64(xml.readElementText().toStdString(),precision/8,false,false);
-                     }
-
-                     if (taglist.at(taglist.size()-2) == "intenArrayBinary") {
-                        currentScan->intensity =
-                                base64::decodeBase64(xml.readElementText().toStdString(),precision/8,false,false);
-                     }
-                }
-
-        } else if (xml.isEndElement()) {
-               if (!taglist.isEmpty()) taglist.pop_back();
-               if (xml.name() == "spectrum" && currentScan) {
-                   currentSample->addScan(currentScan);
-                   Q_EMIT (updateProgressBar( "FileImport", scannum%100, 110));
-               }
-        }
-    }
-
-    data.close();
-    return currentSample;
 }
 
 void mzFileIO::run(void)
@@ -621,7 +517,7 @@ bool mzFileIO::isCompoundDatabaseType(QString filename)
 
 bool mzFileIO::isSampleFileType(QString filename) {
     QStringList extList;
-    extList << "mzXML" << "cdf" << "nc" << "mzML" << "mzData" << "mzML";
+    extList << "mzXML" << "cdf" << "nc" << "mzML" << "mzML";
     Q_FOREACH (QString suffix, extList) {
         if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
     }
@@ -1466,13 +1362,6 @@ bool mzFileIO::isPeakListType(QString filename) {
     return false;
 }
 
-void mzFileIO::readThermoRawFileImport() {
-    if(process) {
-        QByteArray data = process->readAllStandardOutput();
-        qDebug() << "Captured:" << data;
-    }
-}
-
 void mzFileIO::addFileToQueue(QString f)
 {
 //    if (isKnownFileType(f)) filelist << f;
@@ -1481,25 +1370,4 @@ void mzFileIO::addFileToQueue(QString f)
 
 void mzFileIO::removeAllFilefromQueue() {
     filelist.clear();
-}
-
-int mzFileIO::ThermoRawFileImport(QString fileName) {
-
-    if (process->pid()){
-           process->terminate();
-           qDebug()  <<  "Killing process..\n";
-           return -1;
-    }
-
-   QString rawExtractExe = _mainwindow->getSettings()->value("RawExtractProgram").toString();
-    if(!QFile::exists(rawExtractExe)) {
-        qDebug() << "Can't find " + rawExtractExe;
-        return -1;
-    }
-
-    //start process
-    QStringList arguments; arguments  << fileName;
-    qDebug() << "Running:" << rawExtractExe << arguments;
-
-    process->start(rawExtractExe, arguments);
 }

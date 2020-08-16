@@ -48,21 +48,12 @@ Q_OBJECT
         mzSample* loadSample(const QString& filename);
 
         /**
-         * [parse MzData]
-         * @param  fileName [name of the file]
-         * @return          [pointer to Sample]
-         */
-        mzSample* parseMzData(QString fileName);
-
-        /**
          * [set main window]
          * @param  MainWindow* [main window]
          */
         void setMainWindow(MainWindow*);
 
         int loadMassBankLibrary(QString filename);
-
-        int ThermoRawFileImport(QString fileName);
 
         int loadCompoundsFromFile(QString filename);
 
@@ -269,7 +260,6 @@ Q_OBJECT
         void _promptForMissingSamples(QList<QString> foundSamples);
 
     public Q_SLOTS:
-        void readThermoRawFileImport();
         void addFileToQueue(QString f);
         void removeAllFilefromQueue();
 
@@ -316,7 +306,7 @@ Q_OBJECT
          MainWindow* _mainwindow;
          ProjectDockWidget* projectdocwidget;
          bool _stopped;
-         QProcess* process;
+
         /**
          * @brief iterator for sample id
          * @detail sampleId is unique for every sample. Everytime sample gets

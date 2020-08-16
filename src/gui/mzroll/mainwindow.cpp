@@ -393,8 +393,6 @@ using namespace mzUtils;
 	analytics->hitScreenView("MainWindow");
 	analytics->sessionStart();
 
-	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-
     //added while merging with Maven776 - Kiran
 	//fileLoader
     saveWorker = new ProjectSaveWorker(this);
@@ -1232,18 +1230,10 @@ void MainWindow::mzrollLoadDB(QString dbname) {
     ligandWidget->setDatabase(dbname);
 }
 
-void MainWindow::reportBugs() {
-	QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-	QProcess *myProcess = new QProcess();
-	QStringList arguments;
-	arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
-	arguments << settings->value("bucket_name").toString();
-	arguments << settings->value("access_key").toString();
-	arguments << settings->value("secret_key").toString();
-//	arguments <<  myAppender.getMessageQList();
-	arguments << "0";
-	myProcess->start(crashReporterPath, arguments);
-
+void MainWindow::reportBugs()
+{
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/ElucidataInc/ElMaven/issues"));
 }
 
 void MainWindow::setUrl(QString url, QString link) {
@@ -1686,14 +1676,12 @@ void MainWindow::open()
         "Select projects, peaks, samples to open:",
         dir,
         tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks *.mzXML "
-           "*.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
+           "*.mzxml *.cdf *.nc *.mzML);;")
             + tr("mzXML Format(*.mzXML *.mzxml);;")
-            + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
             + tr("mzML Format(*.mzml *.mzML);;")
             + tr("NetCDF Format(*.cdf *.nc);;")
-            + tr("Thermo (*.raw);;")
             + tr("Maven Project File (*.mzroll *.emDB);;")
-            + tr("Maven Peaks File (*.mzPeaks);;"));
+            + tr("Maven Peaks File (*.mzPeaks)"));
 
     if (filelist.size() == 0)
         return;
@@ -2831,20 +2819,19 @@ void MainWindow::closeEvent(QCloseEvent* event)
  */
 void MainWindow::createMenus() {
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-	QMenu* widgetsMenu = menuBar()->addMenu(tr("&Widgets"));
 	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
 
-    QAction* openAct = new QAction(tr("&Load Samples|Projects|Peaks"), this);
+    QAction* openAct = new QAction(tr("&Load samples | projects"), this);
 	openAct->setShortcut(tr("Ctrl+O"));
 	openAct->setToolTip(tr("Open an existing file"));
 	connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 	fileMenu->addAction(openAct);
 
-	QAction* loadModel = new QAction(tr("Load Classification Model"), this);
+    QAction* loadModel = new QAction(tr("Load classification model"), this);
 	connect(loadModel, SIGNAL(triggered()), SLOT(loadModel()));
 	fileMenu->addAction(loadModel);
 
-	QAction* loadCompoundsFile = new QAction(tr("Load Compound List"), this);
+    QAction* loadCompoundsFile = new QAction(tr("Load compound list"), this);
 	connect(loadCompoundsFile, SIGNAL(triggered()), SLOT(loadCompoundsFile()));
 	fileMenu->addAction(loadCompoundsFile);
 
@@ -2878,11 +2865,11 @@ void MainWindow::createMenus() {
     });
     fileMenu->addAction(saveProjectWithRaw);
 
-    QAction* saveSettings = new QAction("Save Settings", this);
+    QAction* saveSettings = new QAction("Save settings", this);
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
     fileMenu->addAction(saveSettings);
 
-    QAction* loadSettings = new QAction("Load Settings", this);
+    QAction* loadSettings = new QAction("Load settings", this);
     connect(loadSettings, &QAction::triggered, this ,&MainWindow::loadSettings);
     fileMenu->addAction(loadSettings);
 
@@ -2891,7 +2878,7 @@ void MainWindow::createMenus() {
 	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
 	fileMenu->addAction(settingsAct);
 
-	QAction* reportBug = new QAction(tr("Report Bugs!"), this);
+    QAction* reportBug = new QAction(tr("Report bugs!"), this);
 	connect(reportBug, SIGNAL(triggered()), SLOT(reportBugs()));
 	fileMenu->addAction(reportBug);
 
@@ -2900,22 +2887,6 @@ void MainWindow::createMenus() {
 	exitAct->setToolTip(tr("Exit the application"));
 	connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 	fileMenu->addAction(exitAct);
-
-	QAction* hideWidgets = new QAction(tr("Hide Widgets"), this);
-	hideWidgets->setShortcut(tr("F11"));
-	connect(hideWidgets, SIGNAL(triggered()), SLOT(hideDockWidgets()));
-	widgetsMenu->addAction(hideWidgets);
-
-    QAction* aj = widgetsMenu->addAction("MS2 Events");
-    aj->setCheckable(true); 
-	aj->setChecked(false);
-    connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
-    connect(aj, &QAction::toggled, [this](const bool checked)
-    {
-        if (checked) {
-            this->analytics->hitEvent("PRM", "OpenedFragmentationEvents");
-        }
-    });
 
 	QSignalMapper* signalMapper = new QSignalMapper (this) ;
 	QAction* doc = helpMenu->addAction("Documentation");
