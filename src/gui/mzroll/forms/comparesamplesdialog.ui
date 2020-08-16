@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>571</width>
+    <width>765</width>
     <height>319</height>
    </rect>
   </property>
@@ -23,6 +23,12 @@
    </item>
    <item row="5" column="0">
     <widget class="QPushButton" name="compareButton">
+     <property name="minimumSize">
+      <size>
+       <width>136</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="text">
       <string>Compare Sets</string>
      </property>
@@ -190,12 +196,6 @@
         <property name="acceptDrops">
          <bool>true</bool>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
@@ -247,12 +247,6 @@
        <widget class="QListWidget" name="filelist2">
         <property name="acceptDrops">
          <bool>true</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
         </property>
         <property name="showDropIndicator" stdset="0">
          <bool>false</bool>

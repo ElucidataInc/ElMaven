@@ -2091,7 +2091,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   if (btnName == "titlePeakTable") {
     td->titlePeakTable = new QLabel(parent);
     QFont font;
-    font.setPointSize(14);
+    font.setPixelSize(16);
     td->titlePeakTable->setFont(font);
     td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");

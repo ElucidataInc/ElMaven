@@ -182,7 +182,7 @@ void AlignmentVizAllGroupsWidget::setLegend() {
     _mw->alignmentVizAllGroupsPlot->legend->setBrush(QColor(255, 255, 255, 100));
     _mw->alignmentVizAllGroupsPlot->legend->setBorderPen(pen);
     QFont legendFont;
-    legendFont.setPointSize(12);
+    legendFont.setPixelSize(12);
     _mw->alignmentVizAllGroupsPlot->legend->setFont(legendFont);
     _mw->alignmentVizAllGroupsPlot->legend->setSelectedFont(legendFont);
     _mw->alignmentVizAllGroupsPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items

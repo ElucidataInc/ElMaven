@@ -141,7 +141,7 @@ void BoxPlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     QFont font;
     float fontsize = _barwidth*0.8;
     if  (fontsize < 1 ) fontsize=1;
-    font.setPointSizeF(fontsize);
+    font.setPixelSize(fontsize);
     painter->setFont(font);
     QFontMetrics fm( font );
     int charWidth = fm.size(0,"W",0,NULL).width();

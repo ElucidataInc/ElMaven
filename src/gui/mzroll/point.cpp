@@ -306,7 +306,7 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     if (_group != nullptr && selGroup == _group) {
         brush.setStyle(Qt::SolidPattern);
         pen.setColor(_color.darker());
-        pen.setWidth(_pen.width()+1);
+        pen.setWidth(_pen.width());
     } else {
         brush.setStyle(Qt::NoBrush);
     }
