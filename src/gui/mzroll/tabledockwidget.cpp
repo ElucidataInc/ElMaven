@@ -2239,8 +2239,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2273,7 +2271,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);
@@ -2375,8 +2372,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2409,7 +2404,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);
@@ -2647,8 +2641,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
   QWidgetAction *btnSaveSpectral =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2679,7 +2671,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnSettingsLog);
 
   toolBar->addSeparator();
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);

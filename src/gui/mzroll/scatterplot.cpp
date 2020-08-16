@@ -72,12 +72,6 @@ void ScatterPlot::setupToolBar() {
     connect(btnFlower,SIGNAL(clicked()),this,SLOT(setPlotTypeFlower()));
 
     // new feature added - Kiran
-    QToolButton *btnPLS = new QToolButton(toolBar);
-    btnPLS->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnPLS->setToolTip("PLS plot");
-    connect(btnPLS,SIGNAL(clicked()),this,SLOT(setPlotTypePLS()));
-
-    // new feature added - Kiran
     QToolButton *btnDelete = new QToolButton(toolBar);
     btnDelete->setIcon(QIcon(rsrcPath + "/delete.png"));
     btnDelete->setToolTip("Delete selected groups");
@@ -113,15 +107,10 @@ void ScatterPlot::setupToolBar() {
     toolBar->addWidget(btnF);
     toolBar->addWidget(btnScatter);
     toolBar->addWidget(btnFlower);
-    // new feature added - Kiran
-    toolBar->addWidget(btnPLS);
-    // new feature added - Kiran
     toolBar->addWidget(btnDelete);
     toolBar->addWidget(btnPeakTable);
     toolBar->addWidget(spacerWidget);
     toolBar->addWidget(btnClose);
-    // merged with maven776 - Kiran
-    //  toolBar->addWidget(btnCovariants);
 
     setTitleBarWidget(toolBar);
 
