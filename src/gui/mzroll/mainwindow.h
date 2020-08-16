@@ -5,7 +5,6 @@
 #include <ctime>
 #include <sstream>
 
-#include <HttpServer.h>
 #include <QWidgetAction>
 
 #include "database.h"

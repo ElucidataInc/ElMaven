@@ -87,7 +87,6 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libcsvparser \
                 $$top_srcdir/3rdparty/libcdfread \
                 $$top_srcdir/3rdparty/ \
-                $$top_srcdir/3rdparty/libpillow \
                 $$top_srcdir/3rdparty/libdate/ \
                 $$top_srcdir/3rdparty/ErrorHandling \
                 $$top_srcdir/3rdparty/Logger \
@@ -99,13 +98,6 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/json
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
-
-# we need this flag  since on windows libpillow is built as a dynamic lib
-win32 {
-
-    QMAKE_LFLAGS += -L$$top_srcdir/bin/
-}
-
 
 LIBS +=  -lmaven \
          -lobiwarp \
@@ -284,12 +276,6 @@ linux {
     SOURCES -= autoupdater.cpp
     HEADERS -= autoupdater.h
 }
-
-contains (DEFINES,EMBEDHTTPSERVER) {
-    INCLUDEPATH += ../libpillow
-    LIBS += -lpillowcore
-}
-
 
 sources.files =  $$HEADERS \
   $$RESOURCES \
