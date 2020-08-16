@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "mzFit.h"
 #include "mzSample.h"
-#include "Peptide.hpp"
 #include "projectdockwidget.h"
 #include "samplertwidget.h"
 #include "Scan.h"

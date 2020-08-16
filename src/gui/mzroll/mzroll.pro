@@ -148,19 +148,13 @@ FORMS = forms/settingsform.ui  \
         forms/isotopeswidget.ui \
         forms/librarymanager.ui \
         forms/masscalcwidget.ui \
-    #	forms/ligandwidget.ui \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
         forms/alignmentdialog.ui \
-        forms/animationcontrol.ui  \
-        forms/rconsolewidget.ui \
         forms/clusterdialog.ui \
         forms/loginform.ui \
         forms/aboutpolly.ui \
-        forms/spectramatching.ui\
-        forms/peptidefragmentation.ui \
-        forms/awsbucketcredentialsdialog.ui \
         forms/samplertwidget.ui \
         forms/isotopeplotdockwidget.ui \
         forms/pollywaitdialog.ui \
@@ -180,17 +174,11 @@ HEADERS += stable.h \
            librarymanager.h \
            mainwindow.h \
            tinyplot.h \
-           node.h \
-           enzyme_node.h \
            plotdock.h \
-           metabolite_node.h \
-           pathwaywidget.h \
-           graphwidget.h \
            settingsform.h \
            isotopeplot.h\
            barplot.h \
            boxplot.h \
-           edge.h \
            line.h \
            point.h \
            history.h \
@@ -204,34 +192,21 @@ HEADERS += stable.h \
            comparesamplesdialog.h \
            tabledockwidget.h  \
            treedockwidget.h  \
-           heatmap.h  \
-           treemap.h  \
            suggest.h \
-           animationcontrol.h \
            alignmentdialog.h \
            scatterplot.h \
            gallerywidget.h \
-           QHistogramSlider.h \
-           qdownloader.h \
-           rconsolewidget.h \
-           highlighter.h \
-           widgets/qprog.h \
            projectdockwidget.h \
-           spectramatching.h \
            mzfileio.h \
-           logwidget.h \
            spectralhit.h \
            grouprtwidget.h \
            alignmentvizallgroupswidget.h \
-           spectralhitstable.h\
            clusterdialog.h \
            loginform.h \
            aboutpolly.h \
-           peptidefragmentation.h \
            qcustomplot.h \
            saveJson.h \
            messageBoxResize.h \
-           awsbucketcredentialsdialog.h \
            samplertwidget.h \
            controller.h \
            numeric_treewidgetitem.h \
@@ -240,7 +215,7 @@ HEADERS += stable.h \
            peaktabledeletiondialog.h \
            notificator.h \
            notificator_p.h \
-           $$top_srcdir/crashhandler/elmavexceptionhandler.h \
+#           $$top_srcdir/crasehandler/elmavexceptionhandler.h \
            videoplayer.h \
            isotopedialog.h \
            adductwidget.h \
@@ -258,17 +233,11 @@ SOURCES += mainwindow.cpp  \
            plotdock.cpp \
            spectralhit.cpp \
            treedockwidget.cpp \
-           node.cpp \
-           enzyme_node.cpp \
-           metabolite_node.cpp \
            tinyplot.cpp \
-           graphwidget.cpp \
-           pathwaywidget.cpp \
            settingsform.cpp \
            isotopeplot.cpp \
            barplot.cpp \
            boxplot.cpp \
-           edge.cpp \
            point.cpp \
            history.cpp \
            spectrawidget.cpp \
@@ -282,32 +251,19 @@ SOURCES += mainwindow.cpp  \
            pollyelmaveninterface.cpp \
            comparesamplesdialog.cpp \
            line.cpp  \
-           heatmap.cpp \
-           treemap.cpp \
            suggest.cpp \
-           animationcontrol.cpp\
            alignmentdialog.cpp\
            scatterplot.cpp \
            gallerywidget.cpp \
-           QHistogramSlider.cpp \
-           qdownloader.cpp \
-           highlighter.cpp \
-           rconsolewidget.cpp \
            clusterdialog.cpp \
            loginform.cpp \
            aboutpolly.cpp \
-           widgets/qprog.cpp \
            projectdockwidget.cpp \
-           spectramatching.cpp \
            mzfileio.cpp \
-           spectralhitstable.cpp \
            grouprtwidget.cpp \
            alignmentvizallgroupswidget.cpp \
-           logwidget.cpp \
-           peptidefragmentation.cpp \
            qcustomplot.cpp \
            saveJson.cpp \
-           awsbucketcredentialsdialog.cpp \
            samplertwidget.cpp \
            controller.cpp \
            numeric_treewidgetitem.cpp \
@@ -330,8 +286,6 @@ linux {
 }
 
 contains (DEFINES,EMBEDHTTPSERVER) {
-    SOURCES += remotespectrahandler.cpp
-    HEADERS += remotespectrahandler.h
     INCLUDEPATH += ../libpillow
     LIBS += -lpillowcore
 }

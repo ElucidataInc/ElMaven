@@ -8,7 +8,6 @@
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
 #include "mzSample.h"
-#include "pathwaywidget.h"
 #include "settingsform.h"
 
 OptionsDialogSettings::OptionsDialogSettings(SettingsForm* dialog): sf(dialog)
@@ -523,26 +522,6 @@ void SettingsForm::setMavenParameters() {
                 settings->value("aslsSmoothness").toInt();
         mavenParameters->aslsAsymmetry =
                 settings->value("aslsAsymmetry").toInt();
-    }
-}
-
-void SettingsForm::selectFolder(QString key) {
-    QString oFolder = ".";
-    if(settings->contains(key)) oFolder =  settings->value(key).toString();
-    QString newFolder = QFileDialog::getExistingDirectory(this,oFolder);
-    if (! newFolder.isEmpty()) {
-        settings->setValue(key,newFolder);
-        updateSettingFormGUI();
-    }
-}
-
-void SettingsForm::selectFile(QString key) {
-    QString oFile = ".";
-    if(settings->contains(key)) oFile =  settings->value(key).toString();
-    QString newFile = QFileDialog::getOpenFileName(this,"Select file",".","*.exe");
-    if (!newFile.isEmpty()) {
-        settings->setValue(key,newFile);
-        updateSettingFormGUI();
     }
 }
 

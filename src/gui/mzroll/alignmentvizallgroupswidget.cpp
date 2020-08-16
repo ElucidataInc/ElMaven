@@ -149,7 +149,6 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
                     auto sharedGroup = make_shared<PeakGroup>(grp);
                     _mw->setPeakGroup(sharedGroup);
                     _mw->getEicWidget()->replotForced();
-                    //_mw->rconsoleDockWidget->updateStatus();
                 }
             }
         }

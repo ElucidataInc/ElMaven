@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "numeric_treewidgetitem.h"
-#include "pathwaywidget.h"
 #include "projectdockwidget.h"
 #include "Scan.h"
 #include "settingsform.h"
@@ -118,16 +117,10 @@ void TreeDockWidget::showInfo() {
 
                                     mainwindow->getSpectraWidget()->setScan(scan);
                                     mainwindow->getEicWidget()->setFocusLine(scan->rt);
-                                    // if (scan->mslevel > 1) {
-                                    //  mainwindow->peptideFragmentation->setScan(scan);
-                                    // }
                                 }
 				
                         } else if (itemType == EICType ) {
                                 mainwindow->getEicWidget()->setSrmId(text.toStdString());
-                        } else if ( itemType == PathwayType ) {
-                                        mainwindow->pathwayDockWidget->setVisible(true);
-                                        mainwindow->getPathwayWidget()->setPathway( v.toString() );
                         } else if (itemType == mzLinkType ) {
                                 float mz = item->text(0).toFloat();
                                         if (mz>0)mainwindow->setMzValue(mz);
@@ -210,7 +203,6 @@ void TreeDockWidget::unlinkGroup() {
 	}
 
 	treeWidget->update();
-    mainwindow->getPathwayWidget()->updateCompoundConcentrations();
 
 	return;
 }
@@ -262,22 +254,6 @@ QTreeWidgetItem* TreeDockWidget::addLink(mzLink* s,QTreeWidgetItem* parent)  {
                 item->setText(2,QString(s->note.c_str()));
         }
         return item;
-}
-
-void TreeDockWidget::setInfo(deque<Pathway*>& pathways) {
-
-    treeWidget->clear();
-    QStringList header; header << "Pathway";
-    treeWidget->setHeaderLabels( header );
-    map<string,string>::iterator itr;
-    treeWidget->setSortingEnabled(true);
-
-    for(int i=0; i < pathways.size(); i++ ) {
-        Pathway* p = pathways[i];
-        auto parent = new NumericTreeWidgetItem(treeWidget, PathwayType);
-        parent->setText(0,QString((p->name +"("+p->id+")").c_str() 	));
-        parent->setData(0,Qt::UserRole,QVariant::fromValue(QString(p->id.c_str())));
-    }
 }
 
 void TreeDockWidget::filterTree(QString needle) {

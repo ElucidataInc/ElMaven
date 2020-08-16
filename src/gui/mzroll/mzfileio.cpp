@@ -25,7 +25,6 @@
 #include "projectdockwidget.h"
 #include "projectsaveworker.h"
 #include "Scan.h"
-#include "spectralhitstable.h"
 #include "tabledockwidget.h"
 
 mzFileIO::mzFileIO(QWidget*) {
@@ -258,83 +257,6 @@ PK$PEAK: m/z int. rel.int.
     return compoundCount;
 }
 
-//TODO: Should not be here
-int mzFileIO::loadPepXML(QString fileName) {
-
-    qDebug() << "Loading pepXML sample: " << fileName;
-    QFile data(fileName);
-    string dbname = mzUtils::cleanFilename(fileName.toStdString());
-
-    if (!data.open(QFile::ReadOnly) ) {
-        qDebug() << "Can't open " << fileName; return 0;
-    }
-
-    QXmlStreamReader xml(&data);
-    xml.setNamespaceProcessing(false);
-    QList<QStringRef> taglist;
-/*
-    <spectrum_query spectrum="BSA_run_120909192952.2.2.2" spectrumNativeID="controllerType=0 controllerNumber=1 scan=2" start_scan="2" end_scan="2" precursor_neutral_mass="887.14544706624" assumed_charge="2" index="2">
-      <search_result num_target_comparisons="0" num_decoy_comparisons="0">
-        <search_hit hit_rank="1" peptide="SCHTGLGR" peptide_prev_aa="K" peptide_next_aa="S" protein="sp|P02787|TRFE_HUMAN" num_tot_proteins="1" calc_neutral_pep_mass="886.94606" massdiff="-0.19938706624" num_tol_term="2" num_missed_cleavages="0" num_matched_ions="5" tot_num_ions="42">
-          <modification_info>
-            <mod_aminoacid_mass position="2" mass="160.0306444778"/>
-          </modification_info>
-          <search_score name="number of matched peaks" value="5"/>
-          <search_score name="number of unmatched peaks" value="37"/>
-*/
- 
-    int hitCount=0;
-    int charge; 
-    float precursorMz;
-    int  scannum;
-
-    Compound* cpd = NULL;
-    while (!xml.atEnd()) {
-        xml.readNext();
-        if (xml.isStartElement()) {
-                taglist << xml.name();
-                if (xml.name() == "spectrum_query") {
-                    scannum = xml.attributes().value("start_scan").toString().toInt();
-                    charge = xml.attributes().value("charge").toString().toInt();
-                    precursorMz = xml.attributes().value("precursor_neutral_mass").toString().toInt();
-		    precursorMz = (precursorMz-charge)/charge;	
-
-                } else if (xml.name() == "search_hit") {
-		    hitCount++;
-                    int hit_rank = xml.attributes().value("hit_rank").toString().toInt();
-                    QString peptide = xml.attributes().value("peptide").toString();
-                    QString protein = xml.attributes().value("protein").toString();
-		    QString formula = "";
-
-		    cpd = new Compound(
-				    protein.toStdString() + "_" + peptide.toStdString(),
-				    peptide.toStdString(),
-				    formula.toStdString(),
-				    charge);
-
-                    cpd->setMz(precursorMz);
-                    cpd->setPrecursorMz(precursorMz);
-                    cpd->setDb(dbname);
-		    DB.addCompound(cpd);
-
-                } else if (xml.name() == "mod_aminoacid_mass" ) {
-                    int pos =          xml.attributes().value("position").toString().toInt();
-		    double massshift = xml.attributes().value("mass").toString().toDouble();
-                } else if (xml.name() == "search_score" ) {
-                    QString name = xml.attributes().value("name").toString();
-                    QString value = xml.attributes().value("value").toString();
-                }
-        } else if (xml.isEndElement()) {
-               if (!taglist.isEmpty()) taglist.pop_back();
-               if (xml.name() == "search_hit") {
-
-               }
-        }
-    }
-
-    data.close();
-    return hitCount;
-}
 //TODO: should not be here
 mzSample* mzFileIO::parseMzData(QString fileName) {
 
@@ -455,7 +377,6 @@ void mzFileIO::fileImport(void) {
     QStringList samples;
     QStringList peaks;
     QStringList projects;
-    QStringList spectralhits;
     QStringList compoundsDatabases;
     QStringList unsupportedFileList;
     bool fileNotSupported = false;
@@ -472,8 +393,6 @@ void mzFileIO::fileImport(void) {
                 projects << filename;
             } else if (isPeakListType(filename)) {
                 peaks << filename;
-            } else if (isSpectralHitType(filename)) {
-                spectralhits << filename;
             } else if (isCompoundDatabaseType(filename)) {
                 compoundsDatabases << filename;
             } else {
@@ -622,16 +541,6 @@ void mzFileIO::fileImport(void) {
                                               "",
                                               numPRMSamplesLoaded);
 
-    Q_FOREACH (QString filename, spectralhits) {
-        if (filename.contains("pepXML", Qt::CaseInsensitive)) {
-            _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
-        } else if (filename.contains("pep.xml", Qt::CaseInsensitive)) {
-            _mainwindow->spectralHitsDockWidget->loadPepXML(filename);
-        } else if (filename.contains("idpDB", Qt::CaseInsensitive)) {
-            _mainwindow->spectralHitsDockWidget->loadIdPickerDB(filename);
-        }
-    }
-
     Q_EMIT(updateStatusString("Loading compounds…"));
     map<QString, int> databaseCompoundCounts;
     Q_FOREACH (QString filename, compoundsDatabases) {
@@ -644,8 +553,6 @@ void mzFileIO::fileImport(void) {
         Q_EMIT(sampleLoaded());
     if (samplesFailedToLoad.size() > 0)
         Q_EMIT(sampleLoadFailed(samplesFailedToLoad, _encounteredMemoryError));
-    if (spectralhits.size() > 0)
-        Q_EMIT(spectraLoaded());
     if (projects.size() > 0)
         Q_EMIT(projectLoaded());
     if (peaks.size() > 0)
@@ -696,7 +603,6 @@ int mzFileIO::loadCompoundsFromFile(QString filename)
 bool mzFileIO::isKnownFileType(QString filename) {
     if (isSampleFileType(filename))  return true;
     if (isProjectFileType(filename)) return true;
-    if (isSpectralHitType(filename)) return true;
     if (isPeakListType(filename)) return true;
     if (isCompoundDatabaseType(filename)) return true;
     return false;
@@ -1549,15 +1455,6 @@ vector<PeakGroup*> mzFileIO::readGroupsXML(QString fileName)
         group->groupStatistics();
     }
     return groups;
-}
-
-bool mzFileIO::isSpectralHitType(QString filename) {
-    QStringList extList;
-    extList << "pep.xml" << "pepXML" << "idpDB";
-    Q_FOREACH (QString suffix, extList) {
-        if (filename.endsWith(suffix,Qt::CaseInsensitive)) return true;
-    }
-    return false;
 }
 
 bool mzFileIO::isPeakListType(QString filename) {

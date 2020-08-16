@@ -32,7 +32,6 @@ class Compound;
 class Adduct;
 class mzLink;
 class mzSlice;
-class Reaction;
 class MassCalculator;
 class MassCutoff;
 class ChargedSpecies;
@@ -768,50 +767,6 @@ class mzSample
         "index",
         "scan"
     };
-};
-
-class Pathway
-{
-  public:
-    Pathway(string id, string name)
-    {
-        this->id = id;
-        this->name = name;
-    }
-    string id;
-    string name;
-    vector<Reaction *> reactions;
-};
-
-class Reaction
-{
-  public:
-    Reaction(string db, string id, string name)
-    {
-        this->db = db;
-        this->id = id;
-        this->name = name;
-        reversable = false;
-    }
-    void addReactant(Compound *r, int s)
-    {
-        reactants.push_back(r);
-        stoichiometry[r] = s;
-    }
-    void addProduct(Compound *p, int s)
-    {
-        products.push_back(p);
-        stoichiometry[p] = s;
-    }
-    void setReversable(bool r) { reversable = r; }
-
-    string db;
-    string id;
-    string name;
-    deque<Compound *> reactants;
-    deque<Compound *> products;
-    map<Compound *, int> stoichiometry;
-    bool reversable;
 };
 
 /**

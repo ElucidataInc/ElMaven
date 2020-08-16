@@ -9,10 +9,8 @@
 #include "masscalcgui.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
-#include "Peptide.hpp"
 #include "plot_axes.h"
 #include "Scan.h"
-#include "spectramatching.h"
 #include "spectrawidget.h"
 
 SpectraWidget::SpectraWidget(MainWindow* mw, bool isFragSpectra)
@@ -237,42 +235,6 @@ void SpectraWidget::setScan(Peak* peak)
     //annotateScan(); //TODO: Sahil, Removed while merging spectrawidget
     drawGraph();
     repaint();
-}
-
-void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,MassCutoff *productMassCutoff)
-{
-    qDebug() << "overlayPeptideFragmentation(): " << peptideSeq << " amuTolr=" << productMassCutoff->getMassCutoff() << endl;
-    if(!_currentScan) return;
-	if(peptideSeq.isEmpty()) return;
-
-    Peptide record(peptideSeq.toStdString(),0,"");
-	vector<FragmentIon*>ions;
-    record.generateFragmentIons(ions,"CID");
-
-	SpectralHit hit;
-	hit.score = 0;
-	hit.matchCount=0;
-    hit.sampleName="";
-    hit.productPPM = productMassCutoff->getMassCutoff();
-    hit.precursorMz=record.monoisotopicMZ();
-	hit.scan = _currentScan;
-	
-    vector<bool>seen(_currentScan->nobs(),false);
-	for(unsigned int i=0; i < ions.size(); i++) {
-		FragmentIon* ion = ions[i];
-        int pos = _currentScan->findClosestHighestIntensityPos(ion->m_mz, productMassCutoff);
-        if(pos != -1 and seen[pos] == false) {
-            ion->m_mzDiff = abs(_currentScan->mz[pos]-ion->m_mz);
-            qDebug() << "overlayPeptideFragmentation: IONS: " << ion->m_ion.c_str() << " ->" << "ionType" << " " << ion->m_mz << " mzdiff=" << ion->m_mzDiff;
-
-            hit.mzList << _currentScan->mz[pos];
-            hit.intensityList << _currentScan->intensity[pos];
-            seen[pos]=true;
-		}
-	}
-
-	delete_all(ions);
-    overlaySpectralHit(hit);
 }
 
 void SpectraWidget::overlayPeakGroup(shared_ptr<PeakGroup> group)
@@ -1427,10 +1389,6 @@ void SpectraWidget::findSimilarScans()
                 .arg(QString::number(p.second,'f', 5))
                 .arg(QString::number(p.first, 'f', 2));
     }
-
-    mainwindow->spectraMatchingForm->fragmentsText->setPlainText(clipboardText.join("\n"));
-    mainwindow->spectraMatchingForm->precursorMz->setText(QString::number(_currentScan->precursorMz,'f',6));
-    mainwindow->spectraMatchingForm->show();
 }
 
 void SpectraWidget::copyImageToClipboard()

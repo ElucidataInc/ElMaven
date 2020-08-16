@@ -46,39 +46,3 @@ double SpectralHit::getMaxMz()
             max = x;
     return max;
 }
-
-QString SpectralHit::getProteinIds()
-{
-    QStringList ids = proteins.uniqueKeys();
-    return (ids.join(";"));
-}
-QStringList SpectralHit::getProteins() { return proteins.uniqueKeys(); }
-
-QString SpectralHit::getUnchargedPeptideString()
-{
-    int slashIndx = fragmentId.lastIndexOf('/');
-    if (slashIndx != 0) {
-        return fragmentId.left(slashIndx);
-    } else {
-        return fragmentId;
-    }
-}
-
-QString SpectralHit::getModPeptideString()
-{
-    QString peptide = this->unmodPeptideSeq;
-    QString modPeptideSeq;
-    for (int i = 0; i < peptide.length(); i++) {
-        modPeptideSeq += peptide[i];
-        QString sign;
-        if (mods.count(i)) {
-            if (mods[i] > 0)
-                sign = "+";
-            modPeptideSeq +=
-                ("[" + sign + QString::number(mzUtils::round(mods[i]))
-                 + "]");
-        }
-    }
-    modPeptideSeq = modPeptideSeq + "/" + QString::number(this->charge);
-    return modPeptideSeq;
-}

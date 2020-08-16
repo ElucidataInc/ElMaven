@@ -27,7 +27,6 @@ class PlotDockWidget;
 class BackgroundOpsThread;
 class PeakDetectionDialog;
 class PollyElmavenInterfaceDialog;
-class AwsBucketCredentialsDialog;
 class AlignmentDialog;
 class SpectraWidget;
 class GroupRtWidget;
@@ -35,7 +34,6 @@ class AlignmentVizAllGroupsWidget;
 class IsotopicPlots;
 class AdductWidget;
 class LigandWidget;
-class PathwayWidget;
 class IsotopeWidget;
 class MassCalcWidget;
 class TreeDockWidget;
@@ -51,18 +49,12 @@ class ClassifierNeuralNet;
 class ClassifierNaiveBayes;
 class groupClassifier;
 class svmPredictor;
-class HeatMap;
 class ScatterPlot;
-class TreeMap;
 class SuggestPopup;
 class PeakEditor;
 class mzFileIO;
 class ProjectDockWidget;
-class SpectraMatching;
-class LogWidget;
 class SpectralHit;
-class SpectralHitsDockWidget;
-class PeptideFragmentationWidget;
 class Analytics;
 class AutoSave;
 class MavenParameters;
@@ -122,7 +114,6 @@ public:
     map<string, Compound*> annotation;
 	
 	VideoPlayer* vidPlayer;
-	PathwayWidget *pathwayWidget;
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
     GroupRtWidget* groupRtWidget;
@@ -140,39 +131,25 @@ public:
 	IsotopeWidget *isotopeWidget;
 	TreeDockWidget *covariantsPanel;
 	TreeDockWidget *fragPanel;
-	TreeDockWidget *pathwayPanel;
 	TreeDockWidget *srmDockWidget;
-	//TreeDockWidget   *peaksPanel;
 	QDockWidget *spectraDockWidget;
 	QDockWidget* fragSpectraDockWidget;
     QDockWidget *groupRtDockWidget;
 	QDockWidget *alignmentVizAllGroupsDockWidget;
-	QDockWidget *pathwayDockWidget;
-	QDockWidget *heatMapDockWidget;
     ScatterPlot *scatterDockWidget;
 	QDockWidget *treeMapDockWidget;
-	LogWidget *logWidget;
 	ProjectDockWidget *projectDockWidget;
-	SpectraMatching *spectraMatchingForm;
-	PeptideFragmentationWidget *peptideFragmentation;
 
 	BookmarkTableDockWidget *bookmarkedPeaks;
 	SuggestPopup *suggestPopup;
-	HeatMap *heatmap;
 	ScatterPlot *scatterplot;
-	TreeMap *treemap;
-	SpectralHitsDockWidget *spectralHitsDockWidget;
 
 	IsotopeDialog *isotopeDialog;
 	SettingsForm *settingsForm;
 	PeakDetectionDialog *peakDetectionDialog;
 	PollyElmavenInterfaceDialog *pollyElmavenInterfaceDialog;
-	AwsBucketCredentialsDialog *awsBucketCredentialsDialog;
 	AlignmentDialog* alignmentDialog;
-	// RconsoleWidget* rconsoleDockWidget;
-	mzFileIO*             fileLoader; //TODO: Sahil, Added while merging projectdockwidget
-    //Added when merged with Maven776 - Kiran
-    Pillow::HttpServer*	  embededhttpserver;
+    mzFileIO* fileLoader;
 	QProgressBar *progressBar;
 
 	int sampleCount() {
@@ -184,15 +161,10 @@ public:
 	SpectraWidget* getSpectraWidget() {
 		return spectraWidget;
 	}
-	PathwayWidget* getPathwayWidget() {
-		return pathwayWidget;
-	}
 	ProjectDockWidget* getProjectWidget() {
 		return projectDockWidget;
 	}
-	// RconsoleWidget* getRconsoleWidget() {
-	// 	return rconsoleDockWidget;
-	// }
+
 	BookmarkTableDockWidget* getBookmarkedPeaks() {
 		return bookmarkedPeaks;
 	}
@@ -323,13 +295,10 @@ public Q_SLOTS:
     void loadMetaInformation();
     bool loadMetaInformation(QString filename);
     int loadMetaCsvFile(string filename);
-	void loadPathwaysFolder(QString& pathwaysFolder);
-	void showAlignmentWidget();
-	void showspectraMatchingForm();
+    void showAlignmentWidget();
 	void showsettingsForm();
 	void sendAnalytics(bool checked = false);
-	void openAWSDialog();
-	void analyticsBoxPlot();
+    void analyticsBoxPlot();
 	void analyticsAverageSpectra();
 	void plotAlignmentVizAllGroupGraph(QList<PeakGroup> allgroups);
 	void createPeakTable(QString);
@@ -347,7 +316,6 @@ public Q_SLOTS:
 		void showPollyElmavenInterfaceDialog();
 	void setUrl(QString url, QString link = QString::null);
 	void setUrl(Compound*);
-	void setUrl(Reaction*);
 	void setFormulaFocus(QString formula);
 	void Align();
 	void UndoAlignment();
@@ -356,7 +324,6 @@ public Q_SLOTS:
     void setCompoundFocus(Compound* compound,
                           Isotope isotope = Isotope(),
                           Adduct* adduct = nullptr);
-	void setPathwayFocus(Pathway* p);
 	void showFragmentationScans(float pmz);
 	QString groupTextExport(PeakGroup* group);
 	// void bookmarkPeakGroup(PeakGroup* group); //TODO: Sahil Changed the structure of function
@@ -367,7 +334,6 @@ public Q_SLOTS:
 	void findCovariants(Peak* _peak);
 	void reportBugs();
 	void updateEicSmoothingWindow(int value);
-    bool setPeptideSequence(QString peptideSeq);
 	void open();
 	void print();
 	void exportPDF();
@@ -376,15 +342,13 @@ public Q_SLOTS:
 	void showDockWidgets();
 	void hideDockWidgets();
     void searchForQuery();
-        void showSRMList();
-        void addToHistory(const mzSlice& slice);
-        void historyNext();
+    void showSRMList();
+    void addToHistory(const mzSlice& slice);
+    void historyNext();
 	void historyLast();
     void getLinks(Peak* peak);
     void markGroup(shared_ptr<PeakGroup> group, char label);
-    //Added when merged with Maven776 - Kiran
-    void startEmbededHttpServer();
-        int getIonizationMode();
+    int getIonizationMode();
 	void setTotalCharge();
 
 	void setUserMassCutoff(double x);
@@ -401,7 +365,6 @@ public Q_SLOTS:
     void removeAllPeakTables();
 	BackgroundOpsThread* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
-	QWidget* pathwayWidgetController();
     void saveSettings();
     void loadSettings();
     void showNotification(TableDockWidget* table);

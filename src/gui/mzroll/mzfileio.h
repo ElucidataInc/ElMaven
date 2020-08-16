@@ -62,12 +62,6 @@ Q_OBJECT
 
         int loadMassBankLibrary(QString filename);
 
-        /**
-         * [load Pep XML]
-         * @param  filename [name of the file]
-         * @return          [int]
-         */
-        int loadPepXML(QString filename);
         int ThermoRawFileImport(QString fileName);
 
         int loadCompoundsFromFile(QString filename);
@@ -75,7 +69,6 @@ Q_OBJECT
         bool isKnownFileType(QString filename);
         bool isSampleFileType(QString filename);
         bool isProjectFileType(QString filename);
-        bool isSpectralHitType(QString filename);
         bool isPeakListType(QString filename);
         bool isCompoundDatabaseType(QString filename);
 
@@ -292,7 +285,6 @@ Q_OBJECT
      void updateProgressBar(QString, int, int, bool = false);
      void sampleLoaded();
      void sampleLoadFailed(QList<QString>, bool);
-     void spectraLoaded();
      void projectLoaded();
      void peaklistLoaded();
      void compoundsLoaded(QString, int);

@@ -1,6 +1,5 @@
 #include <algorithm>
 
-#include <QHistogramSlider.h>
 #include <qtconcurrentrun.h>
 
 #include "alignmentdialog.h"
@@ -16,7 +15,6 @@
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "groupsettingslog.h"
-#include "heatmap.h"
 #include "isotopeswidget.h"
 #include "jsonReports.h";
 #include "ligandwidget.h"
@@ -115,8 +113,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SLOT(setProgressBar(QString, int, int, bool)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
-
-  setupFiltersDialog();
 }
 
 TableDockWidget::~TableDockWidget() {
@@ -378,17 +374,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     item->setIcon(0, QIcon(":/images/bad.png"));
   } else {
     item->setIcon(0, QIcon());
-  }
-
-  if (filtersDialog->isVisible()) {
-    float minG = sliders["GoodPeakCount"]->minBoundValue();
-    float maxG = sliders["GoodPeakCount"]->maxBoundValue();
-
-    if (group->goodPeakCount < minG || group->goodPeakCount > maxG) {
-      item->setHidden(true);
-    } else {
-      item->setHidden(false);
-    }
   }
 
   if (updateChildren) {
@@ -656,12 +641,6 @@ void TableDockWidget::deleteAll()
   _mainwindow->getEicWidget()->replotForced();
 
   this->hide();
-
-  if (_mainwindow->heatmap) {
-    HeatMap *_heatmap = _mainwindow->heatmap;
-    _heatmap->setTable(this);
-    _heatmap->replot();
-  }
 }
 
 void TableDockWidget::noPeakFound()
@@ -1670,16 +1649,6 @@ void TableDockWidget::pdfReadyNotification()
     _mainwindow->setStatusText(title);
 }
 
-void TableDockWidget::showHeatMap() {
-
-  _mainwindow->heatMapDockWidget->setVisible(true);
-  HeatMap *_heatmap = _mainwindow->heatmap;
-  if (_heatmap) {
-    _heatmap->setTable(this);
-    _heatmap->replot();
-  }
-}
-
 void TableDockWidget::editSelectedPeakGroup()
 {
   if (treeWidget->selectedItems().size() != 1)
@@ -1930,49 +1899,6 @@ void TableDockWidget::clusterGroups()
                               _topLevelGroups.size());
   showAllGroups();
 }
-
-void TableDockWidget::setupFiltersDialog() {
-
-  filtersDialog = new QDialog(this);
-  QVBoxLayout *layout = new QVBoxLayout(filtersDialog);
-
-  sliders["PeakQuality"] = new QHistogramSlider(this);
-  sliders["PeakIntensity"] = new QHistogramSlider(this);
-  sliders["PeakWidth"] = new QHistogramSlider(this);
-  sliders["GaussianFit"] = new QHistogramSlider(this);
-  sliders["PeakAreaFractional"] = new QHistogramSlider(this);
-  sliders["PeakAreaTop"] = new QHistogramSlider(this);
-  sliders["S/N Ratio"] = new QHistogramSlider(this);
-  sliders["GoodPeakCount"] = new QHistogramSlider(this);
-
-  Q_FOREACH (QHistogramSlider *slider, sliders) {
-    connect(slider, SIGNAL(minBoundChanged(double)), SLOT(filterPeakTable()));
-    connect(slider, SIGNAL(maxBoundChanged(double)), SLOT(filterPeakTable()));
-    layout->addWidget(slider);
-  }
-
-  filtersDialog->setLayout(layout);
-}
-
-void TableDockWidget::showFiltersDialog() {
-  filtersDialog->setVisible(!filtersDialog->isVisible());
-  if (filtersDialog->isVisible() == false)
-    return;
-
-  Q_FOREACH (QHistogramSlider *slider, sliders) { slider->clearData(); }
-
-  for (int i = 0; i < 100; i++)
-    sliders["PeakQuality"]->addDataPoint(QPointF((float)i / 100.00, i));
-  for (int i = 0; i < 50; i++)
-    sliders["GoodPeakCount"]->addDataPoint(QPointF(i, 5));
-  for (int i = 0; i < 100; i++)
-    sliders["PeakIntensity"]->addDataPoint(QPointF(i, i));
-  sliders["PeakQuality"]->setPrecision(2);
-  Q_FOREACH (QHistogramSlider *slider, sliders)
-    slider->recalculatePlotBounds();
-}
-
-void TableDockWidget::filterPeakTable() { updateTable(); }
 
 void TableDockWidget::showFocusedGroups() {
   int N = treeWidget->topLevelItemCount();

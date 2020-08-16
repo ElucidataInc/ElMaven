@@ -161,12 +161,6 @@ void SuggestPopup::doSearchCompounds(QString needle) {
     }
 }
 
-void SuggestPopup::doSearchPathways(QString needle) { 
-	QRegExp regexp(needle,Qt::CaseInsensitive,QRegExp::RegExp);
-	if (!needle.isEmpty() && !regexp.isValid()) return;
-
-}
-
 void SuggestPopup::doSearchHistory(QString needle)  {
 		QRegExp regexp(needle,Qt::CaseInsensitive,QRegExp::RegExp);
 		if (!needle.isEmpty() && !regexp.isValid()) return;
@@ -203,13 +197,8 @@ void SuggestPopup::doSearch(QString needle)
 		popup->clear();
 		scores.clear(); 
 		compound_matches.clear();
-		pathway_matches.clear();
 
-		//doSearchCompounds(needle);
-		//doSearchPathways(needle);
-		doSearchHistory(needle);
 		if ( scores.size() < 10 ) doSearchCompounds(needle);
-		if ( scores.size() < 20 ) doSearchPathways(needle);
 
 		 //sort hit list by score
 		 QList< QPair<float,QString> > list;
@@ -218,7 +207,6 @@ void SuggestPopup::doSearch(QString needle)
 
 		//show popup
 		int compoundMatches=0;
-		int pathwayMatches=0;
                 int historyMatches=0;
 
                 QList<QPair<float, QString> >::ConstIterator it = list.constBegin();
@@ -233,12 +221,6 @@ void SuggestPopup::doSearch(QString needle)
                         item = new NumericTreeWidgetItem(popup,CompoundType);
                         item->setData(0,Qt::UserRole,QVariant::fromValue(compound_matches[name]));
                         item->setIcon(0,QIcon(rsrcPath + "/molecule.png"));
-                    } else if (pathway_matches.contains(name) ) {
-                        if (pathwayMatches++ < 10) continue;
-                        //qDebug() << "Pathway: " << name << " score: " << score;
-                        item = new NumericTreeWidgetItem(popup,PathwayType);
-                        item->setData(0,Qt::UserRole,QVariant::fromValue(pathway_matches[name]));
-                        item->setIcon(0,QIcon(rsrcPath + "/pathway.png"));
                     }  else if (searchHistory.contains(name) ) {
                         if (historyMatches++ < 10 ) continue;
                         //qDebug() << "History: " << name << " score: " << score;
@@ -265,7 +247,7 @@ void SuggestPopup::doSearch(QString needle)
 		popup->resizeColumnToContents(0);
 		popup->resizeColumnToContents(1);
 		
-		int h = popup->sizeHintForRow(0) * (compoundMatches+pathwayMatches+historyMatches);
+        int h = popup->sizeHintForRow(0) * (compoundMatches+historyMatches);
 		popup->resize(popup->width(), h);
 		popup->adjustSize();
 
@@ -295,9 +277,6 @@ void SuggestPopup::doneCompletion()
 		if ( item->type() == CompoundType ) {
         	Compound*  com =  v.value<Compound*>();
 			if(com) Q_EMIT(compoundSelected(com)); 
-		} else if ( item->type() == PathwayType ) {
-        	Pathway*  pw =  v.value<Pathway*>();
-			if(pw) Q_EMIT(pathwaySelected(pw)); 
 		} else {
 			QMetaObject::invokeMethod(editor, "returnPressed");
 		}
