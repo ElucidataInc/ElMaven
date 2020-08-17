@@ -81,7 +81,11 @@ void IsotopeWidget::peakSelected(Peak *peak, shared_ptr<PeakGroup> group)
 
     //set selectedSample for isotope calculation
     _selectedSample = peak->getSample();
-    setPeakGroupAndMore(group);
+    if (group == isotopeParameters->_group) {
+        refreshTable();
+    } else {
+        setPeakGroupAndMore(group);
+    }
 
     disconnect(sampleList,
                QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -254,7 +258,7 @@ void IsotopeWidget::updateSelectedSample(int index)
             isotopeParameters->_scan = nullptr;
         }
     }
-    computeIsotopes(isotopeParameters->_formula);
+    refreshTable();
 }
 
 void IsotopeWidget::setFormula(QString f)
@@ -356,6 +360,7 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula, bool updateBarplot)
              end(isotopeParameters->links),
              mzLink::compMz);
         showTable();
+        isotopeParameters->_group = make_shared<PeakGroup>(*closestParent);
 
         if (updateBarplot && _mw->isotopePlot->isVisible()) {
             isotopeParametersBarPlot->_group =
@@ -649,6 +654,22 @@ QString IsotopeWidget::groupIsotopeMatrixExport(PeakGroup *group, bool includeSa
 	return isotopeInfo;
 }
 
+void IsotopeWidget::refreshTable()
+{
+    clearWidget();
+    if (isotopeParameters->_group != nullptr) {
+        _insertLinkForPeakGroup(isotopeParameters->_group.get());
+        for (auto& child : isotopeParameters->_group->childIsotopes())
+            _insertLinkForPeakGroup(child.get());
+        sort(begin(isotopeParameters->links),
+             end(isotopeParameters->links),
+             mzLink::compMz);
+        showTable();
+    } else {
+        computeIsotopes(isotopeParameters->_formula);
+    }
+}
+
 void IsotopeWidget::showTable()
 {
 	QTreeWidget *p = treeWidget;
@@ -758,9 +779,4 @@ QString IsotopeWidget::groupTextEport(PeakGroup *group)
 		info << QString::number(yvalues[j], 'f', 2);
 	}
 	return info.join("\t");
-}
-
-void IsotopeWidget::refreshForCurrentPeak()
-{
-    computeIsotopes(isotopeParameters->_formula);
 }
