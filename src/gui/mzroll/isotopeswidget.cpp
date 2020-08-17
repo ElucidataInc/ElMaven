@@ -530,6 +530,9 @@ void IsotopeWidget::bookmarkCurrentGroup()
     isotopeParameters->_group = make_shared<PeakGroup>(*parentGroup);
 
     auto group = _mw->bookmarkPeakGroup(isotopeParameters->_group);
+    if (group == nullptr)
+        return;
+
     _mw->autoSaveSignal({group});
     if (!group->isIsotope() && !group->isAdduct())
         setClipboard(group.get());

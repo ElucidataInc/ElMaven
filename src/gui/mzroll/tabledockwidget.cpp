@@ -1401,6 +1401,9 @@ void TableDockWidget::showConsensusSpectra() {
 void TableDockWidget::markGroupGood() {
   setGroupLabel('g');
   auto currentGroups = getSelectedGroups();
+  if (currentGroups.isEmpty())
+      return;
+
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
@@ -1409,6 +1412,9 @@ void TableDockWidget::markGroupGood() {
 void TableDockWidget::markGroupBad() {
   setGroupLabel('b');
   auto currentGroups = getSelectedGroups();
+  if (currentGroups.isEmpty())
+      return;
+
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
@@ -1418,6 +1424,9 @@ void TableDockWidget::unmarkGroup() {
   // TODO: Add a button for unmarking peak-groups?
   setGroupLabel('\0');
   auto currentGroups = getSelectedGroups();
+  if (currentGroups.isEmpty())
+      return;
+
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
   _mainwindow->autoSaveSignal(currentGroups);
 }
