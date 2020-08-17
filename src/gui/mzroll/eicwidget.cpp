@@ -1081,6 +1081,8 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         float rtMin = group->minRt;
         float rtMax = group->maxRt;
         addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);
+        _clearEicPoints();
+        addPeakPositions(group);
     } else {
         addEICLines(_showSpline, _showEIC);
         showAllPeaks();
@@ -1731,8 +1733,6 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
 
     emit groupSet(group);
     replot(group);
-    _clearEicPoints();
-	addPeakPositions(group);
 }
 
 void EicWidget::setSensitiveToTolerance(bool sensitive)
