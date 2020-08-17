@@ -284,12 +284,17 @@ using namespace mzUtils;
                            .arg(window.name(QColor::HexRgb))
                            .arg(window.name(QColor::HexRgb));
 
-    styleSheet += "QDockWidget::title { background-color: %1; }";
+    styleSheet += "QDockWidget { titlebar-close-icon: url(%1); }";
+    styleSheet += "QDockWidget { titlebar-normal-icon: url(%2); }";
+    styleSheet += "QDockWidget::title { background-color: %3; }";
+    styleSheet += "QDockWidget::title { border-bottom: 1px solid %4; }";
     styleSheet += "QDockWidget::close-button { border: none; }";
     styleSheet += "QDockWidget::float-button { border: none; }";
+    styleSheet += "QDockWidget::close-button:hover { border: 1px solid %4; }";
+    styleSheet += "QDockWidget::float-button:hover { border: 1px solid %4; }";
     styleSheet += "QDockWidget > * { border: none; }";
-    styleSheet += "QDockWidget > * { border-top: 1px solid %2; }";
-    styleSheet += "*[cssClass=\"dockWithToolbar\"] { border-top: none; }";
+    styleSheet = styleSheet.arg(":/images/minimizeWidget.png");
+    styleSheet = styleSheet.arg(":/images/undockWidget.png");
     styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
@@ -3220,8 +3225,8 @@ void MainWindow::createToolBars() {
     ionizationLayout->addWidget(new QLabel("Charge", ionizationBox), 0);
     ionizationLayout->addWidget(ionChargeBox, 0);
 
-    toolBar->addWidget(ionizationBox);
     toolBar->addSeparator();
+    toolBar->addWidget(ionizationBox);
 
     quantType = new QComboBox(toolBar);
     quantType->addItem("AreaTop");
@@ -3245,8 +3250,8 @@ void MainWindow::createToolBars() {
     quantTypeStyle += "QComboBox { margin: 0 8px 0 8px; }";
     quantType->setStyleSheet(quantTypeStyle);
 
-    toolBar->addWidget(quantType);
     toolBar->addSeparator();
+    toolBar->addWidget(quantType);
 
     QWidget *massBox = new QWidget(toolBar);
     QHBoxLayout *massLayout = new QHBoxLayout(massBox);
@@ -3331,6 +3336,7 @@ void MainWindow::createToolBars() {
     massLayout->addWidget(massCutoffWindowBox, 0);
     massLayout->addWidget(massCutoffComboBox, 0);
 
+    toolBar->addSeparator();
     toolBar->addWidget(massBox);
 
     settings->beginGroup("searchHistory");

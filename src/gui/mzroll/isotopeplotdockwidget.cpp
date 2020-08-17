@@ -84,7 +84,7 @@ void IsotopePlotDockWidget::setToolBar()
     toolBar->addWidget(spacer);
 
     QToolButton *closeButton = new QToolButton(toolBar);
-    closeButton->setIcon(this->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    closeButton->setIcon(QIcon(":images/minimizeWidget.png"));
     connect(closeButton,
             &QToolButton::clicked,
             this,

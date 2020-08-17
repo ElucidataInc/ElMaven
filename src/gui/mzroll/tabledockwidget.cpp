@@ -2163,12 +2163,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
     return btnPDF;
   } else if (btnName == "btnX") {
     QToolButton *btnX = new QToolButton(parent);
-    btnX->setIcon(td->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    btnX->setIcon(QIcon(rsrcPath + "/closeWidget.png"));
     connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
     return btnX;
   } else if (btnName == "btnMin") {
     QToolButton *btnMin = new QToolButton(parent);
-    btnMin->setIcon(td->style()->standardIcon(QStyle::SP_TitleBarMinButton));
+    btnMin->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
     return btnMin;
   } else if (btnName == "btnSaveSpectral") {

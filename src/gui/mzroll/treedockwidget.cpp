@@ -473,14 +473,13 @@ void TreeDockWidget::setQQQToolBar() {
     toolBar->addWidget(spacer);
 
     QToolButton *closeButton = new QToolButton(toolBar);
-    closeButton->setIcon(this->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    closeButton->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(closeButton,
             &QToolButton::clicked,
             this,
             &TreeDockWidget::hide);
     toolBar->addWidget(closeButton);
 
-    treeWidget->setProperty("cssClass", "dockWithToolbar");
     setTitleBarWidget(toolBar);
 }
 

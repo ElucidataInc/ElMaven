@@ -253,7 +253,6 @@ PlotDockWidget::PlotDockWidget(QWidget * parent,Qt::WindowFlags flags):QDockWidg
 	setAllowedAreas(Qt::AllDockWidgetAreas);
   	setFloating(false);
    	setVisible(false);
-    view()->setProperty("cssClass", "dockWithToolbar");
 	setWidget(view());
 
 	//context menu

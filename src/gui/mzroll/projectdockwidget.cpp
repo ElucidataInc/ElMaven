@@ -138,7 +138,6 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     layout->addWidget(_treeWidget);
     layout->setSpacing(8);
     window->setLayout(layout);
-    window->setProperty("cssClass", "dockWithToolbar");
 
     setTitleBarWidget(toolBar);
     setWidget(window);

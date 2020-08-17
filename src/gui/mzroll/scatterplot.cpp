@@ -100,7 +100,7 @@ void ScatterPlot::setupToolBar() {
 	spacerWidget->setVisible(true);
 
     QToolButton *btnClose = new QToolButton(toolBar);
-    btnClose->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    btnClose->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(btnClose, SIGNAL(clicked()), this, SLOT(hide()));
 
     toolBar->addWidget(bntResetZoom);
