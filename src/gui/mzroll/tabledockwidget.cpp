@@ -269,10 +269,39 @@ void TableDockWidget::updateTable() {
   updateStatus();
 }
 
+void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem *item)
+{
+    auto group = groupForItem(item);
+    int numGood = 0;
+    int numBad = 0;
+    int total = group->peakCount();
+    for (int i = 0; i < group->peakCount(); i++) {
+        group->peaks[i].quality > _mainwindow->mavenParameters->minQuality
+            ? numGood++
+            : numBad++;
+    }
+
+    float incorrectFraction = 0.0f;
+    if (numGood > 0 && group->label == 'b') {
+        incorrectFraction = static_cast<float>(numGood) / total;
+    } else if (numBad > 0 && group->label == 'g') {
+        incorrectFraction = static_cast<float>(numBad) / total;
+    }
+    QLinearGradient gradient(0, 6, 42, 6);
+    gradient.setColorAt(0, QColor::fromRgbF(1.0, 1.0, 1.0, 0.0));
+    gradient.setColorAt(1, QColor::fromRgbF(1.0, 0.0, 0.13, incorrectFraction));
+    QBrush brush(gradient);
+    item->setBackground(0, brush);
+}
+
 void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   shared_ptr<PeakGroup> group = groupForItem(item);
   if (group == nullptr)
     return;
+
+  for (int i = 0; i < treeWidget->columnCount(); ++i)
+    item->setTextAlignment(i, Qt::AlignRight);
+  item->setTextAlignment(1, Qt::AlignLeft); // compound name
 
   if (group->isGhost()) {
     item->setText(0, QString::number(group->groupId()));
@@ -283,8 +312,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     }
     return;
   }
-
-  heatmapBackground(item);
 
   //Find maximum number of peaks
   if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
@@ -344,29 +371,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     vector<float> yvalues = group->getOrderedIntensityVector(
         vsamples, _mainwindow->getUserQuantType());
     for (unsigned int i = 0; i < yvalues.size(); i++)
-      item->setText(5 + i, QString::number(yvalues[i]));
+      item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
     heatmapBackground(item);
   }
 
-  int good = 0;
-  int bad = 0;
-  int total = group->peakCount();
-  for (int i = 0; i < group->peakCount(); i++) {
-    group->peaks[i].quality > _mainwindow->mavenParameters->minQuality ? good++
-                                                                       : bad++;
-  }
-
-  QBrush brush = Qt::NoBrush;
-  if (good > 0 && group->label == 'b') {
-    float incorrectFraction = ((float)good) / total;
-    brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
-  } else if (bad > 0 && group->label == 'g') {
-    float incorrectFraction = ((float)bad) / total;
-    brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
-  } else {
-    brush = QBrush(QColor::fromRgbF(1.0, 1.0, 1.0, 1.0));
-  }
-  item->setBackground(0, brush);
+  _paintClassificationDisagreement(item);
 
   if (group->label == 'g') {
     item->setIcon(0, QIcon(":/images/good.png"));
@@ -450,16 +459,13 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
         values[i] = abs((max - values[i]) / max); // Z-score
     }
 
-    QColor color = Qt::white;
-
-    float colorramp = 0.5;
-
+    QColor color = 0xfe7400;
     for (int i = 0; i < values.size(); i++) {
       float value = values[i];
       float prob = value;
       if (prob < 0)
         prob = 0;
-      color.setHsvF(0.0, prob, 1, 1);
+      color.setAlpha((1.0f - prob) * 210);
 
       item->setBackgroundColor(firstColumn + i, color);
     }

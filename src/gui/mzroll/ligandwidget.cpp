@@ -540,9 +540,9 @@ void LigandWidget::setHash()
 
 void LigandWidget::markAsDone(QTreeWidgetItem* item, bool isProxy)
 {
-    auto color = QColor(101, 243, 124, 100);  // green
+    auto color = QColor(137, 238, 45, 100);  // green
     if (isProxy)
-        color = QColor(253, 204, 101, 100);   // yellow
+        color = QColor(255, 199, 0, 100);    // yellow
 
     if (item != nullptr && item->treeWidget() == treeWidget) {
         for (int col = 0; col < treeWidget->columnCount(); col++)

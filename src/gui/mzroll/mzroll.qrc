@@ -23,8 +23,6 @@
         <file>images/JSON.png</file>
         <file>images/notification.png</file>
         <file>images/bug.png</file>
-        <file>images/good.png</file>
-        <file>images/bad.png</file>
         <file>images/molecule.png</file>
         <file>images/averageSpectra.png</file>
         <file>images/markgood.png</file>
@@ -96,5 +94,7 @@
         <file>images/closeWidget.png</file>
         <file>images/minimizeWidget.png</file>
         <file>images/undockWidget.png</file>
+        <file>images/bad.png</file>
+        <file>images/good.png</file>
     </qresource>
 </RCC>

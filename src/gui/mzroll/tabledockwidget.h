@@ -355,6 +355,8 @@ private:
 
   void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
 
+  void _paintClassificationDisagreement(QTreeWidgetItem* item);
+
   void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
