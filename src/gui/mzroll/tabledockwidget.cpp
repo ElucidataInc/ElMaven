@@ -557,7 +557,10 @@ void TableDockWidget::noPeakFound()
 {
   QMessageBox *warning = new QMessageBox(this);
 
-    auto htmlText = QString("<p>No peaks found.</p>");
+    auto htmlText = QString("<p>No peaks were detected. \
+                                Please check if you settings are not too strict \
+                                for your data or whether you are able to see any \
+                                peaks while manually browsing through a compound database.</p>");
    
     warning->setText(htmlText);
     warning->setIcon(QMessageBox::Icon::Information);
@@ -577,7 +580,7 @@ void TableDockWidget::showAllGroups() {
     _mainwindow->ligandWidget->resetColor();
     _mainwindow->removePeaksTable(this);
     noPeakFound();
-    this->~TableDockWidget();
+    this->deleteLater();
     return;
   }
 
