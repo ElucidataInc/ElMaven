@@ -83,8 +83,6 @@ void SpectraWidget::initPlot()
 
 void SpectraWidget::setCurrentScan(Scan* scan)
 {
-    qDebug() << "setCurrentScan: " << scan;
-
     if (!_currentScan) {
         _currentScan = new Scan(0,0,0,0,0,0); //empty scan;
     }
@@ -154,7 +152,7 @@ void SpectraWidget::setTitle(QString titleText)
     QFont font = QApplication::font();
     _title->setDefaultTextColor(Qt::black);
 
-    font.setPointSizeF(font.pointSize()*0.8);
+    font.setPixelSize(font.pixelSize() * 0.8);
 
     if (!_title) _title = scene()->addText(titleText, font);
     _title->setHtml(titleText);
@@ -163,7 +161,6 @@ void SpectraWidget::setTitle(QString titleText)
     _title->update();
 
     if (_currentScan && _currentScan->nobs() == 0) {
-        font.setPointSizeF(font.pointSize()*0.8);
         _title->setHtml("EMPTY SCAN");
         int textWidth = _title->boundingRect().width();
         _title->setPos(scene()->width() / 2 - textWidth / 2, scene()->height() / 2);
@@ -592,7 +589,7 @@ void SpectraWidget::drawMzLabels(Scan* scan)
     unsigned int labelCount = 0;
     
     QFont font = QApplication::font();
-    font.setPointSizeF(font.pointSize()*0.8);
+    font.setPixelSize(font.pixelSize() * 0.8);
     
     float SCALE = 1.0;
     float OFFSET = 0;
@@ -637,7 +634,8 @@ void SpectraWidget::drawMzLabels(Scan* scan)
 }
 
 void SpectraWidget::drawAnnotations() {
-   QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
+   QFont font = QApplication::font();
+   font.setPixelSize(font.pixelSize() * 0.8);
 
     for(int i=0; i < links.size(); i++ ) {
         if ( links[i].mz2 < _minX || links[i].mz2 > _maxX ) continue;
@@ -679,7 +677,7 @@ void SpectraWidget::drawGraph()
             drawSpectralHit(_spectralHit);
         else {
             //TODO: either remove the check or inform user on the UI in case of failure
-            qDebug() << " overlaySpectra() skipped: "
+            qDebug() << "overlaySpectra() skipped: "
                      << _spectralHit.precursorMz
                      << " "
                      << _currentScan->precursorMz;
@@ -723,8 +721,6 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
     // the picture fully
     minMZ -= 20;
     maxMZ += 20;
-
-    cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
 
     if (_minX < minMZ)
         _minX = minMZ;
@@ -970,7 +966,8 @@ void SpectraWidget::mouseDoubleClickEvent(QMouseEvent* event){
 
 void SpectraWidget::addLabel(QString text,float x, float y)
 {
-    QFont font = QApplication::font(); font.setPointSizeF(font.pointSize()*0.8);
+    QFont font = QApplication::font();
+    font.setPixelSize(font.pixelSize() * 0.8);
 
     QGraphicsTextItem* _label = scene()->addText(text, font);
     _label->setPos(toX(x), toY(y));  
@@ -1361,7 +1358,6 @@ void SpectraWidget::constructAverageScan(float rtmin, float rtmax)
 
     if (_currentScan && _currentScan->getSample()) {
         Scan* avgScan = _currentScan->getSample()->getAverageScan(rtmin,rtmax,_currentScan->mslevel,_currentScan->getPolarity(),(float)100.0);
-        qDebug() << "constructAverageScan() " << rtmin << " " << rtmax << " mslevel=" << _currentScan->mslevel << endl;
         avgScan->simpleCentroid();
         if(avgScan) setScan(avgScan);
     }
