@@ -461,20 +461,21 @@ float EicWidget::invY(float y) {
 
 }
 
-void EicWidget::replotForced() {
-	//qDebug <<" EicWidget::replotForced()";
-	if (isVisible()) {
-		recompute();
-		replot();
-
-	}
+void EicWidget::replotForced(bool preserveDisplayedGroup)
+{
+    if (preserveDisplayedGroup) {
+        auto lastGroup = eicParameters->displayedGroup();
+        recompute();
+        replot(lastGroup);
+    } else {
+        recompute();
+        replot();
+    }
 }
 
-void EicWidget::replot() {
-	//qDebug <<" EicWidget::replot()";
-	if (isVisible()) {	
-        replot(eicParameters->displayedGroup());
-	}
+void EicWidget::replot()
+{
+    replot(eicParameters->displayedGroup());
 }
 
 void EicWidget::_clearEicLines()
@@ -2035,7 +2036,7 @@ void EicWidget::keyPressEvent(QKeyEvent *e) {
 		markGroupBad();
 		break;
 	case Qt::Key_F5:
-		replotForced();
+        replotForced(true);
     case Qt::Key_Shift:
         toggleAreaIntegration(true);
     case Qt::Key_E: {

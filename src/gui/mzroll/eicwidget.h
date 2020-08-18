@@ -77,7 +77,7 @@ public Q_SLOTS:
 	void recompute();
     void replot(shared_ptr<PeakGroup> group);
 	void replot();
-	void replotForced();
+    void replotForced(bool preserveDisplayedGroup = false);
 	void print(QPaintDevice* printer);
 	void showPeakArea(Peak*);
 	void saveRetentionTime();

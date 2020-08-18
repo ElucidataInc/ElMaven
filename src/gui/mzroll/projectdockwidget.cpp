@@ -343,7 +343,7 @@ void ProjectDockWidget::updateSampleList() {
     if ( samples.size() > 0 ) setInfo(samples);
 
     if ( _mainwindow->getEicWidget() ) {
-        _mainwindow->getEicWidget()->replotForced();
+        _mainwindow->getEicWidget()->replotForced(true);
     }
     if (_mainwindow->isotopeWidget) {
         _mainwindow->isotopeWidget->updateSampleList();
@@ -558,7 +558,7 @@ void ProjectDockWidget::SetAsBlankSamples() {
            }
       }
      _treeWidget->update();
-     _mainwindow->getEicWidget()->replotForced();
+     _mainwindow->getEicWidget()->replotForced(true);
 }
 
 void ProjectDockWidget::unmarkBlank(QTreeWidgetItem* item) {
@@ -755,8 +755,6 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
    
     if (item == NULL) return;
     bool checked = (item->checkState(0) != Qt::Unchecked );
-    QTreeWidgetItem* parent = item->parent();
-
     if (item->type() == SampleType ) {
         QVariant v = item->data(0,Qt::UserRole);
         mzSample*  sample =  v.value<mzSample*>();
@@ -766,11 +764,10 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
             sample->isSelected=checked;
 
             if(changed) {
-                cerr << "ProjectDockWidget::showSample() changed! " << checked << endl;
                 _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
                 _mainwindow->sampleRtWidget->plotGraph();
                 _mainwindow->groupRtWidget->updateGraph();
-                _mainwindow->getEicWidget()->replotForced();
+                _mainwindow->getEicWidget()->replotForced(true);
                 _mainwindow->isotopeWidget->updateSampleList();
                 _mainwindow->isotopePlot->replot();
             }

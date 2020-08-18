@@ -148,7 +148,7 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
                 if (_mw != NULL) {
                     auto sharedGroup = make_shared<PeakGroup>(grp);
                     _mw->setPeakGroup(sharedGroup);
-                    _mw->getEicWidget()->replotForced();
+                    _mw->getEicWidget()->replotForced(true);
                 }
             }
         }
