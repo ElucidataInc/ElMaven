@@ -959,7 +959,7 @@ void MainWindow::unsupportedFormat(QStringList unsupportedFileList)
     auto htmlText = QString("<p>El-MAVEN does not support the file format"
                             " of the following files: </p>"
                           "<ul>%1</ul>").arg(fileList);
-    htmlText += "<p>Some files are not uploaded.</p>";
+    htmlText += "<p>Some files were not uploaded.</p>";
     auto reply = QMessageBox::critical(this, 
                                         tr(""), 
                                         htmlText);
