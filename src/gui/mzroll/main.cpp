@@ -76,8 +76,8 @@ void initializeLogger()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    qApp->setOrganizationName("ElucidataInc");
-    qApp->setApplicationName("El-Maven");
+    qApp->setOrganizationName("Elucidata Inc.");
+    qApp->setApplicationName("El-MAVEN");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
     qApp->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
