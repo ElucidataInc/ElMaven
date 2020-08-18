@@ -16,7 +16,7 @@ SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     this->_mw= mw;
     ui->setupUi(this);
     setObjectName("SampleRtWidget");
-    setWindowTitle("Sample Deviation");
+    setWindowTitle("Sample deviation");
 
     setXAxis();
     setYAxis();

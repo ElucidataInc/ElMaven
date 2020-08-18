@@ -176,7 +176,6 @@ void SpectraWidget::setScan(Scan* scan)
 {
     if ( scan == NULL ) return;
     setCurrentScan(scan);
-    cerr << "SpectraWidget::setScan(scan) " << endl;
     findBounds(true,true);
     drawGraph();
     repaint();
@@ -185,7 +184,6 @@ void SpectraWidget::setScan(Scan* scan)
 void SpectraWidget::setScan(Scan* scan, float mzmin, float mzmax)
 {
     if ( scan == NULL ) return;
-    cerr << "SpectraWidget::setScan(scan,min,max) : " << scan->scannum << endl;
     setCurrentScan(scan);
     _minX = mzmin;
     _maxX = mzmax;
@@ -204,7 +202,6 @@ void SpectraWidget::setScan(mzSample* sample, int scanNum=-1)
 
     if ( scanNum >= 0 && scanNum < sample->scans.size() ) {
         setCurrentScan(sample->scans[ scanNum ]);
-        cerr << "SpectraWidget::setScan(scan) " << endl;
         findBounds(false,true);
         drawGraph();
         repaint();
@@ -213,7 +210,6 @@ void SpectraWidget::setScan(mzSample* sample, int scanNum=-1)
 
 void SpectraWidget::setScan(Peak* peak)
 {
-    cerr << "SpectraWidget::setScan(peak) " << endl;
     links.clear();
 
     if (peak == NULL ) return;
@@ -285,8 +281,6 @@ void SpectraWidget::overlayCompoundFragmentation(Compound* c)
 
     _spectralHit = hit;
 
-    cerr << "SpectraWidge::overlayCompoundfragmentation(Compound)" << c->name() << " " << c->precursorMz() << endl;
-
     if (_currentScan && _currentScan->mslevel == 2) {
         _showOverlay = true;
         overlaySpectralHit(_spectralHit);
@@ -334,7 +328,6 @@ void SpectraWidget::overlayScan(Scan *scan)
 
 void SpectraWidget::showConsensusSpectra(PeakGroup* group)
 {
-    qDebug() << "showConsensusSpectra()";
     if (!group) return;
     _scanset.clear();
 
@@ -406,9 +399,8 @@ void SpectraWidget::drawSpectralHit(SpectralHit& hit)
     delete massCutoffWindow;
 }
 
-void SpectraWidget::clearGraph() {
-    qDebug() << "drawSpectra() mzrange= " << _minX << "-" << _maxX;
-
+void SpectraWidget::clearGraph()
+{
     //clean up previous plot
     if ( _arrow ) _arrow->setVisible(false);
     if (_upperLabel)
@@ -442,13 +434,13 @@ void SpectraWidget::setScanTitle()
     if (_currentScan->sample)  sampleName = QString(_currentScan->sample->sampleName.c_str());
     
     if (_currentScan->scannum)
-        _titleText += tr("<b>Scan#</b> %1  ").arg(QString::number(_currentScan->scannum));
+        _titleText += tr("<b>Scan #</b> %1  ").arg(QString::number(_currentScan->scannum));
 
     if (_currentScan->rt)
-        _titleText += tr("<b>Rt:</b> %1  ").arg(QString::number(_currentScan->rt, 'f', 2));
+        _titleText += tr("<b>RT:</b> %1  ").arg(QString::number(_currentScan->rt, 'f', 2));
 
     if (_currentScan->mslevel)
-        _titleText += tr("<b>MS Level:</b> %1  ").arg(QString::number(_currentScan->mslevel));
+        _titleText += tr("<b>MS level:</b> %1  ").arg(QString::number(_currentScan->mslevel));
 
     if (_currentScan->precursorMz) {
         _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(_currentScan->precursorMz,'f',4));
@@ -458,7 +450,7 @@ void SpectraWidget::setScanTitle()
         _titleText += tr("<b>CE:</b> %1  ").arg(QString::number(_currentScan->collisionEnergy,'f',0));
     }
 
-    if (_currentScan->productMz) {    
+    if (_currentScan->precursorMz > 0 && _currentScan->productMz) {
        _titleText += tr("<b>Prod m/z:</b> %1  ").arg(QString::number(_currentScan->productMz,'f',3));
     }
 
@@ -503,7 +495,7 @@ void SpectraWidget::setGroupTitle()
     if (_currentGroup.meanMz)
         meanMz = _currentGroup.meanMz;
     
-    _titleText += tr("<b>Rt:</b> %1  ").arg(QString::number(rt, 'f', 2));
+    _titleText += tr("<b>RT:</b> %1  ").arg(QString::number(rt, 'f', 2));
     
     _titleText += tr("<b>Pre m/z:</b> %1  ").arg(QString::number(meanMz, 'f', 4));
     
@@ -567,7 +559,6 @@ void SpectraWidget::drawScan(Scan* scan, QColor sampleColor)
 }
 
 void SpectraWidget::drawScanSet(vector<Scan*>& scanset) {
-    qDebug() << "drawScanSet() " << scanset.size();
  /*
     _minX = scanset[0]->minMz();
     _maxX = scanset[0]->maxMz();
@@ -734,7 +725,6 @@ void SpectraWidget::findBounds(bool checkX, bool checkY)
     maxMZ += 20;
 
     cerr << _currentScan->filterLine << " " << _currentScan->nobs() << endl;
-    cerr << "findBounds(): range [" << minMZ << ", " << maxMZ << "]" << endl;
 
     if (_minX < minMZ)
         _minX = minMZ;
@@ -1189,7 +1179,6 @@ void SpectraWidget::zoomIn()
 
 void SpectraWidget::zoomOut()
 {
-	cerr << "zoomOut" << endl;
     _minX = _minX * 0.9;
     _maxX = _maxX * 1.1;
     findBounds(false,true);
@@ -1211,33 +1200,34 @@ void SpectraWidget::contextMenuEvent(QContextMenuEvent * event)
     event->ignore();
     QMenu menu;
 
-    QAction* a0 = menu.addAction("Reset Zoom");
-    connect(a0, SIGNAL(triggered()), SLOT(resetZoom()));
+    QAction* a1 = menu.addAction("Reset zoom");
+    connect(a1, SIGNAL(triggered()), SLOT(resetZoom()));
 
-    QAction* a1 = menu.addAction("Go To Scan");
-    connect(a1, SIGNAL(triggered()), SLOT(gotoScan()));
+    if (_overlayMode == OverlayMode::None) {
+        QAction* a2 = menu.addAction("Go to scan");
+        connect(a2, SIGNAL(triggered()), SLOT(gotoScan()));
+    }
 
-    QAction* a3b = menu.addAction("Find Similar Scans");
-    connect(a3b, SIGNAL(triggered()), SLOT(findSimilarScans()));
-
-    QAction* a3a = menu.addAction("Copy Top Peaks to Clipboard");
+    QAction* a3a = menu.addAction("Copy top peaks as text");
     connect(a3a, SIGNAL(triggered()), SLOT(spectraToClipboardTop()));
 
-    QAction* a3 = menu.addAction("Copy Spectra to Clipboard");
+    QAction* a3 = menu.addAction("Copy all peaks as text");
     connect(a3, SIGNAL(triggered()), SLOT(spectraToClipboard()));
 
-    QAction* a3c = menu.addAction("Copy Image to Clipboard");
+    QAction* a3c = menu.addAction("Copy spectra as image");
     connect(a3c, SIGNAL(triggered()), SLOT(copyImageToClipboard()));
 
-    QAction* a4 = menu.addAction("Profile Mode");
-    connect(a4, SIGNAL(triggered()), SLOT(setProfileMode()));
-    (a4, SIGNAL(triggered()), SLOT(spectraToClipboard()));
+    if (_overlayMode == OverlayMode::None) {
+        QAction* a4 = menu.addAction("Profile mode");
+        connect(a4, SIGNAL(triggered()), SLOT(setProfileMode()));
+        connect(a4, SIGNAL(triggered()), SLOT(replot()));
 
-    QAction* a5 = menu.addAction("Centroided Mode");
-    connect(a5, SIGNAL(triggered()), SLOT(setCentroidedMode()));
+        QAction* a5 = menu.addAction("Centroided mode");
+        connect(a5, SIGNAL(triggered()), SLOT(setCentroidedMode()));
+        connect(a5, SIGNAL(triggered()), SLOT(replot()));
+    }
 
-
-    QAction *selectedAction = menu.exec(event->globalPos());
+    menu.exec(event->globalPos());
 }
 
 void SpectraWidget::spectraToClipboard()
@@ -1277,7 +1267,7 @@ void SpectraWidget::gotoScan()
 		bool ok=false;
 
 		int scanNumber = QInputDialog::getInt (this,
-						"Go To Scan Number", "Enter Scan Number", curScanNum,
+                        "Go to scan number", "Enter scan number", curScanNum,
 						0, maxScanNum, 1, &ok, 0);
 		if (ok && scanNumber > 0 && scanNumber < maxScanNum) {
 			Scan* newscan = _currentScan->sample->scans[scanNumber];
@@ -1374,20 +1364,6 @@ void SpectraWidget::constructAverageScan(float rtmin, float rtmax)
         qDebug() << "constructAverageScan() " << rtmin << " " << rtmax << " mslevel=" << _currentScan->mslevel << endl;
         avgScan->simpleCentroid();
         if(avgScan) setScan(avgScan);
-    }
-}
-
-void SpectraWidget::findSimilarScans()
-{
-    if(!_currentScan) return;
-    vector< pair<float,float> > mzarray= _currentScan->getTopPeaks(0.05, 1.0,40);
-
-    QStringList clipboardText;
-    for(int i=0; i < mzarray.size(); i++ ) {
-    pair<float,float> p = mzarray[i];
-            clipboardText  << tr("%1\t%2")
-                .arg(QString::number(p.second,'f', 5))
-                .arg(QString::number(p.first, 'f', 2));
     }
 }
 

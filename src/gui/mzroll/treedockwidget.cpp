@@ -457,14 +457,27 @@ void TreeDockWidget::setQQQToolBar() {
     associateCompounds = new QToolButton(toolBar);
     associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
     associateCompounds->setToolTip(tr("Associate compounds with MRM transtions"));
-    
-    auto q1Label = new QLabel("Q1 tolerance");
-    q1Label->setStyleSheet("QLabel { margin-left: 6px; }");
+
+    auto widgetName = new QLabel("SRM list");
+    widgetName->setStyleSheet("QLabel { margin-left: 6px; }");
+    toolBar->addWidget(widgetName);
+
+    toolBar->addSeparator();
+    QLabel* q1Label = new QLabel("Q1 tolerance");
+    q1Label->setStyleSheet("QLabel { margin-right: 2px; }");
     toolBar->addWidget(q1Label);
     toolBar->addWidget(amuQ1);
-    toolBar->addSeparator();
-    toolBar->addWidget(new QLabel("Q3 tolerance"));
+
+    QWidget* margin = new QWidget(toolBar);
+    margin->setMinimumWidth(12);
+    margin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    toolBar->addWidget(margin);
+
+    QLabel* q3Label = new QLabel("Q3 tolerance");
+    q3Label->setStyleSheet("QLabel { margin-right: 2px; }");
+    toolBar->addWidget(q3Label);
     toolBar->addWidget(amuQ3);
+
     toolBar->addSeparator();
     toolBar->addWidget(associateCompounds);
 

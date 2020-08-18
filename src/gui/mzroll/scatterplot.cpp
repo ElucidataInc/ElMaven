@@ -56,6 +56,11 @@ void ScatterPlot::setupToolBar() {
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
 
+    auto widgetName = new QLabel("Scatter-plot");
+    widgetName->setStyleSheet("QLabel { margin-left: 6px; }");
+    toolBar->addWidget(widgetName);
+    toolBar->addSeparator();
+
     QToolButton *bntResetZoom = new QToolButton(toolBar);
     bntResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
     bntResetZoom->setToolTip("Reset zoom");

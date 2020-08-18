@@ -68,7 +68,6 @@ public:
                     void setCentroidedMode() { _profileMode=false; }
                     void setCurrentScan(Scan* scan);
                     void constructAverageScan(float rtmin, float rtmax);
-                    void findSimilarScans();
                     Scan* getCurrentScan() { return _currentScan; }
                     void copyImageToClipboard(); //TODO: Sahil, Added while merging spectrawidget
                     void assignCharges(); //TODO: Sahil, Added while merging spectrawidget

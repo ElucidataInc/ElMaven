@@ -1700,7 +1700,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
       return;
 
   QMenu menu;
-  QAction *z0 = menu.addAction("Copy to Clipboard");
+  QAction *z0 = menu.addAction("Copy to clipboard");
   connect(z0, SIGNAL(triggered()), this, SLOT(setClipboard()));
 
   QAction *z1 = menu.addAction("Edit peak-group");
@@ -1715,10 +1715,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::showIntegrationSettings);
 
-  QAction *z3 = menu.addAction("Show Consensus Spectra");
-  connect(z3, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
-
-  QAction *z4 = menu.addAction("Delete All Groups");
+  QAction *z4 = menu.addAction("Delete all groups");
   connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
@@ -1729,7 +1726,6 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
     // disable actions not relevant to individual peak-groups
     z1->setEnabled(false);
     z2->setEnabled(false);
-    z3->setEnabled(false);
   }
 
   menu.exec(event->globalPos());
@@ -1997,9 +1993,9 @@ int TableDockWidget::lastTableId()
 void TableDockWidget::setDefaultStyle(bool isActive)
 {
     QString style = "";
-    style += "QLabel       { margin:        0px 6px;             }";
-    style += "QToolBar     { background:    %1;                  }";
-    style += "QTreeView    { border:        none;                }";
+    style += "QToolBar QLabel { margin: 0 2px 0 6px; }";
+    style += "QToolBar { background: %1; }";
+    style += "QTreeView { border: none; }";
     style += "QToolBar QToolButton { margin: 2px; }";
     QPalette themePalette = namedColorSchemePalette(ElMavenLight);
     if (isActive) {
@@ -2259,7 +2255,11 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+  toolBar->addSeparator();
+
   toolBar->addAction(btnSwitchView);
+  toolBar->addSeparator();
+
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
@@ -2391,12 +2391,18 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnSwitchView);
+
+  toolBar->addSeparator();
+  toolBar->addWidget(btnMerge);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnDelete);
-  toolBar->addWidget(btnMerge);
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
@@ -2660,7 +2666,11 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnSwitchView);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);

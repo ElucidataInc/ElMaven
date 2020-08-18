@@ -457,9 +457,9 @@ using namespace mzUtils;
     massCalcWidget = new MassCalcWidget(this);
     _peakEditor = new PeakEditor(this, clsf);
     covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
-	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
+    fragPanel = new TreeDockWidget(this, "Fragmentation events", 5);
 	fragPanel->setupScanListHeader();
-	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
+    srmDockWidget = new TreeDockWidget(this, "SRM list", 1);
 	ligandWidget = new LigandWidget(this);
     bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
@@ -470,12 +470,12 @@ using namespace mzUtils;
 	isotopePlotDockWidget->setWidget(customPlot);
 
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
-	fragSpectraDockWidget = createDockWidget("Fragmentation Spectra", fragSpectraWidget);
+    fragSpectraDockWidget = createDockWidget("Fragmentation spectra", fragSpectraWidget);
 
-    groupRtDockWidget = createDockWidget("Per Group Deviation", groupRtVizPlot);
+    groupRtDockWidget = createDockWidget("Per-group deviation", groupRtVizPlot);
     groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
 
-    alignmentVizAllGroupsDockWidget = createDockWidget("All Groups Deviation", alignmentVizAllGroupsPlot);
+    alignmentVizAllGroupsDockWidget = createDockWidget("All groups deviation", alignmentVizAllGroupsPlot);
     alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this, alignmentVizAllGroupsDockWidget);
 
 	scatterDockWidget = new ScatterPlot(this);
@@ -3092,11 +3092,11 @@ void MainWindow::sendAnalytics(bool checked) {
 
     QString btnName = QObject::sender()->objectName();
     analytics->hitScreenView(btnName);
-    if (checked && btnName == "Fragmentation Spectra") {
+    if (checked && btnName == "Fragmentation spectra") {
         analytics->hitEvent("PRM", "OpenedFragmentationSpectra");
     }
 
-    if (checked && btnName == "Fragmentation Events") {
+    if (checked && btnName == "Fragmentation events") {
         analytics->hitEvent("PRM", "OpenedFragmentationEvents");
     }
 }
@@ -3310,9 +3310,9 @@ void MainWindow::createToolBars() {
             this,
             &MainWindow::searchForQuery);
 
-	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
+    QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do search")),
 			this);
-	QShortcut* ctrlF = new QShortcut(QKeySequence(tr("Ctrl+F", "Do Search")),
+    QShortcut* ctrlF = new QShortcut(QKeySequence(tr("Ctrl+F", "Do search")),
 			this);
 
 	connect(ctrlK, SIGNAL(activated()), searchText, SLOT(selectAll()));
@@ -3382,16 +3382,17 @@ void MainWindow::createToolBars() {
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
     btnAlignment->setText("Alignment visualizations");
-    QMenu* alignmentMenu = new QMenu("Alignment Visualizations Menu");
+    QMenu* alignmentMenu = new QMenu("Alignment visualizations menu");
 
     btnAlignment->setMenu(alignmentMenu);
     btnAlignment->setPopupMode(QToolButton::InstantPopup);
 
-
-    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per Group Deviation");
-    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All Groups Deviation");
-    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Deviation");
-
+    QAction* perGroupAlignment = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/groupRtViz.png"), "Per-group deviation");
+    QAction* allGroupAlignment = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All groups deviation");
+    QAction* sampleRtDeviation = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/sampleRtViz.png"), "Sample deviation");
 
     connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
     connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
@@ -4210,7 +4211,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowBarplot = new QToolButton(parent);
 		btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
-        btnShowBarplot->setToolTip(tr("Show barplot"));
+        btnShowBarplot->setToolTip(tr("Show bar-plot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
 		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
@@ -4234,7 +4235,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		
 		QToolButton *btnShowBoxplot = new QToolButton(parent);
 		btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
-        btnShowBoxplot->setToolTip(tr("Show boxplot"));
+        btnShowBoxplot->setToolTip(tr("Show box-plot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));

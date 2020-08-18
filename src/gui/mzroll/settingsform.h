@@ -58,8 +58,8 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             */
             void setWeightStatus();
             void updateSmoothingWindowValue(int value);
-            inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
-            inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }
+            inline void showFileImportTab() { tabWidget->setCurrentIndex(0); }
+            inline void showInstrumentationTab() { tabWidget->setCurrentIndex(1); }
             inline void showPeakDetectionTab()   { tabWidget->setCurrentIndex(2); }
             inline void setIsotopeDetectionTab()  { tabWidget->setCurrentIndex(3); }
             inline void setQ1Tollrance(double value) { setNumericValue("amuQ1",value); }
