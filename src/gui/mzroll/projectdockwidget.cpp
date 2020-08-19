@@ -52,7 +52,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
     connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
-
+    connect(_mainwindow->fileLoader, &mzFileIO::sampleLoaded, this, &ProjectDockWidget::saveState);
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
