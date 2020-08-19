@@ -59,6 +59,8 @@ public:
     PeakDetector* peakDetector;
     MavenParameters* mavenParameters;
 
+    void performPolyFitAlignment() { _performPolyFitAlignment = true; };
+
     /**
      * @brief updateGroups Updates the attributes of peakgroups according to new
      * mainwindow parameters.
@@ -118,6 +120,9 @@ private:
 
     // argument for `pullIsotopesForGroup` and `pullIsotopesForBarplot`
     shared_ptr<PeakGroup> _parentGroup;
+
+    // perform PolyFit alignment just after peak detection (if true)
+    bool _performPolyFitAlignment;
 };
 
 #endif

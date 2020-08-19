@@ -3770,6 +3770,7 @@ void MainWindow::Align()
         workerThread = newWorkerThread("findFeatures");
         alignmentDialog->setWorkerThread(workerThread);
     }
+    workerThread->performPolyFitAlignment();
 
     connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
     connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));

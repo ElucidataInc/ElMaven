@@ -27,16 +27,17 @@
 
 BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 {
-        mainwindow = NULL;
-        setTerminationEnabled(true);
-        runFunction = "";
-        mavenParameters = nullptr;
-        peakDetector = nullptr;
-        setPeakDetector(new PeakDetector());
+    mainwindow = NULL;
+    setTerminationEnabled(true);
+    runFunction = "";
+    mavenParameters = nullptr;
+    peakDetector = nullptr;
+    setPeakDetector(new PeakDetector());
 
-        _isotopeFormula = "";
-        _isotopeCharge = 0;
-        _parentGroup = nullptr;
+    _isotopeFormula = "";
+    _isotopeCharge = 0;
+    _parentGroup = nullptr;
+    _performPolyFitAlignment = false;
 }
 
 BackgroundOpsThread::~BackgroundOpsThread()
@@ -254,7 +255,18 @@ void BackgroundOpsThread::computePeaks()
 
     emit updateProgressBar("Processing Compounds", 0, 0);
 
+    bool hadPullIsotopes = peakDetector->mavenParameters()->pullIsotopesFlag;
+    bool hadSearchAdducts = peakDetector->mavenParameters()->searchAdducts;
+    if (_performPolyFitAlignment) {
+        peakDetector->mavenParameters()->pullIsotopesFlag = false;
+        peakDetector->mavenParameters()->searchAdducts = false;
+    }
     peakDetector->processCompounds(set);
+    if (_performPolyFitAlignment) {
+        align();
+        peakDetector->mavenParameters()->pullIsotopesFlag = hadPullIsotopes;
+        peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
+    }
     emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
@@ -266,7 +278,18 @@ void BackgroundOpsThread::findFeatures()
     mavenParameters->sig.connect(
         boost::bind(&BackgroundOpsThread::qtSignalSlot, this, _1, _2, _3));
 
+    bool hadPullIsotopes = peakDetector->mavenParameters()->pullIsotopesFlag;
+    bool hadSearchAdducts = peakDetector->mavenParameters()->searchAdducts;
+    if (_performPolyFitAlignment) {
+        peakDetector->mavenParameters()->pullIsotopesFlag = false;
+        peakDetector->mavenParameters()->searchAdducts = false;
+    }
     peakDetector->processFeatures(mavenParameters->compounds);
+    if (_performPolyFitAlignment) {
+        align();
+        peakDetector->mavenParameters()->pullIsotopesFlag = hadPullIsotopes;
+        peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
+    }
     emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
