@@ -525,6 +525,7 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 
 void TableDockWidget::deleteAll()
 {
+  
   if (treeWidget->currentItem()) {
       _mainwindow->getEicWidget()->unSetPeakTableGroup(
           treeWidget->currentItem()->data(0, Qt::UserRole)
@@ -1185,8 +1186,8 @@ bool TableDockWidget::deleteAllgroupsWarning()
     bool selectedOption;
 
     auto htmlText = QString("<p><b>Are you sure you want to permanently erase all the "
-                            "groups from table?</b></p>");
-    htmlText += "<p>You can't undo this action.</p>";
+                            "groups from this table?</b></p>");
+    htmlText += "<p>You can not undo this action.</p>";
     warning->setText(htmlText);
     warning->setIcon(QMessageBox::Icon::Warning);
   
@@ -1196,13 +1197,12 @@ bool TableDockWidget::deleteAllgroupsWarning()
                                   QMessageBox::AcceptRole);
     warning->exec();
 
-    if(warning->clickedButton() == yesButton)
-        selectedOption = true;
-    else
-        selectedOption = false;
-
     QCoreApplication::processEvents();
-    return selectedOption;
+
+    if(warning->clickedButton() == yesButton)
+        return true;
+    
+    return false;
 }
 
 void TableDockWidget::deleteSelectedItems()
@@ -1237,9 +1237,10 @@ void TableDockWidget::deleteSelectedItems()
     // groups in the table.
     if (topLevelItemsCount == topLevelGroupCount()) {
         auto continueDeletion = deleteAllgroupsWarning();
-        if (!continueDeletion) {
-          return;
+        if (continueDeletion) {
+          deleteAll();
         }
+       return;
     }
     set<QTreeWidgetItem*> itemsToDelete;
     set<shared_ptr<PeakGroup>> groupsToDelete;
@@ -2364,6 +2365,10 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::deleteAll()
 {
+  auto continueDeletion = deleteAllgroupsWarning();
+  if (!continueDeletion) {
+    return;
+  }
   TableDockWidget::deleteAll();
   destroy();
 }
