@@ -2994,14 +2994,16 @@ void MainWindow::loadSettings()
     };
 
     QFile file(fileName);
-    if(!(fileName.contains(".xml") || fileName.contains(".XML"))) {
+    if(fileName.size() 
+        && !(fileName.contains(".xml") 
+            || fileName.contains(".XML"))) {
         auto fileNameSplit = mzUtils::split(fileName.toStdString(), "/");
         string fileNameString = fileNameSplit[fileNameSplit.size() - 1];
         fileName = "<li>" + QString::fromStdString(fileNameString);
         auto htmlText = QString("<p>El-MAVEN settings does not support the file format"
                             " of the following file: </p>"
                           "<ul>%1</ul>").arg(fileName);
-        htmlText += "<p>Setting file is not uploaded.</p>";
+        htmlText += "<p>Setting file was not uploaded.</p>";
         warning(htmlText);
         return;
     }
@@ -3020,7 +3022,7 @@ void MainWindow::loadSettings()
 
     else {
         // display an error message
-        warning("Unable to load settings. File name not specified.");
+        warning("Unable to load settings. Specified file is not readable.");
     }
 }
 
