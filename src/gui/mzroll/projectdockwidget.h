@@ -27,6 +27,13 @@ public:
     QColor getSampleColor(mzSample* sample);
     QIcon getSampleIcon(mzSample* sample);
 
+    /**
+     * @brief Restores the state of samples as it was before
+     * filtering.
+     */ 
+    void restoreSampleState();
+    
+
 Q_SIGNALS:
     void samplesDeleted();
 
@@ -37,6 +44,19 @@ public Q_SLOTS:
     void setInfo(vector<mzSample*>&samples);
     void changeSampleOrder();
     void updateSampleList();
+
+    /**
+     * @brief Replots the eic widget according to the change in selection
+     * of the samples
+     */ 
+    void replotWidget();
+
+    /**
+     * @brief Saves sample state everytime when a selection of item is changed. 
+     */ 
+    void saveState();
+
+    
 
     /**
      * @brief Bring up a file dialog and allow the user to save current session
@@ -104,6 +124,11 @@ private:
     QTextEdit* _editor;
     MainWindow* _mainwindow;
     QTreeWidget* _treeWidget;
+    /**
+     * @brief Map stores the item along with its 
+     * checked and unchecked state.
+     */ 
+    map<string, bool> _saveSampleState; 
 
     QMap<QString, QColor> storeColor;
     QColor  usedColor;

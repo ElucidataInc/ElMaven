@@ -443,7 +443,7 @@ void mzFileIO::run(void)
         // ask user to send back the logs
         qDebug() << "uploading samples failed";
     }
-
+    Q_EMIT(sampleLoaded());
     quit();
 }
 

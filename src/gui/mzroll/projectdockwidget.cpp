@@ -52,7 +52,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
     connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
     connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
-
+    connect(_mainwindow->fileLoader, &mzFileIO::sampleLoaded, this, &ProjectDockWidget::saveState);
     QToolBar *toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
@@ -153,6 +153,50 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     setWidget(window);
 
 }
+
+void ProjectDockWidget::saveState()
+{
+    QTreeWidgetItemIterator it(_treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        QVariant v = item->data(0,Qt::UserRole);
+        mzSample*  sample =  v.value<mzSample*>();
+        if (item->type() == SampleType) {
+            if (item->checkState(0) == Qt::Checked)
+                _saveSampleState[sample->sampleName] = true;
+            else
+                _saveSampleState[sample->sampleName] = false;
+        }
+        ++it; //next item
+    }
+}
+
+void ProjectDockWidget::restoreSampleState()
+{
+    QTreeWidgetItemIterator it(_treeWidget);
+
+    while (*it) {
+        QTreeWidgetItem* item = (*it); 
+        QVariant v = item->data(0,Qt::UserRole);
+        mzSample*  sample =  v.value<mzSample*>();
+        if (item->type() == SampleType) {
+            for (auto itr = _saveSampleState.begin(); 
+                itr != _saveSampleState.end(); 
+                itr++) {
+                    if(itr->first == sample->sampleName){
+                        bool wasChecked = itr->second;
+                        if (wasChecked)
+                            (*it)->setCheckState(0, Qt::Checked);
+                        else
+                            (*it)->setCheckState(0, Qt::Unchecked);
+                    }
+                }
+        }
+        ++it; //next item
+    } 
+}
+
+
 
 QString ProjectDockWidget::getProjectDescription() {
     return _editor->toPlainText();
@@ -328,6 +372,12 @@ void ProjectDockWidget::changeSampleOrder() {
 }
 
 void ProjectDockWidget::filterTreeItems(QString filterString) {
+    
+    disconnect( _treeWidget, 
+            &QTreeWidget::itemChanged, 
+            this, 
+            &ProjectDockWidget::saveState);
+
     QRegExp regexp(filterString,Qt::CaseInsensitive,QRegExp::RegExp);
 
     QTreeWidgetItemIterator it(_treeWidget);
@@ -337,14 +387,24 @@ void ProjectDockWidget::filterTreeItems(QString filterString) {
         if (item->type() == SampleType) {
             if (filterString.isEmpty()) {
                 item->setHidden(false);
+                QVariant v = item->data(0,Qt::UserRole);
+                restoreSampleState();
+                _treeWidget->update();
             } else if (item->text(0).contains(regexp) || item->text(1).contains(regexp) || item->text(2).contains(regexp)) {
                 item->setHidden(false);
+                item->setCheckState(0, Qt::Checked);
+                _treeWidget->update();
             } else {
                 item->setHidden(true);
+                item->setCheckState(0, Qt::Unchecked);
+                _treeWidget->update();
             }
         }
     }
-
+    connect( _treeWidget, 
+            &QTreeWidget::itemChanged, 
+            this, 
+            &ProjectDockWidget::saveState);
 }
 
 void ProjectDockWidget::changeColors() {
@@ -389,6 +449,14 @@ void ProjectDockWidget::checkUncheck() {
      _mainwindow->sampleRtWidget->plotGraph();
 
       _mainwindow->getEicWidget()->replot();
+}
+
+void ProjectDockWidget::replotWidget()
+{
+    _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+    _mainwindow->sampleRtWidget->plotGraph();
+
+    _mainwindow->getEicWidget()->replot();
 }
 
 void ProjectDockWidget::unloadSelectedSamples() {
@@ -641,6 +709,10 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeSampleSet(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeNormalizationConstant(QTreeWidgetItem*,int)));
     connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(showSample(QTreeWidgetItem*,int)));
+    connect( _treeWidget, 
+            &QTreeWidget::itemChanged, 
+            this, 
+            &ProjectDockWidget::saveState);
     connect(_treeWidget,
             SIGNAL(itemDropped(QTreeWidgetItem*)),
             SLOT(changeSampleOrder()));
@@ -651,6 +723,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 }
 
 void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
+   
     if (item == NULL) return;
     bool checked = (item->checkState(0) != Qt::Unchecked );
     QTreeWidgetItem* parent = item->parent();
