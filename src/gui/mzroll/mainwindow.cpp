@@ -2883,6 +2883,9 @@ QToolButton* MainWindow::addDockWidgetButton(QToolBar* bar,
 void MainWindow::saveSettings()
 {
     QString fileName = QFileDialog::getSaveFileName(Q_NULLPTR,"Save Settings",QString());
+    if(!(fileName.contains(".xml") || fileName.contains(".XML"))){
+        fileName += ".xml";
+    }
 
     if(!mavenParameters->saveSettings(fileName.toStdString().c_str())) {
         QMessageBox msgBox;
@@ -2965,10 +2968,45 @@ void MainWindow::loadPollySettings(QString fileName)
 void MainWindow::loadSettings()
 {
     bool fileLoaded = false;
-    QString fileName = QFileDialog::getOpenFileName(Q_NULLPTR, "Load Settings", QString());
+    
+    QString dir = ".";
+
+    if (settings->contains("lastDir")) {
+        QString ldir = settings->value("lastDir").value<QString>();
+        QDir test(ldir);
+        if (test.exists())
+            dir = ldir;
+    }
+
+    QString fileName = QFileDialog::getOpenFileName(
+        Q_NULLPTR,
+        "Load Settings",
+        dir,
+        tr("All Known Formats(*.xml *.XML);; ")
+           + tr("All Files(*.*)"));
+    
+    auto warning = [&](QString msg) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setIcon(QMessageBox::Icon::Warning);
+        msgBox.setText(msg);
+        msgBox.exec();
+    };
 
     QFile file(fileName);
-
+    if(fileName.size() 
+        && !(fileName.contains(".xml") 
+            || fileName.contains(".XML"))) {
+        auto fileNameSplit = mzUtils::split(fileName.toStdString(), "/");
+        string fileNameString = fileNameSplit[fileNameSplit.size() - 1];
+        fileName = "<li>" + QString::fromStdString(fileNameString);
+        auto htmlText = QString("<p>El-MAVEN settings does not support the file format"
+                            " of the following file: </p>"
+                          "<ul>%1</ul>").arg(fileName);
+        htmlText += "<p>Setting file was not uploaded.</p>";
+        warning(htmlText);
+        return;
+    }
     if(file.open(QIODevice::ReadOnly)) {
 
         QByteArray bArr = file.readAll();
@@ -2984,10 +3022,7 @@ void MainWindow::loadSettings()
 
     else {
         // display an error message
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Error");
-        msgBox.setText("Loading the file failed");
-        msgBox.exec();
+        warning("Unable to load settings. Specified file is not readable.");
     }
 }
 
