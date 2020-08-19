@@ -28,12 +28,6 @@ public:
     QIcon getSampleIcon(mzSample* sample);
 
     /**
-     * @brief Map stores the item along with its 
-     * checked and unchecked state.
-     */ 
-    map<QTreeWidgetItem*, bool> saveSampleState; 
-
-    /**
      * @brief Restores the state of samples as it was before
      * filtering.
      */ 
@@ -42,10 +36,6 @@ public:
 
 Q_SIGNALS:
     void samplesDeleted();
-    /**
-     * @brief Signal emitted when the item in treeWidget is clicked.
-     */ 
-    void clicked();
 
 public Q_SLOTS:
     void showInfo();
@@ -134,6 +124,11 @@ private:
     QTextEdit* _editor;
     MainWindow* _mainwindow;
     QTreeWidget* _treeWidget;
+    /**
+     * @brief Map stores the item along with its 
+     * checked and unchecked state.
+     */ 
+    map<string, bool> _saveSampleState; 
 
     QMap<QString, QColor> storeColor;
     QColor  usedColor;
