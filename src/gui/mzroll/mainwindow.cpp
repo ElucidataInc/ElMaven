@@ -2333,8 +2333,8 @@ int MainWindow::loadMetaCsvFile(string filename){
 
     ifstream myfile(filename.c_str());
 
-    ifstream xkcd_colors("src/gui/mzroll/databases/xkcd-colors.json");
-    json rootxkcd_colors = json::parse(xkcd_colors);
+    ifstream xkcdColors("src/gui/mzroll/databases/xkcd-colors.json");
+    json rootxkcdColors = json::parse(xkcdColors);
 
     if (! myfile.is_open()) return 0;
 
@@ -2428,27 +2428,31 @@ int MainWindow::loadMetaCsvFile(string filename){
 
         }
 
-        qreal *redF, *greenF, *blueF, *alpha;
+        qreal redF, greenF, blueF, alpha;
         if (header.count("color") && header["color"] < N) {
 
             string colorName = fields[header["color"]];
-            redF = new qreal(-1);
-            greenF = new qreal(-1);
-            blueF = new qreal(-1);
-            alpha = new qreal(-1);
+            redF = -1;
+            greenF = -1;
+            blueF = -1;
+            alpha = -1;
             QColor color;
             
-            if(!colorName.empty()) {
-                
-                if (colorName[0] == '#') {
-                    color.setNamedColor(QString::fromStdString(colorName));
-                    color.getRgbF(redF, greenF, blueF, alpha);
-                } else if (rootxkcd_colors[colorName] != nullptr) { 
-                    string hexValue = rootxkcd_colors[colorName];
+            if(colorName.empty()) 
+                continue;    
+            if (colorName[0] == '#') {
+                color.setNamedColor(QString::fromStdString(colorName));
+                color.getRgbF(&redF, &greenF, &blueF, &alpha);
+            } else {
+                try {
+                    string hexValue = rootxkcdColors.at(colorName);
                     color.setNamedColor(QString::fromStdString(hexValue));
-                    color.getRgbF(redF, greenF, blueF, alpha);
+                    color.getRgbF(&redF, &greenF, &blueF, &alpha);
+                } catch (json::out_of_range e) {
+                    qDebug() << "Color not recognised";
                 }
-            }
+                
+            }    
         }
 
         if (sampleName.isEmpty()) continue;
@@ -2462,15 +2466,15 @@ int MainWindow::loadMetaCsvFile(string filename){
         sample->_setName = set;
         sample->setInjectionOrder(injectionOrder);
         sample->setNormalizationConstant(scalingFactor);
-        if (*redF != -1 &&
-            *greenF != -1 &&
-            *blueF != -1 &&
-            *alpha != -1)
+        if (redF != -1 &&
+            greenF != -1 &&
+            blueF != -1 &&
+            alpha != -1)
         {
-            sample->color[0] = *redF;
-            sample->color[1] = *greenF;
-            sample->color[2] = *blueF;
-            sample->color[3] = *alpha;   
+            sample->color[0] = redF;
+            sample->color[1] = greenF;
+            sample->color[2] = blueF;
+            sample->color[3] = alpha;   
         }
         loadCount++;
     }
