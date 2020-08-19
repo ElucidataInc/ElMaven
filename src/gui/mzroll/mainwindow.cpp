@@ -143,7 +143,6 @@ using namespace mzUtils;
     connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
-
     qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 
@@ -1368,7 +1367,11 @@ void MainWindow::setTotalCharge()
     fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
     totalCharge = mavenParameters->ionizationMode * charge;
     DB.updateChargesForZeroCharges(totalCharge);
-    if (this->isVisible())
+
+    // to prevent unnecessary updates to ligand widget while emDB is loading
+    bool emDBIsLoading = (_loadProgressDialog != nullptr
+                          && _loadProgressDialog->isVisible());
+    if (this->isVisible() && !emDBIsLoading)
         ligandWidget->showTable(true);
 }
 
@@ -3569,7 +3572,8 @@ void MainWindow::_postProjectLoadActions()
             qDebug() << match;
             if (match.hasMatch())
                 dbName = match.captured(1);
-            ligandWidget->setDatabase(dbName);
+            if (dbName != ligandWidget->getDatabaseName())
+                ligandWidget->setDatabase(dbName);
         } else {
             setActiveTable(bookmarkedPeaks);
         }

@@ -133,6 +133,10 @@ LigandWidget::LigandWidget(MainWindow* mw)
             this,
             SLOT(setDatabase(QString)));
     connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
+
+    _busyMessage = new QMessageBox(_mw);
+    _busyMessage->setStandardButtons(QMessageBox::NoButton);
+    _busyMessage->setModal(true);
 }
 
 QString LigandWidget::getDatabaseName()
@@ -598,6 +602,11 @@ void LigandWidget::resetColor()
 
 void LigandWidget::updateIsotopesAndAdducts()
 {
+    QApplication::processEvents();
+    _busyMessage->setText("Populating isotopologues and adducts…");
+    _busyMessage->show();
+    QApplication::processEvents();
+
     treeWidget->setSortingEnabled(false);
     treeWidget->setDisabled(true);
 
@@ -666,6 +675,9 @@ void LigandWidget::updateIsotopesAndAdducts()
     }
     treeWidget->setEnabled(true);
     treeWidget->setSortingEnabled(true);
+
+    QApplication::processEvents();
+    _busyMessage->hide();
 }
 
 void LigandWidget::saveCompoundList(QString fileName, QString dbname)

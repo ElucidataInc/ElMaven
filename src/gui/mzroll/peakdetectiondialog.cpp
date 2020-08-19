@@ -232,6 +232,7 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 
     // update maven peak settings on close-event ('close' or 'cancel' button)
     emit updateSettings(peakSettings);
+    QDialog::closeEvent(event);
 }
 
 void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
@@ -240,6 +241,7 @@ void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
         event->ignore();
         return;
     }
+    QDialog::keyPressEvent(event);
 }
 
 void PeakDetectionDialog::dbSearchClicked()
@@ -534,8 +536,6 @@ void PeakDetectionDialog::findPeaks()
 
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
-
-    mainwindow->setTotalCharge();
 
     QString dbName = "";
     QString mode = "";

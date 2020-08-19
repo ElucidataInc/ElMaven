@@ -115,7 +115,8 @@ void IsotopeDialog::triggerSettingsUpdate()
 {
     // happens when users presses 'esc' key; 
     emit updateSettings(isotopeSettings);
-    _mw->ligandWidget->updateIsotopesAndAdducts();
+    if (_mw->isVisible())
+        _mw->ligandWidget->updateIsotopesAndAdducts();
 }
 
 void IsotopeDialog::onReset()

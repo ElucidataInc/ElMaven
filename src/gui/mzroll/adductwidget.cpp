@@ -165,7 +165,8 @@ void AdductWidget::selectAdductsForCurrentPolarity()
 void AdductWidget::triggerSettingsUpdate()
 {
     emit updateSettings(_adductSettings);
-    _mw->ligandWidget->updateIsotopesAndAdducts();
+    if (_mw->isVisible())
+        _mw->ligandWidget->updateIsotopesAndAdducts();
 }
 
 void AdductWidget::onReset()

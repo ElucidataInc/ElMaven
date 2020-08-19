@@ -27,6 +27,7 @@ Controller::Controller()
     _dlManager = new DownloadManager;
     iPolly = new PollyIntegration(_dlManager);
     _mw = new MainWindow(this);
+    _mw->hide();
     updateUi();
 
     connect(_mw->isotopeDialog,
@@ -302,7 +303,7 @@ void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap
         if (key == "mainWindowMassResolution")
             _mw->massCutoffWindowBox->setValue(stod(value));
         if (key == "mainWindowSelectedDbName")
-            _mw->ligandWidget->setDatabase(QString(value.c_str()));
+            _mw->ligandWidget->setDatabase(QString(value.c_str()), false);
     }
 
     _mw->alignmentDialog->updateUiFromValues(settingsMap);

@@ -115,7 +115,7 @@ private Q_SLOTS:
     void databaseChanged(int index);
 
 private:
-
+    QMessageBox* _busyMessage;
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
     QToolButton *libraryButton;
