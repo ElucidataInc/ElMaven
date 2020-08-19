@@ -2445,6 +2445,10 @@ int MainWindow::loadMetaCsvFile(string filename){
                 color.getRgbF(&redF, &greenF, &blueF, &alpha);
             } else {
                 try {
+                    if (colorName[0] == '"')
+                        colorName = colorName.substr(1, colorName.size()-1);
+
+                    transform(colorName.begin(), colorName.end(), colorName.begin(), ::tolower);
                     string hexValue = rootxkcdColors.at(colorName);
                     color.setNamedColor(QString::fromStdString(hexValue));
                     color.getRgbF(&redF, &greenF, &blueF, &alpha);
