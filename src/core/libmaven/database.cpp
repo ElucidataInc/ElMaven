@@ -248,29 +248,6 @@ int Database::loadMascotLibrary(string filepath,
     return mgfFile.size();
 }
 
-void Database::loadFragments(string filename) {
-    ifstream myfile(filename.c_str());
-    if (! myfile.is_open()) return;
-
-    string line;
-    while ( getline(myfile,line) ) {
-		if (!line.empty() && line[0] == '#') continue;
-      	vector<string>fields;
-        fields = mzUtils::split(line,",");
-
-		if(fields.size() < 3 ) continue;
-		string name=fields[0];
-		float mass=string2float(fields[1]);
-		float charge=string2float(fields[2]);
-		if ( mass < 0 || name.empty() ) continue;
-		Adduct* a = new Adduct(name, 1, charge, mass);
-		//TODO Shubhra: Figure out the purpose of isParent
-        //a->isParent = false;
-		_fragmentsDB.push_back(a);
-	}
-	myfile.close();
-}
-
 void Database::loadAdducts(string filename)
 {
     ifstream file(filename);

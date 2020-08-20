@@ -2048,7 +2048,7 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
         }
         msgBox.open();
     } else {
-        if (DB.notFoundColumns().size() > 0) {
+        if (!DB.notFoundColumns().empty()) {
             analytics->hitEvent("Load Compound DB",
                                 "Column Error",
                                 "Partial Failure");
@@ -2067,7 +2067,7 @@ void MainWindow::_notifyIfBadCompoundsDB(QString filename,
             msgBox.setDetailedText(QString::fromStdString(msgString));
             msgBox.open();
         }
-        if (DB.invalidRows().size() > 0) {
+        if (!DB.notFoundColumns().empty()) {
             analytics->hitEvent("Load Compound DB", "Row Error");
 
             QMessageBox msgBox;

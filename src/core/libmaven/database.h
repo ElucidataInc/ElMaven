@@ -28,15 +28,15 @@ class Database
         void removeDatabase(string dbName);
 
         /**
-         * @brief addCompound   Reads CSV file and adds compound to
+         * @brief addCompound Reads CSV file and adds compound to
          * the compoundDB vector.
-         * @param c     Compound object.
+         * @param c Compound object.
          * @return
          */
         bool addCompound(Compound* c);
 
         /**
-         * @brief getCompoundsSubset    Gives the compounds from specified db
+         * @brief getCompoundsSubset Gives the compounds from specified db
          * from the loaded compound database.
          * @param database
          * @return
@@ -74,17 +74,11 @@ class Database
             bsignal::signal<void(string, int, int)>* signal = nullptr);
 
         /**
-         * @brief loadAdducts   Loads Adducts from the file specified.
-         * @param filename  The path of the file.
+         * @brief loadAdducts Loads Adducts from the file specified.
+         * @param filename The path of the file.
          */
         void loadAdducts(string filename);
         
-        /**
-         * @brief loadFragments  Loads fragmentss from the file specified.
-         * @param filename  The path of the file.
-         */
-        void loadFragments(string filename);
-
         /**
          * @brief loadCompoundCSVFile   Loads the compounds from CSV file.
          * @param filename  The path to csv file.
@@ -112,18 +106,18 @@ class Database
         map<string, int> getDatabaseNames();
 
         /**
-         * @brief findSpeciesByIdAndName    Finds species based on id, name and
+         * @brief findSpeciesByIdAndName Finds species based on id, name and
          * dbname
-         * @param id    Id of compound.
-         * @param name  Name of compound.
-         * @param dbName    Db to which compound belong.
+         * @param id Id of compound.
+         * @param name Name of compound.
+         * @param dbName Db to which compound belong.
          * @return
          */
         Compound* findSpeciesByIdAndName(string id, string name, string dbName);
 
         /**
          * @brief findSpeciesByMass Finds compound on the basis of mass
-         * @param mz    Mass by charge ratio of the compound.
+         * @param mz Mass by charge ratio of the compound.
          * @param massCutoff
          * @return
          */
@@ -131,23 +125,23 @@ class Database
 
         /**
          * @brief findSpeciesByName Finds compound on basis of name and dbname.
-         * @param name  Name of compound.
-         * @param dbname  DB to which compound belongs.
+         * @param name Name of compound.
+         * @param dbname DB to which compound belongs.
          * @return
          */
         vector<Compound*> findSpeciesByName(string name, string dbname);
 
         /**
-         * @brief findSpeciesById   Finds compound on basis of id and dbname.
-         * @param id    Id of compound.
-         * @param dbName    DB to which compound belongs.
+         * @brief findSpeciesById Finds compound on basis of id and dbname.
+         * @param id Id of compound.
+         * @param dbName DB to which compound belongs.
          * @return
          */
         vector<Compound*> findSpeciesById(string id, string dbName);
 
         /**
-         * @brief findAdductByName  Finds adduct by name in its db.
-         * @param name  Name of adduct.
+         * @brief findAdductByName Finds adduct by name in its db.
+         * @param name Name of adduct.
          * @return
          */
         Adduct* findAdductByName(string name);
