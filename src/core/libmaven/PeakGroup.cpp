@@ -854,9 +854,13 @@ vector<Scan*> PeakGroup::getFragmentationEvents()
     vector<Scan*> matchedScans;
     if (!this->isMS1()) return matchedScans;
     
-    for(auto peak : peaks) {
+    for(const auto& peak : peaks) {
         mzSample* sample = peak.getSample();
-        if (sample == NULL) continue;
+        if (sample == nullptr)
+            continue;
+        if (sample->ms2ScanCount() == 0)
+            continue;
+
         mzSlice slice(minMz, maxMz, peak.rtmin, peak.rtmax);
         vector<Scan*> scans = sample->getFragmentationEvents(&slice);
 

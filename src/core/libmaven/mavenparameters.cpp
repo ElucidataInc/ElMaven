@@ -296,13 +296,16 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     overlapWeight = mp.overlapWeight;
     useOverlap = mp.useOverlap;
 
-    // intentionally set this empty, so that it does not write to session
+    // NOTE: intentionally set this empty, so that it does not write to session
     // setting when being destroyed
     lastUsedSettingsPath = "";
     defaultSettingsData = mp.defaultSettingsData;
-    mavenSettings = mp.mavenSettings;
 
-    // we intentionally do not copy `allgroups` and `compounds` since these
+    // NOTE: since we do not intend to read-into or write-from a copied
+    // parameters object (since these are not the global one), we ignore
+    // `mavenSettings` map
+
+    // NOTE: we intentionally do not copy `allgroups` & `compounds` since these
     // vectors are meant to be used only by the global `MavenParameters` object,
     // which will not be created by a copy operation like this.
     samples = mp.samples;
