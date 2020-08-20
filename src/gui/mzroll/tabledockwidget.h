@@ -152,6 +152,12 @@ public:
    */
   void updateTableAfterAlignment();
 
+  /**
+   * @brief Raises a prompt for the user when there are no peakgroups found in 
+   * peak detection  process.
+   */
+  void noPeakFound();
+
 public Q_SLOTS:
   void updateCompoundWidget();
   shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);
