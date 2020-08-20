@@ -1013,7 +1013,11 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         return pgroups;
 
     //find peaks in merged eic
-    m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+    if (slice->compound != nullptr && !slice->isotope.isParent()) {
+        m->setFilterSignalBaselineDiff(mp->isotopicMinSignalBaselineDifference);
+    } else {
+        m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+    }
     m->getPeakPositions(mp->eic_smoothingWindow);
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
