@@ -102,14 +102,51 @@ LigandWidget::LigandWidget(MainWindow* mw)
   m_manager = new QNetworkAccessManager(this);
   connect(m_manager,SIGNAL(finished(QNetworkReply*)),this,SLOT(readRemoteData(QNetworkReply*)));
 
-  QDirIterator itr("src/gui/mzroll/databases/");
+    QDirIterator itr(":/databases/");
 
-  while(itr.hasNext()) {
-    auto filename = itr.next().toStdString();
-    DB.loadCompoundCSVFile(filename);
-    string dbname = mzUtils::cleanFilename(filename);
-    _mw->massCalcWidget->database->addItem(QString::fromStdString(dbname));
-  }
+    while(itr.hasNext()) {
+        auto filename = itr.next().toStdString();
+        string dbname = mzUtils::cleanFilename(filename);
+        _mw->massCalcWidget->database->addItem(QString::fromStdString(dbname));
+
+        //assume that files are tab delimited, unless matched ".csv", then comma delimited
+        string sep="\t";
+        if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
+
+        int lineCount = 0;
+        int loadCount = 0;
+        QFile file(QString(filename.c_str()));
+        if (!file.open(QFile::ReadOnly)) 
+            return;
+        map<string, int> header;
+        vector<string> headers;
+        while (!file.atEnd()) {
+            QString tempLine = file.readLine().trimmed();
+            if (tempLine.isEmpty()) continue;
+            lineCount++;
+
+            vector<string> fields;
+            fields = mzUtils::split(tempLine.toStdString(), sep);
+
+            mzUtils::removeSpecialCharFromStartEnd(fields);
+
+            if (lineCount == 1) {
+                headers = fields;
+                for(unsigned int i = 0; i < fields.size(); i++ ) {
+                    fields[i] = makeLowerCase(fields[i]);
+                    header[ fields[i] ] = i;
+                }
+                continue;
+            } 
+
+            loadCount = DB.loadCompoundCSVFile(tempLine.toStdString(),
+                                                loadCount,
+                                                sep, 
+                                                header, 
+                                                dbname);
+            
+        }
+    }
 
   QSet<QString>set;
   auto compoundsDB = DB.getCompoundsDB();
@@ -122,11 +159,20 @@ LigandWidget::LigandWidget(MainWindow* mw)
   while (i.hasNext())
       databaseSelect->addItem(i.next());
 
-  QDirIterator adductItr("src/gui/mzroll/databases/Adducts/");
+  QDirIterator adductItr(":/databases/Adducts/");
 
     while (adductItr.hasNext()) {
         auto filename = adductItr.next().toStdString();
-        DB.loadAdducts(filename);
+        int lineCount = 0;
+        QFile file(QString(filename.c_str()));
+        if (!file.open(QFile::ReadOnly)) 
+            return;
+        while (!file.atEnd()) {
+            QString tempLine = file.readLine().trimmed();
+            if (tempLine.isEmpty()) continue;
+            lineCount++;
+            DB.loadAdducts(tempLine.toStdString(), lineCount); 
+        }
     }
 
     adductWidget->loadAdducts();

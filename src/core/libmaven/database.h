@@ -78,6 +78,14 @@ class Database
          * @param filename The path of the file.
          */
         void loadAdducts(string filename);
+
+        /**
+         * @brief loadAdducts Loads Acdducts from the given line of the file. 
+         * @param line Specific line of file from which adducts has to be 
+         * loaded.
+         * @param lineCount line count.
+         */ 
+        void loadAdducts(string line, int lineCount);
         
         /**
          * @brief loadCompoundCSVFile   Loads the compounds from CSV file.
@@ -85,6 +93,21 @@ class Database
          * @return Number of compounds loaded.
          */
         int loadCompoundCSVFile(string filename);
+
+        /**
+         * @brief loadCompoundCSVFile Loads Compounds from the given line of the file. 
+         * @param line Specific line of file from which compounds has to be 
+         * loaded.
+         * @param loadCount count of compounds loaded.
+         * @param sep Separator.
+         * @param header Headings of the csv file.
+         * @param dbName
+         */ 
+        int loadCompoundCSVFile(string line, 
+                                int loadCount, 
+                                string sep, 
+                                map<string, int> header, 
+                                string dbName);
 
         /**
          * @brief Checks whether the library with the given name is an NIST

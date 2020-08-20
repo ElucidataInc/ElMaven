@@ -294,6 +294,33 @@ void Database::loadAdducts(string filename)
     file.close();
 }
 
+void Database::loadAdducts(string line, int lineCount)
+{
+    if (lineCount == 1)
+        return;
+
+    if (!line.empty() && line[0] == '#')
+        return;
+    
+    vector<string> fields;
+    fields = mzUtils::split(line, ",");
+
+    if(fields.size() < 2 ) 
+        return;
+
+    string name = fields[0];
+    int nmol = string2float(fields[1]);
+    int charge = string2float(fields[2]);
+    float mass = string2float(fields[3]);
+
+    if (name.empty() || nmol < 0) 
+        return;
+
+    Adduct* a = new Adduct(name, nmol, charge, mass);
+    _adductsDB.push_back(a);
+    
+}
+
 int Database::loadNISTLibrary(string fileName,
                               bsignal::signal<void (string, int, int)>* signal)
 {
@@ -609,6 +636,42 @@ int Database::loadCompoundCSVFile(string filename)
     }
     sort(_compoundsDB.begin(),_compoundsDB.end(), Compound::compMass);
     myfile.close();
+    return loadCount;
+}
+
+int Database::loadCompoundCSVFile(string line, 
+                                   int loadCount, 
+                                   string sep, 
+                                   map<string, int> header, 
+                                   string dbName) 
+{
+
+    // reset the contents of the vector containing the names of invalid rows
+    _invalidRows.clear();
+
+    if (!line.empty() && line[0] == '#') 
+        return loadCount;
+
+    //trim spaces on the left
+    size_t found = line.find_last_not_of(" \n\r\t");
+    if (found != string::npos)
+        line.erase(found+1);
+    else 
+        return loadCount;
+   
+    vector<string> fields;
+    fields = mzUtils::split(line, sep);
+
+    mzUtils::removeSpecialCharFromStartEnd(fields);
+    
+    Compound* compound = extractCompoundfromEachLine(fields, header, loadCount, dbName);
+
+    if (compound) {
+        if (addCompound(compound)) {
+            loadCount++;
+        }
+    }
+    sort(_compoundsDB.begin(),_compoundsDB.end(), Compound::compMass);
     return loadCount;
 }
 
