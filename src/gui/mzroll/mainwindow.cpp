@@ -547,7 +547,8 @@ using namespace mzUtils;
             SIGNAL(compoundsLoaded(QString, int)),
             this,
             SLOT(_postCompoundsDBLoadActions(QString,int)));
-
+    
+    connect(fileLoader, SIGNAL(unsupportedFileFormat(QStringList)), this, SLOT(unsupportedFormat(QStringList)));
     // EMDB singals and slots
     connect(fileLoader,
             SIGNAL(sqliteDBLoadStarted(QString)),
@@ -943,6 +944,31 @@ void MainWindow::threadSave(const QString filename, const bool saveRawData)
     autosaveWorker->deleteCurrentProject();
     _latestUserProjectName = filename;
     saveWorker->saveProject(filename, saveRawData);
+}
+
+void MainWindow::unsupportedFormat(QStringList unsupportedFileList) 
+{
+    QString fileList = "";
+
+    for (QString filePath : unsupportedFileList) {
+        auto filePathSplit = mzUtils::split(filePath.toStdString(), "/");
+        string fileName = filePathSplit[filePathSplit.size() - 1];
+        fileList += "<li>" + QString::fromStdString(fileName);
+    }
+
+    auto htmlText = QString("<p>El-MAVEN does not support the file format"
+                            " of the following files: </p>"
+                          "<ul>%1</ul>").arg(fileList);
+    htmlText += "<p>Some files were not uploaded.</p>";
+    auto reply = QMessageBox::critical(this, 
+                                        tr(""), 
+                                        htmlText);
+    
+    setWindowTitle(programName
+                    + " "
+                    + STR(EL_MAVEN_VERSION)
+                    + " ");
+    return;
 }
 
 void MainWindow::saveProject(bool explicitSave)

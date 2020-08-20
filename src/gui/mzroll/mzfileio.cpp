@@ -457,6 +457,8 @@ void mzFileIO::fileImport(void) {
     QStringList projects;
     QStringList spectralhits;
     QStringList compoundsDatabases;
+    QStringList unsupportedFileList;
+    bool fileNotSupported = false;
 
     Q_FOREACH (QString filename, filelist) {
         try {
@@ -475,11 +477,18 @@ void mzFileIO::fileImport(void) {
             } else if (isCompoundDatabaseType(filename)) {
                 compoundsDatabases << filename;
             } else {
-                throw MavenException(ErrorMsg::UnsupportedFormat);
+                fileNotSupported = true;
+                unsupportedFileList << filename;
+                filelist.removeOne(filename);
             }
         } catch (MavenException& excp) {
             qDebug() << "Error: " << excp.what();
         }
+    }
+
+    if (fileNotSupported) {
+        Q_EMIT(unsupportedFileFormat(unsupportedFileList));
+        Q_EMIT (updateProgressBar( "Importing errors", 0, 0));
     }
 
     Q_FOREACH(QString filename, projects ) {
