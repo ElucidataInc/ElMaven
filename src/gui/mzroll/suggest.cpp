@@ -120,9 +120,9 @@ void SuggestPopup::doSearchCompounds(QString needle) {
 
 
     string currentDb = _currentDatabase.toStdString();
-
-    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
-        Compound* c = DB.compoundsDB[i];
+	auto compoundsDB = DB.getCompoundsDB();
+    for(unsigned int i=0;  i < compoundsDB.size(); i++ ) {
+        Compound* c = compoundsDB[i];
         QString name(c->name().c_str() );
         QString formula(c->formula().c_str() );
         QString id(c->id().c_str() );

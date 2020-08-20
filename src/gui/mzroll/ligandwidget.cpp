@@ -112,9 +112,10 @@ LigandWidget::LigandWidget(MainWindow* mw)
   }
 
   QSet<QString>set;
-  for(int i=0; i< DB.compoundsDB.size(); i++) {
-      if (! set.contains( DB.compoundsDB[i]->db().c_str() ) )
-          set.insert( DB.compoundsDB[i]->db().c_str() );
+  auto compoundsDB = DB.getCompoundsDB();
+  for(int i=0; i< compoundsDB.size(); i++) {
+      if (! set.contains(compoundsDB[i]->db().c_str() ) )
+          set.insert(compoundsDB[i]->db().c_str() );
   }
 
   QSetIterator<QString> i(set);
@@ -145,9 +146,10 @@ void LigandWidget::setDatabaseNames() {
 	databaseSelect->disconnect(SIGNAL(currentIndexChanged(QString)));
 	databaseSelect->clear();
 	QSet<QString>set;
-	for(int i=0; i< DB.compoundsDB.size(); i++) {
-            if (! set.contains( DB.compoundsDB[i]->db().c_str() ) )
-                set.insert( DB.compoundsDB[i]->db().c_str() );
+    auto compoundsDB = DB.getCompoundsDB();
+	for(int i=0; i< compoundsDB.size(); i++) {
+            if (! set.contains( compoundsDB[i]->db().c_str() ) )
+                set.insert( compoundsDB[i]->db().c_str() );
 	}
 
     QSetIterator<QString> i(set);
@@ -195,7 +197,7 @@ void LigandWidget::loadCompoundDBMzroll(QString fileName) {
             if (xml.name() == "compound") { readCompoundXML(xml, dbname); }
         }
      }
-     sort(DB.compoundsDB.begin(),DB.compoundsDB.end(), Compound::compMass);
+     sort(DB.getCompoundsDB().begin(),DB.getCompoundsDB().end(), Compound::compMass);
 
      Q_EMIT(mzrollSetDB( QString::fromStdString(dbname)));
 }
@@ -351,9 +353,9 @@ void LigandWidget::showTable() {
 
     string dbname = databaseSelect->currentText().toStdString();
     cerr << "ligandwidget::showTable() " << dbname << endl;
-
-    for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
-        Compound* compound = DB.compoundsDB[i];
+    auto compoundsDB = DB.getCompoundsDB();
+    for(unsigned int i=0;  i < compoundsDB.size(); i++ ) {
+        Compound* compound = compoundsDB[i];
         if(compound->db() != dbname ) continue; //skip compounds from other databases
         NumericTreeWidgetItem *parent  = new NumericTreeWidgetItem(treeWidget,CompoundType);
 
@@ -506,9 +508,10 @@ void LigandWidget::saveCompoundList(QString fileName,QString dbname){
         out << "formula" << SEP;
         out << "srmId" << SEP;
         out << "category" << endl;
-
-        for(unsigned int i=0;  i < DB.compoundsDB.size(); i++ ) {
-            Compound* compound = DB.compoundsDB[i];
+        
+        auto compoundsDB = DB.getCompoundsDB();
+        for(unsigned int i=0;  i < compoundsDB.size(); i++ ) {
+            Compound* compound = compoundsDB[i];
             if(compound->db() != dbname.toStdString() ) continue;
 
             QString charpolarity;

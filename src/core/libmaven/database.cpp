@@ -13,13 +13,13 @@ using namespace mzUtils;
 
 void Database::removeDatabase(string dbName)
 {
-    auto iter = begin(compoundsDB);
-    while (iter < end(compoundsDB)) {
+    auto iter = begin(_compoundsDB);
+    while (iter < end(_compoundsDB)) {
         auto compound = *iter;
         if (compound->db() == dbName) {
             _compoundIdenticalCount.erase(compound->id() + compound->name() + dbName);
             _compoundIdNameDbMap.erase(compound->id() + compound->name() + dbName);
-            iter = compoundsDB.erase(iter);
+            iter = _compoundsDB.erase(iter);
             delete compound;
         } else {
             ++iter;
@@ -96,7 +96,7 @@ bool Database::addCompound(Compound* newCompound)
     _compoundIdNameDbMap[newCompound->id()
                         + newCompound->name()
                         + newCompound->db()] = newCompound;
-    compoundsDB.push_back(newCompound);
+    _compoundsDB.push_back(newCompound);
     if (newCompound->charge() == 0)
         _compoundsWithZeroCharge.push_back(newCompound);
     return true;
@@ -113,7 +113,7 @@ Compound* Database::findSpeciesByIdAndName(string id,
 
 vector<Compound*> Database::findSpeciesById(string id, string dbName) {
     vector<Compound*> matches;
-    for (auto compound : compoundsDB) {
+    for (auto compound : _compoundsDB) {
         if (compound->id() == id && compound->db() == dbName) {
             matches.push_back(compound);
         }
@@ -125,9 +125,9 @@ vector<Compound*> Database::findSpeciesById(string id, string dbName) {
 vector<Compound*> Database::findSpeciesByName(string name, string dbname)
 {
     vector<Compound*> set;
-    for (unsigned int i = 0; i < compoundsDB.size(); i++) {
-        if (compoundsDB[i]->name() == name && compoundsDB[i]->db() == dbname) {
-            set.push_back(compoundsDB[i]);
+    for (unsigned int i = 0; i < _compoundsDB.size(); i++) {
+        if (_compoundsDB[i]->name() == name && _compoundsDB[i]->db() == dbname) {
+            set.push_back(_compoundsDB[i]);
         }
     }
     return set;
@@ -135,9 +135,9 @@ vector<Compound*> Database::findSpeciesByName(string name, string dbname)
 
 vector<Compound*> Database::getCompoundsSubset(string dbname) {
 	vector<Compound*> subset;
-	for (unsigned int i=0; i < compoundsDB.size(); i++ ) {
-        if (compoundsDB[i]->db() == dbname) {
-		    subset.push_back(compoundsDB[i]);
+	for (unsigned int i=0; i < _compoundsDB.size(); i++ ) {
+        if (_compoundsDB[i]->db() == dbname) {
+		    subset.push_back(_compoundsDB[i]);
 		}
 	}
 	return subset;
@@ -149,8 +149,8 @@ vector<Compound*> Database::getKnowns() {
 
 map<string,int> Database::getDatabaseNames() {
 	map<string,int>dbnames;
-        for (unsigned int i=0; i < compoundsDB.size(); i++ )
-            dbnames[ compoundsDB[i]->db() ]++;
+        for (unsigned int i=0; i < _compoundsDB.size(); i++ )
+            dbnames[ _compoundsDB[i]->db() ]++;
 	return dbnames;
 }
 
@@ -607,7 +607,7 @@ int Database::loadCompoundCSVFile(string filename)
             }
         }
     }
-    sort(compoundsDB.begin(),compoundsDB.end(), Compound::compMass);
+    sort(_compoundsDB.begin(),_compoundsDB.end(), Compound::compMass);
     myfile.close();
     return loadCount;
 }
@@ -1648,10 +1648,10 @@ TEST_CASE("Testing database class")
         string csvFile = "tests/test-libmaven/test_loadCSV.csv";
         int rescsv = db.loadCompoundCSVFile(csvFile);
 
-        REQUIRE(db.compoundsDB.size() == 30);
+        REQUIRE(db.getCompoundsDB().size() == 30);
         // Remove Database.
         db.removeDatabase("test_Mascot");
-        REQUIRE(db.compoundsDB.size() == 20);
+        REQUIRE(db.getCompoundsDB().size() == 20);
 
 
         // Get database name

@@ -340,10 +340,11 @@ void PathwayWidget::setCompound(Compound* c) {
 		if (list.size() > 1)
 			compoundId = list[0];
 		string id = compoundId.toStdString();
-		for (int i = 0; i < DB.compoundsDB.size(); i++) {
-                        if (DB.compoundsDB[i]->db() == "KEGG"
-                                        && DB.compoundsDB[i]->id() == id) {
-				c = DB.compoundsDB[i];
+		auto compoundsDB = DB.getCompoundsDB();
+		for (int i = 0; i < compoundsDB.size(); i++) {
+                        if (compoundsDB[i]->db() == "KEGG"
+                                        && compoundsDB[i]->id() == id) {
+				c = compoundsDB[i];
 				break;
 			}
 		}

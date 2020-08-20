@@ -154,9 +154,9 @@ class Database
         vector<string> getCategoryFromDB(vector<string>& fields,
                                          map<string, int>& header);
         
-        deque<Compound*> getCompoundsDB(){ 	return compoundsDB;}
-
-        deque<Compound*> compoundsDB;
+        deque<Compound*> getCompoundsDB() { 	
+            return _compoundsDB;
+        }
 
         vector<Adduct*> adductsDB()
         {
@@ -180,6 +180,7 @@ class Database
 
         vector<Adduct*> _adductsDB;
         vector<Adduct*> _fragmentsDB;
+        deque<Compound*> _compoundsDB;
         map<string, Compound*> _compoundIdNameDbMap;
         vector<Compound*> _compoundsWithZeroCharge;
         vector<string> _invalidRows;
