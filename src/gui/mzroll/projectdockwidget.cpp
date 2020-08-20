@@ -231,6 +231,37 @@ void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
       _mainwindow->groupRtWidget->updateGraph();
 }
 
+void ProjectDockWidget::updateSampleColor()
+{   
+    QTreeWidgetItemIterator it(_treeWidget);
+    QColor color;
+
+    while (*it) {
+        if ((*it)->type() == SampleType) {
+            QVariant v =(*it)->data(0,Qt::UserRole);
+            mzSample*  sample =  v.value<mzSample*>();
+            
+            auto loadedSamples = _mainwindow->getSamples();
+            
+            for (auto loadedSample : loadedSamples) {
+                if (loadedSample->sampleName == sample->sampleName) {
+                   color = QColor::fromRgbF(
+                            loadedSample->color[0],
+                            loadedSample->color[1],
+                            loadedSample->color[2],
+                            loadedSample->color[3] ); 
+                }
+            }
+            setSampleColor(sample, color);
+        }
+        ++it;
+    }
+
+    _treeWidget->update();
+    _mainwindow->getEicWidget()->replot();
+    _mainwindow->groupRtWidget->updateGraph();
+}
+
 void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
     QFile file(sampleCohortFileName);
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -242,16 +273,22 @@ void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
     out << "Sample" << ","
         << "Cohort" << ","
         << "Scaling" << ","
-        << "Injection Order" << "\n";
+        << "Injection Order" << ","
+        << "Color" << "\n";
 	for (const auto& sample : loadedSamples) {
         QString injectionOrder = "";
+        QColor color = QColor::fromRgbF(sample->color[0], 
+                                        sample->color[1], 
+                                        sample->color[2],
+                                        sample->color[3]);
         if (sample->getInjectionOrder() > 0)
             injectionOrder = QString::number(sample->getInjectionOrder());
 
         out << QString::fromStdString(sample->getSampleName()) << ","
             << QString::fromStdString(sample->getSetName()) << ","
             << QString::number(sample->getNormalizationConstant()) << ","
-            << injectionOrder << "\n";
+            << injectionOrder << ","
+            << color.name() << "\n";
 	}
 
 	qDebug() << "sample cohort file prepared";
@@ -292,6 +329,9 @@ void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item, int c
 void ProjectDockWidget::updateSampleList() {
 
     vector<mzSample*>samples = _mainwindow->getSamples();
+    
+    updateSampleColor();
+
     std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
 
     // obtain current maximum sample order

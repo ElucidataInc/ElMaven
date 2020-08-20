@@ -3,6 +3,7 @@
 #include <QRegExp>
 #include <qcustomplot.h>
 
+#include "json.hpp"
 #include "SRMList.h"
 #include "adductwidget.h"
 #include "alignmentdialog.h"
@@ -66,6 +67,8 @@
 #include "updatedialog.h"
 #include "videoplayer.h"
 #include "eiclogic.h"
+
+using json = nlohmann::json;
 
 #ifdef WIN32
 #include <windows.h>
@@ -2256,7 +2259,7 @@ bool MainWindow::loadMetaInformation(QString filename) {
 	int sampleCount = 0;
 
     sampleCount = loadMetaCsvFile(dbfilename);
-    
+
 	if (sampleCount > 0) {
         setStatusText(tr("loadMetaInfo: done after loading %1 meta information").arg(QString::number(sampleCount)));
         Q_EMIT(metaCsvFileLoaded());
@@ -2329,6 +2332,10 @@ void MainWindow::loadMetaInformation() {
 int MainWindow::loadMetaCsvFile(string filename){
 
     ifstream myfile(filename.c_str());
+
+    ifstream xkcdColors("src/gui/mzroll/databases/xkcd-colors.json");
+    json rootxkcdColors = json::parse(xkcdColors);
+
     if (! myfile.is_open()) return 0;
 
     string line;
@@ -2337,7 +2344,7 @@ int MainWindow::loadMetaCsvFile(string filename){
     int lineCount=0;
     map<string, int>header;
     vector<string> headers;
-    static const string allHeadersarr[] = {"sample", "set", "cohort", "scaling", "injection order"};
+    static const string allHeadersarr[] = {"sample", "set", "cohort", "scaling", "injection order", "color"};
     vector<string> allHeaders (allHeadersarr, allHeadersarr + sizeof(allHeadersarr) / sizeof(allHeadersarr[0]) );
 
     //assume that files are tab delimited, unless matched ".csv", then comma delimited
@@ -2421,6 +2428,37 @@ int MainWindow::loadMetaCsvFile(string filename){
 
         }
 
+        qreal redF, greenF, blueF, alpha;
+        if (header.count("color") && header["color"] < N) {
+
+            string colorName = fields[header["color"]];
+            redF = -1;
+            greenF = -1;
+            blueF = -1;
+            alpha = -1;
+            QColor color;
+            
+            if(colorName.empty()) 
+                continue;    
+            if (colorName[0] == '#') {
+                color.setNamedColor(QString::fromStdString(colorName));
+                color.getRgbF(&redF, &greenF, &blueF, &alpha);
+            } else {
+                try {
+                    if (colorName[0] == '"')
+                        colorName = colorName.substr(1, colorName.size()-1);
+
+                    transform(colorName.begin(), colorName.end(), colorName.begin(), ::tolower);
+                    string hexValue = rootxkcdColors.at(colorName);
+                    color.setNamedColor(QString::fromStdString(hexValue));
+                    color.getRgbF(&redF, &greenF, &blueF, &alpha);
+                } catch (json::out_of_range e) {
+                    qDebug() << "Color not recognised";
+                }
+                
+            }    
+        }
+
         if (sampleName.isEmpty()) continue;
 		if (set.empty()) set = "";
 
@@ -2432,9 +2470,20 @@ int MainWindow::loadMetaCsvFile(string filename){
         sample->_setName = set;
         sample->setInjectionOrder(injectionOrder);
         sample->setNormalizationConstant(scalingFactor);
+        if (redF != -1 &&
+            greenF != -1 &&
+            blueF != -1 &&
+            alpha != -1)
+        {
+            sample->color[0] = redF;
+            sample->color[1] = greenF;
+            sample->color[2] = blueF;
+            sample->color[3] = alpha;   
+        }
         loadCount++;
     }
     myfile.close();
+
     return loadCount;
 }
 
