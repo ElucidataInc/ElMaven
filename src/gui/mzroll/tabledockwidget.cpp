@@ -525,6 +525,7 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 
 void TableDockWidget::deleteAll()
 {
+  
   if (treeWidget->currentItem()) {
       _mainwindow->getEicWidget()->unSetPeakTableGroup(
           treeWidget->currentItem()->data(0, Qt::UserRole)
@@ -1179,6 +1180,31 @@ void TableDockWidget::deleteGroup(PeakGroup *groupX) {
   updateCompoundWidget();
 }
 
+bool TableDockWidget::deleteAllgroupsWarning() 
+{
+    QMessageBox *warning = new QMessageBox(this);
+    bool selectedOption;
+
+    auto htmlText = QString("<p><b>Are you sure you want to permanently erase all the "
+                            "groups from this table?</b></p>");
+    htmlText += "<p>You can not undo this action.</p>";
+    warning->setText(htmlText);
+    warning->setIcon(QMessageBox::Icon::Warning);
+  
+    auto noButton = warning->addButton(tr("No"),
+                                  QMessageBox::RejectRole);
+    auto yesButton = warning->addButton(tr("Yes"),
+                                  QMessageBox::AcceptRole);
+    warning->exec();
+
+    QCoreApplication::processEvents();
+
+    if(warning->clickedButton() == yesButton)
+        return true;
+    
+    return false;
+}
+
 void TableDockWidget::deleteSelectedItems()
 {
     // temporarily disconnect selection trigger
@@ -1190,9 +1216,11 @@ void TableDockWidget::deleteSelectedItems()
     // extract selected items such that all parent items occur first
     QList<QTreeWidgetItem*> selectedItems;
     QTreeWidgetItem* nextItem = nullptr;
+    int topLevelItemsCount = 0;
     for (auto item : treeWidget->selectedItems()) {
         if (item->parent() == nullptr) {
             selectedItems.prepend(item);
+            topLevelItemsCount++;
             nextItem = treeWidget->itemBelow(item);
             while(nextItem && nextItem->parent() != nullptr) {
                 nextItem = treeWidget->itemBelow(nextItem);
@@ -1205,6 +1233,15 @@ void TableDockWidget::deleteSelectedItems()
     if (selectedItems.isEmpty())
         return;
 
+    // checks if the selected item count is same as the no. of 
+    // groups in the table.
+    if (topLevelItemsCount == topLevelGroupCount()) {
+        auto continueDeletion = deleteAllgroupsWarning();
+        if (continueDeletion) {
+          deleteAll();
+        }
+       return;
+    }
     set<QTreeWidgetItem*> itemsToDelete;
     set<shared_ptr<PeakGroup>> groupsToDelete;
 
@@ -2328,6 +2365,10 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::deleteAll()
 {
+  auto continueDeletion = deleteAllgroupsWarning();
+  if (!continueDeletion) {
+    return;
+  }
   TableDockWidget::deleteAll();
   destroy();
 }
