@@ -6,7 +6,15 @@
 
 class BarPlot;
 class Compound;
-class Molecule2D;
+//class Molecule2D;
+
+class Molecule2D {
+       public:
+	Molecule2D() {}
+	QString id;
+	QVector<QPointF> coord;
+	QVector<QString> atoms;
+};
 
 class MetaboliteNode: public Node
 {

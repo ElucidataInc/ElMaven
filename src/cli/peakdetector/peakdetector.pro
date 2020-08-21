@@ -24,7 +24,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven     \
                 $$top_srcdir/src/pollyCLI          \
                 $$top_srcdir/3rdparty/obiwarp      \
                 $$top_srcdir/3rdparty/Eigen        \
-                $$top_srcdir/src/
+                $$top_srcdir/src/                   \
+                $$top_srcdir/3rdparty/libmgf
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
@@ -41,7 +42,8 @@ LIBS +=  -lmaven         \
          -lobiwarp       \
          -lpollyCLI      \
          -lcommon        \
-         -lprojectDB
+         -lprojectDB     \
+         -lmgf
 
 unix: LIBS += -lboost_system -lboost_filesystem -lsqlite3
 win32: LIBS += -lboost_system-mt -lboost_filesystem-mt -lsqlite3

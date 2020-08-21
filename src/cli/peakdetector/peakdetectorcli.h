@@ -25,7 +25,7 @@
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
 #include "csvreports.h"
-#include "databases.h"
+#include "database.h"
 #include "jsonReports.h"
 #include "mzMassSlicer.h"
 #include "mzSample.h"
@@ -233,7 +233,7 @@ private:
     PollyIntegration* _pollyIntegration;
     vector<mzSample*> _samples;
     ParseOptions* _parseOptions;
-    Databases _db;
+    Database _db;
     JSONReports* _jsonReports;
     bool _reduceGroupsFlag;
     PollyApp _currentPollyApp;

@@ -596,7 +596,9 @@ void PeakDetectorCLI::loadCompoundsFile()
     mavenParameters->processAllSlices = false;
     _log->info() << "Loading compound database…" << std::flush;
     int loadCount = _db.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
-    mavenParameters->compounds = _db.compoundsDB;
+    auto compoundsDB = _db.getCompoundsDB();
+    vector<Compound*> v(compoundsDB.begin(),compoundsDB.end());
+    mavenParameters->compounds = v;
 
     // exit if db is empty
     if (loadCount == 0) {
@@ -606,10 +608,11 @@ void PeakDetectorCLI::loadCompoundsFile()
     }
 
     // check for invalid compounds
-    if (_db.invalidRows.size() > 0) {
+    vector<string> invalidRows = _db.invalidRows();
+    if (invalidRows.size() > 0) {
         string debugStr = "The following compounds had insufficient information "
                           "for peak detection, and were not loaded:\n";
-        for (auto compoundID : _db.invalidRows)
+        for (auto compoundID : invalidRows)
             debugStr += " - " + compoundID + "\n";
         _log->debug() << debugStr << std::flush;
     }

@@ -7,7 +7,7 @@
 #include "PeakDetector.h"
 #include "classifierNeuralNet.h"
 #include "constants.h"
-#include "databases.h"
+#include "database.h"
 #include "isotopeDetection.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
@@ -657,7 +657,8 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                             == doctest::Approx(string2float(savedValues[9])).epsilon(0.3)
                         && string2float(inputValues[13])
                                == doctest::Approx(string2float(savedValues[13]))
-                        && inputValues[2] == savedValues[2]) {
+                        && inputValues[2] == savedValues[2] 
+                        && inputValues[1] == savedValues[1] ) {
                         double inputFloat;
                         double savedFloat;
                         for (int i = 1;

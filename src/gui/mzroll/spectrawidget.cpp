@@ -1372,8 +1372,9 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *
 
     //parent check
     //TODO Shubhra: Figure out the purpose of this function and uncomment as required
-    for(int i = 0; i < DB.adductsDB.size(); i++) {
-    	if (SIGN(DB.adductsDB[i]->getCharge()) != SIGN(ionizationMode))
+    auto adductsDB = DB.adductsDB();
+    for(int i = 0; i < adductsDB.size(); i++) {
+    	if (SIGN(adductsDB[i]->getCharge()) != SIGN(ionizationMode))
             continue;
         //float parentMass=DB.adductsDB[i]->computeParentMass(centerMz);
         //parentMass += ionizationMode * H_MASS;   //adjusted mass
@@ -1388,8 +1389,8 @@ vector<mzLink> SpectraWidget::findLinks(float centerMz, Scan* scan, MassCutoff *
 
     //adduct check
     //TODO Shubhra: uncomment
-    for(int i = 0; i < DB.adductsDB.size(); i++) {
-        if (SIGN(DB.adductsDB[i]->getCharge()) != SIGN(ionizationMode))
+    for(int i = 0; i < adductsDB.size(); i++) {
+        if (SIGN(adductsDB[i]->getCharge()) != SIGN(ionizationMode))
             continue;
     //     float parentMass = centerMz-ionizationMode * H_MASS;   //adjusted mass
     //     float adductMass=DB.adductsDB[i]->computeAdductMass(parentMass);

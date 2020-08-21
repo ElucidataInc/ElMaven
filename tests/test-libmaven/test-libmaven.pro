@@ -26,7 +26,8 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven      \
                 $$top_srcdir/3rdparty/Eigen $$top_srcdir/src/      \
                 $$top_srcdir/3rdparty/doctest       \
                 $$top_srcdir/3rdparty/json          \
-                $$top_srcdir/3rdparty/NimbleDSP/src
+                $$top_srcdir/3rdparty/NimbleDSP/src \
+                $$top_srcdir/3rdparty/libmgf
 
 macx {
 
@@ -39,7 +40,8 @@ macx {
 }
 QMAKE_LFLAGS += -L$$top_builddir/libs/
 
-LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf -lobiwarp -lpollyCLI -lcommon
+LIBS += -lmaven -lpugixml -lneural -lcsvparser -lpls -lErrorHandling -lLogger -lcdfread -lz -lnetcdf -lobiwarp -lpollyCLI -lcommon \
+        -lmgf
 unix: LIBS += -lboost_system -lboost_filesystem
 win32: LIBS += -lboost_system-mt -lboost_filesystem-mt
 !macx: LIBS += -fopenmp
@@ -55,7 +57,8 @@ HEADERS += \
     $$top_srcdir/src/core/libmaven/jsonReports.h    \
     $$top_srcdir/src/core/libmaven/csvReports.h     \
     $$top_srcdir/src/core/libmaven/Compound.h       \
-    $$top_srcdir/src/core/libmaven/mzUtils.h
+    $$top_srcdir/src/core/libmaven/mzUtils.h        \
+    $$top_srcdir/src/core/libmaven/database.h
     
 SOURCES += \
     main.cpp \
@@ -63,4 +66,5 @@ SOURCES += \
     $$top_srcdir/src/core/libmaven/csvReports.cpp   \
     $$top_srcdir/src/core/libmaven/Compound.cpp     \
     $$top_srcdir/src/core/libmaven/mzUtils.cpp      \
-    $$top_srcdir/src/core/libmaven/zlib.cpp
+    $$top_srcdir/src/core/libmaven/zlib.cpp         \
+    $$top_srcdir/src/core/libmaven/database.cpp

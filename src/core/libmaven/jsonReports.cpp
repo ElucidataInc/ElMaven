@@ -9,7 +9,7 @@
 #include "mzUtils.h"
 #include "mavenparameters.h"
 #include "datastructures/mzSlice.h"
-#include "databases.h"
+#include "database.h"
 #include "classifierNeuralNet.h"
 #include "PeakDetector.h"
 
