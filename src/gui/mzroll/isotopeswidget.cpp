@@ -53,11 +53,13 @@ IsotopeWidget::IsotopeWidget(MainWindow *mw)
 
 IsotopeWidget::~IsotopeWidget()
 {
+    disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
     while (workerThread->isRunning())
         workerThread->completeStop();
     delete workerThread->mavenParameters;
     delete workerThread;
 
+    disconnect(workerThreadBarplot, SIGNAL(finished()), nullptr, nullptr);
     while (workerThreadBarplot->isRunning())
         workerThreadBarplot->completeStop();
     delete workerThreadBarplot->mavenParameters;
@@ -316,12 +318,12 @@ void IsotopeWidget::_insertLinkForPeakGroup(PeakGroup* group)
 
 void IsotopeWidget::_pullIsotopesForFormula(string formula, bool updateBarplot)
 {
+    disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
+
     // not doing QApplication::processEvents intentionally to prevent triggering
     // of multiple requests until this one is complete
     while (workerThread->isRunning())
         workerThread->completeStop();
-
-    disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
     if (workerThread->mavenParameters != nullptr)
         delete workerThread->mavenParameters;
@@ -387,12 +389,12 @@ void IsotopeWidget::_pullIsotopesForFormula(string formula, bool updateBarplot)
 
 void IsotopeWidget::_pullIsotopesForGroup(shared_ptr<PeakGroup> group)
 {
+    disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
+
     // not doing QApplication::processEvents intentionally to prevent triggering
     // of multiple requests until this one is complete
     while (workerThread->isRunning())
         workerThread->completeStop();
-
-    disconnect(workerThread, &BackgroundOpsThread::finished, nullptr, nullptr);
 
     if (workerThread->mavenParameters != nullptr)
         delete workerThread->mavenParameters;
