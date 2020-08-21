@@ -109,43 +109,16 @@ LigandWidget::LigandWidget(MainWindow* mw)
         string dbname = mzUtils::cleanFilename(filename);
         _mw->massCalcWidget->database->addItem(QString::fromStdString(dbname));
 
-        //assume that files are tab delimited, unless matched ".csv", then comma delimited
-        string sep="\t";
-        if(filename.find(".csv") != -1 || filename.find(".CSV") != -1) sep=",";
-
-        int lineCount = 0;
-        int loadCount = 0;
         QFile file(QString(filename.c_str()));
-        if (!file.open(QFile::ReadOnly)) 
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
             return;
-        map<string, int> header;
-        vector<string> headers;
-        while (!file.atEnd()) {
-            QString tempLine = file.readLine().trimmed();
-            if (tempLine.isEmpty()) continue;
-            lineCount++;
-
-            vector<string> fields;
-            fields = mzUtils::split(tempLine.toStdString(), sep);
-
-            mzUtils::removeSpecialCharFromStartEnd(fields);
-
-            if (lineCount == 1) {
-                headers = fields;
-                for(unsigned int i = 0; i < fields.size(); i++ ) {
-                    fields[i] = makeLowerCase(fields[i]);
-                    header[ fields[i] ] = i;
-                }
-                continue;
-            } 
-
-            loadCount = DB.loadCompoundCSVFile(tempLine.toStdString(),
-                                                loadCount,
-                                                sep, 
-                                                header, 
-                                                dbname);
-            
-        }
+        QTextStream in(&file);
+        QString text;    
+        text = in.readAll();
+        string allContent = text.toStdString();
+        string sep = ",";
+        DB.loadCompoundCSVFile(allContent, true, dbname, sep);
+        file.close();     
     }
 
   QSet<QString>set;

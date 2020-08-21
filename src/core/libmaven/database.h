@@ -88,26 +88,19 @@ class Database
         void loadAdducts(string line, int lineCount);
         
         /**
-         * @brief loadCompoundCSVFile   Loads the compounds from CSV file.
-         * @param filename  The path to csv file.
+         * @brief loadCompoundCSVFile   Loads the compounds from CSV file or 
+         * directly from the file content.
+         * @param file  The path to csv file or the content of it.
+         * @param isFileContent Tells if 'file' is the path to file or its 
+         * content.
+         * @param dbName Signifies the name of the db to which it belongs.
+         * @param sep Separator used.
          * @return Number of compounds loaded.
          */
-        int loadCompoundCSVFile(string filename);
-
-        /**
-         * @brief loadCompoundCSVFile Loads Compounds from the given line of the file. 
-         * @param line Specific line of file from which compounds has to be 
-         * loaded.
-         * @param loadCount count of compounds loaded.
-         * @param sep Separator.
-         * @param header Headings of the csv file.
-         * @param dbName
-         */ 
-        int loadCompoundCSVFile(string line, 
-                                int loadCount, 
-                                string sep, 
-                                map<string, int> header, 
-                                string dbName);
+        int loadCompoundCSVFile(string file, 
+                                bool isFileContent = false , 
+                                string dbName = "", 
+                                string sep = ",");
 
         /**
          * @brief Checks whether the library with the given name is an NIST
