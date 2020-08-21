@@ -273,9 +273,6 @@ public:
      */
     TableDockWidget* activeTable();
 
-	void loadPollySettings(QString fileName);
-	void showLargeFilesNotification(QStringList, QFileInfo);
-	
 Q_SIGNALS:
 	void valueChanged(int newValue);
     void saveSignal();

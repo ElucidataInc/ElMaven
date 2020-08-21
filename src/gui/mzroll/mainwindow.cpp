@@ -1787,38 +1787,19 @@ void MainWindow::open()
     } else {
         QMessageBox msgBox;
         msgBox.setText("It seems you are trying to load sample files and "
-                       "project files on one instance.\n\n"
-                       "Instead, you can choose to upload either of the two.");
+                       "project files at once.\n\n"
+                       "Please select either a set of samples or a single project"
+                       "file to load into this session.");
         QPushButton* sampleChosen = msgBox.addButton("Sample Files",
                                                        QMessageBox::ActionRole);
         QPushButton* projectChosen = msgBox.addButton("ProjectFiles",
                                                      QMessageBox::RejectRole);
 
-        msgBox.setDefaultButton(sampleChosen);
+        msgBox.setDefaultButton(projectChosen);
         msgBox.exec();
 
         if (msgBox.clickedButton() == sampleChosen)
             filelist = sampleList;
-
-    if (!emdbProjectBeingLoaded.isEmpty()) {
-        // this will check if the user (by mistake?) does not try to open this
-        // session's autosave file itself (which will get deleted when session
-        // is cleared, so we do not end up trying to open a deleted file
-        if (emdbProjectBeingLoaded == autosaveWorker->currentProjectName()) {
-            filelist.clear();
-            fileLoader->setFileList(filelist);
-            QMessageBox::warning(this,
-                                 "Not allowed",
-                                 "This emDB file cannot be opened since it is "
-                                 "the current session's autosave (temporary) "
-                                 "file. We save them to prevent data loss in "
-                                 "the event of a crash. Please select a "
-                                 "different file.");
-            return;
-        }
-
-        projectDockWidget->saveAndCloseCurrentSQLiteProject();
-        _latestUserProjectName = emdbProjectBeingLoaded;
         if (msgBox.clickedButton() == projectChosen) {
             if (projectCount > 1) {
                 filelist << projectList[0];
@@ -1826,7 +1807,6 @@ void MainWindow::open()
                 filelist = projectList;
             }
         }
-
     }
 
     // Changing the title of the main window after selecting the samples
@@ -3202,7 +3182,7 @@ void MainWindow::createToolBars() {
 	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnOpen->setToolTip(tr("Sample uploads"));
 
-    connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
+    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
    
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
