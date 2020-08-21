@@ -71,7 +71,10 @@ public:
     QString pollyArgs;
     AlignmentMode alignMode;
 
-    PeakDetectorCLI(Logger* log, Analytics* analytics);
+    PeakDetectorCLI(Logger* log,
+                    Analytics* analytics,
+                    int argc = 0,
+                    char* argv[] = nullptr);
     ~PeakDetectorCLI();
 
     /**

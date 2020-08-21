@@ -44,7 +44,10 @@ int main(int argc, char *argv[]) {
     Logger log(fpath.toStdString(), true);
     Analytics analytics;
     analytics.sessionStart();
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log, &analytics);
+    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log,
+                                                           &analytics,
+                                                           argc,
+                                                           argv);
 
 #ifndef __APPLE__
     double programStartTime = getTime();

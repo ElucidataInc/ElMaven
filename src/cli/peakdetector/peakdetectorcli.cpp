@@ -12,7 +12,10 @@
 #include "peakdetectorcli.h"
 #include "projectDB/projectdatabase.h"
 
-PeakDetectorCLI::PeakDetectorCLI(Logger* log, Analytics* analytics)
+PeakDetectorCLI::PeakDetectorCLI(Logger* log,
+                                 Analytics* analytics,
+                                 int argc,
+                                 char* argv[])
 {
     _log = log;
     _analytics = analytics;
@@ -22,7 +25,6 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log, Analytics* analytics)
     peakDetector = new PeakDetector();
     saveJsonEIC = false;
     quantitationType = PeakGroup::AreaTop;
-    clsfModelFilename = "default.model";
     alignMode = AlignmentMode::None;
     _reduceGroupsFlag = true;
     _parseOptions = new ParseOptions();
@@ -32,6 +34,31 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log, Analytics* analytics)
     _currentPollyApp = PollyApp::None;
 
     analytics->hitScreenView("CLI");
+
+    if (argc <= 0)
+        return;
+
+    QString execDirPath = "";
+    QFileInfo execFileInfo(argv[0]);
+    QDir execDir = execFileInfo.absoluteDir();
+#ifdef Q_OS_WIN
+    execDirPath = execDir.absolutePath();
+#endif
+
+#ifdef Q_OS_LINUX
+    execDirPath = execDir.absolutePath();
+#endif
+
+#ifdef Q_OS_MAC
+    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/peakdetector.app/Contents/
+    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/peakdetector.app/
+    execDir.cdUp(); // <install_dir>/El-MAVEN/bin/
+    execDirPath = execDir.absolutePath();
+#endif
+
+    clsfModelFilename = QString(execDirPath
+                                + QDir::separator()
+                                + QString("default.model")).toStdString();
 }
 
 PeakDetectorCLI::~PeakDetectorCLI()
