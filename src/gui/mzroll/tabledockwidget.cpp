@@ -667,34 +667,23 @@ void TableDockWidget::deleteAll()
 void TableDockWidget::noPeakFound()
 {
   QMessageBox *warning = new QMessageBox(this);
-
-    auto htmlText = QString("<p>No peaks were detected. \
-                                Please check if you settings are not too strict \
-                                for your data or whether you are able to see any \
-                                peaks while manually browsing through a compound database.</p>");
+  auto htmlText = QString("No peaks were detected. Either the search was "
+                          "prematurely cancelled or the settings were too "
+                          "strict for this data. To get a better idea of what "
+                          "settings to use, try manually browsing over your "
+                          "samples using a compound database.");
    
-    warning->setText(htmlText);
-    warning->setIcon(QMessageBox::Icon::Information);
-    warning->exec();
+  warning->setText(htmlText);
+  warning->setIcon(QMessageBox::Icon::Information);
+  warning->exec();
 
-    QCoreApplication::processEvents();
+  QCoreApplication::processEvents();
 }
 
 void TableDockWidget::showAllGroups() {
   treeWidget->clear();
 
   setFocus();
-  if (topLevelGroupCount() == 0) {
-    if (viewType == groupView)
-      setIntensityColName();
-    setVisible(false);
-    _mainwindow->ligandWidget->resetColor();
-    _mainwindow->removePeaksTable(this);
-    noPeakFound();
-    this->deleteLater();
-    return;
-  }
-
   treeWidget->setSortingEnabled(false);
 
   setupPeakTable();
@@ -2407,6 +2396,20 @@ void PeakTableDockWidget::cleanUp()
 void PeakTableDockWidget::showDeletionDialog() {
   deletionDialog->show();
 }
+
+void PeakTableDockWidget::showAllGroups()
+{
+  if (topLevelGroupCount() == 0) {
+    setVisible(false);
+    _mainwindow->ligandWidget->resetColor();
+    _mainwindow->removePeaksTable(this);
+    noPeakFound();
+    this->deleteLater();
+    return;
+  }
+  TableDockWidget::showAllGroups();
+}
+
 
 BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
   _mainwindow = mw;

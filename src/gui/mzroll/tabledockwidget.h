@@ -267,13 +267,13 @@ public slots:
   virtual void markGroupGood();
   virtual void unmarkGroup();
   void markGroupIgnored();
-  void showAllGroups();
   void showHeatMap();
   void showScatterPlot();
   void setClipboard();
 
   void showConsensusSpectra();
 
+  virtual void showAllGroups();
   virtual void deleteSelectedItems();
   virtual void deleteGroup(PeakGroup* group);
 
@@ -382,6 +382,7 @@ public:
 public Q_SLOTS:
   void destroy();
   void deleteAll();
+  virtual void showAllGroups();
 
 private:
   QToolBar *toolBar;
