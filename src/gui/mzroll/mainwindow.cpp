@@ -1760,6 +1760,55 @@ void MainWindow::open()
         Q_UNUSED(continueButton);
     }
 
+    int sampleCount = 0;
+    QStringList sampleList;
+    int projectCount  = 0;
+    QStringList projectList;
+    Q_FOREACH (QString filename, filelist) {
+        if (fileLoader->isEmdbProject(filename) 
+            || fileLoader->isMzrollDbProject(filename)
+            || fileLoader->isMzRollProject(filename)) {
+                projectCount++;
+                projectList << filename;
+            } else {
+                sampleCount++;
+                sampleList << filename;
+            }
+    }
+    filelist.clear();
+    if (sampleCount && !projectCount) {
+        filelist = sampleList;
+    } else if (!sampleCount && projectCount) {
+        if (projectCount > 1) {
+            filelist << projectList[0];
+        } else {
+            filelist = projectList;
+        }
+    } else {
+        QMessageBox msgBox;
+        msgBox.setText("It seems you are trying to load sample files and "
+                       "project files at once.\n\n"
+                       "Please select either a set of samples or a single project"
+                       "file to load into this session.");
+        QPushButton* sampleChosen = msgBox.addButton("Sample Files",
+                                                       QMessageBox::ActionRole);
+        QPushButton* projectChosen = msgBox.addButton("ProjectFiles",
+                                                     QMessageBox::RejectRole);
+
+        msgBox.setDefaultButton(projectChosen);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == sampleChosen)
+            filelist = sampleList;
+        if (msgBox.clickedButton() == projectChosen) {
+            if (projectCount > 1) {
+                filelist << projectList[0];
+            } else {
+                filelist = projectList;
+            }
+        }
+    }
+
     // Changing the title of the main window after selecting the samples
     setWindowTitle(programName
                    + " "
@@ -3133,6 +3182,8 @@ void MainWindow::createToolBars() {
 	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
 	btnOpen->setToolTip(tr("Sample uploads"));
 
+    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
+   
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
@@ -3196,7 +3247,6 @@ void MainWindow::createToolBars() {
     btnInfo->setToolTip(tr("Documentaion, information and technical "
                            "support for El-MAVEN."));
 
-	connect(btnOpen, SIGNAL(clicked()), SLOT(open()));
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
 	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
