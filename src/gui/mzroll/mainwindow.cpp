@@ -1572,23 +1572,31 @@ void MainWindow::showDockWidgets() {
 		menu->show();
 }
 
-void MainWindow::doSearch(QString needle) {
-	QRegExp words("[a-z][A-Z]", Qt::CaseInsensitive, QRegExp::RegExp);
-	QRegExp formula("C[1-9].*(H[1-9]+|O[1-9]+|N[1-9]+)", Qt::CaseInsensitive,
-			QRegExp::RegExp);
+void MainWindow::searchForQuery()
+{
+    QString query = searchText->text();
 
-    if (setPeptideSequence(needle) ) {
+    QRegularExpression formula("C[1-9].*(H[1-9]+|O[1-9]+|N[1-9]+)",
+                               QRegularExpression::CaseInsensitiveOption);
+    auto match = formula.match(query);
+    if (match.hasMatch()) {
+        eicWidget->setFocusLine(-1.0f);
+        setFormulaFocus(query);
+        eicWidget->resetZoom();
         return;
     }
 
-	if (needle.contains(words) || needle.isEmpty()) {
-		//ligandWidget->setFilterString(needle);  //TODO: Sahil-Kiran, Removed while merging mainwindow
-		pathwayPanel->filterTree(needle);
-	}
-
-	if (needle.contains(formula)) {
-		setFormulaFocus(needle);
-	}
+    QRegularExpression transition("((?:[0-9]+)(?:[\\.](?:[0-9]+))?)"
+                                  "\\/"
+                                  "((?:[0-9]+)(?:[\\.](?:[0-9]+))?)");
+    match = transition.match(query);
+    if (match.hasMatch()) {
+        float precursorMz = match.captured(1).toFloat();
+        float productMz = match.captured(2).toFloat();
+        eicWidget->setFocusLine(-1.0f);
+        setMzValue(precursorMz, productMz);
+        eicWidget->resetZoom();
+    }
 }
 
 void MainWindow::setMzValue() {
@@ -1616,10 +1624,17 @@ void MainWindow::setMzValue() {
 	connect(searchText, SIGNAL(returnPressed()), getEicWidget(), SLOT(resetZoom()));	
 }
 
-void MainWindow::setMzValue(float mz1, float mz2) {
-	searchText->setText(QString::number(mz1, 'f', 8));
-	if (eicWidget->isVisible())
-		eicWidget->setMzSlice(mz1, mz2);
+void MainWindow::setMzValue(float mz1, float mz2)
+{
+    if (mz2 > 0.0f) {
+        searchText->setText(QString("%1/%2").arg(QString::number(mz1, 'f', 3),
+                                                 QString::number(mz2, 'f', 3)));
+    } else {
+        searchText->setText(QString::number(mz1, 'f', 6));
+    }
+
+    if (eicWidget->isVisible())
+        eicWidget->setMzSlice(mz1, mz2);
 	if (massCalcWidget->isVisible())
 		massCalcWidget->setMass(mz1);
 	if (fragPanel->isVisible())
@@ -3309,8 +3324,10 @@ void MainWindow::createToolBars() {
     searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b> <br> MRM: <b>precursorMz-productMz</b> <br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
     searchText->setObjectName(QString::fromUtf8("searchText"));
     searchText->setShortcutEnabled(true);
-    connect(searchText,SIGNAL(textEdited(QString)),this,SLOT(doSearch(QString))); 
-	connect(searchText,SIGNAL(returnPressed()), SLOT(setMzValue()));	
+    connect(searchText,
+            &QLineEdit::returnPressed,
+            this,
+            &MainWindow::searchForQuery);
 
 	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
 			this);

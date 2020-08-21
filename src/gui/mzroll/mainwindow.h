@@ -363,10 +363,7 @@ public Q_SLOTS:
     void setPeakGroup(shared_ptr<PeakGroup> group);
 	void showDockWidgets();
 	void hideDockWidgets();
-	//void terminateTheads();
-	void doSearch(QString needle);
-	//void setupSampleColors();
-        // void showMassSlices();
+    void searchForQuery();
         void showSRMList();
         void addToHistory(const mzSlice& slice);
         void historyNext();
