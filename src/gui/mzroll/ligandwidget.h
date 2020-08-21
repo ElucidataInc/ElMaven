@@ -44,7 +44,18 @@ class Adduct;
 using namespace std;
 
 class LigandWidget: public QDockWidget {
-      Q_OBJECT
+    Q_OBJECT
+
+    struct LigandTreeState {
+        QString dbName;
+        int charge;
+        bool showingIsotopes;
+        bool showingAdducts;
+        QSet<QString> isotopeTracers;
+        QSet<QString> adductForms;
+
+        bool operator==(const LigandTreeState& other) const;
+    };
 
 public:
     LigandWidget(MainWindow* parent);
@@ -115,6 +126,7 @@ private Q_SLOTS:
     void databaseChanged(int index);
 
 private:
+    LigandTreeState _treeState;
     QMessageBox* _busyMessage;
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
@@ -122,16 +134,11 @@ private:
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
     QHash<Compound *, QTreeWidgetItem *> compoundsHash;
-
     MainWindow* _mw;
     QString filterString;
+
     void readCompoundXML(QXmlStreamReader& xml, string dbname);
-
-    QNetworkAccessManager* m_manager;
-
-    int connectionId;
-    QXmlStreamReader xml;
-
+    LigandTreeState _currentState();
 };
 
 #endif

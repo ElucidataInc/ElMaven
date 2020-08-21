@@ -134,6 +134,11 @@ LigandWidget::LigandWidget(MainWindow* mw)
             SLOT(setDatabase(QString)));
     connect(this, SIGNAL(databaseChanged(QString)), _mw, SLOT(showSRMList()));
 
+    _treeState.dbName = "";
+    _treeState.charge = 0;
+    _treeState.showingIsotopes = false;
+    _treeState.showingAdducts = false;
+
     _busyMessage = new QMessageBox(_mw);
     _busyMessage->setStandardButtons(QMessageBox::NoButton);
     _busyMessage->setModal(true);
@@ -367,8 +372,35 @@ void LigandWidget::updateCurrentItemData()
     item->setText(3, rt);
 }
 
+LigandWidget::LigandTreeState LigandWidget::_currentState()
+{
+    LigandTreeState state;
+    state.dbName = getDatabaseName();
+    state.charge = _mw->mavenParameters->getCharge();
+
+    state.showingIsotopes = _mw->mavenParameters->pullIsotopesFlag;
+    if (_mw->mavenParameters->C13Labeled_BPE)
+        state.isotopeTracers.insert("C13");
+    if (_mw->mavenParameters->N15Labeled_BPE)
+        state.isotopeTracers.insert("N15");
+    if (_mw->mavenParameters->S34Labeled_BPE)
+        state.isotopeTracers.insert("S34");
+    if (_mw->mavenParameters->D2Labeled_BPE)
+        state.isotopeTracers.insert("D2");
+
+    state.showingAdducts = _mw->mavenParameters->searchAdducts;
+    for (auto adduct : _mw->adductWidget->getSelectedAdducts())
+        state.adductForms.insert(adduct->getName().c_str());
+
+    return state;
+}
+
 void LigandWidget::showTable(bool insertIsotopesAndAdducts)
 {
+    auto currentState = _currentState();
+    if (_treeState == currentState)
+        return;
+
     treeWidget->clear();
     QStringList header;
     header << "Name"
@@ -485,8 +517,13 @@ void LigandWidget::showTable(bool insertIsotopesAndAdducts)
     treeWidget->sortByColumn(0, Qt::AscendingOrder);
     treeWidget->setSortingEnabled(true);
 
-    if (insertIsotopesAndAdducts)
+    if (insertIsotopesAndAdducts) {
         updateIsotopesAndAdducts();
+    } else {
+        currentState.showingIsotopes = false;
+        currentState.showingAdducts = false;
+        _treeState = currentState;
+    }
 }
 
 void LigandWidget::setHash()
@@ -602,8 +639,23 @@ void LigandWidget::resetColor()
 
 void LigandWidget::updateIsotopesAndAdducts()
 {
+    auto currentState = _currentState();
+    if (_treeState == currentState)
+        return;
+
+    _treeState = currentState;
+
     QApplication::processEvents();
-    _busyMessage->setText("Populating isotopologues and adducts…");
+    if (_mw->mavenParameters->pullIsotopesFlag
+        && _mw->mavenParameters->searchAdducts) {
+        _busyMessage->setText("Populating isotopologues and adducts…");
+    } else if (_mw->mavenParameters->pullIsotopesFlag) {
+        _busyMessage->setText("Populating isotopologues and clearing adducts…");
+    } else if (_mw->mavenParameters->searchAdducts) {
+        _busyMessage->setText("Clearing isotopologues and populating adducts…");
+    } else {
+        _busyMessage->setText("Clearing isotopologues and adducts…");
+    }
     _busyMessage->show();
     QApplication::processEvents();
 
@@ -915,4 +967,15 @@ void LigandWidget::keyPressEvent(QKeyEvent *event)
                 treeWidget->expandItem(treeWidget->currentItem());
         }
     }
+}
+
+bool
+LigandWidget::LigandTreeState::operator==(const LigandTreeState& other) const
+{
+    return (dbName == other.dbName
+            && charge == other.charge
+            && showingIsotopes == other.showingIsotopes
+            && isotopeTracers == other.isotopeTracers
+            && showingAdducts == other.showingAdducts
+            && adductForms == other.adductForms);
 }
