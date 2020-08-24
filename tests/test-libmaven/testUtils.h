@@ -55,6 +55,8 @@ class SampleLoadingFixture
         mavenparameters->amuQ3 = 0.30;
         mavenparameters->baseline_smoothingWindow = 5;
         mavenparameters->baseline_dropTopX = 80;
+        mavenparameters->pullIsotopesFlag = false;
+        mavenparameters->searchAdducts = false;
     }
 
     vector<PeakGroup> _getTargetedGroupsFromProcessCompounds()

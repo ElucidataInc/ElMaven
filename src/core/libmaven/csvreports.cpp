@@ -321,7 +321,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
             }
         }
     }
-    _reportStream << "\n";
+    _reportStream << endl;
 }
 
 void CSVReports::_writePeakInfo(PeakGroup* group)
@@ -420,7 +420,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << peak.noNoiseObs
                       << SEP << peak.signalBaselineRatio
                       << SEP << peak.fromBlankSample
-                      << "\n";
+                      << endl;
     }
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";
@@ -454,7 +454,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0
-                      << "\n";
+                      << endl;
     }
 }
 
@@ -656,22 +656,26 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                     getline(savedPeakFile, saved);
                     vector<string> savedValues;
                     savedValues = mzUtils::split(saved, ",");
-                    if (string2float(inputValues[9])
-                            == doctest::Approx(string2float(savedValues[9])).epsilon(0.3)
-                        && string2float(inputValues[13])
-                               == doctest::Approx(string2float(savedValues[13]))
-                        && inputValues[2] == savedValues[2] 
-                        && inputValues[1] == savedValues[1] ) {
+                    if (string2float(inputValues[10])        // rt
+                            == doctest::Approx(
+                                   string2float(savedValues[10])).epsilon(0.3)
+                        && string2float(inputValues[14])     // intensity?
+                               == doctest::Approx(
+                                   string2float(savedValues[14]))
+                        && inputValues[1] == savedValues[1]  // compound-name
+                        && inputValues[2] == savedValues[2]  // compound-ID
+                        && inputValues[6] == savedValues[6]) // isotope label
+                    {
                         double inputFloat;
                         double savedFloat;
                         for (int i = 1;
                              i < static_cast<int>(inputValues.size());
                              i++) {
-                            if (i == 1 || i == 2 || i == 3 || i == 5) {
-                                REQUIRE(inputValues[i] == savedValues[i]);
-                            } else if (i == 4)
+                            if (i == 4) { // skip sample name
                                 continue;
-                            else {
+                            } else if (i <= 5) {
+                                REQUIRE(inputValues[i] == savedValues[i]);
+                            } else {
                                 inputFloat = string2float(inputValues[i]);
                                 savedFloat = string2float(savedValues[i]);
                                 REQUIRE(inputFloat

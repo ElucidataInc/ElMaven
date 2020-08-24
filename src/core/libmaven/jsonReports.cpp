@@ -272,14 +272,15 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
         _writePeak(group, file, samples);
     };
 
-    for (size_t i = 0; i < allgroups.size(); i++) {
-        PeakGroup& group = allgroups[i];
+    size_t index = 0;
+    for (PeakGroup& group : allgroups) {
         if (!group.isGhost())
-            writeGroup(group, i > 0);
+            writeGroup(group, index > 0);
+        ++index;
         for (auto& child : group.childIsotopes())
-            writeGroup(*child, i > 0);
+            writeGroup(*child, true);
         for (auto& child : group.childAdducts())
-            writeGroup(*child, i > 0);
+            writeGroup(*child, true);
     }
     file << "]}"; //groups
     file.close();
@@ -401,11 +402,14 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
         if(!rootInput["groups"][saved]["compound"]["tagString"].is_null())
             tagStringSaved = rootSaved["groups"][saved]["compound"]["tagString"].get<string>();
 
-        string fullCompoundNameInput = rootInput["groups"][input]["compound"]["fullCompoundName"].get<string>();
-        string fullCompoundNameSaved = rootSaved["groups"][saved]["compound"]["fullCompoundName"].get<string>();
-
-        string fullCompoundIDInput = rootInput["groups"][input]["compound"]["fullCompoundID"].get<string>();
-        string fullCompoundIDSaved = rootSaved["groups"][saved]["compound"]["fullCompoundID"].get<string>();
+        string adductNameInput = rootInput["groups"]
+                                          [input]
+                                          ["compound"]
+                                          ["adductName"].get<string>();
+        string adductNameSaved = rootSaved["groups"]
+                                          [saved]
+                                          ["compound"]
+                                          ["adductName"].get<string>();
 
         REQUIRE( compoundIdInput == compoundIdSaved );
         REQUIRE( compoundNameInput == compoundNameSaved );
@@ -414,8 +418,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
         REQUIRE( expectedMzInput == doctest::Approx(expectedMzSaved).epsilon(0.05) );
         REQUIRE( srmIdInput == srmIdSaved );
         REQUIRE( tagStringInput == tagStringSaved );
-        REQUIRE( fullCompoundNameInput == fullCompoundNameSaved );
-        REQUIRE( fullCompoundIDInput == fullCompoundIDSaved );
+        REQUIRE( adductNameInput == adductNameSaved );
 
         for(size_t i = 0; i < rootInput["groups"][input]["peaks"].size(); i++) {
             string sampleNameInput;
@@ -426,6 +429,9 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
 
             REQUIRE(!rootInput["groups"][input]["peaks"][i]["sampleName"].is_null());
             sampleNameSaved = rootSaved["groups"][saved]["peaks"][i]["sampleName"].get<string>();
+
+            if(rootInput["groups"][input]["peaks"][i]["peakMz"].is_string())
+                continue; // the peak data is probably all "NA"
 
             double pMzInput = rootInput["groups"][input]["peaks"][i]["peakMz"].get<double>();
             double pMzSaved = rootSaved["groups"][saved]["peaks"][i]["peakMz"].get<double>();
