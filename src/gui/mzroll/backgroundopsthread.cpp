@@ -21,7 +21,7 @@
 #include "mzAligner.h"
 #include "mzSample.h"
 #include "obiwarp.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "samplertwidget.h"
 #include "EIC.h"
 

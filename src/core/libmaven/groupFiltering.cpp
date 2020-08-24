@@ -148,6 +148,7 @@ void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
             ++numSamplesShared;
             auto childApexRt = childPeak->rt;
             auto parentApexRt = parentPeak->rt;
+            // calculate deviation in seconds (from minutes)
             auto deviation = abs(childApexRt - parentApexRt) * 60.0f;
             rtDeviationSum += deviation;
         }

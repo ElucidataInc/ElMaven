@@ -13,7 +13,7 @@
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "projectversioning.h"
 #include "Scan.h"
 #include "schema.h"

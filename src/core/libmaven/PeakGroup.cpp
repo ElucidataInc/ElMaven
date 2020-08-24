@@ -63,7 +63,6 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     //quantileQualityPeaks = 0;
 
     _expectedAbundance = 0.0f;
-    isotopeC13count=0;
 
     minRt=0;
     maxRt=0;
@@ -133,7 +132,6 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     weightedAvgPeakQuality=o.weightedAvgPeakQuality;
     predictedLabel=o.predictedLabel;
     _expectedAbundance = o._expectedAbundance;
-    isotopeC13count=o.isotopeC13count;
 
     deletedFlag = o.deletedFlag;
 
@@ -249,7 +247,6 @@ void PeakGroup::setSlice(const mzSlice& slice)
         tagIsotope(_slice.isotope.name,
                    _slice.isotope.mass,
                    _slice.isotope.abundance);
-        isotopeC13count = _slice.isotope.C13;
     }
     _updateType();
 }
@@ -998,7 +995,6 @@ void PeakGroup::setIsotope(Isotope isotope)
         tagIsotope(_slice.isotope.name,
                    _slice.isotope.mass,
                    _slice.isotope.abundance);
-        isotopeC13count = _slice.isotope.C13;
     }
     _updateType();
 }

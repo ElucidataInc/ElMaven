@@ -112,9 +112,6 @@ class PeakGroup{
         FragmentationMatchScore fragMatchScore;
         Fragment fragmentationPattern;
 
-        //isotopic information
-        int   isotopeC13count;
-
         double minIntensity;
 
         //int quantileIntensityPeaks;
@@ -572,15 +569,6 @@ class PeakGroup{
          * @return []
          */
         static bool compPvalue(const PeakGroup* a, const PeakGroup* b ) { return(a->changePValue< b->changePValue); }
-
-        /**
-         * [compC13 ]
-         * @method compC13
-         * @param  a       []
-         * @param  b       []
-         * @return []
-         */
-        static bool compC13(const PeakGroup* a, const PeakGroup* b) { return(a->isotopeC13count < b->isotopeC13count); }
 
         static bool compIsotopeLabel(const PeakGroup* a,
                                      const PeakGroup* b)

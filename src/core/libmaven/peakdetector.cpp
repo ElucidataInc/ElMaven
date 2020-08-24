@@ -712,6 +712,64 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
     return make_pair(nonOrphans, orphans);
 }
 
+// given a compound and its child indexes, clubs them with their most likely
+// parent-group if possible, otherwise adds them to a ghost parent
+unordered_map<size_t, vector<size_t>>
+_makeMeta(Compound* compound,
+          vector<size_t> childIndexes,
+          unordered_map<Compound*, vector<size_t>> parentCompounds,
+          function<string(PeakGroup*)> nameFunc,
+          MavenParameters* mp)
+{
+    auto& container = mp->allgroups;
+    vector<size_t> orphans;
+    map<size_t, size_t> nonOrphans;
+    if (parentCompounds.count(compound) > 0) {
+        auto& parentIndexes = parentCompounds[compound];
+        auto result = _matchParentsToChildren(parentIndexes,
+                                              childIndexes,
+                                              container,
+                                              nameFunc);
+        nonOrphans = result.first;
+        orphans = result.second;
+    } else {
+        for (auto index : childIndexes)
+            orphans.push_back(index);
+    }
+
+    unordered_map<size_t, vector<size_t>> metaGroups;
+    for (auto& elem : nonOrphans) {
+        size_t parentIndex = elem.second;
+        size_t childIndex = elem.first;
+        if (metaGroups.count(parentIndex) == 0)
+            metaGroups[parentIndex] = {};
+        metaGroups[parentIndex].push_back(childIndex);
+    }
+
+    if (!orphans.empty()) {
+        // for orphans, create a ghost, that will act as an empty parent
+        PeakGroup parentGroup(make_shared<MavenParameters>(*mp),
+                              PeakGroup::IntegrationType::Ghost);
+        container.push_back(parentGroup);
+
+        // set an appropriate slice for ghost parent
+        mzSlice slice;
+        slice.compound = compound;
+        slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
+                                mp->getCharge(compound));
+        slice.calculateRTMinMax(false, 0.0f);
+        container.back().setSlice(slice);
+
+        size_t totalSize = container.size();
+        container.back().setGroupId(totalSize);
+        metaGroups[totalSize - 1] = {};
+        for (auto child : orphans)
+            metaGroups[totalSize - 1].push_back(child);
+    }
+
+    return metaGroups;
+}
+
 void PeakDetector::performMetaGrouping(bool applyGroupFilters,
                                        bool barplotIsotopes)
 {
@@ -774,64 +832,6 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     if (nonParentIsotopologues.empty() && nonParentAdducts.empty())
         return;
 
-    // lambda: given a compound and its child indexes, clubs them with their
-    // most likely parent-group if possible, otherwise adds them to a ghost
-    auto makeMeta =
-        [this](Compound* compound,
-               vector<size_t> childIndexes,
-               unordered_map<Compound*, vector<size_t>> parentCompounds,
-               function<string(PeakGroup*)> nameFunc) {
-            auto& container = _mavenParameters->allgroups;
-            vector<size_t> orphans;
-            map<size_t, size_t> nonOrphans;
-            if (parentCompounds.count(compound) > 0) {
-                auto& parentIndexes = parentCompounds[compound];
-                auto result = _matchParentsToChildren(parentIndexes,
-                                                      childIndexes,
-                                                      container,
-                                                      nameFunc);
-                nonOrphans = result.first;
-                orphans = result.second;
-            } else {
-                for (auto index : childIndexes)
-                    orphans.push_back(index);
-            }
-
-            unordered_map<size_t, vector<size_t>> metaGroups;
-            for (auto& elem : nonOrphans) {
-                size_t parentIndex = elem.second;
-                size_t childIndex = elem.first;
-                if (metaGroups.count(parentIndex) == 0)
-                    metaGroups[parentIndex] = {};
-                metaGroups[parentIndex].push_back(childIndex);
-            }
-
-            if (!orphans.empty()) {
-                // for orphans, create a ghost, that will act as an empty parent
-                PeakGroup parentGroup(
-                    make_shared<MavenParameters>(*_mavenParameters),
-                    PeakGroup::IntegrationType::Ghost);
-                container.push_back(parentGroup);
-
-                // set an appropriate slice for ghost parent
-                mzSlice slice;
-                slice.compound = compound;
-                slice.calculateMzMinMax(
-                    _mavenParameters->compoundMassCutoffWindow,
-                    _mavenParameters->getCharge(compound));
-                slice.calculateRTMinMax(false, 0.0f);
-                container.back().setSlice(slice);
-
-                size_t totalSize = container.size();
-                container.back().setGroupId(totalSize);
-                metaGroups[totalSize - 1] = {};
-                for (auto child : orphans)
-                    metaGroups[totalSize - 1].push_back(child);
-            }
-
-            return metaGroups;
-        };
-
     unordered_map<Compound*, unordered_map<size_t, vector<size_t>>> metaGroups;
 
     // find isotope meta-groups
@@ -841,12 +841,13 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
         Compound* compound = elem.first;
         auto& isotopeIndexes = elem.second;
-        auto metaIsotopeGroups = makeMeta(compound,
-                                          isotopeIndexes,
-                                          parentCompounds,
-                                          [](PeakGroup* group) {
-                                              return group->isotope().name;
-                                          });
+        auto metaIsotopeGroups = _makeMeta(compound,
+                                           isotopeIndexes,
+                                           parentCompounds,
+                                           [](PeakGroup* group) {
+                                               return group->isotope().name;
+                                           },
+                                           _mavenParameters);
         metaGroups[compound] = metaIsotopeGroups;
     }
 
@@ -857,25 +858,26 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
         Compound* compound = elem.first;
         auto& adductIndexes = elem.second;
-        auto metaAdductGroups = makeMeta(compound,
-                                         adductIndexes,
-                                         parentCompounds,
-                                         [](PeakGroup* group) {
-                                             return group->adduct()->getName();
-                                         });
+        auto metaAdductGroups = _makeMeta(compound,
+                                          adductIndexes,
+                                          parentCompounds,
+                                          [](PeakGroup* group) {
+                                              return group->adduct()->getName();
+                                          },
+                                          _mavenParameters);
         if (metaGroups.count(compound) > 0) {
             auto& existingMetaGroups = metaGroups[compound];
             for (auto& elem : metaAdductGroups) {
                 size_t parentIndex = elem.first;
-                vector<size_t>& childIndexes = elem.second;
+                vector<size_t>& childAdductIndexes = elem.second;
                 if (existingMetaGroups.count(parentIndex) > 0) {
                     vector<size_t>& existingChildIndexes =
                         existingMetaGroups[parentIndex];
                     existingChildIndexes.insert(end(existingChildIndexes),
-                                                begin(childIndexes),
-                                                end(childIndexes));
+                                                begin(childAdductIndexes),
+                                                end(childAdductIndexes));
                 } else {
-                    existingMetaGroups[parentIndex] = childIndexes;
+                    existingMetaGroups[parentIndex] = childAdductIndexes;
                 }
             }
         } else {
@@ -892,9 +894,9 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
         }
 
         auto& compoundMetaGroups = elem.second;
-        for (auto& metaGroup : compoundMetaGroups) {
-            PeakGroup& parent = _mavenParameters->allgroups[metaGroup.first];
-            auto& childIndexes = metaGroup.second;
+        for (auto& metaElement : compoundMetaGroups) {
+            PeakGroup& parent = _mavenParameters->allgroups[metaElement.first];
+            auto& childIndexes = metaElement.second;
             for (auto childIndex : childIndexes) {
                 PeakGroup& child = _mavenParameters->allgroups[childIndex];
                 if (child.isIsotope() && barplotIsotopes) {

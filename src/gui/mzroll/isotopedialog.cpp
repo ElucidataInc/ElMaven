@@ -71,7 +71,9 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                         C13Labeled_BPE->setChecked(true);
                     }
                     filterIsotopesAgainstParent->setEnabled(true);
+                    filterIsotopesAgainstParent->setChecked(true);
                     parentIsotopeRequired->setEnabled(true);
+                    parentIsotopeRequired->setChecked(true);
                 } else {
                     C13Labeled_BPE->setChecked(false);
                     D2Labeled_BPE->setChecked(false);

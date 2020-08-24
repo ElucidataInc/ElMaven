@@ -182,8 +182,10 @@ void AdductWidget::_updateWindowState()
 {
     if (searchAdducts->isChecked()) {
         filterAdductsAgainstParent->setEnabled(true);
+        filterAdductsAgainstParent->setChecked(true);
         adductList->setEnabled(true);
         parentAdductRequired->setEnabled(true);
+        parentAdductRequired->setChecked(true);
     } else {
         filterAdductsAgainstParent->setChecked(false);
         filterAdductsAgainstParent->setEnabled(false);
