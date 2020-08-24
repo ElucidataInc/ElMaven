@@ -2124,7 +2124,7 @@ void TableDockWidget::updateStatus() {
   int goodCount = 0;
   int badCount = 0;
   for (auto group : _topLevelGroups) {
-    char groupLabel = group->label;
+    char groupLabel = group->userLabel();
     if (groupLabel == 'g') {
       goodCount++;
     } else if (groupLabel == 'b') {
