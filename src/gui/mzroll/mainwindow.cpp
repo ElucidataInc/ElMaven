@@ -12,7 +12,7 @@
 #include "common/mixpanel.h"
 #include "animationcontrol.h"
 #include "awsbucketcredentialsdialog.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
@@ -42,7 +42,7 @@
 #include "notificator.h"
 #include "pathwaywidget.h"
 #include "peakdetectiondialog.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "peakeditor.h"
 #include "Peptide.hpp"
 #include "peptidefragmentation.h"
@@ -143,7 +143,6 @@ using namespace mzUtils;
     connect( this, SIGNAL (reBoot()), this, SLOT (slotReboot()));
     m_value=0;
 
-
     qRegisterMetaType<mzSample*>("mzSample*");
 	qRegisterMetaTypeStreamOperators<mzSample*>("mzSample*");
 
@@ -183,8 +182,6 @@ using namespace mzUtils;
 	QStringList list = QApplication::libraryPaths();
 	qDebug() << "Library Path=" << list;
 #endif
-
-	threadCompound = NULL;
 
     readSettings();
 	QString dataDir = ".";
@@ -320,7 +317,6 @@ using namespace mzUtils;
 	ligandWidget = new LigandWidget(this);
 	heatmap = new HeatMap(this);
 	bookmarkedPeaks = new BookmarkTableDockWidget(this);
-    setActiveTable(bookmarkedPeaks);
 
     sampleRtWidget = new SampleRtWidget(this);
     sampleRtWidget->setWidget(sampleRtVizPlot);
@@ -379,7 +375,6 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
-	ligandWidget->setVisible(true);
 	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 
@@ -440,8 +435,9 @@ using namespace mzUtils;
 	spectraMatchingForm = new SpectraMatching(this);
 
     connect(scatterDockWidget,
-            SIGNAL(groupSelected(PeakGroup*)),
-			SLOT(setPeakGroup(PeakGroup*)));
+            &ScatterPlot::groupSelected,
+            this,
+            &MainWindow::setPeakGroup);
 	pathwayWidgetController();
 
 
@@ -683,11 +679,11 @@ using namespace mzUtils;
             QString databaseSet;
             if (settings->contains("lastCompoundDatabase")) {
                 ligandWidget->setDatabase(
-                    settings->value("lastCompoundDatabase").toString());
+                    settings->value("lastCompoundDatabase").toString(), false);
                 databaseSet =
                     settings->value("lastCompoundDatabase").toString();
             } else {
-                ligandWidget->setDatabase("KNOWNS");
+                ligandWidget->setDatabase("KNOWNS", false);
                 databaseSet = "KNOWNS";
             }
         }
@@ -696,6 +692,21 @@ using namespace mzUtils;
 
 	showNormal();	//return from full screen on startup
 
+    QDirIterator adductItr(":/databases/Adducts/");
+    while (adductItr.hasNext()) {
+        auto filename = adductItr.next().toStdString();
+        int lineCount = 0;
+        QFile file(QString(filename.c_str()));
+        if (!file.open(QFile::ReadOnly))
+            return;
+        while (!file.atEnd()) {
+            QString tempLine = file.readLine().trimmed();
+            if (tempLine.isEmpty()) continue;
+            lineCount++;
+            DB.loadAdducts(tempLine.toStdString(), lineCount);
+        }
+    }
+    adductWidget->loadAdducts();
 
 	//Starting server to fetch remote data - Kiran
 	//Added when merged with Maven776
@@ -716,6 +727,7 @@ using namespace mzUtils;
 	settings->setValue("closeEvent", 0);
 	peakDetectionDialog->setMavenParameters(settings);
 
+    setActiveTable(bookmarkedPeaks);
 
 	readSettings();
 
@@ -1300,7 +1312,7 @@ void MainWindow::setIonizationModeLabel() {
 	ionizationModeLabel->setText(ionMode);
 
     isotopeWidget->setCharge(mode);
-    ligandWidget->getAdductWidget()->selectAdductsForCurrentPolarity();
+    adductWidget->selectAdductsForCurrentPolarity();
 	setTotalCharge();
 }
 
@@ -1354,7 +1366,13 @@ void MainWindow::setTotalCharge()
     mavenParameters->charge = charge;
     fileLoader->insertSettingForSave("mainWindowCharge", variant(charge));
     totalCharge = mavenParameters->ionizationMode * charge;
-    ligandWidget->updateTable();
+    DB.updateChargesForZeroCharges(totalCharge);
+
+    // to prevent unnecessary updates to ligand widget while emDB is loading
+    bool emDBIsLoading = (_loadProgressDialog != nullptr
+                          && _loadProgressDialog->isVisible());
+    if (this->isVisible() && !emDBIsLoading)
+        ligandWidget->showTable(true);
 }
 
 vector<mzSample*> MainWindow::getVisibleSamples() {
@@ -1367,16 +1385,6 @@ vector<mzSample*> MainWindow::getVisibleSamples() {
     }
     sort(begin(vsamples), end(vsamples), mzSample::compSampleOrder);
 	return vsamples;
-}
-
-shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup()
-{
-    if (eicWidget != nullptr
-        && eicWidget->getParameters() != nullptr
-        && eicWidget->getParameters()->displayedGroup() != nullptr) {
-        return bookmarkPeakGroup(eicWidget->getParameters()->displayedGroup());
-    }
-    return shared_ptr<PeakGroup>(nullptr);
 }
 
 shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
@@ -1392,8 +1400,7 @@ shared_ptr<PeakGroup> MainWindow::bookmarkPeakGroup(shared_ptr<PeakGroup> group)
     if (bookmarkedPeaks->topLevelGroupCount() == 0)
 		analytics->hitEvent("New Table", "Bookmark Table");
 
-    if (bookmarkedPeaks->hasPeakGroup(group.get()) == false) {
-
+    if (!bookmarkedPeaks->hasPeakGroup(group.get())) {
         float rtDiff = group->expectedRtDiff();
 		double A = (double) mavenParameters->qualityWeight/10;
         double B = (double) mavenParameters->intensityWeight/10;
@@ -1440,57 +1447,34 @@ void MainWindow::setPathwayFocus(Pathway* p) {
 	}
 }
 
-void MainWindow::setCompoundFocus(Compound*c) {
-	if (c == NULL)
+void MainWindow::setCompoundFocus(Compound* compound,
+                                  Isotope isotope,
+                                  Adduct *adduct)
+{
+    if (compound == nullptr)
 		return;
-		
-	if (!(isotopeWidget->workerThread->stopped() && isotopeWidget->workerThreadBarplot->stopped())) {
-		threadCompound = c;
-		return;
-	}
-
-		
- 	if (!(isotopeWidget->workerThread->stopped() && isotopeWidget->workerThreadBarplot->stopped())) {
- 		threadCompound = c;
- 		return;
- 	}
-
 
 	int charge = 0;
-	// if (samples.size() > 0 && samples[0]->getPolarity() > 0)
-	// 	charge = 1;
-	// if (getIonizationMode())
-	// 	charge = getIonizationMode(); //user specified ionization mode
-	charge = mavenParameters->getCharge(c);
-        qDebug() << "setCompoundFocus:" << c->name().c_str() << " " << charge << " "
-                        << c->expectedRt();
+    charge = mavenParameters->getCharge(compound);
+    float mz = compound->mz();
+    if (!compound->formula().empty() || compound->neutralMass() != 0.0f)
+        mz = compound->adjustedMass(charge);
+    if (!isotope.isNone()) {
+        mz = isotope.mass;
+    } else if (adduct != nullptr) {
+        mz = adduct->computeAdductMz(compound->neutralMass());
+    }
+    searchText->setText(QString::number(mz, 'f', 6));
 
-        float mz = c->mz();
-        if (!c->formula().empty() || c->neutralMass() != 0.0f)
-		mz = c->adjustedMass(charge);
-    searchText->setText(QString::number(mz, 'f', 8));
-
-	//if (pathwayWidget != NULL && pathwayWidget->isVisible() ) {
-	//  pathwayWidget->clear();
-	//    pathwayWidget->setCompound(c);
-	//}
-	
-	if (massCalcWidget && massCalcWidget->isVisible()) {
+    if (massCalcWidget && massCalcWidget->isVisible())
 		massCalcWidget->setMass(mz);
-	}
 
 	if (eicWidget->isVisible() && samples.size() > 0) {
-        eicWidget->setCompound(c);
+        eicWidget->setCompound(compound, isotope, adduct);
         shared_ptr<PeakGroup> selectedGroup = eicWidget->getSelectedGroup();
-		if (isotopeWidget && isotopeWidget->isVisible()) {
-			isotopeWidget->setCompound(c);
+        if (isotopeWidget
+            && (isotopeWidget->isVisible() || isotopePlot->isVisible())) {
 			isotopeWidget->setPeakGroupAndMore(selectedGroup);
-        } else if (isotopeWidget
-                   && isotopePlot
-                   && isotopePlot->isVisible()
-                   && selectedGroup
-                   && selectedGroup->getCompound() != NULL) {
-            isotopeWidget->updateIsotopicBarplot(selectedGroup);
         }
 
 		if (fragSpectraWidget->isVisible())
@@ -1500,17 +1484,11 @@ void MainWindow::setCompoundFocus(Compound*c) {
     if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
-    QString compoundName(c->name().c_str());
+    QString compoundName(compound->name().c_str());
     setPeptideSequence(compoundName);
 
-	/*
-	 if( peaksPanel->isVisible() && c->hasGroup() ) {
-	 peaksPanel->setInfo(c->getPeakGroup());
-	 }
-	 */
-
-	if (c)
-		setUrl(c);
+    if (compound)
+        setUrl(compound);
 }
 
 /*
@@ -1982,7 +1960,7 @@ void MainWindow::_postCompoundsDBLoadActions(QString filename,
     string dbName = mzUtils::cleanFilename(filename.toStdString());
 
     bool reloading = false;
-    deque<Compound*> compoundsDB = DB.getCompoundsDB();
+    deque<Compound*> compoundsDB = DB.compoundsDB();
     for (int i = 0; i < compoundsDB.size(); i++) {
         Compound* currentCompound = compoundsDB[i];
         if (currentCompound->db() == dbName) {
@@ -2580,8 +2558,8 @@ void MainWindow::loadPathwaysFolder(QString& pathwaysFolder) {
 	}
 }
 
-BackgroundPeakUpdate* MainWindow::newWorkerThread(QString funcName) {
-	BackgroundPeakUpdate* workerThread = new BackgroundPeakUpdate(this);
+BackgroundOpsThread* MainWindow::newWorkerThread(QString funcName) {
+    BackgroundOpsThread* workerThread = new BackgroundOpsThread(this);
 	workerThread->setMainWindow(this);
 	workerThread->setRunFunction(funcName);
 	//threads.push_back(workerThread);
@@ -2810,6 +2788,21 @@ void MainWindow::setActiveTable(TableDockWidget *table)
 TableDockWidget* MainWindow::activeTable()
 {
     return _activeTable;
+}
+
+TableDockWidget* MainWindow::tableForTableId(int tableId)
+{
+    if (tableId == 0)
+        return bookmarkedPeaks;
+
+    auto tablePos = find_if(begin(groupTables),
+                            end(groupTables),
+                            [tableId](TableDockWidget* table) {
+                                return table->tableId == tableId;
+                            });
+    if (tablePos == end(groupTables))
+        return nullptr;
+    return *tablePos;
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -3176,65 +3169,75 @@ void MainWindow::createToolBars() {
     style += "QToolBar { border:        none;                }";
     style += "QToolBar { border-bottom: 1px solid lightgray; }";
     toolBar->setStyleSheet(style);
-
+    
+    QString tooltipStyle = "QToolTip {"
+                           " color: #000000;"
+                           " background-color: #fbfbd5;"
+                           " border: 1px solid black;"
+                           " padding: 1px;"
+                           "}";
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
 	btnOpen->setIcon(QIcon(rsrcPath + "/fileopen.png"));
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnOpen->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnOpen->setToolTip(tr("Sample uploads"));
+    btnOpen->setStyleSheet(tooltipStyle);
+    btnOpen->setToolTip(tr("Import samples or projects"));
 
     connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
    
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
-	btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnAlign->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnAlign->setToolTip(tr("Peak Alignment settings"));
+    btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnAlign->setStyleSheet(tooltipStyle);
+    btnAlign->setToolTip(tr("Peak alignment settings"));
 
     QToolButton *btnIsotope = new QToolButton(toolBar);
     btnIsotope->setText("Isotopes");
     btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
     btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnIsotope->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solic black; padding: 1px;}");
-    btnIsotope->setToolTip(tr("Isotope settings"));
+    btnIsotope->setStyleSheet(tooltipStyle);
+    btnIsotope->setToolTip(tr("Isotope detection settings"));
 
-	//TODO: Sahil-Kiran, Removed while merging mainwindow
-	//QToolButton *btnDbSearch = new QToolButton(toolBar);
-	//btnDbSearch->setText("Databases");
-	//btnDbSearch->setIcon(QIcon(rsrcPath + "/dbsearch.png"));
-	//btnDbSearch->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	//btnDbSearch->setToolTip(tr("Database Search"));
+    QToolButton *btnAdducts = new QToolButton(toolBar);
+    btnAdducts->setText("Adducts");
+    btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
+    btnAdducts->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnAdducts->setStyleSheet(tooltipStyle);
+    btnAdducts->setToolTip("Adduct detection settings");
 
 	QToolButton *btnFeatureDetect = new QToolButton(toolBar);
 	btnFeatureDetect->setText("Peaks");
 	btnFeatureDetect->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
-	btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnFeatureDetect->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnFeatureDetect->setToolTip(tr("Peak Detection and Group Filtering Settings"));
+    btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnFeatureDetect->setStyleSheet(tooltipStyle);
+    btnFeatureDetect->setToolTip(tr("Peak detection and group filtering settings"));
 
 	QToolButton *btnPollyBridge = new QToolButton(toolBar);
-	btnPollyBridge->setText("Polly");
+    btnPollyBridge->setText("Polly™");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
-	btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnPollyBridge->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnPollyBridge->setToolTip(tr("Send Peaks to Polly to store, collaborate, analyse and visualise your data"));
-
-	// QToolButton *btnSpectraMatching = new QToolButton(toolBar);
-	// btnSpectraMatching->setText("Match");
-	// btnSpectraMatching->setIcon(QIcon(rsrcPath + "/spectra_search.png"));
-	// btnSpectraMatching->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	// btnSpectraMatching->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	// btnSpectraMatching->setToolTip(
-	// 		tr("Matching Spectra for Fragmentation Patterns"));
+    btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnPollyBridge->setStyleSheet(tooltipStyle);
+    btnPollyBridge->setToolTip(tr("Send peaks to Polly™ to store, collaborate, "
+                                  "analyse and visualise your data"));
 
 	QToolButton *btnSettings = new QToolButton(toolBar);
 	btnSettings->setText("Options");
 	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
-	btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	btnSettings->setStyleSheet("QToolTip {color: #000000; background-color: #fbfbd5; border: 1px solid black; padding: 1px;}");
-	btnSettings->setToolTip(tr("1. Instrumentation: Ionization settings\n2. File Import: Scan filter settings\n3. Peak Detection: EIC smoothing and baseline settings\n4. Peak Filtering: Parent and Isotopic peak filtering settings\n5. Isotope Detection: Isotopic label filters\n6. EIC (XIC): EIC type selection\n7. Peak Grouping: Peak Grouping Score calculation\n8. Group Rank: Group Rank calculation - Group Rank decides which groups are selected for a given m/z"));
+    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnSettings->setStyleSheet(tooltipStyle);
+    btnSettings->setToolTip(tr("1. Instrumentation: ionization settings\n"
+                               "2. File import: scan filter settings\n"
+                               "3. Peak detection: EIC smoothing and baseline "
+                               "settings\n"
+                               "4. Peak filtering: parent and isotopic peak "
+                               "filtering settings\n"
+                               "5. Isotope detection: isotopic label filters\n"
+                               "6. EIC (XIC): EIC type selection\n"
+                               "7. Peak grouping: peak-group score "
+                               "calculation\n"
+                               "8. Group rank: group rank calculation decides "
+                               "which groups are selected for a given m/z"));
 
     QToolButton *btnInfo = new QToolButton(toolBar);
     btnInfo->setText("Support");
@@ -3251,8 +3254,8 @@ void MainWindow::createToolBars() {
 
 	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
-	//connect(btnDbSearch, SIGNAL(clicked()), SLOT(showPeakdetectionDialog())); //TODO: Sahil-Kiran, Removed while merging mainwindow
-	connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
+    connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
+    connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
 	connect(btnPollyBridge, SIGNAL(clicked()), SLOT(showPollyElmavenInterfaceDialog()));
 	connect(btnSettings, SIGNAL(clicked()), SLOT(showsettingsForm()));
 	//connect(btnSpectraMatching, SIGNAL(clicked()), SLOT(showspectraMatchingForm()));
@@ -3264,7 +3267,8 @@ void MainWindow::createToolBars() {
 	toolBar->addWidget(btnOpen);
 	toolBar->addWidget(btnAlign);
     toolBar->addWidget(btnIsotope);
-	toolBar->addWidget(btnFeatureDetect);
+    toolBar->addWidget(btnAdducts);
+    toolBar->addWidget(btnFeatureDetect);
 	//toolBar->addWidget(btnSpectraMatching);
 	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
@@ -3280,12 +3284,6 @@ void MainWindow::createToolBars() {
 	massCutoffComboBox=  new QComboBox(hBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
-    /*if(settings->value("massCutoffType")=="mDa"){
-        massCutoffComboBox->setCurrentText("mDa");
-    }
-    else{
-        massCutoffComboBox->setCurrentText("ppm");
-    }*/
 	massCutoffComboBox->setToolTip("mass cutoff unit");
 	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
 
@@ -3380,7 +3378,7 @@ void MainWindow::createToolBars() {
     connect(quantType,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             isotopeWidget,
-            &IsotopeWidget::refreshForCurrentPeak);
+            &IsotopeWidget::refreshTable);
     fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
                                      variant(0));
 
@@ -3574,7 +3572,8 @@ void MainWindow::_postProjectLoadActions()
             qDebug() << match;
             if (match.hasMatch())
                 dbName = match.captured(1);
-            ligandWidget->setDatabase(dbName);
+            if (dbName != ligandWidget->getDatabaseName())
+                ligandWidget->setDatabase(dbName);
         } else {
             setActiveTable(bookmarkedPeaks);
         }
@@ -3662,7 +3661,7 @@ void MainWindow::showSRMList() {
 
 		bool associateCompoundNames = true;
 
-        deque<Compound*> compoundsDB = DB.getCompoundsDB();
+        deque<Compound*> compoundsDB = DB.compoundsDB();
 
 		double amuQ1 = getSettings()->value("amuQ1").toDouble();
         double amuQ3 = getSettings()->value("amuQ3").toDouble();
@@ -3677,55 +3676,46 @@ void MainWindow::showSRMList() {
      }
 }
 
-void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group) {
-    qDebug() << "setPeakgroup(group)" << endl;
-	if (group == NULL)
-		return;
+void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
+{
+    if (group == nullptr)
+        return;
 
     searchText->setText(QString::number(group->meanMz, 'f', 8));
-
-	if (eicWidget && eicWidget->isVisible()) {
+    if (eicWidget && eicWidget->isVisible())
         eicWidget->setPeakGroup(group);
-	}
 
-    if (isotopeWidget != nullptr
-        && isotopeWidget->isVisible()
-        && group->hasCompoundLink()) {
+    if (groupRtDockWidget->isVisible())
+        groupRtWidget->plotGraph(group.get());
+
+    if (group->hasCompoundLink()
+        && isotopeWidget != nullptr
+        && (isotopeWidget->isVisible() || isotopePlot->isVisible())) {
         isotopeWidget->setPeakGroupAndMore(group);
-    } else if (isotopeWidget
-               && isotopePlot
-               && isotopePlot->isVisible()
-               && group->hasCompoundLink()) {
-        isotopeWidget->updateIsotopicBarplot(group);
     }
 
     if (group->hasCompoundLink()) {
         if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
-		if (fragSpectraDockWidget->isVisible()) {
+        if (fragSpectraDockWidget->isVisible())
             fragSpectraWidget->overlayPeakGroup(group);
-		}
         QString compoundName(group->getCompound()->name().c_str());
-        if (! setPeptideSequence(compoundName)) {
+        if (! setPeptideSequence(compoundName))
             setUrl(group->getCompound());
-        }
         if (massCalcWidget)
             massCalcWidget->setPeakGroup(group.get());
     }
 
-    if (scatterDockWidget->isVisible()) {
+    if (scatterDockWidget->isVisible())
         ((ScatterPlot*) scatterDockWidget)->showSimilar(group.get());
-	}
 
     if (group->peaks.size() > 0) {
-        vector<Scan*>scanset = group->getRepresentativeFullScans(); //TODO: Sahil-Kiran, Added while merging mainwindow
-        spectraWidget->setScanSet(scanset); //TODO: Sahil-Kiran, Added while merging mainwindow
-        spectraWidget->replot(); //TODO: Sahil-Kiran, Added while merging mainwindow
+        vector<Scan*>scanset = group->getRepresentativeFullScans();
+        spectraWidget->setScanSet(scanset);
+        spectraWidget->replot();
     }
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    if (spectralHitsDockWidget->isVisible()) {
+    if (spectralHitsDockWidget->isVisible())
         spectralHitsDockWidget->limitPrecursorMz(group->meanMz);
-    }
 }
 
 void MainWindow::Align()
@@ -3733,7 +3723,7 @@ void MainWindow::Align()
     if (sampleCount() < 2)
         return;
 
-    BackgroundPeakUpdate* workerThread;
+    BackgroundOpsThread* workerThread;
 
     if (alignmentDialog->alignAlgo->currentIndex() == 0) {
         analytics->hitEvent("Alignment", "Obi-Warp");
@@ -3753,15 +3743,15 @@ void MainWindow::Align()
                 alignmentDialog,
                 SLOT(updateRestoreStatus()));
         connect(workerThread,
-                &BackgroundPeakUpdate::updateProgressBar,
+                &BackgroundOpsThread::updateProgressBar,
                 alignmentDialog,
                 &AlignmentDialog::setProgressBar);
         connect(workerThread,
-                &BackgroundPeakUpdate::samplesAligned,
+                &BackgroundOpsThread::samplesAligned,
                 alignmentDialog,
                 &AlignmentDialog::samplesAligned);
         connect(workerThread,
-                &BackgroundPeakUpdate::finished,
+                &BackgroundOpsThread::finished,
                 this,
                 &MainWindow::updateTablePostAlignment);
 
@@ -3771,28 +3761,29 @@ void MainWindow::Align()
 
     if (alignmentDialog->peakDetectionAlgo->currentText()
         == "Compound Database Search") {
-        workerThread = newWorkerThread("alignUsingDatabase");
+        workerThread = newWorkerThread("computePeaks");
         mavenParameters->setCompounds(DB.getCompoundsSubset(
             alignmentDialog->selectDatabaseComboBox->currentText()
                 .toStdString()));
         alignmentDialog->setWorkerThread(workerThread);
     } else {
-        workerThread = newWorkerThread("processMassSlices");
+        workerThread = newWorkerThread("findFeatures");
         alignmentDialog->setWorkerThread(workerThread);
     }
+    workerThread->performPolyFitAlignment();
 
     connect(workerThread, SIGNAL(finished()), eicWidget, SLOT(replotForced()));
     connect(workerThread, SIGNAL(finished()), alignmentDialog, SLOT(close()));
     connect(workerThread,
-            &BackgroundPeakUpdate::updateProgressBar,
+            &BackgroundOpsThread::updateProgressBar,
             alignmentDialog,
             &AlignmentDialog::setProgressBar);
     connect(workerThread,
-            &BackgroundPeakUpdate::samplesAligned,
+            &BackgroundOpsThread::samplesAligned,
             alignmentDialog,
             &AlignmentDialog::samplesAligned);
     connect(workerThread,
-            &BackgroundPeakUpdate::finished,
+            &BackgroundOpsThread::finished,
             this,
             &MainWindow::updateTablePostAlignment);
 
@@ -4005,8 +3996,8 @@ QString MainWindow::groupTextExport(PeakGroup* group) {
 		if (s != NULL)
 			sampleName = s->sampleName;
 
-		peakinfo << QString(sampleName.c_str())
-				<< QString::number(group->groupId) << compoundName
+        peakinfo << QString(sampleName.c_str())
+                 << QString::number(group->groupId()) << compoundName
 				<< QString::number(expectedRt, 'f', 4)
 				<< QString::number(peak.peakMz, 'f', 4)
 				<< QString::number(peak.medianMz, 'f', 4)
@@ -4119,10 +4110,8 @@ QWidget* MainWindow::eicWidgetController() {
     toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
-	QWidgetAction *btnBookmark = new MainWindowWidgetAction(toolBar, this,  "btnBookmark");
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
 	QWidgetAction *btnIntegrateArea = new MainWindowWidgetAction(toolBar, this,  "btnIntegrateArea");
-	QWidgetAction *btnAverageSpectra = new MainWindowWidgetAction(toolBar, this,  "btnAverageSpectra");
 	QWidgetAction *btnLast = new MainWindowWidgetAction(toolBar, this,  "btnLast");
 	QWidgetAction *btnNext = new MainWindowWidgetAction(toolBar, this,  "btnNext");
 	QWidgetAction *btnExport = new MainWindowWidgetAction(toolBar, this,  "btnExport");
@@ -4138,22 +4127,18 @@ QWidget* MainWindow::eicWidgetController() {
                                                                     this,
                                                                     "toleranceSyncSwitch");
 
-	toolBar->addAction(btnZoom);
-	toolBar->addAction(btnBookmark);
-	toolBar->addAction(btnCopyCSV);
+    toolBar->addAction(btnLast);
+    toolBar->addAction(btnNext);
+    toolBar->addAction(btnZoom);
+    toolBar->addAction(btnAutoZoom);
+    toolBar->addAction(btnShowTic);
 
 	toolBar->addSeparator();
 	toolBar->addAction(btnIntegrateArea);
-	toolBar->addAction(btnAverageSpectra);
-	toolBar->addAction(btnLast);
-	toolBar->addAction(btnNext);
 
 	toolBar->addSeparator();
-	toolBar->addAction(btnExport);
-
-	toolBar->addSeparator();
-	toolBar->addAction(btnAutoZoom);
-	toolBar->addAction(btnShowTic);
+    toolBar->addAction(btnCopyCSV);
+    toolBar->addAction(btnExport);
 
     toolBar->addSeparator();
     toolBar->addAction(btnShowBarplot);
@@ -4187,16 +4172,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnZoom;
 
 	}
-	else if (btnName == "btnBookmark") {
-
-		QToolButton *btnBookmark = new QToolButton(parent);
-		btnBookmark->setIcon(QIcon(rsrcPath + "/bookmark.png"));
-		btnBookmark->setToolTip(tr("Bookmark Group (Ctrl+D)"));
-		btnBookmark->setShortcut(tr("Ctrl+D"));
-		connect(btnBookmark, SIGNAL(clicked()), mw, SLOT(bookmarkPeakGroup()));
-		return btnBookmark;
-
-	}
 	else if (btnName == "btnCopyCSV") {
 
 		QToolButton *btnCopyCSV = new QToolButton(parent);
@@ -4222,18 +4197,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		return btnIntegrateArea;
 
 	}
-	else if (btnName == "btnAverageSpectra") {
-
-		QToolButton *btnAverageSpectra = new QToolButton(parent);
-		btnAverageSpectra->setIcon(QIcon(rsrcPath + "/averageSpectra.png"));
-		btnAverageSpectra->setToolTip(tr("Average Specta (Ctrl+MouseDrag)"));
-		connect(btnAverageSpectra, SIGNAL(clicked()), mw->getEicWidget(),
-				SLOT(startSpectralAveraging()));
-        connect(btnAverageSpectra,SIGNAL(clicked()),mw,SLOT(analyticsAverageSpectra()));
-		return btnAverageSpectra;
-
-	}
-	else if (btnName == "btnLast") {
+    else if (btnName == "btnLast") {
 
 		QToolButton *btnLast = new QToolButton(parent);
 		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
@@ -4603,33 +4567,39 @@ void MainWindow::normalizeIsotopicMatrix(MatrixXf &MM) {
 	}
 }
 
-MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group) {
-
+MatrixXf MainWindow::getIsotopicMatrix(PeakGroup* group, bool barplot)
+{
 	PeakGroup::QType qtype = getUserQuantType();
-	//get visiable samples
 	vector<mzSample*> vsamples = getVisibleSamples();
 	sort(vsamples.begin(), vsamples.end(), mzSample::compRevSampleOrder);
 
-	//get isotopic groups
 	vector<PeakGroup*> isotopes;
-	for (int i = 0; i < group->childCountBarPlot(); i++) {
-        if (group->childrenBarPlot[i]->isIsotope()) {
-            PeakGroup* isotope = group->childrenBarPlot[i].get();
-			isotopes.push_back(isotope);
-		}
-	}
+    isotopes.push_back(group);
+    if (barplot) {
+        for (auto& child : group->childIsotopesBarPlot())
+            isotopes.push_back(child.get());
+    } else {
+        for (auto& child : group->childIsotopes())
+            isotopes.push_back(child.get());
+    }
+    sort(begin(isotopes),
+         end(isotopes),
+         PeakGroup::compIsotopeLabel);
 
-	MatrixXf MM((int) vsamples.size(), (int) isotopes.size()); //rows=samples, cols=isotopes
+     // rows=samples, cols=isotopes
+    MatrixXf MM((int) vsamples.size(), (int) isotopes.size());
 	MM.setZero();
 
 	for (int i = 0; i < isotopes.size(); i++) {
 		if (!isotopes[i])
 			continue;
-		vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
-				qtype); //sort isotopes by sample
-		for (int j = 0; j < values.size(); j++)
-			MM(j, i) = values[j];  //rows=samples, columns=isotopes
-	}
+
+        // sort isotopes by sample
+        vector<float> values = isotopes[i]->getOrderedIntensityVector(vsamples,
+                                                                      qtype);
+        for (int j = 0; j < values.size(); j++)
+            MM(j, i) = values[j]; // rows=samples, columns=isotopes
+    }
 	normalizeIsotopicMatrix(MM);
 	return MM;
 }
@@ -4646,9 +4616,9 @@ MatrixXf MainWindow::getIsotopicMatrixIsoWidget(PeakGroup* group) {
 	vector<PeakGroup*> isotopes;
 	string delimIsotopic = "C13-label-";
 	string delimParent = "C12 PARENT";
-    for (int i = 0; i < group->childCount(); i++) {
-        if (group->children[i]->isIsotope()) {
-            PeakGroup* isotope = group->children[i].get();
+    for (int i = 0; i < group->childIsotopes().size(); i++) {
+        if (group->childIsotopes()[i]->isIsotope()) {
+            PeakGroup* isotope = group->childIsotopes()[i].get();
 			isotopes.push_back(isotope);
 			if(isotope->tagString.find(delimIsotopic) != string::npos || isotope->tagString.find(delimParent) != string::npos) {
 				if (isotope->tagString.find(delimParent) != string::npos) {

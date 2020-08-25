@@ -69,15 +69,6 @@ class MavenParameters
         }
 
         /**
-        * [set Peak Group]
-        * @method setPeakGroup
-        * @param  p            [pointer to Peak Group]
-        */
-        void setPeakGroup(PeakGroup* p) {
-            _group = p;
-        }
-
-        /**
         * [set Average Scan Time]
         * @method setAverageScanTime
         */
@@ -171,8 +162,10 @@ class MavenParameters
 
         // to allow adduct matching
         bool searchAdducts;
+        bool filterAdductsAgainstParent;
         float adductSearchWindow;
         float adductPercentCorrelation;
+        bool parentAdductRequired;
 
         // Peak Group Rank
         int qualityWeight;
@@ -225,8 +218,12 @@ class MavenParameters
         float minQuality;
         string ligandDbFilename;
 
+        bool filterIsotopesAgainstParent;
+        // even though this says "scan" diff, we actually store time (seconds)
+        // in this variable
         double maxIsotopeScanDiff;
         double minIsotopicCorrelation;
+        bool parentIsotopeRequired;
         bool linkIsotopeRtRange;
         bool C13Labeled_BPE;
         bool N15Labeled_BPE;
@@ -254,7 +251,6 @@ class MavenParameters
         int alignButton;
         MassCalculator mcalc;
         ClassifierNeuralNet* clsf;
-        PeakGroup* _group;
         vector<mzSample*> samples;
         vector<Compound*> compounds;
         vector<mzSlice*> _slices;
@@ -289,6 +285,13 @@ class MavenParameters
          */
         void setIsotopeDialogSettings(const char* key, const char* value);
         
+        /**
+         * @brief Update settings related to adduct detection.
+         * @param key Name of the setting.
+         * @param value Value to be set.
+         */
+        void setAdductsDialogSettings(const char* key, const char* value);
+
         /*
          * @brief update maveSettings(map) and settings related to peak detection
          */

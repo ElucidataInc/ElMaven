@@ -14,7 +14,7 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "numeric_treewidgetitem.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "Peptide.hpp"
 #include "Scan.h"
 #include "spectralhit.h"
@@ -1025,7 +1025,6 @@ void SpectralHitsDockWidget::integrateMS1() {
                    ProteinHit* prot = proteinAccessionMap[cpd->name().c_str()];
                    if (prot) {
                         nearestGrp->tagString=prot->geneSymbol.toStdString();
-                        nearestGrp->metaGroupId=prot->proteinGroup;
                    }
                }
            }

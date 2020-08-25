@@ -10,7 +10,7 @@ TARGET = MavenTests
 QT += testlib network xml
 QT -= gui
 
-CONFIG += qtestlib warn_off console
+CONFIG += qtestlib warn_off cmdline
 CONFIG -= app_bundle
 
 QMAKE_CXXFLAGS +=  -std=c++11
@@ -65,7 +65,6 @@ HEADERS += \
     testMzSlice.h \
     testLoadDB.h \
     testPeakDetection.h \
-    testIsotopeDetection.h \
     testScan.h \
     testEIC.h \
     testbase64.h \
@@ -75,7 +74,6 @@ HEADERS += \
     testCharge.h \
     testSRMList.h \
     testGroupFiltering.h \
-    testIsotopeLogic.h \
     $$top_srcdir/src/cli/peakdetector/peakdetectorcli.h \
     $$top_srcdir/src/core/libmaven/classifier.h \
     $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
@@ -87,7 +85,6 @@ SOURCES += \
     testLoadSamples.cpp \
     testMassCalculator.cpp \
     testPeakDetection.cpp \
-    testIsotopeDetection.cpp \
     testMzSlice.cpp \
     testLoadDB.cpp \
     testScan.cpp \
@@ -99,7 +96,6 @@ SOURCES += \
     testCharge.cpp \
     testSRMList.cpp \
     testGroupFiltering.cpp \
-    testIsotopeLogic.cpp \
     main.cpp \
     $$top_srcdir/src/cli/peakdetector/peakdetectorcli.cpp  \
     $$top_srcdir/src/cli/peakdetector/options.cpp \

@@ -1,7 +1,7 @@
 #include "classifierNeuralNet.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "PeakGroup.h"
 #include "utilities.h"
 
@@ -128,9 +128,7 @@ vector<PeakGroup> TestUtils::getGroupsFromProcessCompounds()
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
-                                                            "compounds");
-    peakDetector.processSlices(slices, "compounds");
+    peakDetector.processCompounds(compounds);
 
     return mavenparameters->allgroups;
 }

@@ -7,7 +7,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "numeric_treewidgetitem.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "peakeditor.h"
 #include "Scan.h"
 #include "ui_peakeditor.h"
@@ -165,8 +165,8 @@ void PeakEditor::_setRtRangeAndValues()
     // find min/max RT limit across isotopologues
     float minRt = rtBounds.first;
     float maxRt = rtBounds.second;
-    if (_group->childCount() > 0) {
-        for (auto child : _group->children) {
+    if (_group->childIsotopeCount() > 0) {
+        for (auto child : _group->childIsotopes()) {
             if (child->peakCount() == 0)
                 continue;
             minRt = min(minRt, child->minRt - rtBuffer);
@@ -178,7 +178,7 @@ void PeakEditor::_setRtRangeAndValues()
             minRt = parentGroup->minRt - rtBuffer;
             maxRt = parentGroup->maxRt + rtBuffer;
         }
-        for (auto child : parentGroup->children) {
+        for (auto child : parentGroup->childIsotopes()) {
             if (child->peakCount() == 0)
                 continue;
             minRt = min(minRt, child->minRt - rtBuffer);
@@ -200,7 +200,9 @@ void PeakEditor::_setRtRangeAndValues()
 
 void PeakEditor::_setSyncRtCheckbox()
 {
-    if (_group->childCount() == 0 && !_group->isIsotope()) {
+    if ((_group->childIsotopeCount() == 0 && !_group->isIsotope())
+        || (_group->parent != nullptr && _group->parent->isGhost())
+        || _group->isAdduct()) {
         ui->syncRtCheckBox->setChecked(false);
         ui->syncRtCheckBox->setEnabled(false);
         return;
@@ -210,7 +212,8 @@ void PeakEditor::_setSyncRtCheckbox()
 
     MavenParameters* parameters = _group->parameters().get();
     if (parameters->linkIsotopeRtRange
-        && (_group->childCount() > 0 || _group->tagString == "C12 PARENT")) {
+        && (_group->childIsotopeCount() > 0
+            || _group->tagString == "C12 PARENT")) {
         ui->syncRtCheckBox->setChecked(true);
     } else {
         ui->syncRtCheckBox->setChecked(false);
@@ -329,15 +332,23 @@ void PeakEditor::_applyEdits()
     }
 
     // lambda: edits peak regions and recalculates a group's statistics
-    auto editGroup = [this](PeakGroup* group, vector<EIC*>& eics) {
+    auto editGroup = [this](PeakGroup* group,
+                            vector<EIC*>& eics,
+                            bool isIsotopologue = false) {
         for (auto& elem : _setPeakRegions) {
             auto sample = elem.first;
             auto rtMin = elem.second.first;
             auto rtMax = elem.second.second;
+
+            // for isotopes being readjusted because of the "sync" feature,
+            // check if there is a range worth syncing with
+            if (isIsotopologue && rtMin < 0.0f && rtMax < 0.0f)
+                return;
+
             _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
         }
+        group->updateQuality();
         group->groupStatistics();
-        qDebug() << group->getName().c_str() << group->meanMz << group->meanRt;
     };
 
     // lambda: obtain full range EICs for the given peak-group
@@ -360,7 +371,7 @@ void PeakEditor::_applyEdits()
         mp->linkIsotopeRtRange = true;
 
         PeakGroup* parentGroup = nullptr;
-        if (_group->childCount() > 0) {
+        if (_group->childIsotopeCount() > 0) {
             parentGroup = _group.get();
         } else if (_group->isIsotope()) {
             parentGroup = _group->parent;
@@ -373,10 +384,10 @@ void PeakEditor::_applyEdits()
         }
 
         auto eics = getEicsForGroup(parentGroup);
-        editGroup(parentGroup, eics);
-        for (auto child : parentGroup->children) {
+        editGroup(parentGroup, eics, (parentGroup != _group.get()));
+        for (auto child : parentGroup->childIsotopes()) {
             eics = getEicsForGroup(child.get());
-            editGroup(child.get(), eics);
+            editGroup(child.get(), eics, (child != _group));
         }
     } else {
         mp->linkIsotopeRtRange = false;

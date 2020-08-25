@@ -8,10 +8,11 @@
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "mavenparameters.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "database.h"
 #include "classifierNeuralNet.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 
 using json = nlohmann::json;
 
@@ -32,7 +33,7 @@ void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
 
     filename << setprecision(10);
     filename << "{\n";
-    filename << "\"groupId\": " << grp.groupId ;
+    filename << "\"groupId\": " << grp.groupId();
 
     filename << ",\n" << "\"label\": ";
     filename << "\"";
@@ -44,7 +45,7 @@ void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
         filename  << ",\n" << "\"ml-label\": " << mlLabel;
     }
 
-    filename << ",\n" << "\"metaGroupId\": " << grp.metaGroupId ;
+    filename << ",\n" << "\"metaGroupId\": " << grp.metaGroupId();
     filename << ",\n" << "\"meanMz\": " << grp.meanMz  ;
     filename << ",\n" << "\"meanRt\": " << grp.meanRt ;
     filename << ",\n" << "\"rtmin\": " << grp.minRt ;
@@ -75,15 +76,11 @@ void JSONReports::_writeCompoundLink(PeakGroup& grp, ofstream& filename)
     filename << ",\n" << "\"srmID\": " << _sanitizeJSONstring(grp.srmId) ;
     filename << ",\n" << "\"tagString\": " << _sanitizeJSONstring(grp.tagString) ;
 
-    string fullTag = grp.srmId + grp.tagString;
-    string fullName = compoundName;
-    string fullID = compoundID;
-    if (fullTag.length()) {
-        fullName = compoundName + " [" + fullTag + "]";
-        fullID = compoundID + " [" + fullTag + "]";
-    }
-    filename << ",\n" << "\"fullCompoundName\": "<< _sanitizeJSONstring(fullName);
-    filename << ",\n" << "\"fullCompoundID\": "<< _sanitizeJSONstring(fullID) ;
+    string adductName = "Unknown";
+    if (grp.adduct() != nullptr)
+        adductName = _sanitizeJSONstring(grp.adduct()->getName());
+    filename << ",\n" << "\"adductName\": " <<  adductName;
+
     filename << "}" ; // compound
 }
 
@@ -263,38 +260,27 @@ void JSONReports::save(string filename, vector<PeakGroup> allgroups, vector<mzSa
     ofstream file(filename.c_str());
     file << setprecision(10);
 
-    file << "{\"groups\": [" <<endl;
+    file << "{\"groups\": [" << endl;
 
-    int groupId = 0;
-    int metaGroupId = 0;
+    auto writeGroup = [this, &samples, &file](PeakGroup& group,
+                                              bool insertNewline) {
+        if (insertNewline)
+            file << "\n,";
+        _writeGroup(group, file);
+        if (group.hasCompoundLink())
+            _writeCompoundLink(group, file);
+        _writePeak(group, file, samples);
+    };
 
-    for(size_t i=0; i < allgroups.size() ; i++ ) {
-        PeakGroup& grp = allgroups[i];
-
-        //if compound is unknown, output only the unlabeled form information
-        if(grp.getCompound() == NULL || grp.childCount() == 0) {
-            grp.groupId = ++groupId;
-            grp.metaGroupId = ++metaGroupId;
-            if(groupId > 1) file<< "\n,";
-            _writeGroup(grp,file);
-            if(grp.hasCompoundLink())
-                _writeCompoundLink(grp, file);
-            _writePeak(grp, file, samples);
-
-        } else {
-            //output all relevant isotope info otherwise
-            //does this work? is children[0] always the same as grp (parent)?
-            grp.metaGroupId = ++metaGroupId;
-            for (auto child : grp.children) {
-                child->metaGroupId = grp.metaGroupId;
-                child->groupId = ++groupId;
-                if(groupId > 1) file << "\n,";
-                _writeGroup(*(child.get()), file);
-                if (child->hasCompoundLink())
-                    _writeCompoundLink(grp, file);
-                _writePeak(*(child.get()), file, samples);
-            }
-        }
+    size_t index = 0;
+    for (PeakGroup& group : allgroups) {
+        if (!group.isGhost())
+            writeGroup(group, index > 0);
+        ++index;
+        for (auto& child : group.childIsotopes())
+            writeGroup(*child, true);
+        for (auto& child : group.childAdducts())
+            writeGroup(*child, true);
     }
     file << "]}"; //groups
     file.close();
@@ -416,11 +402,14 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
         if(!rootInput["groups"][saved]["compound"]["tagString"].is_null())
             tagStringSaved = rootSaved["groups"][saved]["compound"]["tagString"].get<string>();
 
-        string fullCompoundNameInput = rootInput["groups"][input]["compound"]["fullCompoundName"].get<string>();
-        string fullCompoundNameSaved = rootSaved["groups"][saved]["compound"]["fullCompoundName"].get<string>();
-
-        string fullCompoundIDInput = rootInput["groups"][input]["compound"]["fullCompoundID"].get<string>();
-        string fullCompoundIDSaved = rootSaved["groups"][saved]["compound"]["fullCompoundID"].get<string>();
+        string adductNameInput = rootInput["groups"]
+                                          [input]
+                                          ["compound"]
+                                          ["adductName"].get<string>();
+        string adductNameSaved = rootSaved["groups"]
+                                          [saved]
+                                          ["compound"]
+                                          ["adductName"].get<string>();
 
         REQUIRE( compoundIdInput == compoundIdSaved );
         REQUIRE( compoundNameInput == compoundNameSaved );
@@ -429,8 +418,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
         REQUIRE( expectedMzInput == doctest::Approx(expectedMzSaved).epsilon(0.05) );
         REQUIRE( srmIdInput == srmIdSaved );
         REQUIRE( tagStringInput == tagStringSaved );
-        REQUIRE( fullCompoundNameInput == fullCompoundNameSaved );
-        REQUIRE( fullCompoundIDInput == fullCompoundIDSaved );
+        REQUIRE( adductNameInput == adductNameSaved );
 
         for(size_t i = 0; i < rootInput["groups"][input]["peaks"].size(); i++) {
             string sampleNameInput;
@@ -441,6 +429,9 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
 
             REQUIRE(!rootInput["groups"][input]["peaks"][i]["sampleName"].is_null());
             sampleNameSaved = rootSaved["groups"][saved]["peaks"][i]["sampleName"].get<string>();
+
+            if(rootInput["groups"][input]["peaks"][i]["peakMz"].is_string())
+                continue; // the peak data is probably all "NA"
 
             double pMzInput = rootInput["groups"][input]["peaks"][i]["peakMz"].get<double>();
             double pMzSaved = rootSaved["groups"][saved]["peaks"][i]["peakMz"].get<double>();

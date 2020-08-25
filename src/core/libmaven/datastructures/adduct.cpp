@@ -9,7 +9,6 @@ Adduct::Adduct()
     this->_nmol = 0;
     this->_charge = 0;
     this->_mass = 0;
-    this->_mz = 0;
 }
 
 Adduct::Adduct(string name, int nmol, int charge, float mass)
@@ -18,7 +17,6 @@ Adduct::Adduct(string name, int nmol, int charge, float mass)
     this->_nmol = nmol;
     this->_charge = charge;
     this->_mass = mass;
-    this->_mz = 0;
 }
 
 Adduct::Adduct(const Adduct& a)
@@ -27,17 +25,24 @@ Adduct::Adduct(const Adduct& a)
     this->_nmol = a._nmol;
     this->_charge = a._charge;
     this->_mass =  a._mass;
-    this->_mz = a._mz;
 }
 
-bool Adduct::operator ==(const Adduct& other)
+bool Adduct::operator==(const Adduct& other)
 {
     return (_name == other._name
             && _nmol == other._nmol
             && _charge == other._charge
             && mzUtils::almostEqual(_mass, other._mass)
-            && _mz == other._mz
             && isParent() == other.isParent());
+}
+
+bool Adduct::operator<(const Adduct& other)
+{
+    if (_charge != other._charge)
+        return _charge < other._charge;
+    if (_nmol != other._nmol)
+        return _nmol < other._nmol;
+    return _name < other._name;
 }
 
 string Adduct::getName()

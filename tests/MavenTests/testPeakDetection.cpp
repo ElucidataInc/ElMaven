@@ -5,9 +5,8 @@
 #include "EIC.h"
 #include "utilities.h"
 #include "mzSample.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "mavenparameters.h"
-#include "isotopeDetection.h"
 #include "classifierNeuralNet.h"
 
 TestPeakDetection::TestPeakDetection() {
@@ -48,8 +47,7 @@ void TestPeakDetection::testProcessCompound() {
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
-                                                            "compounds");
+    peakDetector.processCompounds(compounds);
 
     QVERIFY(true);
 

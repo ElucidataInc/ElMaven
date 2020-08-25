@@ -29,18 +29,33 @@
 #include <QNetworkReply>
 #include <QHash>
 
+#include "datastructures/isotope.h"
+
+Q_DECLARE_METATYPE(Isotope)
+
 class QAction;
 class QMenu;
 class QTextEdit;
-class AdductWidget;
 class MainWindow;
 class Database;
 class Compound;
+class Adduct;
 
 using namespace std;
 
 class LigandWidget: public QDockWidget {
-      Q_OBJECT
+    Q_OBJECT
+
+    struct LigandTreeState {
+        QString dbName;
+        int charge;
+        bool showingIsotopes;
+        bool showingAdducts;
+        QSet<QString> isotopeTracers;
+        QSet<QString> adductForms;
+
+        bool operator==(const LigandTreeState& other) const;
+    };
 
 public:
     LigandWidget(MainWindow* parent);
@@ -63,7 +78,7 @@ public:
 
 public Q_SLOTS: 
     void setCompoundFocus(Compound* c);
-    void setDatabase(QString dbname);
+    void setDatabase(QString dbname, bool insertIsotopesAndAdducts = true);
     void setFilterString(QString s);
     void showMatches(QString needle);
 
@@ -73,21 +88,29 @@ public Q_SLOTS:
     void resetColor();
 
     void saveCompoundList(QString fileName,QString dbname);
-    void updateTable() { showTable(); }
     void updateCurrentItemData();
 	void matchFragmentation();
 
-    /**
-     * @brief change the color of the compound which is present is peaks table
-     * @param compound pointer to class Compound
-     */
-    void markAsDone(Compound* compound);
+    void showTable(bool insertIsotopesAndAdducts = true);
+
+    void markAsDone(QTreeWidgetItem* item, bool isProxy = false);
 
     /**
-     * @brief Obtain the adduct widget owned by this ligand widget.
-     * @return Pointer to an `AdductWidget`.
+     * @brief Change the color of a compound's entry which is present in the
+     * active peak table.
+     * @param compound Pointer to a `Compound` object that is present.
+     * @param isProxy Whether the compound is only a proxy for its other forms.
      */
-    inline AdductWidget* getAdductWidget() { return adductWidget; }
+    void markAsDone(Compound* compound, bool isProxy = false);
+
+    void markAsDone(Compound* compound, Isotope isotope);
+    void markAsDone(Compound* compound, Adduct* adduct);
+
+    /**
+     * @brief Refreshes the list of isotope and adduct child items under each
+     * compound depending on the current set global state.
+     */
+    void updateIsotopesAndAdducts();
 
 Q_SIGNALS:
     void urlChanged(QString url);
@@ -95,36 +118,27 @@ Q_SIGNALS:
     void databaseChanged(QString dbname);
     void mzrollSetDB(QString dbname);
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private Q_SLOTS:
     void showLigand();
-    void showTable();
     void databaseChanged(int index);
-    void readRemoteData(QNetworkReply* reply);
-    void fetchRemoteCompounds();
-    QList<Compound*> parseXMLRemoteCompounds();
 
 private:
-
+    LigandTreeState _treeState;
+    QMessageBox* _busyMessage;
     QTreeWidget *treeWidget;
     QComboBox *databaseSelect;
     QToolButton *libraryButton;
-    QToolButton* btnAdducts;
     QLineEdit*  filterEditor;
     QPoint dragStartPosition;
-    QHash<Compound *, QTreeWidgetItem *> CompoundsHash;
-
+    QHash<Compound *, QTreeWidgetItem *> compoundsHash;
     MainWindow* _mw;
-    AdductWidget* adductWidget;
     QString filterString;
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , float value);
-    QTreeWidgetItem* addItem(QTreeWidgetItem* parentItem, string key , string value);
+
     void readCompoundXML(QXmlStreamReader& xml, string dbname);
-
-    QNetworkAccessManager* m_manager;
-
-    int connectionId;
-    QXmlStreamReader xml;
-
+    LigandTreeState _currentState();
 };
 
 #endif

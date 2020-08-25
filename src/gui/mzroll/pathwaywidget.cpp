@@ -1,7 +1,7 @@
 #include "Compound.h"
 #include "Matrix.h"
 #include "animationcontrol.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "edge.h"
 #include "eicwidget.h"
 #include "enzyme_node.h"
@@ -11,7 +11,7 @@
 #include "mzSample.h"
 #include "node.h"
 #include "pathwaywidget.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "projectdockwidget.h"
 #include "tinyplot.h"
 #include "widgets/qprog.h"
@@ -74,7 +74,7 @@ PathwayWidget::PathwayWidget(MainWindow* parent) {
 	setTimerMaxSteps(0);
 	setTimerSpeed(50);
 
-	workerThread = new BackgroundPeakUpdate(mw);
+    workerThread = new BackgroundOpsThread(mw);
 	workerThread->setMainWindow(mw);
 
 	connect(workerThread, SIGNAL(finished()), this,
@@ -182,10 +182,6 @@ void PathwayWidget::recalculateConcentrations() {
 void PathwayWidget::checkCompoundExistance() {
 	//cerr << "PathwayWidget::checkCompoundExistance() force=" << _forceUpdate << endl;
 
-	if (workerThread->isRunning()) {
-		workerThread->stop();
-		workerThread->wait(10);
-	}
 	if (workerThread->isRunning())
 		return;
 
@@ -340,7 +336,7 @@ void PathwayWidget::setCompound(Compound* c) {
 		if (list.size() > 1)
 			compoundId = list[0];
 		string id = compoundId.toStdString();
-		auto compoundsDB = DB.getCompoundsDB();
+		auto compoundsDB = DB.compoundsDB();
 		for (int i = 0; i < compoundsDB.size(); i++) {
                         if (compoundsDB[i]->db() == "KEGG"
                                         && compoundsDB[i]->id() == id) {
@@ -687,7 +683,7 @@ void PathwayWidget::contextMenuEvent(QContextMenuEvent * event) {
 	connect(e4, SIGNAL(toggled(bool)), SLOT(showEnzymes(bool)));
 
         MavenParameters* mavenParameters =
-            workerThread->peakDetector->getMavenParameters();
+            workerThread->peakDetector->mavenParameters();
 
 	QAction* e2 = options.addAction("Show Isotopes");
 	e2->setCheckable(true);
@@ -1131,7 +1127,7 @@ void PathwayWidget::showCofactors(bool flag) {
 void PathwayWidget::calculateIsotopes(bool flag) {
 	if (workerThread) {
             MavenParameters* mavenParameters =
-                workerThread->peakDetector->getMavenParameters();
+                workerThread->peakDetector->mavenParameters();
 		mavenParameters->pullIsotopesFlag = flag;
 	}
 

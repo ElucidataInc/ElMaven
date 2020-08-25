@@ -10,7 +10,7 @@ class MetaboliteNode;
 class Node;
 class EnzymeNode;
 class MainWindow;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class BarPlot;
 class TinyPlot;
 class Reaction;
@@ -130,7 +130,7 @@ protected:
 
 
     AnimationControl* 	  animationControl;
-    BackgroundPeakUpdate* workerThread;
+    BackgroundOpsThread* workerThread;
     TinyPlot*		  	  tinyPlot;
 
 

@@ -682,6 +682,39 @@ namespace mzUtils
     }
 
     /**
+     * @brief Removes elements at given indexes from a vector. Please note, that
+     * this function will disturb the order of elements in the vector being
+     * filtered.
+     * @param vec The vector that has to be filtered.
+     * @param indexesToErase A vector of indexes to be removed from `vec`. No
+     * element should be greater than or equal to the size of `vec`.
+     */
+    template<typename T>
+    inline void eraseIndexes(vector<T>& vec, vector<size_t>& indexesToErase)
+    {
+        sort(begin(indexesToErase), end(indexesToErase), greater<size_t>());
+        for (size_t index : indexesToErase) {
+            vec[index] = vec.back();
+            vec.pop_back();
+        }
+    }
+
+    /**
+     * @brief Inserts an element into a sorted vector, at a position such that
+     * the sort order is preserved.
+     * @param vec The container vector to be inserted into.
+     * @param item The item to be inserted.
+     * @param pred The predicate that will be used to compare two items in the
+     * vector. This predicate should represent the order logic itself.
+     */
+    template<typename T, typename Predicate>
+    typename vector<T>::iterator
+    insertSorted(vector<T>& vec, T const& item, Predicate pred)
+    {
+        return vec.insert(upper_bound(begin(vec), end(vec), item, pred), item);
+    }
+
+    /**
      * @brief Zeroth-order modified bessel function of the first kind.
      * @param x Argument for the modified bessel function.
      * @return Solution to the bessel equation for the given argument.

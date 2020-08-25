@@ -144,10 +144,10 @@ win32 {
 INSTALLS += sources target
 
 FORMS = forms/settingsform.ui  \
+        forms/isotopeswidget.ui \
         forms/librarymanager.ui \
         forms/masscalcwidget.ui \
     #	forms/ligandwidget.ui \
-        forms/isotopeswidget.ui \
         forms/peakdetectiondialog.ui \
         forms/pollyelmaveninterface.ui \
         forms/comparesamplesdialog.ui \
@@ -172,8 +172,10 @@ FORMS = forms/settingsform.ui  \
         forms/groupsettingslog.ui
 
 HEADERS += stable.h \
+           backgroundopsthread.h \
            globals.h \
            infodialog.h \
+           isotopeswidget.h \
            librarymanager.h \
            mainwindow.h \
            tinyplot.h \
@@ -184,7 +186,6 @@ HEADERS += stable.h \
            pathwaywidget.h \
            graphwidget.h \
            settingsform.h \
-           background_peaks_update.h \
            isotopeplot.h\
            barplot.h \
            boxplot.h \
@@ -195,7 +196,6 @@ HEADERS += stable.h \
            plot_axes.h \
            spectrawidget.h\
            masscalcgui.h \
-           isotopeswidget.h \
            ligandwidget.h \
            eicwidget.h \
            peakdetectiondialog.h \
@@ -250,7 +250,9 @@ HEADERS += stable.h \
            projectsaveworker.h
 
 SOURCES += mainwindow.cpp  \
+           backgroundopsthread.cpp \
            infodialog.cpp \
+           isotopeswidget.cpp \
            librarymanager.cpp \
            plotdock.cpp \
            spectralhit.cpp \
@@ -262,7 +264,6 @@ SOURCES += mainwindow.cpp  \
            graphwidget.cpp \
            pathwaywidget.cpp \
            settingsform.cpp \
-           background_peaks_update.cpp \
            isotopeplot.cpp \
            barplot.cpp \
            boxplot.cpp \
@@ -271,7 +272,6 @@ SOURCES += mainwindow.cpp  \
            history.cpp \
            spectrawidget.cpp \
            masscalcgui.cpp \
-           isotopeswidget.cpp \
            ligandwidget.cpp \
            main.cpp \
            eicwidget.cpp \

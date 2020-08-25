@@ -16,7 +16,7 @@ import pandas as pd
 script_url = (
     'https://gist.githubusercontent.com/saifulbkhan/'
     '045001391c2aee5b0dd5fbf059f65b3b/raw/'
-    'c14cbf8ccce693c08f8ec7980367bd5c073653a8/gen_reports.py'
+    'c61cb49e04bf11a14fbbdac50dda298458ff3e5a/gen_reports.py'
 )
 
 bin_path = path.abspath(path.join(path.dirname(__file__), '..', '..', 'bin'))

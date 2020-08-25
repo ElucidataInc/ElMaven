@@ -24,7 +24,7 @@ class VideoPlayer;
 class SettingsForm;
 class EicWidget;
 class PlotDockWidget;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class PeakDetectionDialog;
 class PollyElmavenInterfaceDialog;
 class AwsBucketCredentialsDialog;
@@ -142,7 +142,7 @@ public:
 	QDockWidget *alignmentVizAllGroupsDockWidget;
 	QDockWidget *pathwayDockWidget;
 	QDockWidget *heatMapDockWidget;
-	QDockWidget *scatterDockWidget;
+    ScatterPlot *scatterDockWidget;
 	QDockWidget *treeMapDockWidget;
 	LogWidget *logWidget;
 	ProjectDockWidget *projectDockWidget;
@@ -167,9 +167,6 @@ public:
     //Added when merged with Maven776 - Kiran
     Pillow::HttpServer*	  embededhttpserver;
 	QProgressBar *progressBar;
-
-	Compound * threadCompound;
-
 
 	int sampleCount() {
 		return samples.size();
@@ -209,7 +206,7 @@ public:
 
         LibraryManager* getLibraryManager() { return _libraryManager; }
 
-	MatrixXf getIsotopicMatrix(PeakGroup* group);
+    MatrixXf getIsotopicMatrix(PeakGroup* group, bool barplot = false);
 	MatrixXf getIsotopicMatrixIsoWidget(PeakGroup* group);
 	void isotopeC13Correct(MatrixXf& MM, int numberofCarbons, map<unsigned int, string> carbonIsotopeSpecies);
     void autoSaveSignal(QList<shared_ptr<PeakGroup>> groups = {});
@@ -272,6 +269,13 @@ public:
      * @return Pointer to the `TableDockWidget` recognized as the active table.
      */
     TableDockWidget* activeTable();
+
+    /**
+     * @brief Get the unique table for the given table ID.
+     * @param tableId The table ID of the desired table.
+     * @return A pointer to the desired table if found, `nullptr` otherwise.
+     */
+    TableDockWidget* tableForTableId(int tableId);
 
 Q_SIGNALS:
 	void valueChanged(int newValue);
@@ -341,8 +345,10 @@ public Q_SLOTS:
 	void Align();
 	void UndoAlignment();
 	void spectaFocused(Peak* _peak);
-	bool checkCompoundExistance(Compound* c);
-	void setCompoundFocus(Compound* c);
+    bool checkCompoundExistance(Compound* c);
+    void setCompoundFocus(Compound* compound,
+                          Isotope isotope = Isotope(),
+                          Adduct* adduct = nullptr);
 	void setPathwayFocus(Pathway* p);
 	void showFragmentationScans(float pmz);
 	QString groupTextExport(PeakGroup* group);
@@ -350,7 +356,6 @@ public Q_SLOTS:
     shared_ptr<PeakGroup> bookmarkPeakGroup(shared_ptr<PeakGroup> group);
 	void setClipboardToGroup(PeakGroup* group);
 	// void bookmarkPeakGroup();
-    shared_ptr<PeakGroup> bookmarkPeakGroup();
 	void reorderSamples(PeakGroup* group);
 	void findCovariants(Peak* _peak);
 	void reportBugs();
@@ -387,7 +392,7 @@ public Q_SLOTS:
 	//Added when merging with Maven776 - Kiran
     void removePeaksTable(TableDockWidget*);
     void removeAllPeakTables();
-	BackgroundPeakUpdate* newWorkerThread(QString funcName);
+	BackgroundOpsThread* newWorkerThread(QString funcName);
 	QWidget* eicWidgetController();
 	QWidget* pathwayWidgetController();
     void saveSettings();

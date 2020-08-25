@@ -352,6 +352,14 @@ public:
     void deletePeakGroup(PeakGroup* group);
 
     /**
+     * @brief Check whether the given compound already has an entry in the
+     * database.
+     * @param The compound to be checked.
+     * @return `true` if compound already exists, `false` otherwise.
+     */
+    bool compoundExists(Compound* compound);
+
+    /**
      * @brief Get the names of all the peak group tables present.
      * @return A vector of strings as names of search tables.
      */
@@ -472,15 +480,6 @@ private:
      * @param samples A vector of mzSample objects to be assigned with an ID.
      */
     void _assignSampleIds(const vector<mzSample*>& samples);
-
-    /**
-     * @brief Returns a filler adduct object whose name can later be used to
-     * find and assign an adduct with correct values.
-     * @param name Name of the adduct that will be used to match adducts from
-     * DB.
-     * @return Pointer to an `Adduct` object.
-     */
-    Adduct* _findAdductByName(string name);
 
     /**
      * @brief Find compound with the given ID and name from the given database.

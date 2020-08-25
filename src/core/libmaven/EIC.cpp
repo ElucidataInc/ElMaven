@@ -1013,17 +1013,19 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         return pgroups;
 
     //find peaks in merged eic
-    m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+    if (slice->compound != nullptr && !slice->isotope.isParent()) {
+        m->setFilterSignalBaselineDiff(mp->isotopicMinSignalBaselineDifference);
+    } else {
+        m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
+    }
     m->getPeakPositions(mp->eic_smoothingWindow);
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
     for (unsigned int i = 0; i < m->peaks.size(); i++) {
         PeakGroup grp(mp, integrationType);
-        grp.groupId = i;
-        if (slice) {
+        grp.setGroupId(i);
+        if (slice)
             grp.setSlice(*slice);
-            grp.setAdduct(slice->adduct);
-        }
         grp.setSelectedSamples(samples);
         pgroups.push_back(grp);
     }
@@ -1102,7 +1104,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
             {
                 PeakGroup grp(mp, integrationType);
                 pgroups.push_back(grp);
-                grp.groupId = pgroups.size() + 1;
+                grp.setGroupId(pgroups.size() + 1);
                 grp.setSlice(*slice);
                 grp.addPeak(b);
                 b.groupOverlap = 0;

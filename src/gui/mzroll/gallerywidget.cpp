@@ -8,7 +8,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "Peak.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "PeakGroup.h"
 #include "Scan.h"
 #include "statistics.h"
@@ -108,7 +108,7 @@ void GalleryWidget::addEicPlots(PeakGroup* group)
                                         eic->sample->color[2],
                                         0.5);
 
-        Peak* samplePeak = group->getSamplePeak(eic->sample);
+        Peak* samplePeak = group->getPeak(eic->sample);
         float peakRtMin = -1.0f;
         float peakRtMax = -1.0f;
         if (samplePeak != nullptr) {

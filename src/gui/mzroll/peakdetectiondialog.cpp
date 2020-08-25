@@ -4,7 +4,7 @@
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
-#include "background_peaks_update.h"
+#include "backgroundopsthread.h"
 #include "classifierNeuralNet.h"
 #include "database.h"
 #include "ligandwidget.h"
@@ -13,7 +13,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "peakdetectiondialog.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "tabledockwidget.h"
 #include "videoplayer.h"
 
@@ -42,9 +42,6 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
-    settings.insert("searchAdducts", QVariant::fromValue(pd->searchAdducts));
-    settings.insert("adductSearchWindow", QVariant::fromValue(pd->adductSearchWindow));
-    settings.insert("adductPercentCorrelation", QVariant::fromValue(pd->adductPercentCorrelation));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -131,7 +128,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         massCutoffType = "ppm";
         peakSettings = new PeakDetectionSettings(this);
 
-        peakupdater = new BackgroundPeakUpdate(this);
+        peakupdater = new BackgroundOpsThread(this);
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
         _inDetectionMode = false;
@@ -177,18 +174,6 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SIGNAL(valueChanged(double)),
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
-        connect(searchAdducts,
-                &QCheckBox::toggled,
-                [this](const bool checked)
-                {
-                    QString state = checked? "On" : "Off";
-                    this->mainwindow
-                        ->getAnalytics()
-                        ->hitEvent("Peak Detection",
-                                   "Adduct Detection Swtiched",
-                                   state);
-                    _setAdductWindowState();
-                });
         connect(loadModelButton,SIGNAL(clicked()),this,SLOT(loadModel()));
 
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
@@ -247,6 +232,7 @@ void PeakDetectionDialog::closeEvent(QCloseEvent* event)
 
     // update maven peak settings on close-event ('close' or 'cancel' button)
     emit updateSettings(peakSettings);
+    QDialog::closeEvent(event);
 }
 
 void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
@@ -255,6 +241,7 @@ void PeakDetectionDialog::keyPressEvent(QKeyEvent *event)
         event->ignore();
         return;
     }
+    QDialog::keyPressEvent(event);
 }
 
 void PeakDetectionDialog::dbSearchClicked()
@@ -262,13 +249,10 @@ void PeakDetectionDialog::dbSearchClicked()
     if (dbSearch->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(0);
         featureOptions->setChecked(false);
-        searchAdducts->setEnabled(true);
         toggleFragmentation();
     } else {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         featureOptions->setChecked(true);
-        searchAdducts->setChecked(false);
-        searchAdducts->setEnabled(false);
     }
     toggleFragmentation();
 }
@@ -289,12 +273,9 @@ void PeakDetectionDialog::featureOptionsClicked()
     if (featureOptions->isChecked()) {
         mainwindow->alignmentDialog->peakDetectionAlgo->setCurrentIndex(1);
         dbSearch->setChecked(false);
-        searchAdducts->setChecked(false);
-        searchAdducts->setEnabled(false);
         toggleFragmentation();
     } else {
         dbSearch->setChecked(true);
-        searchAdducts->setEnabled(true);
     }
     toggleFragmentation();
 }
@@ -352,7 +333,7 @@ void PeakDetectionDialog::show() {
 
     mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
-    peakupdater = new BackgroundPeakUpdate(this);
+    peakupdater = new BackgroundOpsThread(this);
     if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
     connect(peakupdater, SIGNAL(updateProgressBar(QString,int,int)),
@@ -443,8 +424,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         //match fragmentation only enabled during targeted detection with NIST library
         toggleFragmentation();
 
-        _setAdductWindowState();
-
         if (matchRt->isChecked()) {
             compoundRTWindow->setEnabled(true);
         } else {
@@ -506,17 +485,6 @@ void PeakDetectionDialog::toggleFragmentation()
     }
 }
 
-void PeakDetectionDialog::_setAdductWindowState()
-{
-    if (searchAdducts->isChecked()) {
-        adductSearchWindow->setEnabled(true);
-        adductPercentCorrelation->setEnabled(true);
-    } else {
-        adductSearchWindow->setEnabled(false);
-        adductPercentCorrelation->setEnabled(false);
-    }
-}
-
 void PeakDetectionDialog::setDetectionMode(bool detectionModeOn)
 {
     _inDetectionMode = detectionModeOn;
@@ -569,8 +537,6 @@ void PeakDetectionDialog::findPeaks()
     updateQSettingsWithUserInput(settings);
     setMavenParameters(settings);
 
-    mainwindow->setTotalCharge();
-
     QString dbName = "";
     QString mode = "";
     if (dbSearch->isChecked() && !(featureOptions->isChecked())) {
@@ -608,7 +574,7 @@ void PeakDetectionDialog::findPeaks()
            SLOT(addPeakGroup(PeakGroup*)));
     connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
     connect(peakupdater,
-            &BackgroundPeakUpdate::finished,
+            &BackgroundOpsThread::finished,
             this,
             [this] {
                 mainwindow->mavenParameters->allgroups.clear();
@@ -621,7 +587,7 @@ void PeakDetectionDialog::findPeaks()
 
     // RUN THREAD
     if (_featureDetectionType == FullSpectrum)
-        runBackgroupJob("processMassSlices");
+        runBackgroupJob("findFeatures");
     else
         runBackgroupJob("computePeaks");
 

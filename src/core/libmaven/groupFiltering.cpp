@@ -20,10 +20,8 @@ GroupFiltering::GroupFiltering(MavenParameters *mavenParameters, mzSlice* slice)
 
 void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
 {
-
-    unsigned int i = 0;
-    while (i < peakgroups.size())
-    {
+    size_t i = 0;
+    while (i < peakgroups.size()) {
         if (filterByMS1(peakgroups[i]))
         {
             peakgroups.erase(peakgroups.begin() + i);
@@ -47,7 +45,7 @@ void GroupFiltering::filter(vector<PeakGroup> &peakgroups)
             continue;
         }
 
-        i++;
+        ++i;
     }
 
 }
@@ -122,6 +120,77 @@ bool GroupFiltering::filterByMS2(PeakGroup& peakgroup)
         return true;
     
     return false;
+}
+
+void GroupFiltering::filterBasedOnParent(PeakGroup& parent,
+                                         GroupFiltering::ChildFilterType type,
+                                         float maxRtDeviation,
+                                         float minPercentCorrelation,
+                                         MassCutoff* massCutoff)
+{
+    auto possibleChildren = parent.childIsotopes();
+    if (type == ChildFilterType::BarplotIsotope) {
+        possibleChildren = parent.childIsotopesBarPlot();
+    } else if (type == ChildFilterType::Adduct) {
+        possibleChildren = parent.childAdducts();
+    }
+
+    vector<PeakGroup*> nonChildren;
+    for (auto& child : possibleChildren) {
+        float rtDeviationSum = 0.0f;
+        int numSamplesShared = 0;
+        for (auto sample : _mavenParameters->samples) {
+            auto childPeak = child->getPeak(sample);
+            auto parentPeak = parent.getPeak(sample);
+            if (parentPeak == nullptr || childPeak == nullptr)
+                continue;
+
+            ++numSamplesShared;
+            auto childApexRt = childPeak->rt;
+            auto parentApexRt = parentPeak->rt;
+            // calculate deviation in seconds (from minutes)
+            auto deviation = abs(childApexRt - parentApexRt) * 60.0f;
+            rtDeviationSum += deviation;
+        }
+        if (numSamplesShared == 0)
+            continue;
+
+        float avgRtDeviation = rtDeviationSum
+                               / static_cast<float>(numSamplesShared);
+        if (avgRtDeviation > maxRtDeviation)
+            nonChildren.push_back(child.get());
+    }
+
+    for (auto& child : possibleChildren) {
+        float corrSum = 0.0f;
+        int numSamplesShared = 0;
+        for (auto sample : _mavenParameters->samples) {
+            auto parentPeak = parent.getPeak(sample);
+            if (!parentPeak)
+                continue;
+
+            auto deviation = maxRtDeviation / 60.0f; // seconds to minutes
+            double corr = sample->correlation(parent.meanMz,
+                                              child->meanMz,
+                                              massCutoff,
+                                              parentPeak->rtmin - deviation,
+                                              parentPeak->rtmax + deviation,
+                                              _mavenParameters->eicType,
+                                              _mavenParameters->filterline);
+            corrSum += corr;
+            ++numSamplesShared;
+        }
+        if (numSamplesShared == 0)
+            continue;
+
+        float avgPercentCorr = corrSum / static_cast<float>(numSamplesShared)
+                               * 100.0f;
+        if (avgPercentCorr < minPercentCorrelation)
+            nonChildren.push_back(child.get());
+    }
+
+    for (auto group : nonChildren)
+        parent.removeChild(group);
 }
 
 bool GroupFiltering::quantileFilters(PeakGroup *group) {

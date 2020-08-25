@@ -13,7 +13,7 @@
 #include "mzMassCalculator.h"
 #include "mzAligner.h"
 #include "mzSample.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "projectversioning.h"
 #include "Scan.h"
 #include "schema.h"
@@ -182,6 +182,16 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     if (!group)
         return -1;
 
+    if (group->isGhost()) {
+        int ghostId = -1;
+        for (auto child: group->childIsotopes())
+            saveGroupAndPeaks(child.get(), ghostId, tableName);
+        for (auto child: group->childAdducts())
+            saveGroupAndPeaks(child.get(), ghostId, tableName);
+
+        return ghostId;
+    }
+
     // skip deleted groups
     if (group->deletedFlag)
         return -1;
@@ -228,18 +238,26 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :slice_rt_max                       \
                      , :slice_ion_count                    \
                      , :table_group_id                     \
-                     , :integration_type                   )");
+                     , :integration_type                   \
+                     , :isotope_c13_count                  \
+                     , :isotope_n15_count                  \
+                     , :isotope_s34_count                  \
+                     , :isotope_h2_count                   )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
-    groupsQuery->bind(":table_group_id", group->groupId);
-    groupsQuery->bind(":meta_group_id", group->metaGroupId);
-    groupsQuery->bind(":tag_string", group->tagString);
+    groupsQuery->bind(":table_group_id", group->groupId());
+    groupsQuery->bind(":meta_group_id", group->metaGroupId());
 
+    groupsQuery->bind(":tag_string", group->tagString);
     auto expectedMz = group->getExpectedMz(group->parameters()->ionizationMode);
     groupsQuery->bind(":expected_mz", expectedMz);
+    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
+    groupsQuery->bind(":isotope_c13_count", group->isotope().C13);
+    groupsQuery->bind(":isotope_n15_count", group->isotope().N15);
+    groupsQuery->bind(":isotope_s34_count", group->isotope().S34);
+    groupsQuery->bind(":isotope_h2_count", group->isotope().H2);
 
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
-    groupsQuery->bind(":expected_abundance", group->getExpectedAbundance());
     groupsQuery->bind(":group_rank", group->groupRank);
     groupsQuery->bind(":label", string(1, group->label));
     groupsQuery->bind(":type", static_cast<int>(group->type()));
@@ -267,8 +285,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":fragmentation_num_matches",
                       group->fragMatchScore.numMatches);
 
-    groupsQuery->bind(":adduct_name", group->getAdduct()
-                                          ? group->getAdduct()->getName() : "");
+    groupsQuery->bind(":adduct_name", group->adduct()
+                                          ? group->adduct()->getName() : "");
 
     groupsQuery->bind(":compound_id",
                       group->getCompound() ? group->getCompound()->id() : "");
@@ -309,7 +327,9 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     saveGroupPeaks(group, lastInsertedGroupId);
     saveGroupSettings(group, lastInsertedGroupId);
 
-    for (auto child: group->children)
+    for (auto child: group->childIsotopes())
+        saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
+    for (auto child: group->childAdducts())
         saveGroupAndPeaks(child.get(), lastInsertedGroupId, tableName);
 
     return lastInsertedGroupId;
@@ -831,7 +851,11 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :adduct_search_window             \
                      , :adduct_percent_correlation       \
                      , :alignment_algorithm              \
-                     , :active_table_name                )");
+                     , :active_table_name                \
+                     , :filter_isotopes_against_parent   \
+                     , :filter_adducts_against_parent    \
+                     , :parent_isotope_required          \
+                     , :parent_adduct_required           )");
     return cursor;
 }
 
@@ -873,8 +897,10 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":n15_label_bpe", BINT(settingsMap.at("N15LabelBPE")));
     settingsQuery->bind(":s34_label_bpe", BINT(settingsMap.at("S34LabelBPE")));
 
+    settingsQuery->bind(":filter_isotopes_against_parent", BINT(settingsMap.at("filterIsotopesAgainstParent")));
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
-    settingsQuery->bind(":max_isotope_scan_diff", BINT(settingsMap.at("maxIsotopeScanDiff")));
+    settingsQuery->bind(":max_isotope_scan_diff", BDOUBLE(settingsMap.at("maxIsotopeScanDiff")));
+    settingsQuery->bind(":parent_isotope_required", BINT(settingsMap.at("parentIsotopeRequired")));
     settingsQuery->bind(":link_isotope_rt_range", BINT(settingsMap.at("linkIsotopeRtRange")));
 
     settingsQuery->bind(":eic_type", BINT(settingsMap.at("eicType")));
@@ -910,8 +936,10 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":compound_rt_window", BDOUBLE(settingsMap.at("compoundRtWindow")));
     settingsQuery->bind(":limit_groups_per_compound", BINT(settingsMap.at("limitGroupsPerCompound")));
     settingsQuery->bind(":search_adducts", BINT(settingsMap.at("searchAdducts")));
+    settingsQuery->bind(":filter_adducts_against_parent", BINT(settingsMap.at("filterAdductsAgainstParent")));
     settingsQuery->bind(":adduct_search_window", BDOUBLE(settingsMap.at("adductSearchWindow")));
     settingsQuery->bind(":adduct_percent_correlation", BDOUBLE(settingsMap.at("adductPercentCorrelation")));
+    settingsQuery->bind(":parent_adduct_required", BINT(settingsMap.at("parentAdductRequired")));
 
     settingsQuery->bind(":match_fragmentation", BINT(settingsMap.at("matchFragmentation")));
     settingsQuery->bind(":min_frag_match_score", BDOUBLE(settingsMap.at("minFragMatchScore")));
@@ -1101,8 +1129,8 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         PeakGroup* group = nullptr;
 
         int databaseId = groupsQuery->integerValue("group_id");
-        PeakGroup::IntegrationType integrationType =
-            static_cast<PeakGroup::IntegrationType>(groupsQuery->integerValue("integration_type"));
+        auto integrationType = static_cast<PeakGroup::IntegrationType>(
+            groupsQuery->integerValue("integration_type"));
         if (settings.count(databaseId)) {
             auto mp = fromMaptoParameters(settings.at(databaseId),
                                           globalParams);
@@ -1113,15 +1141,8 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
                                   integrationType);
         }
 
-        group->groupId = groupsQuery->integerValue("table_group_id");
+        group->setGroupId(groupsQuery->integerValue("table_group_id"));
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
-        group->metaGroupId = groupsQuery->integerValue("meta_group_id");
-
-        auto tagString = groupsQuery->stringValue("tag_string");
-        auto expectedMz = groupsQuery->floatValue("expected_mz");
-        auto expectedAbundance = groupsQuery->floatValue("expected_abundance");
-        if (tagString != "" && expectedMz > 0.0f && expectedAbundance > 0.0f)
-            group->tagIsotope(tagString, expectedMz, expectedAbundance);
 
         group->groupRank = groupsQuery->floatValue("group_rank");
         group->label = groupsQuery->stringValue("label")[0];
@@ -1154,17 +1175,10 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
         string compoundName = groupsQuery->stringValue("compound_name");
-        string adductName = groupsQuery->stringValue("adduct_name");
 
         string srmId = groupsQuery->stringValue("srm_id");
         if (!srmId.empty())
             group->setSrmId(srmId);
-
-        if (!adductName.empty()) {
-            group->setAdduct(_findAdductByName(adductName));
-        } else {
-            group->setAdduct(nullptr);
-        }
 
         if (!compoundId.empty()) {
             Compound* compound = _findSpeciesByIdAndName(compoundId,
@@ -1197,6 +1211,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             }
         }
 
+        string adductName = groupsQuery->stringValue("adduct_name");
         float sliceMzMin = groupsQuery->doubleValue("slice_mz_min");
         float sliceMzMax = groupsQuery->doubleValue("slice_mz_max");
         float sliceRtMin = groupsQuery->doubleValue("slice_rt_min");
@@ -1206,6 +1221,22 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         slice.ionCount = sliceIonCount;
         slice.srmId = group->srmId;
         slice.compound = group->getCompound();
+
+        // NOTE: the correct adduct pointer will have to be assigned later
+        if (!adductName.empty())
+            slice.adduct = new Adduct(adductName, 0, 0, 0.0f);
+
+        Isotope isotope;
+        isotope.name = groupsQuery->stringValue("tag_string");
+        isotope.mass = groupsQuery->floatValue("expected_mz");
+        isotope.abundance = groupsQuery->floatValue("expected_abundance");
+        isotope.C13 = groupsQuery->floatValue("isotope_c13_count");
+        isotope.N15 = groupsQuery->floatValue("isotope_n15_count");
+        isotope.S34 = groupsQuery->floatValue("isotope_s34_count");
+        isotope.H2 = groupsQuery->floatValue("isotope_h2_count");
+        if (!isotope.isNone())
+            slice.isotope = isotope;
+
         group->setSlice(slice);
 
         loadGroupPeaks(group, databaseId, loaded);
@@ -1225,16 +1256,20 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         auto child = pair.first;
         for (auto idGroupPair : databaseIdForGroups) {
             if (idGroupPair.first == pair.second) {
-                idGroupPair.second->addChild(*child);
+                if (child->isIsotope()) {
+                    idGroupPair.second->addIsotopeChild(*child);
+                } else if (child->isAdduct()) {
+                    idGroupPair.second->addAdductChild(*child);
+                }
                 foundParent = true;
                 break;
             }
         }
-        // failed to find a parent group, become a parent
+
+        // failed to find a parent group, add standalone non-parent group
         if (!foundParent)
             groups.push_back(child);
     }
-
 
     cerr << "Debug: Read in " << groups.size() << " groups" << endl;
     return groups;
@@ -1555,8 +1590,10 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
     settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
 
+    settingsMap["filterIsotopesAgainstParent"] = variant(settingsQuery->integerValue("filter_isotopes_against_parent"));
     settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
-    settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->integerValue("max_isotope_scan_diff"));
+    settingsMap["maxIsotopeScanDiff"] = variant(settingsQuery->doubleValue("max_isotope_scan_diff"));
+    settingsMap["parentIsotopeRequired"] = variant(settingsQuery->integerValue("parent_isotope_required"));
     settingsMap["linkIsotopeRtRange"] = variant(settingsQuery->integerValue("link_isotope_rt_range"));
 
     settingsMap["eicType"] = variant(settingsQuery->integerValue("eic_type"));
@@ -1591,9 +1628,12 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["matchRt"] = variant(settingsQuery->integerValue("match_rt"));
     settingsMap["compoundRtWindow"] = variant(settingsQuery->doubleValue("compound_rt_window"));
     settingsMap["limitGroupsPerCompound"] = variant(settingsQuery->integerValue("limit_groups_per_compound"));
+
     settingsMap["searchAdducts"] = variant(settingsQuery->integerValue("search_adducts"));
+    settingsMap["filterAdductsAgainstParent"] = variant(settingsQuery->integerValue("filter_adducts_against_parent"));
     settingsMap["adductSearchWindow"] = variant(settingsQuery->doubleValue("adduct_search_window"));
     settingsMap["adductPercentCorrelation"] = variant(settingsQuery->doubleValue("adduct_percent_correlation"));
+    settingsMap["parentAdductRequired"] = variant(settingsQuery->integerValue("parent_adduct_required"));
 
     settingsMap["matchFragmentation"] = settingsQuery->integerValue("match_fragmentation");
     settingsMap["minFragMatchScore"] = variant(settingsQuery->doubleValue("min_frag_match_score"));
@@ -1778,9 +1818,9 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
 
     string tableName = group->tableName();
     vector<int> selectedGroups;
-    selectedGroups.push_back(group->groupId);
-    for (const auto child : group->children)
-        selectedGroups.push_back(child->groupId);
+    selectedGroups.push_back(group->groupId());
+    for (const auto child : group->childIsotopes())
+        selectedGroups.push_back(child->groupId());
 
     if (selectedGroups.size() == 0)
         return;
@@ -1817,6 +1857,24 @@ void ProjectDatabase::deletePeakGroup(PeakGroup* group)
     }
 
     _connection->commit();
+}
+
+bool ProjectDatabase::compoundExists(Compound *compound)
+{
+    auto query = _connection->prepare(
+        "SELECT COUNT(*) AS compound_count \
+           FROM compounds                  \
+          WHERE compound_id = :compound_id \
+            AND db_name = :compound_db     \
+            AND name = :compound_name      ");
+    query->bind(":compound_id", compound->id());
+    query->bind(":db_name", compound->db());
+    query->bind(":name", compound->name());
+
+    int compoundCount = 0;
+    while (query->next())
+        compoundCount = query->integerValue("compound_count");
+    return compoundCount > 0;
 }
 
 vector<string> ProjectDatabase::getTableNames()
@@ -1924,8 +1982,10 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["N15LabelBPE"] = static_cast<int>(mp->N15Labeled_BPE);
     settingsMap["S34LabelBPE"] = static_cast<int>(mp->S34Labeled_BPE);
 
+    settingsMap["filterIsotopesAgainstParent"] = static_cast<int>(mp->filterIsotopesAgainstParent);
     settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
-    settingsMap["maxIsotopeScanDiff"] = static_cast<int>(mp->maxIsotopeScanDiff);
+    settingsMap["maxIsotopeScanDiff"] = static_cast<double>(mp->maxIsotopeScanDiff);
+    settingsMap["parentIsotopeRequired"] = static_cast<int>(mp->parentIsotopeRequired);
     settingsMap["linkIsotopeRtRange"] = static_cast<int>(mp->linkIsotopeRtRange);
 
     settingsMap["eicType"] = mp->eicType;
@@ -1960,9 +2020,12 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["matchRt"] = static_cast<int>(mp->matchRtFlag);
     settingsMap["compoundRtWindow"] = static_cast<double>(mp->compoundRTWindow);
     settingsMap["limitGroupsPerCompound"] = mp->eicMaxGroups;
+
     settingsMap["searchAdducts"] = static_cast<int>(mp->searchAdducts);
+    settingsMap["filterAdductsAgainstParent"] = static_cast<int>(mp->filterAdductsAgainstParent);
     settingsMap["adductSearchWindow"] = static_cast<double>(mp->adductSearchWindow);
     settingsMap["adductPercentCorrelation"] = static_cast<double>(mp->adductPercentCorrelation);
+    settingsMap["parentAdductRequired"] = static_cast<int>(mp->parentAdductRequired);
 
     settingsMap["matchFragmentation"] = static_cast<int>(mp->matchFragmentationFlag);
     settingsMap["minFragMatchScore"] = static_cast<double>(mp->minFragMatchScore);
@@ -2058,8 +2121,10 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.N15Labeled_BPE = static_cast<bool>(BINT(settingsMap["N15LabelBPE"]));
     mp.S34Labeled_BPE = static_cast<bool>(BINT(settingsMap["S34LabelBPE"]));
 
+    mp.filterIsotopesAgainstParent = static_cast<bool>(BINT(settingsMap["filterIsotopesAgainstParent"]));
     mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
-    mp.maxIsotopeScanDiff = BINT(settingsMap["maxIsotopeScanDiff"]);
+    mp.maxIsotopeScanDiff = BDOUBLE(settingsMap["maxIsotopeScanDiff"]);
+    mp.parentIsotopeRequired = static_cast<bool>(BINT(settingsMap["parentIsotopeRequired"]));
     mp.linkIsotopeRtRange = static_cast<bool>(BINT(settingsMap["linkIsotopeRtRange"]));
 
     mp.eicType = BINT(settingsMap["eicType"]);
@@ -2095,8 +2160,10 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.compoundRTWindow = BDOUBLE(settingsMap["compoundRtWindow"]);
     mp.eicMaxGroups = BINT(settingsMap["limitGroupsPerCompound"]);
     mp.searchAdducts = static_cast<bool>(BINT(settingsMap["searchAdducts"]));
+    mp.filterAdductsAgainstParent = static_cast<bool>(BINT(settingsMap["filterAdductsAgainstParent"]));
     mp.adductSearchWindow = BDOUBLE(settingsMap["adductSearchWindow"]);
     mp.adductPercentCorrelation = BDOUBLE(settingsMap["adductPercentCorrelation"]);
+    mp.parentAdductRequired = static_cast<bool>(BINT(settingsMap["parentAdductRequired"]));
 
     mp.matchFragmentationFlag = static_cast<bool>(BINT(settingsMap["matchFragmentation"]));
     mp.minFragMatchScore = BDOUBLE(settingsMap["minFragMatchScore"]);
@@ -2150,11 +2217,6 @@ void ProjectDatabase::_assignSampleIds(const vector<mzSample*>& samples) {
              << sample->getSampleId()
              << endl;
     }
-}
-
-Adduct* ProjectDatabase::_findAdductByName(string name)
-{
-    return new Adduct(name, 0, 0, 0.0f);
 }
 
 Compound* ProjectDatabase::_findSpeciesByIdAndName(string id,

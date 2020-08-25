@@ -129,7 +129,7 @@ void MassCalcWidget::showTable()
 
 void MassCalcWidget::setupSortedCompoundsDB() {
     sortedcompounds.clear();
-    auto compoundsDB = DB.getCompoundsDB();
+    auto compoundsDB = DB.compoundsDB();
     copy(compoundsDB.begin(),
          compoundsDB.end(),
          back_inserter(sortedcompounds));

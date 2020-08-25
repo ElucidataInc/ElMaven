@@ -6,6 +6,7 @@
 #include <QGroupBox>
 #include <QSpinBox>
 
+#include "adductwidget.h"
 #include "alignmentdialog.h"
 #ifndef Q_OS_LINUX
 #include "autoupdater.h"
@@ -26,21 +27,76 @@ Controller::Controller()
     _dlManager = new DownloadManager;
     iPolly = new PollyIntegration(_dlManager);
     _mw = new MainWindow(this);
+    _mw->hide();
     updateUi();
-    connect(_mw->isotopeDialog, &IsotopeDialog::updateSettings, this, &Controller::updateIsotopeDialogSettings);
-    connect(_mw->isotopeDialog, &IsotopeDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
-    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::updateSettings, this, &Controller::updatePeakDetectionSettings);
-    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::settingsUpdated, this, &Controller::_updateSettingsForSave);
-    connect(_mw->settingsForm, &SettingsForm::updateSettings, this, &Controller::updateOptionsDialogSettings);
-    connect(_mw->settingsForm, &SettingsForm::settingsUpdated, this, &Controller::_updateSettingsForSave);
-    connect(_mw->fileLoader, &mzFileIO::settingsLoaded, this, &Controller::_updateSettingsFromLoad);
-    connect(_mw, &MainWindow::loadedSettings, this, &Controller::updateUi);
-    connect(_mw->settingsForm, &SettingsForm::resetSettings, this, &Controller::resetMP);
-    connect(_mw->peakDetectionDialog, &PeakDetectionDialog::resetSettings, this, &Controller::resetMP);
-    connect(_mw->isotopeDialog, &IsotopeDialog::resetSettings, this, &Controller::resetMP);
+
+    connect(_mw->isotopeDialog,
+            &IsotopeDialog::updateSettings,
+            this,
+            &Controller::_updateIsotopeDialogSettings);
+    connect(_mw->isotopeDialog,
+            &IsotopeDialog::settingsUpdated,
+            this,
+            &Controller::_updateSettingsForSave);
+
+    connect(_mw->adductWidget,
+            &AdductWidget::updateSettings,
+            this,
+            &Controller::_updateAdductsDialogSettings);
+    connect(_mw->adductWidget,
+            &AdductWidget::settingsUpdated,
+            this,
+            &Controller::_updateSettingsForSave);
+
+    connect(_mw->peakDetectionDialog,
+            &PeakDetectionDialog::updateSettings,
+            this,
+            &Controller::_updatePeakDetectionSettings);
+    connect(_mw->peakDetectionDialog,
+            &PeakDetectionDialog::settingsUpdated,
+            this,
+            &Controller::_updateSettingsForSave);
+
+    connect(_mw->settingsForm,
+            &SettingsForm::updateSettings,
+            this,
+            &Controller::_updateOptionsDialogSettings);
+    connect(_mw->settingsForm,
+            &SettingsForm::settingsUpdated,
+            this,
+            &Controller::_updateSettingsForSave);
+
+    connect(_mw->fileLoader,
+            &mzFileIO::settingsLoaded,
+            this,
+            &Controller::_updateSettingsFromLoad);
+
+    connect(_mw,
+            &MainWindow::loadedSettings,
+            this,
+            &Controller::updateUi);
+
+    connect(_mw->settingsForm,
+            &SettingsForm::resetSettings,
+            this,
+            &Controller::resetMP);
+    connect(_mw->peakDetectionDialog,
+            &PeakDetectionDialog::resetSettings,
+            this,
+            &Controller::resetMP);
+    connect(_mw->isotopeDialog,
+            &IsotopeDialog::resetSettings,
+            this,
+            &Controller::resetMP);
+    connect(_mw->adductWidget,
+            &AdductWidget::resetSettings,
+            this,
+            &Controller::resetMP);
+
     _mw->settingsForm->triggerSettingsUpdate();
     _mw->peakDetectionDialog->triggerSettingsUpdate();
     _mw->isotopeDialog->triggerSettingsUpdate();
+    _mw->adductWidget->triggerSettingsUpdate();
 
 #ifndef Q_OS_LINUX
     _updater = new AutoUpdater();
@@ -119,51 +175,41 @@ void Controller::_syncMpWithUi(T* dialogPtr)
         if(QString(v.typeName()).contains("QLineEdit"))
             _updateMavenParameters(key, v.value<QLineEdit*>()->text());
 
-        /*note: this updates massCutOffType of
-         * - massCutoffMerge
-         * - compoundMassCutoffWindow
-         * - fragmentTolerance
-         * @see PeakDetectionSettings::updatePeakSettings
-         */
-
         if(QString(v.typeName()).contains("QString")) {
             _updateMavenParameters(key, *v.value<QString*>());
         }
     }
 }
 
-void Controller::updateOptionsDialogSettings(OptionsDialogSettings* od)
+template <typename T>
+void Controller::_updateDialogSettings(T* dialog)
 {
-    _syncMpWithUi(od);
-
-    auto settings = od->getSettings();
-    for(const auto& k : settings.keys()) {
-        const QVariant& v = settings.value(k);
-        _updateSettingsForSave(k, v);
-    }
-
-}
-
-void Controller::updatePeakDetectionSettings(PeakDetectionSettings* pd)
-{
-    _syncMpWithUi(pd);
-
-    auto settings = pd->getSettings();
+    _syncMpWithUi(dialog);
+    auto settings = dialog->getSettings();
     for(const auto& k : settings.keys()) {
         const QVariant& v = settings.value(k);
         _updateSettingsForSave(k, v);
     }
 }
 
-void Controller::updateIsotopeDialogSettings(IsotopeDialogSettings* id)
+void Controller::_updateOptionsDialogSettings(OptionsDialogSettings* od)
 {
-    _syncMpWithUi(id);
+    _updateDialogSettings(od);
+}
 
-    auto settings = id->getSettings();
-    for (const auto& k : settings.keys()) {
-        const QVariant& v = settings.value(k);
-        _updateSettingsForSave(k, v);
-    }
+void Controller::_updatePeakDetectionSettings(PeakDetectionSettings* od)
+{
+    _updateDialogSettings(od);
+}
+
+void Controller::_updateIsotopeDialogSettings(IsotopeDialogSettings* od)
+{
+    _updateDialogSettings(od);
+}
+
+void Controller::_updateAdductsDialogSettings(AdductsDialogSettings* od)
+{
+    _updateDialogSettings(od);
 }
 
 void Controller::updateUi()
@@ -174,6 +220,7 @@ void Controller::updateUi()
         emit _mw->peakDetectionDialog->settingsChanged(it->first, it->second);
         emit _mw->settingsForm->settingsChanged(it->first, it->second);
         emit _mw->isotopeDialog->settingsChanged(it->first, it->second);
+        emit _mw->adductWidget->settingsChanged(it->first, it->second);
     }
 }
 
@@ -191,6 +238,7 @@ void Controller::_updateMavenParameters(const QString& key,  const QVariant& val
         data = std::to_string(value.toBool());
 
     _mw->mavenParameters->setIsotopeDialogSettings(key.toLocal8Bit().data(), data.c_str());
+    _mw->mavenParameters->setAdductsDialogSettings(key.toLocal8Bit().data(), data.c_str());
     _mw->mavenParameters->setPeakDetectionSettings(key.toLocal8Bit().data(),data.c_str());
     _mw->mavenParameters->setOptionsDialogSettings(key.toLocal8Bit().data(),data.c_str());
 }
@@ -242,6 +290,8 @@ void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap
                                                        value.c_str());
         _mw->mavenParameters->setIsotopeDialogSettings(key.c_str(),
                                                        value.c_str());
+        _mw->mavenParameters->setAdductsDialogSettings(key.c_str(),
+                                                       value.c_str());
 
         // handle settings that need to be explicitly updated
         if (key == "uploadMultiprocessing")
@@ -253,7 +303,7 @@ void Controller::_updateSettingsFromLoad(const map<string, variant>& settingsMap
         if (key == "mainWindowMassResolution")
             _mw->massCutoffWindowBox->setValue(stod(value));
         if (key == "mainWindowSelectedDbName")
-            _mw->ligandWidget->setDatabase(QString(value.c_str()));
+            _mw->ligandWidget->setDatabase(QString(value.c_str()), false);
     }
 
     _mw->alignmentDialog->updateUiFromValues(settingsMap);

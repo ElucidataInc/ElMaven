@@ -11,7 +11,6 @@
 
 MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(settingsPath)
 {
-    _group = nullptr;
     clsf = NULL;
     alignSamplesFlag = false;
         processAllSlices = false;
@@ -49,8 +48,10 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 
         // to allow adduct matching
         searchAdducts = false;
+        filterAdductsAgainstParent = true;
         adductSearchWindow = 0.1f;
         adductPercentCorrelation = 90.0f;
+        parentAdductRequired = false;
 
         // peak detection
         eic_smoothingWindow = 10;
@@ -100,8 +101,10 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         amuQ3 = 0.5;
         filterline = "";
 
+        filterIsotopesAgainstParent = true;
         maxIsotopeScanDiff = 10;
         minIsotopicCorrelation = 0;
+        parentIsotopeRequired = true;
         linkIsotopeRtRange = true;
 
 	C13Labeled_BPE = false;
@@ -203,7 +206,6 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     matchFragmentationFlag = mp.matchFragmentationFlag;
     mustHaveFragmentation = mp.mustHaveFragmentation;
 
-    massCutoffMerge = mp.massCutoffMerge;
     mzBinStep = mp.mzBinStep;
     rtStepSize = mp.rtStepSize;
     avgScanTime = mp.avgScanTime;
@@ -211,8 +213,10 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     limitGroupCount = mp.limitGroupCount;
 
     searchAdducts = mp.searchAdducts;
+    filterAdductsAgainstParent = mp.filterAdductsAgainstParent;
     adductSearchWindow = mp.adductSearchWindow;
     adductPercentCorrelation = mp.adductPercentCorrelation;
+    parentAdductRequired = mp.parentAdductRequired;
     setChosenAdductList(mp.getChosenAdductList());
 
     eic_smoothingWindow = mp.eic_smoothingWindow;
@@ -256,7 +260,6 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
         mp.compoundMassCutoffWindow->getMassCutoff(),
         mp.compoundMassCutoffWindow->getMassCutoffType());
 
-    compoundMassCutoffWindow = mp.compoundMassCutoffWindow;
     compoundRTWindow = mp.compoundRTWindow;
     eicMaxGroups = mp.eicMaxGroups;
 
@@ -264,8 +267,10 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     amuQ3 = mp.amuQ3;
     filterline = mp.filterline;
 
+    filterIsotopesAgainstParent = mp.filterIsotopesAgainstParent;
     maxIsotopeScanDiff = mp.maxIsotopeScanDiff;
     minIsotopicCorrelation = mp.minIsotopicCorrelation;
+    parentIsotopeRequired = mp.parentIsotopeRequired;
     linkIsotopeRtRange = mp.linkIsotopeRtRange;
 
     C13Labeled_BPE = mp.C13Labeled_BPE;
@@ -291,13 +296,16 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     overlapWeight = mp.overlapWeight;
     useOverlap = mp.useOverlap;
 
-    // intentionally set this empty, so that it does not write to session
+    // NOTE: intentionally set this empty, so that it does not write to session
     // setting when being destroyed
     lastUsedSettingsPath = "";
     defaultSettingsData = mp.defaultSettingsData;
-    mavenSettings = mp.mavenSettings;
 
-    // we intentionally do not copy `allgroups` and `compounds` since these
+    // NOTE: since we do not intend to read-into or write-from a copied
+    // parameters object (since these are not the global one), we ignore
+    // `mavenSettings` map
+
+    // NOTE: we intentionally do not copy `allgroups` & `compounds` since these
     // vectors are meant to be used only by the global `MavenParameters` object,
     // which will not be created by a copy operation like this.
     samples = mp.samples;
@@ -312,7 +320,7 @@ std::map<string, string>& MavenParameters::getSettings()
     return mavenSettings;
 }
 
-void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* value)
+void MavenParameters::setIsotopeDialogSettings(const char* key, const char* value)
 {
     if(key[0] == '\0' || value[0] == '\0')
         return;
@@ -334,14 +342,39 @@ void  MavenParameters::setIsotopeDialogSettings(const char* key, const char* val
     if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
 
+    if(strcmp(key, "filterIsotopesAgainstParent") == 0)
+        filterIsotopesAgainstParent = atoi(value);
+
     if(strcmp(key, "minIsotopeParentCorrelation") == 0)
         minIsotopicCorrelation = atof(value);
 
     if(strcmp(key, "maxIsotopeScanDiff") == 0)
         maxIsotopeScanDiff = atof(value);
 
+    if(strcmp(key, "parentIsotopeRequired") == 0)
+        parentIsotopeRequired = atoi(value);
+
     if(strcmp(key, "linkIsotopeRtRange") == 0)
         linkIsotopeRtRange = atoi(value);
+}
+
+void MavenParameters::setAdductsDialogSettings(const char* key,
+                                               const char* value)
+{
+    if(strcmp(key, "searchAdducts") == 0)
+        searchAdducts = atof(value);
+
+    if(strcmp(key, "filterAdductsAgainstParent") == 0)
+        filterAdductsAgainstParent = atof(value);
+
+    if(strcmp(key, "adductSearchWindow") == 0)
+        adductSearchWindow = atof(value);
+
+    if(strcmp(key, "adductPercentCorrelation") == 0)
+        adductPercentCorrelation = atof(value);
+
+    if(strcmp(key, "parentAdductRequired") == 0)
+        parentAdductRequired = atof(value);
 }
 
 std::vector<Adduct*> MavenParameters::getDefaultAdductList()
@@ -438,15 +471,6 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
 
     if(strcmp(key, "limitGroupsPerCompound") == 0 )
         eicMaxGroups = atof(value);
-
-    if(strcmp(key, "searchAdducts") == 0 )
-        searchAdducts = atof(value);
-
-    if(strcmp(key, "adductSearchWindow") == 0 )
-        adductSearchWindow = atof(value);
-
-    if(strcmp(key, "adductPercentCorrelation") == 0 )
-        adductPercentCorrelation = atof(value);
 
     if(strcmp(key, "matchFragmentation") == 0 )
         matchFragmentationFlag = atof(value);

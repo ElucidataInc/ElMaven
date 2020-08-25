@@ -16,16 +16,44 @@ class PeakGroup;
 class EIC;
 class QHistogramSlider;
 class PeakDetector;
+class PeakGroupTreeWidget;
 
 using namespace std;
+
+struct RowData {
+    enum class ChildType {
+        Isotope,
+        Adduct,
+        None
+    };
+
+    // main attributes of interest
+    qint64 tableId;
+    quint64 parentIndex;
+    ChildType childType;
+    quint64 childIndex;
+
+    // default constructor
+    RowData();
+
+    // copy operator
+    bool operator==(const RowData& b) const;
+};
+
+Q_DECLARE_METATYPE(RowData);
+
+QDataStream& operator<<(QDataStream& stream, const RowData& rowData);
+QDataStream& operator>>(QDataStream& stream, RowData& rowData);
 
 class TableDockWidget : public QDockWidget {
   Q_OBJECT
 
+  friend PeakGroupTreeWidget;
+
 public:
   QWidget *dockWidgetContents;
   QHBoxLayout *horizontalLayout;
-  QTreeWidget *treeWidget;
+  PeakGroupTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
   int numberOfGroupsMarked = 0;
@@ -164,7 +192,7 @@ public:
    */ 
   bool deleteAllgroupsWarning();
   
-public Q_SLOTS:
+public slots:
   void updateCompoundWidget();
   shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
@@ -239,15 +267,15 @@ public Q_SLOTS:
   virtual void markGroupGood();
   virtual void unmarkGroup();
   void markGroupIgnored();
-  void showAllGroups();
   void showHeatMap();
   void showScatterPlot();
   void setClipboard();
 
   void showConsensusSpectra();
 
+  virtual void showAllGroups();
   virtual void deleteSelectedItems();
-  virtual void deleteGroup(PeakGroup *groupX);
+  virtual void deleteGroup(PeakGroup* group);
 
   void sortBy(int);
   void deleteAll();
@@ -292,35 +320,45 @@ public Q_SLOTS:
    */
   void setDefaultStyle(bool isActive = false);
 
+  shared_ptr<PeakGroup> groupForItem(QTreeWidgetItem* item);
+
+  void refreshParentItem(QTreeWidgetItem* item);
+
 protected:
   MainWindow *_mainwindow;
   tableViewType viewType;
   QList<shared_ptr<PeakGroup>> _topLevelGroups;
   int _labeledGroups;
   int _targetedGroups;
+  int _nextGroupId;
 
   /**
    * @brief A map storing the unique ID of all tables mapping to their titles.
    */
   static QMap<int, QString> _idTitleMap;
 
-  void dragEnterEvent(QDragEnterEvent *event);
-  void dropEvent(QDropEvent *event);
   void focusInEvent(QFocusEvent *event);
   void focusOutEvent(QFocusEvent *event);
-
-Q_SIGNALS:
-  void updateProgressBar(QString, int, int, bool = false);
-  void UploadPeakBatch();
-  void renderedPdf();
-
-protected Q_SLOTS:
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
 
+signals:
+  void updateProgressBar(QString, int, int, bool = false);
+  void UploadPeakBatch();
+  void renderedPdf();
+  void ghostPeakGroupSelected(bool);
+
 private:
   QPalette pal;
-  void addRow(shared_ptr<PeakGroup> group, QTreeWidgetItem *root);
+
+  RowData
+  _rowDataForThisTable(size_t parentIndex,
+                       RowData::ChildType childType = RowData::ChildType::None,
+                       size_t childIndex = 0);
+
+  void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
+
+  void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
   // TODO: investigate and remove this dialog if not being used
@@ -344,6 +382,7 @@ public:
 public Q_SLOTS:
   void destroy();
   void deleteAll();
+  virtual void showAllGroups();
 
 private:
   QToolBar *toolBar;
@@ -352,10 +391,10 @@ private:
 private:
   void cleanUp();
 
-private Q_SLOTS:
+private slots:
   void showDeletionDialog();
 
-Q_SIGNALS:
+signals:
   void unSetFromEicWidget(shared_ptr<PeakGroup>);
 };
 
@@ -396,7 +435,7 @@ public Q_SLOTS:
    */
   void mergeGroupsIntoPeakTable(QAction *action);
 
-  void deleteGroup(PeakGroup *groupX);
+  void deleteGroup(PeakGroup* group);
   void markGroupGood();
   void markGroupBad();
 
@@ -473,5 +512,21 @@ class UploadPeaksToCloudThread : public QThread
         void resultReady(QString sessionId);
 };
 
+class PeakGroupTreeWidget : public QTreeWidget {
+    Q_OBJECT
+
+public:
+    PeakGroupTreeWidget(TableDockWidget* parent = nullptr);
+
+    TableDockWidget* table;
+    static RowData dragData;
+    static bool moveInProgress;
+
+protected:
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
+    Qt::DropActions supportedDropActions() const;
+    void paintEvent(QPaintEvent* event);
+};
 
 #endif

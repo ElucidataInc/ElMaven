@@ -795,6 +795,10 @@ map<int, string> dbVersionUpgradeScripts = {
 
         "ALTER TABLE user_settings ADD COLUMN alignment_algorithm INTEGER;"
         "ALTER TABLE user_settings ADD COLUMN active_table_name TEXT;"
+        "ALTER TABLE user_settings ADD COLUMN filter_isotopes_against_parent INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN filter_adducts_against_parent INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN parent_isotope_required INTEGER;"
+        "ALTER TABLE user_settings ADD COLUMN parent_adduct_required INTEGER;"
 
         "ALTER TABLE peaks ADD COLUMN eic_rt TEXT;"
         "ALTER TABLE peaks ADD COLUMN eic_original_rt TEXT;"
@@ -803,6 +807,11 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peaks ADD COLUMN spectrum_intensity TEXT;"
 
         "ALTER TABLE compounds ADD COLUMN original_name TEXT;"
+
+        "ALTER TABLE peakgroups ADD COLUMN isotope_c13_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_n15_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_s34_count INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN isotope_h2_count INTEGER;"
 
         "COMMIT;"
     }

@@ -6,7 +6,7 @@
 #include "mzMassCalculator.h"
 #include "mzSample.h"
 #include "PeakGroup.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "utilities.h"
 
 TestEIC::TestEIC() {}

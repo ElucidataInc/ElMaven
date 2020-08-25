@@ -3,6 +3,7 @@
 #include "Compound.h"
 #include "masscutofftype.h"
 #include "mzMassCalculator.h"
+#include "mzUtils.h"
 
 mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
 {
@@ -14,6 +15,7 @@ mzSlice::mzSlice(float minMz, float maxMz, float minRt, float maxRt)
     rt = (maxRt + minRt) / 2.0f;
     compound = nullptr;
     adduct = nullptr;
+    isotope = Isotope();
 	ionCount = 0;
 }
 
@@ -32,35 +34,66 @@ mzSlice::mzSlice()
     adduct = nullptr;
 }
 
+mzSlice& mzSlice::operator=(const mzSlice& b)
+{
+    mzmin = b.mzmin;
+    mzmax = b.mzmax;
+    rtmin = b.rtmin;
+    rtmax = b.rtmax;
+    ionCount = b.ionCount;
+    compound = b.compound;
+    adduct = b.adduct;
+    isotope = b.isotope;
+    srmId = b.srmId;
+    mz = b.mz;
+    rt = b.rt;
+    return *this;
+}
+
+bool mzSlice::operator==(const mzSlice &b) const
+{
+    return (mzmin == b.mzmin
+            && mzmax == b.mzmax
+            && rtmin == b.rtmin
+            && rtmax == b.rtmax
+            && ionCount == b.ionCount
+            && compound == b.compound
+            && adduct == b.adduct
+            && isotope == b.isotope
+            && srmId == b.srmId
+            && mz == b.mz
+            && rt == b.rt);
+}
+
 bool mzSlice::calculateMzMinMax(MassCutoff *compoundMassCutoffWindow, int charge)
 {
-    // calculating the mzmin and mzmax
-    if (this->adduct != nullptr && !this->compound->formula().empty()) {
+    float adjustedMass = 0.0f;
+    if (!mzUtils::almostEqual(isotope.mass, 0.0)) {
+        // computing the mass (and bounds) based on isotopologue mass
+        adjustedMass = static_cast<float>(isotope.mass);
+    } else if (adduct != nullptr && !compound->formula().empty()) {
+        // computing the mass (and bounds) adjusted for adduct's mass
         auto mass = MassCalculator::computeNeutralMass(compound->formula());
-        auto adjustedMass = adduct->computeAdductMz(mass);
-        mzmin = adjustedMass - compoundMassCutoffWindow->massCutoffValue(adjustedMass);
-        mzmax = adjustedMass + compoundMassCutoffWindow->massCutoffValue(adjustedMass);
-    } else if (!this->compound->formula().empty() || this->compound->neutralMass() != 0.0f) {
-        //Computing the mass if the formula is given
-        double mass = this->compound->adjustedMass(charge);
-		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
-		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
-	}
-    else if (this->compound->mz() > 0)
-	{
-		// Mass already present in the compound DB then using
-		// it to find the mzmin and mzmax
-        double mass = this->compound->mz();
-		this->mzmin = mass - compoundMassCutoffWindow->massCutoffValue(mass);
-		this->mzmax = mass + compoundMassCutoffWindow->massCutoffValue(mass);
-	}
-	else
-	{
-		// Not adding the compound if the formula is not given
-		// and if the mass is also not given
+        adjustedMass = adduct->computeAdductMz(mass);
+    } else if (adduct != nullptr && compound->neutralMass() != 0.0f) {
+        // computing the mass (and bounds) adjusted for adduct's mass
+        auto mass = compound->neutralMass();
+        adjustedMass = adduct->computeAdductMz(mass);
+    } else if (!compound->formula().empty()
+               || compound->neutralMass() != 0.0f) {
+        // regular adjusted mass if the formula or neutral mass is given
+        adjustedMass = compound->adjustedMass(charge);
+    } else if (compound->mz() > 0) {
+        // m/z already present in the compound DB then just use that
+        adjustedMass = compound->mz();
+    } else {
+        // cannot find bounds if formula, neutral mass and m/z are all absent
 		return false;
 	}
 
+    float mzDelta = compoundMassCutoffWindow->massCutoffValue(adjustedMass);
+    mzmin = adjustedMass - mzDelta;
+    mzmax = adjustedMass + mzDelta;
     mz = (mzmax + mzmin) / 2.0f;
     return true;
 }
@@ -72,13 +105,12 @@ void mzSlice::calculateRTMinMax(bool matchRtFlag, float compoundRTWindow)
 	//window then only calculate the rt min and max else set
 	//it in such a way that it will look in all the rt values
 	//possible
-    if (matchRtFlag && this->compound->expectedRt() > 0)
-	{
+    if (matchRtFlag
+        && this->compound != nullptr
+        && this->compound->expectedRt() > 0) {
         this->rtmin = this->compound->expectedRt() - compoundRTWindow;
         this->rtmax = this->compound->expectedRt() + compoundRTWindow;
-	}
-	else
-	{
+    } else {
 		// As its time min value will be 0
 		this->rtmin = 0;
 		//TODO: max value shoould be set as the max of the

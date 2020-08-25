@@ -22,6 +22,13 @@ win32: QMAKE_CXXFLAGS += -Ofast -ffast-math
 macx: QMAKE_CXXFLAGS += -O3
 QMAKE_CXXFLAGS += -fopenmp
 
+CONFIG(debug, debug|release) {
+    linux|win32 {
+        QMAKE_CXXFLAGS -= -Ofast -ffast-math
+    }
+    macx: QMAKE_CXXFLAGS -= -O3
+}
+
 !isEmpty(ON_TRAVIS)|!isEmpty(ON_APPVEYOR) {
     !isEmpty(IS_TRAVIS_PR)|!isEmpty(IS_APPVEYOR_PR) {
         CONFIG(debug, debug|release) {
@@ -29,11 +36,9 @@ QMAKE_CXXFLAGS += -fopenmp
                 message("adding gcov compiler flags")
                 QMAKE_CCFLAGS += -fprofile-arcs -ftest-coverage
                 QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
-                QMAKE_CXXFLAGS -= -Ofast -ffast-math
                 QMAKE_LFLAGS += -fprofile-arcs -ftest-coverage
                 QMAKE_LFLAGS += -lgcov --coverage
             }
-            macx: QMAKE_CXXFLAGS -= -O3
         }
     }
 }
@@ -72,15 +77,16 @@ macx{
 
 message($$INCLUDEPATH)
 SOURCES = base64.cpp \
+          massslicer.cpp \
           mzMassCalculator.cpp \
           mzPatterns.cpp \
           mzSample.cpp \
           mzUtils.cpp \
+          peakdetector.cpp \
           statistics.cpp \
           elementMass.cpp \
           mzFit.cpp \
           mzAligner.cpp \
-          mzMassSlicer.cpp \
 	      PeakGroup.cpp \
           Fragment.cpp \
 	      EIC.cpp \
@@ -90,7 +96,6 @@ SOURCES = base64.cpp \
 	      Compound.cpp \
 	      savgol.cpp \
        	  SavGolSmoother.cpp \
-          PeakDetector.cpp \
           mavenparameters.cpp \
           classifier.cpp \
           classifierNaiveBayes.cpp \
@@ -106,22 +111,21 @@ SOURCES = base64.cpp \
           masscutofftype.cpp \
           peakFiltering.cpp \
           groupFiltering.cpp \
-          isotopeDetection.cpp \
           datastructures/adduct.cpp \
           datastructures/mzSlice.cpp \
           groupClassifier.cpp \
           groupFeatures.cpp \
           svmPredictor.cpp \
           zlib.cpp \
-          adductdetection.cpp \
-          spectrallibexport.cpp
+          spectrallibexport.cpp \
+          datastructures/isotope.cpp
 
 HEADERS += constants.h \
            base64.h \
+           massslicer.h \
            mzFit.h \
            Peak.h \
            mzAligner.h \
-           mzMassSlicer.h \
 	       PeakGroup.h \
            mzSample.h \
            PeptideRecord.h \
@@ -130,10 +134,10 @@ HEADERS += constants.h \
            mzMassCalculator.h \
            mzPatterns.h \
            mzUtils.h \
+           peakdetector.h \
            standardincludes.h \
            statistics.h \
            SavGolSmoother.h \
-           PeakDetector.h \
            mavenparameters.h\
            classifier.h \
            classifierNaiveBayes.h \
@@ -153,12 +157,11 @@ HEADERS += constants.h \
            masscutofftype.h \
            peakFiltering.h \
            groupFiltering.h \
-           isotopeDetection.h \
            datastructures/adduct.h \
            datastructures/mzSlice.h \
            settings.h \
            groupClassifier.h \
            groupFeatures.h \
            svmPredictor.h \
-           adductdetection.h \
-           spectrallibexport.h
+           spectrallibexport.h \
+           datastructures/isotope.h

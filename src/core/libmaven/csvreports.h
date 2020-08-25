@@ -104,24 +104,6 @@ class CSVReports
             selectionFlag = selFlag;
         }
 
-        /**
-         * @brief groupId   returns group id
-         * @return
-         */
-        int groupId()
-        {
-            return this->_groupId;
-        }
-
-        /**
-         * @brief setGroupId    sets group id
-         * @param id
-         */
-        void setGroupId(int id)
-        {
-            this->_groupId = id;
-        }
-
     private:
         /**
          *@brief-  helper function to write group info
@@ -131,13 +113,6 @@ class CSVReports
          *@brief-  helper function to write peak info
          */
         void _writePeakInfo(PeakGroup* group);
-
-        /**
-         *@param -  incremental group numbering.
-         *Increment by 1 when a group is added
-         *for csv report
-         */
-        int _groupId;
 
         /**
          *@brief -   update string with escape sequence for
@@ -195,22 +170,6 @@ class CSVReports
          * Write column name in output file for group report.
          */
         void _insertPeakReportColumnNamesintoCSVFile();
-
-        /**
-         * @brief - Relays the function for inserting isotopes to
-         * `insertAllIsotopes` by default. Optionally this method can be used to
-         * call `insertUserSelectedIsotopes` by passing a second boolean argument
-         * with `true` value.
-         */
-        void _insertIsotopes(PeakGroup* group,
-                             bool userSelectedIsotopesOnly = false);
-
-        /**
-         * @brief - Create a masslist with isotopes only currently selected by user
-         * (accessible through a global settings object) and then write the
-         * subgroups having these isotopes as tagrstrings, if they were found.
-         */
-        void _insertUserSelectedIsotopes(PeakGroup* group);
 
         void setTabDelimited()
         {

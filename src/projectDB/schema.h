@@ -125,7 +125,11 @@
                                            , slice_rt_max                       REAL                              \
                                            , slice_ion_count                    REAL                              \
                                            , table_group_id                     INTEGER                           \
-                                           , integration_type                   INTEGER                           );"
+                                           , integration_type                   INTEGER                           \
+                                           , isotope_c13_count                  INTEGER                           \
+                                           , isotope_n15_count                  INTEGER                           \
+                                           , isotope_s34_count                  INTEGER                           \
+                                           , isotope_h2_count                   INTEGER                           );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
@@ -264,7 +268,11 @@
                                               , adduct_search_window             REAL    \
                                               , adduct_percent_correlation       REAL    \
                                               , alignment_algorithm              INTEGER \
-                                              , active_table_name                TEXT    );"
+                                              , active_table_name                TEXT    \
+                                              , filter_isotopes_against_parent   INTEGER \
+                                              , filter_adducts_against_parent    INTEGER \
+                                              , parent_isotope_required          INTEGER \
+                                              , parent_adduct_required           INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

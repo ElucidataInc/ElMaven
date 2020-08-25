@@ -6,7 +6,7 @@
 #include "csvreports.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "peakdetectorcli.h"
 #include "utilities.h"
 
@@ -53,8 +53,7 @@ void TestCLI::testLoadCompoundsFile() {
     peakdetectorCLI->mavenParameters->ligandDbFilename = dbPath;
     peakdetectorCLI->loadCompoundsFile();
 
-    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 257);
-
+    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 266);
 }
 
 void TestCLI::testLoadSamples() {
@@ -116,8 +115,7 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->clsf->hasModel());
 
 	peakdetectorCLI->loadCompoundsFile();
-    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 257);
-
+    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 266);
 }
 
 void TestCLI::testCreateXMLFile() {
@@ -156,14 +154,11 @@ void TestCLI::testReduceGroups() {
 	peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
-        vector<mzSlice*> slices =
-            peakdetectorCLI->peakDetector->processCompounds(peakdetectorCLI->mavenParameters->compounds,
-                                                            "compounds");
-        peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
+        peakdetectorCLI->peakDetector->processCompounds(
+            peakdetectorCLI->mavenParameters->compounds);
         QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 23);
         peakdetectorCLI->reduceGroups();
         QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 21);
-		delete_all(slices);
 	}
 
 	delete_all(peakdetectorCLI->mavenParameters->samples);
@@ -191,16 +186,12 @@ void TestCLI::testWriteReport() {
 	peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
 
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
-        vector<mzSlice*> slices =
-            peakdetectorCLI->peakDetector->processCompounds(peakdetectorCLI->mavenParameters->compounds,
-                                                            "compounds");
-		peakdetectorCLI->peakDetector->processSlices(slices, "compounds");
+        peakdetectorCLI->peakDetector->processCompounds(
+            peakdetectorCLI->mavenParameters->compounds);
 
         peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv", false);
         QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));
         QVERIFY(csvFile.exists() && csvFile.isFile());
-
-		delete_all(slices);
 	}
 
 	delete_all(peakdetectorCLI->mavenParameters->samples);

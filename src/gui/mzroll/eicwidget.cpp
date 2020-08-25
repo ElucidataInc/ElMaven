@@ -7,6 +7,7 @@
 #include "barplot.h"
 #include "boxplot.h"
 #include "classifierNeuralNet.h"
+#include "datastructures/adduct.h"
 #include "datastructures/mzSlice.h"
 #include "eiclogic.h"
 #include "globals.h"
@@ -244,9 +245,9 @@ void EicWidget::setFocusLine(float rt) {
 	if (_focusLine->scene() != scene())
 		scene()->addItem(_focusLine);
 
-	QPen pen(Qt::red, 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen pen(Qt::red, 2, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
 	_focusLine->setPen(pen);
-	_focusLine->setLine(toX(rt), 0, toX(rt), height());
+    _focusLine->setLine(toX(rt), toY(_minY), toX(rt), toY(_maxY));
 }
 
 void EicWidget::setScan(Scan* scan) {
@@ -258,16 +259,20 @@ void EicWidget::setScan(Scan* scan) {
 
 }
 
-void EicWidget::_drawSelectionLine(float rtMin, float rtMax) {
-    if (_selectionLine == nullptr)
-        _selectionLine = new QGraphicsLineItem(nullptr);
-    if (_selectionLine->scene() != scene())
-        scene()->addItem(_selectionLine);
+void EicWidget::_drawSelectionLine(float rtMin, float rtMax)
+{
+    if (rtMin >= _maxX || rtMax <= _minX)
+        return;
 
     if (rtMin < _minX)
         rtMin = _minX;
     if (rtMax > _maxX)
         rtMax = _maxX;
+
+    if (_selectionLine == nullptr)
+        _selectionLine = new QGraphicsLineItem(nullptr);
+    if (_selectionLine->scene() != scene())
+        scene()->addItem(_selectionLine);
 
     QPen pen(Qt::red, 3, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
     _selectionLine->setPen(pen);
@@ -1076,10 +1081,12 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         float rtMin = group->minRt;
         float rtMax = group->maxRt;
         addEICLines(_showSpline, _showEIC, true, rtMin, rtMax);
+        _clearEicPoints();
+        addPeakPositions(group);
     } else {
         addEICLines(_showSpline, _showEIC);
+        showAllPeaks();
     }
-	showAllPeaks();
 
         if (group && group->getCompound() != NULL && group->getCompound()->expectedRt() > 0)
                         _focusLineRt = group->getCompound()->expectedRt();
@@ -1094,6 +1101,12 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         setFocusLine(_focusLineRt);
     if (_showMS2Events && eicParameters->_slice.mz > 0) 
         addMS2Events(eicParameters->_slice.mzmin, eicParameters->_slice.mzmax);
+
+    if (group != nullptr
+        && group->peakCount() == 0
+        && !group->tableName().empty()) {
+        _drawNoPeaksMessage();
+    }
 
 	addAxes();
 	getMainWindow()->addToHistory(eicParameters->_slice);
@@ -1111,10 +1124,17 @@ void EicWidget::setTitle() {
 
 	QString tagString;
 
-    if (eicParameters->displayedGroup() != NULL) {
+    if (eicParameters->displayedGroup() != nullptr) {
         tagString = QString(eicParameters->displayedGroup()->getName().c_str());
-	} else if (eicParameters->_slice.compound != NULL) {
-                tagString = QString(eicParameters->_slice.compound->name().c_str());
+    } else if (eicParameters->_slice.compound != nullptr) {
+        tagString = QString(eicParameters->_slice.compound->name().c_str());
+        if (!eicParameters->_slice.isotope.isNone()) {
+            string isotopeName = eicParameters->_slice.isotope.name;
+            tagString += " | " + QString(isotopeName.c_str());
+        } else if (eicParameters->_slice.adduct != nullptr) {
+            string adductName = eicParameters->_slice.adduct->getName();
+            tagString += " | " + QString(adductName.c_str());
+        }
 	} else if (!eicParameters->_slice.srmId.empty()) {
 		tagString = QString(eicParameters->_slice.srmId.c_str());
 	}
@@ -1132,7 +1152,7 @@ void EicWidget::setTitle() {
                              3);
         m2 = "prod=" + m2;
     }
-    QString titleText = tr("<b>%1</b> m/z: %2 - %3").arg(tagString, m1, m2);
+    QString titleText = tr("<b>%1</b> (m/z: %2 ‐ %3)").arg(tagString, m1, m2);
 
 	QGraphicsTextItem* title = scene()->addText(titleText, font);
 	title->setHtml(titleText);
@@ -1151,6 +1171,33 @@ void EicWidget::setTitle() {
         text->setDefaultTextColor(QColor(200,200,200));
         text->update();
     }
+}
+
+void EicWidget::_drawNoPeaksMessage()
+{
+    QFont font = QApplication::font();
+    font.setPixelSize(24);
+    QGraphicsTextItem* noPeaksMessage =
+        scene()->addText("No peaks in this group", font);
+
+    auto messageBounds = noPeaksMessage->boundingRect();
+    int messageWidth = messageBounds.width();
+    int messageHeight = messageBounds.height();
+    int xPos = (scene()->width() / 2) - (messageWidth / 2);
+    int yPos = (scene()->height() / 2) - (messageHeight / 2);
+    noPeaksMessage->setPos(xPos, yPos);
+    noPeaksMessage->setDefaultTextColor(Qt::white);
+
+    QPainterPath path;
+    messageBounds.setHeight(messageBounds.height() + 12);
+    messageBounds.setWidth(messageBounds.width() + 24);
+    path.addRoundedRect(messageBounds, 8, 8);
+    QGraphicsPathItem* boundingRect = scene()->addPath(path,
+                                                       QPen(Qt::darkGray),
+                                                       QBrush(Qt::darkGray));
+    boundingRect->setPos(xPos - 12, yPos - 6);
+    boundingRect->setZValue(999);
+    noPeaksMessage->setZValue(1000);
 }
 
 void EicWidget::recompute() {
@@ -1277,6 +1324,27 @@ void EicWidget::_clearBarPlot()
     scene()->update();
 }
 
+void EicWidget::addParentRtLine(shared_ptr<PeakGroup> group)
+{
+    if (group->parent == nullptr)
+        return;
+
+    float medianRt = group->parent->medianRt();
+    if (medianRt > 0.0f) {
+        float rt = toX(medianRt);
+        float y1 = toY(_minY);
+        float y2 = toY(_maxY);
+
+        QPen bluePen(Qt::blue, 2, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
+        QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
+        focusLine->setPen(bluePen);
+        focusLine->setLine(rt, y1, rt, y2);
+
+        scene()->addItem(focusLine);
+        scene()->update();
+    }
+}
+
 void EicWidget::addBarPlot(shared_ptr<PeakGroup> group) {
    // qDebug() <<" EicWidget::addBarPlot(PeakGroup* group )";
     if (group == nullptr || _areaIntegration)
@@ -1296,31 +1364,7 @@ void EicWidget::addBarPlot(shared_ptr<PeakGroup> group) {
     // _barplot->setPos(xpos, ypos);
     setBarplotPosition(group.get());
 	_barplot->setZValue(1000);
-
-	float medianRt = group->medianRt();
-	if (group->parent)
-		medianRt = group->parent->medianRt();
-
-	if (medianRt && group->parent) {
-		float rt = toX(medianRt);
-		float y1 = toY(_minY);
-		float y2 = toY(_maxY);
-
-        QPen pen2(Qt::blue, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		QGraphicsLineItem* focusLine = new QGraphicsLineItem(0);
-		focusLine->setPen(pen2);
-		focusLine->setLine(rt, y1, rt, y2);
-
-		/*
-		 float x1 = toX(group->parent->minRt);
-		 float x2 = toX(group->parent->maxRt);
-		 QColor color = QColor::fromRgbF( 0.2, 0, 0 , 0.1 );
-		 QBrush brush(color);
-		 QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		 scene()->addRect(QRectF(x1,y1,x2-x1,y2-y1),pen,brush);
-		 */
-	}
-	return;
+    addParentRtLine(group);
 }
 
 void EicWidget::addBoxPlot(shared_ptr<PeakGroup> group) {
@@ -1342,10 +1386,7 @@ void EicWidget::addBoxPlot(shared_ptr<PeakGroup> group) {
 
 	_boxplot->setPos(xpos, ypos);
 	_boxplot->setZValue(1000);
-	//_boxplot->setPos(scene()->width()*0.20,scene()->height()*0.10);
-	//_boxplot->setZValue(1000);
-
-	return;
+    addParentRtLine(group);
 }
 
 void EicWidget::addFitLine(PeakGroup* group) {
@@ -1555,76 +1596,57 @@ void EicWidget::setSrmId(string srmId) {
 	replot();
 }
 
-void EicWidget::setCompound(Compound* c)
+void EicWidget::setCompound(Compound* compound, Isotope isotope, Adduct* adduct)
 {
-	//qDebug << "EicWidget::setCompound()";
-	//benchmark
-//	timespec tS;
-	//timespec tE;
-	//clock_gettime(CLOCK_REALTIME, &tS);
-
-	if (c == NULL)
-		return;
-	if (getMainWindow()->sampleCount() == 0)
+    if (compound == nullptr)
 		return;
 
-	vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-	if (samples.size() == 0)
+    vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+    if (samples.empty())
 		return;
 
-	int ionizationMode = samples[0]->getPolarity();
-	ionizationMode = getMainWindow()->mavenParameters->ionizationMode; //user specified ionization mode
+    mzSlice slice;
+    slice.compound = compound;
+    slice.isotope = isotope;
+    slice.adduct = adduct;
 
-	MassCutoff* massCutoff=getMainWindow()->getUserMassCutoff(); 
-	float mz = 0;
+    MavenParameters* mp = getMainWindow()->mavenParameters;
+    int charge = mp->getCharge(compound);
+    if (adduct != nullptr)
+        charge = adduct->getCharge();
+    slice.calculateMzMinMax(mp->compoundMassCutoffWindow, charge);
 
-        if (!c->formula().empty() || c->neutralMass() != 0.0f) {
-		int charge = getMainWindow()->mavenParameters->getCharge(c);
-		mz = c->adjustedMass(charge);
-	} else {
-                mz = c->mz();
-	}
+    float rtmin = eicParameters->_slice.rtmin;
+    float rtmax = eicParameters->_slice.rtmax;
+    if (_autoZoom) {
+        if (compound->expectedRt() > 0) {
+            rtmin = compound->expectedRt() - 2;
+            rtmax = compound->expectedRt() + 2;
+        }
+    }
+    slice.rtmin = rtmin;
+    slice.rtmax = rtmax;
+    slice.rt = (rtmin + rtmax) / 2.0f;
 
-	cerr<<"massCutoffValue   eicWidget\n";
-	float minmz = mz -massCutoff->massCutoffValue(mz);
-	float maxmz = mz + massCutoff->massCutoffValue(mz);
-	float rtmin = eicParameters->_slice.rtmin;
-	float rtmax = eicParameters->_slice.rtmax;
+    if (!compound->srmId().empty())
+        slice.srmId = compound->srmId();
 
-	if (_autoZoom) {
-                if (c->expectedRt() > 0) {
-                        rtmin = c->expectedRt() - 2;
-                        rtmax = c->expectedRt() + 2;
-		}
-	}
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
-
-	mzSlice slice(minmz, maxmz, rtmin, rtmax);
-	slice.compound = c;
-        if (!c->srmId().empty())
-                slice.srmId = c->srmId();
     setMzSlice(slice);
-    emit compoundSet(c);
-
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	//qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
+    emit compoundSet(compound);
 
 	for (int i = 0; i < eicParameters->peakgroups.size(); i++)
-		eicParameters->peakgroups[i].setCompound(c);
-        if (c->expectedRt() > 0) {
-                setFocusLine(c->expectedRt());
-                selectGroupNearRt(c->expectedRt());
-	}
-	else {
-		//remove previous focusline
+        eicParameters->peakgroups[i].setCompound(compound);
+
+    if (compound->expectedRt() > 0) {
+        setFocusLine(compound->expectedRt());
+        selectGroupNearRt(compound->expectedRt());
+    } else {
+        // remove previous focusline
+        _focusLineRt = -1.0f;
 		if (_focusLine && _focusLine->scene())
 			scene()->removeItem(_focusLine);
-		getMainWindow()->mavenParameters->setPeakGroup(NULL);
 		resetZoom();
 	}
-	//clock_gettime(CLOCK_REALTIME, &tE);
-	// qDebug() << "Time taken" << (tE.tv_sec-tS.tv_sec)*1000 + (tE.tv_nsec - tS.tv_nsec)/1e6;
 }
 
 void EicWidget::setMzSlice(const mzSlice& slice)
@@ -1681,7 +1703,9 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
     }
 
     auto parentGroup = group->parent == nullptr ? group.get() : group->parent;
-    if (_autoZoom && parentGroup->peakCount() > 0) {
+    if (parentGroup->isGhost()) {
+        resetZoom();
+    } else if (_autoZoom && !parentGroup->isEmpty()) {
         eicParameters->_slice.rtmin = parentGroup->minRt - 2 * _zoomFactor;
         eicParameters->_slice.rtmax = parentGroup->maxRt + 2 * _zoomFactor;
     } else if (_autoZoom) {
@@ -1709,8 +1733,6 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
 
     emit groupSet(group);
     replot(group);
-    _clearEicPoints();
-	addPeakPositions(group);
 }
 
 void EicWidget::setSensitiveToTolerance(bool sensitive)
@@ -1938,8 +1960,8 @@ void EicWidget::selectGroupNearRt(float rt) {
     if (selGroup != nullptr) {
         auto sharedGroup = make_shared<PeakGroup>(*selGroup);
         setSelectedGroup(sharedGroup);
+        addPeakPositions(sharedGroup);
 	}
-	getMainWindow()->mavenParameters->setPeakGroup(selGroup);
 }
 
 void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
@@ -2084,8 +2106,6 @@ void EicWidget::timerEvent(QTimerEvent * event) {
 
 void EicWidget::addMS2Events(float mzmin, float mzmax)
 {
-    qDebug() << "addMS2Events() " << mzmin << " " << mzmax;
-
     MainWindow* mw = getMainWindow();
     vector <mzSample*> samples = mw->getVisibleSamples();
 
@@ -2122,8 +2142,6 @@ void EicWidget::addMS2Events(float mzmin, float mzmax)
             }
         }
     }
-
-    qDebug() << "addMS2Events()  found=" << count;
 }
 
 
@@ -2150,9 +2168,10 @@ void EicWidget::renderPdf(shared_ptr<PeakGroup> group, QPainter* painter)
     } else if (!group->getSlice().srmId.empty()) {
         tagString = QString(group->getSlice().srmId.c_str());
     }
-    QString titleText = tr("%1 m/z: %2-%3").arg(tagString,
-                                                QString::number(group->getSlice().mzmin, 'f', 4),
-                                                QString::number(group->getSlice().mzmax, 'f', 4));
+    QString titleText = tr("%1 (m/z: %2 ‐ %3)").arg(
+        tagString,
+        QString::number(group->getSlice().mzmin, 'f', 4),
+        QString::number(group->getSlice().mzmax, 'f', 4));
 
     QGraphicsTextItem* title = scene.addText(titleText, font);
     title->setHtml(titleText);
@@ -2425,36 +2444,6 @@ void EicWidget::renderPdf(shared_ptr<PeakGroup> group, QPainter* painter)
 
             }
         }
-    }
-
-    //Add Peak Positions
-    for (unsigned int i = 0; i < group->peaks.size(); i++) {
-        Peak& peak = group->peaks[i];
-
-        if (peak.getSample() != nullptr && peak.getSample()->isSelected == false)
-            continue;
-
-        QColor color = Qt::black;
-        if (peak.getSample() != nullptr) {
-            mzSample* s = peak.getSample();
-            color = QColor::fromRgbF(s->color[0], s->color[1], s->color[2],
-                                     s->color[3]);
-        }
-
-        QPen pen(color, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        QBrush brush(color);
-        brush.setStyle(Qt::NoBrush);
-
-        EicPoint* p = new EicPoint(((peak.rt - _minX) / (_maxX - _minX) * scene.width()),
-                                   scene.height() - ((peak.peakIntensity - _minY) / (_maxY - _minY) * scene.height()),
-                                   &peak,
-                                   getMainWindow());
-        p->setColor(color);
-        p->forceFillColor(true);
-        p->setBrush(brush);
-        p->setPen(pen);
-        p->setPeakGroup(group);
-        scene.addItem(p);
     }
 
     //Add Selection Line

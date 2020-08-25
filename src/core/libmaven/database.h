@@ -170,7 +170,7 @@ class Database
         vector<string> getCategoryFromDB(vector<string>& fields,
                                          map<string, int>& header);
         
-        deque<Compound*> getCompoundsDB() { 	
+        deque<Compound*> compoundsDB() {
             return _compoundsDB;
         }
 

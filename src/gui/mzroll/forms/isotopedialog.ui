@@ -6,26 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>324</height>
+    <width>608</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="3" column="0" colspan="2">
-    <widget class="QPushButton" name="resetButton">
-     <property name="text">
-      <string>Use Default Parameters</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <widget class="QGroupBox" name="reportIsotopesOptions">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string>Report Isotopes</string>
      </property>
@@ -35,6 +31,12 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QGroupBox" name="tracers">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Isotopic tracer</string>
         </property>
@@ -68,81 +70,84 @@
            <property name="text">
             <string>C13</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="filterIsotopesAgainstParent">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Isotope Filtering</string>
+         <string>Filter isotopes based on unlabelled parent ion (if found)</string>
         </property>
         <property name="flat">
          <bool>false</bool>
         </property>
-        <layout class="QFormLayout" name="formLayout_2">
-         <property name="labelAlignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="formAlignment">
-          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Minimum Isotope-Parent Correlation</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout" columnstretch="3,1">
+         <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="minIsotopicCorrelation">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>0.200000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Isotope is within [X] scans of parent</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="maxIsotopeScanDiff">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="suffix">
-            <string> scans</string>
+            <string> %</string>
+           </property>
+           <property name="maximum">
+            <double>100.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>5.000000000000000</double>
            </property>
            <property name="value">
-            <number>15</number>
+            <double>20.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Minimum signal correlation with parent isotopologue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Maximum RT deviation from parent isotopologue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="maxIsotopeScanDiff">
+           <property name="suffix">
+            <string> seconds</string>
+           </property>
+           <property name="minimum">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>5.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.500000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.500000000000000</double>
            </property>
           </widget>
          </item>
@@ -150,9 +155,22 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="parentIsotopeRequired">
+        <property name="toolTip">
+         <string>If checked, the search for labelled isotopologues of a metabolite will depend on whether its unlabelled ion was found or not.</string>
+        </property>
+        <property name="text">
+         <string>Parent ion (unlabelled form) must be present</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="linkIsotopeRtRange">
         <property name="text">
-         <string>Link isotope peak RT range with parent peak</string>
+         <string>Link isotope peak RT range with parent peak (if found)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -160,6 +178,16 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="resetButton">
+     <property name="text">
+      <string>Use Default Parameters</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
   </layout>

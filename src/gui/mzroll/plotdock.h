@@ -128,7 +128,7 @@ public Q_SLOTS:
 						void zoomArea(QPointF from, QPointF to);
 
 Q_SIGNALS:
-		void groupSelected(PeakGroup*);
+    void groupSelected(shared_ptr<PeakGroup>);
 		void peakSelected(Peak*);
 		void scanSelected(Scan*);
 

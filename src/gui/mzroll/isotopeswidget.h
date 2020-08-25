@@ -7,7 +7,7 @@
 class QAction;
 class QMenu;
 class QTextEdit;
-class BackgroundPeakUpdate;
+class BackgroundOpsThread;
 class MainWindow;
 class IsotopeDetection;
 class IsotopeLogic;
@@ -25,34 +25,34 @@ Q_OBJECT
 public:
 	IsotopeWidget(MainWindow*);
 	~IsotopeWidget();
-	BackgroundPeakUpdate* workerThread;
 
- 	BackgroundPeakUpdate* workerThreadBarplot;
-
+    BackgroundOpsThread* workerThread;
+    BackgroundOpsThread* workerThreadBarplot;
 
 public Q_SLOTS:
 	void setCharge(double charge);
 	void setFormula(QString f);
 	void userChangedFormula(QString f);
-	void computeIsotopes(string f);
+    void computeIsotopes(string formula, bool updateBarplot = false);
+
 	/**
 	 * @brief sets necessary variables when a group is selected
 	 * @details sets peakgroup, sample (1st sample if none are selected),
 	 * scan, compound and formula for calculation of isotopes
 	**/
-    void setPeakGroupAndMore(shared_ptr<PeakGroup> grp,
-                             bool bookmarkflg = false);
+    void setPeakGroupAndMore(shared_ptr<PeakGroup> group,
+                             bool bookmark = false);
 	/**
 	 * @brief sets compound, window title and formula
 	**/
 	void setCompound(Compound* compound);
 	void setIonizationMode(int mode);
-	void setClipboard();
+    void bookmarkCurrentGroup();
 	void setClipboard(PeakGroup* group);
     void setClipboard(QList<shared_ptr<PeakGroup> > &groups);
-	void pullIsotopes(PeakGroup* group);
-	void pullIsotopesForBarplot(PeakGroup* group);
-    void updateIsotopicBarplot(shared_ptr<PeakGroup> grp);
+    void pullIsotopes(shared_ptr<PeakGroup> group);
+    void pullIsotopesForBarplot(shared_ptr<PeakGroup> group);
+    void updateIsotopicBarplot(shared_ptr<PeakGroup> group);
 	void updateIsotopicBarplot();
 	/**
 	 * @brief set peak and group if a specific peak is selected
@@ -70,7 +70,7 @@ public Q_SLOTS:
      * updated based on changes to some external state. It will simply
      * repopulate the list for an already set peak.
      */
-    void refreshForCurrentPeak();
+    void refreshTable();
 
 private Q_SLOTS:
 	void showInfo();
@@ -82,18 +82,17 @@ private Q_SLOTS:
 	void updateSelectedSample(int index);
 
 private:
-	  IsotopeLogic* isotopeParameters;
-	  IsotopeLogic* isotopeParametersBarPlot;
-	  IsotopeDetection* isotopeDetector;
-      MainWindow* _mw;
-	  bool bookmarkflag;
-	  mzSample* _selectedSample;
+    IsotopeLogic* isotopeParameters;
+    IsotopeLogic* isotopeParametersBarPlot;
+    MainWindow* _mw;
+    mzSample* _selectedSample;
 
-	  void clearWidget();
-	  void reset();
-	  void populateByParentGroup(vector<Isotope> masslist, double parentMass);
-      QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader); //TODO: Changed the structure of the function while merging isotopewidget
-
+    void clearWidget();
+    void reset();
+    QString groupIsotopeMatrixExport(PeakGroup* group, bool includeSampleHeader);
+    void _insertLinkForPeakGroup(PeakGroup* group);
+    void _pullIsotopesForFormula(string formula, bool updateBarplot = false);
+    void _pullIsotopesForGroup(shared_ptr<PeakGroup> group);
 };
 
 #endif

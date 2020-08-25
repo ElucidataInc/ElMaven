@@ -8,7 +8,9 @@
 #include "common/logger.h"
 #include "mavenparameters.h"
 #include "masscutofftype.h"
+#include "mzAligner.h"
 #include "mzUtils.h"
+#include "obiwarp.h"
 #include "peakdetectorcli.h"
 #include "projectDB/projectdatabase.h"
 
@@ -623,7 +625,7 @@ void PeakDetectorCLI::loadCompoundsFile()
     mavenParameters->processAllSlices = false;
     _log->info() << "Loading compound database…" << std::flush;
     int loadCount = _db.loadCompoundCSVFile(mavenParameters->ligandDbFilename);
-    auto compoundsDB = _db.getCompoundsDB();
+    auto compoundsDB = _db.compoundsDB();
     vector<Compound*> v(compoundsDB.begin(),compoundsDB.end());
     mavenParameters->compounds = v;
 
@@ -702,6 +704,50 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
          << " seconds.\n";
 #endif
 }
+
+void PeakDetectorCLI::alignSamples(const int& method)
+{
+    if (mavenParameters->samples.size() > 1) {
+        switch (method) {
+        case 1: {
+            cerr << "Starting OBI-WARP alignment" << std::endl;
+            // TODO: move the hard coded values in  default_settings.xml and
+            // instead of using obi params make use mavenParameters to access all
+            // the values.
+            ObiParams params(
+                "cor", false, 2.0, 1.0, 0.20, 3.40, 0.0, 20.0, false, 0.60);
+            Aligner mzAligner;
+            mzAligner.alignWithObiWarp(
+                mavenParameters->samples, &params, mavenParameters);
+        }
+        break;
+
+        case 2: {
+            mavenParameters->writeCSVFlag = false;
+            peakDetector->processFeatures();
+
+            cerr << "Starting PolyFit alignment using "
+                 << mavenParameters->allgroups.size()
+                 << " groups"
+                 << endl;
+
+            vector<PeakGroup*> agroups(mavenParameters->allgroups.size());
+            for (unsigned int i = 0; i < mavenParameters->allgroups.size(); i++)
+                agroups[i] = &mavenParameters->allgroups[i];
+
+            // init aligner
+            Aligner aligner;
+            aligner.doAlignment(agroups);
+            mavenParameters->writeCSVFlag = true;
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+}
+
 
 void PeakDetectorCLI::saveEmdb()
 {
@@ -1371,66 +1417,6 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
         PeakGroup& group = mavenParameters->allgroups[i];
         csvreports->addGroup(&group);
-    }
-
-
-    // NOTE: The following validation is being done to prevent a workflow
-    // breaking issue (SYP-24) caused by missing C12 PARENT labels for labelled
-    // data. This is only being done for the CLI.
-
-    // Check whether there's a missing C12 PARENT label in the written CSV file.
-    bool labeledDataPresent = false;
-    bool fileNeedsCorrection = false;
-    vector<int> groupsWithMissingLabels;
-    CsvParser* csvParser = CsvParser_new(fileName.c_str(), ",", 1);
-    CsvRow* currentRow = NULL;
-    // Iterates over each row, continuously assigning a pointer to an unread
-    // CsvRow.
-    while (currentRow = CsvParser_getRow(csvParser)) {
-        // eighth field is the isotope label.
-        string isotopeLabel = string(currentRow->fields_[7]);
-        if (isotopeLabel.empty()) {
-            int groupId = atoi(currentRow->fields_[2]);
-            groupsWithMissingLabels.push_back(groupId);
-            fileNeedsCorrection = true;
-        } else {
-            labeledDataPresent = true;
-        }
-    }
-
-    if (!labeledDataPresent)
-        fileNeedsCorrection = false;
-
-    if (fileNeedsCorrection) {
-        // rewrite file if needed
-        csvreports->setGroupId(0);
-
-        sort(groupsWithMissingLabels.begin(), groupsWithMissingLabels.end());
-        for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
-            PeakGroup& group = mavenParameters->allgroups[i];
-            // `csvreports->groupId` is incremented with each group added, we
-            // can use this to check if the group to be added next is present
-            // within groupsWithMissingLabels or not.
-            if (binary_search(groupsWithMissingLabels.begin(),
-                              groupsWithMissingLabels.end(),
-                              csvreports->groupId() + 1)) {
-                PeakGroup newGroup = group;
-                Compound* compound = group.getCompound();
-                float compoundMz = MassCalculator::computeMass(
-                    compound->formula(), mavenParameters->getCharge(compound));
-                float cutoffDist = massCutoffDist(
-                    group.meanMz, compoundMz, mavenParameters->massCutoffMerge);
-                if (cutoffDist
-                    < mavenParameters->massCutoffMerge->getMassCutoff()) {
-                    auto childGroup = make_shared<PeakGroup>(group);
-                    childGroup->tagString = "C12 PARENT";
-                    newGroup.children.push_back(childGroup);
-                    csvreports->addGroup(&newGroup);
-                    continue;
-                }
-            }
-            csvreports->addGroup(&group);
-        }
     }
 
     if (csvreports->getErrorReport() != "") {

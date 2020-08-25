@@ -788,7 +788,6 @@ void mzFileIO::writeGroups(QList<PeakGroup*> groups, QString tableName)
         MavenParameters* mp = _mainwindow->mavenParameters;
         for (auto group : groups) {
             // assuming all groups are parent groups.
-            group->setMetaGroupIdForChildren();
             groupVector.push_back(group);
             if (group->hasCompoundLink()) {
                 auto compound = group->getCompound();
@@ -811,11 +810,19 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
     _sqliteDbSaveInProgress = true;
     if (_currentProject) {
         _currentProject->deletePeakGroup(group);
-        auto parentGroupId = group->parent == nullptr ? 0
-                                                      : group->parent->groupId;
+        auto parentGroupId = 0;
+        if (group->parent != nullptr && group->parent->isGhost()) {
+            parentGroupId = -1;
+        } else if (group->parent != nullptr) {
+            parentGroupId = group->parent->groupId();
+        }
         _currentProject->saveGroupAndPeaks(group,
                                            parentGroupId,
                                            tableName.toStdString());
+        if (group->hasCompoundLink()
+            && !_currentProject->compoundExists(group->getCompound())) {
+            _currentProject->saveCompounds({group->getCompound()});
+        }
         Q_EMIT(updateStatusString("Updated group attributes"));
     }
     _sqliteDbSaveInProgress = false;
@@ -901,7 +908,6 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         set<Compound*> compoundSet;
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
-                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
@@ -981,7 +987,6 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
         for (const auto& peakTable : allTablesList) {
             for (shared_ptr<PeakGroup> group : peakTable->getGroups()) {
                 topLevelGroupCount++;
-                group->setMetaGroupIdForChildren();
                 groupVector.push_back(group.get());
                 if (group->hasCompoundLink()) {
                     auto compound = group->getCompound();
@@ -1147,10 +1152,17 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
                       * newSamples.at(0)->getPolarity();
     DB.updateChargesForZeroCharges(totalCharge);
     auto compounds = _currentProject->loadCompounds();
-    for (auto compound : compounds) {
-        cerr << compound->originalName() << " & " << compound->name() << endl;
+    for (auto compound : compounds)
         DB.addCompound(compound);
-    }
+
+    // lambda: if the given peak-group has an adduct with a name, assign it the
+    // same adduct, but from globally shared database instead
+    auto assignAdduct = [](PeakGroup* group, Database& db) {
+        if (group->adduct() != nullptr && !group->adduct()->getName().empty()) {
+            delete group->adduct();
+            group->setAdduct(db.findAdductByName(group->adduct()->getName()));
+        }
+    };
 
     // set of compound databases that need to be communicated with ligand widget
     vector<QString> dbNames;
@@ -1161,15 +1173,23 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     auto groupCount = 0;
     for (auto& group : groups) {
         // assign a compound from global "DB" object to the group
-        if (group->getCompound() && !group->getCompound()->db().empty()) {
-            group->setCompound(DB.findSpeciesByIdAndName(group->getCompound()->id(),
-                                                         group->getCompound()->name(),
-                                                         group->getCompound()->db()));
-            dbNames.push_back(QString::fromStdString(group->getCompound()->db()));
+        if (group->hasCompoundLink() && !group->getCompound()->db().empty()) {
+            Compound* compound = DB.findSpeciesByIdAndName(
+                group->getCompound()->id(),
+                group->getCompound()->name(),
+                group->getCompound()->db());
+            group->setCompound(compound);
+            for (auto& child : group->childIsotopes())
+                child->setCompound(compound);
+            for (auto& child : group->childAdducts())
+                child->setCompound(compound);
+            dbNames.push_back(QString::fromStdString(compound->db()));
         }
-
-        if (group->getAdduct() != nullptr)
-            group->setAdduct(DB.findAdductByName(group->getAdduct()->getName()));
+        assignAdduct(group, DB);
+        for (auto& child : group->childIsotopes())
+            assignAdduct(child.get(), DB);
+        for (auto& child : group->childAdducts())
+            assignAdduct(child.get(), DB);
 
         // assign group to bookmark table if none exists
         if (group->tableName().empty())
@@ -1322,9 +1342,7 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
         make_shared<MavenParameters>(*_mainwindow->mavenParameters),
         PeakGroup::IntegrationType::Programmatic);
 
-    group->groupId = xml.attributes().value("groupId").toString().toInt();
-    group->metaGroupId =
-        xml.attributes().value("metaGroupId").toString().toInt();
+    group->setGroupId(xml.attributes().value("groupId").toString().toInt());
     group->clusterId = xml.attributes().value("clusterId").toString().toInt();
     group->groupRank = xml.attributes().value("grouRank").toString().toFloat();
     group->tagIsotope(xml.attributes().value("tagString").toString().toStdString(),
@@ -1381,9 +1399,9 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     }
 
     if (parent) {
-        parent->addChild(*group);
-        if (parent->childCount() > 0)
-            group = parent->children[parent->children.size() - 1].get();
+        parent->addIsotopeChild(*group);
+        if (parent->childIsotopeCount() > 0)
+            group = parent->childIsotopes()[parent->childIsotopeCount() - 1].get();
     }
 
     return group;
@@ -1504,11 +1522,11 @@ vector<PeakGroup*> mzFileIO::readGroupsXML(QString fileName)
            if (xml.name() == "children") {
                 if (stack.size() > 0)
                     parent = stack.pop();
-                if (parent && parent->childCount()) {
-                    for (int i = 0; i < parent->children.size(); i++) {
-                        parent->children[i]->minQuality =
+                if (parent && parent->childIsotopeCount()) {
+                    for (int i = 0; i < parent->childIsotopes().size(); i++) {
+                        parent->childIsotopes()[i]->minQuality =
                             _mainwindow->mavenParameters->minQuality;
-                        parent->children[i]->groupStatistics();
+                        parent->childIsotopes()[i]->groupStatistics();
                     }
                 }
                 if (stack.size() == 0)

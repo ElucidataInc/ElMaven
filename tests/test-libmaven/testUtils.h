@@ -8,8 +8,7 @@
 #include "datastructures/mzSlice.h"
 #include "database.h"
 #include "classifierNeuralNet.h"
-#include "PeakDetector.h"
-#include "isotopeDetection.h"
+#include "peakdetector.h"
 
 class SampleLoadingFixture
 {
@@ -56,6 +55,8 @@ class SampleLoadingFixture
         mavenparameters->amuQ3 = 0.30;
         mavenparameters->baseline_smoothingWindow = 5;
         mavenparameters->baseline_dropTopX = 80;
+        mavenparameters->pullIsotopesFlag = false;
+        mavenparameters->searchAdducts = false;
     }
 
     vector<PeakGroup> _getTargetedGroupsFromProcessCompounds()
@@ -67,9 +68,7 @@ class SampleLoadingFixture
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
         peakDetector.setMavenParameters(_mavenparameters);
-        vector<mzSlice*> slices =
-            peakDetector.processCompounds(compounds, "compounds");
-        peakDetector.processSlices(slices, "compounds");
+        peakDetector.processCompounds(compounds);
         return _mavenparameters->allgroups;
     }
 
@@ -78,7 +77,7 @@ class SampleLoadingFixture
         _loadSamplesAndParameters(_samples, _mavenparameters);
         PeakDetector peakDetector;
         peakDetector.setMavenParameters(_mavenparameters);
-        peakDetector.processMassSlices();
+        peakDetector.processFeatures();
         return _mavenparameters->allgroups;
     }
 
@@ -103,7 +102,6 @@ class SampleLoadingFixture
         _allgroups = _getTargetedGroupsFromProcessCompounds();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
     }
 
     void untargetedGroup()
@@ -111,25 +109,6 @@ class SampleLoadingFixture
         _allgroups = _getUntargetedGroups();
         for (size_t i = 0; i < _allgroups.size(); i++)
             _isotopeGroups.push_back(_allgroups[i]);
-        detectIsotopes(_isotopeGroups);
-    }
-    /**
-     * @brief detectIsotopes Detects isotopes in the group.
-     * @param isotopeGroups  List of peakGroups.
-     */
-    void detectIsotopes(list<PeakGroup> isotopeGroups)
-    {
-        for (auto it = isotopeGroups.begin(); it != isotopeGroups.end(); it++) {
-            PeakGroup& parent = *it;
-            IsotopeDetection isotopeDetection(mavenparameters(),
-                                              IsotopeDetection::PeakDetection,
-                                              mavenparameters()->C13Labeled_BPE,
-                                              mavenparameters()->N15Labeled_BPE,
-                                              mavenparameters()->S34Labeled_BPE,
-                                              mavenparameters()->D2Labeled_BPE);
-            isotopeDetection.pullIsotopes(&parent);
-            _isotopeGroups.push_back(parent);
-        }
     }
 
     /**

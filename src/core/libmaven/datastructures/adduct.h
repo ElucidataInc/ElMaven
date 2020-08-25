@@ -11,7 +11,8 @@ class Adduct {
         Adduct(string name, int nmol, int charge, float mass);
         Adduct(const Adduct& a);
 
-        bool operator ==(const Adduct& other);
+        bool operator==(const Adduct& other);
+        bool operator<(const Adduct& other);
         string getName();
         int getCharge();
         int getNmol();
@@ -34,10 +35,10 @@ class Adduct {
 
         /**
          * @brief Given parent ion's mass, compute adduct's m/z value.
-         * @param mz The neutral mass of the parent ion.
+         * @param parentMass The neutral mass of the parent ion.
          * @return The calculated m/z of adduct molecule.
          */
-        float computeAdductMz(float parentMz);
+        float computeAdductMz(float parentMass);
 
     private:
         /**
@@ -61,11 +62,6 @@ class Adduct {
          * associated to a parent ion.
          */
         float _mass;
-
-        /**
-         * @brief Mass to charge ratio for this adduct.
-         */
-        float _mz;
 };
 
 #endif

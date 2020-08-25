@@ -21,6 +21,7 @@
 #include "stable.h"
 #include "base64.h"
 #include "Compound.h"
+#include "ligandwidget.h"
 #include "mainwindow.h"
 #include "database.h"
 #include "mzfileio.h"
@@ -129,16 +130,18 @@ int main(int argc, char *argv[])
     splash.show();
     app.processEvents();
 
-
-    Controller contrl;
+    Controller controller;
     qInstallMessageHandler(customMessageHandler);
 
-    for (int i = 1; i < argc; ++i)
-        contrl.getMainWindow()->fileLoader->addFileToQueue(QString(argv[i]));
+    for (int i = 1; i < argc; ++i) {
+        controller.getMainWindow()->fileLoader->addFileToQueue(
+            QString(argv[i]));
+    }
 
-    splash.finish(contrl.getMainWindow());
-    contrl.getMainWindow()->show();
-    contrl.getMainWindow()->fileLoader->start();
+    controller.getMainWindow()->show();
+    splash.finish(controller.getMainWindow());
+    controller.getMainWindow()->ligandWidget->updateIsotopesAndAdducts();
+    controller.getMainWindow()->fileLoader->start();
     int rv = app.exec();
 
 #ifdef __OSX_AVAILABLE

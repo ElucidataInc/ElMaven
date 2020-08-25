@@ -484,19 +484,10 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="3" column="2">
-           <widget class="QSpinBox" name="eicMaxGroups">
-            <property name="suffix">
-             <string> best</string>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>999999999</number>
-            </property>
-            <property name="value">
-             <number>10</number>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Select Database</string>
             </property>
            </widget>
           </item>
@@ -523,10 +514,32 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
+          <item row="0" column="2">
+           <widget class="QComboBox" name="compoundDatabase"/>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="label_16">
             <property name="text">
-             <string>Select Database</string>
+             <string>Limit number of reported groups per compound</string>
+            </property>
+            <property name="checked" stdset="0">
+             <string>Limit Number of Reported Groups per Compound</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QSpinBox" name="eicMaxGroups">
+            <property name="suffix">
+             <string> best</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>999999999</number>
+            </property>
+            <property name="value">
+             <number>10</number>
             </property>
            </widget>
           </item>
@@ -556,67 +569,6 @@
             </property>
             <property name="checked">
              <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="searchAdducts">
-            <property name="text">
-             <string>Detect adducts within</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QDoubleSpinBox" name="adductSearchWindow">
-            <property name="suffix">
-             <string> seconds from parent ion</string>
-            </property>
-            <property name="minimum">
-             <double>0.100000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>2.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.100000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QDoubleSpinBox" name="adductPercentCorrelation">
-            <property name="prefix">
-             <string>with </string>
-            </property>
-            <property name="suffix">
-             <string notr="true"> % correlation</string>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="minimum">
-             <double>0.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>100.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>5.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>90.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="compoundDatabase"/>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Limit number of reported groups per compound</string>
-            </property>
-            <property name="checked" stdset="0">
-             <string>Limit Number of Reported Groups per Compound</string>
             </property>
            </widget>
           </item>

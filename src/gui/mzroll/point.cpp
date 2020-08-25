@@ -4,6 +4,7 @@
 #include "eicwidget.h"
 #include "globals.h"
 #include "grouprtwidget.h"
+#include "isotopeplot.h"
 #include "isotopeswidget.h"
 #include "ligandwidget.h"
 #include "mainwindow.h"
@@ -27,8 +28,8 @@ EicPoint::EicPoint(float x, float y, Peak* peak, MainWindow* mw)
     _y = y;
     _mw = mw;
     _peak = peak;
+    _scan = nullptr;
     _group = nullptr;
-    _scan = NULL;
     _cSize = 10;
     _color=QColor(Qt::black);
     _pen=QPen(_color);
@@ -137,16 +138,24 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
                 break;
         }
 
-        setToolTip( "<b>  Sample: </b>"   + QString( sampleName.c_str() ) +
-                   QString("<br> <b>%1: </b>").arg(_mw->quantType->currentText())
-                   + QString::number(quantity) +
-                            "<br> <b>area: </b>" + 		  QString::number(_peak->peakAreaCorrected) +
-                            "<br> <b>Spline Area: </b>" + 		  QString::number(_peak->peakSplineArea) +
-                            "<br> <b>rt: </b>" +   QString::number(_peak->rt, 'f', 2 ) +
-                            "<br> <b>scan#: </b>" +   QString::number(_peak->scan ) +
-                            "<br> <b>sample number: </b>" + sampleNumber +
-                            "<br> <b>m/z: </b>" + QString::number(_peak->peakMz, 'f', 6 )
-                        );
+        setToolTip(
+            QString("<b> Sample: </b>%1").arg(sampleName.c_str())
+            + QString("<br> <b>%1: </b>%2")
+                  .arg(_mw->quantType->currentText())
+                  .arg(QString::number(quantity))
+            + QString("<br> <b>Corrected area: </b>%1")
+                  .arg(QString::number(_peak->peakAreaCorrected))
+            + QString("<br> <b>Spline Area: </b>%1")
+                  .arg(QString::number(_peak->peakSplineArea))
+            + QString("<br> <b>Width: </b>%1")
+                  .arg(QString::number(_peak->width))
+            + QString("<br> <b>m/z: </b>%1")
+                  .arg(QString::number(_peak->peakMz, 'f', 6))
+            + QString("<br> <b>RT: </b>%1")
+                  .arg(QString::number(_peak->rt, 'f', 2))
+            + QString("<br> <b>Scan number: </b>%1")
+                  .arg(QString::number(_peak->scan))
+            + QString("<br> <b>Sample number: </b>%1").arg(sampleNumber));
 
 		update();
 		/*
@@ -172,15 +181,18 @@ void EicPoint::hoverEnterEvent (QGraphicsSceneHoverEvent*) {
         QString sampleNumber =
             sample->sampleNumber != -1 ? QString::number(sample->sampleNumber)
                                        : "NA";
-		setToolTip( "<b>  Sample: </b>"   + QString( _scan->sample->sampleName.c_str() ) +
-					"<br> <b>FilterLine: </b>" + 		  QString(_scan->filterLine.c_str() ) + 
-					"<br> <b>Scan#: </b>" +   QString::number(_scan->scannum) +
-                    "<br> <b>sample number: </b>" + sampleNumber +
-					"<br> <b>PrecursorMz: </b>" +   QString::number(_scan->precursorMz, 'f', 2 )
-		);
+        setToolTip(
+            QString("<b> Sample: </b>%1")
+                .arg(_scan->sample->sampleName.c_str())
+            + QString("<br> <b>Filterline: </b>%1")
+                  .arg(_scan->filterLine.c_str())
+            + QString("<br> <b>Scan number: </b>%1")
+                  .arg(QString::number(_scan->scannum))
+            + QString("<br> <b>Sample number: </b>%1")
+                  .arg(sampleNumber)
+            + QString("<br> <b>Precursor m/z: </b>%1")
+                  .arg(QString::number(_scan->precursorMz, 'f', 2)));
 	}
-
-
 
     if(_group != nullptr) {
         _group->isFocused = true;
@@ -208,11 +220,10 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     if (_group != nullptr) Q_EMIT peakGroupSelected(_group);
     if (_peak)  Q_EMIT peakSelected(_peak);
 
-    if (_group != nullptr && !_group->isIsotope()) {
+    if (_group != nullptr) {
         _group = make_shared<PeakGroup>(*_group,
                                         PeakGroup::IntegrationType::Manual);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
-        _mw->isotopeWidget->peakSelected(_peak, _group);
     }
 
 }
@@ -224,10 +235,8 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
     }
 
     setZValue(10);
-    if (_group != nullptr) {
-        cerr << "GROUP EXISTS!" << endl;
+    if (_group != nullptr)
         emit peakGroupSelected(_group);
-    }
 
     if (_peak) {
         emit peakSelected(_peak);
@@ -237,20 +246,24 @@ void EicPoint::mousePressEvent (QGraphicsSceneMouseEvent* event) {
 
     // make changes through static functions, since this object might be
     // destroyed during the execution period of those functions.
-    _updateWidgetsForPeakGroup(_mw, _group, _peak);
-    _updateWidgetsForScan(_mw, _scan);
+    EicPoint::_updateWidgetsForScan(_mw, _scan);
+    EicPoint::_updateWidgetsForPeakGroup(_mw, _group, _peak);
 }
 
 void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
                                           shared_ptr<PeakGroup> group,
                                           Peak* peak)
 {
+    if (mw == nullptr)
+        return;
+
     if (group != nullptr)
         mw->groupRtWidget->plotGraph(group.get());
-    if (group != nullptr && group->isIsotope() == false )
-        mw->isotopeWidget->updateIsotopicBarplot(group);
-    if (peak && group != nullptr && mw->isotopeWidget->isVisible())
+    if (peak != nullptr
+        && group != nullptr
+        && (mw->isotopeWidget->isVisible() || mw->isotopePlot->isVisible())) {
         mw->isotopeWidget->peakSelected(peak, group);
+    }
     if (peak && mw->covariantsPanel->isVisible())
         mw->getLinks(peak);
     if (peak == nullptr)
@@ -260,7 +273,7 @@ void EicPoint::_updateWidgetsForPeakGroup(MainWindow* mw,
 
 void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
 {
-    if(scan) {
+    if (scan != nullptr && mw != nullptr) {
         if (mw->spectraWidget)
             mw->spectraWidget->setScan(scan);
         if (mw->fragSpectraWidget) {
@@ -277,6 +290,7 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
 {
     QPen pen = _pen;
     QBrush brush = _brush;
+    painter->setRenderHint(QPainter::Antialiasing);
 
     float scale = min(scene()->height(),scene()->width())/500;
     float paintDiameter = _cSize*scale;  

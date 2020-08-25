@@ -5,7 +5,7 @@
 #include "mzAligner.h"
 #include "mzSample.h"
 #include "obiwarp.h"
-#include "PeakDetector.h"
+#include "peakdetector.h"
 #include "PeakGroup.h"
 #include "Scan.h"
 #include "utilities.h"
@@ -64,9 +64,7 @@ void TestMzAligner::testObiWarp()
 
     PeakDetector peakDetector;
     peakDetector.setMavenParameters(mavenparameters);
-    vector<mzSlice*> slices = peakDetector.processCompounds(compounds,
-                                                            "compounds");
-    peakDetector.processSlices(slices, "compounds");
+    peakDetector.processCompounds(compounds);
 
     for(PeakGroup grp: mavenparameters->allgroups) {
 
