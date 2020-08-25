@@ -53,8 +53,7 @@ void TestCLI::testLoadCompoundsFile() {
     peakdetectorCLI->mavenParameters->ligandDbFilename = dbPath;
     peakdetectorCLI->loadCompoundsFile();
 
-    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 257);
-
+    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 266);
 }
 
 void TestCLI::testLoadSamples() {
@@ -116,8 +115,7 @@ void TestCLI::testProcessXml() {
     QVERIFY(peakdetectorCLI->mavenParameters->clsf->hasModel());
 
 	peakdetectorCLI->loadCompoundsFile();
-    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 257);
-
+    QVERIFY(peakdetectorCLI->mavenParameters->compounds.size() == 266);
 }
 
 void TestCLI::testCreateXMLFile() {

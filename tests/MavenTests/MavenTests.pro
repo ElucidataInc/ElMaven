@@ -10,7 +10,7 @@ TARGET = MavenTests
 QT += testlib network xml
 QT -= gui
 
-CONFIG += qtestlib warn_off console
+CONFIG += qtestlib warn_off cmdline
 CONFIG -= app_bundle
 
 QMAKE_CXXFLAGS +=  -std=c++11
