@@ -127,9 +127,6 @@ class MassCalculator {
          */
         static bool compDiff(const Match* a, const Match* b ) { return a->diff < b->diff; }
 
-        string peptideFormula(const string& peptideSeq); //TODO: Sahil, Added while merging point
-
-
     private:
         /**
          * [getElementMass function to get molar weight of an element or group]

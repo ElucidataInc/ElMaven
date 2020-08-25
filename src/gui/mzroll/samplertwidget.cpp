@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "mzFit.h"
 #include "mzSample.h"
-#include "Peptide.hpp"
 #include "projectdockwidget.h"
 #include "samplertwidget.h"
 #include "Scan.h"
@@ -17,7 +16,7 @@ SampleRtWidget::SampleRtWidget(MainWindow *mw) :
     this->_mw= mw;
     ui->setupUi(this);
     setObjectName("SampleRtWidget");
-    setWindowTitle("Sample Deviation");
+    setWindowTitle("Sample deviation");
 
     setXAxis();
     setYAxis();

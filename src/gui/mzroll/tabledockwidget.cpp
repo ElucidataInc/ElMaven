@@ -1,6 +1,5 @@
 #include <algorithm>
 
-#include <QHistogramSlider.h>
 #include <qtconcurrentrun.h>
 
 #include "alignmentdialog.h"
@@ -16,7 +15,6 @@
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "groupsettingslog.h"
-#include "heatmap.h"
 #include "isotopeswidget.h"
 #include "jsonReports.h";
 #include "ligandwidget.h"
@@ -115,8 +113,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SLOT(setProgressBar(QString, int, int, bool)));
   connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
   connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
-
-  setupFiltersDialog();
 }
 
 TableDockWidget::~TableDockWidget() {
@@ -184,20 +180,20 @@ void TableDockWidget::setupPeakTable() {
   colNames << "ID";
   colNames << "Observed m/z";
   colNames << "Expected m/z";
-  colNames << "rt";
+  colNames << "RT";
 
   if (viewType == groupView) {
 
     // Add group view columns to the peak table
-    colNames << "rt delta";
-    colNames << "#peaks";
-    colNames << "#good";
-    colNames << "Max Width";
+    colNames << "Δ RT";
+    colNames << "# peaks";
+    colNames << "# good peaks";
+    colNames << "Max width";
     colNames << "Max AreaTop";
     colNames << "Max S/N";
-    colNames << "Max Quality";
-    colNames << "MS2 Score";
-    colNames << "#MS2 Events";
+    colNames << "Max quality";
+    colNames << "MS2 score";
+    colNames << "#MS2 events";
     colNames << "Rank";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
@@ -273,10 +269,39 @@ void TableDockWidget::updateTable() {
   updateStatus();
 }
 
+void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem *item)
+{
+    auto group = groupForItem(item);
+    int numGood = 0;
+    int numBad = 0;
+    int total = group->peakCount();
+    for (int i = 0; i < group->peakCount(); i++) {
+        group->peaks[i].quality > _mainwindow->mavenParameters->minQuality
+            ? numGood++
+            : numBad++;
+    }
+
+    float incorrectFraction = 0.0f;
+    if (numGood > 0 && group->label == 'b') {
+        incorrectFraction = static_cast<float>(numGood) / total;
+    } else if (numBad > 0 && group->label == 'g') {
+        incorrectFraction = static_cast<float>(numBad) / total;
+    }
+    QLinearGradient gradient(0, 6, 42, 6);
+    gradient.setColorAt(0, QColor::fromRgbF(1.0, 1.0, 1.0, 0.0));
+    gradient.setColorAt(1, QColor::fromRgbF(1.0, 0.0, 0.13, incorrectFraction));
+    QBrush brush(gradient);
+    item->setBackground(0, brush);
+}
+
 void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
   shared_ptr<PeakGroup> group = groupForItem(item);
   if (group == nullptr)
     return;
+
+  for (int i = 0; i < treeWidget->columnCount(); ++i)
+    item->setTextAlignment(i, Qt::AlignRight);
+  item->setTextAlignment(1, Qt::AlignLeft); // compound name
 
   if (group->isGhost()) {
     item->setText(0, QString::number(group->groupId()));
@@ -287,8 +312,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     }
     return;
   }
-
-  heatmapBackground(item);
 
   //Find maximum number of peaks
   if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
@@ -348,29 +371,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     vector<float> yvalues = group->getOrderedIntensityVector(
         vsamples, _mainwindow->getUserQuantType());
     for (unsigned int i = 0; i < yvalues.size(); i++)
-      item->setText(5 + i, QString::number(yvalues[i]));
+      item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
     heatmapBackground(item);
   }
 
-  int good = 0;
-  int bad = 0;
-  int total = group->peakCount();
-  for (int i = 0; i < group->peakCount(); i++) {
-    group->peaks[i].quality > _mainwindow->mavenParameters->minQuality ? good++
-                                                                       : bad++;
-  }
-
-  QBrush brush = Qt::NoBrush;
-  if (good > 0 && group->label == 'b') {
-    float incorrectFraction = ((float)good) / total;
-    brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
-  } else if (bad > 0 && group->label == 'g') {
-    float incorrectFraction = ((float)bad) / total;
-    brush = QBrush(QColor::fromRgbF(0.8, 0, 0, incorrectFraction));
-  } else {
-    brush = QBrush(QColor::fromRgbF(1.0, 1.0, 1.0, 1.0));
-  }
-  item->setBackground(0, brush);
+  _paintClassificationDisagreement(item);
 
   if (group->label == 'g') {
     item->setIcon(0, QIcon(":/images/good.png"));
@@ -378,17 +383,6 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
     item->setIcon(0, QIcon(":/images/bad.png"));
   } else {
     item->setIcon(0, QIcon());
-  }
-
-  if (filtersDialog->isVisible()) {
-    float minG = sliders["GoodPeakCount"]->minBoundValue();
-    float maxG = sliders["GoodPeakCount"]->maxBoundValue();
-
-    if (group->goodPeakCount < minG || group->goodPeakCount > maxG) {
-      item->setHidden(true);
-    } else {
-      item->setHidden(false);
-    }
   }
 
   if (updateChildren) {
@@ -465,16 +459,13 @@ void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
         values[i] = abs((max - values[i]) / max); // Z-score
     }
 
-    QColor color = Qt::white;
-
-    float colorramp = 0.5;
-
+    QColor color = 0xfe7400;
     for (int i = 0; i < values.size(); i++) {
       float value = values[i];
       float prob = value;
       if (prob < 0)
         prob = 0;
-      color.setHsvF(0.0, prob, 1, 1);
+      color.setAlpha((1.0f - prob) * 210);
 
       item->setBackgroundColor(firstColumn + i, color);
     }
@@ -656,12 +647,6 @@ void TableDockWidget::deleteAll()
   _mainwindow->getEicWidget()->replotForced();
 
   this->hide();
-
-  if (_mainwindow->heatmap) {
-    HeatMap *_heatmap = _mainwindow->heatmap;
-    _heatmap->setTable(this);
-    _heatmap->replot();
-  }
 }
 
 void TableDockWidget::noPeakFound()
@@ -1670,16 +1655,6 @@ void TableDockWidget::pdfReadyNotification()
     _mainwindow->setStatusText(title);
 }
 
-void TableDockWidget::showHeatMap() {
-
-  _mainwindow->heatMapDockWidget->setVisible(true);
-  HeatMap *_heatmap = _mainwindow->heatmap;
-  if (_heatmap) {
-    _heatmap->setTable(this);
-    _heatmap->replot();
-  }
-}
-
 void TableDockWidget::editSelectedPeakGroup()
 {
   if (treeWidget->selectedItems().size() != 1)
@@ -1731,7 +1706,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
       return;
 
   QMenu menu;
-  QAction *z0 = menu.addAction("Copy to Clipboard");
+  QAction *z0 = menu.addAction("Copy to clipboard");
   connect(z0, SIGNAL(triggered()), this, SLOT(setClipboard()));
 
   QAction *z1 = menu.addAction("Edit peak-group");
@@ -1746,10 +1721,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::showIntegrationSettings);
 
-  QAction *z3 = menu.addAction("Show Consensus Spectra");
-  connect(z3, SIGNAL(triggered()), SLOT(showConsensusSpectra()));
-
-  QAction *z4 = menu.addAction("Delete All Groups");
+  QAction *z4 = menu.addAction("Delete all groups");
   connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
@@ -1760,7 +1732,6 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
     // disable actions not relevant to individual peak-groups
     z1->setEnabled(false);
     z2->setEnabled(false);
-    z3->setEnabled(false);
   }
 
   menu.exec(event->globalPos());
@@ -1931,49 +1902,6 @@ void TableDockWidget::clusterGroups()
   showAllGroups();
 }
 
-void TableDockWidget::setupFiltersDialog() {
-
-  filtersDialog = new QDialog(this);
-  QVBoxLayout *layout = new QVBoxLayout(filtersDialog);
-
-  sliders["PeakQuality"] = new QHistogramSlider(this);
-  sliders["PeakIntensity"] = new QHistogramSlider(this);
-  sliders["PeakWidth"] = new QHistogramSlider(this);
-  sliders["GaussianFit"] = new QHistogramSlider(this);
-  sliders["PeakAreaFractional"] = new QHistogramSlider(this);
-  sliders["PeakAreaTop"] = new QHistogramSlider(this);
-  sliders["S/N Ratio"] = new QHistogramSlider(this);
-  sliders["GoodPeakCount"] = new QHistogramSlider(this);
-
-  Q_FOREACH (QHistogramSlider *slider, sliders) {
-    connect(slider, SIGNAL(minBoundChanged(double)), SLOT(filterPeakTable()));
-    connect(slider, SIGNAL(maxBoundChanged(double)), SLOT(filterPeakTable()));
-    layout->addWidget(slider);
-  }
-
-  filtersDialog->setLayout(layout);
-}
-
-void TableDockWidget::showFiltersDialog() {
-  filtersDialog->setVisible(!filtersDialog->isVisible());
-  if (filtersDialog->isVisible() == false)
-    return;
-
-  Q_FOREACH (QHistogramSlider *slider, sliders) { slider->clearData(); }
-
-  for (int i = 0; i < 100; i++)
-    sliders["PeakQuality"]->addDataPoint(QPointF((float)i / 100.00, i));
-  for (int i = 0; i < 50; i++)
-    sliders["GoodPeakCount"]->addDataPoint(QPointF(i, 5));
-  for (int i = 0; i < 100; i++)
-    sliders["PeakIntensity"]->addDataPoint(QPointF(i, i));
-  sliders["PeakQuality"]->setPrecision(2);
-  Q_FOREACH (QHistogramSlider *slider, sliders)
-    slider->recalculatePlotBounds();
-}
-
-void TableDockWidget::filterPeakTable() { updateTable(); }
-
 void TableDockWidget::showFocusedGroups() {
   int N = treeWidget->topLevelItemCount();
   for (int i = 0; i < N; i++) {
@@ -2071,13 +1999,17 @@ int TableDockWidget::lastTableId()
 void TableDockWidget::setDefaultStyle(bool isActive)
 {
     QString style = "";
-    style += "QLabel       { margin:        0px 6px;             }";
-    style += "QToolBar     { background:    white;               }";
-    style += "QToolBar     { border:        none;                }";
-    style += "QToolBar     { border-bottom: 1px solid lightgray; }";
-    style += "QTreeView    { border:        none;                }";
+    style += "QToolBar QLabel { margin: 0 2px 0 6px; }";
+    style += "QToolBar { background: %1; }";
+    style += "QTreeView { border: none; }";
+    style += "QToolBar QToolButton { margin: 2px; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
     if (isActive) {
-        style += "QToolBar { background:    #ebeafa;             }";
+        QColor light = themePalette.light().color();
+        style = style.arg(light.name(QColor::HexRgb));
+    } else {
+        QColor base = themePalette.base().color();
+        style = style.arg(base.name(QColor::HexRgb));
     }
     setStyleSheet(style);
 }
@@ -2087,7 +2019,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   if (btnName == "titlePeakTable") {
     td->titlePeakTable = new QLabel(parent);
     QFont font;
-    font.setPointSize(14);
+    font.setPixelSize(16);
     td->titlePeakTable->setFont(font);
     td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
     td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
@@ -2096,14 +2028,14 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnSwitchView") {
     QToolButton *btnSwitchView = new QToolButton(parent);
     btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
-    btnSwitchView->setToolTip("Switch between Group and Peak Views");
+    btnSwitchView->setToolTip("Switch between \"group\" and \"peak\" views");
     connect(btnSwitchView, SIGNAL(clicked()), td, SLOT(switchTableView()));
     return btnSwitchView;
   } else if (btnName == "btnGroupCSV") {
     QToolButton *btnGroupCSV = new QToolButton(parent);
     btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
-    btnGroupCSV->setToolTip(tr("Export Groups To SpreadSheet (.csv) "));
-    btnGroupCSV->setMenu(new QMenu("Export Groups"));
+    btnGroupCSV->setToolTip(tr("Export groups to spreadSheet (.csv) "));
+    btnGroupCSV->setMenu(new QMenu("Export groups"));
     btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
 
     QAction *exportSelected =
@@ -2159,20 +2091,20 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnSaveJson") {
     QToolButton *btnSaveJson = new QToolButton(parent);
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
-    btnSaveJson->setToolTip(tr("Export EICs to Json (.json)"));
+    btnSaveJson->setToolTip(tr("Export EICs to JSON (.json)"));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
     QToolButton *btnScatter = new QToolButton(parent);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
-    btnScatter->setToolTip("Show ScatterPlot");
+    btnScatter->setToolTip("Show scatter-plot");
     connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
     return btnScatter;
   } else if (btnName == "btnCluster") {
     QToolButton *btnCluster = new QToolButton(parent);
     btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnCluster->setToolTip("Cluster Groups");
+    btnCluster->setToolTip("Cluster groups");
     connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
     return btnCluster;
   } else if (btnName == "btnGood") {
@@ -2208,13 +2140,13 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
   } else if (btnName == "btnDelete") {
     QToolButton *btnDelete = new QToolButton(parent);
     btnDelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
-    btnDelete->setToolTip("Delete Group");
+    btnDelete->setToolTip("Delete group");
     connect(btnDelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
     return btnDelete;
   } else if (btnName == "btnPDF") {
     QToolButton *btnPDF = new QToolButton(parent);
     btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
-    btnPDF->setToolTip("Generate PDF Report");
+    btnPDF->setToolTip("Generate PDF report");
     btnPDF->setMenu(new QMenu("Export Groups"));
     btnPDF->setPopupMode(QToolButton::InstantPopup);
 
@@ -2233,12 +2165,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
     return btnPDF;
   } else if (btnName == "btnX") {
     QToolButton *btnX = new QToolButton(parent);
-    btnX->setIcon(td->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    btnX->setIcon(QIcon(rsrcPath + "/closeWidget.png"));
     connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
     return btnX;
   } else if (btnName == "btnMin") {
     QToolButton *btnMin = new QToolButton(parent);
-    btnMin->setIcon(td->style()->standardIcon(QStyle::SP_TitleBarMinButton));
+    btnMin->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
     return btnMin;
   } else if (btnName == "btnSaveSpectral") {
@@ -2309,8 +2241,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2331,7 +2261,11 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+  toolBar->addSeparator();
+
   toolBar->addAction(btnSwitchView);
+  toolBar->addSeparator();
+
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
@@ -2343,7 +2277,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);
@@ -2422,8 +2355,8 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   toolBar->setIconSize(QSize(24, 24));
   btnMerge = new QToolButton(toolBar);
   btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
-  btnMerge->setToolTip("Merge Groups With");
-  btnMergeMenu = new QMenu("Merge Groups");
+  btnMerge->setToolTip("Merge bookmarks with peak-table");
+  btnMergeMenu = new QMenu("Merge groups");
   btnMerge->setMenu(btnMergeMenu);
   btnMerge->setPopupMode(QToolButton::InstantPopup);
   connect(btnMergeMenu,
@@ -2445,8 +2378,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
   QWidgetAction *btnScatter =
       new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2466,12 +2397,18 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnSwitchView);
+
+  toolBar->addSeparator();
+  toolBar->addWidget(btnMerge);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
   toolBar->addAction(btnDelete);
-  toolBar->addWidget(btnMerge);
 
   toolBar->addSeparator();
   toolBar->addAction(btnEditPeakGroup);
@@ -2479,7 +2416,6 @@ BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidg
 
   toolBar->addSeparator();
   toolBar->addAction(btnScatter);
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);
@@ -2717,8 +2653,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
       new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
   QWidgetAction *btnSaveSpectral =
       new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
-  QWidgetAction *btnCluster =
-      new TableToolBarWidgetAction(toolBar, this, "btnCluster");
   QWidgetAction *btnGood =
       new TableToolBarWidgetAction(toolBar, this, "btnGood");
   QWidgetAction *btnBad =
@@ -2738,7 +2672,11 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
   toolBar->addAction(titlePeakTable);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnSwitchView);
+
+  toolBar->addSeparator();
   toolBar->addAction(btnGood);
   toolBar->addAction(btnBad);
   toolBar->addAction(btnUnmark);
@@ -2749,7 +2687,6 @@ ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
   toolBar->addAction(btnSettingsLog);
 
   toolBar->addSeparator();
-  toolBar->addAction(btnCluster);
 
   toolBar->addSeparator();
   toolBar->addAction(btnPDF);
@@ -2776,25 +2713,25 @@ void ScatterplotTableDockWidget::setupPeakTable() {
   colNames << "ID";
   colNames << "Observed m/z";
   colNames << "Expected m/z";
-  colNames << "rt";
+  colNames << "RT";
 
   if (viewType == groupView) {
 
     // Add group view columns to the table
-    colNames << "rt delta";
-    colNames << "#peaks";
-    colNames << "#good";
-    colNames << "Max Width";
+    colNames << "Δ RT";
+    colNames << "# peaks";
+    colNames << "# good";
+    colNames << "Max width";
     colNames << "Max AreaTop";
     colNames << "Max S/N";
-    colNames << "Max Quality";
-    colNames << "MS2 Score";
-    colNames << "#MS2 Events";
+    colNames << "Max quality";
+    colNames << "MS2 score";
+    colNames << "#MS2 events";
     colNames << "Rank";
 
     // add scatterplot table columns
-    colNames << "Ratio Change";
-    colNames << "P-value";
+    colNames << "Ratio change";
+    colNames << "p-value";
   } else if (viewType == peakView) {
     vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
     sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);

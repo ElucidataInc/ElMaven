@@ -172,8 +172,6 @@ public:
     {
         const vector<char*> options = {
             "a?alignSamples: Enter 1 for Obi-Warp alignment, 2 for Polyfit.",
-            "b?minGoodGroupCount: Enter minimum number of good peaks per "
-                "group. <int>",
             "c?matchRtFlag: Enter non-zero integer to match retention time to "
                 "the database values. <int>",
             "C?compoundPPMWindow: Enter ppm window for m/z. <float>",
@@ -315,7 +313,6 @@ struct Arguments
         generalArgs << "string" << "samples" << "path/to/sample2";
         generalArgs << "string" << "samples" << "path/to/sample3";
 
-        peakDialogArgs << "int" << "minGoodGroupCount" << "1";
         peakDialogArgs << "int" << "matchRtFlag" << "0";
         peakDialogArgs << "string" << "Db" << "0";
         peakDialogArgs << "int" << "processAllSlices" << "0";

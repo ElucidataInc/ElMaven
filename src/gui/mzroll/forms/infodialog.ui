@@ -43,21 +43,6 @@
      <property name="toolTip">
       <string>If provided, the identity will be tied to all user behaviour for this session.</string>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QGroupBox {
-	background-color: white;
-	border: 1px solid gray;
-	border-radius: 3px;
-	margin-top: 2.8ex;
-	font-size: 11px;
-}
-
-QGroupBox::title {
-	subcontrol-origin: margin;
-	subcontrol-position: top left; /* position at the top center */
-	padding: 0;
-}</string>
-     </property>
      <property name="title">
       <string>Session identity</string>
      </property>
@@ -80,26 +65,6 @@ QGroupBox::title {
         <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QLineEdit {
-    border: 1px solid gray;
-    border-radius: 2px;
-    padding: 2px;
-}
-
-QLineEdit:focus {
-    outline: 2px solid orange;
-}
-
-QLineEdit:disabled {
-    background-color: rgb(240, 240, 240);
-}
-
-QLineEdit:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
-        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -120,26 +85,6 @@ QLineEdit:focus {
         <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QLineEdit {
-    border: 1px solid gray;
-    border-radius: 2px;
-    padding: 2px;
-}
-
-QLineEdit:focus {
-    outline: 2px solid orange;
-}
-
-QLineEdit:disabled {
-    background-color: rgb(240, 240, 240);
-}
-
-QLineEdit:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
-        </property>
        </widget>
       </item>
       <item row="2" column="2">
@@ -149,39 +94,6 @@ QLineEdit:focus {
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	background-color: white;
-	padding: 6px;
-	border: 1px solid orange;
-	border-radius: 3px;
-	text-align: left;
-	margin: 6px 3px;
-}
-
-QPushButton:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:default {
-	background-color: orange;
-	color: white;
-	border: 1px solid orange;
-}
-
-QPushButton:default:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
         </property>
         <property name="text">
          <string>Sign in</string>
@@ -202,6 +114,22 @@ QPushButton:focus {
     </widget>
    </item>
    <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Maximum</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>12</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -215,21 +143,6 @@ QPushButton:focus {
        <height>0</height>
       </size>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QGroupBox {
-	background-color: white;
-	border: 1px solid gray;
-	border-radius: 3px;
-	margin-top: 2.8ex;
-	font-size: 11px;
-}
-
-QGroupBox::title {
-	subcontrol-origin: margin;
-	subcontrol-position: top left; /* position at the top center */
-	padding: 0;
-}</string>
-     </property>
      <property name="title">
       <string>Help</string>
      </property>
@@ -241,27 +154,6 @@ QGroupBox::title {
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	background-color: white;
-	padding: 6px;
-	border: 1px solid orange;
-	border-radius: 3px;
-	text-align: left;
-	margin: 6px 3px;
-}
-
-QPushButton:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
         </property>
         <property name="text">
          <string>Tutorials and documentation</string>
@@ -276,27 +168,6 @@ QPushButton:focus {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	background-color: white;
-	padding: 6px;
-	border: 1px solid orange;
-	border-radius: 3px;
-	text-align: left;
-	margin: 6px 3px;
-}
-
-QPushButton:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
-        </property>
         <property name="text">
          <string>El-MAVEN Academy</string>
         </property>
@@ -310,27 +181,6 @@ QPushButton:focus {
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	background-color: white;
-	padding: 6px;
-	border: 1px solid orange;
-	border-radius: 3px;
-	text-align: left;
-	margin: 6px 3px;
-}
-
-QPushButton:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
-        </property>
         <property name="text">
          <string>Cite El-MAVEN</string>
         </property>
@@ -340,21 +190,12 @@ QPushButton:focus {
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="contactLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QLabel {
-	padding: 6px;
-	background-color: white;
-	border: 1px solid gray;
-	border-radius: 3px;
-}
-</string>
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Contact tech support: &lt;a href=&quot;mailto:elmaven@elucidata.io&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;elmaven@elucidata.io&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -8,7 +8,6 @@ SUBDIRS += obiwarp       \
            libcdfread    \
            libcsvparser  \
            pugixml/src   \
-           libpillow     \
            libpls        \
            Logger        \
            ErrorHandling \

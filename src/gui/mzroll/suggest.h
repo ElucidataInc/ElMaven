@@ -7,7 +7,6 @@ class QLineEdit;
 class QTimer;
 class QTreeWidget;
 class Compound;
-class Pathway;
 
 class SuggestPopup : public QObject
 {
@@ -31,7 +30,6 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 	 void compoundSelected(Compound*);
-	 void pathwaySelected(Pathway*);
 
 private:
      QLineEdit *editor;
@@ -42,12 +40,10 @@ private:
 
 
 	void doSearchCompounds(QString needle);
-	void doSearchPathways(QString needle);
 	void doSearchHistory(QString needle);
 
 	QHash<QString,float> scores;
     QHash<QString,Compound*> compound_matches;
-    QHash<QString,Pathway*> pathway_matches;
 
 
 

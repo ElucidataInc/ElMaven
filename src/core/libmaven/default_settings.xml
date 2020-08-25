@@ -41,6 +41,7 @@
         <minSignalBaselineRatio>2</minSignalBaselineRatio>
         <signalBaselineRatioQuantile>0</signalBaselineRatioQuantile>
         <minPeakWidth>3</minPeakWidth>
+        <peakWidthQuantile>0</peakWidthQuantile>
         <minGoodPeakCount>1</minGoodPeakCount>
         <ionizationMode>0</ionizationMode>
         <q1Accuracy>0.50</q1Accuracy>

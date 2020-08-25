@@ -194,14 +194,14 @@ void BackgroundOpsThread::alignWithObiWarp()
 {
     ObiParams* obiParams = new ObiParams(
         mainwindow->alignmentDialog->scoreObi->currentText().toStdString(),
-        mainwindow->alignmentDialog->local->isChecked(),
+        false,
         mainwindow->alignmentDialog->factorDiag->value(),
         mainwindow->alignmentDialog->factorGap->value(),
         mainwindow->alignmentDialog->gapInit->value(),
         mainwindow->alignmentDialog->gapExtend->value(),
-        mainwindow->alignmentDialog->initPenalty->value(),
+        0.0f,
         mainwindow->alignmentDialog->responseObiWarp->value(),
-        mainwindow->alignmentDialog->noStdNormal->isChecked(),
+        false,
         mainwindow->alignmentDialog->binSizeObiWarp->value());
 
     emit updateProgressBar("Aligning samples…", 0, 100);

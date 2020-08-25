@@ -76,7 +76,6 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         grouping_maxRtWindow = 0.5;
 
         // peak filtering criteria
-        minGoodGroupCount = 1;
         minSignalBlankRatio = 2;
         minNoNoiseObs = 1;
         minSignalBaseLineRatio = 2;
@@ -124,6 +123,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         quantileIntensity = 0.0;
         quantileSignalBaselineRatio = 0.0;
         quantileSignalBlankRatio = 0.0;
+        quantilePeakWidth = 0.0;
 
         //options dialog::peak grouping tab-widget
 	distXWeight = 1.0;
@@ -238,7 +238,6 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
 
     grouping_maxRtWindow = mp.grouping_maxRtWindow;
 
-    minGoodGroupCount = mp.minGoodGroupCount;
     minSignalBlankRatio = mp.minSignalBlankRatio;
     minNoNoiseObs = mp.minNoNoiseObs;
     minSignalBaseLineRatio = mp.minSignalBaseLineRatio;
@@ -290,6 +289,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     quantileIntensity = mp.quantileIntensity;
     quantileSignalBaselineRatio = mp.quantileSignalBaselineRatio;
     quantileSignalBlankRatio = mp.quantileSignalBlankRatio;
+    quantilePeakWidth = mp.quantilePeakWidth;
 
     distXWeight = mp.distXWeight;
     distYWeight = mp.distYWeight;
@@ -508,8 +508,8 @@ void  MavenParameters::setPeakDetectionSettings(const char* key, const char* val
     if(strcmp(key, "minPeakWidth") == 0 )
         minNoNoiseObs = atof(value);
 
-    if(strcmp(key, "minGoodPeakCount") == 0 )
-        minGoodGroupCount = atof(value);
+    if(strcmp(key, "peakWidthQuantile") == 0 )
+        quantilePeakWidth = atof(value);
 }
 
 void MavenParameters::setOptionsDialogSettings(const char* key, const char* value)
@@ -784,7 +784,6 @@ void MavenParameters::printSettings() {
         cerr << "#grouping_maxRtWindow=" << grouping_maxRtWindow << endl;
 
         //peak filtering criteria
-        cerr << "#minGoodGroupCount=" << minGoodGroupCount << endl;
         cerr << "#minSignalBlankRatio=" << minSignalBlankRatio << endl;
         cerr << "#minNoNoiseObs=" << minNoNoiseObs << endl;
         cerr << "#minSignalBaseLineRatio=" << minSignalBaseLineRatio << endl;

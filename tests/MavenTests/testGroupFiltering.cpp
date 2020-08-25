@@ -46,5 +46,6 @@ void TestGroupFiltering::testquantileFilters() {
     mavenparameters->quantileQuality = 0;
     mavenparameters->quantileSignalBaselineRatio = 0;
     mavenparameters->quantileSignalBlankRatio = 0;
+    mavenparameters->quantilePeakWidth = 0;
     QVERIFY(groupFiltering.quantileFilters(&group) == false);
 }

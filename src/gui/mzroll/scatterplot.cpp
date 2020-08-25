@@ -56,36 +56,35 @@ void ScatterPlot::setupToolBar() {
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
 
+    auto widgetName = new QLabel("Scatter-plot");
+    widgetName->setStyleSheet("QLabel { margin-left: 6px; }");
+    toolBar->addWidget(widgetName);
+    toolBar->addSeparator();
+
     QToolButton *bntResetZoom = new QToolButton(toolBar);
     bntResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-    bntResetZoom->setToolTip("Reset Zoom");
+    bntResetZoom->setToolTip("Reset zoom");
     connect(bntResetZoom,SIGNAL(clicked()),SLOT(resetZoom()));
 
     QToolButton *btnScatter = new QToolButton(toolBar);
     btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
-    btnScatter->setToolTip("Scatter Plot");
+    btnScatter->setToolTip("Scatter plot");
     connect(btnScatter,SIGNAL(clicked()),this,SLOT(setPlotTypeScatter()));
 
     QToolButton *btnFlower = new QToolButton(toolBar);
     btnFlower->setIcon(QIcon(rsrcPath + "/flowerplot.png"));
-    btnFlower->setToolTip("Flower Plot");
+    btnFlower->setToolTip("Flower plot");
     connect(btnFlower,SIGNAL(clicked()),this,SLOT(setPlotTypeFlower()));
-
-    // new feature added - Kiran
-    QToolButton *btnPLS = new QToolButton(toolBar);
-    btnPLS->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnPLS->setToolTip("PLS Plot");
-    connect(btnPLS,SIGNAL(clicked()),this,SLOT(setPlotTypePLS()));
 
     // new feature added - Kiran
     QToolButton *btnDelete = new QToolButton(toolBar);
     btnDelete->setIcon(QIcon(rsrcPath + "/delete.png"));
-    btnDelete->setToolTip("Delete Selected Groups");
+    btnDelete->setToolTip("Delete selected groups");
     connect(btnDelete,SIGNAL(clicked()),this,SLOT(deleteGroup()));
 
     btnPeakTable = new QToolButton(toolBar);
     btnPeakTable->setIcon(QIcon(rsrcPath + "/Peak Table.png"));
-    btnPeakTable->setToolTip("Show Peaks Table");
+    btnPeakTable->setToolTip("Show peaks table");
     btnPeakTable->setCheckable(true);
     connect(btnPeakTable,SIGNAL(clicked()),this,SLOT(showPeakTable()));
 
@@ -98,7 +97,7 @@ void ScatterPlot::setupToolBar() {
 */
 	QToolButton *btnF = new QToolButton(toolBar);
 	btnF->setIcon(QIcon(rsrcPath + "/contrast.png"));
-	btnF->setToolTip("Show Contrast Groups Dialog");
+    btnF->setToolTip("Show contrast groups dialog");
     connect(btnF, SIGNAL(clicked()),this,SLOT(contrastGroups()));
 
     QWidget *spacerWidget = new QWidget(this);
@@ -106,22 +105,17 @@ void ScatterPlot::setupToolBar() {
 	spacerWidget->setVisible(true);
 
     QToolButton *btnClose = new QToolButton(toolBar);
-    btnClose->setIcon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    btnClose->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(btnClose, SIGNAL(clicked()), this, SLOT(hide()));
 
     toolBar->addWidget(bntResetZoom);
     toolBar->addWidget(btnF);
     toolBar->addWidget(btnScatter);
     toolBar->addWidget(btnFlower);
-    // new feature added - Kiran
-    toolBar->addWidget(btnPLS);
-    // new feature added - Kiran
     toolBar->addWidget(btnDelete);
     toolBar->addWidget(btnPeakTable);
     toolBar->addWidget(spacerWidget);
     toolBar->addWidget(btnClose);
-    // merged with maven776 - Kiran
-    //  toolBar->addWidget(btnCovariants);
 
     setTitleBarWidget(toolBar);
 
@@ -250,16 +244,19 @@ void ScatterPlot::drawScatter(StatisticsVector<float>vecA,StatisticsVector<float
         if (R < 1) R=10;
                 QGraphicsItem* item = scene()->addEllipse(pos.x()-R/2,pos.y()-R/2,R,R,pen,brush);
                 item->setFlag(QGraphicsItem::ItemIsSelectable);
-                item->setToolTip( tr("%1,%2").arg(x).arg(y) );
+                item->setToolTip( tr("%1, %2").arg(x).arg(y) );
 
                 if(group) {
                     QString groupName = group->getSrmId().c_str(); //to implement
                     presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
-                    item->setToolTip( tr("(%1,%2) <br>%3 m/z: %4<br>rt: %5<br>pvalue: %6")
+                    item->setToolTip(tr("%1 (%2, %3)<br>"
+                                        "m/z: %4<br>"
+                                        "RT: %5<br>"
+                                        "p-value: %6")
+                                      .arg(groupName)
                                       .arg(x)
                                       .arg(y)
-                                      .arg(groupName)
                                       .arg(group->meanMz)
                                       .arg(group->meanRt)
                                       .arg(group->changePValue));
@@ -429,12 +426,17 @@ void ScatterPlot::drawPLS(vector<PeakGroup*>groups) {
 
                 QGraphicsItem* item = scene()->addEllipse(pos.x()-R/2,pos.y()-R/2,R,R,pen,brush);
                 item->setFlag(QGraphicsItem::ItemIsSelectable);
-                item->setToolTip( tr("%1,%2,%3").arg(x).arg(y) );
+                item->setToolTip( tr("%1, %2").arg(x).arg(y));
 
                 if(group) {
                     presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
-                    item->setToolTip( tr("m/z:%1 rt:%2 pvalue:%3").arg(group->meanMz).arg(group->meanRt).arg(group->changePValue));
+                    item->setToolTip(tr("m/z: %1<br>"
+                                        "RT: %2<br>"
+                                        "p-value: %3")
+                                         .arg(group->meanMz)
+                                         .arg(group->meanRt)
+                                         .arg(group->changePValue));
                 }
          }
 }
@@ -518,12 +520,17 @@ void ScatterPlot::drawFlower(vector<PeakGroup*>groups) {
 
                 QGraphicsItem* item = scene()->addEllipse(pos.x()-R/2,pos.y()-R/2,R,R,pen,brush);
                 item->setFlag(QGraphicsItem::ItemIsSelectable);
-                item->setToolTip( tr("%1,%2").arg(x).arg(y) );
+                item->setToolTip(tr("%1, %2").arg(x).arg(y) );
 
                 if(group) {
                     presentGroups.push_back(group);
                     item->setData(0, QVariant::fromValue(group));
-                    item->setToolTip( tr("m/z:%1 rt:%2 pvalue:%3").arg(group->meanMz).arg(group->meanRt).arg(group->changePValue));
+                    item->setToolTip(tr("m/z: %1<br>"
+                                        "RT: %2<br>"
+                                        "p-value: %3")
+                                         .arg(group->meanMz)
+                                         .arg(group->meanRt)
+                                         .arg(group->changePValue));
                 }
          }
 }

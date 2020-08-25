@@ -77,7 +77,6 @@ void TestCLI::testProcessXml() {
 
     QVERIFY(peakdetectorCLI->mavenParameters->ionizationMode == -1);
     QVERIFY(peakdetectorCLI->mavenParameters->charge == 1);
-    QVERIFY(peakdetectorCLI->mavenParameters->minGoodGroupCount == 1);
     QVERIFY(peakdetectorCLI->mavenParameters->matchRtFlag == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->processAllSlices == 0);
     QVERIFY(peakdetectorCLI->mavenParameters->C13Labeled_BPE == true);

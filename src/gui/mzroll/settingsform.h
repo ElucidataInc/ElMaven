@@ -22,8 +22,6 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void getFormValues();
             void setMavenParameters();
             void recomputeEIC();
-            void selectFolder(QString key);
-            void selectFile(QString key);
             void  setNumericValue(QString key, double value);
             void  setStringValue(QString key, QString value);
             void updateMultiprocessing();
@@ -34,6 +32,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             void setIsotopicPeakFiltering();
             void onReset();
             void setFilterline(string filterlineString);
+            void loadModel();
 
             /*
              * @brief: Sets polarity based on the ionization type selected.
@@ -59,19 +58,12 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             */
             void setWeightStatus();
             void updateSmoothingWindowValue(int value);
-            inline void showInstrumentationTab() { tabWidget->setCurrentIndex(0); }
-            inline void showFileImportTab() { tabWidget->setCurrentIndex(1); }
+            inline void showFileImportTab() { tabWidget->setCurrentIndex(0); }
+            inline void showInstrumentationTab() { tabWidget->setCurrentIndex(1); }
             inline void showPeakDetectionTab()   { tabWidget->setCurrentIndex(2); }
             inline void setIsotopeDetectionTab()  { tabWidget->setCurrentIndex(3); }
-            inline void selectScriptsFolder() {   selectFolder("scriptsFolder"); }                 
-            inline void selectMethodsFolder() {   selectFolder("methodsFolder"); }
-            inline void selectPathwaysFolder() {   selectFolder("pathwaysFolder"); }
-            inline void selectRProgram() {         selectFile("Rprogram"); }
-            inline void selectRawExtractor() {      selectFile("RawExtractProgram"); }
             inline void setQ1Tollrance(double value) { setNumericValue("amuQ1",value); }
             inline void setQ3Tollrance(double value) { setNumericValue("amuQ3",value); }
-
-
 
     Q_SIGNALS:
         void settingsChanged(string key, string value);
@@ -85,6 +77,8 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             MainWindow *mainwindow;
             OptionsDialogSettings* optionSettings;
             QList<QMetaObject::Connection> _analyticsConnections;
+
+            void _updateModelPath();
 
       private Q_SLOTS:
             void _smoothnessChanged(int value);

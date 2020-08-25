@@ -10,8 +10,6 @@
 #include "alignmentvizallgroupswidget.h"
 #include "common/analytics.h"
 #include "common/mixpanel.h"
-#include "animationcontrol.h"
-#include "awsbucketcredentialsdialog.h"
 #include "backgroundopsthread.h"
 #include "Compound.h"
 #include "controller.h"
@@ -22,7 +20,6 @@
 #include "globals.h"
 #include "groupClassifier.h"
 #include "grouprtwidget.h"
-#include "heatmap.h"
 #include "infodialog.h"
 #include "isotopedialog.h"
 #include "isotopeplot.h"
@@ -31,7 +28,6 @@
 #include "librarymanager.h"
 #include "ligandwidget.h"
 #include "common/logger.h"
-#include "logwidget.h"
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "masscutofftype.h"
@@ -40,30 +36,22 @@
 #include "mzfileio.h"
 #include "mzSample.h"
 #include "notificator.h"
-#include "pathwaywidget.h"
 #include "peakdetectiondialog.h"
 #include "peakdetector.h"
 #include "peakeditor.h"
-#include "Peptide.hpp"
-#include "peptidefragmentation.h"
+#include "phantomcolor.h"
 #include "pollyelmaveninterface.h"
 #include "projectdockwidget.h"
 #include "projectsaveworker.h"
-#include "qdownloader.h"
-#include "remotespectrahandler.h"
 #include "samplertwidget.h"
 #include "Scan.h"
 #include "scatterplot.h"
 #include "settingsform.h"
-#include "spectralhit.h"
-#include "spectralhitstable.h"
-#include "spectramatching.h"
 #include "spectrawidget.h"
 #include "suggest.h"
 #include "svmPredictor.h"
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
-#include "treemap.h"
 #include "updatedialog.h"
 #include "videoplayer.h"
 #include "eiclogic.h"
@@ -100,12 +88,6 @@ QDataStream &operator<<(QDataStream &out, const Scan*) {
 QDataStream &operator>>(QDataStream &in, Scan*) {
 	return in;
 }
-QDataStream &operator<<(QDataStream &out, const Pathway*) {
-	return out;
-}
-QDataStream &operator>>(QDataStream &in, Pathway*) {
-	return in;
-}
 QDataStream &operator<<(QDataStream &out, const mzSlice*) {
 	return out;
 }
@@ -125,6 +107,97 @@ QDataStream &operator>>(QDataStream &in, SpectralHit*) {
 	return in;
 }
 
+QColor adjustColorLightness(const QColor& color, qreal ld)
+{
+    Phantom::Hsl hsl = Phantom::Hsl::ofQColor(color);
+    const qreal gamma = 3.0;
+    hsl.l = std::pow(Phantom::saturate(std::pow(hsl.l, 1.0 / gamma) + ld * 0.8),
+                     gamma);
+    return hsl.toQColor();
+}
+
+QPalette namedColorSchemePalette(ThemeType x) {
+    struct ThemeColors {
+        QColor window;
+        QColor text;
+        QColor disabledText;
+        QColor brightText;
+        QColor highlight;
+        QColor highlightedText;
+        QColor base;
+        QColor alternateBase;
+        QColor light;
+        QColor mid;
+        QColor dark;
+        QColor shadow;
+        QColor button;
+        QColor disabledButton;
+        QColor tooltip;
+        QColor tooltipText;
+    };
+
+    auto themeColorsToPalette = [](const ThemeColors& x) -> QPalette {
+        QPalette pal;
+        pal.setColor(QPalette::Window, x.window);
+        pal.setColor(QPalette::WindowText, x.text);
+        pal.setColor(QPalette::Text, x.text);
+        pal.setColor(QPalette::ButtonText, x.text);
+        if (x.brightText.isValid())
+            pal.setColor(QPalette::BrightText, x.brightText);
+        pal.setColor(QPalette::Disabled, QPalette::WindowText, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::Text, x.disabledText);
+        pal.setColor(QPalette::Disabled, QPalette::ButtonText, x.disabledText);
+        pal.setColor(QPalette::Base, x.base);
+        pal.setColor(QPalette::AlternateBase, x.alternateBase);
+        if (x.shadow.isValid())
+            pal.setColor(QPalette::Shadow, x.shadow);
+        pal.setColor(QPalette::Button, x.button);
+        pal.setColor(QPalette::Highlight, x.highlight);
+        pal.setColor(QPalette::HighlightedText, x.highlightedText);
+        if (x.disabledButton.isValid())
+            pal.setColor(QPalette::Disabled, QPalette::Button, x.disabledButton);
+        pal.setColor(QPalette::Light, x.light);
+        pal.setColor(QPalette::Mid, x.mid);
+        pal.setColor(QPalette::Dark, x.dark);
+        pal.setColor(QPalette::ToolTipBase, x.tooltip);
+        pal.setColor(QPalette::ToolTipText, x.tooltipText);
+        // Used as the shadow text color on disabled menu items
+        pal.setColor(QPalette::Disabled, QPalette::Light, Qt::transparent);
+        return pal;
+    };
+
+    ThemeColors c;
+    switch (x) {
+    case ElMavenLight: {
+        QColor base(0xffffff);
+        QColor lessBright(0xf7f7f7);
+        QColor button(0xfafafa);
+        QColor text(0x141414);
+        QColor disabledText(0x9a9a9a);
+        QColor light(0xebe9fa);
+        QColor dark(0x6a53b3);
+        c.light = light.lighter(106);
+        c.mid = adjustColorLightness(c.light, -0.1);
+        c.dark = dark;
+        c.window = c.light;
+        c.highlight = dark;
+        c.highlightedText = base;
+        c.base = base;
+        c.alternateBase = lessBright;
+        c.button = button;
+        c.text = text;
+        c.disabledText = disabledText;
+        c.tooltip = Qt::black;
+        c.tooltipText = Qt::white;
+        break;
+    }
+    case ElMavenDark: {
+        // TODO: maybe someday :)
+        break;
+    }
+    }
+    return themeColorsToPalette(c);
+}
 
 void MainWindow::setValue(int value)
 {
@@ -155,9 +228,6 @@ using namespace mzUtils;
 	qRegisterMetaType<PeakGroup*>("PeakGroup*");
 	qRegisterMetaTypeStreamOperators<PeakGroup*>("PeakGroup*");
 
-	qRegisterMetaType<Pathway*>("Pathway*");
-	qRegisterMetaTypeStreamOperators<Pathway*>("Pathway*");
-
 	qRegisterMetaType<mzSlice*>("mzSlice*");
 	qRegisterMetaTypeStreamOperators<mzSlice*>("mzSlice*");
 
@@ -170,9 +240,90 @@ using namespace mzUtils;
 	qRegisterMetaType<UserNote*>("UserNote*");
 	//qRegisterMetaTypeStreamOperators<UserNote*>("UserNote*");
 
-	qRegisterMetaType<QTextCursor>("QTextCursor");
+    qRegisterMetaType<QTextCursor>("QTextCursor");
 
+    QString styleSheet = "";
+    styleSheet += "QMainWindow::separator { background: %1; }";
+    styleSheet += "QMainWindow::separator { width: 1px; }";
+    styleSheet += "QMainWindow::separator { border: none; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
+    QColor window = themePalette.window().color();
+    QColor border = themePalette.mid().color();
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
+    styleSheet += "QTabBar::tab { border: 1px solid %1; }";
+    styleSheet += "QTabBar::tab { padding: 5px 8px; }";
+    styleSheet += "QTabBar::tab { margin-top: 5px; }";
+    styleSheet += "QTabBar::tab { margin-bottom: 1px; }";
+    styleSheet += "QTabBar::tab { margin-left: -1px; }";
+    styleSheet += "QTabBar::tab:first { margin-left: 5px; }";
+    styleSheet += "QTabBar::tab:last { margin-right: 5px; }";
+    styleSheet += "QTabBar::tab:only-one { margin-left: 5px; }";
+    styleSheet += "QTabBar::tab:selected { background-color: %2; }";
+    styleSheet += "QTabBar::tab:selected { border-bottom-color: %3; }";
+    styleSheet += "QTabBar::tab:selected { margin-top: 3px; }";
+    styleSheet += "QTabBar::tab:!selected { background-color: %4; }";
+    styleSheet += "QTabWidget::pane { border: 1px solid %5; }";
+    styleSheet += "QTabWidget::pane { top: -1px; }";
+    styleSheet += "QTabWidget > QTabBar::tab { border: 1px solid %6; }";
+    styleSheet += "QTabWidget > QTabBar::tab { margin-bottom: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:first { margin-left: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:last { margin-right: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:only-one { margin-left: 0; }";
+    styleSheet += "QTabWidget > QTabBar::tab:selected { background-color: %7; }";
+    styleSheet += "QTabWidget > QTabBar::tab:selected { border-bottom-color: %8; }";
+    QColor base = themePalette.base().color();
+    QColor alternateBase = window.darker(105);
+    QColor divider = adjustColorLightness(window, -0.05);
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb))
+                           .arg(base.name(QColor::HexRgb))
+                           .arg(base.name(QColor::HexRgb))
+                           .arg(alternateBase.name(QColor::HexRgb))
+                           .arg(divider.name(QColor::HexRgb))
+                           .arg(divider.name(QColor::HexRgb))
+                           .arg(window.name(QColor::HexRgb))
+                           .arg(window.name(QColor::HexRgb));
+
+    styleSheet += "QDockWidget { titlebar-close-icon: url(%1); }";
+    styleSheet += "QDockWidget { titlebar-normal-icon: url(%2); }";
+    styleSheet += "QDockWidget::title { background-color: %3; }";
+    styleSheet += "QDockWidget::title { border-bottom: 1px solid %4; }";
+    styleSheet += "QDockWidget::close-button { border: none; }";
+    styleSheet += "QDockWidget::float-button { border: none; }";
+    styleSheet += "QDockWidget::close-button:hover { border: 1px solid %4; }";
+    styleSheet += "QDockWidget::float-button:hover { border: 1px solid %4; }";
+    styleSheet += "QDockWidget > * { border: none; }";
+    styleSheet = styleSheet.arg(":/images/minimizeWidget.png");
+    styleSheet = styleSheet.arg(":/images/undockWidget.png");
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
+
+    styleSheet += "QToolBar { background-color: %1; }";
+    styleSheet += "QToolBar { border: none; }";
+    styleSheet += "QToolBar { border-bottom: 1px solid %2; }";
+    styleSheet += "QToolBar QToolButton { margin: 2px; }";
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
+
+    styleSheet += "QCheckBox::indicator { width: 16px; height: 16px; }";
+    styleSheet += "QGroupBox::indicator { width: 16px; height: 16px; }";
+    styleSheet += "QTreeView::indicator { width: 14px; height: 14px; }";
+
+    styleSheet += "QComboBox { padding: 1px 6px 1px 6px; }";
+
+    styleSheet += "QStatusBar { background-color: %1; }";
+    styleSheet += "QStatusBar { border: none; }";
+    styleSheet += "QStatusBar { border-top: 1px solid %2; }";
+    styleSheet += "QStatusBar QLabel { margin: 4px; }";
+    styleSheet = styleSheet.arg(base.name(QColor::HexRgb));
+    styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
+
+    styleSheet += "QToolTip { background-color: %1; }";
+    styleSheet += "QToolTip { color: white; }";
+    styleSheet += "QToolTip { border: 1px solid %1; }";
+    styleSheet = styleSheet.arg("#343434");
+
+    setStyleSheet(styleSheet);
 
 #ifdef Q_OS_MAC
 	QDir dir(QApplication::applicationDirPath());
@@ -198,9 +349,6 @@ using namespace mzUtils;
 		#endif
 	}
 
-	QString pathwaysFolder = settings->value("pathwaysFolder").value<QString>();
-	if (!QFile::exists(pathwaysFolder))
-		pathwaysFolder = dataDir + "/" + "pathways";
 
 	clsf = new ClassifierNeuralNet();    //clsf = new ClassifierNaiveBayes();
 		mavenParameters = new MavenParameters(QString(QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QDir::separator() + "lastRun.xml").toStdString());
@@ -213,12 +361,16 @@ using namespace mzUtils;
     QString appDir;
 
     #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        appDir =  QDir::cleanPath(QApplication::applicationDirPath()) + QDir::separator();
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath())
+                  + QDir::separator();
     #endif
 
     #if defined(Q_OS_MAC)
-        appDir =  qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-              + QDir::separator();
+        appDir = qApp->applicationDirPath()
+                 + QDir::separator() + ".."
+                 + QDir::separator() + ".."
+                 + QDir::separator() + "..";
+        appDir = QDir::cleanPath(appDir) + QDir::separator();
     #endif
 
     clsfModelFilename = appDir + "default.model";
@@ -226,16 +378,10 @@ using namespace mzUtils;
     modelFile = appDir + "svm.model";
 
 	groupClsf = new groupClassifier();
-        groupClsf->loadModel(weightsFile.toStdString());
+    groupClsf->loadModel(weightsFile.toStdString());
  
   	groupPred = new svmPredictor();
-        groupPred->loadModel(modelFile.toStdString());
-
-
-   /* double massCutoff=settings->value("compoundMassCutoffWindow").toDouble();
-      string massCutoffType=settings->value("massCutoffType").toString().toStdString();
-      _massCutoffWindow->setMassCutoffAndType(massCutoff,massCutoffType);
-    */
+    groupPred->loadModel(modelFile.toStdString());
 
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
@@ -251,8 +397,6 @@ using namespace mzUtils;
 	analytics = new Analytics();
 	analytics->hitScreenView("MainWindow");
 	analytics->sessionStart();
-
-	//QString storageLocation =   QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 
     //added while merging with Maven776 - Kiran
 	//fileLoader
@@ -289,9 +433,13 @@ using namespace mzUtils;
 	setWindowIcon(QIcon(":/images/icon.png"));
 
 	//dock widgets
-	setDockOptions(
-			QMainWindow::AllowNestedDocks | QMainWindow::VerticalTabs
-					| QMainWindow::AnimatedDocks);
+    setDockOptions(QMainWindow::AllowNestedDocks
+                   | QMainWindow::AllowTabbedDocks
+                   | QMainWindow::AnimatedDocks);
+    setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::RightDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::TopDockWidgetArea, QTabWidget::North);
+    setTabPosition(Qt::BottomDockWidgetArea, QTabWidget::North);
 
 	//set main dock widget
 	eicWidget = new EicWidget(this);
@@ -301,7 +449,6 @@ using namespace mzUtils;
     groupRtVizPlot = new QCustomPlot(this);
     sampleRtVizPlot = new QCustomPlot(this);
 	alignmentVizAllGroupsPlot = new QCustomPlot(this);	
-	pathwayWidget = new PathwayWidget(this);
 	adductWidget = new AdductWidget(this);
 	isotopeWidget = new IsotopeWidget(this);
 	isotopePlot = new IsotopePlot(this);
@@ -310,13 +457,11 @@ using namespace mzUtils;
     massCalcWidget = new MassCalcWidget(this);
     _peakEditor = new PeakEditor(this, clsf);
     covariantsPanel = new TreeDockWidget(this, "Covariants", 3);
-	fragPanel = new TreeDockWidget(this, "Fragmentation Events", 5);
+    fragPanel = new TreeDockWidget(this, "Fragmentation events", 5);
 	fragPanel->setupScanListHeader();
-	pathwayPanel = new TreeDockWidget(this, "Pathways", 1);
-	srmDockWidget = new TreeDockWidget(this, "SRM List", 1);
+    srmDockWidget = new TreeDockWidget(this, "SRM list", 1);
 	ligandWidget = new LigandWidget(this);
-	heatmap = new HeatMap(this);
-	bookmarkedPeaks = new BookmarkTableDockWidget(this);
+    bookmarkedPeaks = new BookmarkTableDockWidget(this);
 
     sampleRtWidget = new SampleRtWidget(this);
     sampleRtWidget->setWidget(sampleRtVizPlot);
@@ -324,27 +469,18 @@ using namespace mzUtils;
 	isotopePlotDockWidget = new IsotopePlotDockWidget(this);
 	isotopePlotDockWidget->setWidget(customPlot);
 
-	//treemap	 = 	  new TreeMap(this);
-	//peaksPanel	= new TreeDockWidget(this,"Group Information", 1);
 	spectraDockWidget = createDockWidget("Spectra", spectraWidget);
-	fragSpectraDockWidget = createDockWidget("Fragmentation Spectra", fragSpectraWidget);
+    fragSpectraDockWidget = createDockWidget("Fragmentation spectra", fragSpectraWidget);
 
-    groupRtDockWidget = createDockWidget("Per Group Deviation", groupRtVizPlot);
+    groupRtDockWidget = createDockWidget("Per-group deviation", groupRtVizPlot);
     groupRtWidget = new GroupRtWidget(this,groupRtDockWidget);
 
-    alignmentVizAllGroupsDockWidget = createDockWidget("All Groups Deviation", alignmentVizAllGroupsPlot);
+    alignmentVizAllGroupsDockWidget = createDockWidget("All groups deviation", alignmentVizAllGroupsPlot);
     alignmentVizAllGroupsWidget = new AlignmentVizAllGroupsWidget(this, alignmentVizAllGroupsDockWidget);
 
-
-    pathwayDockWidget = createDockWidget("PathwayViewer", pathwayWidget);
-	heatMapDockWidget = createDockWidget("HeatMap", heatmap);
 	scatterDockWidget = new ScatterPlot(this);
 	projectDockWidget = new ProjectDockWidget(this);
-	logWidget = new LogWidget(this, std::cout);
-	// rconsoleDockWidget = new RconsoleWidget(this);
-	spectralHitsDockWidget = new SpectralHitsDockWidget(this, "Spectral Hits");
-	peptideFragmentation = new PeptideFragmentationWidget(this);
-	
+
 	setIsotopicPlotStyling();
 
 	// prepare x axis:
@@ -365,7 +501,6 @@ using namespace mzUtils;
     sampleRtVizPlot->yAxis->setBasePen(QPen(Qt::white));
     sampleRtVizPlot->yAxis->grid()->setVisible(true);
 
-
 	// prepare x axis:
 	alignmentVizAllGroupsPlot->xAxis->setTicks(false);
 	alignmentVizAllGroupsPlot->xAxis->setBasePen(QPen(Qt::white));
@@ -375,40 +510,25 @@ using namespace mzUtils;
 	alignmentVizAllGroupsPlot->yAxis->setBasePen(QPen(Qt::white));
 	alignmentVizAllGroupsPlot->yAxis->grid()->setVisible(true);
 
-	pathwayPanel->setVisible(false);
 	covariantsPanel->setVisible(false);
 
 	isotopeWidget->setVisible(false);
 	massCalcWidget->setVisible(false);
 	fragPanel->setVisible(false);
 	bookmarkedPeaks->setVisible(false);
-	pathwayDockWidget->setVisible(false);
 	spectraDockWidget->setVisible(false);
 	fragSpectraDockWidget->setVisible(false);
     groupRtDockWidget->setVisible(false);
     sampleRtWidget->setVisible(false);
 	alignmentVizAllGroupsDockWidget->setVisible(false);
 	scatterDockWidget->setVisible(false);
-	heatMapDockWidget->setVisible(false);
 	projectDockWidget->setVisible(true);
-	logWidget->setVisible(false);
-	// rconsoleDockWidget->setVisible(false);
-	spectralHitsDockWidget->setVisible(false);
-    peptideFragmentation->setVisible(false);
-	srmDockWidget->setVisible(false);
+    srmDockWidget->setVisible(false);
 	isotopePlotDockWidget->setVisible(false);
-	
-	//treemap->setVisible(false);
-	//peaksPanel->setVisible(false);
-	//treeMapDockWidget =  createDockWidget("TreeMap",treemap);
 
     //added while merging with Maven776 - Kiran
     //create toolbar for SRM dock widget
     srmDockWidget->setQQQToolBar();
-
-	//
-	//DIALOGS
-	//
 
     isotopeDialog = new IsotopeDialog(this);
 
@@ -423,32 +543,24 @@ using namespace mzUtils;
 	//alignment dialog
 	alignmentDialog = new AlignmentDialog(this);
 	connect(alignmentDialog->alignButton, SIGNAL(clicked()), SLOT(Align()));
-	connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
-                       SLOT(UndoAlignment()));
-        connect(alignmentDialog->UndoAlignment, SIGNAL(clicked()),
-                SLOT(updateTablePostAlignment()));
-
-	//rconsole dialog
-	//rconsoleDialog	 =  new RConsoleDialog(this);
-
-
-	spectraMatchingForm = new SpectraMatching(this);
+    connect(alignmentDialog->UndoAlignment,
+            SIGNAL(clicked()),
+            SLOT(UndoAlignment()));
+    connect(alignmentDialog->UndoAlignment,
+            SIGNAL(clicked()),
+            SLOT(updateTablePostAlignment()));
 
     connect(scatterDockWidget,
             &ScatterPlot::groupSelected,
             this,
             &MainWindow::setPeakGroup);
-	pathwayWidgetController();
-
 
     vidPlayer = new VideoPlayer(settings, this, nullptr);
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
-	addDockWidget(Qt::LeftDockWidgetArea, pathwayPanel, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, projectDockWidget, Qt::Vertical);
 
 	ligandWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
-	pathwayPanel->setAllowedAreas(Qt::LeftDockWidgetArea);
 	projectDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea);
 
 	addDockWidget(Qt::BottomDockWidgetArea, spectraDockWidget, Qt::Horizontal);
@@ -457,23 +569,12 @@ using namespace mzUtils;
     addDockWidget(Qt::BottomDockWidgetArea, sampleRtWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, alignmentVizAllGroupsDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, isotopePlotDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, pathwayDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, covariantsPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, fragPanel, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, scatterDockWidget, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, bookmarkedPeaks, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, srmDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, logWidget, Qt::Horizontal);
-	// addDockWidget(Qt::BottomDockWidgetArea, rconsoleDockWidget, Qt::Horizontal);
-	addDockWidget(Qt::BottomDockWidgetArea, spectralHitsDockWidget,
-			Qt::Horizontal);
-    addDockWidget(Qt::BottomDockWidgetArea,peptideFragmentation,Qt::Horizontal);
 
-	//addDockWidget(Qt::BottomDockWidgetArea,peaksPanel,Qt::Horizontal);
-	//addDockWidget(Qt::BottomDockWidgetArea,treeMapDockWidget,Qt::Horizontal);
-	//addDockWidget(Qt::BottomDockWidgetArea,heatMapDockWidget,Qt::Horizontal);
-
-	tabifyDockWidget(ligandWidget, pathwayPanel);
 	tabifyDockWidget(ligandWidget, projectDockWidget);
 
 	tabifyDockWidget(spectraDockWidget, massCalcWidget);
@@ -483,13 +584,9 @@ using namespace mzUtils;
     tabifyDockWidget(spectraDockWidget, sampleRtWidget);
 	tabifyDockWidget(spectraDockWidget, alignmentVizAllGroupsDockWidget);
 	tabifyDockWidget(spectraDockWidget, isotopePlotDockWidget);
-	tabifyDockWidget(spectraDockWidget, pathwayDockWidget);
 	tabifyDockWidget(spectraDockWidget, fragPanel);
 	tabifyDockWidget(spectraDockWidget, covariantsPanel);
-	tabifyDockWidget(spectraDockWidget, logWidget);
 	tabifyDockWidget(spectraDockWidget, fragSpectraDockWidget);
-	// tabifyDockWidget(rconsoleDockWidget, logWidget);
-    tabifyDockWidget(peptideFragmentation,logWidget);
 
     connect(this, SIGNAL(saveSignal()), this, SLOT(autosaveProject()));
     connect(this,
@@ -515,12 +612,6 @@ using namespace mzUtils;
 	connect(fileLoader,SIGNAL(sampleLoaded()), SLOT(showSRMList()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setIonizationModeLabel()));
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setFilterLine()));
-
-    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(showAllHits()));
-    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(show()));
-    connect(fileLoader,SIGNAL(spectraLoaded()),spectralHitsDockWidget, SLOT(raise()));
-	connect(fileLoader,SIGNAL(spectraLoaded()), this,SLOT(setIonizationModeLabel()));
-	connect(fileLoader,SIGNAL(spectraLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
 
     connect(fileLoader,SIGNAL(projectLoaded()),projectDockWidget, SLOT(updateSampleList()));
     connect(fileLoader,SIGNAL(projectLoaded()), SLOT(showSRMList()));
@@ -606,18 +697,19 @@ using namespace mzUtils;
                 }
             });
 
-    connect(spectralHitsDockWidget,SIGNAL(updateProgressBar(QString,int,int)), SLOT(setProgressBar(QString, int,int)));
-    connect(eicWidget,SIGNAL(scanChanged(Scan*)),spectraWidget,SLOT(setScan(Scan*)));
+    connect(eicWidget,
+            SIGNAL(scanChanged(Scan*)),
+            spectraWidget,SLOT(setScan(Scan*)));
 
 	qRegisterMetaType<QList<PeakGroup> >("QList<PeakGroup>");
-	connect(this, SIGNAL(undoAlignment(QList<PeakGroup> )), this, SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
-
+    connect(this,
+            SIGNAL(undoAlignment(QList<PeakGroup> )),
+            this,
+            SLOT(plotAlignmentVizAllGroupGraph(QList<PeakGroup>)));
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
     scatterDockWidget->hide();
-    spectralHitsDockWidget->hide();
-    peptideFragmentation->hide();
     fragPanel->hide();
     projectDockWidget->raise();
     spectraDockWidget->raise();
@@ -660,9 +752,6 @@ using namespace mzUtils;
 	
 		QString lastDatabaseFile = settings->value("lastDatabaseFile").value<QString>();
 		settings->setValue("lastDatabaseFile",lastDatabaseFile);
-	}
-	if (pathwayWidget) {
-		loadPathwaysFolder(pathwaysFolder);
 	}
 
         setCentralWidget(eicWidgetController());
@@ -708,21 +797,14 @@ using namespace mzUtils;
     }
     adductWidget->loadAdducts();
 
-	//Starting server to fetch remote data - Kiran
-	//Added when merged with Maven776
-    if ( settings->value("embeded_http_server_autostart").value<bool>() == true) {
-         startEmbededHttpServer();
-    }
 	//check if program exited correctly last time
 	if (settings->contains("closeEvent")
 			and settings->value("closeEvent").toInt() == 0) {
 
-		setUrl("https://github.com/ElucidataInc/ElMaven/issues",
-				"Woops.. did the program crash last time? Would you like to report a bug?");
+        setUrl("https://github.com/ElucidataInc/ElMaven/issues",
+               "Woops… did the program crash last time? Would you like to "
+               "report a bug?");
 	}
-
-	logWidget->append("Initiaalization complete..\n");
-	//versionCheck(); //TODO: Sahil-Kiran, Removed while merging mainwindow
 
 	settings->setValue("closeEvent", 0);
 	peakDetectionDialog->setMavenParameters(settings);
@@ -1123,18 +1205,8 @@ void MainWindow::showAlignmentErrorDialog(QString errorMessage)
     alignmentError.open();
 }
 
-void MainWindow::openAWSDialog()
-{
-
-	awsBucketCredentialsDialog = new AwsBucketCredentialsDialog(this);
-	awsBucketCredentialsDialog->show();
-	awsBucketCredentialsDialog->setMainWindow(this);
-	awsBucketCredentialsDialog->setSettings(settings);
-
-}
-
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {
-	QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
+    QDockWidget* dock = new QDockWidget(title, this, Qt::Widget);
 	dock->setAllowedAreas(Qt::AllDockWidgetAreas);
     dock->setFloating(false);
 	dock->setVisible(false);
@@ -1163,18 +1235,10 @@ void MainWindow::mzrollLoadDB(QString dbname) {
     ligandWidget->setDatabase(dbname);
 }
 
-void MainWindow::reportBugs() {
-	QString crashReporterPath = QCoreApplication::applicationDirPath() + QDir::separator() + "CrashReporter";
-	QProcess *myProcess = new QProcess();
-	QStringList arguments;
-	arguments << QDir::cleanPath(QCoreApplication::applicationFilePath());
-	arguments << settings->value("bucket_name").toString();
-	arguments << settings->value("access_key").toString();
-	arguments << settings->value("secret_key").toString();
-//	arguments <<  myAppender.getMessageQList();
-	arguments << "0";
-	myProcess->start(crashReporterPath, arguments);
-
+void MainWindow::reportBugs()
+{
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/ElucidataInc/ElMaven/issues"));
 }
 
 void MainWindow::setUrl(QString url, QString link) {
@@ -1213,24 +1277,6 @@ void MainWindow::setUrl(Compound* c) {
                 url = pubChemURL + tr("%1").arg(c->name().c_str());
 	}
         QString link(c->name().c_str());
-	setUrl(url, link);
-}
-
-void MainWindow::setUrl(Reaction* r) {
-	if (r == NULL)
-		return;
-	//QString url = wikiUrl+tr("n=Reaction.%1").arg(r->id.c_str());
-	QString biocycURL = "http://biocyc.org/ECOLI/NEW-IMAGE?type=NIL&object";
-	QString keggURL = "http://www.genome.jp/dbget-bin/www_bget?";
-	QString url;
-	if (r->db == "MetaCyc") {
-		url = biocycURL + tr("=%1").arg(r->id.c_str());
-	} else if (r->db == "KEGG") {
-		url = keggURL + tr("%1").arg(r->id.c_str());
-	} else {
-		url = keggURL + tr("%1").arg(r->id.c_str());
-	}
-	QString link(r->name.c_str());
 	setUrl(url, link);
 }
 
@@ -1290,32 +1336,38 @@ void MainWindow::setUserMassCutoff(double x)
     mavenParameters->compoundMassCutoffWindow->setMassCutoff(x);
 }
 
-void MainWindow::setIonizationModeLabel() {
+void MainWindow::setIonizationModeLabel()
+{
+    QString ionMode = settingsForm->ionizationMode->currentText();
 
-	QString ionMode = settingsForm->ionizationMode->currentText();
+    MavenParameters::Polarity polarity;
+    if (ionMode.contains("Positive")) {
+        polarity = MavenParameters::Positive;
+    } else if (ionMode.contains("Negative")) {
+        polarity = MavenParameters::Negative;
+    } else if (ionMode.contains("Neutral")) {
+        polarity = MavenParameters::Neutral;
+    } else {
+        polarity = MavenParameters::AutoDetect;
+    }
 
-	MavenParameters::Polarity polarity;
-	if(ionMode.contains("Positive")) polarity=MavenParameters::Positive;
-	else if (ionMode.contains("Negative")) polarity=MavenParameters::Negative;
-	else if(ionMode.contains("Neutral")) polarity=MavenParameters::Neutral;
-	else polarity=MavenParameters::AutoDetect;
+    mavenParameters->setIonizationMode(polarity);
 
-	mavenParameters->setIonizationMode(polarity);
+    int mode = getIonizationMode();
+    if (polarity == MavenParameters::AutoDetect) {
+        if (mode < 0) {
+            ionMode += " (negative)";
+        } else if (mode > 0) {
+            ionMode += " (positive)";
+        }
+    }
 
-	int mode=getIonizationMode();
-	if(polarity==MavenParameters::AutoDetect ){
-		QString polarityLabel=QString::number(mode);
-		if(mode==1) polarityLabel="+1";
-		ionMode=ionMode+"("+polarityLabel+")";
-	}
-	
-	ionizationModeLabel->setText(ionMode);
+    ionizationModeLabel->setText(ionMode);
 
     isotopeWidget->setCharge(mode);
     adductWidget->selectAdductsForCurrentPolarity();
-	setTotalCharge();
+    setTotalCharge();
 }
-
 
 void MainWindow::setInjectionOrderFromTimeStamp() {
 
@@ -1440,13 +1492,6 @@ void MainWindow::setFormulaFocus(QString formula) {
 	}		
 }
 
-void MainWindow::setPathwayFocus(Pathway* p) {
-	if (p && pathwayWidget) {
-		pathwayWidget->setVisible(true);
-		pathwayWidget->setPathway(p->id.c_str());
-	}
-}
-
 void MainWindow::setCompoundFocus(Compound* compound,
                                   Isotope isotope,
                                   Adduct *adduct)
@@ -1485,47 +1530,9 @@ void MainWindow::setCompoundFocus(Compound* compound,
         showFragmentationScans(mz);
 
     QString compoundName(compound->name().c_str());
-    setPeptideSequence(compoundName);
 
     if (compound)
         setUrl(compound);
-}
-
-/*
-@author: Sahil
-*/
-//TODO: Sahil, Added while merging point
-bool MainWindow::setPeptideSequence(QString peptideSeq) {
-    //return false;
-    peptideSeq = peptideSeq.simplified();
-    QRegExp peptideRegExp("\\/\\d$",Qt::CaseSensitive,QRegExp::RegExp);
-
-    if (peptideSeq.contains(peptideRegExp)) {
-        Peptide pept(peptideSeq.toStdString(),0,"");
-        if (pept.isGood()) {
-            float peptideMz = pept.monoisotopicMZ();
-            qDebug() << "setPeptideSequence: " << peptideSeq << " " << peptideMz;
-
-            eicWidget->showMS2Events(true);
-            setMzValue(peptideMz);
-            peptideFragmentation->show();
-
-            if(isotopeWidget->isVisible()) {
-                MassCalculator mwcalc;
-                string formula=mwcalc.peptideFormula(peptideSeq.toStdString());
-                isotopeWidget->setFormula(QString(formula.c_str()));
-                isotopeWidget->setCharge(pept.charge);
-            }
-
-            if ( peptideFragmentation->isVisible()) {
-                peptideFragmentation->setPeptideSequence(peptideSeq);
-                peptideFragmentation->setCharge(pept.charge);
-            }
-            return true;
-         }
-    }
-
-    return false;
 }
 
 void MainWindow::hideDockWidgets() {
@@ -1674,17 +1681,12 @@ void MainWindow::open()
         "Select projects, peaks, samples to open:",
         dir,
         tr("All Known Formats(*.mzroll *.emDB *.mzrollDB *.mzPeaks *.mzXML "
-           "*.mzxml *.mzdata *.mzData *.mzData.xml *.cdf *.nc *.mzML);;")
+           "*.mzxml *.cdf *.nc *.mzML);;")
             + tr("mzXML Format(*.mzXML *.mzxml);;")
-            + tr("mzData Format(*.mzdata *.mzData *.mzData.xml);;")
             + tr("mzML Format(*.mzml *.mzML);;")
             + tr("NetCDF Format(*.cdf *.nc);;")
-            + tr("Thermo (*.raw);;")  // TODO: Sahil-Kiran, Added while merging
-                                      // mainwindow
             + tr("Maven Project File (*.mzroll *.emDB);;")
-            + tr("Maven Peaks File (*.mzPeaks);;")
-            + tr("Peptide XML(*.pep.xml *.pepXML);;")
-            + tr("Peptide idpDB(*.idpDB);;") + tr("All Files(*.*)"));
+            + tr("Maven Peaks File (*.mzPeaks)"));
 
     if (filelist.size() == 0)
         return;
@@ -2542,22 +2544,6 @@ int MainWindow::loadMetaCsvFile(string filename){
     return loadCount;
 }
 
-void MainWindow::loadPathwaysFolder(QString& pathwaysFolder) {
-	cerr << "LOADING PATHWAYS FROM:" << pathwaysFolder.toStdString() << endl;
-	QDir dir(pathwaysFolder);
-	if (dir.exists()) {
-		dir.setFilter(QDir::Files);
-		QFileInfoList list = dir.entryInfoList();
-		for (int i = 0; i < list.size(); ++i) {
-			QFileInfo fileInfo = list.at(i);
-			if (fileInfo.fileName().endsWith("xml", Qt::CaseInsensitive)) {
-				//std::cerr << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10).arg(fileInfo.fileName())) << endl;
-				pathwayWidget->loadModelFile(fileInfo.absoluteFilePath());
-			}
-		}
-	}
-}
-
 BackgroundOpsThread* MainWindow::newWorkerThread(QString funcName) {
     BackgroundOpsThread* workerThread = new BackgroundOpsThread(this);
 	workerThread->setMainWindow(this);
@@ -2664,24 +2650,26 @@ void MainWindow::readSettings() {
 	if (!settings->contains("methodsFolder"))
 		settings->setValue("methodsFolder", "methods");
 
-	if (!settings->contains("pathwaysFolder"))
-		settings->setValue("pathwaysFolder", "pathways");
-
 	if (!settings->contains("ligandDbFilename"))
 		settings->setValue("ligandDbFilename", QString("ligand.db"));
 			
-    if (!settings->contains("peakClassifierFile") || settings->value("peakClassifierFile").toString().length() <=0) {
-        #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-          settings->setValue("peakClassifierFile",  QApplication::applicationDirPath() + "/" + "default.model");
-        #endif
-        #if defined(Q_OS_MAC)
-          QString binPath = qApp->applicationDirPath() + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." \
-                  + QDir::separator() + "default.model";
-          settings->setValue("peakClassifierFile", binPath);
-        #endif
+    if (!settings->contains("peakClassifierFile")
+        || settings->value("peakClassifierFile").toString().isEmpty()) {
+        QString appDir;
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+        appDir =  QDir::cleanPath(QApplication::applicationDirPath())
+                  + QDir::separator();
+#endif
+#if defined(Q_OS_MAC)
+        appDir = qApp->applicationDirPath()
+                 + QDir::separator() + ".."
+                 + QDir::separator() + ".."
+                 + QDir::separator() + "..";
+        appDir = QDir::cleanPath(appDir) + QDir::separator();
+#endif
+        QString modelPath = appDir + "default.model";
+        settings->setValue("peakClassifierFile", modelPath);
     }
-
-
 
         
     // if (!settings->contains("checkBox"))
@@ -2720,12 +2708,6 @@ void MainWindow::readSettings() {
 
     if (settings->contains("lastOpenedProject"))
 		settings->setValue("lastOpenedProject", "");
-
-
-    //Added when merged with Maven776 - Kiran
-    if (!settings->contains("embeded_http_server_autostart")) {
-        settings->setValue("embeded_http_server_autostart", true);
-    }
 
     if (!settings->contains("embeded_http_server_port")) {
          settings->setValue("embeded_http_server_port", 45678);
@@ -2842,20 +2824,19 @@ void MainWindow::closeEvent(QCloseEvent* event)
  */
 void MainWindow::createMenus() {
 	QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-	QMenu* widgetsMenu = menuBar()->addMenu(tr("&Widgets"));
 	QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
 
-    QAction* openAct = new QAction(tr("&Load Samples|Projects|Peaks"), this);
+    QAction* openAct = new QAction(tr("&Load samples | projects"), this);
 	openAct->setShortcut(tr("Ctrl+O"));
 	openAct->setToolTip(tr("Open an existing file"));
 	connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 	fileMenu->addAction(openAct);
 
-	QAction* loadModel = new QAction(tr("Load Classification Model"), this);
+    QAction* loadModel = new QAction(tr("Load classification model"), this);
 	connect(loadModel, SIGNAL(triggered()), SLOT(loadModel()));
 	fileMenu->addAction(loadModel);
 
-	QAction* loadCompoundsFile = new QAction(tr("Load Compound List"), this);
+    QAction* loadCompoundsFile = new QAction(tr("Load compound list"), this);
 	connect(loadCompoundsFile, SIGNAL(triggered()), SLOT(loadCompoundsFile()));
 	fileMenu->addAction(loadCompoundsFile);
 
@@ -2889,11 +2870,11 @@ void MainWindow::createMenus() {
     });
     fileMenu->addAction(saveProjectWithRaw);
 
-    QAction* saveSettings = new QAction("Save Settings", this);
+    QAction* saveSettings = new QAction("Save settings", this);
     connect(saveSettings, &QAction::triggered, this ,&MainWindow::saveSettings);
     fileMenu->addAction(saveSettings);
 
-    QAction* loadSettings = new QAction("Load Settings", this);
+    QAction* loadSettings = new QAction("Load settings", this);
     connect(loadSettings, &QAction::triggered, this ,&MainWindow::loadSettings);
     fileMenu->addAction(loadSettings);
 
@@ -2902,11 +2883,7 @@ void MainWindow::createMenus() {
 	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
 	fileMenu->addAction(settingsAct);
 
-	QAction* awsDialog = new QAction(tr("Add S3 credentials"), this);
-	connect(awsDialog, SIGNAL(triggered()), SLOT(openAWSDialog()));
-	fileMenu->addAction(awsDialog);
-
-	QAction* reportBug = new QAction(tr("Report Bugs!"), this);
+    QAction* reportBug = new QAction(tr("Report bugs!"), this);
 	connect(reportBug, SIGNAL(triggered()), SLOT(reportBugs()));
 	fileMenu->addAction(reportBug);
 
@@ -2915,40 +2892,6 @@ void MainWindow::createMenus() {
 	exitAct->setToolTip(tr("Exit the application"));
 	connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 	fileMenu->addAction(exitAct);
-
-	QAction* hideWidgets = new QAction(tr("Hide Widgets"), this);
-	hideWidgets->setShortcut(tr("F11"));
-	connect(hideWidgets, SIGNAL(triggered()), SLOT(hideDockWidgets()));
-	widgetsMenu->addAction(hideWidgets);
-
-	QAction* logWidgetAction = new QAction(tr("Log Widget"), this);
-	logWidgetAction->setShortcut(tr("Ctrl+L"));
-	logWidgetAction->setCheckable(true);
-	logWidgetAction->setChecked(false);
-	connect(logWidgetAction, SIGNAL(toggled(bool)), logWidget,
-			SLOT(setVisible(bool)));
-	widgetsMenu->addAction(logWidgetAction);
-
-	QAction* ak = widgetsMenu->addAction("Spectral Hits Widget");
-	ak->setCheckable(true);
-	ak->setChecked(false);
-	connect(ak, SIGNAL(toggled(bool)), spectralHitsDockWidget,
-			SLOT(setVisible(bool)));
-
-    QAction* aj = widgetsMenu->addAction("MS2 Events");
-    aj->setCheckable(true); 
-	aj->setChecked(false);
-    connect(aj, SIGNAL(toggled(bool)), fragPanel, SLOT(setVisible(bool)));
-    connect(aj, &QAction::toggled, [this](const bool checked)
-    {
-        if (checked) {
-            this->analytics->hitEvent("PRM", "OpenedFragmentationEvents");
-        }
-    });
-
-    QAction* al = widgetsMenu->addAction("Peptide Fragmentation");
-    al->setCheckable(true);  al->setChecked(false);
-    connect(al,SIGNAL(toggled(bool)),peptideFragmentation,SLOT(setVisible(bool)));
 
 	QSignalMapper* signalMapper = new QSignalMapper (this) ;
 	QAction* doc = helpMenu->addAction("Documentation");
@@ -3149,11 +3092,11 @@ void MainWindow::sendAnalytics(bool checked) {
 
     QString btnName = QObject::sender()->objectName();
     analytics->hitScreenView(btnName);
-    if (checked && btnName == "Fragmentation Spectra") {
+    if (checked && btnName == "Fragmentation spectra") {
         analytics->hitEvent("PRM", "OpenedFragmentationSpectra");
     }
 
-    if (checked && btnName == "Fragmentation Events") {
+    if (checked && btnName == "Fragmentation events") {
         analytics->hitEvent("PRM", "OpenedFragmentationEvents");
     }
 }
@@ -3164,95 +3107,71 @@ void MainWindow::createToolBars() {
 	toolBar->setObjectName("mainToolBar");
 	toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    toolBar->setStyleSheet(style);
+    toolBar->setStyleSheet("QToolBar QToolButton { margin: 2px 0 2px 2px; }");
     
-    QString tooltipStyle = "QToolTip {"
-                           " color: #000000;"
-                           " background-color: #fbfbd5;"
-                           " border: 1px solid black;"
-                           " padding: 1px;"
-                           "}";
 	QToolButton *btnOpen = new QToolButton(toolBar);
 	btnOpen->setText("Open");
 	btnOpen->setIcon(QIcon(rsrcPath + "/fileopen.png"));
 	btnOpen->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnOpen->setStyleSheet(tooltipStyle);
     btnOpen->setToolTip(tr("Import samples or projects"));
 
-    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
-   
+    QToolButton *btnSettings = new QToolButton(toolBar);
+    btnSettings->setText("Settings");
+    btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
+    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    btnSettings->setToolTip(tr("1. File import: scan filter settings\n"
+                               "2. Instrumentation: ionization settings\n"
+                               "3. Peak detection: EIC smoothing and baseline "
+                               "settings\n"
+                               "4. Peak filtering: parent and isotopic peak "
+                               "filtering settings\n"
+                               "5. Peak grouping: peak-group score "
+                               "calculation\n"
+                               "6. Group rank: group rank calculation decides "
+                               "which groups are selected for a given m/z\n"
+                               "7. Advanced settings: miscellaneous advanced "
+                               "options"));
+
 	QToolButton *btnAlign = new QToolButton(toolBar);
 	btnAlign->setText("Align");
 	btnAlign->setIcon(QIcon(rsrcPath + "/textcenter.png"));
     btnAlign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnAlign->setStyleSheet(tooltipStyle);
     btnAlign->setToolTip(tr("Peak alignment settings"));
 
     QToolButton *btnIsotope = new QToolButton(toolBar);
     btnIsotope->setText("Isotopes");
     btnIsotope->setIcon(QIcon(rsrcPath + "/isotopeIcon.png"));
     btnIsotope->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnIsotope->setStyleSheet(tooltipStyle);
     btnIsotope->setToolTip(tr("Isotope detection settings"));
 
     QToolButton *btnAdducts = new QToolButton(toolBar);
     btnAdducts->setText("Adducts");
     btnAdducts->setIcon(QIcon(rsrcPath + "/adducts.png"));
     btnAdducts->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnAdducts->setStyleSheet(tooltipStyle);
     btnAdducts->setToolTip("Adduct detection settings");
 
 	QToolButton *btnFeatureDetect = new QToolButton(toolBar);
 	btnFeatureDetect->setText("Peaks");
 	btnFeatureDetect->setIcon(QIcon(rsrcPath + "/featuredetect.png"));
     btnFeatureDetect->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnFeatureDetect->setStyleSheet(tooltipStyle);
     btnFeatureDetect->setToolTip(tr("Peak detection and group filtering settings"));
 
 	QToolButton *btnPollyBridge = new QToolButton(toolBar);
     btnPollyBridge->setText("Polly™");
 	btnPollyBridge->setIcon(QIcon(rsrcPath + "/POLLY.png"));
     btnPollyBridge->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnPollyBridge->setStyleSheet(tooltipStyle);
     btnPollyBridge->setToolTip(tr("Send peaks to Polly™ to store, collaborate, "
                                   "analyse and visualise your data"));
-
-	QToolButton *btnSettings = new QToolButton(toolBar);
-	btnSettings->setText("Options");
-	btnSettings->setIcon(QIcon(rsrcPath + "/settings.png"));
-    btnSettings->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnSettings->setStyleSheet(tooltipStyle);
-    btnSettings->setToolTip(tr("1. Instrumentation: ionization settings\n"
-                               "2. File import: scan filter settings\n"
-                               "3. Peak detection: EIC smoothing and baseline "
-                               "settings\n"
-                               "4. Peak filtering: parent and isotopic peak "
-                               "filtering settings\n"
-                               "5. Isotope detection: isotopic label filters\n"
-                               "6. EIC (XIC): EIC type selection\n"
-                               "7. Peak grouping: peak-group score "
-                               "calculation\n"
-                               "8. Group rank: group rank calculation decides "
-                               "which groups are selected for a given m/z"));
 
     QToolButton *btnInfo = new QToolButton(toolBar);
     btnInfo->setText("Support");
     btnInfo->setIcon(QIcon(rsrcPath + "/support.png"));
     btnInfo->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    btnInfo->setStyleSheet("QToolTip {"
-                           "color: #000000;"
-                           "background-color: #fbfbd5;"
-                           "border: 1px solid black;"
-                           "padding: 1px;"
-                           "}");
-    btnInfo->setToolTip(tr("Documentaion, information and technical "
-                           "support for El-MAVEN."));
+    btnInfo->setToolTip(tr("Documentation, information and technical support "
+                           "for El-MAVEN."));
 
-	connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
+    connect(btnOpen, &QToolButton::clicked, this, &MainWindow::open);
+    connect(btnAlign, SIGNAL(clicked()), alignmentDialog, SLOT(show()));
     connect(btnIsotope, &QToolButton::clicked, isotopeDialog, &IsotopeDialog::show);
     connect(btnAdducts, &QToolButton::clicked, adductWidget, &AdductWidget::show);
     connect(btnFeatureDetect, SIGNAL(clicked()), SLOT(showPeakdetectionDialog()));
@@ -3265,46 +3184,106 @@ void MainWindow::createToolBars() {
     });
 
 	toolBar->addWidget(btnOpen);
-	toolBar->addWidget(btnAlign);
+    toolBar->addWidget(btnSettings);
+    toolBar->addWidget(btnAlign);
     toolBar->addWidget(btnIsotope);
     toolBar->addWidget(btnAdducts);
     toolBar->addWidget(btnFeatureDetect);
 	//toolBar->addWidget(btnSpectraMatching);
-	toolBar->addWidget(btnSettings);
 	toolBar->addWidget(btnPollyBridge);
     toolBar->addWidget(btnInfo);
 
-	QWidget *hBox = new QWidget(toolBar);
-	(void) toolBar->addWidget(hBox);
+    QWidget* spacer = new QWidget(toolBar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    toolBar->addWidget(spacer); // spacer
 
-	QHBoxLayout *layout = new QHBoxLayout(hBox);
-	layout->setSpacing(0);
-	layout->addWidget(new QWidget(hBox), 15); // spacer
+    // ========== now the right side of the main toolbar ==========
 
-	massCutoffComboBox=  new QComboBox(hBox);
+    QWidget *ionizationBox = new QWidget(toolBar);
+    QHBoxLayout *ionizationLayout = new QHBoxLayout(ionizationBox);
+
+    ionizationModeLabel = new QLabel(ionizationBox);
+    ionizationModeLabel->setToolTip("Ionization mode");
+    QString ionizationStyle = "";
+    ionizationStyle += "QLabel { margin: 2px 0; }";
+    ionizationStyle += "QLabel { padding: 0 4px; }";
+    ionizationStyle += "QLabel { border: 1px solid %1; }";
+    ionizationStyle += "QLabel { border-radius: 4px; }";
+    ionizationStyle += "QLabel { background: %2; }";
+    QColor darkBorder = namedColorSchemePalette(ElMavenLight).dark().color();
+    ionizationStyle = ionizationStyle.arg(darkBorder.name(QColor::HexRgb));
+    QColor background = namedColorSchemePalette(ElMavenLight).light().color();
+    ionizationStyle = ionizationStyle.arg(background.name(QColor::HexRgb));
+    ionizationModeLabel->setStyleSheet(ionizationStyle);
+
+    ionChargeBox = new QSpinBox(ionizationBox);
+    connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
+    ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
+
+    ionizationLayout->setSpacing(6);
+    ionizationLayout->addWidget(ionizationModeLabel, 0);
+    ionizationLayout->addWidget(new QLabel("Charge", ionizationBox), 0);
+    ionizationLayout->addWidget(ionChargeBox, 0);
+
+    toolBar->addSeparator();
+    toolBar->addWidget(ionizationBox);
+
+    quantType = new QComboBox(toolBar);
+    quantType->addItem("AreaTop");
+    quantType->addItem("Area");
+    quantType->addItem("Height");
+    quantType->addItem("AreaNotCorrected");
+    quantType->addItem("AreaTopNotCorrected");
+    quantType->addItem("Retention Time");
+    quantType->addItem("Quality");
+    quantType->setToolTip("Peak quantitation type");
+    connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
+    connect(quantType,
+            SIGNAL(currentIndexChanged(int)),
+            SLOT(refreshIntensities()));
+    connect(quantType,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            isotopeWidget,
+            &IsotopeWidget::refreshTable);
+    fileLoader->insertSettingForSave("mainWindowPeakQuantitation", variant(0));
+    QString quantTypeStyle = "";
+    quantTypeStyle += "QComboBox { margin: 0 8px 0 8px; }";
+    quantType->setStyleSheet(quantTypeStyle);
+
+    toolBar->addSeparator();
+    toolBar->addWidget(quantType);
+
+    QWidget *massBox = new QWidget(toolBar);
+    QHBoxLayout *massLayout = new QHBoxLayout(massBox);
+
+    massCutoffComboBox=  new QComboBox(massBox);
 	massCutoffComboBox->addItem("ppm");
 	massCutoffComboBox->addItem("mDa");
-	massCutoffComboBox->setToolTip("mass cutoff unit");
-	connect(massCutoffComboBox, SIGNAL(currentIndexChanged(QString)),this,SLOT(setMassCutoffType(QString)));
+    massCutoffComboBox->setToolTip("Mass cut-off unit");
+    connect(massCutoffComboBox,
+            SIGNAL(currentIndexChanged(QString)),
+            this,
+            SLOT(setMassCutoffType(QString)));
 
-    /* note: on changing mass cut off type from mainwindow, it's important that it's also changed in peaks dialog */
-    connect(massCutoffComboBox, &QComboBox::currentTextChanged, peakDetectionDialog, &PeakDetectionDialog::setMassCutoffType);
+    // note: on changing mass cut off type from mainwindow, it's important that
+    // it's also changed in peaks dialog
+    connect(massCutoffComboBox,
+            &QComboBox::currentTextChanged,
+            peakDetectionDialog,
+            &PeakDetectionDialog::setMassCutoffType);
 
     //ppmValue
-    massCutoffWindowBox = new QDoubleSpinBox(hBox);
+    massCutoffWindowBox = new QDoubleSpinBox(massBox);
     massCutoffWindowBox->setRange(0.00, 100000.0);
-    massCutoffWindowBox->setDecimals(6);
+    massCutoffWindowBox->setDecimals(4);
     massCutoffWindowBox->setSingleStep(0.5);
-    massCutoffWindowBox->setToolTip("Mass Cut-off Unit");
-    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), this,
-    // 		SLOT(setUserPPM(double)));
-    // connect(massCutoffWindowBox, SIGNAL(valueChanged(double)), eicWidget,
-    // 		SLOT(setPPM(double)));
+    massCutoffWindowBox->setToolTip("Mass cut-off value");
     connect(massCutoffWindowBox,
             SIGNAL(valueChanged(double)),
             this,
             SLOT(setUserMassCutoff(double)));
-    void (QDoubleSpinBox::* doubleChanged)(double) = &QDoubleSpinBox::valueChanged;
+    void (QDoubleSpinBox::* doubleChanged)(double) =
+        &QDoubleSpinBox::valueChanged;
     connect(massCutoffWindowBox,
             doubleChanged,
             [=] (double value) {
@@ -3316,20 +3295,24 @@ void MainWindow::createToolBars() {
     peakDetectionDialog->compoundPPMWindow->setValue(initMassCutoff);
     mavenParameters->compoundMassCutoffWindow->setMassCutoff(initMassCutoff);
 
-    searchText = new QLineEdit(hBox);
+    searchText = new QLineEdit(massBox);
     searchText->setMinimumWidth(100);
-    searchText->setPlaceholderText("MW / Compound");   
-    searchText->setToolTip("<b>Text Search</b> <br> Compound Names: <b>ATP</b> <br> MRM: <b>precursorMz-productMz</b> <br> Patterns: <b>[45]-phosphate</b> <br>Formulas: <b> C6H10* </b>");
+    searchText->setPlaceholderText("MW / Compound");
+    searchText->setToolTip("<b>Text search avaialable as:-</b> "
+                           "<br> compound names: <b>ATP</b> "
+                           "<br> formulas: <b>C6H10*</b>"
+                           "<br> transitions: <b>precursor-mz/product-mz</b> ");
     searchText->setObjectName(QString::fromUtf8("searchText"));
+    searchText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     searchText->setShortcutEnabled(true);
     connect(searchText,
             &QLineEdit::returnPressed,
             this,
             &MainWindow::searchForQuery);
 
-	QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do Search")),
+    QShortcut* ctrlK = new QShortcut(QKeySequence(tr("Ctrl+K", "Do search")),
 			this);
-	QShortcut* ctrlF = new QShortcut(QKeySequence(tr("Ctrl+F", "Do Search")),
+    QShortcut* ctrlF = new QShortcut(QKeySequence(tr("Ctrl+F", "Do search")),
 			this);
 
 	connect(ctrlK, SIGNAL(activated()), searchText, SLOT(selectAll()));
@@ -3342,45 +3325,19 @@ void MainWindow::createToolBars() {
 	connect(suggestPopup, SIGNAL(compoundSelected(Compound*)), this,
 			SLOT(setCompoundFocus(Compound*)));
 	connect(suggestPopup, SIGNAL(compoundSelected(Compound*)), ligandWidget,
-			SLOT(setCompoundFocus(Compound*)));
-	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), pathwayPanel,
-			SLOT(show()));
-	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), pathwayDockWidget,
-			SLOT(show()));
-	connect(suggestPopup, SIGNAL(pathwaySelected(Pathway*)), this,
-			SLOT(setPathwayFocus(Pathway*)));
+            SLOT(setCompoundFocus(Compound*)));
 	connect(ligandWidget, SIGNAL(databaseChanged(QString)), suggestPopup,
 			SLOT(setDatabase(QString)));
-	layout->addSpacing(10);
 
-	ionizationModeLabel = new QLabel(hBox);
-	ionizationModeLabel->setToolTip("Ionization Mode");
-	ionizationModeLabel->setFrameShape(QFrame::Panel);
-	ionizationModeLabel->setFrameShadow(QFrame::Raised);
+    massLayout->setSpacing(2);
+    massLayout->addWidget(new QLabel("m/z", massBox), 0);
+    massLayout->addWidget(searchText, 0);
+    massLayout->addWidget(new QLabel("+/-", 0, 0));
+    massLayout->addWidget(massCutoffWindowBox, 0);
+    massLayout->addWidget(massCutoffComboBox, 0);
 
-    ionChargeBox = new QSpinBox(hBox);
-    connect(ionChargeBox, SIGNAL(valueChanged(int)), this, SLOT(setTotalCharge()));
-    ionChargeBox->setValue(settings->value("ionChargeBox").toInt());
-
-    quantType = new QComboBox(hBox);
-    quantType->addItem("AreaTop");
-    quantType->addItem("Area");
-    quantType->addItem("Height");
-    quantType->addItem("AreaNotCorrected");
-    quantType->addItem("AreaTopNotCorrected");
-    quantType->addItem("Retention Time");
-    quantType->addItem("Quality");
-    quantType->setToolTip("Peak Quantitation Type");
-    connect(quantType, SIGNAL(activated(int)), eicWidget, SLOT(replot()));
-    connect(quantType,
-            SIGNAL(currentIndexChanged(int)),
-            SLOT(refreshIntensities()));
-    connect(quantType,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            isotopeWidget,
-            &IsotopeWidget::refreshTable);
-    fileLoader->insertSettingForSave("mainWindowPeakQuantitation",
-                                     variant(0));
+    toolBar->addSeparator();
+    toolBar->addWidget(massBox);
 
     settings->beginGroup("searchHistory");
     QStringList keys = settings->childKeys();
@@ -3388,92 +3345,100 @@ void MainWindow::createToolBars() {
         suggestPopup->addToHistory(key, settings->value(key).toInt());
     settings->endGroup();
 
-    layout->addWidget(ionizationModeLabel, 0);
-    layout->addWidget(new QLabel("Charge", hBox), 0);
-    layout->addWidget(ionChargeBox, 0);
-    layout->addWidget(quantType, 0);
-    layout->addWidget(new QLabel("[m/z]", hBox), 0);
-    layout->addWidget(searchText, 0);
-    layout->addWidget(new QLabel("+/-", 0, 0));
-    layout->addWidget(massCutoffWindowBox, 0);
-    layout->addWidget(massCutoffComboBox, 0);
-
     sideBar = new QToolBar(this);
     sideBar->setObjectName("sideBar");
     sideBar->setIconSize(QSize(24, 24));
-    QString sideStyle = "";
-    sideStyle += "QToolBar { background:  white;               }";
-    sideStyle += "QToolBar { border:      none;                }";
-    sideStyle += "QToolBar { border-left: 1px solid lightgray; }";
-    sideBar->setStyleSheet(sideStyle);
+
+    QString style = "";
+    style += "QToolBar { border-bottom: none; }";
+    style += "QToolBar { border-left: 1px solid %1; }";
+    QPalette themePalette = namedColorSchemePalette(ElMavenLight);
+    QColor window = themePalette.window().color();
+    QColor border = adjustColorLightness(window, -0.1);
+    style = style.arg(border.name(QColor::HexRgb));
+    sideBar->setStyleSheet(style);
 
     QToolButton* btnSamples = addDockWidgetButton(sideBar,
 												  projectDockWidget,
 												  QIcon(rsrcPath + "/samples.png"),
-												  "Show Samples Widget (F2)");
+                                                  "Show samples widget (F2)");
     QToolButton* btnLigands = addDockWidgetButton(sideBar,
 												  ligandWidget,
 												  QIcon(rsrcPath + "/molecule.png"),
-												  "Show Compound Widget (F3)");
+                                                  "Show compound widget (F3)");
     QToolButton* btnSpectra = addDockWidgetButton(sideBar,
 												  spectraDockWidget,
 												  QIcon(rsrcPath + "/spectra.png"),
-												  "Show Spectra Widget (F4)");
+                                                  "Show spectra widget (F4)");
 	QToolButton* btnFragSpectra = addDockWidgetButton(sideBar,
 													  fragSpectraDockWidget,
 													  QIcon(rsrcPath + "/fragSpectra.png"),
-													  "Show Fragmentation Spectra");
+                                                      "Show fragmentation spectra");
 	QToolButton* btnFragEvents = addDockWidgetButton(sideBar,
 													 fragPanel,
 													 QIcon(rsrcPath + "/fragmentationEvents.png"),
-													 "Show MS2 Events List");
+                                                     "Show MS2 events list");
 
     QToolButton* btnAlignment = new QToolButton(sideBar);
     btnAlignment->setIcon(QIcon(rsrcPath + "/alignmentButton.png"));
-    btnAlignment->setText("Alignment Visualizations");
-    QMenu* alignmentMenu = new QMenu("Alignment Visualizations Menu");
+    btnAlignment->setText("Alignment visualizations");
+    QMenu* alignmentMenu = new QMenu("Alignment visualizations menu");
 
     btnAlignment->setMenu(alignmentMenu);
     btnAlignment->setPopupMode(QToolButton::InstantPopup);
 
-
-    QAction* perGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/groupRtViz.png"), "Per Group Deviation");
-    QAction* allGroupAlignment = alignmentMenu->addAction(QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All Groups Deviation");
-    QAction* sampleRtDeviation = alignmentMenu->addAction(QIcon(rsrcPath + "/sampleRtViz.png"), "Sample Deviation");
-
+    QAction* perGroupAlignment = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/groupRtViz.png"), "Per-group deviation");
+    QAction* allGroupAlignment = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/alignmentVizAllGroups.png"), "All groups deviation");
+    QAction* sampleRtDeviation = alignmentMenu->addAction(
+        QIcon(rsrcPath + "/sampleRtViz.png"), "Sample deviation");
 
     connect(perGroupAlignment, &QAction::triggered, this, &MainWindow::togglePerGroupAlignmentWidget);
     connect(allGroupAlignment, &QAction::triggered, this, &MainWindow::toggleAllGroupAlignmentWidget);
     connect(sampleRtDeviation, &QAction::triggered, this, &MainWindow::toggleSampleRtWidget);
 
-    QToolButton* btnIsotopes = addDockWidgetButton(sideBar,isotopeWidget,QIcon(rsrcPath + "/isotope.png"), "Show Isotopes Widget (F5)");
-    QToolButton* btnFindCompound = addDockWidgetButton(sideBar,massCalcWidget,QIcon(rsrcPath + "/findcompound.png"), "Show Match Compound Widget (F6)");
-    QToolButton* btnCovariants = addDockWidgetButton(sideBar,covariantsPanel,QIcon(rsrcPath + "/covariants.png"), "Find Covariants Widget (F7)");
-    //QToolButton* btnPathways = addDockWidgetButton(sideBar,pathwayDockWidget,QIcon(rsrcPath + "/pathway.png"), "Show Pathway Widget (F8)");
-    QToolButton* btnBookmarks = addDockWidgetButton(sideBar,bookmarkedPeaks,QIcon(rsrcPath + "/showbookmarks.png"), "Show Bookmarks (F10)");
-    QToolButton* btnSRM = addDockWidgetButton(sideBar,srmDockWidget,QIcon(rsrcPath + "/qqq.png"), "Show SRM List (F12)");
-    // QToolButton* btnRconsole = addDockWidgetButton(sideBar,rconsoleDockWidget,QIcon(rsrcPath + "/R.png"), "Show R Console");
+    QToolButton* btnIsotopes =
+        addDockWidgetButton(sideBar,
+                            isotopeWidget,
+                            QIcon(rsrcPath + "/isotope.png"),
+                            "Show isotope widget (F5)");
+    QToolButton* btnFindCompound =
+        addDockWidgetButton(sideBar,
+                            massCalcWidget,
+                            QIcon(rsrcPath + "/findcompound.png"),
+                            "Show compound-match widget (F6)");
+    QToolButton* btnCovariants =
+        addDockWidgetButton(sideBar,
+                            covariantsPanel,
+                            QIcon(rsrcPath + "/covariants.png"),
+                            "Find covariants widget (F7)");
+    QToolButton* btnBookmarks =
+        addDockWidgetButton(sideBar,
+                            bookmarkedPeaks,
+                            QIcon(rsrcPath + "/showbookmarks.png"),
+                            "Show bookmarks (F10)");
+    QToolButton* btnSRM = addDockWidgetButton(sideBar,
+                                              srmDockWidget,
+                                              QIcon(rsrcPath + "/qqq.png"),
+                                              "Show SRM list (F12)");
 
+    btnSamples->setShortcut(Qt::Key_F2);
+    btnLigands->setShortcut(Qt::Key_F3);
+    btnSpectra->setShortcut(Qt::Key_F4);
+    btnIsotopes->setShortcut(Qt::Key_F5);
+    btnFindCompound->setShortcut(Qt::Key_F6);
+    btnCovariants->setShortcut(Qt::Key_F7);
+    btnBookmarks->setShortcut(Qt::Key_F9);
+    btnSRM->setShortcut(Qt::Key_F10);
 
-	//btnSamples->setShortcut(Qt::Key_F2);
-	btnLigands->setShortcut(Qt::Key_F3);
-	btnSpectra->setShortcut(Qt::Key_F4);
-	btnIsotopes->setShortcut(Qt::Key_F5);
-	btnFindCompound->setShortcut(Qt::Key_F6);
-	btnCovariants->setShortcut(Qt::Key_F7);
-	//btnPathways->setShortcut(Qt::Key_F8);
-	btnBookmarks->setShortcut(Qt::Key_F9);
-	btnSRM->setShortcut(Qt::Key_F10);
+    connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
 
-	connect(pathwayDockWidget, SIGNAL(visibilityChanged(bool)), pathwayPanel,
-			SLOT(setVisible(bool)));
-	connect(btnSRM, SIGNAL(clicked(bool)), SLOT(showSRMList()));
+    sideBar->setOrientation(Qt::Vertical);
+    sideBar->setMovable(false);
 
-	sideBar->setOrientation(Qt::Vertical);
-	sideBar->setMovable(false);
-
-	sideBar->addWidget(btnSamples);
-	sideBar->addWidget(btnLigands);
+    sideBar->addWidget(btnSamples);
+    sideBar->addWidget(btnLigands);
     sideBar->addWidget(btnSpectra);
 	sideBar->addWidget(btnFragSpectra);
 	sideBar->addWidget(btnFragEvents);
@@ -3481,12 +3446,9 @@ void MainWindow::createToolBars() {
 	sideBar->addWidget(btnIsotopes);
 	sideBar->addWidget(btnFindCompound);
 	sideBar->addWidget(btnCovariants);
-	//sideBar->addWidget(btnPathways);
 	sideBar->addWidget(btnSRM);
-	// sideBar->addWidget(btnRconsole);
 	sideBar->addSeparator();
 	sideBar->addWidget(btnBookmarks);
-	// sideBar->addWidget(btnHeatmap);
 
 	addToolBar(Qt::TopToolBarArea, toolBar);
 	addToolBar(Qt::RightToolBarArea, sideBar);
@@ -3598,11 +3560,6 @@ void MainWindow::_handleUnrecognizedProjectVersion(QString projectFilename)
                          QMessageBox::Ok);
 }
 
-void MainWindow::showspectraMatchingForm() {
-
-	spectraMatchingForm->exec();
-}
-
 // TODO remove this redundant function
 void MainWindow::showsettingsForm() {
 
@@ -3633,7 +3590,7 @@ bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
 		samples.push_back(sample);
 		mavenParameters->samples.push_back(sample);	
-		settingsForm->setSettingsIonizationMode("Auto Detect");		
+        settingsForm->setSettingsIonizationMode("Auto-detect");
 		return true;
 	} else {
 		delete (sample);
@@ -3698,9 +3655,6 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
         if (group->ms2EventCount) fragSpectraDockWidget->setVisible(true);
         if (fragSpectraDockWidget->isVisible())
             fragSpectraWidget->overlayPeakGroup(group);
-        QString compoundName(group->getCompound()->name().c_str());
-        if (! setPeptideSequence(compoundName))
-            setUrl(group->getCompound());
         if (massCalcWidget)
             massCalcWidget->setPeakGroup(group.get());
     }
@@ -3713,9 +3667,6 @@ void MainWindow::setPeakGroup(shared_ptr<PeakGroup> group)
         spectraWidget->setScanSet(scanset);
         spectraWidget->replot();
     }
-
-    if (spectralHitsDockWidget->isVisible())
-        spectralHitsDockWidget->limitPrecursorMz(group->meanMz);
 }
 
 void MainWindow::Align()
@@ -3787,8 +3738,14 @@ void MainWindow::Align()
             this,
             &MainWindow::updateTablePostAlignment);
 
-    mavenParameters->minGoodGroupCount =
-        alignmentDialog->minGoodPeakCount->value();
+    float percentileGood = alignmentDialog->minGoodPeakCount->value()
+                           / getVisibleSamples().size()
+                           * 100.0f;
+    if (percentileGood > 100.0f)
+        percentileGood = 100.0f;
+    if (percentileGood < 1.0f)
+        percentileGood = 1.0f;
+    mavenParameters->quantileQuality = percentileGood;
     mavenParameters->limitGroupCount =
         alignmentDialog->limitGroupCount->value();
     mavenParameters->minGroupIntensity =
@@ -3898,10 +3855,6 @@ void MainWindow::showPeakInfo(Peak* _peak) {
 	if (fragPanel->isVisible()) {
 		showFragmentationScans(_peak->peakMz);
 	}
-
-    if (spectralHitsDockWidget->isVisible() && scan) {
-        spectralHitsDockWidget->limitPrecursorMz(_peak->peakMz);
-    }
 }
 
 
@@ -3927,12 +3880,7 @@ void MainWindow::spectaFocused(Peak* _peak) {
 		spectraWidget->setScan(_peak);
 	}
 
-	//TODO: Sahil-Kiran, Added while merging mainwindow
-    if (spectralHitsDockWidget->isVisible() && scan) {
-        spectralHitsDockWidget->limitPrecursorMz(_peak->peakMz);
-    }
 	massCalcWidget->setMass(_peak->peakMz);
-
 }
 
 // void MainWindow::setupSampleColors() {
@@ -4066,8 +4014,6 @@ void MainWindow::reorderSamples(PeakGroup* group) {
 		projectDockWidget->updateSampleList();
 	if (eicWidget)
 		eicWidget->update();
-	if (pathwayWidget)
-		pathwayWidget->updateCompoundConcentrations();
 }
 
 bool MainWindow::checkCompoundExistance(Compound* c) {
@@ -4103,11 +4049,6 @@ QWidget* MainWindow::eicWidgetController() {
 	toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    toolBar->setStyleSheet(style);
 
 	QWidgetAction *btnZoom = new MainWindowWidgetAction(toolBar, this,  "btnZoom");
 	QWidgetAction *btnCopyCSV = new MainWindowWidgetAction(toolBar, this,  "btnCopyCSV");
@@ -4176,7 +4117,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnCopyCSV = new QToolButton(parent);
 		btnCopyCSV->setIcon(QIcon(rsrcPath + "/copyCSV.png"));
-		btnCopyCSV->setToolTip(tr("Copy Group Information to Clipboard (Ctrl+C)"));
+        btnCopyCSV->setToolTip(tr("Copy group information to clipboard (Ctrl + C)"));
 		btnCopyCSV->setShortcut(tr("Ctrl+C"));
 		connect(btnCopyCSV, SIGNAL(clicked()), mw->getEicWidget(), SLOT(copyToClipboard()));
 		return btnCopyCSV;
@@ -4186,7 +4127,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnIntegrateArea = new QToolButton(parent);
 		btnIntegrateArea->setIcon(QIcon(rsrcPath + "/integrateArea.png"));
-		btnIntegrateArea->setToolTip(tr("Manual Integration (Shift+MouseDrag)"));
+        btnIntegrateArea->setToolTip(tr("Manual integration (Shift + mouse-drag)"));
                 connect(btnIntegrateArea, SIGNAL(clicked()), mw->getEicWidget(),
                                 SLOT(startAreaIntegration()));
                 connect(btnIntegrateArea, &QToolButton::clicked, [this]()
@@ -4201,7 +4142,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnLast = new QToolButton(parent);
 		btnLast->setIcon(QIcon(rsrcPath + "/last.png"));
-		btnLast->setToolTip(tr("History Back (Ctrl+Left)"));
+        btnLast->setToolTip(tr("History back (Ctrl + Left)"));
 		btnLast->setShortcut(tr("Ctrl+Left"));
 		connect(btnLast, SIGNAL(clicked()), mw, SLOT(historyLast()));
 		return btnLast;
@@ -4211,7 +4152,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnNext = new QToolButton(parent);
 		btnNext->setIcon(QIcon(rsrcPath + "/next.png"));
-		btnNext->setToolTip(tr("History Forward (Ctrl+Right)"));
+        btnNext->setToolTip(tr("History forward (Ctrl + Right)"));
 		btnNext->setShortcut(tr("Ctrl+Right"));
 		connect(btnNext, SIGNAL(clicked()), mw, SLOT(historyNext()));		
 		return btnNext;
@@ -4270,7 +4211,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowBarplot = new QToolButton(parent);
 		btnShowBarplot->setIcon(QIcon(rsrcPath + "/barplot.png"));
-		btnShowBarplot->setToolTip(tr("Show Barplot"));
+        btnShowBarplot->setToolTip(tr("Show bar-plot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
 		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
@@ -4281,7 +4222,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowIsotopeplot = new QToolButton(parent);
 		btnShowIsotopeplot->setIcon(QIcon(rsrcPath + "/isotopeplot.png"));
-		btnShowIsotopeplot->setToolTip(tr("Show Isotope Plot"));
+        btnShowIsotopeplot->setToolTip(tr("Show isotope plot"));
 		btnShowIsotopeplot->setCheckable(true);
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw, SLOT(toggleIsotopicBarPlot(bool)));
 		connect(btnShowIsotopeplot,SIGNAL(clicked(bool)), mw->isotopeWidget, SLOT(updateIsotopicBarplot()));
@@ -4294,7 +4235,7 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 		
 		QToolButton *btnShowBoxplot = new QToolButton(parent);
 		btnShowBoxplot->setIcon(QIcon(rsrcPath + "/boxplot.png"));
-		btnShowBoxplot->setToolTip(tr("Show Boxplot"));
+        btnShowBoxplot->setToolTip(tr("Show box-plot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
 		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
@@ -4357,104 +4298,6 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 	}
 }
 
-QWidget* MainWindow::pathwayWidgetController() {
-
-	QToolBar *toolBar = new QToolBar(this);
-	toolBar->setFloatable(false);
-	toolBar->setMovable(false);
-
-	QToolButton *btnResetZoom = new QToolButton(toolBar);
-	btnResetZoom->setIcon(QIcon(rsrcPath + "/resetzoom.png"));
-	btnResetZoom->setToolTip(tr("ResetZoom"));
-	connect(btnResetZoom, SIGNAL(clicked()), pathwayWidget, SLOT(resetZoom()));
-
-	QToolButton *btnZoomIn = new QToolButton(toolBar);
-	btnZoomIn->setIcon(QIcon(rsrcPath + "/zoomin.png"));
-	btnZoomIn->setToolTip(tr("Zoom In"));
-	connect(btnZoomIn, SIGNAL(clicked()), pathwayWidget, SLOT(zoomIn()));
-
-	QToolButton *btnZoomOut = new QToolButton(toolBar);
-	btnZoomOut->setIcon(QIcon(rsrcPath + "/zoomout.png"));
-	btnZoomOut->setToolTip(tr("Zoom Out"));
-	connect(btnZoomOut, SIGNAL(clicked()), pathwayWidget, SLOT(zoomOut()));
-
-	QToolButton *btnTextZoomIn = new QToolButton(toolBar);
-	btnTextZoomIn->setIcon(QIcon(rsrcPath + "/zoomInText.png"));
-	btnTextZoomIn->setToolTip(tr("Increase Font Size"));
-	connect(btnTextZoomIn, SIGNAL(clicked()), pathwayWidget,
-			SLOT(increaseLabelSize()));
-
-	QToolButton *btnTextZoomOut = new QToolButton(toolBar);
-	btnTextZoomOut->setIcon(QIcon(rsrcPath + "/zoomOutText.png"));
-	btnTextZoomOut->setToolTip(tr("Decrease Font Size"));
-	connect(btnTextZoomOut, SIGNAL(clicked()), pathwayWidget,
-			SLOT(decreaseLabelSize()));
-
-	QToolButton *btnNodeZoomIn = new QToolButton(toolBar);
-	btnNodeZoomIn->setIcon(QIcon(rsrcPath + "/zoomInNode.png"));
-	btnNodeZoomIn->setToolTip(tr("Increase Node Size"));
-	connect(btnNodeZoomIn, SIGNAL(clicked()), pathwayWidget,
-			SLOT(increaseNodeSize()));
-
-	QToolButton *btnNodeZoomOut = new QToolButton(toolBar);
-	btnNodeZoomOut->setIcon(QIcon(rsrcPath + "/zoomOutNode.png"));
-	btnNodeZoomOut->setToolTip(tr("Decrease Node Size"));
-	connect(btnNodeZoomOut, SIGNAL(clicked()), pathwayWidget,
-			SLOT(decreaseNodeSize()));
-
-	QToolButton *btnEdgeZoomIn = new QToolButton(toolBar);
-	btnEdgeZoomIn->setIcon(QIcon(rsrcPath + "/zoomInEdge.png"));
-	btnEdgeZoomIn->setToolTip(tr("Increase Edge Size"));
-	connect(btnEdgeZoomIn, SIGNAL(clicked()), pathwayWidget,
-			SLOT(increaseEdgeSize()));
-
-	QToolButton *btnEdgeZoomOut = new QToolButton(toolBar);
-	btnEdgeZoomOut->setIcon(QIcon(rsrcPath + "/zoomOutEdge.png"));
-	btnEdgeZoomOut->setToolTip(tr("Decrease Edge Size"));
-	connect(btnEdgeZoomOut, SIGNAL(clicked()), pathwayWidget,
-			SLOT(decreaseEdgeSize()));
-
-	QToolButton *btnLoad = new QToolButton(toolBar);
-	btnLoad->setIcon(QIcon(rsrcPath + "/fileopen.png"));
-	btnLoad->setToolTip(tr("Load Pathway"));
-	connect(btnLoad, SIGNAL(clicked()), pathwayWidget, SLOT(loadModelFile()));
-
-	QToolButton *btnSave = new QToolButton(toolBar);
-	btnSave->setIcon(QIcon(rsrcPath + "/filesave.png"));
-	btnSave->setToolTip(tr("Save Layout"));
-	connect(btnSave, SIGNAL(clicked()), pathwayWidget, SLOT(saveLayout()));
-
-	QToolButton *btnReculculte = new QToolButton(toolBar);
-	btnReculculte->setIcon(QIcon(rsrcPath + "/refresh.png"));
-	btnReculculte->setToolTip(tr("Update Compound Concentrations"));
-	connect(btnReculculte, SIGNAL(clicked()), pathwayWidget,
-			SLOT(recalculateConcentrations()));
-
-	AnimationControl* animationControl = new AnimationControl(this);
-	connect(animationControl->slider, SIGNAL(valueChanged(int)), pathwayWidget,
-			SLOT(showSample(int)));
-	connect(pathwayWidget, SIGNAL(titleChanged(QString)),
-			animationControl->titleLabel, SLOT(setText(QString)));
-	animationControl->adjustSize();
-	pathwayWidget->setAnimationControl(animationControl);
-
-	toolBar->addWidget(btnResetZoom);
-	toolBar->addWidget(btnZoomIn);
-	toolBar->addWidget(btnZoomOut);
-	toolBar->addWidget(btnNodeZoomIn);
-	toolBar->addWidget(btnNodeZoomOut);
-	toolBar->addWidget(btnEdgeZoomIn);
-	toolBar->addWidget(btnEdgeZoomOut);
-	toolBar->addWidget(btnTextZoomIn);
-	toolBar->addWidget(btnTextZoomOut);
-	toolBar->addWidget(btnReculculte);
-	toolBar->addWidget(btnSave);
-	toolBar->addWidget(btnLoad);
-	toolBar->addWidget(animationControl);
-	pathwayDockWidget->setTitleBarWidget(toolBar);
-
-	return toolBar;
-}
 void MainWindow::getLinks(Peak* peak) {
 	if (!peak)
 		return;
@@ -4728,7 +4571,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
     }
      qDebug() << "MainWindow::dropEvent() fileLoader->start() ";
     fileLoader->start();
- }
+}
 
 mzSample* MainWindow::getSampleByName(QString name) {
 
@@ -4748,22 +4591,4 @@ mzSample* MainWindow::getSampleByName(QString name) {
         }
     }
     return NULL;
-}
-
-
-
-void MainWindow::startEmbededHttpServer() {
-	//Merged with Maven 776 - Kiran
-#ifdef EMBEDHTTPSERVER
-    QString address = settings->value("embeded_http_server_address").value<QString>();
-    int port = settings->value("embeded_http_server_port").value<int>();
-    embededhttpserver = new Pillow::HttpServer(QHostAddress(address), port);
-
-    RemoteSpectraHandler* handler = new RemoteSpectraHandler(embededhttpserver);
-
-    handler->setMainWindow(this);
-    connect(embededhttpserver, SIGNAL(requestReady(Pillow::HttpConnection*)), handler,
-                    SLOT(handleRequest(Pillow::HttpConnection*)));
-
-#endif
 }

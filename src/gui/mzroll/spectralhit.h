@@ -5,21 +5,6 @@
 
 class Scan;
 
-class ProteinHit {
-    public:
-        int id;
-        QString accession;
-        bool isDecoy;
-        int cluster;
-        int proteinGroup;
-        int length;
-        QString description;
-        QString sequence;
-        QString geneSymbol;
-
-        ProteinHit() {  id=-1; isDecoy=false; cluster=-1; proteinGroup=-1; length=-1;}
-};
-
 class SpectralHit
 {
     public:
@@ -40,11 +25,9 @@ class SpectralHit
     int scannum;
     QString compoundId;
     QString fragmentId;
-    QString unmodPeptideSeq;
     bool isFocused;
     float rt;
     int id;
-    QMap<QString, int> proteins;
     QMap<int, float> mods;
 
     SpectralHit();
@@ -52,11 +35,6 @@ class SpectralHit
     double getMaxIntensity();
     double getMinMz();
     double getMaxMz();
-
-    QString getProteinIds();
-    QStringList getProteins();
-    QString getUnchargedPeptideString();
-    QString getModPeptideString();
 
     static bool compScan(SpectralHit* a, SpectralHit* b)
     {
@@ -80,6 +58,5 @@ class SpectralHit
 };
 
 Q_DECLARE_METATYPE(SpectralHit*)
-Q_DECLARE_METATYPE(ProteinHit*)
 
 #endif

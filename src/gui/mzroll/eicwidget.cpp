@@ -461,20 +461,21 @@ float EicWidget::invY(float y) {
 
 }
 
-void EicWidget::replotForced() {
-	//qDebug <<" EicWidget::replotForced()";
-	if (isVisible()) {
-		recompute();
-		replot();
-
-	}
+void EicWidget::replotForced(bool preserveDisplayedGroup)
+{
+    if (preserveDisplayedGroup) {
+        auto lastGroup = eicParameters->displayedGroup();
+        recompute();
+        replot(lastGroup);
+    } else {
+        recompute();
+        replot();
+    }
 }
 
-void EicWidget::replot() {
-	//qDebug <<" EicWidget::replot()";
-	if (isVisible()) {	
-        replot(eicParameters->displayedGroup());
-	}
+void EicWidget::replot()
+{
+    replot(eicParameters->displayedGroup());
 }
 
 void EicWidget::_clearEicLines()
@@ -1794,36 +1795,40 @@ void EicWidget::print(QPaintDevice* printer) {
 	render(&painter);
 }
 
-void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
-	//qDebug <<"EicWidget::contextMenuEvent(QContextMenuEvent * event) ";
-
+void EicWidget::contextMenuEvent(QContextMenuEvent * event)
+{
 	event->ignore();
 	QMenu menu;
 	QMenu options("Options");
 
 	SettingsForm* settingsForm = getMainWindow()->settingsForm;
 
-	QAction* d = menu.addAction("Peak Grouping Options");
-	connect(d, SIGNAL(triggered()), settingsForm, SLOT(showPeakDetectionTab()));
-	connect(d, SIGNAL(triggered()), settingsForm, SLOT(show()));
+    QAction* d = menu.addAction("Peak grouping options");
+    connect(d,
+            &QAction::triggered,
+            settingsForm,
+            &SettingsForm::showPeakDetectionTab);
+    connect(d,
+            &QAction::triggered,
+            settingsForm,
+            &SettingsForm::exec);
 
-	QAction* b = menu.addAction("Recalculate EICs");
+    QAction* b = menu.addAction("Recalculate EIC(s)");
 	connect(b, SIGNAL(triggered()), SLOT(replotForced()));
 
-	QAction* c = menu.addAction("Copy EIC(s) to Clipboard");
+    QAction* c = menu.addAction("Copy EIC(s) to clipboard");
 	connect(c, SIGNAL(triggered()), SLOT(eicToClipboard()));
 
 	menu.addMenu(&options);
 
-	QAction* o4 = options.addAction("Show Peaks");
+    QAction* o4 = options.addAction("Show peaks");
 	o4->setCheckable(true);
 	o4->setChecked(_showPeaks);
 	connect(o4, SIGNAL(toggled(bool)), SLOT(showPeaks(bool)));
 	connect(o4, SIGNAL(toggled(bool)), SLOT(replot()));
 
-
 	//TODO: Sahil, added this action while merging eicwidget
-    QAction* o44 = options.addAction("Group Peaks Automatically");
+    QAction* o44 = options.addAction("Group peaks automatically");
     o44->setCheckable(true);
     o44->setChecked(_groupPeaks);
     connect(o44, SIGNAL(toggled(bool)), SLOT(automaticPeakGrouping(bool)));
@@ -1835,19 +1840,19 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
 	connect(o10, SIGNAL(toggled(bool)), SLOT(showEIC(bool)));
 	connect(o10, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o1 = options.addAction("Show Spline");
+    QAction* o1 = options.addAction("Show spline");
 	o1->setCheckable(true);
 	o1->setChecked(_showSpline);
 	connect(o1, SIGNAL(toggled(bool)), SLOT(showSpline(bool)));
 	connect(o1, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o9 = options.addAction("Show Cubic Spline");
+    QAction* o9 = options.addAction("Show cubic spline");
 	o9->setCheckable(true);
 	o9->setChecked(_showCubicSpline);
 	connect(o9, SIGNAL(toggled(bool)), SLOT(showCubicSpline(bool)));
 	connect(o9, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o2 = options.addAction("Show Baseline");
+    QAction* o2 = options.addAction("Show baseline");
 	o2->setCheckable(true);
 	o2->setChecked(_showBaseline);
 	connect(o2, SIGNAL(toggled(bool)), SLOT(showBaseLine(bool)));
@@ -1859,12 +1864,6 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
 	connect(o3, SIGNAL(toggled(bool)), SLOT(showTicLine(bool)));
 	connect(o3, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o5 = options.addAction("Show Bar Plot");
-	o5->setCheckable(true);
-	o5->setChecked(_showBarPlot);
-	connect(o5, SIGNAL(toggled(bool)), SLOT(showBarPlot(bool)));
-	connect(o5, SIGNAL(toggled(bool)), SLOT(replot()));
-    
 	//TODO: Sahil, added this action while merging eicwidget
     QAction* o31 = options.addAction("Show BIC");
     o31->setCheckable(true);
@@ -1873,35 +1872,40 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event) {
     connect(o31, SIGNAL(toggled(bool)), SLOT(replot()));
 
 	//TODO: Sahil, added this action while merging eicwidget
-    QAction* o33 = options.addAction("Show Merged EIC");
+    QAction* o33 = options.addAction("Show merged EIC");
     o33->setCheckable(true);
     o33->setChecked(_showMergedEIC);
     connect(o33, SIGNAL(toggled(bool)), SLOT(showMergedEIC(bool)));
     connect(o33, SIGNAL(toggled(bool)), SLOT(replot()));
 
 	//TODO: Sahil, added this action while merging eicwidget
-    QAction* o34 = options.addAction("Show EICs as Lines");
+    QAction* o34 = options.addAction("Show EICs as lines");
     o34->setCheckable(true);
     o34->setChecked(_showEICLines);
     connect(o34, SIGNAL(toggled(bool)), SLOT(showEICLines(bool)));
     connect(o34, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction* o7 = options.addAction("Show Box Plot");
-	o7->setCheckable(true);
-	o7->setChecked(_showBoxPlot);
-	connect(o7, SIGNAL(toggled(bool)), SLOT(showBoxPlot(bool)));
-	connect(o7, SIGNAL(toggled(bool)), SLOT(replot()));
+    QAction* o5 = options.addAction("Show bar-plot");
+    o5->setCheckable(true);
+    o5->setChecked(_showBarPlot);
+    connect(o5, SIGNAL(toggled(bool)), SLOT(showBarPlot(bool)));
+    connect(o5, SIGNAL(toggled(bool)), SLOT(replot()));
+
+    QAction* o6 = options.addAction("Show box-plot");
+    o6->setCheckable(true);
+    o6->setChecked(_showBoxPlot);
+    connect(o6, SIGNAL(toggled(bool)), SLOT(showBoxPlot(bool)));
+    connect(o6, SIGNAL(toggled(bool)), SLOT(replot()));
 
 	//TODO: Sahil, added this action while merging eicwidget
-    QAction* o8 = options.addAction("Show MS2 Events");
+    QAction* o8 = options.addAction("Show MS2 events");
     o8->setCheckable(true);
     o8->setChecked(_showMS2Events);
     connect(o8, SIGNAL(toggled(bool)), SLOT(showMS2Events(bool)));
     connect(o8, SIGNAL(toggled(bool)), SLOT(replot()));
 
-	QAction *selectedAction = menu.exec(event->globalPos());
+    menu.exec(event->globalPos());
 	scene()->update();
-
 }
 
 /*
@@ -2032,7 +2036,7 @@ void EicWidget::keyPressEvent(QKeyEvent *e) {
 		markGroupBad();
 		break;
 	case Qt::Key_F5:
-		replotForced();
+        replotForced(true);
     case Qt::Key_Shift:
         toggleAreaIntegration(true);
     case Qt::Key_E: {

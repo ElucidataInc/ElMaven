@@ -13,7 +13,6 @@
 #include "mzfileio.h"
 #include "numeric_treewidgetitem.h"
 #include "settingsform.h"
-#include "spectramatching.h"
 
 using namespace std;
 
@@ -44,17 +43,12 @@ LigandWidget::LigandWidget(MainWindow* mw)
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    toolBar->setStyleSheet(style);
 
     databaseSelect = new QComboBox(toolBar);
     databaseSelect->setObjectName(QString::fromUtf8("databaseSelect"));
     databaseSelect->setDuplicatesEnabled(false);
-    databaseSelect->setSizePolicy(QSizePolicy::Expanding,
-                                  QSizePolicy::MinimumExpanding);
+    databaseSelect->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    databaseSelect->setStyleSheet("QComboBox { margin: 1px 2px 1px 2px; }");
 
     connect(this,
             SIGNAL(compoundFocused(Compound*)),
@@ -64,7 +58,7 @@ LigandWidget::LigandWidget(MainWindow* mw)
 
     libraryButton = new QToolButton(toolBar);
     libraryButton->setIcon(QIcon(rsrcPath + "/librarymanager.png"));
-    libraryButton->setToolTip("Open Library Manager");
+    libraryButton->setToolTip("Open library manager");
     connect(libraryButton,
             &QPushButton::clicked,
             _mw->getLibraryManager(),
@@ -82,10 +76,9 @@ LigandWidget::LigandWidget(MainWindow* mw)
 
     QWidget* window = new QWidget;
     QVBoxLayout* layout = new QVBoxLayout;
-    layout->setSpacing(0);
     layout->addWidget(filterEditor);
     layout->addWidget(treeWidget);
-    layout->setSpacing(6);
+    layout->setSpacing(8);
     window->setLayout(layout);
 
     setWidget(window);
@@ -547,9 +540,9 @@ void LigandWidget::setHash()
 
 void LigandWidget::markAsDone(QTreeWidgetItem* item, bool isProxy)
 {
-    auto color = QColor(101, 243, 124, 100);  // green
+    auto color = QColor(137, 238, 45, 100);  // green
     if (isProxy)
-        color = QColor(253, 204, 101, 100);   // yellow
+        color = QColor(255, 199, 0, 100);    // yellow
 
     if (item != nullptr && item->treeWidget() == treeWidget) {
         for (int col = 0; col < treeWidget->columnCount(); col++)
@@ -945,11 +938,6 @@ void LigandWidget::matchFragmentation()
                           .arg(QString::number(mz, 'f', 5))
                           .arg(QString::number(ints, 'f', 2));
     }
-
-    _mw->spectraMatchingForm->fragmentsText->setPlainText(
-        searchText.join("\n"));
-    _mw->spectraMatchingForm->precursorMz->setText(
-        QString::number(precursorMz, 'f', 6));
 }
 
 void LigandWidget::keyPressEvent(QKeyEvent *event)

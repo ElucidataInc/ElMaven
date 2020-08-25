@@ -10,10 +10,8 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "mzSample.h"
-#include "pathwaywidget.h"
 #include "point.h"
 #include "Scan.h"
-#include "spectralhitstable.h"
 #include "spectrawidget.h"
 #include "treedockwidget.h"
 
@@ -281,8 +279,6 @@ void EicPoint::_updateWidgetsForScan(MainWindow* mw, Scan* scan)
             mw->fragSpectraDockWidget->raise();
             mw->fragSpectraWidget->overlayScan(scan);
         }
-        if(scan->mslevel == 2)
-            mw->spectralHitsDockWidget->limitPrecursorMz(scan->precursorMz);
     }
 }
 
@@ -306,7 +302,7 @@ void EicPoint::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidge
     if (_group != nullptr && selGroup == _group) {
         brush.setStyle(Qt::SolidPattern);
         pen.setColor(_color.darker());
-        pen.setWidth(_pen.width()+1);
+        pen.setWidth(_pen.width());
     } else {
         brush.setStyle(Qt::NoBrush);
     }
@@ -369,9 +365,6 @@ void EicPoint::linkCompound() {
 
             //_mw->ligandWidget->updateTable();
             _mw->ligandWidget->updateCurrentItemData();
-
-            //update pathway widget with new concentration information
-            _mw->pathwayWidget->updateCompoundConcentrations();
 	}
 }
 

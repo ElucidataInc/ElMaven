@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>795</width>
-    <height>619</height>
+    <width>780</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -44,13 +44,16 @@
    <item>
     <widget class="QTabWidget" name="tabwidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="featureSelectionTab">
       <attribute name="title">
-       <string>Feature Detection Selection</string>
+       <string>Detection method</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_10">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>12</number>
+       </property>
        <property name="leftMargin">
         <number>6</number>
        </property>
@@ -63,148 +66,7 @@
        <property name="bottomMargin">
         <number>6</number>
        </property>
-       <item row="4" column="0" colspan="2">
-        <widget class="QGroupBox" name="matchFragmentationOptions">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>Match Fragmentation</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <property name="leftMargin">
-           <number>6</number>
-          </property>
-          <property name="topMargin">
-           <number>6</number>
-          </property>
-          <property name="rightMargin">
-           <number>6</number>
-          </property>
-          <property name="bottomMargin">
-           <number>6</number>
-          </property>
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="scoringAlgo">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="cursor">
-             <cursorShape>BlankCursor</cursorShape>
-            </property>
-            <property name="text">
-             <string>Hypergeometric Score</string>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_fragmentTolerance">
-            <property name="text">
-             <string>Fragment Mass Tolerance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_matchAtLeastX">
-            <property name="text">
-             <string>Match at least X fragments</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_scoringAlgo">
-            <property name="text">
-             <string>Scoring Algorithm</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QDoubleSpinBox" name="minFragMatch">
-            <property name="decimals">
-             <number>0</number>
-            </property>
-            <property name="value">
-             <double>3.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="fragmentTolerance">
-            <property name="suffix">
-             <string> ppm</string>
-            </property>
-            <property name="maximum">
-             <double>1000.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_minMatchScore">
-            <property name="text">
-             <string>Minimum Score</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QDoubleSpinBox" name="minFragMatchScore">
-            <property name="prefix">
-             <string/>
-            </property>
-            <property name="suffix">
-             <string/>
-            </property>
-            <property name="maximum">
-             <double>1000.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QCheckBox" name="mustHaveMs2">
-            <property name="text">
-             <string>Exclude unfragmented groups</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-         <zorder>scoringAlgo</zorder>
-         <zorder>label_minMatchScore</zorder>
-         <zorder>minFragMatchScore</zorder>
-         <zorder>minFragMatch</zorder>
-         <zorder>label_matchAtLeastX</zorder>
-         <zorder>fragmentTolerance</zorder>
-         <zorder>label_fragmentTolerance</zorder>
-         <zorder>label_scoringAlgo</zorder>
-         <zorder>mustHaveMs2</zorder>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
+       <item>
         <widget class="QGroupBox" name="featureOptions">
          <property name="enabled">
           <bool>true</bool>
@@ -222,7 +84,7 @@
           <bool>false</bool>
          </property>
          <property name="title">
-          <string>Automated Feature Detection:   Find peaks by slicing m/z and retention time space</string>
+          <string>Automated feature detection: find peaks by slicing m/z and retention time space</string>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -249,13 +111,20 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="3" column="3">
-           <widget class="QDoubleSpinBox" name="minIntensity">
+          <item row="4" column="2">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Limit Charged Species</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QDoubleSpinBox" name="mzMax">
             <property name="maximum">
-             <double>9999999999.989999771118164</double>
+             <double>999999999.000000000000000</double>
             </property>
             <property name="value">
-             <double>50000.000000000000000</double>
+             <double>999999999.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -287,50 +156,10 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_18">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>Limit Time Range</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QDoubleSpinBox" name="identificationRtWindow">
-            <property name="suffix">
-             <string> min</string>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QComboBox" name="identificationDatabase"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Identify using database</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QDoubleSpinBox" name="rtMax">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Time Domain Resolution</string>
+             <string>Mass domain resolution</string>
             </property>
            </widget>
           </item>
@@ -338,44 +167,6 @@
            <widget class="QDoubleSpinBox" name="mzMin">
             <property name="maximum">
              <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4">
-           <widget class="QDoubleSpinBox" name="maxIntensity">
-            <property name="maximum">
-             <double>9999999999.989999771118164</double>
-            </property>
-            <property name="value">
-             <double>9999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="identificationMatchRt">
-            <property name="text">
-             <string>Match Retention Time (+/-)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>Limit m/z Range</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Mass Domain Resolution</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>Limit Charged Species</string>
             </property>
            </widget>
           </item>
@@ -392,43 +183,47 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="3">
-           <widget class="QSpinBox" name="chargeMin">
-            <property name="minimum">
-             <number>1</number>
-            </property>
+          <item row="1" column="3">
+           <widget class="QDoubleSpinBox" name="rtMin">
             <property name="maximum">
-             <number>1000000</number>
+             <double>999999999.000000000000000</double>
             </property>
-            <property name="singleStep">
-             <number>5</number>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Time domain resolution</string>
             </property>
-            <property name="value">
-             <number>10</number>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="identificationDatabase"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>Limit m/z Range</string>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
            <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>Limit Intensity Range</string>
+             <string>Limit intensity Range</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="4">
-           <widget class="QDoubleSpinBox" name="mzMax">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
+          <item row="4" column="1">
+           <widget class="QDoubleSpinBox" name="identificationRtWindow">
+            <property name="suffix">
+             <string> minutes</string>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
             </property>
             <property name="value">
-             <double>999999999.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QDoubleSpinBox" name="rtMin">
-            <property name="maximum">
-             <double>999999999.000000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -448,10 +243,77 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="identificationMatchRt">
+            <property name="text">
+             <string>Match retention time (+/-)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QSpinBox" name="chargeMin">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Limit time Range</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QDoubleSpinBox" name="maxIntensity">
+            <property name="maximum">
+             <double>9999999999.989999771118164</double>
+            </property>
+            <property name="value">
+             <double>9999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QDoubleSpinBox" name="minIntensity">
+            <property name="maximum">
+             <double>9999999999.989999771118164</double>
+            </property>
+            <property name="value">
+             <double>50000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Identify using database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QDoubleSpinBox" name="rtMax">
+            <property name="maximum">
+             <double>999999999.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>999999999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item>
         <widget class="QGroupBox" name="dbSearch">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -460,7 +322,7 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Compound Database Search:  Limit slices to set of known m/z and retention time values</string>
+          <string>Compound database search: limit slices to set of known m/z and retention time values</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -484,39 +346,6 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Select Database</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>EIC Extraction Window (+/-)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QDoubleSpinBox" name="compoundPPMWindow">
-            <property name="suffix">
-             <string> ppm</string>
-            </property>
-            <property name="maximum">
-             <double>1000000.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QComboBox" name="compoundDatabase"/>
-          </item>
           <item row="3" column="0" colspan="2">
            <widget class="QLabel" name="label_16">
             <property name="text">
@@ -527,8 +356,20 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="3" column="2" alignment="Qt::AlignRight">
            <widget class="QSpinBox" name="eicMaxGroups">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="suffix">
              <string> best</string>
             </property>
@@ -543,13 +384,32 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>EIC extraction window (+/-)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" alignment="Qt::AlignRight">
            <widget class="QDoubleSpinBox" name="compoundRTWindow">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="prefix">
              <string/>
             </property>
             <property name="suffix">
-             <string> min</string>
+             <string> minutes</string>
             </property>
             <property name="maximum">
              <double>999999999.000000000000000</double>
@@ -565,21 +425,255 @@
           <item row="2" column="0">
            <widget class="QCheckBox" name="matchRt">
             <property name="text">
-             <string>Match Retention Time (+/-)</string>
+             <string>Match retention time (+/-)</string>
             </property>
             <property name="checked">
              <bool>false</bool>
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Select database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="compoundPPMWindow">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="suffix">
+             <string> ppm</string>
+            </property>
+            <property name="maximum">
+             <double>1000000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2" alignment="Qt::AlignRight">
+           <widget class="QComboBox" name="compoundDatabase">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="matchFragmentationOptions">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Match fragmentation</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <property name="leftMargin">
+           <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_fragmentTolerance">
+            <property name="text">
+             <string>Fragment mass tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" alignment="Qt::AlignRight">
+           <widget class="QLineEdit" name="scoringAlgo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>BlankCursor</cursorShape>
+            </property>
+            <property name="text">
+             <string>Hypergeometric Score</string>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_matchAtLeastX">
+            <property name="text">
+             <string>Match at least [x] fragments</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_minMatchScore">
+            <property name="text">
+             <string>Minimum score</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="minFragMatchScore">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="prefix">
+             <string/>
+            </property>
+            <property name="suffix">
+             <string/>
+            </property>
+            <property name="maximum">
+             <double>1000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.500000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="fragmentTolerance">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="suffix">
+             <string> ppm</string>
+            </property>
+            <property name="maximum">
+             <double>1000.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>20.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="mustHaveMs2">
+            <property name="text">
+             <string>Exclude unfragmented groups</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_scoringAlgo">
+            <property name="text">
+             <string>Scoring algorithm</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="minFragMatch">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <double>3.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+         <zorder>scoringAlgo</zorder>
+         <zorder>label_minMatchScore</zorder>
+         <zorder>minFragMatchScore</zorder>
+         <zorder>minFragMatch</zorder>
+         <zorder>label_matchAtLeastX</zorder>
+         <zorder>fragmentTolerance</zorder>
+         <zorder>label_fragmentTolerance</zorder>
+         <zorder>label_scoringAlgo</zorder>
+         <zorder>mustHaveMs2</zorder>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="groupFilteringTab">
       <attribute name="title">
-       <string>Group Filtering</string>
+       <string>Group filtering</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_13">
        <property name="leftMargin">
@@ -616,78 +710,12 @@
            <number>4</number>
           </property>
           <item row="0" column="0" colspan="4">
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_28">
-              <property name="text">
-               <string>At least</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="13" column="1">
-             <widget class="QSpinBox" name="minGoodGroupCount">
-              <property name="suffix">
-               <string> peaks</string>
-              </property>
-              <property name="maximum">
-               <number>100000000</number>
-              </property>
-              <property name="value">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QLabel" name="qualityQuantileStatus">
-              <property name="text">
-               <string>% peaks above minimum quality</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>At least</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QSpinBox" name="minNoNoiseObs">
-              <property name="suffix">
-               <string> scans</string>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>1000000000</number>
-              </property>
-              <property name="value">
-               <number>3</number>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QSlider" name="quantileQuality">
+           <layout class="QGridLayout" name="gridLayout_5" columnstretch="2,3,4">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item row="1" column="1">
+             <widget class="QSlider" name="quantileIntensity">
               <property name="maximum">
                <number>100</number>
               </property>
@@ -701,38 +729,21 @@
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="tickPosition">
-               <enum>QSlider::TicksBelow</enum>
+               <enum>QSlider::NoTicks</enum>
               </property>
               <property name="tickInterval">
                <number>5</number>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Minimum Peak Intensity</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="2">
              <widget class="QComboBox" name="peakQuantitation">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <item>
                <property name="text">
                 <string>AreaTop</string>
@@ -760,226 +771,10 @@
               </item>
              </widget>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_27">
+            <item row="13" column="2">
+             <widget class="QLabel" name="widthQuantileStatus">
               <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="minGroupIntensity">
-              <property name="maximumSize">
-               <size>
-                <width>502</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="showGroupSeparator" stdset="0">
-               <bool>true</bool>
-              </property>
-              <property name="suffix">
-               <string/>
-              </property>
-              <property name="maximum">
-               <double>999999999.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1000000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Min. Signal/BaseLine Ratio</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_29">
-              <property name="text">
-               <string>At least</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QDoubleSpinBox" name="sigBlankRatio">
-              <property name="maximum">
-               <double>10000000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>2.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="2">
-             <widget class="QLabel" name="blankQuantileStatus">
-              <property name="text">
-               <string>% peaks above minimum signal/blank ratio</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="2">
-             <widget class="QLabel" name="baselineQuantileStatus">
-              <property name="text">
-               <string>% peaks above minimum signal/baseline ratio</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QSlider" name="quantileSignalBlankRatio">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-              <property name="sliderPosition">
-               <number>0</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickPosition">
-               <enum>QSlider::TicksBelow</enum>
-              </property>
-              <property name="tickInterval">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0">
-             <widget class="QLabel" name="label_30">
-              <property name="text">
-               <string>At least</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="labelMinQuality">
-              <property name="text">
-               <string>Minimum Quality</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1">
-             <widget class="QSpinBox" name="sigBaselineRatio">
-              <property name="maximum">
-               <number>10000000</number>
-              </property>
-              <property name="value">
-               <number>2</number>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1">
-             <spacer name="verticalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="12" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>Minimum Peak Width</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="intensityQuantileStatus">
-              <property name="text">
-               <string>% peaks above minimum intensity </string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="1">
-             <widget class="QSlider" name="quantileIntensity">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-              <property name="sliderPosition">
-               <number>0</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickPosition">
-               <enum>QSlider::TicksBelow</enum>
-              </property>
-              <property name="tickInterval">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBoxMinQuality">
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.500000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="0">
-             <widget class="QLabel" name="label_100">
-              <property name="text">
-               <string>Min. Good Peak / Group</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Minimum Signal/Blank Ratio</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <string>% peaks above minimum peak width</string>
               </property>
              </widget>
             </item>
@@ -1004,34 +799,345 @@
                <bool>false</bool>
               </property>
               <property name="tickPosition">
-               <enum>QSlider::TicksBelow</enum>
+               <enum>QSlider::NoTicks</enum>
               </property>
               <property name="tickInterval">
                <number>5</number>
               </property>
              </widget>
             </item>
-            <item row="14" column="0">
-             <widget class="QLabel" name="label_5">
+            <item row="13" column="0">
+             <widget class="QLabel" name="label_100">
               <property name="text">
-               <string>Peak Classifier Model File</string>
+               <string>At least</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="14" column="1">
-             <widget class="QLineEdit" name="classificationModelFilename">
+            <item row="12" column="0">
+             <widget class="QLabel" name="label_12">
               <property name="text">
-               <string/>
+               <string>Minimum peak width</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="14" column="2">
-             <widget class="QPushButton" name="loadModelButton">
+            <item row="8" column="1">
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>6</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="9" column="1">
+             <widget class="QSpinBox" name="sigBaselineRatio">
+              <property name="maximum">
+               <number>10000000</number>
+              </property>
+              <property name="value">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QSlider" name="quantileQuality">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="sliderPosition">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::NoTicks</enum>
+              </property>
+              <property name="tickInterval">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QSlider" name="quantileSignalBlankRatio">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="sliderPosition">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickPosition">
+               <enum>QSlider::NoTicks</enum>
+              </property>
+              <property name="tickInterval">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelMinQuality">
               <property name="text">
-               <string>Load Model</string>
+               <string>Minimum quality</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBoxMinQuality">
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Minimum peak intensity</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Minimum signal/blank ratio</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="label_29">
+              <property name="text">
+               <string>At least</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="1">
+             <widget class="QSpinBox" name="minNoNoiseObs">
+              <property name="suffix">
+               <string> scans</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>1000000000</number>
+              </property>
+              <property name="value">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="1">
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>6</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="minGroupIntensity">
+              <property name="maximumSize">
+               <size>
+                <width>502</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="showGroupSeparator" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <double>999999999.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1000000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>6</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="9" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Minimum signal/baseline ratio</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
+             <widget class="QLabel" name="label_30">
+              <property name="text">
+               <string>At least</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="intensityQuantileStatus">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>% peaks above minimum intensity </string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QDoubleSpinBox" name="sigBlankRatio">
+              <property name="maximum">
+               <double>10000000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>2.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>6</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>At least</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_28">
+              <property name="text">
+               <string>At least</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="2">
+             <widget class="QLabel" name="baselineQuantileStatus">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>% peaks above minimum signal/baseline ratio</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="2">
+             <widget class="QLabel" name="blankQuantileStatus">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>% peaks above minimum signal/blank ratio</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <widget class="QLabel" name="qualityQuantileStatus">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>% peaks above minimum quality</string>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="1">
+             <widget class="QSlider" name="quantilePeakWidth">
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>5</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="tickInterval">
+               <number>5</number>
               </property>
              </widget>
             </item>
@@ -1126,9 +1232,6 @@
   <tabstop>sigBaselineRatio</tabstop>
   <tabstop>quantileSignalBaselineRatio</tabstop>
   <tabstop>minNoNoiseObs</tabstop>
-  <tabstop>minGoodGroupCount</tabstop>
-  <tabstop>classificationModelFilename</tabstop>
-  <tabstop>loadModelButton</tabstop>
   <tabstop>computeButton</tabstop>
   <tabstop>cancelButton</tabstop>
  </tabstops>

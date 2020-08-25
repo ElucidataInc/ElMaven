@@ -5,7 +5,6 @@
 #include "standardincludes.h"
 #include "PeakGroup.h"
 
-class Reaction;
 class FragmentationMatchScore;
 class Fragment;
 

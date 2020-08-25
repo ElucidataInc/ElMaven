@@ -267,7 +267,6 @@ public slots:
   virtual void markGroupGood();
   virtual void unmarkGroup();
   void markGroupIgnored();
-  void showHeatMap();
   void showScatterPlot();
   void setClipboard();
 
@@ -280,8 +279,6 @@ public slots:
   void sortBy(int);
   void deleteAll();
   void clusterGroups();
-  void showFiltersDialog();
-  void filterPeakTable();
 
   void switchTableView();
 
@@ -358,6 +355,8 @@ private:
 
   void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
 
+  void _paintClassificationDisagreement(QTreeWidgetItem* item);
+
   void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
@@ -365,8 +364,6 @@ private:
   void setupFiltersDialog();
 
   ClusterDialog *clusterDialog;
-  QDialog *filtersDialog;
-  QMap<QString, QHistogramSlider *> sliders;
   peakTableSelectionType peakTableSelection;
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;

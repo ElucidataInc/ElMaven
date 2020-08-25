@@ -18,7 +18,6 @@ INCLUDEPATH += $$top_srcdir/src/core/libmaven \
                $$top_srcdir/3rdparty/libcsvparser \
                $$top_srcdir/3rdparty/libcdfread \
                $$top_srcdir/3rdparty/ \
-               $$top_srcdir/3rdparty/libpillow \
                $$top_srcdir/3rdparty/libdate/ \
                $$top_srcdir/3rdparty/ErrorHandling \
                $$top_srcdir/3rdparty/Logger \

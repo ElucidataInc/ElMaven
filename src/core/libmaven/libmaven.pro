@@ -105,7 +105,6 @@ SOURCES = base64.cpp \
           isotopelogic.cpp \
           eiclogic.cpp \
           database.cpp \
-          Peptide.cpp \
           PolyAligner.cpp \
           jsonReports.cpp \
           masscutofftype.cpp \
@@ -128,7 +127,6 @@ HEADERS += constants.h \
            mzAligner.h \
 	       PeakGroup.h \
            mzSample.h \
-           PeptideRecord.h \
            Fragment.h \
            elementMass.h \
            mzMassCalculator.h \
@@ -150,8 +148,6 @@ HEADERS += constants.h \
 	       Scan.h \
            SRMList.h \
            database.h \
-           Peptide.hpp \
-           PeptideRecord.h \
            PolyAligner.h \
            jsonReports.h \
            masscutofftype.h \

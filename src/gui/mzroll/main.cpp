@@ -27,6 +27,7 @@
 #include "mzfileio.h"
 #include "controller.h"
 #include "elmavenlogger.h"
+#include "phantomstyle.h"
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG
@@ -75,10 +76,27 @@ void initializeLogger()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    qApp->setOrganizationName("ElucidataInc");
-    qApp->setApplicationName("El-Maven");
+    qApp->setOrganizationName("Elucidata Inc.");
+    qApp->setApplicationName("El-MAVEN");
     qApp->setApplicationVersion(STR(EL_MAVEN_VERSION));
-    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps);
+    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+
+    // set application-wide style
+    qApp->setStyle(new PhantomStyle);
+    qApp->setPalette(namedColorSchemePalette(ElMavenLight));
+
+    // set application-wide font
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Regular.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Bold.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Light.ttf");
+    QFontDatabase::addApplicationFont(
+        ":/fonts/SourceSansPro/SourceSansPro-Italic.ttf");
+    QFont interfaceFont("Source Sans Pro");
+    interfaceFont.setPixelSize(14);
+    qApp->setFont(interfaceFont);
 
 #ifdef __OSX_AVAILABLE
 #ifndef DEBUG

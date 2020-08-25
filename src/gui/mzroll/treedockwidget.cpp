@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "masscalcgui.h"
 #include "numeric_treewidgetitem.h"
-#include "pathwaywidget.h"
 #include "projectdockwidget.h"
 #include "Scan.h"
 #include "settingsform.h"
@@ -118,16 +117,10 @@ void TreeDockWidget::showInfo() {
 
                                     mainwindow->getSpectraWidget()->setScan(scan);
                                     mainwindow->getEicWidget()->setFocusLine(scan->rt);
-                                    // if (scan->mslevel > 1) {
-                                    //  mainwindow->peptideFragmentation->setScan(scan);
-                                    // }
                                 }
 				
                         } else if (itemType == EICType ) {
                                 mainwindow->getEicWidget()->setSrmId(text.toStdString());
-                        } else if ( itemType == PathwayType ) {
-                                        mainwindow->pathwayDockWidget->setVisible(true);
-                                        mainwindow->getPathwayWidget()->setPathway( v.toString() );
                         } else if (itemType == mzLinkType ) {
                                 float mz = item->text(0).toFloat();
                                         if (mz>0)mainwindow->setMzValue(mz);
@@ -210,7 +203,6 @@ void TreeDockWidget::unlinkGroup() {
 	}
 
 	treeWidget->update();
-    mainwindow->getPathwayWidget()->updateCompoundConcentrations();
 
 	return;
 }
@@ -262,22 +254,6 @@ QTreeWidgetItem* TreeDockWidget::addLink(mzLink* s,QTreeWidgetItem* parent)  {
                 item->setText(2,QString(s->note.c_str()));
         }
         return item;
-}
-
-void TreeDockWidget::setInfo(deque<Pathway*>& pathways) {
-
-    treeWidget->clear();
-    QStringList header; header << "Pathway";
-    treeWidget->setHeaderLabels( header );
-    map<string,string>::iterator itr;
-    treeWidget->setSortingEnabled(true);
-
-    for(int i=0; i < pathways.size(); i++ ) {
-        Pathway* p = pathways[i];
-        auto parent = new NumericTreeWidgetItem(treeWidget, PathwayType);
-        parent->setText(0,QString((p->name +"("+p->id+")").c_str() 	));
-        parent->setData(0,Qt::UserRole,QVariant::fromValue(QString(p->id.c_str())));
-    }
 }
 
 void TreeDockWidget::filterTree(QString needle) {
@@ -456,17 +432,12 @@ void TreeDockWidget::setQQQToolBar() {
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
-    QString style = "";
-    style += "QToolBar { background:    white;               }";
-    style += "QToolBar { border:        none;                }";
-    style += "QToolBar { border-bottom: 1px solid lightgray; }";
-    toolBar->setStyleSheet(style);
 
     amuQ1 = new QDoubleSpinBox(toolBar);
     amuQ1->setRange(0.001, 2.0);
     amuQ1->setValue(_mainWindow->getSettings()->value("amuQ1").toDouble());
     amuQ1->setSingleStep(0.1);	//amu step
-    amuQ1->setToolTip("Precursor mz tolerance");
+    amuQ1->setToolTip("Precursor m/z tolerance");
     amuQ1->setSuffix(" amu");
     amuQ1->setMinimumWidth(20);
 
@@ -477,7 +448,7 @@ void TreeDockWidget::setQQQToolBar() {
     amuQ3->setRange(0.001, 2.0);
     amuQ3->setValue(_mainWindow->getSettings()->value("amuQ3").toDouble());
     amuQ3->setSingleStep(0.1);	//amu step
-    amuQ3->setToolTip("Product mz tolerance");
+    amuQ3->setToolTip("Product m/z tolerance");
     amuQ3->setSuffix(" amu");
     amuQ3->setMinimumWidth(20);
     connect(amuQ3, SIGNAL(valueChanged(double)),_mainWindow->getSettingsForm(), SLOT(setQ3Tollrance(double)));
@@ -485,15 +456,28 @@ void TreeDockWidget::setQQQToolBar() {
 
     associateCompounds = new QToolButton(toolBar);
     associateCompounds->setIcon(QIcon(rsrcPath + "/link.png"));
-    associateCompounds->setToolTip(tr("Associate Compounds with MRM Transtions"));
-    
-    auto q1Label = new QLabel("Q1 tolerance");
-    q1Label->setStyleSheet("QLabel { margin-left: 6px; }");
+    associateCompounds->setToolTip(tr("Associate compounds with MRM transtions"));
+
+    auto widgetName = new QLabel("SRM list");
+    widgetName->setStyleSheet("QLabel { margin-left: 6px; }");
+    toolBar->addWidget(widgetName);
+
+    toolBar->addSeparator();
+    QLabel* q1Label = new QLabel("Q1 tolerance");
+    q1Label->setStyleSheet("QLabel { margin-right: 2px; }");
     toolBar->addWidget(q1Label);
     toolBar->addWidget(amuQ1);
-    toolBar->addSeparator();
-    toolBar->addWidget(new QLabel("Q3 tolerance"));
+
+    QWidget* margin = new QWidget(toolBar);
+    margin->setMinimumWidth(12);
+    margin->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    toolBar->addWidget(margin);
+
+    QLabel* q3Label = new QLabel("Q3 tolerance");
+    q3Label->setStyleSheet("QLabel { margin-right: 2px; }");
+    toolBar->addWidget(q3Label);
     toolBar->addWidget(amuQ3);
+
     toolBar->addSeparator();
     toolBar->addWidget(associateCompounds);
 
@@ -502,7 +486,7 @@ void TreeDockWidget::setQQQToolBar() {
     toolBar->addWidget(spacer);
 
     QToolButton *closeButton = new QToolButton(toolBar);
-    closeButton->setIcon(this->style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
+    closeButton->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
     connect(closeButton,
             &QToolButton::clicked,
             this,

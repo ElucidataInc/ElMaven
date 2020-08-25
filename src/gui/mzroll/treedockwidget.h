@@ -12,7 +12,6 @@ class mzLink;
 class Peak;
 class PeakGroup;
 class Compound;
-class Pathway;
 class Scan;
 
 using namespace std;
@@ -43,7 +42,6 @@ public Q_SLOTS:
 	  void setInfo(vector<Compound*>&compounds);
 	  void setInfo(vector<mzLink>&links);
 	  void setInfo(vector<mzSlice*>&slices);
-	  void setInfo(deque<Pathway*>&pathways);
     void setupScanListHeader();
     void addScanItem(Scan* scan);
     void sortScansBySample();

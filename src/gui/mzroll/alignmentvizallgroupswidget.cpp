@@ -148,8 +148,7 @@ void AlignmentVizAllGroupsWidget::displayGroup() {
                 if (_mw != NULL) {
                     auto sharedGroup = make_shared<PeakGroup>(grp);
                     _mw->setPeakGroup(sharedGroup);
-                    _mw->getEicWidget()->replotForced();
-                    //_mw->rconsoleDockWidget->updateStatus();
+                    _mw->getEicWidget()->replotForced(true);
                 }
             }
         }
@@ -181,8 +180,8 @@ void AlignmentVizAllGroupsWidget::setLegend() {
     _mw->alignmentVizAllGroupsPlot->legend->setVisible(true);
     _mw->alignmentVizAllGroupsPlot->legend->setBrush(QColor(255, 255, 255, 100));
     _mw->alignmentVizAllGroupsPlot->legend->setBorderPen(pen);
-    QFont legendFont("Times", 10);
-    legendFont.setPointSize(10);
+    QFont legendFont;
+    legendFont.setPixelSize(12);
     _mw->alignmentVizAllGroupsPlot->legend->setFont(legendFont);
     _mw->alignmentVizAllGroupsPlot->legend->setSelectedFont(legendFont);
     _mw->alignmentVizAllGroupsPlot->legend->setSelectableParts(QCPLegend::spItems); // legend box shall not be selectable, only legend items

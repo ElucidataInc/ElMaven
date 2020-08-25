@@ -17,7 +17,6 @@ class Peak;
 class PeakGroup;
 class Compound;
 class Scan;
-class Pathway;
 
 const QString rsrcPath = ":/images";
 const QString programName = "El-MAVEN";
@@ -52,7 +51,6 @@ Q_DECLARE_METATYPE(Compound*)
 Q_DECLARE_METATYPE(Scan*)
 Q_DECLARE_METATYPE(PeakGroup*)
 Q_DECLARE_METATYPE(mzSlice*)
-Q_DECLARE_METATYPE(Pathway*)
 Q_DECLARE_METATYPE(UserNote*)
 Q_DECLARE_METATYPE(mzSlice)
 Q_DECLARE_SMART_POINTER_METATYPE(shared_ptr)
@@ -65,7 +63,6 @@ enum itemType {
     ScanType,
     EICType,
     PeakType,
-    PathwayType,
     mzSliceType,
     mzLinkType,
     AdductType

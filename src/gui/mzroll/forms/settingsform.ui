@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1254</width>
-    <height>340</height>
+    <width>800</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string>Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QPushButton" name="resetButton">
      <property name="text">
       <string>Use Default Parameters</string>
@@ -41,185 +41,21 @@
      <property name="elideMode">
       <enum>Qt::ElideRight</enum>
      </property>
-     <widget class="QWidget" name="instrumentationOptions">
+     <widget class="QWidget" name="fileImport">
       <attribute name="title">
-       <string>Instrumentation</string>
+       <string>File import</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
        <item>
-        <widget class="QGroupBox" name="instrumentSettings">
-         <property name="title">
-          <string>Instrumentation Type</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="5" column="3">
-           <widget class="QComboBox" name="filterlineComboBox">
-            <item>
-             <property name="text">
-              <string>All</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="instrumentType">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <item>
-             <property name="text">
-              <string>Full Spectrum</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Triple Quad</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QLabel" name="label_35">
-            <property name="text">
-             <string>Filterline</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Polarity / Ionization Mode:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="ionizationMode">
-            <item>
-             <property name="text">
-              <string>Auto Detect</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Neutral (0)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Positive (+1)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Negative (-1)</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Q1 Accuracy</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QDoubleSpinBox" name="amuQ1">
-            <property name="prefix">
-             <string/>
-            </property>
-            <property name="suffix">
-             <string> amu</string>
-            </property>
-            <property name="value">
-             <double>0.500000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="ionizationType">
-            <item>
-             <property name="text">
-              <string>ESI</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>EI</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CI</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>APCI</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FI/FD</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FAB</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>MALDI</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Ionization Type</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Q3 Accuracy</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QDoubleSpinBox" name="amuQ3">
-            <property name="suffix">
-             <string> amu</string>
-            </property>
-            <property name="maximum">
-             <double>1000000000.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>0.500000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Instrument Type:</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="FileImport">
-      <attribute name="title">
-       <string>File Import</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_8">
-       <item row="1" column="3">
         <widget class="QCheckBox" name="checkBoxMultiprocessing">
          <property name="enabled">
           <bool>true</bool>
@@ -232,140 +68,650 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Scan Filter Intensity Minimum Quantile Cutoff </string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
+       <item>
         <widget class="QCheckBox" name="centroid_scan_flag">
          <property name="text">
-          <string>Centroid Scans</string>
+          <string>Centroid scans</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="scan_filter_min_quantile">
-         <property name="suffix">
-          <string> %</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="scan_filter_min_intensity">
-         <property name="suffix">
-          <string> ions</string>
-         </property>
-         <property name="prefix">
-          <string/>
-         </property>
-         <property name="maximum">
-          <number>1000000000</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Scan Filter:  Minimum Intensity </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="scan_filter_polarity">
-         <item>
-          <property name="text">
-           <string>Not Filtered</string>
-          </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Discard all observations below a certain intensity</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>Positive Polarity Scans Only</string>
-          </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Filter scans based on polarity</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>Negative Polarity Scans Only</string>
-          </property>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="scan_filter_min_quantile">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="suffix">
+            <string> %</string>
+           </property>
+          </widget>
          </item>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Scan Filter Polarity</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Scan Filter MS Level</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="scan_filter_mslevel">
-         <item>
-          <property name="text">
-           <string>Not Filtered</string>
-          </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Filter scans based on MS level</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>MS1 Scans Only</string>
-          </property>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="scan_filter_min_intensity">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="suffix">
+            <string> ions</string>
+           </property>
+           <property name="prefix">
+            <string/>
+           </property>
+           <property name="maximum">
+            <number>1000000000</number>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>MS2 Scans Only</string>
-          </property>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="scan_filter_polarity">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Not Filtered</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Positive Polarity Scans Only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Negative Polarity Scans Only</string>
+            </property>
+           </item>
+          </widget>
          </item>
-        </widget>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Discard [x] percent least intense obervations</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="scan_filter_mslevel">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Not Filtered</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MS1 Scans Only</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MS2 Scans Only</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
-       <item row="1" column="2">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="3" column="4">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="instrumentationOptions">
+      <attribute name="title">
+       <string>Instrumentation</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_11">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_14">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Q3 accuracy for MRM transitions</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="filterlineComboBox">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>All</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="ionizationType">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>ESI</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>EI</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>CI</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>APCI</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>FI/FD</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>FAB</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>MALDI</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="ionizationMode">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Auto-detect</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Neutral</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Positive</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Negative</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="amuQ1">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="prefix">
+            <string/>
+           </property>
+           <property name="suffix">
+            <string> amu</string>
+           </property>
+           <property name="value">
+            <double>0.500000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Q1 accuracy for MRM transitions</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Ionization mode (decides polarity)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_35">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Filterline</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Ionization type</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QDoubleSpinBox" name="amuQ3">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="suffix">
+            <string> amu</string>
+           </property>
+           <property name="maximum">
+            <double>1000000000.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.500000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="peakDetectOptions">
       <attribute name="title">
-       <string>Peak Detection</string>
+       <string>Peak detection</string>
       </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_7">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>24</number>
+       </property>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Baseline calculation</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6" columnstretch="0">
+          <item row="1" column="0">
+           <widget class="QTabWidget" name="baselineModeTab">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <widget class="QWidget" name="thresholdingTab">
+             <attribute name="title">
+              <string>Thresholding</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_16">
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="baseline_quantile">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>160</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="suffix">
+                 <string>%</string>
+                </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>80</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_20">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Baseline smoothing </string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="baseline_smoothing">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>160</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="suffix">
+                 <string> scans</string>
+                </property>
+                <property name="maximum">
+                 <number>1000000</number>
+                </property>
+                <property name="value">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Allow top [x] percent intensities as part of the real signal</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="aslsTab">
+             <attribute name="title">
+              <string>AsLS Smoothing</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_17">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="gridLayout_15" columnstretch="1,6,1">
+                <property name="horizontalSpacing">
+                 <number>18</number>
+                </property>
+                <property name="verticalSpacing">
+                 <number>12</number>
+                </property>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="smoothnessLabel">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Smoothness (&lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;) for flexibility of the baseline. This value is represented as a linear scale for log of &lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Smoothness (λ)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="asymmetryLabel">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Asymmetry (&lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt;) for position bias of the baseline. The value of &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; needs to be in the range (0.00 ≤ &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; ≤ 0.1) to perform well on positive peak chromatograms.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>Asymmetry (p)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QLabel" name="asymmetryValue">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Asymmetry (&lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt;) for position bias of the baseline. The value of &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; needs to be in the range (0.00 ≤ &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; ≤ 0.1) to perform well on positive peak chromatograms.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>0.08</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="smoothnessValue">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Smoothness (&lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;) for flexibility of the baseline. This value is represented as a linear scale for log of &lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="text">
+                   <string>2</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QSlider" name="smoothnessSlider">
+                  <property name="maximum">
+                   <number>3</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <number>2</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSlider" name="asymmetrySlider">
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                  <property name="pageStep">
+                   <number>1</number>
+                  </property>
+                  <property name="value">
+                   <number>8</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
-          <string>Peak Detection and Grouping Settings</string>
+          <string>Peak detection and grouping settings</string>
          </property>
          <layout class="QGridLayout">
-          <item row="3" column="1">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>EIC smoothing window</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="eic_smoothingWindow">
+            <property name="suffix">
+             <string> scans</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Maximum retention time difference between peaks in a group</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
            <widget class="QDoubleSpinBox" name="grouping_maxRtWindow">
+            <property name="prefix">
+             <string/>
+            </property>
+            <property name="suffix">
+             <string> minutes</string>
+            </property>
             <property name="maximum">
              <double>999999999.000000000000000</double>
             </property>
@@ -377,304 +723,97 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="eic_smoothingAlgorithm">
-            <item>
-             <property name="text">
-              <string>Savitzky-Golay</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Gaussian</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Moving Average</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>EIC Smoothing Window </string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="eic_smoothingWindow">
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="value">
-             <number>10</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_22">
-            <property name="text">
-             <string>EIC Smoothing Algorithm</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Max Retention Time difference between Peaks</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>scans</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>min</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>Baseline Calculation</string>
+       <item row="2" column="0">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="1" column="0">
-           <widget class="QTabWidget" name="baselineModeTab">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>640</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <widget class="QWidget" name="thresholdingTab">
-             <attribute name="title">
-              <string>Thresholding</string>
-             </attribute>
-             <widget class="QLabel" name="label_21">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>30</y>
-                <width>401</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Drop top x%  intensities from chromatogram</string>
-              </property>
-             </widget>
-             <widget class="QLabel" name="label_20">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>90</y>
-                <width>401</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Baseline Smoothing </string>
-              </property>
-             </widget>
-             <widget class="QSpinBox" name="baseline_quantile">
-              <property name="geometry">
-               <rect>
-                <x>460</x>
-                <y>30</y>
-                <width>160</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>160</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="suffix">
-               <string>%</string>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>80</number>
-              </property>
-             </widget>
-             <widget class="QSpinBox" name="baseline_smoothing">
-              <property name="geometry">
-               <rect>
-                <x>460</x>
-                <y>90</y>
-                <width>160</width>
-                <height>21</height>
-               </rect>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>160</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="suffix">
-               <string> scans</string>
-              </property>
-              <property name="maximum">
-               <number>1000000</number>
-              </property>
-              <property name="value">
-               <number>5</number>
-              </property>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="aslsTab">
-             <attribute name="title">
-              <string>AsLS Smoothing</string>
-             </attribute>
-             <widget class="QWidget" name="gridLayoutWidget_3">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>20</y>
-                <width>591</width>
-                <height>111</height>
-               </rect>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_15">
-               <property name="horizontalSpacing">
-                <number>18</number>
-               </property>
-               <property name="verticalSpacing">
-                <number>6</number>
-               </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="smoothnessLabel">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Smoothness (&lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;) for flexibility of the baseline. This value is represented as a linear scale for log of &lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>Smoothness (λ)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="asymmetryLabel">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Asymmetry (&lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt;) for position bias of the baseline. The value of &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; needs to be in the range (0.00 ≤ &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; ≤ 0.1) to perform well on positive peak chromatograms.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>Asymmetry (p)</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QLabel" name="asymmetryValue">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Asymmetry (&lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt;) for position bias of the baseline. The value of &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; needs to be in the range (0.00 ≤ &lt;span style=&quot; font-weight:600;&quot;&gt;p&lt;/span&gt; ≤ 0.1) to perform well on positive peak chromatograms.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>0.08</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QLabel" name="smoothnessValue">
-                 <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Smoothness (&lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;) for flexibility of the baseline. This value is represented as a linear scale for log of &lt;span style=&quot; font-weight:600;&quot;&gt;λ&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                 <property name="text">
-                  <string>2</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QSlider" name="smoothnessSlider">
-                 <property name="maximum">
-                  <number>3</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>1</number>
-                 </property>
-                 <property name="value">
-                  <number>2</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QSlider" name="asymmetrySlider">
-                 <property name="maximum">
-                  <number>10</number>
-                 </property>
-                 <property name="pageStep">
-                  <number>1</number>
-                 </property>
-                 <property name="value">
-                  <number>8</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </widget>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="peakFilteringTab">
       <attribute name="title">
-       <string>Peak Filtering</string>
+       <string>Peak filtering</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7">
-       <item row="0" column="0">
-        <widget class="QCheckBox" name="isIsotopeEqualPeakFilter">
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>24</number>
+       </property>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="isotopeFilteringGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="text">
-          <string>Isotope Peak Filtering is same as Peak Filtering</string>
+         <property name="title">
+          <string>Isotopic peak filtering</string>
          </property>
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="minIsotopicPeakQuality">
+            <property name="maximum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="isotopicMinSignalBaselineDifference">
+            <property name="maximum">
+             <double>100000000000000000000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_36">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Minimum difference between signal and baseline</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_38">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Minimum peak quality</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="1" column="0">
@@ -686,13 +825,19 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Parent Peak Filtering</string>
+          <string>Parent peak filtering</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_12">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_34">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_37">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Min. Signal Baseline Difference</string>
+             <string>Minimum peak quality</string>
             </property>
            </widget>
           </item>
@@ -703,10 +848,16 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_37">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_34">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Min. Peak Quality</string>
+             <string>Minimum difference between signal and baseline</string>
             </property>
            </widget>
           </item>
@@ -723,621 +874,568 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QGroupBox" name="isotopeFilteringGroupBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="5" column="0">
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="title">
-          <string>Isotopic Peak Filtering</string>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
          </property>
-         <layout class="QGridLayout" name="gridLayout_13">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_36">
-            <property name="text">
-             <string>Min. Signal Baseline Difference</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="isotopicMinSignalBaselineDifference">
-            <property name="font">
-             <font>
-              <family>Ubuntu</family>
-              <pointsize>11</pointsize>
-             </font>
-            </property>
-            <property name="maximum">
-             <double>100000000000000000000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_38">
-            <property name="text">
-             <string>Min. Peak Quality</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="minIsotopicPeakQuality">
-            <property name="maximum">
-             <double>1.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.100000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+        </spacer>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="eicOptions">
-      <attribute name="title">
-       <string>EIC (XIC) [BETA]</string>
-      </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QGroupBox" name="eicCalculation">
-         <property name="title">
-          <string>EIC Calculation</string>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="isIsotopeEqualPeakFilter">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
          </property>
-         <widget class="QComboBox" name="eicTypeComboBox">
-          <property name="geometry">
-           <rect>
-            <x>160</x>
-            <y>50</y>
-            <width>151</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <item>
-           <property name="text">
-            <string>Max</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Sum</string>
-           </property>
-          </item>
-         </widget>
-         <widget class="QLabel" name="label_28">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>50</y>
-            <width>91</width>
-            <height>16</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>EIC Type</string>
-          </property>
-         </widget>
+         <property name="text">
+          <string>Use same filtering settings for isotopic peaks</string>
+         </property>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="peakGrouping">
       <attribute name="title">
-       <string>Peak Grouping</string>
+       <string>Peak grouping</string>
       </attribute>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>9</y>
-         <width>591</width>
-         <height>251</height>
-        </rect>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <property name="leftMargin">
+        <number>12</number>
        </property>
-       <property name="title">
-        <string>Peak Grouping Score</string>
+       <property name="rightMargin">
+        <number>12</number>
        </property>
-       <layout class="QGridLayout" name="gridLayout_11">
-        <item row="1" column="3" colspan="2">
-         <widget class="QTextBrowser" name="formulaWithOverlap">
-          <property name="html">
-           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Droid Sans Mono,Courier New,monospace,Droid Sans Fallback'; color:#000000;&quot;&gt;score = 1.0/((distX*A)+0.01)/((distY*B)+0.01)*(C*overlap)&lt;/span&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;where&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	distX = Rt difference of peaks being compared&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	A = Weight of distX&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	distY = Difference between peak Intensities&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	B = Weight of distY&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	overlap = Overlap of peaks (between 0 to 1)&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	C = Overlap weight&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3" colspan="2">
-         <widget class="QTextBrowser" name="formulaWithoutOverlap">
-          <property name="html">
-           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Droid Sans Mono,Courier New,monospace,Droid Sans Fallback'; color:#000000;&quot;&gt;score = 1.0/((distX*A)+0.01)/((distY*B)+0.01)&lt;/span&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;where&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	distX = Rt difference of peaks being compared&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	A = Weight of distX&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	distY = Difference between peak Intensities&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;	B = Weight of distY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="gridLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>700</x>
-         <y>56</y>
-         <width>531</width>
-         <height>191</height>
-        </rect>
+       <property name="bottomMargin">
+        <number>12</number>
        </property>
-       <layout class="QGridLayout" name="gridLayout_9">
-        <item row="0" column="1">
-         <widget class="QSlider" name="distXSlider">
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="distXStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>distX Weight</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_31">
-          <property name="text">
-           <string>distY Weight</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="distYStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSlider" name="distYSlider">
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_30">
-          <property name="text">
-           <string>Overlap Weight</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="overlapSlider">
-          <property name="maximum">
-           <number>100</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="overlapStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QCheckBox" name="useOverlap">
-       <property name="geometry">
-        <rect>
-         <x>690</x>
-         <y>20</y>
-         <width>145</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="toolTip">
-        <string/>
-       </property>
-       <property name="text">
-        <string>Consider overlap</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-       <property name="tristate">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Group Rank</string>
-      </attribute>
-      <widget class="QGroupBox" name="groupBox_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>681</width>
-         <height>241</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Group Rank Formula</string>
-       </property>
-       <widget class="QTextBrowser" name="formulaWithRt">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>5</x>
-          <y>40</y>
-          <width>661</width>
-          <height>201</height>
-         </rect>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Group Rank = ((1.1 - Q)^A) * (1 /( log(I + 1))^B) * (dRT)^(2*C)&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Where   &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                Q =  Quality of a group &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                A =  Quality Weightage&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                I  =  Intensity of a group   &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;               B =  Intensity Weightage&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;               dRT = Difference between compound retention time and group mean retention time&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;               C =  dRT Weightage&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-       <widget class="QTextBrowser" name="formulaWithoutRt">
-        <property name="geometry">
-         <rect>
-          <x>5</x>
-          <y>40</y>
-          <width>661</width>
-          <height>201</height>
-         </rect>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Group Rank = ((1.1 - Q)^A) * (1 /( log(I + 1))^B) &lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Where   &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                Q =  Quality of a group &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                A =  Quality Weightage&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;                I  =  Intensity of a group   &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;               B =  Intensity Weightage&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>700</x>
-         <y>50</y>
-         <width>541</width>
-         <height>201</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_14">
-        <item row="1" column="1">
-         <widget class="QSlider" name="intensityWeight">
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="sliderPosition">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSlider" name="qualityWeight">
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="sliderPosition">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="intensityWeightStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_32">
-          <property name="text">
-           <string>Quality Weight</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="deltaRTWeight">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLabel" name="deltaRTWeightStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="qualityWeightStatus">
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_drtWeight">
-          <property name="text">
-           <string>dRT Weight</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_33">
-          <property name="text">
-           <string>Intensity Weight</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QCheckBox" name="deltaRTCheck">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>700</x>
-         <y>20</y>
-         <width>199</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Consider Retention Time</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="Libraries">
-      <attribute name="title">
-       <string>Libraries</string>
-      </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>Location of Remote and Local Libraries</string>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="useOverlap">
+         <property name="toolTip">
+          <string/>
          </property>
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>Remote Data Server</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="data_server_url">
-            <property name="text">
-             <string>http://genomics-pubs.princeton.edu/mzroll/</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Methods Folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="methodsFolderSelect">
-            <property name="icon">
-             <iconset resource="../mzroll.qrc">
-              <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="methodsFolder"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Pathways Folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="pathwaysFolderSelect">
-            <property name="icon">
-             <iconset resource="../mzroll.qrc">
-              <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="pathwaysFolder"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_23">
-            <property name="text">
-             <string>Scripts Folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="scriptsFolderSelect">
-            <property name="icon">
-             <iconset resource="../mzroll.qrc">
-              <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLineEdit" name="scriptsFolder"/>
-          </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="fetchCompounds">
-            <property name="text">
-             <string>Fetch Compounds</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="text">
+          <string>Consider overlap</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
         </widget>
+       </item>
+       <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="groupScoringFormula">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel {
+  border: 1px solid lightgray;
+  margin-top: 6px;
+}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <layout class="QGridLayout" name="gridLayout_9">
+         <property name="horizontalSpacing">
+          <number>18</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>12</number>
+         </property>
+         <item row="0" column="1">
+          <widget class="QSlider" name="distXSlider">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="distXStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_29">
+           <property name="text">
+            <string>distX weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_31">
+           <property name="text">
+            <string>distY weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="distYStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSlider" name="distYSlider">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_30">
+           <property name="text">
+            <string>Overlap weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="overlapSlider">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="overlapStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::MinimumExpanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="ExternalPrograms">
+     <widget class="QWidget" name="groupRanking">
       <attribute name="title">
-       <string>External Programs</string>
+       <string>Group rank</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="5">
-        <widget class="QLineEdit" name="Rprogram">
-         <property name="inputMask">
-          <string/>
-         </property>
-         <property name="placeholderText">
-          <string>Rscript.exe</string>
-         </property>
-        </widget>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
+       <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="groupRankFormula">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel {
+  border: 1px solid lightgray;
+  margin-top: 6px;
+}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="5">
-        <widget class="QLineEdit" name="RawExtractProgram">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="deltaRTCheck">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
-          <string>msconvert.exe</string>
-         </property>
-         <property name="placeholderText">
-          <string>rawExtractor.exe</string>
+          <string>Consider retention time</string>
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <layout class="QGridLayout" name="gridLayout_14">
+         <property name="horizontalSpacing">
+          <number>18</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>12</number>
+         </property>
+         <item row="1" column="1">
+          <widget class="QSlider" name="intensityWeight">
+           <property name="maximum">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="sliderPosition">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="qualityWeight">
+           <property name="maximum">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="sliderPosition">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="intensityWeightStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_32">
+           <property name="text">
+            <string>Quality weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSlider" name="deltaRTWeight">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+           <property name="value">
+            <number>10</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="deltaRTWeightStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="qualityWeightStatus">
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_drtWeight">
+           <property name="text">
+            <string>dRT weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>Intensity weight</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <spacer name="verticalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="advancedOptions">
+      <attribute name="title">
+       <string>Advanced options</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_10">
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
        <item row="0" column="1">
-        <widget class="QLabel" name="label_25">
-         <property name="text">
-          <string>ProteoWizzard</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_24">
-         <property name="text">
-          <string>R Executable </string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QPushButton" name="rawExtractSelect">
-         <property name="icon">
-          <iconset resource="../mzroll.qrc">
-           <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QPushButton" name="RProgramSelect">
-         <property name="icon">
-          <iconset resource="../mzroll.qrc">
-           <normaloff>:/images/fileopen.png</normaloff>:/images/fileopen.png</iconset>
-         </property>
-        </widget>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="3" column="0">
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_22">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>EIC smoothing algorithm</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="eicTypeComboBox">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Max</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Sum</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_28">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>EIC type</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Current model path:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="classificationModelFilename">
+             <property name="styleSheet">
+              <string notr="true">QLineEdit {
+  background: none;
+}</string>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="eic_smoothingAlgorithm">
+           <property name="minimumSize">
+            <size>
+             <width>220</width>
+             <height>0</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Savitzky-Golay</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Gaussian</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Moving Average</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="loadModelButton">
+           <property name="text">
+            <string>Load custom model</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -1346,27 +1444,12 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>ionizationMode</tabstop>
-  <tabstop>amuQ1</tabstop>
-  <tabstop>ionizationType</tabstop>
-  <tabstop>amuQ3</tabstop>
-  <tabstop>instrumentType</tabstop>
-  <tabstop>filterlineComboBox</tabstop>
-  <tabstop>centroid_scan_flag</tabstop>
-  <tabstop>scan_filter_polarity</tabstop>
-  <tabstop>scan_filter_mslevel</tabstop>
-  <tabstop>scan_filter_min_quantile</tabstop>
-  <tabstop>scan_filter_min_intensity</tabstop>
-  <tabstop>checkBoxMultiprocessing</tabstop>
-  <tabstop>eic_smoothingAlgorithm</tabstop>
   <tabstop>eic_smoothingWindow</tabstop>
   <tabstop>grouping_maxRtWindow</tabstop>
-  <tabstop>isIsotopeEqualPeakFilter</tabstop>
   <tabstop>minSignalBaselineDifference</tabstop>
   <tabstop>minPeakQuality</tabstop>
   <tabstop>isotopicMinSignalBaselineDifference</tabstop>
   <tabstop>minIsotopicPeakQuality</tabstop>
-  <tabstop>eicTypeComboBox</tabstop>
   <tabstop>useOverlap</tabstop>
   <tabstop>distXSlider</tabstop>
   <tabstop>distYSlider</tabstop>
@@ -1375,28 +1458,9 @@ p, li { white-space: pre-wrap; }
   <tabstop>qualityWeight</tabstop>
   <tabstop>intensityWeight</tabstop>
   <tabstop>deltaRTWeight</tabstop>
-  <tabstop>data_server_url</tabstop>
-  <tabstop>methodsFolderSelect</tabstop>
-  <tabstop>methodsFolder</tabstop>
-  <tabstop>pathwaysFolderSelect</tabstop>
-  <tabstop>pathwaysFolder</tabstop>
-  <tabstop>scriptsFolderSelect</tabstop>
-  <tabstop>scriptsFolder</tabstop>
-  <tabstop>rawExtractSelect</tabstop>
-  <tabstop>RawExtractProgram</tabstop>
-  <tabstop>RProgramSelect</tabstop>
-  <tabstop>Rprogram</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>formulaWithOverlap</tabstop>
-  <tabstop>fetchCompounds</tabstop>
-  <tabstop>formulaWithoutRt</tabstop>
-  <tabstop>formulaWithRt</tabstop>
-  <tabstop>formulaWithoutOverlap</tabstop>
  </tabstops>
- <resources>
-  <include location="../mzroll.qrc"/>
-  <include location="../mzroll.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>isIsotopeEqualPeakFilter</sender>
