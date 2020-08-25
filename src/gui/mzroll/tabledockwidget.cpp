@@ -625,9 +625,13 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
   return _topLevelGroups;
 }
 
-void TableDockWidget::deleteAll()
+bool TableDockWidget::deleteAll()
 {
   
+  auto continueDeletion = deleteAllgroupsWarning();
+  if (!continueDeletion)
+    return false;
+
   if (treeWidget->currentItem()) {
       _mainwindow->getEicWidget()->unSetPeakTableGroup(
           groupForItem(treeWidget->currentItem()));
@@ -647,6 +651,7 @@ void TableDockWidget::deleteAll()
   _mainwindow->getEicWidget()->replotForced();
 
   this->hide();
+  return true;
 }
 
 void TableDockWidget::noPeakFound()
@@ -1338,9 +1343,7 @@ void TableDockWidget::deleteSelectedItems()
     // checks if the selected item count is same as the no. of top-level
     // groups in the table.
     if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
-        auto continueDeletion = deleteAllgroupsWarning();
-        if (continueDeletion)
-            deleteAll();
+        deleteAll();
         return;
     }
 
@@ -2311,11 +2314,10 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::deleteAll()
 {
-  auto continueDeletion = deleteAllgroupsWarning();
+  auto continueDeletion = TableDockWidget::deleteAll();
   if (!continueDeletion) {
     return;
   }
-  TableDockWidget::deleteAll();
   destroy();
 }
 

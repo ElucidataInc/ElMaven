@@ -277,7 +277,7 @@ public slots:
   virtual void deleteGroup(PeakGroup* group);
 
   void sortBy(int);
-  void deleteAll();
+  bool deleteAll();
   void clusterGroups();
 
   void switchTableView();
