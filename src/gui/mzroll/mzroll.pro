@@ -1,5 +1,5 @@
 include($$mac_compiler)
-include($$top_srcdir/3rdParty/phantomstyle/src/phantom/phantom.pri)
+include($$top_srcdir/3rdparty/phantomstyle/src/phantom/phantom.pri)
 
 MOC_DIR=$$top_builddir/tmp/mzroll/
 OBJECTS_DIR=$$top_builddir/tmp/mzroll/
@@ -95,7 +95,6 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/libsvm \
                 $$top_srcdir/3rdparty/libmgf \
                 $$top_srcdir/3rdparty/json \
-                $$top_srcdir/3rdparty/phantomstyle/src/phantom \
                 $$top_srcdir/src/ 
 
 QMAKE_LFLAGS += -L$$top_builddir/libs/
