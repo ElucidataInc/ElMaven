@@ -57,6 +57,11 @@ build_script:
     - SET "QTEST_FUNCTION_TIMEOUT=1200000"
     - bash -lc "qmake -v"
     - ps: |
+          &{ bash -lc "cd /c/projects/ElMaven ; git submodule update --init --recursive" 2>&1 | %{ "$_" } }
+          if ( $LASTEXITCODE -ne 0 ) {
+              exit 1
+          }
+    - ps: |
           if ( Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER ) {
               echo "Compiling in debug mode ..."
               &{ bash -lc "cd C:/projects/ElMaven/ ; echo no | ./run.sh" 2>&1 | %{ "$_" } }
