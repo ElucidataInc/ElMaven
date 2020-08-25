@@ -321,7 +321,6 @@ using namespace mzUtils;
     styleSheet += "QToolTip { background-color: %1; }";
     styleSheet += "QToolTip { color: white; }";
     styleSheet += "QToolTip { border: 1px solid %1; }";
-    styleSheet += "QToolTip { font-size: 16px; }";
     styleSheet = styleSheet.arg("#343434");
 
     setStyleSheet(styleSheet);
