@@ -651,6 +651,7 @@ bool TableDockWidget::deleteAll()
   _mainwindow->getEicWidget()->replotForced();
 
   this->hide();
+  return true;
 }
 
 void TableDockWidget::noPeakFound()
