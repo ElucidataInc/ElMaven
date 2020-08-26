@@ -251,6 +251,8 @@ void mzFileIO::run(void)
         Q_EMIT(projectLoaded());
 
         _sqliteDbLoadInProgress = false;
+        quit();
+        return;
     }
 
     try {
@@ -261,7 +263,6 @@ void mzFileIO::run(void)
         // ask user to send back the logs
         qDebug() << "uploading samples failed";
     }
-    Q_EMIT(sampleLoaded());
     quit();
 }
 
