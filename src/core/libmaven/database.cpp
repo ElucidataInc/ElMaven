@@ -591,15 +591,23 @@ int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName
                             string sep) 
                             {
                                 //trim spaces on the left
-                                size_t found = line.find_last_not_of(" \n\r\t");
+                                size_t found = line.find_last_not_of(" \n\t");
                                 if (found != string::npos)
                                     line.erase(found+1);
                                 else 
                                     return;
-        
+                    
                                 vector<string> fields;
-                                fields = mzUtils::splitCSVFields(line, sep);
-
+                                if (boost::algorithm::contains(line, "\r")) {
+                                    vector<string> carriageSeparated;
+                                    carriageSeparated = mzUtils::split(line, "\r");
+                                    for(int i = 0; i < carriageSeparated.size() - 1; i++) {
+                                        fields = mzUtils::splitCSVFields(carriageSeparated[i], sep);
+                                    }
+                                } else {
+                                    fields = mzUtils::splitCSVFields(line, sep);
+                                }
+                                
                                 mzUtils::removeSpecialCharFromStartEnd(fields);
 
                                 Compound* compound = extractCompoundfromEachLine(fields, 
@@ -624,9 +632,7 @@ int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName
 
     if (isFileContent) {
         auto allContent = mzUtils::split(file, "\n");
-
         for (auto line : allContent) {
-
             //This is used to write commands
             if (!line.empty() && line[0] == '#') 
                 continue;
@@ -652,12 +658,22 @@ int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName
         string sep="\t";
         if(file.find(".csv") != -1 || file.find(".CSV") != -1) sep=",";
         while (getline(myfile,line)) {
-             if (!line.empty() && line[0] == '#') 
+            if (!line.empty() && line[0] == '#') 
                 continue;
             lineCount++;
             //Getting the heading from the csv File
             if (lineCount == 1) {
-                auto fields = mzUtils::split(line, sep);
+
+                vector<string>fields;
+                if (boost::algorithm::contains(line, "\r")) {
+                    vector<string> carriageSeparated;
+                    carriageSeparated = mzUtils::split(line, "\r");
+                    for(int i = 0; i < carriageSeparated.size() - 1; i++) {
+                        fields = mzUtils::splitCSVFields(carriageSeparated[i], sep);
+                    }
+                } else {
+                    fields = mzUtils::splitCSVFields(line, sep);
+                }
                 mzUtils::removeSpecialCharFromStartEnd(fields);
                 headers = fields;
                 for(unsigned int i = 0; i < fields.size(); i++ ) {
@@ -665,6 +681,7 @@ int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName
                     header[ fields[i] ] = i;
                 }
                 continue;
+
             } else {
                 processLine(line, &loadCount, header, file, sep);
             }       
