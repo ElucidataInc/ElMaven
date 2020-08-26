@@ -5,6 +5,7 @@
 
 #include "stable.h"
 #include "PeakGroup.h"
+#include "pollyintegration.h"
 
 class MainWindow;
 class ClusterDialog;
@@ -59,6 +60,8 @@ public:
   PeakGroupTreeWidget *treeWidget;
   QLabel *titlePeakTable;
   JSONReports *jsonReports;
+  int numberOfGroupsMarked = 0;
+  QString writableTempS3Dir;
   ClassificationWidget* classificationWidget;
   bool hasClassifiedGroups;
   /**
@@ -80,7 +83,7 @@ public:
 
   enum PeakTableSubsetType {
       Selected = 0,
-      All = 1,
+      Whole = 1,
       Good = 2,
       Bad = 3,
       ExcludeBad = 4,
@@ -231,28 +234,28 @@ public slots:
 
   void displayNextGroupInCorrelationTable(string groupName);
 
-  inline void selectedPeaks() {
+  inline void selectedPeakSet() {
     peakTableSelection = PeakTableSubsetType::Selected;
   };
 
-  inline void allPeaks() {
-    peakTableSelection = PeakTableSubsetType::All;
-  };
-
-  inline void goodPeaks() {
+  inline void goodPeakSet() {
     peakTableSelection = PeakTableSubsetType::Good;
   };
 
-  inline void badPeaks() {
+  inline void badPeaksSet() {
     peakTableSelection = PeakTableSubsetType::Bad;
   };
 
-  inline void excludeBadPeaks() {
+  inline void excludeBadPeakSet() {
       peakTableSelection = PeakTableSubsetType::ExcludeBad;
   };
 
   inline void unmarkedPeaks() {
       peakTableSelection = PeakTableSubsetType::Unmarked;
+  };
+
+  inline void wholePeakSet() {
+    peakTableSelection = PeakTableSubsetType::Whole;
   };
 
   /**
@@ -404,8 +407,6 @@ private:
 
   void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
 
-  void _paintClassificationDisagreement(QTreeWidgetItem* item);
-
   void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
@@ -420,8 +421,24 @@ private:
    */
   void _paintClassificationDisagreement(QTreeWidgetItem *item);
 
+  QList<PeakGroup *> getCustomGroups(PeakTableSubsetType peakSelection);
+  
+  /**
+   * @brief Constructs lists of tree items that can be categorized within each
+   * `PeakTableSubsetType`.
+   * @details Items that themselves contain child groups will be ignored and
+   * their child groups will be added to the respective lists. Often the child
+   * groups will have their own class (which is different from that of the
+   * parent).
+   * @return Each `PeakTableSubsetType` mapping to the items in tree widget that
+   * belong to that subset.
+   */
+  QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> _peakTableGroupedBySubsets();
+  
+  QDialog *filtersDialog;
+  QMap<QString, QHistogramSlider *> sliders;  
   ClusterDialog *clusterDialog;
-  peakTableSelectionType peakTableSelection;
+  PeakTableSubsetType peakTableSelection;
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
   QShortcut * ctrlZ;

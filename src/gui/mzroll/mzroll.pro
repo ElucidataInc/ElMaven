@@ -9,7 +9,6 @@ DESTDIR = $$top_srcdir/bin/
 
 QT += concurrent widgets multimedia multimediawidgets network printsupport sql
 QT -= qmltest
-QT += multimedia multimediawidgets network
 
 CONFIG += qt thread warn_off sql svg precompile_header resources_big
 win32: CONFIG += windows
@@ -217,7 +216,8 @@ HEADERS += stable.h \
            updatedialog.h       \
            multiselectcombobox.h \
            correlationtable.h   \
-           classificationWidget.h
+           classificationWidget.h   \
+           QHistogramSlider.h
 
 SOURCES += mainwindow.cpp  \
            backgroundopsthread.cpp \
@@ -274,7 +274,8 @@ SOURCES += mainwindow.cpp  \
            projectsaveworker.cpp \
            multiselectcombobox.cpp \
            correlationtable.cpp     \
-           classificationWidget.cpp
+           classificationWidget.cpp \
+           QHistogramSlider.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

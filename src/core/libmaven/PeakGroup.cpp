@@ -87,67 +87,65 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
 }
 
 void PeakGroup::copyObj(const PeakGroup& o)  {
-    _groupId= o._groupId;
-    _metaGroupId= o._metaGroupId;
+    _groupId = o._groupId;
+    _metaGroupId = o._metaGroupId;
     clusterId = o.clusterId;
-    groupRank= o.groupRank;
+    groupRank = o.groupRank;
 
     minQuality = o.minQuality;
     minIntensity = o.minIntensity;
-    maxIntensity= o.maxIntensity;
+    maxIntensity = o.maxIntensity;
     maxAreaTopIntensity = o.maxAreaTopIntensity;
     maxAreaIntensity = o.maxAreaIntensity;
     maxHeightIntensity = o.maxHeightIntensity;
     maxAreaNotCorrectedIntensity = o.maxAreaNotCorrectedIntensity;
     maxAreaTopNotCorrectedIntensity = o.maxAreaTopNotCorrectedIntensity;
     currentIntensity = o.currentIntensity;
-    meanRt=o.meanRt;
-    meanMz=o.meanMz;
+    meanRt = o.meanRt;
+    meanMz = o.meanMz;
     _expectedMz = o._expectedMz;
 
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
 
-    blankMax=o.blankMax;
-    blankSampleCount=o.blankSampleCount;
-    blankMean=o.blankMean;
+    blankMax = o.blankMax;
+    blankSampleCount = o.blankSampleCount;
+    blankMean = o.blankMean;
 
     //quantileIntensityPeaks = o.quantileIntensityPeaks;
     //quantileQualityPeaks = o.quantileQualityPeaks;
 
-    sampleMax=o.sampleMax;
-    sampleCount=o.sampleCount;
-    sampleMean=o.sampleMean;
+    sampleMax = o.sampleMax;
+    sampleCount = o.sampleCount;
+    sampleMean = o.sampleMean;
 
-    totalSampleCount=o.totalSampleCount;
-    maxNoNoiseObs=o.maxNoNoiseObs;
-    maxPeakFracionalArea=o.maxPeakFracionalArea;
-    maxSignalBaseRatio=o.maxSignalBaseRatio;
-    maxSignalBaselineRatio=o.maxSignalBaselineRatio;
-    maxPeakOverlap=o.maxPeakOverlap;
-    maxQuality=o.maxQuality;
-    avgPeakQuality=o.avgPeakQuality;
-    predictedLabel=o.predictedLabel;
+    totalSampleCount = o.totalSampleCount;
+    maxNoNoiseObs = o.maxNoNoiseObs;
+    maxPeakFracionalArea = o.maxPeakFracionalArea;
+    maxSignalBaseRatio = o.maxSignalBaseRatio;
+    maxSignalBaselineRatio = o.maxSignalBaselineRatio;
+    maxPeakOverlap = o.maxPeakOverlap;
+    maxQuality = o.maxQuality;
+    avgPeakQuality = o.avgPeakQuality;
     _expectedAbundance = o._expectedAbundance;
-    predictionProbability=o.predictionProbability;
-
+   
     deletedFlag = o.deletedFlag;
 
-    minRt=o.minRt;
-    maxRt=o.maxRt;
+    minRt = o.minRt;
+    maxRt = o.maxRt;
 
-    minMz=o.minMz;
-    maxMz=o.maxMz;
+    minMz = o.minMz;
+    maxMz = o.maxMz;
 
     parent = o.parent;
     setSlice(o.getSlice());
 
-    srmId=o.srmId;
-    isFocused=o.isFocused;
+    srmId = o.srmId;
+    isFocused = o.isFocused;
     _userLabel = o._userLabel;
 
-    goodPeakCount=o.goodPeakCount;
+    goodPeakCount = o.goodPeakCount;
     _type = o._type;
     _sliceSet = o.hasSlice();
     tagString = o.tagString;
@@ -161,10 +159,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
     _tableName = o.tableName();
-    _predictedLabel = o.predictedLabel();
-    _predictionProbability = o.predictionProbability();
-    _predictionInference = o.predictionInference();
-
+    setPredictedLabel(o.predictedLabel(), o.predictionProbability());
+    setPredictionInference(o.predictionInference());
     _correlatedGroups = o.getCorrelatedGroups();
 
     copyChildren(o);
@@ -546,11 +542,6 @@ void PeakGroup::reduce() { // make sure there is only one peak per sample
         addPeak(peak);
     }
     //	cerr << "\t\t\treduce() from " << startSize << " to " << peaks.size() << endl;
-}
-
-void PeakGroup::setLabel(char label)
-{
-    this->label = label;
 }
 
 float PeakGroup::massCutoffDist(float cmass,MassCutoff *massCutoff)
@@ -1081,9 +1072,9 @@ void PeakGroup::setUserLabel(char label)
         return;
     }
 
-    for (auto& child : children) {
-        if (child.tagString == "C12 PARENT" && child._userLabel != label)
-            child.setUserLabel(label);
+    for (auto& child : _childIsotopes) {
+        if (child->tagString == "C12 PARENT" && child->_userLabel != label)
+            child->setUserLabel(label);
     }
 }
 
@@ -1104,11 +1095,11 @@ void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
         parent->setPredictedLabel(label, probability);
         return;
     }
-    for (auto& child : children) {
-        if (child.tagString == "C12 PARENT"
-            && child._predictedLabel != label
-            && child._predictionProbability != probability)
-            child.setPredictedLabel(label, probability);
+    for (auto& child : _childIsotopes) {
+        if (child->tagString == "C12 PARENT"
+            && child->_predictedLabel != label
+            && child->_predictionProbability != probability)
+            child->setPredictedLabel(label, probability);
     }
 }
 

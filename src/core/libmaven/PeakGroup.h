@@ -93,7 +93,6 @@ class PeakGroup{
         }
 
         PeakGroup();
-        PeakGroup(const PeakGroup& o);
         PeakGroup& operator=(const PeakGroup& o);
 
         bool operator==(const PeakGroup* o);
@@ -175,7 +174,8 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
-
+        int markedGoodByCloudModel = 0;
+        int markedBadByCloudModel = 0;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;
@@ -299,6 +299,11 @@ class PeakGroup{
         void matchFragmentation(float ppmTolerance, string scoringAlgo);
         
         double getExpectedMz(int charge);
+
+        void setExpectedMz(double mz)
+        {   
+            _expectedMz = mz;
+        }
 
         float getExpectedAbundance() const;
 

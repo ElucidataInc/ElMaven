@@ -15,7 +15,7 @@ class JSONReports{
 
 public:
     JSONReports();
-    JSONReports(MavenParameters* mp);
+    JSONReports(MavenParameters* mp, bool pollyUpload = false);
     ~JSONReports();
 
     /**

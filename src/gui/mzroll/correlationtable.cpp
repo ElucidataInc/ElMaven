@@ -123,7 +123,7 @@ void CorrelationTable::_populateTable()
         ui->treeWidget->addTopLevelItem(item);
     };
 
-    addItemToTable(_referenceGroup->groupId,
+    addItemToTable(_referenceGroup->groupId(),
                    _referenceGroup->getName(),
                    0.0f,
                    1.0f,
@@ -133,7 +133,7 @@ void CorrelationTable::_populateTable()
         auto& group = elem.first;
         auto correlation = elem.second;
         auto delMz = abs(_referenceGroup->meanMz - group->meanMz);
-        addItemToTable(group->groupId, group->getName(), delMz, correlation);
+        addItemToTable(group->groupId(), group->getName(), delMz, correlation);
     }
 
     ui->treeWidget->sortByColumn(0, Qt::AscendingOrder);

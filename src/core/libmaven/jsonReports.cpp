@@ -17,8 +17,8 @@
 using json = nlohmann::json;
 
 
-JSONReports::JSONReports(MavenParameters* mp):
-    _mavenParameters(mp){}
+JSONReports::JSONReports(MavenParameters* mp, bool pollyUpload):
+    _uploadToPolly(pollyUpload), _mavenParameters(mp){}
 
 void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
 {

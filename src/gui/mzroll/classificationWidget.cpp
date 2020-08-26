@@ -20,7 +20,7 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledock)
     _inferenceVisual->resize(QSize(900, 400));
     _inferenceVisual->setWindowTitle("Classification inference");
 
-    _group = _tableDock->getSelectedGroup();
+    _group = _tableDock->getSelectedGroup().get();
     _sumNegativeWeights = 0;
     _sumPositiveWeights = 0;
     _absoluteTotalWeight = 0;

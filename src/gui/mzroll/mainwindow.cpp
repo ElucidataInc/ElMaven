@@ -373,13 +373,7 @@ using namespace mzUtils;
     clsfModelFilename = appDir + "default.model";
     weightsFile = appDir + "group.weights";
     modelFile = appDir + "svm.model";
-
-	groupClsf = new groupClassifier();
-    groupClsf->loadModel(weightsFile.toStdString());
  
-  	groupPred = new svmPredictor();
-    groupPred->loadModel(modelFile.toStdString());
-
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
         clsf->loadModel( clsfModelFilename.toStdString());
@@ -1272,7 +1266,7 @@ void MainWindow::setUrl(Compound* c) {
 
 TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle, 
                                            bool hasClassifiedGroups) {
-    TableDockWidget* panel = new PeakTableDockWidget(this, tableTitle, hasClassifiedGroups);
+    TableDockWidget* panel = new PeakTableDockWidget(this, tableTitle/*, hasClassifiedGroups*/);
     analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);

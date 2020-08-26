@@ -1253,11 +1253,11 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             int correlatedGroupId;
             float correlationFactor;
             vector<string> eachGroup;
-            mzUtils::splitNew(correlatedGroups, ", ", eachGroup);  
+            eachGroup = mzUtils::split(correlatedGroups, ", ");  
             for (auto groupValue : eachGroup)
             {
                 vector<string> values;
-                mzUtils::splitNew(groupValue, ": ", values);
+                values = mzUtils::split(groupValue, ": ");
                 correlatedGroupId = mzUtils::string2integer(values[0]);
                 correlationFactor = mzUtils::string2float(values[1]);
                 group->addCorrelatedGroup(correlatedGroupId,
