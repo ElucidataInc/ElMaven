@@ -579,6 +579,7 @@ void _keepNBestRanked(unordered_map<Compound*, vector<size_t>>& compoundGroups,
                       vector<PeakGroup>& container,
                       int nBest)
 {
+    vector<size_t> indexesToDelete;
     for (auto& elem : compoundGroups) {
         vector<size_t>& groupIndexes = elem.second;
         if (groupIndexes.size() <= nBest)
@@ -590,9 +591,13 @@ void _keepNBestRanked(unordered_map<Compound*, vector<size_t>>& compoundGroups,
             return group.groupRank > otherGroup.groupRank;
         });
         for (size_t i = nBest; i < groupIndexes.size(); ++i)
-            container.erase(begin(container) + groupIndexes[i]);
+            indexesToDelete.push_back(groupIndexes[i]);
         groupIndexes.erase(begin(groupIndexes) + nBest, end(groupIndexes));
     }
+
+    // we can delete peak-groups only after filtering, to prevent erase-attempt
+    // on invalid indexes
+    mzUtils::eraseIndexes(container, indexesToDelete);
 }
 
 pair<map<size_t, size_t>, vector<size_t>>
@@ -716,8 +721,8 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
 // parent-group if possible, otherwise adds them to a ghost parent
 unordered_map<size_t, vector<size_t>>
 _makeMeta(Compound* compound,
-          vector<size_t> childIndexes,
-          unordered_map<Compound*, vector<size_t>> parentCompounds,
+          vector<size_t>& childIndexes,
+          unordered_map<Compound*, vector<size_t>>& parentCompounds,
           function<string(PeakGroup*)> nameFunc,
           MavenParameters* mp)
 {
@@ -778,27 +783,42 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
     sendBoostSignal("Performing meta-grouping…", 0, 0);
 
-    // separate parent groups, then filter for the N-best groups per compound
-    unordered_map<Compound*, vector<size_t>> parentCompounds;
-    for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
-        if (_mavenParameters->stop)
-            return;
+    // lambda: club parent-group indexes based on their compounds
+    auto compoundParentGroups = [this] {
+        unordered_map<Compound*, vector<size_t>> parentCompounds;
+        for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
+            if (_mavenParameters->stop)
+                return parentCompounds;
 
-        PeakGroup& group = _mavenParameters->allgroups[i];
-        Compound* compound = group.getCompound();
-        if (compound == nullptr)
-            continue;
+            PeakGroup& group = _mavenParameters->allgroups[i];
+            Compound* compound = group.getCompound();
+            if (compound == nullptr)
+                continue;
 
-        if (group.isotope().isParent() && group.adduct()->isParent()) {
-            if (parentCompounds.count(compound) == 0)
-                parentCompounds[compound] = {};
-            parentCompounds[compound].push_back(i);
+            if (group.isotope().isParent() && group.adduct()->isParent()) {
+                if (parentCompounds.count(compound) == 0)
+                    parentCompounds[compound] = {};
+                parentCompounds[compound].push_back(i);
+            }
         }
-    }
+        return parentCompounds;
+    };
+
+    unordered_map<Compound*, vector<size_t>> parentCompounds =
+        compoundParentGroups();
+
     if (applyGroupFilters) {
+        // filter for the N-best groups per compound
         _keepNBestRanked(parentCompounds,
                          _mavenParameters->allgroups,
                          _mavenParameters->eicMaxGroups);
+
+        if (_mavenParameters->stop)
+            return;
+
+        // after filtering, the container changed and the original indexes will
+        // have to be updated
+        parentCompounds = compoundParentGroups();
     }
 
     // put isotopologues and adducts into separate buckets
