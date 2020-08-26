@@ -654,6 +654,9 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                 while (!savedPeakFile.eof()) {
                     string saved;
                     getline(savedPeakFile, saved);
+                    if (saved.empty())
+                        continue;
+
                     vector<string> savedValues;
                     savedValues = mzUtils::split(saved, ",");
                     if (string2float(inputValues[10])        // rt
@@ -738,6 +741,9 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                 while (!savedPeakFile.eof()) {
                     string saved;
                     getline(savedPeakFile, saved);
+                    if (saved.empty())
+                        continue;
+
                     vector<string> savedValues;
                     savedValues = mzUtils::split(saved, ",");
 
