@@ -628,6 +628,8 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 bool TableDockWidget::deleteAll()
 {
   
+  if (!topLevelGroupCount())
+    return false;
   auto continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
