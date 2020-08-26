@@ -598,7 +598,7 @@ int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName
                                     return;
         
                                 vector<string> fields;
-                                fields = mzUtils::split(line, sep);
+                                fields = mzUtils::splitCSVFields(line, sep);
 
                                 mzUtils::removeSpecialCharFromStartEnd(fields);
 
