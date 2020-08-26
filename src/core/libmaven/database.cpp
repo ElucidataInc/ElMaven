@@ -581,95 +581,100 @@ int Database::loadNISTLibrary(string fileName,
     return compoundCount;
 }
 
-int Database::loadCompoundCSVFile(string file, bool isFileContent, string dbName, string sep) 
+int Database::loadCompoundCSVFile(string file,
+                                  bool isFileContent,
+                                  string dbName,
+                                  string sep)
 {
-
-    auto processLine = [&] (string line, 
-                            int *loadCount, 
-                            map<string, int> header, 
-                            string dbName, 
-                            string sep) 
-                            {
-                                //trim spaces on the left
-                                size_t found = line.find_last_not_of(" \n\r\t");
-                                if (found != string::npos)
-                                    line.erase(found+1);
-                                else 
-                                    return;
-        
-                                vector<string> fields;
-                                fields = mzUtils::split(line, sep);
-
-                                mzUtils::removeSpecialCharFromStartEnd(fields);
-
-                                Compound* compound = extractCompoundfromEachLine(fields, 
-                                                                                    header, 
-                                                                                    *loadCount, 
-                                                                                    dbName);
-
-                                if (compound) {
-                                    if (addCompound(compound)) {
-                                        (*loadCount)++;
-                                    }
-                                }
-                            };
-
-
     string line;
     int loadCount = 0, lineCount = 0;
     map<string, int> header;
     vector<string> headers;
+
+    // lambda: depending on `lineCount`, will treat the incoming line as a
+    // header or a row item
+    auto processHeaderOrLine = [this,
+                                &lineCount,
+                                &headers,
+                                &header,
+                                &loadCount,
+                                &dbName](string& line, string sep) {
+        if (lineCount == 1) {
+            auto fields = mzUtils::split(line, sep);
+            mzUtils::removeSpecialCharFromStartEnd(fields);
+            headers = fields;
+            for(unsigned int i = 0; i < fields.size(); i++ ) {
+                fields[i] = makeLowerCase(fields[i]);
+                header[fields[i]] = i;
+            }
+        } else {
+            // trim spaces on the left
+            size_t found = line.find_last_not_of(" \n\t");
+            if (found != string::npos) {
+                line.erase(found + 1);
+            } else {
+                return;
+            }
+
+            vector<string> fields = mzUtils::splitCSVFields(line, sep);
+            mzUtils::removeSpecialCharFromStartEnd(fields);
+            Compound* compound = extractCompoundfromEachLine(fields,
+                                                             header,
+                                                             loadCount,
+                                                             dbName);
+
+            if (compound && addCompound(compound))
+                ++loadCount;
+        }
+    };
+
     // reset the contents of the vector containing the names of invalid rows
     _invalidRows.clear();
 
     if (isFileContent) {
         auto allContent = mzUtils::split(file, "\n");
-
         for (auto line : allContent) {
-
             //This is used to write commands
             if (!line.empty() && line[0] == '#') 
                 continue;
-            lineCount++;
-            
-            if (lineCount == 1) {
-                auto fields = mzUtils::split(line, sep);
-                mzUtils::removeSpecialCharFromStartEnd(fields);
-                headers = fields;
-                for(unsigned int i = 0; i < fields.size(); i++ ) {
-                    fields[i] = makeLowerCase(fields[i]);
-                    header[ fields[i] ] = i;
-                }
-                continue;
-            } else {
-                processLine(line, &loadCount, header, dbName, sep);
-            }
+
+            ++lineCount;
+            processHeaderOrLine(line, sep);
         }
     } else {
-        ifstream myfile(file.c_str());
-        if (! myfile.is_open()) return 0;
-        //assume that files are tab delimited, unless matched ".csv", then comma delimited
-        string sep="\t";
-        if(file.find(".csv") != -1 || file.find(".CSV") != -1) sep=",";
-        while (getline(myfile,line)) {
-             if (!line.empty() && line[0] == '#') 
+        ifstream filestream(file.c_str());
+        if (!filestream.is_open())
+            return 0;
+
+        dbName = mzUtils::cleanFilename(file);
+
+        // assume that files are tab delimited, unless matched ".csv",
+        // then comma delimited
+        string sep = "\t";
+        if(file.find(".csv") != -1 || file.find(".CSV") != -1)
+            sep = ",";
+
+        while (getline(filestream, line)) {
+            if (line.empty() || line[0] == '#')
                 continue;
-            lineCount++;
-            //Getting the heading from the csv File
-            if (lineCount == 1) {
-                auto fields = mzUtils::split(line, sep);
-                mzUtils::removeSpecialCharFromStartEnd(fields);
-                headers = fields;
-                for(unsigned int i = 0; i < fields.size(); i++ ) {
-                    fields[i] = makeLowerCase(fields[i]);
-                    header[ fields[i] ] = i;
+
+            // getting the heading from the csv File
+            if (boost::algorithm::contains(line, "\r")) {
+                vector<string> carriageSeparated;
+                carriageSeparated = mzUtils::split(line, "\r");
+                for (auto& crLine : carriageSeparated) {
+                    if (crLine.empty() || crLine[0] == '#')
+                        continue;
+
+                    ++lineCount;
+                    processHeaderOrLine(crLine, sep);
                 }
-                continue;
             } else {
-                processLine(line, &loadCount, header, file, sep);
-            }       
+                ++lineCount;
+                processHeaderOrLine(line, sep);
+            }
         }
-        myfile.close();
+        filestream.close();
     }
 
     sort(_compoundsDB.begin(),_compoundsDB.end(), Compound::compMass);

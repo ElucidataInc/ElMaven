@@ -628,6 +628,8 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 bool TableDockWidget::deleteAll()
 {
   
+  if (!topLevelGroupCount())
+    return false;
   auto continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
@@ -2622,6 +2624,8 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
 void BookmarkTableDockWidget::markGroupGood() {
   setGroupLabel('g');
   auto currentGroups = getSelectedGroups();
+  if (currentGroups.empty())
+    return;
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
 }
@@ -2630,6 +2634,8 @@ void BookmarkTableDockWidget::markGroupBad() {
 
   setGroupLabel('b');
   auto currentGroups = getSelectedGroups();
+  if (currentGroups.empty())
+    return;
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
 }
