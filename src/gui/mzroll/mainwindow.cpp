@@ -2878,11 +2878,6 @@ void MainWindow::createMenus() {
     connect(loadSettings, &QAction::triggered, this ,&MainWindow::loadSettings);
     fileMenu->addAction(loadSettings);
 
-	QAction* settingsAct = new QAction(tr("Options"), this);
-	settingsAct->setToolTip(tr("Set program options"));
-	connect(settingsAct, SIGNAL(triggered()), settingsForm, SLOT(show()));
-	fileMenu->addAction(settingsAct);
-
     QAction* reportBug = new QAction(tr("Report bugs!"), this);
 	connect(reportBug, SIGNAL(triggered()), SLOT(reportBugs()));
 	fileMenu->addAction(reportBug);

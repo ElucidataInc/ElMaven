@@ -562,9 +562,7 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
         }
 
         if (_mavenParameters->showProgressFlag) {
-            string progressText = "Found "
-                                  + to_string(_mavenParameters->allgroups.size())
-                                  + " "
+            string progressText = "Finding "
                                   + setName;
             sendBoostSignal(progressText,
                             s + 1,
