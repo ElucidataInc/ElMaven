@@ -24,6 +24,8 @@
 #include "peakdetector.h"
 #include "samplertwidget.h"
 #include "EIC.h"
+#include "csvreports.h"
+#include "pollyintegration.h"
 
 BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 {
@@ -38,6 +40,8 @@ BackgroundOpsThread::BackgroundOpsThread(QWidget*)
     _isotopeCharge = 0;
     _parentGroup = nullptr;
     _performPolyFitAlignment = false;
+    _dlManager = new DownloadManager();
+    _pollyIntegration = new PollyIntegration(_dlManager);
 }
 
 BackgroundOpsThread::~BackgroundOpsThread()
@@ -138,6 +142,24 @@ void BackgroundOpsThread::qtSignalSlot(const string& progressText,
     emit updateProgressBar(QString::fromStdString(progressText),
                            completed_slices,
                            total_slices);
+}
+
+void BackgroundOpsThread::writeCSVRep(string setName)
+{
+    int lastUniqueId = 0;
+    for (auto&group : mavenParameters->allgroups)
+        group.setUniqueId(++lastUniqueId);
+
+    for(auto&group : mavenParameters->allgroups)
+        for (auto& child : group.childIsotopes())
+            child->setUniqueId(++lastUniqueId);
+
+    if (mainwindow->mavenParameters->peakMl) 
+        classifyGroups(mavenParameters->allgroups);
+
+    emitGroups();
+
+    Q_EMIT(updateProgressBar("Done", 1, 1));
 }
 
 void BackgroundOpsThread::align()
@@ -286,7 +308,8 @@ void BackgroundOpsThread::computePeaks()
         peakDetector->mavenParameters()->pullIsotopesFlag = hadPullIsotopes;
         peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
     }
-    emitGroups();
+    
+    writeCSVRep("slices");
 
     emit updateProgressBar("Status", 0, 100);
 }
@@ -309,7 +332,8 @@ void BackgroundOpsThread::findFeatures()
         peakDetector->mavenParameters()->pullIsotopesFlag = hadPullIsotopes;
         peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
     }
-    emitGroups();
+    
+    writeCSVRep("allSlices");
 
     emit updateProgressBar("Status", 0, 100);
 }
@@ -376,4 +400,314 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
         for (auto& child : group->childAdducts())
             updateGroup(child.get());
     }
+}
+
+void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
+{
+    if (groups.empty())
+        return;
+    
+    auto tempDir = QStandardPaths::writableLocation(
+                       QStandardPaths::GenericConfigLocation)
+                   + QDir::separator()
+                   + "ElMaven";
+
+    // TODO: binary name will keep changing and should not be hardcoded
+    // TODO: model should not exist anywhere on the filesystem
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    auto mlBinary = tempDir + QDir::separator() + "moi";
+#endif
+#ifdef Q_OS_WIN
+    auto mlBinary = tempDir + QDir::separator() + "moi.exe";
+#endif
+    QString mlModel;
+    if(mainwindow->mavenParameters->peakMlModelType == "Global Model Elucidata"){
+        mlModel = tempDir + QDir::separator() + "model.pickle.dat";
+    }
+    else{
+        return;
+    }
+
+    if (!QFile::exists(mlBinary)) {
+        bool downloadSuccess = downloadPeakMlFilesFromAws("moi");
+        if(!downloadSuccess) {
+            cerr << "Error: ML binary not found at path: "
+                << mlBinary.toStdString()
+                << endl;
+            return;
+        }
+    }
+    if (!QFile::exists(mlModel)) {
+        bool downloadSuccess = downloadPeakMlFilesFromAws("model.pickle.dat");
+        if(!downloadSuccess) {
+            cerr << "Error: ML model not found at path: "
+                << mlModel.toStdString()
+                << endl;
+            return;
+        }
+    }
+    
+    Q_EMIT(updateProgressBar("Classifying peaks…", 0, 0));
+    
+    QString peakAttributesFile = tempDir
+                                 + QDir::separator()
+                                 + "peak_ml_input.csv";
+    QString classificationOutputFile = tempDir
+                                       + QDir::separator()
+                                       + "peak_ml_output.csv";
+
+    // // have to enumerated and assign each group with an ID, because multiple
+    // // groups at this point have the same ID
+    // int startId = 1;
+    // for (auto& group : groups)
+    //     group.groupId = startId++;
+
+    CSVReports::writeDataForPeakMl(peakAttributesFile.toStdString(),
+                                   groups);
+    if (!QFile::exists(peakAttributesFile)) {
+        cerr << "Error: peak attributes input file not found at path: "
+             << peakAttributesFile.toStdString()
+             << endl;
+        return;
+    }
+
+    QStringList mlArguments;
+    mlArguments << "--input_attributes_file" << peakAttributesFile
+                << "--output_moi_file" << classificationOutputFile
+                << "--model_path" << mlModel;
+    QProcess subProcess;
+    subProcess.setWorkingDirectory(QFileInfo(mlBinary).path());
+    subProcess.start(mlBinary, mlArguments);
+    subProcess.waitForFinished(-1);
+    if (!QFile::exists(classificationOutputFile)) {
+        qDebug() << "MOI stdout:" << subProcess.readAllStandardOutput();
+        qDebug() << "MOI stderr:" << subProcess.readAllStandardError();
+        cerr << "Error: peak classification output file not found at path: "
+             << peakAttributesFile.toStdString()
+             << endl;
+        return;
+    }
+
+    QFile file(classificationOutputFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        cerr << "Error: failed to open classification output file" << endl;
+        return;
+    }
+
+    map<int, pair<int, float>> predictions;
+    map<int, multimap<float, string>> inferences;
+    map<int, map<int, float>> correlations;
+    map<string, int> headerColumnMap;
+    map<string, int> attributeHeaderColumnMap;
+    vector<string> headers;
+    vector<string> knownHeaders = {"groupId",
+                                   "label",
+                                   "probability",
+                                   "correlations"};
+    while (!file.atEnd()) {
+        string line = file.readLine().trimmed().toStdString();
+        if (line.empty())
+            continue;
+
+        auto fields = mzUtils::split(line, ",");
+        for (auto& field : fields) {
+            int n = field.length();
+            if (n > 2 && field[0] == '"' && field[n-1] == '"') {
+                field = field.substr(1, n-2);
+            }
+            if (n > 2 && field[0] == '\'' && field[n-1] == '\'') {
+                field = field.substr(1, n-2);
+            }
+        }
+
+        if (headers.empty()) {
+            headers = fields;
+            for(size_t i = 0; i < fields.size(); ++i) {
+                if (find(begin(knownHeaders),
+                         end(knownHeaders),
+                         fields[i]) != knownHeaders.end()) {
+                    headerColumnMap[fields[i]] = i;
+                } else {
+                    attributeHeaderColumnMap[fields[i]] = i;
+                }
+            }
+            continue;
+        }
+
+        int groupId = -1;
+        int label = -1;
+        float probability = 0.0f;
+        map<int, float> group_correlations;
+        if (headerColumnMap.count("groupId"))
+            groupId = string2integer(fields[headerColumnMap["groupId"]]);
+        if (headerColumnMap.count("label"))
+            label = string2integer(fields[headerColumnMap["label"]]);
+        if (headerColumnMap.count("probability"))
+            probability = string2float(fields[headerColumnMap["probability"]]);
+        if (headerColumnMap.count("correlations")) {
+            QString correlations_str =
+                QString::fromStdString(fields[headerColumnMap["correlations"]]);
+            if (correlations_str != "[]") {
+                // trim brackets from start and end
+                auto size = correlations_str.size();
+                correlations_str = correlations_str.mid(2, size - 4);
+
+                // obtain individual {group ID <-> correlation score} pair
+                QStringList pair_strings = correlations_str.split(") (");
+                for (auto& pair_str : pair_strings) {
+                    QStringList pair = pair_str.split(" ");
+                    auto corrGroupId = string2integer(pair.at(0).toStdString());
+                    auto corrScore = string2float(pair.at(1).toStdString());
+                    group_correlations[corrGroupId] = corrScore;
+                }
+            }
+        }
+
+        if (groupId != -1) {
+            predictions[groupId] = make_pair(label, probability);
+
+            // we use multimap for values mapping to attribute names because
+            // later on sorted values are really helpful
+            multimap<float, string> groupInference;
+            for (auto& element : attributeHeaderColumnMap) {
+                string attribute = element.first;
+                float value = string2float(fields[element.second]);
+                groupInference.insert(make_pair(value, attribute));
+            }
+            inferences[groupId] = groupInference;
+            correlations[groupId] = group_correlations;
+        }
+    }
+
+    auto assignPrediction = [&] (PeakGroup* group, 
+                                 map<int, pair<int, float>> predictions,
+                                 map<int, multimap<float, string>> inferences,
+                                 map<int, map<int, float>> correlations) {
+                                if (predictions.count(group->uniqueId())) {
+                                    pair<int, float> prediction = predictions.at(group->uniqueId());
+                                    group->setPredictedLabel(
+                                        PeakGroup::classificationLabelForValue(prediction.first),
+                                        prediction.second);
+                                }   
+                                if (inferences.count(group->uniqueId()))
+                                    group->setPredictionInference(inferences.at(group->uniqueId()));
+
+                                // add correlated groups
+                                if (correlations.count(group->uniqueId()) == 0)
+                                    return;
+
+                                auto& group_correlations = correlations.at(group->uniqueId());
+                                for (auto& elem : group_correlations)
+                                    group->addCorrelatedGroup(elem.first, elem.second);
+                                
+                            };
+    
+    for (auto& group : groups) {
+        assignPrediction(&group, 
+                         predictions, 
+                         inferences, 
+                         correlations);
+    }
+    for (auto& group : groups) {
+        for (auto& child : group.childIsotopes()) {
+            assignPrediction(child.get(), 
+                             predictions, 
+                             inferences, 
+                             correlations);
+        } 
+    }
+    removeFiles();
+}
+
+bool BackgroundOpsThread::downloadPeakMlFilesFromAws(QString fileName)
+{
+    Q_EMIT(updateProgressBar("Configuring PeakML...", 0, 0));
+    auto tempDir = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + "ElMaven";
+
+    QStringList args;
+
+    if(fileName == "moi")
+    {
+        #if defined(Q_OS_MAC)
+            args << "mac/moi";
+            tempDir = tempDir + QDir::separator() + "moi";
+        #endif
+
+        #if defined(Q_OS_LINUX)
+            args << "unix/moi";
+            tempDir = tempDir + QDir::separator() + "moi";
+        #endif
+        
+        #ifdef Q_OS_WIN
+            args << "windows/moi.exe";
+            tempDir = tempDir + QDir::separator() + "moi.exe" ;
+        #endif
+    } else {
+        args << "model/model.pickle.dat";
+        tempDir = tempDir + QDir::separator() + "model.pickle.dat";
+    }
+
+    args << tempDir;
+    
+    auto result = _pollyIntegration->runQtProcess("downloadFilesForPeakML", args);
+
+    if (!QFile::exists(tempDir)) {
+        return false;
+    } else {
+        if(fileName == "moi")
+        {
+            #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                changeMode(tempDir.toStdString());
+            #endif 
+        }
+        return true;
+    }
+}
+
+void BackgroundOpsThread::changeMode(string fileName)
+{
+    string command = "chmod 755 " + fileName;
+    system(command.c_str());
+}
+
+void BackgroundOpsThread::removeFiles()
+{
+    auto tempDir = QStandardPaths::writableLocation(
+                   QStandardPaths::GenericConfigLocation)
+                   + QDir::separator()
+                   + "ElMaven" 
+                   + QDir::separator()
+                   + "model.pickle.dat";
+    
+    string fileName = tempDir.toStdString();
+
+    if (QFile::exists(tempDir))
+        remove(fileName.c_str());
+
+    tempDir.clear();
+    tempDir = QStandardPaths::writableLocation(
+                   QStandardPaths::GenericConfigLocation)
+                   + QDir::separator()
+                   + "ElMaven" 
+                   + QDir::separator()
+                   + "peak_ml_input.csv";
+    fileName = tempDir.toStdString();
+
+    if (QFile::exists(tempDir))
+        remove(fileName.c_str());
+
+    tempDir.clear();
+    tempDir = QStandardPaths::writableLocation(
+                   QStandardPaths::GenericConfigLocation)
+                   + QDir::separator()
+                   + "ElMaven" 
+                   + QDir::separator()
+                   + "peak_ml_output.csv";
+    fileName = tempDir.toStdString();
+
+    if (QFile::exists(tempDir))
+        remove(fileName.c_str());
 }

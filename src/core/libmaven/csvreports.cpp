@@ -622,13 +622,15 @@ bool CSVReports::writeDataForPeakMl(const string& filePath,
         int lastUniqueId = 0;
         for (auto& group : groups) {
             group.setUniqueId(group.groupId());
-            writePeakInfo(group, group.uniqueId());
+            if (!group.isGhost())
+                writePeakInfo(group, group.uniqueId());
             lastUniqueId = group.uniqueId();
         }
         for (auto& group : groups) {
             for (auto&child : group.childIsotopes()) {
                 child->setUniqueId(++lastUniqueId);
-                writePeakInfo(*child, child.get()->uniqueId());
+                if (!child->isGhost())
+                    writePeakInfo(*child, child.get()->uniqueId());
             }
         } 
         file.close();

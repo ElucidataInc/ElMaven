@@ -1,6 +1,9 @@
 #ifndef BACKGROUND_PEAK_UPDATE_H
 #define BACKGROUND_PEAK_UPDATE_H
 
+#include <common/downloadmanager.h>
+#include <common/logger.h>
+
 #include "PeakGroup.h"
 #include "stable.h"
 
@@ -13,6 +16,7 @@ class MavenParameters;
 class PeakDetector;
 class Compound;
 class mzSlice;
+class PollyIntegration;
 
 /**
  * @brief The BackgroundOpsThread class runs a background thread which can be
@@ -69,6 +73,8 @@ public:
      */
     static void updateGroups(QList<shared_ptr<PeakGroup>>& groups,
                              vector<mzSample*> samples);
+    
+    void classifyGroups(vector<PeakGroup>& groups);
 
 signals:
     void updateProgressBar(QString, int, int);
@@ -123,6 +129,35 @@ private:
 
     // perform PolyFit alignment just after peak detection (if true)
     bool _performPolyFitAlignment;
+
+    /**
+	 * [write CSV Report]
+	 * @param setName [name of the set]
+	 */
+	void writeCSVRep(string setName);
+
+    /**
+	 * @brief Downloads binary and model from S3 bucket 
+	 * if the two files does not exist on user's pc. 
+	 * @param filename Tells the file either model or 
+	 * binary to be downloaded. 
+	 */ 
+	bool downloadPeakMlFilesFromAws(QString fileName);
+	
+	/**
+	 * @brief Changes the mode of the file and gives it executable rights. 
+	 * Used to give downloaded moi file the execute rights. 
+	 */
+	void changeMode(string fileName);
+
+	/**
+	 * @brief Remove peakML files- model and CSV files for input and output
+	 * from user's system
+	 */
+	void removeFiles();
+
+	DownloadManager *_dlManager;
+	PollyIntegration *_pollyIntegration;
 };
 
 #endif

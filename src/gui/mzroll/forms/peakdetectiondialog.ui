@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>580</height>
+    <height>722</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -522,10 +522,46 @@
           <property name="spacing">
            <number>4</number>
           </property>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_minMatchScore">
+            <property name="text">
+             <string>Minimum score</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_fragmentTolerance">
             <property name="text">
              <string>Fragment mass tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_matchAtLeastX">
+            <property name="text">
+             <string>Match at least [x] fragments</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="minFragMatch">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="value">
+             <double>3.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -551,20 +587,6 @@
             </property>
             <property name="readOnly">
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_matchAtLeastX">
-            <property name="text">
-             <string>Match at least [x] fragments</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_minMatchScore">
-            <property name="text">
-             <string>Minimum score</string>
             </property>
            </widget>
           </item>
@@ -596,6 +618,13 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="mustHaveMs2">
+            <property name="text">
+             <string>Exclude unfragmented groups</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1" alignment="Qt::AlignRight">
            <widget class="QDoubleSpinBox" name="fragmentTolerance">
             <property name="sizePolicy">
@@ -621,39 +650,10 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="mustHaveMs2">
-            <property name="text">
-             <string>Exclude unfragmented groups</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_scoringAlgo">
             <property name="text">
              <string>Scoring algorithm</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" alignment="Qt::AlignRight">
-           <widget class="QDoubleSpinBox" name="minFragMatch">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="decimals">
-             <number>0</number>
-            </property>
-            <property name="value">
-             <double>3.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -669,21 +669,49 @@
          <zorder>mustHaveMs2</zorder>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QCheckBox" name="peakMl">
-         <property name="text">
-          <string>Peak Curation</string>
+       <item>
+        <widget class="QGroupBox" name="peakMl">
+         <property name="title">
+          <string>Peak curation</string>
          </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QComboBox" name="modelTypes">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="acceptDrops">
+         <property name="checkable">
           <bool>true</bool>
          </property>
+         <widget class="QComboBox" name="modelTypes">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>550</x>
+            <y>30</y>
+            <width>191</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>30</y>
+            <width>131</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Select peakML model</string>
+          </property>
+         </widget>
         </widget>
        </item>
       </layout>
