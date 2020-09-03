@@ -249,6 +249,7 @@ using namespace mzUtils;
     QColor border = themePalette.mid().color();
     styleSheet = styleSheet.arg(border.name(QColor::HexRgb));
 
+    styleSheet += "QTabBar::tab { min-width: 80px; }";
     styleSheet += "QTabBar::tab { border: 1px solid %1; }";
     styleSheet += "QTabBar::tab { padding: 5px 8px; }";
     styleSheet += "QTabBar::tab { margin-top: 5px; }";
