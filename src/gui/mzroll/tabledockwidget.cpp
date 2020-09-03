@@ -257,7 +257,6 @@ void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
             addRow(rowData, item);
         }
     }
-    // TODO: update group IDs too?
 }
 
 void TableDockWidget::updateTable() {
@@ -2982,7 +2981,15 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
         }
         shared_ptr<PeakGroup> group = sourceTable->groupForItem(parentItem);
         if (group == originalParent) {
-            sourceTable->refreshParentItem(parentItem);
+            if (group->childIsotopeCount() == 0
+                && group->childAdductsCount() == 0) {
+                QSet<QTreeWidgetItem*> itemsToDelete;
+                itemsToDelete.insert(parentItem);
+                sourceTable->_deleteItemsAndGroups(itemsToDelete);
+                sourceTable->updateCompoundWidget();
+            } else {
+                sourceTable->refreshParentItem(parentItem);
+            }
             break;
         }
         ++it;
