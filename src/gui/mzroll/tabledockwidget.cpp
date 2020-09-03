@@ -626,9 +626,9 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 
 bool TableDockWidget::deleteAll()
 {
-  
   if (!topLevelGroupCount())
     return false;
+
   auto continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
@@ -2315,11 +2315,9 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::deleteAll()
 {
-  auto continueDeletion = TableDockWidget::deleteAll();
-  if (!continueDeletion) {
-    return;
-  }
-  destroy();
+  auto allDeleted = TableDockWidget::deleteAll();
+  if (allDeleted)
+    destroy();
 }
 
 void PeakTableDockWidget::cleanUp()
@@ -2599,7 +2597,7 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
   return false;
 }
 
-void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
+void BookmarkTableDockWidget::_removeGroupHash(PeakGroup *group)
 {
   /**
    * delete name of compound associated with this group stored in
@@ -2610,14 +2608,48 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
   QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
   QString compoundName = QString::fromStdString(group->getName());
   if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-      for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
-          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-              sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-              break;
-          }
+    for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
+      if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+        sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+        break;
       }
+    }
   }
+}
+
+void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
+{
+  _removeGroupHash(group);
   TableDockWidget::deleteGroup(group);
+}
+
+void BookmarkTableDockWidget::deleteSelectedItems()
+{
+  int topLevelItemsBeingDeleted = 0;
+  for (auto item : treeWidget->selectedItems()) {
+    if (item->parent() == nullptr)
+      ++topLevelItemsBeingDeleted;
+  }
+
+  // checks if the selected item count is same as the no. of top-level
+  // groups in the table.
+  if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
+    deleteAll();
+    return;
+  }
+
+  for (auto item : treeWidget->selectedItems()) {
+    auto group = groupForItem(item);
+    _removeGroupHash(group.get());
+  }
+  TableDockWidget::deleteSelectedItems();
+}
+
+void BookmarkTableDockWidget::deleteAll()
+{
+  bool allDeleted = TableDockWidget::deleteAll();
+  if (allDeleted)
+    sameMzRtGroups.clear();
 }
 
 void BookmarkTableDockWidget::markGroupGood() {

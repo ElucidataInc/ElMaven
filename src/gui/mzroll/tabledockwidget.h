@@ -433,6 +433,9 @@ public Q_SLOTS:
   void mergeGroupsIntoPeakTable(QAction *action);
 
   void deleteGroup(PeakGroup* group);
+  void deleteSelectedItems();
+  void deleteAll();
+
   void markGroupGood();
   void markGroupBad();
 
@@ -441,6 +444,7 @@ private:
   QToolButton *btnMerge;
   QMenu *btnMergeMenu;
   void showSameGroup(QPair<int, int> sameMzRtGroupIndexHash);
+  void _removeGroupHash(PeakGroup* group);
 };
 
 class ScatterplotTableDockWidget : public TableDockWidget {
