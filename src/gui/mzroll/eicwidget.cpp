@@ -1803,6 +1803,9 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event)
 
 	SettingsForm* settingsForm = getMainWindow()->settingsForm;
 
+    if (scene()->mouseGrabberItem() != nullptr)
+        return;
+
     QAction* d = menu.addAction("Peak grouping options");
     connect(d,
             &QAction::triggered,
