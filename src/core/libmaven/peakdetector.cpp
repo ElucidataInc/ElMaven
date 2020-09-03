@@ -156,15 +156,30 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
     if (identificationSet.empty())
         return;
 
+    vector<Compound*> compoundsWithRawMzOnly;
+    vector<Compound*> compoundsWithNeutralMassOnly;
+    for (auto compound : identificationSet) {
+        if (compound->formula().empty() && compound->neutralMass() > 0.0f) {
+            compoundsWithNeutralMassOnly.push_back(compound);
+        } else if (compound->formula().empty() && compound->mz() > 0.0f) {
+            compoundsWithRawMzOnly.push_back(compound);
+        }
+    }
+
     sendBoostSignal("Preparing libraries for identification…", 0, 0);
     MassSlicer massSlicer(_mavenParameters);
     if (_mavenParameters->pullIsotopesFlag && _mavenParameters->searchAdducts) {
         massSlicer.generateIsotopeSlices(identificationSet);
         massSlicer.generateAdductSlices(identificationSet, true, false);
+        massSlicer.generateCompoundSlices(compoundsWithNeutralMassOnly, false);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
     } else if (_mavenParameters->pullIsotopesFlag) {
         massSlicer.generateIsotopeSlices(identificationSet);
+        massSlicer.generateCompoundSlices(compoundsWithNeutralMassOnly, false);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
     } else if (_mavenParameters->searchAdducts) {
         massSlicer.generateAdductSlices(identificationSet);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
     } else {
         massSlicer.generateCompoundSlices(identificationSet);
     }
@@ -292,15 +307,20 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     string setName = "groups";
 
     bool srmTransitionPresent = false;
-    auto srmTransitionPos = find_if(begin(compounds),
-                                    end(compounds),
-                                    [](Compound* compound) {
-                                        return compound->type()
-                                               == Compound::Type::MRM;
-                                    });
-    if (srmTransitionPos != end(compounds)) {
-        setName = "transitions";
-        srmTransitionPresent = true;
+    vector<Compound*> compoundsWithRawMzOnly;
+    vector<Compound*> compoundsWithNeutralMassOnly;
+    for (auto compound : compounds) {
+        if (compound->type() == Compound::Type::MRM) {
+            setName = "transitions";
+            srmTransitionPresent = true;
+            break;
+        }
+
+        if (compound->formula().empty() && compound->neutralMass() > 0.0f) {
+            compoundsWithNeutralMassOnly.push_back(compound);
+        } else if (compound->formula().empty() && compound->mz() > 0.0f) {
+            compoundsWithRawMzOnly.push_back(compound);
+        }
     }
 
     MassSlicer massSlicer(_mavenParameters);
@@ -309,12 +329,17 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
         && !srmTransitionPresent) {
         massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
         massSlicer.generateAdductSlices(compounds, true, false);
+        massSlicer.generateCompoundSlices(compoundsWithNeutralMassOnly, false);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
         setName = "isotopologues and adducts";
     } else if (_mavenParameters->pullIsotopesFlag && !srmTransitionPresent) {
         massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
+        massSlicer.generateCompoundSlices(compoundsWithNeutralMassOnly, false);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
         setName = "isotopologues";
     } else if (_mavenParameters->searchAdducts && !srmTransitionPresent) {
         massSlicer.generateAdductSlices(compounds);
+        massSlicer.generateCompoundSlices(compoundsWithRawMzOnly, false);
         setName = "adducts";
     } else {
         massSlicer.generateCompoundSlices(compounds);
@@ -328,7 +353,8 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
         nonParentIsotopeSlices = extractNonParentSlices(
             massSlicer.slices,
             [](mzSlice* slice) {
-                return slice->isotope.isParent();
+                return (slice->compound->formula().empty()
+                        || slice->isotope.isParent());
             });
         setName = "parent groups";
     }
@@ -398,6 +424,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
 
     GroupFiltering groupFilter(_mavenParameters);
     for (auto& group : _mavenParameters->allgroups) {
+        sendBoostSignal("Filtering isotopologues and adducts…", 0, 0);
         if (_mavenParameters->stop) {
             _mavenParameters->allgroups.clear();
             return;
@@ -415,7 +442,6 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
             if (_mavenParameters->linkIsotopeRtRange)
                 linkParentIsotopeRange(group, findBarplotIsotopes);
 
-            sendBoostSignal("Filtering isotopologues…", 0, 0);
             auto childType = GroupFiltering::ChildFilterType::Isotope;
             if (findBarplotIsotopes)
                 childType = GroupFiltering::ChildFilterType::BarplotIsotope;
@@ -432,7 +458,6 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
             && _mavenParameters->searchAdducts
             && _mavenParameters->filterAdductsAgainstParent
             && !srmTransitionPresent) {
-            sendBoostSignal("Filtering adducts…", 0, 0);
             groupFilter.filterBasedOnParent(
                 group,
                 GroupFiltering::ChildFilterType::Adduct,
