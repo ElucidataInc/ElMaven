@@ -1179,7 +1179,7 @@ void EicWidget::_drawNoPeaksMessage()
     QFont font = QApplication::font();
     font.setPixelSize(24);
     QGraphicsTextItem* noPeaksMessage =
-        scene()->addText("No peaks in this group", font);
+        scene()->addText("No integrated peaks found for this group", font);
 
     auto messageBounds = noPeaksMessage->boundingRect();
     int messageWidth = messageBounds.width();
