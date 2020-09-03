@@ -1725,7 +1725,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::showIntegrationSettings);
 
-  QAction *z4 = menu.addAction("Delete all groups");
+  QAction *z4 = menu.addAction("Delete all groups from this table");
   connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
