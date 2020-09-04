@@ -364,6 +364,7 @@ public slots:
   void setDefaultStyle(bool isActive = false);
 
   shared_ptr<PeakGroup> groupForItem(QTreeWidgetItem* item);
+  QTreeWidgetItem * itemForGroup(PeakGroup * group);
 
   void refreshParentItem(QTreeWidgetItem* item);
 

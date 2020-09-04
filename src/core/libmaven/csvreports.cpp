@@ -617,20 +617,14 @@ bool CSVReports::writeDataForPeakMl(const string& filePath,
              << "groupOverlap" << "\n";
         file << fixed << setprecision(6);
 
-        // Unique Id is used for identifying child group
-        // uniquely while exporting for classification.
-        int lastUniqueId = 0;
         for (auto& group : groups) {
-            group.setUniqueId(group.groupId());
             if (!group.isGhost())
-                writePeakInfo(group, group.uniqueId());
-            lastUniqueId = group.uniqueId();
+                writePeakInfo(group, group.groupId());
         }
         for (auto& group : groups) {
             for (auto&child : group.childIsotopes()) {
-                child->setUniqueId(++lastUniqueId);
                 if (!child->isGhost())
-                    writePeakInfo(*child, child.get()->uniqueId());
+                    writePeakInfo(*child, child.get()->groupId());
             }
         } 
         file.close();

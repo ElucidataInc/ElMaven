@@ -139,10 +139,10 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           &QTreeWidget::itemClicked,
           this,
           &TableDockWidget::showSelectedGroup);
-  // connect(treeWidget,
-  //         &QTreeWidget::itemSelectionChanged,
-  //         this,
-  //         &TableDockWidget::_refreshCycleBuffer);
+  connect(treeWidget,
+          &QTreeWidget::itemSelectionChanged,
+          this,
+          &TableDockWidget::_refreshCycleBuffer);
           
   connect(treeWidget,
           SIGNAL(itemSelectionChanged()),
@@ -327,6 +327,17 @@ shared_ptr<PeakGroup> TableDockWidget::groupForItem(QTreeWidgetItem *item)
       group = group->childAdducts().at(rowData.childIndex);
   }
   return group;
+}
+
+QTreeWidgetItem * TableDockWidget::itemForGroup(PeakGroup * group)
+{
+  QTreeWidgetItemIterator it(treeWidget);
+  while (*it) {
+    auto grp = groupForItem(*it).get();
+    if (grp == group)
+      return *it; 
+    ++it;
+  }
 }
 
 void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
@@ -1656,7 +1667,7 @@ void TableDockWidget::_refreshCycleBuffer()
   _cycleBuffer.clear();
 
   auto correlatedGroups = selectedGroup->getCorrelatedGroups();
-  
+
   if (correlatedGroups.empty()) {
     _mainwindow->getCorrelationTable()->setVisible(false);
     return;
@@ -1665,25 +1676,36 @@ void TableDockWidget::_refreshCycleBuffer()
   _mainwindow->getCorrelationTable()->setReferencePeakGroup(selectedGroup.get());
   _mainwindow->getCorrelationTable()->setCurrentTable(this);
   
-  QTreeWidgetItemIterator itr(treeWidget);
-  while (*itr) {
-    QTreeWidgetItem *item = (*itr);
-    if (item) {
-      QVariant v = item->data(1, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group == nullptr)
+  auto processGroupForCorrelation = [&] (PeakGroup* group, 
+                                         PeakGroup* selectedGroup,
+                                         TableDockWidget* tb) {
+                                        auto item = itemForGroup(group);
+                                
+                                        if (group == selectedGroup) {
+                                          tb->_cycleBuffer.append(item);
+                                        }
+
+                                        if (correlatedGroups.count(group->groupId())) {
+                                          tb->_cycleBuffer.append(item);
+                                          auto corr = correlatedGroups.at(group->groupId());
+                                          tb->_mainwindow->getCorrelationTable()->addCorrelatedPeakGroup(group, 
+                                                                                                         corr);
+                                        }
+                                    };
+
+  for (int i = 0; i < _topLevelGroups.size(); i++)
+  {
+    auto group = _topLevelGroups[i];
+    if (group == nullptr)
         continue;
+    processGroupForCorrelation(group.get(), 
+                               selectedGroup.get(), 
+                                this);
 
-      if (group == selectedGroup.get())
-        _cycleBuffer.append(item);
-
-      if (correlatedGroups.count(group->uniqueId())) {
-        _cycleBuffer.append(item);
-        auto corr = correlatedGroups.at(group->uniqueId());
-        _mainwindow->getCorrelationTable()->addCorrelatedPeakGroup(group, corr);
-      }
-    }
-    ++itr;
+    for (auto& child : group->childIsotopes())
+      processGroupForCorrelation(child.get(), 
+                                  selectedGroup.get(), 
+                                  this);
   }
 
   int currentGroupId = treeWidget->currentItem()->text(1).toInt();

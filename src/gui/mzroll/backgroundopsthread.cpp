@@ -146,13 +146,13 @@ void BackgroundOpsThread::qtSignalSlot(const string& progressText,
 
 void BackgroundOpsThread::writeCSVRep(string setName)
 {
-    int lastUniqueId = 0;
-    for (auto&group : mavenParameters->allgroups)
-        group.setUniqueId(++lastUniqueId);
+    // int lastUniqueId = 0;
+    // for (auto&group : mavenParameters->allgroups)
+    //     group.setUniqueId(++lastUniqueId);
 
-    for(auto&group : mavenParameters->allgroups)
-        for (auto& child : group.childIsotopes())
-            child->setUniqueId(++lastUniqueId);
+    // for(auto&group : mavenParameters->allgroups)
+    //     for (auto& child : group.childIsotopes())
+    //         child->setUniqueId(++lastUniqueId);
 
     if (mainwindow->mavenParameters->peakMl) 
         classifyGroups(mavenParameters->allgroups);
@@ -458,9 +458,13 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
 
     // // have to enumerated and assign each group with an ID, because multiple
     // // groups at this point have the same ID
-    // int startId = 1;
-    // for (auto& group : groups)
-    //     group.groupId = startId++;
+    int startId = 1;
+    for (auto& group : groups) {
+        group.setGroupId(startId++);
+        for (auto& child : group.childIsotopes()) {
+            child->setGroupId(startId++);
+        }
+    }
 
     CSVReports::writeDataForPeakMl(peakAttributesFile.toStdString(),
                                    groups);
@@ -583,20 +587,20 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                                  map<int, pair<int, float>> predictions,
                                  map<int, multimap<float, string>> inferences,
                                  map<int, map<int, float>> correlations) {
-                                if (predictions.count(group->uniqueId())) {
-                                    pair<int, float> prediction = predictions.at(group->uniqueId());
+                                if (predictions.count(group->groupId())) {
+                                    pair<int, float> prediction = predictions.at(group->groupId());
                                     group->setPredictedLabel(
                                         PeakGroup::classificationLabelForValue(prediction.first),
                                         prediction.second);
                                 }   
-                                if (inferences.count(group->uniqueId()))
-                                    group->setPredictionInference(inferences.at(group->uniqueId()));
+                                if (inferences.count(group->groupId()))
+                                    group->setPredictionInference(inferences.at(group->groupId()));
 
                                 // add correlated groups
-                                if (correlations.count(group->uniqueId()) == 0)
+                                if (correlations.count(group->groupId()) == 0)
                                     return;
 
-                                auto& group_correlations = correlations.at(group->uniqueId());
+                                auto& group_correlations = correlations.at(group->groupId());
                                 for (auto& elem : group_correlations)
                                     group->addCorrelatedGroup(elem.first, elem.second);
                                 
