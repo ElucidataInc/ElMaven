@@ -289,6 +289,7 @@ public slots:
   void setGroupLabel(char label);
   void showLastGroup();
   void showNextGroup();
+  void filterPeakTable();
 
   void printPdfReport();
   /**

@@ -536,7 +536,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
                     QVariant::fromValue(castLabel));
     }
   }
-  
+  if (group->userLabel() == 'g') {
+      item->setIcon(0, QIcon(":/images/good.png"));
+  } else if (group->userLabel() == 'b') {
+      item->setIcon(0, QIcon(":/images/bad.png"));
+  }
   if (!hasClassifiedGroups)
     _paintClassificationDisagreement(item);
 
@@ -966,7 +970,7 @@ void TableDockWidget::filterForSelectedLabels()
 {
   QList<PeakTableSubsetType> selectedSubsets;
   auto selectedLabels = _legend->selectedTexts();
-  for (auto& label : selectedLabels) {
+  for (auto& label : selectedLabels) {  
     auto predictionLabel = labelsForLegend().key(label);
     if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
       selectedSubsets.append(PeakTableSubsetType::Bad);
@@ -1589,8 +1593,8 @@ TableDockWidget::_peakTableGroupedBySubsets() {
   while (*itr) {
     QTreeWidgetItem *item = (*itr);
     if (item) {
-      QVariant v = item->data(1, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
+      auto group = groupForItem(item).get();
+     
       if (group == nullptr)
         continue;
 
@@ -2487,6 +2491,8 @@ void TableDockWidget::focusInEvent(QFocusEvent *event) {
   }
 }
 
+void TableDockWidget::filterPeakTable() { updateTable(); }
+
 void TableDockWidget::focusOutEvent(QFocusEvent *event) {
   if (event->lostFocus()) {
     pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
@@ -2867,7 +2873,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
       
       QAction *exportAllSignals =
           btnGroupCSV->menu()->addAction(tr("Export all signals"));
-      connect(exportAllSignals, SIGNAL(triggered()), td, SLOT(goodPeaks()));
+      connect(exportAllSignals, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
       connect(exportAllSignals, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
       connect(exportAllSignals,
               SIGNAL(triggered()),
@@ -2875,7 +2881,7 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
               SLOT(exportGroupsToSpreadsheet()));
     }
 
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeaks()));
+    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
     connect(exportSelected,
             SIGNAL(triggered()),
             td,
