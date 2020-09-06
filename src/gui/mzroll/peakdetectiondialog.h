@@ -2,12 +2,14 @@
 #define PEAKDETECTIONDIALOG_H
 
 #include "ui_peakdetectiondialog.h"
+#include "superSlider.h"
 #include "stable.h"
 
 class MainWindow;
 class TableDockWidget;
 class BackgroundOpsThread;
 class PeakDetectionSettings;
+class RangeSlider;
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 {
@@ -71,6 +73,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
         public:
                 QString massCutoffType;
                 bool peakMlSet;
+                RangeSlider* slider; 
 
         protected:
                 virtual void closeEvent(QCloseEvent* event) override;

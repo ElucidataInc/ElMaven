@@ -474,11 +474,16 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
              << endl;
         return;
     }
-
+    QString badGroupLimit = QString::fromStdString(
+                                mzUtils::float2string(mavenParameters->badGroupLimit, 1));
+    QString maybeGoodGroupLimit = QString::fromStdString(
+                                    mzUtils::float2string(mavenParameters->maybeGoodGroupLimit, 1));
     QStringList mlArguments;
     mlArguments << "--input_attributes_file" << peakAttributesFile
                 << "--output_moi_file" << classificationOutputFile
-                << "--model_path" << mlModel;
+                << "--model_path" << mlModel
+                << "--bad_group_limit" << badGroupLimit
+                << "--maybeGood_group_limit" << maybeGoodGroupLimit;
     QProcess subProcess;
     subProcess.setWorkingDirectory(QFileInfo(mlBinary).path());
     subProcess.start(mlBinary, mlArguments);

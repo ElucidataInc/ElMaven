@@ -515,31 +515,32 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
       item->setData(0,
                     Qt::UserRole,
                     QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Signal
-              || group->userLabel() == 'g') {
+    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Signal) {
       // we have to store stringified classifier labels because QVariant has
       // issues with standard enum classes
       QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
       item->setData(0,
                     Qt::UserRole,
                     QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise
-              || group->userLabel() == 'b') {
+    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise) {
       QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
       item->setData(0,
                     Qt::UserRole,
                     QVariant::fromValue(castLabel));
+    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::MaybeGood){
+        // add icon.
     } else {
       QString castLabel = "PeakGroup::ClassifiedLabel::None";
       item->setData(0,
                     Qt::UserRole,
                     QVariant::fromValue(castLabel));
     }
-  }
-  if (group->userLabel() == 'g') {
-      item->setIcon(0, QIcon(":/images/good.png"));
-  } else if (group->userLabel() == 'b') {
-      item->setIcon(0, QIcon(":/images/bad.png"));
+  } else {
+    if (group->userLabel() == 'g') {
+        item->setIcon(0, QIcon(":/images/good.png"));
+    } else if (group->userLabel() == 'b') {
+        item->setIcon(0, QIcon(":/images/bad.png"));
+    }
   }
   if (!hasClassifiedGroups)
     _paintClassificationDisagreement(item);
@@ -1525,6 +1526,7 @@ void TableDockWidget::showSelectedGroup()
     return; 
   
   shared_ptr<PeakGroup> group = groupForItem(item);
+  
   if (group == nullptr)
     return;
 

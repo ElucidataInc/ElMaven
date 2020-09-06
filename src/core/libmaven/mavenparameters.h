@@ -274,6 +274,8 @@ class MavenParameters
         //for enabling peak Ml curation
         bool peakMl;
         string peakMlModelType;
+        float badGroupLimit;
+        float maybeGoodGroupLimit;
 
 
         /*

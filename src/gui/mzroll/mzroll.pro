@@ -217,7 +217,8 @@ HEADERS += stable.h \
            multiselectcombobox.h \
            correlationtable.h   \
            classificationWidget.h   \
-           QHistogramSlider.h
+           QHistogramSlider.h       \
+           superSlider.h
 
 SOURCES += mainwindow.cpp  \
            backgroundopsthread.cpp \
@@ -275,7 +276,8 @@ SOURCES += mainwindow.cpp  \
            multiselectcombobox.cpp \
            correlationtable.cpp     \
            classificationWidget.cpp \
-           QHistogramSlider.cpp
+           QHistogramSlider.cpp     \
+           superSlider.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

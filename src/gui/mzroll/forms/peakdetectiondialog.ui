@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>722</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -674,6 +674,9 @@
          <property name="title">
           <string>Peak curation</string>
          </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
          <property name="checkable">
           <bool>true</bool>
          </property>
@@ -710,6 +713,19 @@
           </property>
           <property name="text">
            <string>Select peakML model</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_5">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>60</y>
+            <width>131</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Curating parameters</string>
           </property>
          </widget>
         </widget>

@@ -58,7 +58,8 @@ class PeakGroup{
             Signal,              // the group shows a clear signal but may not be an interesting metabolite
             Correlation,         // the group is a signal and is correlated to one or more signals
             Pattern,             // the group is a signal and shows interesting inter-cohort intensity pattern
-            CorrelationAndPattern // the group is a signal which shows correlation as well as intensity pattern
+            CorrelationAndPattern, // the group is a signal which shows correlation as well as intensity pattern
+            MaybeGood               // the group wich lies between limits for good and bad peakgroup by the user.
         };
 
         static string labelToString (ClassifiedLabel label)
@@ -73,6 +74,8 @@ class PeakGroup{
                 return "ClassifiedLabel::Pattern";
             if (label == ClassifiedLabel::CorrelationAndPattern)
                 return "ClassifiedLabel::CorrelationAndPattern";
+            if (label == ClassifiedLabel::MaybeGood)
+                return "ClassifiedLabel::MaybeGood";
             return "ClassifiedLabel::None";
         }
 
@@ -88,6 +91,8 @@ class PeakGroup{
                 return PeakGroup::ClassifiedLabel::Pattern;
             } else if (labelString == "ClassifiedLabel::CorrelationAndPattern") {
                 return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            } else if (labelString == "ClassifiedLabel::MaybeGood") {
+                return PeakGroup::ClassifiedLabel::MaybeGood;
             }
             return PeakGroup::ClassifiedLabel::None;
         }
@@ -761,6 +766,8 @@ class PeakGroup{
                 return PeakGroup::ClassifiedLabel::Pattern;
             if (value == 4)
                 return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            if (value == 5)
+                return PeakGroup::ClassifiedLabel::MaybeGood;
             return PeakGroup::ClassifiedLabel::None;
         };
 
@@ -786,6 +793,8 @@ class PeakGroup{
                 return 3;
             if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
                 return 4;
+            if (label == PeakGroup::ClassifiedLabel::MaybeGood)
+                return 5;
             return -1;
         }
 
