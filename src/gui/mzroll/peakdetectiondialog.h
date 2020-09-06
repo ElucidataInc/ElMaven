@@ -38,6 +38,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void getLoginForPeakMl();
                  void loginSuccessful();
                  void unsuccessfulLogin();
+                 void updateCurationParameter(int lowerRange, int upperRange);
 
                  /**
                   * @brief Disables or enables certain UI elements, based on

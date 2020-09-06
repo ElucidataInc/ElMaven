@@ -46,10 +46,11 @@ void CorrelationTable::addCorrelatedPeakGroup(PeakGroup* group,
 {
     if (group == nullptr)
         return;
-
+    ui->treeWidget->setSortingEnabled(true);
     auto groupCopy = new PeakGroup(*group);
     _correlatedGroups[groupCopy] = correlation;
     _populateTable();
+    ui->treeWidget->sortByColumn(3, Qt::DescendingOrder);
 }
 
 void CorrelationTable::clearCorrelation()

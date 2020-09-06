@@ -65,7 +65,8 @@ private:
     Q_DISABLE_COPY(RangeSlider)
     float currentPercentage();
     int validLength() const;
-
+    QColor signalColor;
+    QColor noiseColor;
     int mMinimum;
     int mMaximum;
     int mLowerValue;

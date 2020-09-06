@@ -1,4 +1,5 @@
 #include "superSlider.h"
+#include "mainwindow.h"
 #include <QDebug>
 
 namespace
@@ -6,7 +7,7 @@ namespace
 
 const int scHandleSideLength = 11;
 const int scSliderBarHeight = 5;
-const int scLeftRightMargin = 1;
+const int scLeftRightMargin = 135;
 
 }
 
@@ -19,11 +20,12 @@ RangeSlider::RangeSlider(QWidget* aParent)
       mFirstHandlePressed(false),
       mSecondHandlePressed(false),
       mInterval(mMaximum - mMinimum),
-      mBackgroudColorEnabled(QColor(0x1E, 0x90, 0xFF)),
-      mBackgroudColorDisabled(Qt::darkGray),
-      mBackgroudColor(mBackgroudColorEnabled),
       orientation(Qt::Horizontal)
 {
+
+    mBackgroudColorEnabled = Qt::darkGray;
+    mBackgroudColorDisabled = Qt::darkGray;
+    mBackgroudColor = mBackgroudColorEnabled;
     setMouseTracking(true);
 }
 
@@ -36,12 +38,16 @@ RangeSlider::RangeSlider(Qt::Orientation ori, Options t, QWidget* aParent)
       mFirstHandlePressed(false),
       mSecondHandlePressed(false),
       mInterval(mMaximum - mMinimum),
-      mBackgroudColorEnabled(QColor(0x1E, 0x90, 0xFF)),
-      mBackgroudColorDisabled(Qt::darkGray),
-      mBackgroudColor(mBackgroudColorEnabled),
       orientation(ori),
       type(t)
 {
+
+    mBackgroudColorEnabled = Qt::darkGray;
+    mBackgroudColorDisabled = Qt::lightGray;
+    mBackgroudColor = mBackgroudColorEnabled;
+    setLowerValue(2);
+    SetUpperValue(7);
+
     setMouseTracking(true);
 }
 
@@ -57,28 +63,29 @@ void RangeSlider::paintEvent(QPaintEvent* aEvent)
     else
         backgroundRect = QRectF((width() - scSliderBarHeight) / 2, scLeftRightMargin, scSliderBarHeight, height() - scLeftRightMargin*2);
 
-    QPen pen(Qt::gray, 0.8);
+    QPen pen(mBackgroudColor, 0.8);
     painter.setPen(pen);
     painter.setRenderHint(QPainter::Qt4CompatiblePainting);
-    QBrush backgroundBrush(QColor(0xD0, 0xD0, 0xD0));
+    QBrush backgroundBrush(mBackgroudColor);
     painter.setBrush(backgroundBrush);
-    painter.drawRoundedRect(backgroundRect, 1, 1);
+    painter.drawRoundedRect(backgroundRect, 4, 4);
 
     // First value handle rect
     pen.setColor(Qt::darkGray);
     pen.setWidth(0.5);
     painter.setPen(pen);
     painter.setRenderHint(QPainter::Antialiasing);
-    QBrush handleBrush(QColor(0xFA, 0xFA, 0xFA));
+    QBrush handleBrush(Qt::white);
     painter.setBrush(handleBrush);
     QRectF leftHandleRect = firstHandleRect();
     if(type.testFlag(LeftHandle))
-        painter.drawRoundedRect(leftHandleRect, 2, 2);
+        painter.drawRoundedRect(leftHandleRect, 0, 0);
 
     // Second value handle rect
     QRectF rightHandleRect = secondHandleRect();
-    if(type.testFlag(RightHandle))
-        painter.drawRoundedRect(rightHandleRect, 2, 2);
+    if(type.testFlag(RightHandle)) {
+        painter.drawRoundedRect(rightHandleRect, 0, 0);
+    }
 
     // Handles
     painter.setRenderHint(QPainter::Antialiasing, false);
@@ -93,6 +100,24 @@ void RangeSlider::paintEvent(QPaintEvent* aEvent)
     QBrush selectedBrush(mBackgroudColor);
     painter.setBrush(selectedBrush);
     painter.drawRect(selectedRect);
+    
+    //right rectangle color
+    if(orientation == Qt::Horizontal) {
+        QBrush rightSide(signalColor);
+        painter.setBrush(rightSide);
+        QRectF rightRect(backgroundRect);
+        rightRect.setLeft((type.testFlag(RightHandle) ? rightHandleRect.left() : rightHandleRect.right()) + 0.5);
+        painter.drawRect(rightRect);
+    }
+
+    //for left color
+    if(orientation == Qt::Horizontal) {
+        QBrush rightSide(noiseColor);
+        painter.setBrush(rightSide);
+        QRectF rightRect(backgroundRect);
+        rightRect.setRight((type.testFlag(LeftHandle) ? leftHandleRect.right() : leftHandleRect.left()) + 0.5);
+        painter.drawRect(rightRect);
+    }
 }
 
 QRectF RangeSlider::firstHandleRect() const
@@ -212,10 +237,17 @@ void RangeSlider::changeEvent(QEvent* aEvent)
         if(isEnabled())
         {
             mBackgroudColor = mBackgroudColorEnabled;
+            double alpha = 0.7;
+            noiseColor = Qt::red;
+            noiseColor.setAlphaF(alpha);
+            signalColor = Qt::green;
+            signalColor.setAlphaF(alpha);
         }
         else
         {
             mBackgroudColor = mBackgroudColorDisabled;
+            signalColor = mBackgroudColorDisabled;
+            noiseColor = mBackgroudColorDisabled;
         }
         update();
     }
@@ -280,7 +312,7 @@ void RangeSlider::setLowerValue(int aLowerValue)
 
     mLowerValue = aLowerValue;
     emit lowerValueChanged(mLowerValue);
-
+    emit rangeChanged(mLowerValue, mUpperValue);
     update();
 }
 
@@ -298,7 +330,7 @@ void RangeSlider::setUpperValue(int aUpperValue)
 
     mUpperValue = aUpperValue;
     emit upperValueChanged(mUpperValue);
-
+    emit rangeChanged(mLowerValue, mUpperValue);
     update();
 }
 

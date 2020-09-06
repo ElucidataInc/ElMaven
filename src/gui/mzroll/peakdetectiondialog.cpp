@@ -16,6 +16,7 @@
 #include "tabledockwidget.h"
 #include "pollyelmaveninterface.h"
 #include "superSlider.h"
+#include "mzUtils.h"
 
 PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
 {
@@ -208,7 +209,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                         modelTypes->setEnabled(false);
                     }
                 });
-
+        connect (slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
         connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
@@ -288,6 +289,22 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
     ppmStep->setSuffix(suffix);
     compoundPPMWindow->setSuffix(suffix);
     emit updateSettings(peakSettings);
+}
+
+void PeakDetectionDialog::updateCurationParameter(int lowerRange, int upperRange)
+{
+    float noiseLimit = lowerRange/10.0;
+    float maybeGoodLimit = upperRange/10.0;
+    
+    QString noiseLabel= "Noise Range: 0.0 - ";
+    noiseLabel += QString::fromStdString(mzUtils::float2string(noiseLimit, 1));
+    noiseRange->setText(noiseLabel);
+
+    QString signalLabel= "Signal Range: ";
+    signalLabel += QString::fromStdString(mzUtils::float2string(maybeGoodLimit, 1));
+    signalLabel += " - 1.0";
+    signalRange->setText(signalLabel);
+
 }
 
 void PeakDetectionDialog::setQuantType(QString type)
