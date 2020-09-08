@@ -992,6 +992,7 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                 child->deletePeak(sample);
         }
 
+        delete_all(eics);
         if (child->peakCount() == 0) {
             emptyChildren.push_back(child.get());
             continue;
