@@ -1763,6 +1763,15 @@ void MainWindow::open()
     } else if (!sampleCount && projectCount) {
         if (projectCount > 1) {
             filelist << projectList[0];
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("El-MAVEN");
+            msgBox.setText("It seems you are trying to load more than one project"
+                        " files at once.\n El-MAVEN is capable of loading one project"
+                        " file at a time into the session.\n\n"
+                        "Loading... \n" + projectList[0]);
+            msgBox.setIcon(QMessageBox::Warning);
+            QPushButton* b = msgBox.addButton("Okay", QMessageBox::AcceptRole);
+            msgBox.exec();
         } else {
             filelist = projectList;
         }
