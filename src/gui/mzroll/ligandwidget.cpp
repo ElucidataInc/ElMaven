@@ -89,7 +89,11 @@ LigandWidget::LigandWidget(MainWindow* mw)
     while(itr.hasNext()) {
         auto filename = itr.next().toStdString();
         string dbname = mzUtils::cleanFilename(filename);
-        _mw->massCalcWidget->database->addItem(QString::fromStdString(dbname));
+
+        if (dbname != "Adducts") {
+            _mw->massCalcWidget->database->addItem(
+                QString::fromStdString(dbname));
+        }
 
         QFile file(QString(filename.c_str()));
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
