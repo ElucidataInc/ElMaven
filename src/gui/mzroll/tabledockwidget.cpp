@@ -57,7 +57,9 @@ TableDockWidget::labelsForLegend()
     {PeakGroup::ClassifiedLabel::Signal,
      "Signal"},
     {PeakGroup::ClassifiedLabel::Noise,
-     "Noise"}
+     "Noise"},
+    {PeakGroup::ClassifiedLabel::MaybeGood, 
+      "May be good signal"}
   };
   return labels;
 }
@@ -76,6 +78,8 @@ TableDockWidget::iconsForLegend()
      QIcon(":/images/good.png")},
     {PeakGroup::ClassifiedLabel::Noise,
      QIcon(":/images/bad.png")},
+    {PeakGroup::ClassifiedLabel::MaybeGood,
+     QIcon(":/images/maybeGood.png")},
   };
   return icons;
 }
@@ -528,7 +532,10 @@ void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
                     Qt::UserRole,
                     QVariant::fromValue(castLabel));
     } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::MaybeGood){
-        // add icon.
+      QString castLabel = "PeakGroup::ClassifiedLabel::MaybeGood";
+      item->setData(0,
+                    Qt::UserRole,
+                    QVariant::fromValue(castLabel));
     } else {
       QString castLabel = "PeakGroup::ClassifiedLabel::None";
       item->setData(0,
@@ -931,6 +938,7 @@ TableDockWidget::countBySubsets()
   insertCountForSubset(PeakTableSubsetType::Correlated);
   insertCountForSubset(PeakTableSubsetType::Variance);
   insertCountForSubset(PeakTableSubsetType::CorrelatedVariance);
+  insertCountForSubset(PeakTableSubsetType::MaybeGood);
 
   return numItemsPerSubset;
 }
@@ -983,7 +991,10 @@ void TableDockWidget::filterForSelectedLabels()
       selectedSubsets.append(PeakTableSubsetType::Variance);
     if (predictionLabel == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
       selectedSubsets.append(PeakTableSubsetType::CorrelatedVariance);
+    if (predictionLabel == PeakGroup::ClassifiedLabel::MaybeGood)
+      selectedSubsets.append(PeakTableSubsetType::MaybeGood);
   }
+  
   selectedSubsets.append(PeakTableSubsetType::Unmarked);
   showOnlySubsets(selectedSubsets);
 }
@@ -1590,6 +1601,7 @@ TableDockWidget::_peakTableGroupedBySubsets() {
   QList<QTreeWidgetItem*> correlatedItems;
   QList<QTreeWidgetItem*> varianceItems;
   QList<QTreeWidgetItem*> correlatedVarianceItems;
+  QList<QTreeWidgetItem*> maybeGoodItems;
 
   QTreeWidgetItemIterator itr(treeWidget);
   while (*itr) {
@@ -1623,6 +1635,8 @@ TableDockWidget::_peakTableGroupedBySubsets() {
         varianceItems.append(item);
       if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
         correlatedVarianceItems.append(item);
+      if (label == PeakGroup::ClassifiedLabel::MaybeGood)
+        maybeGoodItems.append(item);
     }
     ++itr;
   }
@@ -1638,6 +1652,8 @@ TableDockWidget::_peakTableGroupedBySubsets() {
   itemsBySubset.insert(PeakTableSubsetType::Variance, varianceItems);
   itemsBySubset.insert(PeakTableSubsetType::CorrelatedVariance,
                        correlatedVarianceItems);
+  itemsBySubset.insert(PeakTableSubsetType::MaybeGood,
+                       maybeGoodItems);
 
   return itemsBySubset;
 }

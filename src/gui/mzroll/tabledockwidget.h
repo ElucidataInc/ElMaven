@@ -90,7 +90,8 @@ public:
       Unmarked = 5,
       Correlated = 6,
       Variance = 7,
-      CorrelatedVariance = 8
+      CorrelatedVariance = 8, 
+      MaybeGood = 9
   };
 
   static const QMap<PeakGroup::ClassifiedLabel, QString> labelsForLegend();

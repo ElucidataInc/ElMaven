@@ -95,5 +95,6 @@
         <file>images/moi_correlated.png</file>
         <file>images/moi_pattern_correlated.png</file>
         <file>images/moi_pattern.png</file>
+        <file>images/maybeGood.png</file>
     </qresource>
 </RCC>
