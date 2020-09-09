@@ -3,7 +3,6 @@
 #include <QRegExp>
 #include <qcustomplot.h>
 
-#include "json.hpp"
 #include "SRMList.h"
 #include "adductwidget.h"
 #include "alignmentdialog.h"
@@ -56,7 +55,6 @@
 #include "videoplayer.h"
 #include "eiclogic.h"
 
-using json = nlohmann::json;
 
 #ifdef WIN32
 #include <windows.h>
@@ -1763,15 +1761,6 @@ void MainWindow::open()
     } else if (!sampleCount && projectCount) {
         if (projectCount > 1) {
             filelist << projectList[0];
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("El-MAVEN");
-            msgBox.setText("It seems you are trying to load more than one project"
-                        " files at once.\n El-MAVEN is capable of loading one project"
-                        " file at a time into the session.\n\n"
-                        "Loading... \n" + projectList[0]);
-            msgBox.setIcon(QMessageBox::Warning);
-            QPushButton* b = msgBox.addButton("Okay", QMessageBox::AcceptRole);
-            msgBox.exec();
         } else {
             filelist = projectList;
         }
@@ -2399,9 +2388,14 @@ int MainWindow::loadMetaCsvFile(string filename){
 
     ifstream myfile(filename.c_str());
 
-    ifstream xkcdColors("src/gui/mzroll/databases/xkcd-colors.json");
-    json rootxkcdColors = json::parse(xkcdColors);
+    QFile xkcdColorsFile;
+    xkcdColorsFile.setFileName(":/databases/xkcd-colors.json");
+    xkcdColorsFile.open(QIODevice::ReadOnly | QIODevice::Text);
 
+    auto xkcdColors = xkcdColorsFile.readAll();
+    QJsonDocument colorsDoc = QJsonDocument::fromJson(xkcdColors);
+    QJsonObject  rootxkcdColors = colorsDoc.object();
+    
     if (! myfile.is_open()) return 0;
 
     string line;
@@ -2494,35 +2488,34 @@ int MainWindow::loadMetaCsvFile(string filename){
 
         }
 
-        qreal redF, greenF, blueF, alpha;
+        qreal redF = -1;
+        qreal greenF = -1;
+        qreal blueF = -1;
+        qreal alpha = -1;
         if (header.count("color") && header["color"] < N) {
 
             string colorName = fields[header["color"]];
-            redF = -1;
-            greenF = -1;
-            blueF = -1;
-            alpha = -1;
             QColor color;
             
-            if(colorName.empty()) 
-                continue;    
-            if (colorName[0] == '#') {
-                color.setNamedColor(QString::fromStdString(colorName));
-                color.getRgbF(&redF, &greenF, &blueF, &alpha);
-            } else {
-                try {
+            if(!colorName.empty()) {
+                
+                if (colorName[0] == '#') {
+                    color.setNamedColor(QString::fromStdString(colorName));
+                    color.getRgbF(&redF, &greenF, &blueF, &alpha);
+                } else {
                     if (colorName[0] == '"')
                         colorName = colorName.substr(1, colorName.size()-1);
 
                     transform(colorName.begin(), colorName.end(), colorName.begin(), ::tolower);
-                    string hexValue = rootxkcdColors.at(colorName);
-                    color.setNamedColor(QString::fromStdString(hexValue));
-                    color.getRgbF(&redF, &greenF, &blueF, &alpha);
-                } catch (json::out_of_range e) {
-                    qDebug() << "Color not recognised";
-                }
-                
-            }    
+                    auto colorNameQstring = QString::fromStdString(colorName);
+                    string hexValue = rootxkcdColors.value(colorNameQstring).toString().toStdString();
+            
+                    if (!hexValue.empty()) {
+                        color.setNamedColor(QString::fromStdString(hexValue));
+                        color.getRgbF(&redF, &greenF, &blueF, &alpha);
+                    }
+                }    
+            }
         }
 
         if (sampleName.isEmpty()) continue;
