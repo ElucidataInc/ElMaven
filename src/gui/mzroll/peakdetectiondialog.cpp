@@ -192,11 +192,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SLOT(setValue(double)));
 
         peakMl->setChecked(false);
-        QHBoxLayout* _layout;
-        _layout = new QHBoxLayout;
         slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
-        _layout->addWidget(slider);
-        peakMl->setLayout(_layout);
+        gridLayout_6->addWidget(slider);
         connect(peakMl, &QGroupBox::toggled,
                 [this](const bool checked)
                 {

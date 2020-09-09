@@ -7,7 +7,7 @@ namespace
 
 const int scHandleSideLength = 11;
 const int scSliderBarHeight = 5;
-const int scLeftRightMargin = 135;
+const int scLeftRightMargin = 80;
 
 }
 
@@ -47,7 +47,6 @@ RangeSlider::RangeSlider(Qt::Orientation ori, Options t, QWidget* aParent)
     mBackgroudColor = mBackgroudColorEnabled;
     setLowerValue(2);
     SetUpperValue(7);
-
     setMouseTracking(true);
 }
 
@@ -59,7 +58,7 @@ void RangeSlider::paintEvent(QPaintEvent* aEvent)
     // Background
     QRectF backgroundRect;
     if(orientation == Qt::Horizontal)
-        backgroundRect = QRectF(scLeftRightMargin, (height() + 50 - scSliderBarHeight) / 2, width() - scLeftRightMargin * 2, scSliderBarHeight);
+        backgroundRect = QRectF(scLeftRightMargin + 50, (height() - scSliderBarHeight) / 2, width() + 100 - (scLeftRightMargin + 50) * 2, scSliderBarHeight);
     else
         backgroundRect = QRectF((width() - scSliderBarHeight) / 2, scLeftRightMargin, scSliderBarHeight, height() - scLeftRightMargin*2);
 
@@ -75,7 +74,7 @@ void RangeSlider::paintEvent(QPaintEvent* aEvent)
     pen.setWidth(0.5);
     painter.setPen(pen);
     painter.setRenderHint(QPainter::Antialiasing);
-    QBrush handleBrush(Qt::white);
+    QBrush handleBrush(Qt::white, Qt::SolidPattern);
     painter.setBrush(handleBrush);
     QRectF leftHandleRect = firstHandleRect();
     if(type.testFlag(LeftHandle))
@@ -106,36 +105,36 @@ void RangeSlider::paintEvent(QPaintEvent* aEvent)
         QBrush rightSide(signalColor);
         painter.setBrush(rightSide);
         QRectF rightRect(backgroundRect);
-        rightRect.setLeft((type.testFlag(RightHandle) ? rightHandleRect.left() : rightHandleRect.right()) + 0.5);
+        rightRect.setLeft((type.testFlag(RightHandle) ? rightHandleRect.left() + 11.0 : rightHandleRect.right()));
         painter.drawRect(rightRect);
     }
 
     //for left color
     if(orientation == Qt::Horizontal) {
-        QBrush rightSide(noiseColor);
-        painter.setBrush(rightSide);
-        QRectF rightRect(backgroundRect);
-        rightRect.setRight((type.testFlag(LeftHandle) ? leftHandleRect.right() : leftHandleRect.left()) + 0.5);
-        painter.drawRect(rightRect);
+        QBrush leftSide(noiseColor);
+        painter.setBrush(leftSide);
+        QRectF leftRect(backgroundRect);
+        leftRect.setRight((type.testFlag(LeftHandle) ? leftHandleRect.right() - 11: leftHandleRect.left()));
+        painter.drawRect(leftRect);
     }
 }
 
 QRectF RangeSlider::firstHandleRect() const
 {
     float percentage = (mLowerValue - mMinimum) * 1.0 / mInterval;
-    return handleRect(percentage * validLength() + scLeftRightMargin);
+    return handleRect(percentage * validLength() + scLeftRightMargin + 50);
 }
 
 QRectF RangeSlider::secondHandleRect() const
 {
     float percentage = (mUpperValue - mMinimum) * 1.0 / mInterval;
-    return handleRect(percentage * validLength() + scLeftRightMargin + (type.testFlag(LeftHandle) ? scHandleSideLength : 0));
+    return handleRect(percentage * validLength() + scLeftRightMargin + 50 + (type.testFlag(LeftHandle) ? scHandleSideLength : 0));
 }
 
 QRectF RangeSlider::handleRect(int aValue) const
 {
     if(orientation == Qt::Horizontal)
-        return QRect(aValue, (height() + 50 -scHandleSideLength) / 2, scHandleSideLength, scHandleSideLength);
+        return QRect(aValue, (height() -scHandleSideLength) / 2, scHandleSideLength, scHandleSideLength);
     else
         return QRect((width()-scHandleSideLength) / 2, aValue, scHandleSideLength, scHandleSideLength);
 }
@@ -146,7 +145,7 @@ void RangeSlider::mousePressEvent(QMouseEvent* aEvent)
     {
         int posCheck, posMax, posValue, firstHandleRectPosValue, secondHandleRectPosValue;
         posCheck = (orientation == Qt::Horizontal) ? aEvent->pos().y() : aEvent->pos().x();
-        posMax = (orientation == Qt::Horizontal) ? height() : width();
+        posMax = (orientation == Qt::Horizontal) ? height() : width() + 100;
         posValue = (orientation == Qt::Horizontal) ? aEvent->pos().x() : aEvent->pos().y();
         firstHandleRectPosValue = (orientation == Qt::Horizontal) ? firstHandleRect().x() : firstHandleRect().y();
         secondHandleRectPosValue = (orientation == Qt::Horizontal) ? secondHandleRect().x() : secondHandleRect().y();
@@ -201,7 +200,7 @@ void RangeSlider::mouseMoveEvent(QMouseEvent* aEvent)
         {
             if(posValue - mDelta + scHandleSideLength / 2 <= secondHandleRectPosValue)
             {
-                setLowerValue((posValue - mDelta - scLeftRightMargin - scHandleSideLength / 2) * 1.0 / validLength() * mInterval + mMinimum);
+                setLowerValue((posValue - mDelta - scLeftRightMargin + 50 - scHandleSideLength / 2) * 1.0 / validLength() * mInterval + mMinimum);
             }
             else
             {
@@ -212,7 +211,7 @@ void RangeSlider::mouseMoveEvent(QMouseEvent* aEvent)
         {
             if(firstHandleRectPosValue + scHandleSideLength * (type.testFlag(DoubleHandles) ? 1.5 : 0.5) <= posValue - mDelta)
             {
-                setUpperValue((posValue - mDelta - scLeftRightMargin - scHandleSideLength / 2 - (type.testFlag(DoubleHandles) ? scHandleSideLength : 0)) * 1.0 / validLength() * mInterval + mMinimum);
+                setUpperValue((posValue - mDelta - scLeftRightMargin + 50 - scHandleSideLength / 2 - (type.testFlag(DoubleHandles) ? scHandleSideLength : 0)) * 1.0 / validLength() * mInterval + mMinimum);
             }
             else
             {
@@ -378,8 +377,8 @@ void RangeSlider::setMaximum(int aMaximum)
 
 int RangeSlider::validLength() const
 {
-    int len = (orientation == Qt::Horizontal) ? width() : height();
-    return len - scLeftRightMargin * 2 - scHandleSideLength * (type.testFlag(DoubleHandles) ? 2 : 1);
+    int len = (orientation == Qt::Horizontal) ? width() + 100: height();
+    return len - (scLeftRightMargin + 50)* 2 - scHandleSideLength * (type.testFlag(DoubleHandles) ? 2 : 1);
 }
 
 void RangeSlider::SetRange(int aMinimum, int mMaximum)
