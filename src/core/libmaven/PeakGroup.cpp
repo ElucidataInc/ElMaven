@@ -44,6 +44,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     sampleMean=0;
 
     deletedFlag = false;
+    isHiddenFromTable = false;
 
     totalSampleCount=0;
     maxNoNoiseObs=0;
@@ -1083,6 +1084,8 @@ void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
 {
     _predictedLabel = label;
     if (_predictedLabel == ClassifiedLabel::None) {
+        this->_userLabel = '\0';
+    } else if (_predictedLabel == ClassifiedLabel::MaybeGood) {
         this->_userLabel = '\0';
     } else if (_predictedLabel == ClassifiedLabel::Noise) {
         this->_userLabel = 'b';

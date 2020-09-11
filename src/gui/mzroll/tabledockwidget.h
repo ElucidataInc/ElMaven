@@ -91,7 +91,8 @@ public:
       Correlated = 6,
       Variance = 7,
       CorrelatedVariance = 8, 
-      MaybeGood = 9
+      MaybeGood = 9, 
+      Displayed = 10
   };
 
   static const QMap<PeakGroup::ClassifiedLabel, QString> labelsForLegend();
@@ -220,6 +221,8 @@ public slots:
   virtual void setupPeakTable();
   shared_ptr<PeakGroup> getSelectedGroup();
   QList<shared_ptr<PeakGroup>> getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> getDisplayedGroups();
+
 
   void showFocusedGroups();
   void clearFocusedGroups();
@@ -257,6 +260,18 @@ public slots:
 
   inline void wholePeakSet() {
     peakTableSelection = PeakTableSubsetType::Whole;
+  };
+
+  inline void maybeGoodPeakset() {
+    peakTableSelection = PeakTableSubsetType::MaybeGood;
+  };
+
+  inline void displayedPeakSet() {
+    peakTableSelection = PeakTableSubsetType::Displayed;
+  };
+
+  inline void excludeBadPeaks() {
+    peakTableSelection = PeakTableSubsetType::ExcludeBad;
   };
 
   /**

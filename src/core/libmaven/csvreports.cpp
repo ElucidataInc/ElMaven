@@ -180,7 +180,7 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
     }
 }
 
-void CSVReports::addGroup(PeakGroup* group)
+void CSVReports::addGroup(PeakGroup* group, bool tableClassified)
 {
     if (_reportType == ReportType::PeakReport) {
         _writePeakInfo(group);
@@ -191,15 +191,15 @@ void CSVReports::addGroup(PeakGroup* group)
     }
 
     if (_reportType == ReportType::GroupReport) {
-        _writeGroupInfo(group);
+        _writeGroupInfo(group, tableClassified);
         for (auto subGroup : group->childIsotopes())
-            _writeGroupInfo(subGroup.get());
+            _writeGroupInfo(subGroup.get(), tableClassified);
         for (auto subGroup : group->childAdducts())
-            _writeGroupInfo(subGroup.get());
+            _writeGroupInfo(subGroup.get(), tableClassified);
     }
 }
 
-void CSVReports::_writeGroupInfo(PeakGroup* group)
+void CSVReports::_writeGroupInfo(PeakGroup* group, bool tableClassified)
 {
     if (!_reportStream.is_open())
         return;
@@ -262,8 +262,10 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     }
 
     char label = group->userLabel();
-    if (group->parent != nullptr && !group->parent->isGhost())
-        label = group->parent->userLabel();
+    if (!tableClassified) {
+        if (group->parent != nullptr && !group->parent->isGhost())
+            label = group->parent->userLabel();
+    } 
     if (selectionFlag == 2) {
         if (label != 'g')
             return;
@@ -273,6 +275,9 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     } else if (selectionFlag == 4) {
         if (label == 'b')
             return;
+    } else if ( selectionFlag == 10) {
+        if (group->isHiddenFromTable)
+            return;
     }
 
     vector<float> yvalues = group->getOrderedIntensityVector(samples, _qtype);
@@ -281,7 +286,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     tagString = _sanitizeString(tagString.c_str()).toStdString();
 
     char labelStr[2];
-    sprintf(labelStr, "%c", group->userLabel());
+    sprintf(labelStr, "%c", label);
 
     string adductName = "";
     if (group->adduct() != nullptr && !group->isIsotope())

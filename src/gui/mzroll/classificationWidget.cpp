@@ -33,6 +33,34 @@ void ClassificationWidget::showClassification()
 {
     setTitle();
 
+    if (_group->isGhost()) {
+        QFont font = QApplication::font();
+        font.setPixelSize(24);
+        QGraphicsTextItem* noPeaksMessage =
+            _scene.addText("Empty groups are not classified.", font);
+
+        auto messageBounds = noPeaksMessage->boundingRect();
+        int messageWidth = messageBounds.width();
+        int messageHeight = messageBounds.height();
+        int xPos = (_scene.width() / 2) - (messageWidth / 2);
+        int yPos = (_scene.height() / 2) - (messageHeight / 2);
+        noPeaksMessage->setPos(xPos, yPos);
+        noPeaksMessage->setDefaultTextColor(Qt::white);
+
+        QPainterPath path;
+        messageBounds.setHeight(messageBounds.height() + 12);
+        messageBounds.setWidth(messageBounds.width() + 24);
+        path.addRoundedRect(messageBounds, 8, 8);
+        QGraphicsPathItem* boundingRect = _scene.addPath(path,
+                                                        QPen(Qt::darkGray),
+                                                        QBrush(Qt::darkGray));
+        boundingRect->setPos(xPos - 12, yPos - 6);
+        boundingRect->setZValue(999);
+        noPeaksMessage->setZValue(1000);
+        _inferenceVisual->exec();
+        return;
+    }
+
     auto predictionInference = _group->predictionInference();
 
     int counter = 0;

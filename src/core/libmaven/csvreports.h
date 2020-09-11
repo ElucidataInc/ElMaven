@@ -75,7 +75,7 @@ class CSVReports
         /**
          *@brief-    add group for writing csv about
          */
-        void addGroup(PeakGroup* group);
+        void addGroup(PeakGroup* group, bool tableClassified = false);
 
         QString getErrorReport(void)
         {
@@ -111,7 +111,8 @@ class CSVReports
         /**
          *@brief-  helper function to write group info
          */
-        void _writeGroupInfo(PeakGroup* group);
+        void _writeGroupInfo(PeakGroup* group,
+                            bool tableClassified);
         /**
          *@brief-  helper function to write peak info
          */

@@ -151,6 +151,8 @@ class PeakGroup{
         float meanRt;
         float meanMz;
         int totalSampleCount;
+        /* Hidden when filtered out in classified table */
+        bool isHiddenFromTable;
 
         int  ms2EventCount;
 
