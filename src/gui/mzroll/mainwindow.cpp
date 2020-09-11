@@ -1580,10 +1580,14 @@ void MainWindow::searchForQuery()
         eicWidget->setFocusLine(-1.0f);
         setMzValue(precursorMz, productMz);
         eicWidget->resetZoom();
+        return;
     }
+
+    setMzValue();
 }
 
-void MainWindow::setMzValue() {
+void MainWindow::setMzValue()
+{
 	bool isDouble = false;
 	vector<string> values;
         values = mzUtils::split(searchText->text().toStdString(), "-");
@@ -1596,16 +1600,10 @@ void MainWindow::setMzValue() {
 		mz2 = value2.toDouble(&isDouble2);
 	}
 
-	if (isDouble) {
-		if (eicWidget->isVisible())
-			eicWidget->setMzSlice(mz1, mz2);
-		if (massCalcWidget->isVisible())
-			massCalcWidget->setMass(mz1);
-		if (fragPanel->isVisible())
-			showFragmentationScans(mz1);
-	}
+    if (isDouble)
+        setMzValue(mz1, mz2);
+
 	suggestPopup->addToHistory(QString::number(mz1, 'f', 5));
-	connect(searchText, SIGNAL(returnPressed()), getEicWidget(), SLOT(resetZoom()));	
 }
 
 void MainWindow::setMzValue(float mz1, float mz2)
