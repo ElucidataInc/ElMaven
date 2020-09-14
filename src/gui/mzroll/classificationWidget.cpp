@@ -61,6 +61,8 @@ void ClassificationWidget::showClassification()
         return;
     }
 
+    showLegend();
+
     auto predictionInference = _group->predictionInference();
 
     int counter = 0;
@@ -326,6 +328,33 @@ void ClassificationWidget::setTitle()
     int titleWidth = title->boundingRect().width();
     title->setPos(_scene.width() / 2 - titleWidth / 2, 10);
     title->update();
+}
+
+void ClassificationWidget::showLegend()
+{
+    QFont font = QApplication::font();
+    int pxSize = _scene.height() * 0.03;
+    if (pxSize < 14)
+        pxSize = 14;
+    if (pxSize > 20)
+        pxSize = 20;
+    font.setPixelSize(pxSize);
+    
+    QString legendString = "Attributes contributing noise";
+    QGraphicsTextItem* legend = _scene.addText(legendString, font);
+    QGraphicsRectItem* square = new QGraphicsRectItem(_scene.width() - 120,30,10,10);
+    square->setBrush(QBrush(Qt::red));
+    _scene.addItem(square);
+    legend->setPos(_scene.width() - 100, 20);
+    legend->update();
+
+    legendString = "Attributes contributing signal";
+    legend = _scene.addText(legendString, font);
+    square = new QGraphicsRectItem(_scene.width() - 120,50,10,10);
+    square->setBrush(QBrush(Qt::blue));
+    _scene.addItem(square);
+    legend->setPos(_scene.width() - 100, 40);
+    legend->update();
 }
 
 void ClassificationWidget::setOutputValue()
