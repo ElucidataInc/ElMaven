@@ -155,9 +155,9 @@ void TestCLI::testReduceGroups() {
 	if (peakdetectorCLI->mavenParameters->compounds.size()) {
         peakdetectorCLI->peakDetector->processCompounds(
             peakdetectorCLI->mavenParameters->compounds);
-        QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 23);
+        QCOMPARE(static_cast<int>(peakdetectorCLI->mavenParameters->allgroups.size()), 23);
         peakdetectorCLI->reduceGroups();
-        QCOMPARE(peakdetectorCLI->mavenParameters->allgroups.size(), 21);
+        QCOMPARE(static_cast<int>(peakdetectorCLI->mavenParameters->allgroups.size()), 21);
 	}
 
 	delete_all(peakdetectorCLI->mavenParameters->samples);

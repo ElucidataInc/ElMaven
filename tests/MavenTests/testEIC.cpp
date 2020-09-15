@@ -45,15 +45,15 @@ void TestEIC::testgetEICms2() {
     
     EIC* e = NULL;
     e = mzsample->getEIC(195,0,70,0,"",0.5,0.5); //precursorMz,collisionEnergy,productMz,eicType,filterline,amuQ1,amuQ3
-    QCOMPARE(e->rt.size(), 305);
+    QCOMPARE(static_cast<int>(e->rt.size()), 305);
     QCOMPARE(e->scannum[e->scannum.size()-1], 3354);
-    QCOMPARE(e->maxIntensity, 20200);
+    QCOMPARE(static_cast<int>(e->maxIntensity), 20200);
 
     EIC* e2 = NULL;
     e2 = mzsample_2->getEIC(195,0,69,1,"",0.5,0.5);
-    QCOMPARE(e2->rt.size(), 305);
+    QCOMPARE(static_cast<int>(e2->rt.size()), 305);
     QCOMPARE(e2->scannum[e2->scannum.size()-1], 3041);
-    QCOMPARE(e2->maxIntensity, 10600);
+    QCOMPARE(static_cast<int>(e2->maxIntensity), 10600);
 
     EIC* e3 = NULL;
     e3 = mzsample_2->getEIC(195,0,69,1,"",2,2);
