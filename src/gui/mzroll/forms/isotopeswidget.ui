@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>479</width>
+    <width>508</width>
     <height>412</height>
    </rect>
   </property>
@@ -34,7 +34,7 @@
      </widget>
     </item>
     <item row="0" column="0" colspan="6">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,1,0,0,2">
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
@@ -50,10 +50,21 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>0</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="label_3">
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+  margin-left: 12px;
+}</string>
+        </property>
         <property name="text">
          <string>Sample</string>
         </property>
@@ -71,6 +82,11 @@
       </item>
       <item>
        <widget class="QLabel" name="label_2">
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+  margin-left: 12px;
+}</string>
+        </property>
         <property name="text">
          <string>Ionization</string>
         </property>
@@ -85,6 +101,19 @@
          <double>-100.000000000000000</double>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </item>
