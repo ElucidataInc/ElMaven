@@ -3,14 +3,9 @@ sudo: required
 matrix:
   include:
     - os: linux
-      addons:
-        apt:
-          sources:
-            - sourceline: 'deb http://archive.neon.kde.org/user/lts/ xenial main binary-amd64'
-
-      dist: xenial
+      dist: bionic
       language: cpp
-      compiler: gcc-5
+      compiler: gcc-7
       group: deprecated-2017Q2
     - os: osx
       osx_image: xcode9.4
@@ -19,7 +14,7 @@ matrix:
 
 env:
   global:
-    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 
 git:
@@ -99,10 +94,10 @@ script:
     fi
 
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      export CXX="g++-5";
-      export CC="gcc-5";
-      sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc;
-      sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
+      export CXX="g++-7";
+      export CC="gcc-7";
+      sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc;
+      sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-7 /usr/bin/g++;
       g++ -v;
       gcc -v;
 

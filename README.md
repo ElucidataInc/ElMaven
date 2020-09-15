@@ -100,12 +100,7 @@ sudo apt-get install g++
 sudo apt-get install libsqlite3-dev libboost-all-dev lcov libnetcdf-dev
 ```
 
-Please note that, El-MAVEN has not been built on Ubuntu 14.xx or below for some time now and we do intend to support these older platforms. You may or may not be able to compile it successfull if you are running one of these older Ubuntu systems.
-
-**Important:** Execute the command below only if Ubuntu <=16.04 (Required for adding a repository providing Qt >=5.7):
-```
-sudo add-apt-repository 'deb http://archive.neon.kde.org/user/lts/ xenial main binary-amd64'
-```
+Please note that, we do not intend to support El-MAVEN on Ubuntu 16.xx or below anymore. You may or may not be able to compile it successfull if you are running one of these older Ubuntu systems.
 
 We can now finally install Qt framework, along with related libraries and plugins:
 ```
