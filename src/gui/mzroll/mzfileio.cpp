@@ -962,8 +962,9 @@ void mzFileIO::_readPeakTablesFromSQLiteProject(const vector<mzSample*> newSampl
     // same adduct, but from globally shared database instead
     auto assignAdduct = [](PeakGroup* group, Database& db) {
         if (group->adduct() != nullptr && !group->adduct()->getName().empty()) {
+            string adductName = group->adduct()->getName();
             delete group->adduct();
-            group->setAdduct(db.findAdductByName(group->adduct()->getName()));
+            group->setAdduct(db.findAdductByName(adductName));
         }
     };
 

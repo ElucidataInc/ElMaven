@@ -257,7 +257,6 @@ void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
             addRow(rowData, item);
         }
     }
-    // TODO: update group IDs too?
 }
 
 void TableDockWidget::updateTable() {
@@ -627,9 +626,9 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 
 bool TableDockWidget::deleteAll()
 {
-  
   if (!topLevelGroupCount())
     return false;
+
   auto continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
@@ -1726,7 +1725,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::showIntegrationSettings);
 
-  QAction *z4 = menu.addAction("Delete all groups");
+  QAction *z4 = menu.addAction("Delete all groups from this table");
   connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
@@ -2316,11 +2315,9 @@ void PeakTableDockWidget::destroy() {
 
 void PeakTableDockWidget::deleteAll()
 {
-  auto continueDeletion = TableDockWidget::deleteAll();
-  if (!continueDeletion) {
-    return;
-  }
-  destroy();
+  auto allDeleted = TableDockWidget::deleteAll();
+  if (allDeleted)
+    destroy();
 }
 
 void PeakTableDockWidget::cleanUp()
@@ -2600,7 +2597,7 @@ bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
   return false;
 }
 
-void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
+void BookmarkTableDockWidget::_removeGroupHash(PeakGroup *group)
 {
   /**
    * delete name of compound associated with this group stored in
@@ -2611,14 +2608,48 @@ void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
   QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
   QString compoundName = QString::fromStdString(group->getName());
   if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-      for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
-          if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-              sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-              break;
-          }
+    for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
+      if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+        sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+        break;
       }
+    }
   }
+}
+
+void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
+{
+  _removeGroupHash(group);
   TableDockWidget::deleteGroup(group);
+}
+
+void BookmarkTableDockWidget::deleteSelectedItems()
+{
+  int topLevelItemsBeingDeleted = 0;
+  for (auto item : treeWidget->selectedItems()) {
+    if (item->parent() == nullptr)
+      ++topLevelItemsBeingDeleted;
+  }
+
+  // checks if the selected item count is same as the no. of top-level
+  // groups in the table.
+  if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
+    deleteAll();
+    return;
+  }
+
+  for (auto item : treeWidget->selectedItems()) {
+    auto group = groupForItem(item);
+    _removeGroupHash(group.get());
+  }
+  TableDockWidget::deleteSelectedItems();
+}
+
+void BookmarkTableDockWidget::deleteAll()
+{
+  bool allDeleted = TableDockWidget::deleteAll();
+  if (allDeleted)
+    sameMzRtGroups.clear();
 }
 
 void BookmarkTableDockWidget::markGroupGood() {
@@ -2982,7 +3013,15 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
         }
         shared_ptr<PeakGroup> group = sourceTable->groupForItem(parentItem);
         if (group == originalParent) {
-            sourceTable->refreshParentItem(parentItem);
+            if (group->childIsotopeCount() == 0
+                && group->childAdductsCount() == 0) {
+                QSet<QTreeWidgetItem*> itemsToDelete;
+                itemsToDelete.insert(parentItem);
+                sourceTable->_deleteItemsAndGroups(itemsToDelete);
+                sourceTable->updateCompoundWidget();
+            } else {
+                sourceTable->refreshParentItem(parentItem);
+            }
             break;
         }
         ++it;

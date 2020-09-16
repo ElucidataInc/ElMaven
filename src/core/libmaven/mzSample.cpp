@@ -354,7 +354,6 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
                 .value();
         float precursorMz = string2float(precursorMzStr);
         float productMz = string2float(productMzStr);
-        // int mslevel=2;
 
         xml_node activationNode =
             chromatogram.first_element_by_path("precursor/activation");
@@ -363,6 +362,7 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         if (activationParams.count("collision energy"))
             collisionEnergy = string2float(activationParams["collision energy"]);
 
+        int scanPolarity = -1;
         for (xml_node binaryDataArray = binaryDataArrayList.child("binaryDataArray");
              binaryDataArray;
              binaryDataArray =
@@ -377,6 +377,12 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
             bool decompress = false;
             if(attr.count("zlib compression"))
                 decompress=true;
+
+            if (attr.count("positive scan")) {
+                scanPolarity = 1;
+            } else if (attr.count("negative scan")) {
+                scanPolarity = -1;
+            }
 
             string binaryDataStr =
                 binaryDataArray.child("binary").child_value();
@@ -393,22 +399,43 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
             }
         }
 
+        // NOTE: if precursor and product m/z values are present then we treat
+        // this as a MS2 scan (MRM), but if only precursor m/z is present then
+        // we treat this as a SIM (selected ion monitoring) MS1 scan.
         if (precursorMz) {
-            int mslevel = 2;
+            int mslevel = 1;
+            if (productMz > 0.0f)
+                mslevel = 2;
+
             // FIXME: a scan created for each data point! This is extremely
             // wasteful - maybe we should directly create EICs and store them
             // within the sample object for MRM data.
             for (unsigned int i = 0; i < timeVector.size(); i++) {
-                Scan* scan = new Scan(
-                    this, scannum++, mslevel, timeVector[i], precursorMz, -1);
-                scan->productMz = productMz;
+                Scan* scan = new Scan(this,
+                                      scannum++,
+                                      mslevel,
+                                      timeVector[i],
+                                      precursorMz,
+                                      scanPolarity);
+
                 scan->collisionEnergy = collisionEnergy;
-                scan->filterLine = chromatogramId
-                                   + " CE: "
-                                   + to_string(collisionEnergy);
-                sampleNumber = sampleNo;
-                scan->mz.push_back(productMz);
+                if (scan->collisionEnergy > 0.0f) {
+                    scan->filterLine = chromatogramId
+                                       + " CE: "
+                                       + to_string(collisionEnergy);
+                } else {
+                    scan->filterLine = chromatogramId;
+                }
+
+                scan->productMz = productMz;
+                if (productMz > 0.0f) {
+                    scan->mz.push_back(productMz);
+                } else {
+                    scan->mz.push_back(precursorMz);
+                }
+
                 scan->intensity.push_back(intsVector[i]);
+                sampleNumber = sampleNo;
                 addScan(scan);
             }
         }

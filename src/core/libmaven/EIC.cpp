@@ -1234,9 +1234,13 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
         Scan *scan = *(scanItr);
         scanNum++;
 
+        float precursorMz = scan->precursorMz;
+
         if (!(scan->filterLine == filterline || filterline == ""))
             continue;
         if (scan->mslevel != mslevel)
+            continue;
+        if (precursorMz > 0.0f && (precursorMz < mzmin || precursorMz > mzmax))
             continue;
         if (scan->rt < rtmin)
             continue;

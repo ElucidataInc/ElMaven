@@ -1140,20 +1140,23 @@ void EicWidget::setTitle() {
 		tagString = QString(eicParameters->_slice.srmId.c_str());
 	}
 
-    QString m1 = QString::number(eicParameters->_slice.mzmin, 'f', 4);
-    QString m2 = QString::number(eicParameters->_slice.mzmax, 'f', 4);
-    if (eicParameters->_slice.compound != nullptr
-        && eicParameters->_slice.compound->productMz() > 0.0f) {
-        m1 = QString::number(eicParameters->_slice.compound->precursorMz(),
-                             'f',
-                             3);
-        m1 = "prec=" + m1;
-        m2 = QString::number(eicParameters->_slice.compound->productMz(),
-                             'f',
-                             3);
-        m2 = "prod=" + m2;
+    QString titleText = "<b>" + tagString + "</b>";
+    if (eicParameters->_slice.srmId.empty()) {
+        QString m1 = QString::number(eicParameters->_slice.mzmin, 'f', 4);
+        QString m2 = QString::number(eicParameters->_slice.mzmax, 'f', 4);
+        if (eicParameters->_slice.compound != nullptr
+            && eicParameters->_slice.compound->productMz() > 0.0f) {
+            m1 = QString::number(eicParameters->_slice.compound->precursorMz(),
+                                 'f',
+                                 3);
+            m1 = "prec=" + m1;
+            m2 = QString::number(eicParameters->_slice.compound->productMz(),
+                                 'f',
+                                 3);
+            m2 = "prod=" + m2;
+        }
+        titleText = tr("<b>%1</b> (m/z: %2 ‐ %3)").arg(tagString, m1, m2);
     }
-    QString titleText = tr("<b>%1</b> (m/z: %2 ‐ %3)").arg(tagString, m1, m2);
 
 	QGraphicsTextItem* title = scene()->addText(titleText, font);
 	title->setHtml(titleText);
@@ -1179,7 +1182,7 @@ void EicWidget::_drawNoPeaksMessage()
     QFont font = QApplication::font();
     font.setPixelSize(24);
     QGraphicsTextItem* noPeaksMessage =
-        scene()->addText("No peaks in this group", font);
+        scene()->addText("No integrated peaks found for this group", font);
 
     auto messageBounds = noPeaksMessage->boundingRect();
     int messageWidth = messageBounds.width();
@@ -1802,6 +1805,9 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event)
 	QMenu options("Options");
 
 	SettingsForm* settingsForm = getMainWindow()->settingsForm;
+
+    if (scene()->mouseGrabberItem() != nullptr)
+        return;
 
     QAction* d = menu.addAction("Peak grouping options");
     connect(d,

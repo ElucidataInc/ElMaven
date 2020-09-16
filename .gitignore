@@ -39,6 +39,7 @@ build
 build.pro.user
 coverage
 coverage.info
+reports/
 
 # Unused Makefiles
 Makefile
