@@ -203,7 +203,8 @@ void PeakDetector::processMassSlices(const vector<Compound*>& identificationSet)
                                   [](mzSample* sample) {
                                       return sample->diaScanCount() > 0;
                                   });
-    if (foundDiaSample != end(mavenParameters->samples)) {
+    if (foundDiaSample != end(mavenParameters->samples)
+        && mavenParameters->matchFragmentationFlag) {
         sendBoostSignal("Detecting fragments…", 0, 0);
         for (size_t i = 0; i < mavenParameters->allgroups.size(); ++i) {
             PeakGroup group = mavenParameters->allgroups.at(i);
