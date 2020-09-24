@@ -40,7 +40,7 @@
 #include "peakdetector.h"
 #include "backgroundopsthread.h"
 #include "classificationWidget.h"
-
+#include "relabelGroupsDialog.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
@@ -79,7 +79,7 @@ TableDockWidget::iconsForLegend()
     {PeakGroup::ClassifiedLabel::Noise,
      QIcon(":/images/bad.png")},
     {PeakGroup::ClassifiedLabel::MaybeGood,
-     QIcon(":/images/maybeGood.png")},
+     QIcon(":/images/maybeGood.png")}
   };
   return icons;
 }
@@ -131,6 +131,9 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
     hasClassifiedGroups = true;
   else 
     hasClassifiedGroups = false;
+  
+  badGroupLimit = _mainwindow->mavenParameters->badGroupLimit;
+  maybeGoodGroupLimit = _mainwindow->mavenParameters->maybeGoodGroupLimit;
 
   setWidget(treeWidget);
   setupPeakTable();
@@ -182,6 +185,7 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
 
   setAcceptDrops(true);
   _cycleInProgress = false;
+  
 }
 
 TableDockWidget::~TableDockWidget() {
@@ -985,6 +989,11 @@ void TableDockWidget::filterForSelectedLabels()
 {
   QList<PeakTableSubsetType> selectedSubsets;
   auto selectedLabels = _legend->selectedTexts();
+
+  if (selectedLabels.contains("Re-Label")) {
+    showRelabelWidget();
+    return;
+  }
   for (auto& label : selectedLabels) {  
     auto predictionLabel = labelsForLegend().key(label);
     if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
@@ -2637,6 +2646,79 @@ void TableDockWidget::setupFiltersDialog() {
   filtersDialog->setLayout(layout);
 }
 
+void TableDockWidget::showRelabelWidget()
+{
+  RelabelGroupsDialog* relabelDialog = new RelabelGroupsDialog(this);
+}
+
+void TableDockWidget::relabelGroups(float changedBadLimit, float changedMaybeGoodLimit)
+{
+  disconnect(_legend,
+              &MultiSelectComboBox::selectionChanged,
+              this,
+              &TableDockWidget::filterForSelectedLabels);
+  
+  if (changedBadLimit == badGroupLimit 
+      && changedMaybeGoodLimit == maybeGoodGroupLimit) {
+    QMessageBox::warning(this,
+                          "No Change!",
+                          "The curation parameters you entered are same as" 
+                          " in classified table.\nYou may change the range"
+                          " and try again.\n");
+   _legend->uncheckRelabel();
+   connect(_legend,
+              &MultiSelectComboBox::selectionChanged,
+              this,
+              &TableDockWidget::filterForSelectedLabels);
+    return;
+  }
+  badGroupLimit = changedBadLimit;
+  maybeGoodGroupLimit = changedMaybeGoodLimit;
+  auto changePrediction = [&] (PeakGroup* group, 
+                              float changedBadLimit, 
+                              float changedMaybeGoodLimit) {
+
+                                if (group->predictionProbability() < changedBadLimit) {
+                                  group->setPredictedLabel(PeakGroup::ClassifiedLabel::Noise, 
+                                                          group->predictionProbability());
+                                  auto correlatedGroups = group->getCorrelatedGroups();
+                                  correlatedGroups.clear();
+                                  group->setCorrelatedGroups(correlatedGroups);
+                                } else if (group->predictionProbability() >= changedBadLimit
+                                          && group->predictionProbability() < changedMaybeGoodLimit) {
+                                  group->setPredictedLabel(PeakGroup::ClassifiedLabel::MaybeGood, 
+                                                            group->predictionProbability());
+                                  auto correlatedGroups = group->getCorrelatedGroups();
+                                  correlatedGroups.clear();
+                                  group->setCorrelatedGroups(correlatedGroups);
+                                } else {
+                                  if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise
+                                      || group->predictedLabel() == PeakGroup::ClassifiedLabel::MaybeGood) {
+                                        group->setPredictedLabel(PeakGroup::ClassifiedLabel::Signal, 
+                                                                group->predictionProbability());
+                                      }
+                                      
+                                }
+                          };
+
+  auto groups = _topLevelGroups;
+  for (auto &group : groups) {
+    changePrediction(group.get(), 
+                    changedBadLimit,
+                    changedMaybeGoodLimit);
+    for (auto child : group->childIsotopes())
+      changePrediction(child.get(), 
+                      changedBadLimit,
+                      changedMaybeGoodLimit);
+  }
+ _legend->selectAll();
+  showAllGroups();
+  connect(_legend,
+              &MultiSelectComboBox::selectionChanged,
+              this,
+              &TableDockWidget::filterForSelectedLabels);
+}
+
 void TableDockWidget::clearClusters()
 {
   for (auto group : _topLevelGroups)
@@ -3137,15 +3219,17 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
           auto icon = iconsForLegend.value(type);
           legend->addItem(icon, label);
       }
+      legend->addItem(QIcon(":/images/relabel.png"), "Re-Label");
       legend->selectAll();
       setLegend(legend);
       connect(legend,
               &MultiSelectComboBox::selectionChanged,
               this,
               &TableDockWidget::filterForSelectedLabels);
-        toolBar->addWidget(new QLabel("Labels"));
-        toolBar->addWidget(legend);
-        toolBar->addSeparator();
+
+      toolBar->addWidget(new QLabel("Labels"));
+      toolBar->addWidget(legend);
+      toolBar->addSeparator();
   }
   toolBar->addAction(btnSwitchView);
   toolBar->addSeparator();

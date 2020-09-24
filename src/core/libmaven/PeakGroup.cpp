@@ -1136,3 +1136,9 @@ map<int, float> PeakGroup::getCorrelatedGroups() const
 {
     return _correlatedGroups;
 }
+
+void PeakGroup::setCorrelatedGroups(map<int, float> correlatedGroups)
+{
+    _correlatedGroups.clear();
+    _correlatedGroups = correlatedGroups;
+}

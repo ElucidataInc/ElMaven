@@ -64,6 +64,8 @@ public:
   QString writableTempS3Dir;
   ClassificationWidget* classificationWidget;
   bool hasClassifiedGroups;
+  float badGroupLimit;
+  float maybeGoodGroupLimit;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -152,6 +154,7 @@ public:
   int getLabeledGroupCount();
 
   void setLegend(MultiSelectComboBox *legend) { _legend = legend; }
+  MultiSelectComboBox* legend() {return _legend;}
 
   /**
    * @brief Obtain the title of a TableDockWidget, identified by its unique ID.
@@ -211,6 +214,8 @@ public:
    * all the peakgroups from the table at once.
    */ 
   bool deleteAllgroupsWarning();
+
+  void relabelGroups(float badGroupLimit, float maybeGoodGroupLimit);
   
 public slots:
 
@@ -384,6 +389,8 @@ public slots:
   QTreeWidgetItem * itemForGroup(PeakGroup * group);
 
   void refreshParentItem(QTreeWidgetItem* item);
+
+  void showRelabelWidget();
 
 protected:
   MainWindow *_mainwindow;

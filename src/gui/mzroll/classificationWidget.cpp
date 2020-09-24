@@ -7,11 +7,11 @@
 #include "plot_axes.h"
 #include "mzUtils.h"
 
-ClassificationWidget::ClassificationWidget(TableDockWidget *tabledock)
+ClassificationWidget::ClassificationWidget(TableDockWidget *tabledockWidget)
 {
-    _inferenceVisual = new QDialog(tabledock);
+    _inferenceVisual = new QDialog(tabledockWidget);
     _layout = new QVBoxLayout;
-    _tableDock = tabledock;
+    _tableDockWidget = tabledockWidget;
     _scene.setSceneRect(0, 0, 676, 267);
     _sceneView = new QGraphicsView(&_scene);
     _sceneView->setRenderHints(QPainter::Antialiasing);
@@ -20,7 +20,7 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledock)
     _inferenceVisual->resize(QSize(900, 400));
     _inferenceVisual->setWindowTitle("Classification inference");
 
-    _group = _tableDock->getSelectedGroup().get();
+    _group = _tableDockWidget->getSelectedGroup().get();
     _sumNegativeWeights = 0;
     _sumPositiveWeights = 0;
     _absoluteTotalWeight = 0;

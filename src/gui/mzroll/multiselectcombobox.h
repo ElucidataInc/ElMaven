@@ -20,10 +20,11 @@ public:
     int count() const;
     void showPopup() override;
     void hidePopup() override;
+    void uncheckRelabel();
 
 signals:
     void selectionChanged();
-
+    
 public slots:
     void clear();
     void setCurrentText(const QString& text);
@@ -39,7 +40,7 @@ private:
 
     void _handleItemClick(int index);
     void _updatePopupSize();
-    void _insertItem(QCheckBox *checkBox);
+    void _insertItem(QCheckBox *checkBox); 
 };
 
 #endif // MULTISELECTCOMBOBOX_H

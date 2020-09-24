@@ -748,6 +748,13 @@ class PeakGroup{
         map<int, float> getCorrelatedGroups() const;
 
         /**
+         * @brief Sets correlated groups and their values, for a peak-group.
+         * @param CorrelationGroups Map with the groups-id's and correlation-value 
+         * that are correlated to peak-group. 
+         */ 
+        void setCorrelatedGroups(map<int, float> CorrelationGroups);
+
+        /**
          * @brief Converts an integer prediction-class identifier to its
          * corresponding `PeakGroup::ClassifiedLabel`.
          * @details This function should be regarded as complementary to

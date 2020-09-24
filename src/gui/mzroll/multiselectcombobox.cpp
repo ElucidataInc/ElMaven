@@ -76,7 +76,9 @@ void MultiSelectComboBox::_insertItem(QCheckBox *checkBox)
 
     connect(checkBox, &QCheckBox::stateChanged, this, [this] {
         auto selectedValues = selectedTexts();
-        if (selectedValues.size() == count()) {
+        // ignoring relabelling from count
+        if (!selectedValues.contains("Re-Label") 
+            && selectedValues.size() == count() - 1) {
             _lineEdit->setText("All");
             _lineEdit->setToolTip("All values are selected");
         } else if (selectedValues.size() == 0) {
@@ -165,7 +167,7 @@ void MultiSelectComboBox::setCurrentText(const QString& text)
 
 void MultiSelectComboBox::setCurrentTexts(const QStringList& texts)
 {
-    for (int i = 0; i < count(); ++i) {
+    for (int i = 0; i < count() - 1; ++i) {
         QWidget* widget = _listWidget->itemWidget(_listWidget->item(i));
         QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
         QString checkBoxString = checkBox->text();
@@ -174,11 +176,24 @@ void MultiSelectComboBox::setCurrentTexts(const QStringList& texts)
     }
 }
 
+void MultiSelectComboBox::uncheckRelabel()
+{
+    QWidget* widget = _listWidget->itemWidget(_listWidget->item(6));
+    QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
+    checkBox->setChecked(false);
+    Q_EMIT (&QCheckBox::stateChanged);
+}
+
 void MultiSelectComboBox::selectAll()
 {
-    for (int i = 0; i < count(); ++i) {
+    for (int i = 0; i < count() - 1; ++i) {
         QWidget* widget = _listWidget->itemWidget(_listWidget->item(i));
         QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
         checkBox->setChecked(true);
     }
+    // uncheck re-label option
+    QWidget* widget = _listWidget->itemWidget(_listWidget->item(6));
+    QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
+    checkBox->setChecked(false);
+    Q_EMIT (&QCheckBox::stateChanged);
 }
