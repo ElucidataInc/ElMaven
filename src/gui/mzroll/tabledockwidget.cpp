@@ -187,6 +187,12 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   _cycleInProgress = false;
   
 }
+int TableDockWidget::noiseCount = 0;
+int TableDockWidget::signalCount = 0;
+int TableDockWidget::correlatedCount = 0;
+int TableDockWidget::cohortCount = 0;
+int TableDockWidget::correlatedCohortCount = 0;
+int TableDockWidget::mayBeGroupsCount = 0;
 
 TableDockWidget::~TableDockWidget() {
   if (clusterDialog != NULL)
@@ -380,6 +386,79 @@ void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
     }
 }
 
+void TableDockWidget::updateLegend()
+{
+  noiseCount = 0;
+  signalCount = 0;
+  correlatedCount = 0;
+  cohortCount = 0;
+  correlatedCohortCount = 0;
+  mayBeGroupsCount = 0;
+  _legend->clear();
+  
+  auto incrementClassification = [&] (PeakGroup* group)
+                                {
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::Noise" || 
+                                        group->userLabel() == 'b')
+                                        noiseCount++;
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::Signal" ||
+                                        group->userLabel() == 'g')
+                                        signalCount++;
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::Correlation")
+                                        correlatedCount++;
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::Pattern")
+                                        cohortCount++;
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::CorrelationAndPattern")
+                                        correlatedCohortCount++;
+                                    if (group->labelToString(group->predictedLabel()) 
+                                        == "ClassifiedLabel::MaybeGood")
+                                        mayBeGroupsCount++;
+                                };
+  for (auto group : _topLevelGroups)
+  {
+    incrementClassification(group.get());
+    for (auto childIsotope : group->childIsotopes())
+      incrementClassification(childIsotope.get()); 
+  }
+  
+  _legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  auto labelsForLegend = TableDockWidget::labelsForLegend();
+  auto iconsForLegend = TableDockWidget::iconsForLegend();
+  
+  float totalCount = noiseCount + signalCount + correlatedCount + 
+          cohortCount + correlatedCohortCount + maybeGoodGroupLimit;
+
+  int count = 0;
+  vector<float> countPercentage;
+  
+  countPercentage.push_back((noiseCount / totalCount) * 100);
+  countPercentage.push_back((signalCount / totalCount) * 100);
+  countPercentage.push_back((correlatedCount / totalCount) * 100);
+  countPercentage.push_back((cohortCount / totalCount) * 100);
+  countPercentage.push_back((correlatedCohortCount / totalCount) * 100);
+  countPercentage.push_back((mayBeGroupsCount / totalCount) * 100);
+
+  for (const auto& label : labelsForLegend) {
+      auto type = labelsForLegend.key(label);
+      auto icon = iconsForLegend.value(type);
+
+      string labelString = label.toStdString();
+      labelString += " (";
+      labelString += mzUtils::integer2string(countPercentage[count++]);
+      labelString += "%)";
+
+      auto labelConverted = QString::fromStdString(labelString);
+      _legend->addItem(icon, labelConverted);
+  }
+  _legend->addItem(QIcon(":/images/relabel.png"), "Re-Label");
+  _legend->selectAll();
+}
+
 void TableDockWidget::updateTable() {
   QTreeWidgetItemIterator it(treeWidget);
   while (*it) {
@@ -387,6 +466,8 @@ void TableDockWidget::updateTable() {
     ++it;
   }
   updateStatus();
+  if (hasClassifiedGroups)
+    updateLegend();
 }
 
 void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem *item)
@@ -861,6 +942,8 @@ void TableDockWidget::showAllGroups() {
   treeWidget->setSortingEnabled(false);
 
   setupPeakTable();
+  if (hasClassifiedGroups)
+    updateLegend();
   if (viewType == groupView)
     setIntensityColName();
 
@@ -994,8 +1077,11 @@ void TableDockWidget::filterForSelectedLabels()
     showRelabelWidget();
     return;
   }
+
   for (auto& label : selectedLabels) {  
-    auto predictionLabel = labelsForLegend().key(label);
+    auto removedPercentage = mzUtils::split(label.toStdString(), " (");
+    auto originalLabel = QString::fromStdString(removedPercentage[0]);
+    auto predictionLabel = labelsForLegend().key(originalLabel);
     if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
       selectedSubsets.append(PeakTableSubsetType::Bad);
     if (predictionLabel == PeakGroup::ClassifiedLabel::Signal)
@@ -2050,6 +2136,9 @@ void TableDockWidget::markGroupGood() {
   }
   setGroupLabel('g');
 
+  if (hasClassifiedGroups)
+    updateLegend();
+
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
@@ -2070,6 +2159,9 @@ void TableDockWidget::markGroupBad() {
   }
   setGroupLabel('b');
   
+  if (hasClassifiedGroups)
+    updateLegend();
+
   _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
   showNextGroup();
   _mainwindow->autoSaveSignal(currentGroups);
@@ -3211,16 +3303,6 @@ PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
 
   if(hasClassifiedGroups){
       MultiSelectComboBox *legend = new MultiSelectComboBox(this);
-      legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-      auto labelsForLegend = TableDockWidget::labelsForLegend();
-      auto iconsForLegend = TableDockWidget::iconsForLegend();
-      for (const auto& label : labelsForLegend) {
-          auto type = labelsForLegend.key(label);
-          auto icon = iconsForLegend.value(type);
-          legend->addItem(icon, label);
-      }
-      legend->addItem(QIcon(":/images/relabel.png"), "Re-Label");
-      legend->selectAll();
       setLegend(legend);
       connect(legend,
               &MultiSelectComboBox::selectionChanged,

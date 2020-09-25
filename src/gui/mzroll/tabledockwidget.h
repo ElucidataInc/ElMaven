@@ -81,6 +81,14 @@ public:
   QList<PeakGroup> allgroups;
   map<int, pair<string, float>> undoBuffer;
 
+  //Count of different classified groups. 
+  static int noiseCount;
+  static int signalCount;
+  static int correlatedCount;
+  static int cohortCount;
+  static int correlatedCohortCount;
+  static int mayBeGroupsCount;
+
   enum tableViewType { groupView = 0, peakView = 1 };
 
   enum PeakTableSubsetType {
@@ -331,6 +339,7 @@ public slots:
   void updateTable();
   void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
   void updateStatus();
+  void updateLegend();
 
   virtual void markGroupBad();
   virtual void markGroupGood();
