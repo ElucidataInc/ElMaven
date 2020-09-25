@@ -21,6 +21,7 @@ class PeakGroupTreeWidget;
 class MultiSelectComboBox;
 class ClassificationWidget;
 class CorrelationTable;
+class RelabelGroupsDialog;
 
 using namespace std;
 
@@ -66,6 +67,7 @@ public:
   bool hasClassifiedGroups;
   float badGroupLimit;
   float maybeGoodGroupLimit;
+  RelabelGroupsDialog* relabelDialog;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -427,7 +429,7 @@ signals:
   void UploadPeakBatch();
   void renderedPdf();
   void ghostPeakGroupSelected(bool);
-
+  void updateRelabelStatusBar(QString text, int progress, int totalSteps);
 private:
   MultiSelectComboBox *_legend;
   bool _cycleInProgress;

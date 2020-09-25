@@ -17,18 +17,21 @@ class RelabelGroupsDialog : public QDialog, public Ui_Dialog
     private:
         TableDockWidget* _tabledockWidget;
         RangeSlider* _slider;
-        float badGroupLimit;
-        float maybeGoodGroupLimit;
+        float _badGroupLimit;
+        float _maybeGoodGroupLimit;
+        bool _inRelabelingMode;
 
     public:
         RelabelGroupsDialog() {};
         RelabelGroupsDialog(TableDockWidget * tabledockWidget);
         ~RelabelGroupsDialog() {};
-
+        void showDialog();
+    
     public Q_SLOTS:
         void updateCurationParameter(int, int);
         void closeEvent(QCloseEvent* event);
         void handleRelabel();
+        void setProgressBar(QString text, int progress, int totalSteps);
 };
 
 #endif

@@ -734,7 +734,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="noiseRange">
             <property name="text">
-             <string>Noise Range: 0.0 - 0.2</string>
+             <string>Noise Range: 0.0 - 0.3</string>
             </property>
            </widget>
           </item>
@@ -747,7 +747,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Signal Range: 0.7 - 1.0</string>
+             <string>Signal Range: 0.6 - 1.0</string>
             </property>
            </widget>
           </item>

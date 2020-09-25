@@ -379,6 +379,7 @@ void PeakDetectionDialog::cancel()
         peakupdater->completeStop();
         setProgressBar("Cancelled", 0, 1);
     }
+    _inDetectionMode = false;
 }
 
 void PeakDetectionDialog::initPeakDetectionDialogWindow(

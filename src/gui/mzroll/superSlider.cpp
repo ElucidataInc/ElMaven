@@ -45,9 +45,15 @@ RangeSlider::RangeSlider(Qt::Orientation ori, Options t, QWidget* aParent)
     mBackgroudColorEnabled = Qt::darkGray;
     mBackgroudColorDisabled = Qt::lightGray;
     mBackgroudColor = mBackgroudColorEnabled;
-    setLowerValue(2);
-    SetUpperValue(7);
+    setLowerValue(3);
+    SetUpperValue(6);
     setMouseTracking(true);
+
+    double alpha = 0.7;
+    noiseColor = Qt::red;
+    noiseColor.setAlphaF(alpha);
+    signalColor = Qt::green;
+    signalColor.setAlphaF(alpha);
 }
 
 void RangeSlider::paintEvent(QPaintEvent* aEvent)
@@ -254,7 +260,7 @@ void RangeSlider::changeEvent(QEvent* aEvent)
 
 QSize RangeSlider::minimumSizeHint() const
 {
-    return QSize(scHandleSideLength * 2 + scLeftRightMargin * 2, scHandleSideLength);
+    return QSize(500, scHandleSideLength);
 }
 
 int RangeSlider::GetMinimun() const
