@@ -268,6 +268,35 @@ void GroupSettingsLog::_displayGroupSettings()
                                             fragParams));
     }
 
+    if (_group->isClassified) {
+        auto label = _group->labelToString(_group->predictedLabel());
+        auto model = _group->model;
+        auto noiseRange = "0.0 - " + mzUtils::float2string(_group->noiseRange, 2);
+        string maybeRange = "";
+        if (_group->noiseRange != _group->mayBeRange) {
+            maybeRange = mzUtils::float2string(_group->noiseRange, 2)
+                                + " - " + mzUtils::float2string(_group->mayBeRange, 2);
+        }
+        auto signalRange = mzUtils::float2string(_group->mayBeRange, 2)
+                            + " - 1.0";
+        vector<pair<QString, QString>> curationParams = {
+            {"Classified label",
+             tr("%1").arg(QString::fromStdString(label))},
+            {"Classification model",
+             tr("%1").arg(QString::fromStdString(model))},
+            {"Noise range",
+             tr("%1").arg(QString::fromStdString(noiseRange))}, 
+        };
+        if (_group->noiseRange != _group->mayBeRange) {
+            curationParams.push_back({"May be good range",
+             tr("%1").arg(QString::fromStdString(maybeRange))});
+        }
+        curationParams.push_back({"Signal range",
+             tr("%1").arg(QString::fromStdString(signalRange))});
+        parameterGroups.push_back(make_pair("Peak Curation",
+                                            curationParams));
+    }
+
     QString spacerStyle = "QWidget { "
                           "margin-top: 10px; "
                           "border-top: 1px dotted; "

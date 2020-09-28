@@ -60,11 +60,6 @@ void MultiSelectComboBox::_updatePopupSize()
         auto height = rowHeight * count();
         _listWidget->viewport()->setFixedHeight(height);
         _listWidget->setFixedHeight(height);
-
-        // +6 because of the margins and spacing added to stylesheet
-        auto width = _listWidget->sizeHintForColumn(0) + 6;
-        _listWidget->viewport()->setFixedWidth(width);
-        _listWidget->setFixedWidth(width);
     }
 }
 

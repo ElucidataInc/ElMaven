@@ -956,6 +956,21 @@ void TableDockWidget::showAllGroups() {
   QMap<int, QTreeWidgetItem *> parents;
   for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
     auto group = _topLevelGroups[i];
+
+    // Setting curation parameters;
+    if (hasClassifiedGroups) {
+      group->model = _mainwindow->mavenParameters->peakMlModelType;
+      group->noiseRange = badGroupLimit;
+      group->mayBeRange = maybeGoodGroupLimit;
+      group->isClassified = true;
+      for (auto childIsotope : group->childIsotopes()) {
+        childIsotope->model = _mainwindow->mavenParameters->peakMlModelType;
+        childIsotope->noiseRange = badGroupLimit;
+        childIsotope->mayBeRange = maybeGoodGroupLimit;
+        childIsotope->isClassified = true;
+      }
+    }
+    
     RowData rowData = _rowDataForThisTable(i);
 
     int clusterId = group->clusterId;
