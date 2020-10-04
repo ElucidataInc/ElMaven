@@ -78,6 +78,7 @@ CONFIG(release, debug|release) {
 INCLUDEPATH +=  /usr/include/x86_64-linux-gnu/qt5/QtXml/ /usr/include/x86_64-linux-gnu/qt5/QtSql
 
 INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
+                $$top_srcdir/src/common         \
                 $$top_srcdir/3rdparty/obiwarp   \
                 $$top_srcdir/3rdparty/pugixml/src \
                 $$top_srcdir/3rdparty/libneural \

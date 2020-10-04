@@ -143,6 +143,15 @@ private:
 	 * binary to be downloaded. 
 	 */ 
 	bool downloadPeakMlFilesFromAws(QString fileName);
+
+    /**
+	 * @brief Downloads binary and model from S3 bucket 
+	 * if the two files does not exist on user's pc using 
+     * signed URL. 
+	 * @param filename Tells the file either model or 
+	 * binary to be downloaded. 
+	 */ 
+	bool downloadPeakMlFilesFromURL(QString fileName);
 	
 	/**
 	 * @brief Changes the mode of the file and gives it executable rights. 

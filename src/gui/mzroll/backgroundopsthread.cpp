@@ -26,6 +26,9 @@
 #include "EIC.h"
 #include "csvreports.h"
 #include "pollyintegration.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 BackgroundOpsThread::BackgroundOpsThread(QWidget*)
 {
@@ -429,7 +432,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     }
 
     if (!QFile::exists(mlBinary)) {
-        bool downloadSuccess = downloadPeakMlFilesFromAws("moi");
+        bool downloadSuccess = downloadPeakMlFilesFromURL("moi");
         if(!downloadSuccess) {
             cerr << "Error: ML binary not found at path: "
                 << mlBinary.toStdString()
@@ -438,7 +441,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         }
     }
     if (!QFile::exists(mlModel)) {
-        bool downloadSuccess = downloadPeakMlFilesFromAws("model.pickle.dat");
+        bool downloadSuccess = downloadPeakMlFilesFromURL("model.pickle.dat");
         if(!downloadSuccess) {
             cerr << "Error: ML model not found at path: "
                 << mlModel.toStdString()
@@ -628,41 +631,85 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     removeFiles();
 }
 
-bool BackgroundOpsThread::downloadPeakMlFilesFromAws(QString fileName)
-{
+bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
+ 
+    QStringList args;
+
     Q_EMIT(updateProgressBar("Configuring PeakML...", 0, 0));
     auto tempDir = QStandardPaths::writableLocation(
                     QStandardPaths::GenericConfigLocation)
                     + QDir::separator()
                     + "ElMaven";
 
-    QStringList args;
-
     if(fileName == "moi")
     {
         #if defined(Q_OS_MAC)
-            args << "mac/moi";
+            args << "Mac/moi";
             tempDir = tempDir + QDir::separator() + "moi";
         #endif
 
         #if defined(Q_OS_LINUX)
-            args << "unix/moi";
+            args << "Unix/moi";
             tempDir = tempDir + QDir::separator() + "moi";
         #endif
         
         #ifdef Q_OS_WIN
-            args << "windows/moi.exe";
+            args << "Windows/moi.exe";
             tempDir = tempDir + QDir::separator() + "moi.exe" ;
         #endif
     } else {
-        args << "model/model.pickle.dat";
+        args << "global_model_elucidata.dat";
         tempDir = tempDir + QDir::separator() + "model.pickle.dat";
     }
 
-    args << tempDir;
+    auto cookieFile = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "cookie.json" ;
     
-    auto result = _pollyIntegration->runQtProcess("downloadFilesForPeakML", args);
+    ifstream readCookie(cookieFile.toStdString());
+    json cookieInput = json::parse(readCookie);
+    string refreshToken = cookieInput["refreshToken"];
+    string idToken = cookieInput["idToken"];
 
+    QString cookies;
+    cookies += "refreshToken=";
+    cookies += QString::fromStdString(refreshToken);
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += QString::fromStdString(idToken);
+    
+    args << cookies;
+
+    auto res = _pollyIntegration->runQtProcess("downloadFilesForPeakML", args);
+    QString str(res[0].constData());
+    auto splitString = mzUtils::split(str.toStdString(), "\n");
+    auto data = splitString[splitString.size() - 2];
+    auto dataQstring = QString::fromStdString(data);
+    QJsonObject dataObj;
+
+    QJsonDocument doc = QJsonDocument::fromJson(dataQstring.toUtf8());
+    dataObj = doc.object();  
+    
+    auto dataValue = dataObj["data"].toObject();
+    auto error = dataValue["error"].toString();
+    if (!error.isEmpty()){
+
+    }
+    
+    auto url = dataValue["id"].toString();
+    
+    _dlManager->setRequest(url, this, false);
+    if (!_dlManager->err) {
+        auto downloadedData = _dlManager->getData();
+        QFile file(tempDir);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            file.write(downloadedData);
+        }
+    } else {
+        cerr <<  "\n\nError occured while downloading" << endl;
+    }
+   
     if (!QFile::exists(tempDir)) {
         return false;
     } else {
