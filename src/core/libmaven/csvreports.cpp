@@ -20,7 +20,8 @@ CSVReports::CSVReports(string filename,
                        bool prmReport,
                        bool includeSetNamesLine,
                        MavenParameters* mp,
-                       bool pollyExport)
+                       bool pollyExport, 
+                       bool throughCLI)
 {
     samples = insamples;
     _pollyExport = pollyExport;
@@ -31,6 +32,7 @@ CSVReports::CSVReports(string filename,
     _reportType = reportType;
     _prmReport = prmReport;
     _includeSetNamesLine = includeSetNamesLine;
+    _throughCLI = throughCLI;
 
     if (reportType == ReportType::PeakReport) {
         if (samples.size() == 0)
@@ -171,6 +173,10 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
                            << "noNoiseObs"
                            << "signalBaseLineRatio"
                            << "fromBlankSample";
+        if (_throughCLI) {
+            peakReportcolnames << "ppmDiff";
+            peakReportcolnames << "FWHM";
+        }
 
         QString header = peakReportcolnames.join(SEP.c_str());
         _reportStream << header.toStdString() << endl;
@@ -448,6 +454,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     string compoundName = "";
     string compoundID = "";
     string formula = "";
+    string ppmDiff = "";
     if (group->getCompound() != NULL) {
         compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
         compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
@@ -489,7 +496,29 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
             sampleName =
                 _sanitizeString(sample->sampleName.c_str()).toStdString();
         }
-
+        if (group->getCompound()) {
+            float ppmDist = 0;
+            if (!group->getCompound()->formula().empty()) {
+                int charge = getMavenParameters()->getCharge(group->getCompound());
+                if (group->parent != NULL) {
+                    ppmDist = mzUtils::massCutoffDist(
+                        (double)group->getExpectedMz(charge),
+                        (double)peak.peakMz,
+                        getMavenParameters()->massCutoffMerge);
+                } else {
+                    ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
+                                                    (double) peak.peakMz,
+                                                    getMavenParameters()->massCutoffMerge);
+                }
+                ppmDiff = mzUtils::float2string(ppmDist, 6);
+            }
+            else {
+                ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mz(), (double) peak.peakMz,getMavenParameters()->massCutoffMerge);
+                ppmDiff = mzUtils::float2string(ppmDist, 6);
+            }
+        } else {
+            ppmDiff = "NA";
+        }
         _reportStream << fixed << setprecision(6)
                       << group->groupId()
                       << SEP << compoundName
@@ -519,8 +548,12 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << peak.peakAreaTopCorrected
                       << SEP << peak.noNoiseObs
                       << SEP << peak.signalBaselineRatio
-                      << SEP << peak.fromBlankSample
-                      << endl;
+                      << SEP << peak.fromBlankSample;
+        if (_throughCLI) {
+            _reportStream << SEP << ppmDiff
+                          << SEP << peak.fwhm;
+        }
+            _reportStream << endl;
     }
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";
@@ -553,8 +586,12 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0.0f
-                      << SEP << 0
-                      << endl;
+                      << SEP << 0;
+        if (_throughCLI) {
+            _reportStream << SEP << 0.0f
+                          << SEP << 0.0f;
+        }
+            _reportStream << endl;
     }
 }
 

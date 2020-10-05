@@ -68,6 +68,8 @@ class Peak {
         /** fit to gaussian curve */
         float gaussFitR2;
         int groupNum;
+        /** Full width half maxima **/
+        float fwhm;
 
         unsigned int noNoiseObs;
         float noNoiseFraction;

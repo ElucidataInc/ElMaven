@@ -59,7 +59,8 @@ class CSVReports
                    bool prmReport = false,
                    bool includeSetNamesLine = false,
                    MavenParameters* mp = NULL,
-                   bool pollyExport = false);
+                   bool pollyExport = false, 
+                   bool throughCLI = false);
 
         /**
          *@brief-    destructor, just close all open output files opened for writing
@@ -158,6 +159,7 @@ class CSVReports
         bool _pollyExport;
         bool _prmReport;
         bool _includeSetNamesLine;
+        bool _throughCLI;
 
         /**
          * @brief Write column name in output file for group report.

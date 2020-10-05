@@ -86,6 +86,8 @@ public:
 
     void createXMLFile(const char* fileName);
 
+    void exportPeakReport(string setName);
+
     /**
      * [handle loading of arguments using XML]
      */
@@ -145,7 +147,7 @@ public:
      * @brief save project as CSV
      * @param setName file name with full path
      */
-    void saveCSV(string setName, bool pollyExport);
+    void saveCSV(string setName, bool pollyExport, CSVReports::ReportType reportType);
 
     /**
      * [Uploads Maven data to Polly and redirects the user to polly]

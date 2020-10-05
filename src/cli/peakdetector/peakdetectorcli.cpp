@@ -260,7 +260,7 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         case 'z':
             mavenParameters->minSignalBaseLineRatio = atof(optarg);
             break;
-
+        
         default:
             break;
         }
@@ -956,7 +956,7 @@ void PeakDetectorCLI::writeReport(string setName,
 
         _log->info() << "Saving data reports…" << std::flush;
         saveJson(fileName);
-        saveCSV(fileName, false);
+        saveCSV(fileName, false, CSVReports::ReportType::GroupReport);
     } else {
         if (_incompatibleWithPollyApp())
             exit(0);
@@ -1009,7 +1009,7 @@ void PeakDetectorCLI::writeReport(string setName,
 
         _log->info() << "Storing temporary data files…" << std::flush;
         saveJson(jsonFilename.toStdString());
-        saveCSV(csvFilename.toStdString(), true);
+        saveCSV(csvFilename.toStdString(), true, CSVReports::ReportType::GroupReport);
         cout << endl;
 
         _log->info() << "Uploading data files to Polly…" << std::flush;
@@ -1363,7 +1363,15 @@ bool PeakDetectorCLI::_sendUserEmail(QMap<QString, QString> creds,
     return status;
 }
 
-void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
+void PeakDetectorCLI::exportPeakReport(string setName)
+{
+    mzUtils::createDir(mavenParameters->outputdir);
+    string fileName = mavenParameters->outputdir + setName;
+    _log->info() << "Saving peak reports…" << std::flush;
+    saveCSV(fileName, false, CSVReports::ReportType::PeakReport);
+}
+
+void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::ReportType reportType)
 {
 #ifndef __APPLE__
     double startSavingCSV = getTime();
@@ -1401,10 +1409,17 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
 
     bool includeSetNamesLine = false;
     
-    csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
-                                mavenParameters->samples, quantitationType,  
-                                ddaGroupExists, includeSetNamesLine,
-                                mavenParameters, pollyExport);
+    if (reportType == CSVReports::ReportType::GroupReport) {
+        csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
+                                    mavenParameters->samples, quantitationType,  
+                                    ddaGroupExists, includeSetNamesLine,
+                                    mavenParameters, pollyExport, true);
+    } else {
+        csvreports = new CSVReports(fileName, CSVReports::ReportType::PeakReport,
+                                    mavenParameters->samples, quantitationType,  
+                                    ddaGroupExists, includeSetNamesLine,
+                                    mavenParameters, pollyExport, true);
+    }
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
         PeakGroup& group = mavenParameters->allgroups[i];

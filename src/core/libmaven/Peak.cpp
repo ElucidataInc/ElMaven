@@ -49,6 +49,7 @@ Peak::Peak() {
     gaussFitSigma = 10;
     gaussFitR2 = FLT_MAX;
     peakRank = INT_MAX;
+    fwhm = 0.0f;
 }
 
 Peak::Peak(EIC* e, int p) { 
@@ -94,6 +95,7 @@ Peak::Peak(EIC* e, int p) {
     gaussFitSigma=10;
     gaussFitR2=FLT_MAX;
     peakRank=INT_MAX;
+    fwhm = 0.0f;
     if (sample == NULL && eic != NULL ) sample = eic->sample;
 }
 
@@ -141,6 +143,7 @@ void Peak::copyObj(const Peak& o ) {
     gaussFitSigma=o.gaussFitSigma;
     gaussFitR2= o.gaussFitR2;
     peakRank=o.peakRank;
+    fwhm = o.fwhm;
 }
 
 Peak& Peak::operator=(const Peak& o)  {
