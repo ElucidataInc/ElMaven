@@ -44,9 +44,7 @@ CSVReports::CSVReports(string filename,
         _reportStream.open(filename.c_str(), ios::out);
         /**@brief-  write name of column  if output file is open */
         _insertPeakReportColumnNamesintoCSVFile();
-    }
-
-    else if (reportType == ReportType::GroupReport) {
+    } else if (reportType == ReportType::GroupReport) {
         // if number of sample is zero, output file will not open
         if (insamples.size() == 0)
             return;
@@ -60,6 +58,16 @@ CSVReports::CSVReports(string filename,
         // write name of column  if output file is open
         _insertGroupReportColumnNamesintoCSVFile(
             filename, _prmReport, _includeSetNamesLine);
+    } else if (reportType == ReportType::SampleReport) {
+        if (samples.size() == 0)
+            return;
+        if (QString(filename.c_str()).endsWith(".csv", Qt::CaseInsensitive))
+            setCommaDelimited();
+        else
+            setTabDelimited();
+        _reportStream.open(filename.c_str(), ios::out);
+        _insertSampleReportColumnNamesintoCSVFile();
+        _writeSampleInfo();
     }
 }
 
@@ -143,6 +151,30 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
             + "\"\n"
             + "Please check if you have permission to write to the specified "
             + "location or the file is not in use";
+    }
+}
+
+void CSVReports::_insertSampleReportColumnNamesintoCSVFile()
+{
+    if (_reportStream.is_open()) {
+        QStringList sampleReportcolnames;
+        sampleReportcolnames << "sample name"
+                           << "peak capacity";
+        
+        QString header = sampleReportcolnames.join(SEP.c_str());
+        _reportStream << header.toStdString() << endl;
+    }
+}
+
+void CSVReports::_writeSampleInfo()
+{
+    if (!_reportStream.is_open())
+        return;
+
+    for (auto& sample : samples) {
+        _reportStream << sample->sampleName
+                      << "  "
+                      << endl;
     }
 }
 

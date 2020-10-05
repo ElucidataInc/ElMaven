@@ -88,6 +88,8 @@ public:
 
     void exportPeakReport(string setName);
 
+    void exportSampleReport(string setName);
+
     /**
      * [handle loading of arguments using XML]
      */

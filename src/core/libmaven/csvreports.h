@@ -23,7 +23,7 @@ class CSVReports
          *@brief enum is the type of the
          *file the user wants to create
          */
-        enum class ReportType { GroupReport, PeakReport, PollyReport };
+        enum class ReportType { GroupReport, PeakReport, PollyReport, SampleReport };
 
         /**
          *empty constructor
@@ -172,6 +172,13 @@ class CSVReports
          * Write column name in output file for group report.
          */
         void _insertPeakReportColumnNamesintoCSVFile();
+
+        void _writeSampleInfo();
+
+        /**
+         * Write column name in output file for sample report.
+         */
+        void _insertSampleReportColumnNamesintoCSVFile();
 
         void setTabDelimited()
         {

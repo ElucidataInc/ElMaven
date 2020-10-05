@@ -1371,6 +1371,14 @@ void PeakDetectorCLI::exportPeakReport(string setName)
     saveCSV(fileName, false, CSVReports::ReportType::PeakReport);
 }
 
+void PeakDetectorCLI::exportSampleReport(string setName)
+{
+    mzUtils::createDir(mavenParameters->outputdir);
+    string fileName = mavenParameters->outputdir + setName;
+    _log->info() << "Saving sample reports…" << std::flush;
+    saveCSV(fileName, false, CSVReports::ReportType::SampleReport);
+}
+
 void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::ReportType reportType)
 {
 #ifndef __APPLE__
@@ -1414,18 +1422,27 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::Repo
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
                                     mavenParameters, pollyExport, true);
-    } else {
+        for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+            PeakGroup& group = mavenParameters->allgroups[i];
+            csvreports->addGroup(&group);
+        }
+    } else if (reportType == CSVReports::ReportType::PeakReport) {
         csvreports = new CSVReports(fileName, CSVReports::ReportType::PeakReport,
+                                    mavenParameters->samples, quantitationType,  
+                                    ddaGroupExists, includeSetNamesLine,
+                                    mavenParameters, pollyExport, true);
+        for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
+            PeakGroup& group = mavenParameters->allgroups[i];
+            csvreports->addGroup(&group);
+        }
+    } else if (reportType == CSVReports::ReportType::SampleReport) {
+        csvreports = new CSVReports(fileName, CSVReports::ReportType::SampleReport,
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
                                     mavenParameters, pollyExport, true);
     }
 
-    for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
-        PeakGroup& group = mavenParameters->allgroups[i];
-        csvreports->addGroup(&group);
-    }
-
+    
     if (csvreports->getErrorReport() != "") {
         _log->info() << "Writing to CSV failed with error - "
                      << csvreports->getErrorReport().toStdString()
