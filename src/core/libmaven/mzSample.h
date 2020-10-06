@@ -679,6 +679,8 @@ class mzSample
                           */
     static int getFilter_polarity() { return filter_polarity; }
 
+    void setPeakCapacity(vector<PeakGroup> groups);
+
     vector<float> getIntensityDistribution(int mslevel);
 
     deque<Scan *> scans;
@@ -696,6 +698,7 @@ class mzSample
     float maxIntensity;
     float minIntensity;
     float totalIntensity;
+    float peakCapacity;
 
     int _sampleOrder; //Sample display order
 

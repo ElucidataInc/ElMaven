@@ -65,7 +65,6 @@ CSVReports::CSVReports(string filename,
             setTabDelimited();
         _reportStream.open(filename.c_str(), ios::out);
         _insertSampleReportColumnNamesintoCSVFile();
-        _writeSampleInfo();
     }
 }
 
@@ -164,15 +163,19 @@ void CSVReports::_insertSampleReportColumnNamesintoCSVFile()
     }
 }
 
-void CSVReports::_writeSampleInfo()
+void CSVReports::writeSampleInfo(vector<PeakGroup> groups)
 {
     if (!_reportStream.is_open())
         return;
 
+    if (samples.empty())
+        return;
+    
     for (auto& sample : samples) {
+        sample->setPeakCapacity(groups);
         _reportStream << sample->sampleName
-                      << "  "
-                      << endl;
+                      << SEP << sample->peakCapacity 
+                      << endl; 
     }
 }
 
@@ -579,6 +582,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << peak.signalBaselineRatio
                       << SEP << peak.fromBlankSample
                       << SEP << ppmDiff
+                      << setprecision(3) << fixed
                       << SEP << peak.fwhm;
             _reportStream << endl;
     }

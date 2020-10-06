@@ -104,6 +104,7 @@ class CSVReports
             selectionFlag = selFlag;
         }
 
+        void writeSampleInfo(vector<PeakGroup> groups);
     private:
         /**
          *@brief-  helper function to write group info
@@ -171,8 +172,6 @@ class CSVReports
          * Write column name in output file for group report.
          */
         void _insertPeakReportColumnNamesintoCSVFile();
-
-        void _writeSampleInfo();
 
         /**
          * Write column name in output file for sample report.

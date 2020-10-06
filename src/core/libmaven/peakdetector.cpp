@@ -219,6 +219,8 @@ void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
 
     // identify features with known targets
     identifyFeatures(identificationSet);
+
+    setFWHMforGroups();
 }
 
 void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
@@ -534,6 +536,124 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
                 _mavenParameters->adductSearchWindow,
                 _mavenParameters->adductPercentCorrelation,
                 _mavenParameters->compoundMassCutoffWindow);
+        }
+    }
+    setFWHMforGroups();
+}
+
+void PeakDetector::setFWHMforGroups()
+{
+    auto setFWHM = [] (PeakGroup* group)
+                    {
+                        auto slice = group->getSlice();
+                        auto eics = pullEICs(&slice, 
+                                            group->samples,
+                                            group->parameters().get());
+                        for (auto eic : eics) {
+                            for (auto& peak : group->peaks) {
+                                if (eic->sampleName == peak.getSample()->sampleName) {
+                                    //computations for FWHM
+                                    auto rts = eic->rt;
+                                    auto intensities = eic->intensity;
+                                    auto rtMin = peak.rtmin;
+                                    auto rtMax = peak.rtmax;
+                                    
+                                    // RT and Intensity in range of RtMin and RtMax.
+                                    vector<float> rtInRange;
+                                    vector<float> intensitiesInRange;
+                                    for (int i = 0; i <rts.size(); i++) {
+                                        if (rts[i] >= rtMin && rts[i] <= rtMax) {
+                                            rtInRange.push_back(rts[i]);
+                                            intensitiesInRange.push_back(intensities[i]);
+                                        }
+                                    }
+
+                                    // RT at maximum intensity.
+                                    float rtAtMaxIntensity;
+                                    int pos = -1; 
+                                    float max = -1.0f;
+                                    for (int i = 0; i < intensitiesInRange.size(); i++) {
+                                        if (intensitiesInRange[i] > max) {
+                                            max = intensitiesInRange[i];
+                                            pos = i;
+                                        }
+                                    }
+                                    auto halfOfMaxIntensity = max / 2.0f ;
+                                    
+                                    if (pos < rtInRange.size() && pos > -1)
+                                        rtAtMaxIntensity = rtInRange[pos];
+                                    
+                                    //left - Half intensities i.e intensities on left of rt at maximum intensities
+                                    vector<float> leftHalfIntensities;
+                                    vector<float> leftHalfRts;
+                                    vector<float> rightHalfIntensities;
+                                    vector<float> rightHalfRts;
+                                    for (int i = 0 ; i < rtInRange.size(); i++) {
+                                        if (rtInRange[i] < rtAtMaxIntensity) {
+                                            leftHalfIntensities.push_back(intensitiesInRange[i]);
+                                            leftHalfRts.push_back(rtInRange[i]);
+                                        } else {
+                                            rightHalfIntensities.push_back(intensitiesInRange[i]);
+                                            rightHalfRts.push_back(rtInRange[i]);
+                                        }
+                                    }
+
+                                    // left-half deltas(leftHalfIntensities - halfOfMaxIntensity)
+                                    vector<float> leftHalfDelta;
+                                    for (int i = 0; i < leftHalfIntensities.size(); i++) {
+                                        auto delta = abs(leftHalfIntensities[i] - halfOfMaxIntensity);
+                                        leftHalfDelta.push_back(delta);
+                                    }
+
+                                    // right-half deltas(rightHalfIntensities - halfOfMaxIntensity)
+                                    vector<float> rightHalfDelta;
+                                    for (int i = 0; i < rightHalfIntensities.size(); i++) {
+                                        auto delta = abs(rightHalfIntensities[i] - halfOfMaxIntensity);
+                                        rightHalfDelta.push_back(delta);
+                                    }
+
+                                    // RT at least delta i.e. closest to half-of-max-intensity(left side).
+                                    pos = -1;
+                                    float min = numeric_limits<float>::max();
+                                    for (int i = 0; i < leftHalfDelta.size(); i++) {
+                                        if (leftHalfDelta[i] < min) {
+                                            min = leftHalfDelta[i];
+                                            pos = i;
+                                        }
+                                    }
+                                    float leftRT = 0.0f;
+                                    
+                                    if (pos < leftHalfRts.size() && pos > -1)
+                                        leftRT = leftHalfRts[pos];
+
+                                    // RT at least delta i.e. closest to half-of-max-intensity(right side).
+                                    pos = -1;
+                                    min = numeric_limits<float>::max();
+                                    for (int i = 0; i < rightHalfDelta.size(); i++) {
+                                        if (rightHalfDelta[i] < min) {
+                                            min = rightHalfDelta[i];
+                                            pos = i;
+                                        }
+                                    }
+                                    float rightRT = 0.0f;
+                                    
+                                    if (pos < rightHalfRts.size() && pos > -1)
+                                        rightRT = rightHalfRts[pos];
+
+                                    peak.fwhm = rightRT - leftRT;
+                                }
+                            }
+                        }
+                                
+                    };
+
+    for (auto& group : _mavenParameters->allgroups) {
+        setFWHM(&group);
+        for (auto& subgroup : group.childIsotopes()) {
+            setFWHM(subgroup.get());
+        }
+        for (auto& subgroup : group.childAdducts()) {
+            setFWHM(subgroup.get());
         }
     }
 }

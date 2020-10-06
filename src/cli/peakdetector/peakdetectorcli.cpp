@@ -1440,6 +1440,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::Repo
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
                                     mavenParameters, pollyExport);
+        csvreports->writeSampleInfo(mavenParameters->allgroups);
     }
 
     

@@ -45,6 +45,7 @@ mzSample::mzSample() : _setName(""), injectionOrder(0)
     // list.
     color[0] = color[1] = color[2] = 0;
     color[3] = 1.0;
+    peakCapacity = 0.0;
 }
 
 mzSample::~mzSample()
@@ -1933,6 +1934,40 @@ vector<float> mzSample::getIntensityDistribution(int mslevel)
     }
 
     return (quantileDistribution(allintensities));
+}
+
+void mzSample::setPeakCapacity(vector<PeakGroup> groups)
+{
+    float peakFWHMSum = 0;
+    int peakCount;
+    for (auto group : groups) {
+        for (auto peak : group.peaks){
+            if (peak.getSample() == this) {
+                peakFWHMSum += peak.fwhm;
+                peakCount++;
+            }
+        }
+        for (auto child : group.childIsotopes()) {
+            for (auto childPeak : child->peaks) {
+                if (childPeak.getSample() == this) {
+                    peakFWHMSum += childPeak.fwhm;
+                    peakCount++;
+                }
+            }
+        }
+        for (auto child : group.childAdducts()) {
+            for (auto childPeak : child->peaks) {
+                if (childPeak.getSample() == this) {
+                    peakFWHMSum += childPeak.fwhm;
+                    peakCount++;
+                }
+            }
+        }
+    }
+
+    float avgPeakFWHM = peakFWHMSum / peakCount;
+
+    peakCapacity = (maxRt - minRt) / avgPeakFWHM;
 }
 
 /*
