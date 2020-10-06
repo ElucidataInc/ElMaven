@@ -59,8 +59,7 @@ class CSVReports
                    bool prmReport = false,
                    bool includeSetNamesLine = false,
                    MavenParameters* mp = NULL,
-                   bool pollyExport = false, 
-                   bool throughCLI = false);
+                   bool pollyExport = false);
 
         /**
          *@brief-    destructor, just close all open output files opened for writing

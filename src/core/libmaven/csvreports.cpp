@@ -20,8 +20,7 @@ CSVReports::CSVReports(string filename,
                        bool prmReport,
                        bool includeSetNamesLine,
                        MavenParameters* mp,
-                       bool pollyExport, 
-                       bool throughCLI)
+                       bool pollyExport)
 {
     samples = insamples;
     _pollyExport = pollyExport;
@@ -32,7 +31,6 @@ CSVReports::CSVReports(string filename,
     _reportType = reportType;
     _prmReport = prmReport;
     _includeSetNamesLine = includeSetNamesLine;
-    _throughCLI = throughCLI;
 
     if (reportType == ReportType::PeakReport) {
         if (samples.size() == 0)
@@ -204,11 +202,10 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
                            << "peakAreaTopCorrected"
                            << "noNoiseObs"
                            << "signalBaseLineRatio"
-                           << "fromBlankSample";
-        if (_throughCLI) {
-            peakReportcolnames << "ppmDiff";
-            peakReportcolnames << "FWHM";
-        }
+                           << "fromBlankSample"
+                           << "ppmDiff"
+                           << "FWHM";
+      
 
         QString header = peakReportcolnames.join(SEP.c_str());
         _reportStream << header.toStdString() << endl;
@@ -580,11 +577,9 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << peak.peakAreaTopCorrected
                       << SEP << peak.noNoiseObs
                       << SEP << peak.signalBaselineRatio
-                      << SEP << peak.fromBlankSample;
-        if (_throughCLI) {
-            _reportStream << SEP << ppmDiff
-                          << SEP << peak.fwhm;
-        }
+                      << SEP << peak.fromBlankSample
+                      << SEP << ppmDiff
+                      << SEP << peak.fwhm;
             _reportStream << endl;
     }
     for (auto sample : samplesWithNoPeak) {
@@ -618,12 +613,10 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0.0f
-                      << SEP << 0;
-        if (_throughCLI) {
-            _reportStream << SEP << 0.0f
-                          << SEP << 0.0f;
-        }
-            _reportStream << endl;
+                      << SEP << 0
+                      << SEP << 0.0f
+                      << SEP << 0.0f
+                      << endl;
     }
 }
 

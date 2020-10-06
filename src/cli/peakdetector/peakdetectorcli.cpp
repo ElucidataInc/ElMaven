@@ -1421,7 +1421,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::Repo
         csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
-                                    mavenParameters, pollyExport, true);
+                                    mavenParameters, pollyExport);
         for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
             PeakGroup& group = mavenParameters->allgroups[i];
             csvreports->addGroup(&group);
@@ -1430,7 +1430,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::Repo
         csvreports = new CSVReports(fileName, CSVReports::ReportType::PeakReport,
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
-                                    mavenParameters, pollyExport, true);
+                                    mavenParameters, pollyExport);
         for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
             PeakGroup& group = mavenParameters->allgroups[i];
             csvreports->addGroup(&group);
@@ -1439,7 +1439,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport, CSVReports::Repo
         csvreports = new CSVReports(fileName, CSVReports::ReportType::SampleReport,
                                     mavenParameters->samples, quantitationType,  
                                     ddaGroupExists, includeSetNamesLine,
-                                    mavenParameters, pollyExport, true);
+                                    mavenParameters, pollyExport);
     }
 
     
