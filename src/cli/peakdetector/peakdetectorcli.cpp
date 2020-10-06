@@ -260,6 +260,14 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         case 'z':
             mavenParameters->minSignalBaseLineRatio = atof(optarg);
             break;
+
+        case 'H':
+            exportPeaks = atoi(optarg);
+            break;
+        
+        case 'R':
+            exportSamples = atoi(optarg);
+            break;
         
         default:
             break;

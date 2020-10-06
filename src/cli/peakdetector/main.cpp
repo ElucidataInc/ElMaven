@@ -101,8 +101,10 @@ int main(int argc, char *argv[]) {
 	//write report
 	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
-        peakdetectorCLI->exportPeakReport("peakReport");
-        peakdetectorCLI->exportSampleReport("sampleReport");
+        if (peakdetectorCLI->exportPeaks)
+            peakdetectorCLI->exportPeakReport("peakReport");
+        if (peakdetectorCLI->exportSamples)
+            peakdetectorCLI->exportSampleReport("sampleReport");
         if (peakdetectorCLI->saveAnalysisAsProject())
             peakdetectorCLI->saveEmdb();
     } else if (!(peakdetectorCLI->pollyArgs.isEmpty())){

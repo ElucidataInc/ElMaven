@@ -70,6 +70,8 @@ public:
     string clsfModelFilename;
     QString pollyArgs;
     AlignmentMode alignMode;
+    int exportPeaks;
+    int exportSamples;
 
     PeakDetectorCLI(Logger* log,
                     Analytics* analytics,
@@ -231,6 +233,10 @@ public:
                 "provided in xml file. <string>",
             "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. "
                 "<string>",
+            "H?exportPeakReport: Export detailed peak report. Enter 1 for exporting"
+                    "report, otherwise 0 <int>",
+            "R?exportSampleReport: Export sample report that contains peak capacity"
+                "per sample. Enter 1 for exporting report, otherwise 0 <int>",
             nullptr
         };
         return options;
