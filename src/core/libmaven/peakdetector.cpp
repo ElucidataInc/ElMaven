@@ -592,7 +592,7 @@ void PeakDetector::setFWHMforGroups()
                                         if (rtInRange[i] < rtAtMaxIntensity) {
                                             leftHalfIntensities.push_back(intensitiesInRange[i]);
                                             leftHalfRts.push_back(rtInRange[i]);
-                                        } else {
+                                        } else if (rtInRange[i] > rtAtMaxIntensity){
                                             rightHalfIntensities.push_back(intensitiesInRange[i]);
                                             rightHalfRts.push_back(rtInRange[i]);
                                         }
@@ -640,7 +640,13 @@ void PeakDetector::setFWHMforGroups()
                                     if (pos < rightHalfRts.size() && pos > -1)
                                         rightRT = rightHalfRts[pos];
 
-                                    peak.fwhm = rightRT - leftRT;
+                                    if (rightHalfDelta.empty()) {
+                                        peak.fwhm = rtAtMaxIntensity - leftRT;
+                                    } else if (leftHalfDelta.empty()) {
+                                        peak.fwhm = rightRT - rtAtMaxIntensity;
+                                    } else {
+                                        peak.fwhm = rightRT - leftRT;
+                                    }
                                 }
                             }
                         }

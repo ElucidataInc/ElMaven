@@ -618,7 +618,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0
-                      << SEP << 0.0f
+                      << SEP << "NA"
                       << SEP << 0.0f
                       << endl;
     }
