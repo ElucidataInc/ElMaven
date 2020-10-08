@@ -200,8 +200,63 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
 {
     if (!_reportStream.is_open())
         return;
-    if (group->isGhost())
+
+    // for exports to Polly, add empty ghost parents as well
+    if (group->isGhost() && group->hasCompoundLink() && _pollyExport) {
+        auto compoundName = _sanitizeString(
+                           group->getCompound()->name().c_str()).toStdString();
+        auto compoundId = _sanitizeString(
+                         group->getCompound()->id().c_str()).toStdString();
+        auto compoundFormula = _sanitizeString(
+                      group->getCompound()->formula().c_str()).toStdString();
+        Adduct* adduct = nullptr;
+        for (auto parentAdduct : mavenparameters->getDefaultAdductList()) {
+            if (SIGN(parentAdduct->getCharge())
+                == SIGN(mavenparameters->ionizationMode)) {
+                adduct = parentAdduct;
+            }
+        }
+        _reportStream << ""
+                      << SEP << group->metaGroupId()
+                      << SEP << group->groupId()
+                      << SEP << 0
+                      << fixed << setprecision(6)
+                      << SEP << 0.0
+                      << setprecision(3)
+                      << SEP << 0.0
+                      << setprecision(6)
+                      << SEP << 0.0
+                      << SEP << (adduct == nullptr ? "" : adduct->getName())
+                      << SEP << "C12 PARENT"
+                      << SEP << compoundName
+                      << SEP << compoundId
+                      << SEP << compoundFormula
+                      << SEP << "NA"
+                      << SEP << "NA"
+                      << SEP << 0.0;
+
+        // if this is a MS2 report, add MS2 specific columns
+        if (_prmReport && !_pollyExport) {
+            for (int i = 0; i < 10; ++i)
+                _reportStream << SEP <<  0.0;
+        }
+
+        _reportStream << setprecision(2);
+        for (unsigned int j = 0; j < samples.size(); j++) {
+            for (int i = 0; i < static_cast<int>(group->samples.size()); ++i) {
+                if (samples[j]->sampleName == group->samples[i]->sampleName) {
+                    _reportStream << SEP << 0.0;
+                    break;
+                } else if (i == static_cast<int>(group->samples.size()) - 1) {
+                    _reportStream << SEP << "NA";
+                }
+            }
+        }
+        _reportStream << endl;
         return;
+    } else if (group->isGhost()) {
+        return;
+    }
 
     char label = group->label;
     if (group->parent != nullptr && !group->parent->isGhost())
@@ -328,8 +383,60 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
 {
     if (!_reportStream.is_open())
         return;
-    if (group->isGhost())
+
+    // for exports to Polly, add empty ghost parents as well
+    if (group->isGhost() && group->hasCompoundLink() && _pollyExport) {
+        auto compoundName = _sanitizeString(
+                           group->getCompound()->name().c_str()).toStdString();
+        auto compoundId = _sanitizeString(
+                         group->getCompound()->id().c_str()).toStdString();
+        auto compoundFormula = _sanitizeString(
+                      group->getCompound()->formula().c_str()).toStdString();
+        Adduct* adduct = nullptr;
+        for (auto parentAdduct : mavenparameters->getDefaultAdductList()) {
+            if (SIGN(parentAdduct->getCharge())
+                == SIGN(mavenparameters->ionizationMode)) {
+                adduct = parentAdduct;
+            }
+        }
+
+        for (auto sample : group->samples) {
+            string sampleName = "";
+            if (sample != nullptr) {
+                sampleName =
+                    _sanitizeString(sample->sampleName.c_str()).toStdString();
+            }
+            _reportStream << fixed << setprecision(6)
+                          << group->groupId()
+                          << SEP << compoundName
+                          << SEP << compoundId
+                          << SEP << compoundFormula
+                          << SEP << sampleName
+                          << SEP << (adduct == nullptr ? "" : adduct->getName())
+                          << SEP << "C12 PARENT"
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << setprecision(3)
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << setprecision(2)
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0.0f
+                          << SEP << 0
+                          << endl;
+        }
+    } else if (group->isGhost()) {
         return;
+    }
 
     char label = group->label;
     if (group->parent != nullptr && !group->parent->isGhost())

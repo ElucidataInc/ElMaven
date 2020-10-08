@@ -90,7 +90,11 @@ LigandWidget::LigandWidget(MainWindow* mw)
         auto filename = itr.next().toStdString();
         string dbname = mzUtils::cleanFilename(filename);
 
-        if (dbname != "Adducts") {
+        QStringList dbExclusionList = {
+            "Adducts",
+            "xkcd-colors"
+        };
+        if (!dbExclusionList.contains(dbname.c_str())) {
             _mw->massCalcWidget->database->addItem(
                 QString::fromStdString(dbname));
         }

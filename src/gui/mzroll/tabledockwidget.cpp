@@ -2009,8 +2009,8 @@ void TableDockWidget::setDefaultStyle(bool isActive)
     style += "QToolBar QToolButton { margin: 2px; }";
     QPalette themePalette = namedColorSchemePalette(ElMavenLight);
     if (isActive) {
-        QColor light = themePalette.light().color();
-        style = style.arg(light.name(QColor::HexRgb));
+        QColor mid = themePalette.mid().color().lighter(125);
+        style = style.arg(mid.name(QColor::HexRgb));
     } else {
         QColor base = themePalette.base().color();
         style = style.arg(base.name(QColor::HexRgb));

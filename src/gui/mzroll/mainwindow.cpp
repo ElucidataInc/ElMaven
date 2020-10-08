@@ -1739,53 +1739,51 @@ void MainWindow::open()
         Q_UNUSED(continueButton);
     }
 
-    int sampleCount = 0;
     QStringList sampleList;
-    int projectCount  = 0;
     QStringList projectList;
     Q_FOREACH (QString filename, filelist) {
         if (fileLoader->isEmdbProject(filename) 
             || fileLoader->isMzrollDbProject(filename)
             || fileLoader->isMzRollProject(filename)) {
-                projectCount++;
                 projectList << filename;
             } else {
-                sampleCount++;
                 sampleList << filename;
             }
     }
     filelist.clear();
-    if (sampleCount && !projectCount) {
+
+    if (!sampleList.isEmpty() && projectList.isEmpty()) {
         filelist = sampleList;
-    } else if (!sampleCount && projectCount) {
-        if (projectCount > 1) {
-            filelist << projectList[0];
-        } else {
-            filelist = projectList;
+    } else if (sampleList.isEmpty() && !projectList.isEmpty()) {
+        if (projectList.size() > 1) {
+            QMessageBox::information(this,
+                                     "Multiple projects selected",
+                                     "It seems more than one project files "
+                                     "were chosen to be loaded into this "
+                                     "session. El-MAVEN will only consider the "
+                                     "first project file among them.",
+                                     QMessageBox::Ok);
         }
+        filelist << projectList[0];
     } else {
         QMessageBox msgBox;
         msgBox.setText("It seems you are trying to load sample files and "
                        "project files at once.\n\n"
-                       "Please select either a set of samples or a single project"
-                       "file to load into this session.");
-        QPushButton* sampleChosen = msgBox.addButton("Sample Files",
-                                                       QMessageBox::ActionRole);
-        QPushButton* projectChosen = msgBox.addButton("ProjectFiles",
-                                                     QMessageBox::RejectRole);
-
+                       "Please select whether you wanted to load the sample "
+                       "files or the project file for this session. If "
+                       "multiple project files were chosen, the first one will "
+                       "be loaded.");
+        QPushButton* sampleChosen = msgBox.addButton("Sample files",
+                                                     QMessageBox::ActionRole);
+        QPushButton* projectChosen = msgBox.addButton("Project file",
+                                                      QMessageBox::ActionRole);
         msgBox.setDefaultButton(projectChosen);
         msgBox.exec();
 
         if (msgBox.clickedButton() == sampleChosen)
             filelist = sampleList;
-        if (msgBox.clickedButton() == projectChosen) {
-            if (projectCount > 1) {
-                filelist << projectList[0];
-            } else {
-                filelist = projectList;
-            }
-        }
+        if (msgBox.clickedButton() == projectChosen)
+            filelist << projectList[0]; // we will only ever load the first one
     }
 
     // Changing the title of the main window after selecting the samples

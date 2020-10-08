@@ -787,6 +787,7 @@ _makeMeta(Compound* compound,
                                 mp->getCharge(compound));
         slice.calculateRTMinMax(false, 0.0f);
         container.back().setSlice(slice);
+        container.back().setSelectedSamples(mp->samples);
 
         size_t totalSize = container.size();
         container.back().setGroupId(totalSize);
