@@ -439,6 +439,12 @@ public Q_SLOTS:
      */
     void setActiveTable(TableDockWidget* table);
 
+    /**
+     * @brief Instruct the main-window to obey or reject requests for auto-save.
+     * @param enabled If `true` enables auto-save. If `false` disables it.
+     */
+    void setAutosaveEnabled(bool enabled) { _autosaveEnabled = enabled; }
+
 private Q_SLOTS:
 	void createMenus();
 	void createToolBars();
@@ -512,6 +518,7 @@ private:
 
     QProgressDialog* _loadProgressDialog;
     int _statusPriority;
+    bool _autosaveEnabled;
 
     /**
      * @brief A small tool that allows the user to manage their compound

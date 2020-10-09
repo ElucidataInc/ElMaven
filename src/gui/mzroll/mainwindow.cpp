@@ -776,8 +776,13 @@ using namespace mzUtils;
             }
         }
 
-        setAcceptDrops(true);
+    _autosaveEnabled = false;
+    if (settings->contains("autosaveEnabled")) {
+        settingsForm->autosaveCheckBox->setChecked(
+                settings->value("autosaveEnabled").toBool());
+    }
 
+    setAcceptDrops(true);
 	showNormal();	//return from full screen on startup
 
     QDirIterator adductItr(":/databases/Adducts/");
@@ -986,6 +991,9 @@ QString MainWindow::getLatestUserProject()
 
 void MainWindow::autosaveGroups(QList<shared_ptr<PeakGroup>> groups)
 {
+    if (!_autosaveEnabled)
+        return;
+
     if (groups.empty() || autosaveWorker->currentProjectName().isEmpty()) {
         autosaveProject();
         return;
@@ -996,6 +1004,9 @@ void MainWindow::autosaveGroups(QList<shared_ptr<PeakGroup>> groups)
 
 void MainWindow::autosaveProject()
 {
+    if (!_autosaveEnabled)
+        return;
+
     autosaveWorker->saveProject();
 }
 
@@ -1249,7 +1260,11 @@ void MainWindow::setUrl(QString url, QString link) {
 	setStatusText(tr("<a href=\"%1\">%2</a>").arg(url, link));
 }
 
-void MainWindow::autoSaveSignal(QList<shared_ptr<PeakGroup>> groups) {
+void MainWindow::autoSaveSignal(QList<shared_ptr<PeakGroup>> groups)
+{
+    if (!_autosaveEnabled)
+        return;
+
     if (groups.empty()) {
         Q_EMIT(saveSignal());
     } else {
@@ -2730,6 +2745,7 @@ void MainWindow::writeSettings() {
 	settings->setValue("ionChargeBox", ionChargeBox->value());
 	settings->setValue("geometry", saveGeometry());
 	settings->setValue("windowState", saveState());
+    settings->setValue("autosaveEnabled", _autosaveEnabled);
 
 	mzSlice slice = eicWidget->getParameters()->getMzSlice();
 	settings->setValue("mzslice",
