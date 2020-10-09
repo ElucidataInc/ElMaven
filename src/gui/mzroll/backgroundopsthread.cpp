@@ -329,8 +329,12 @@ void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
         if (mavenParameters->stop)
             return;
 
-        if (almostEqual(group.meanMz, parentGroup->meanMz)
-            && almostEqual(group.meanRt, parentGroup->meanRt)) {
+        // we cannot rely here on super exact matches in m/z or RT because the
+        // original "parentGroup" could have been manually integrated by the
+        // user and can be different enough than our auto-integrated "group",
+        // even if they essentially represent the same peak-group.
+        if (abs(group.meanMz - parentGroup->meanMz) < 0.001
+            && abs(group.meanRt - parentGroup->meanRt) < 0.01) {
             parentGroup->deleteChildIsotopes();
             for (auto& child : group.childIsotopes())
                 parentGroup->addIsotopeChild(*child);
