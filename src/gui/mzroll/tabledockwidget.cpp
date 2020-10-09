@@ -133,10 +133,6 @@ void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
 
 void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
 
-void TableDockWidget::sortBy(int col) {
-  treeWidget->sortByColumn(col, Qt::AscendingOrder);
-}
-
 void TableDockWidget::updateTableAfterAlignment()
 {
     BackgroundOpsThread::updateGroups(_topLevelGroups, _mainwindow->samples);
@@ -1348,12 +1344,52 @@ void TableDockWidget::deleteSelectedItems()
         return;
     }
 
+    QTreeWidgetItem* itemBelow = nullptr;
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        auto item = *it;
+        if (item->isSelected()) {
+            itemBelow = treeWidget->itemBelow(item);
+            if (item->parent() != nullptr
+                && selectedItems.contains(item->parent())) {
+                while (itemBelow != nullptr && itemBelow->parent() != nullptr)
+                    itemBelow = treeWidget->itemBelow(itemBelow);
+            }
+        }
+        ++it;
+    }
+    if (itemBelow == nullptr) {
+        int lastItemIndex = treeWidget->topLevelItemCount() - 1;
+        auto lastItem = treeWidget->topLevelItem(lastItemIndex);
+        while (lastItem != nullptr && selectedItems.contains(lastItem))
+            lastItem = treeWidget->topLevelItem(--lastItemIndex);
+        itemBelow = lastItem;
+    }
+
+    shared_ptr<PeakGroup> nextGroup = nullptr;
+    if (itemBelow != nullptr)
+        nextGroup = groupForItem(itemBelow);
+
+    // store sort state
+    int sortColumn = treeWidget->sortColumn();
+    auto sortOrder = treeWidget->sortOrder();
+
     _deleteItemsAndGroups(selectedItems);
+
+    // restore sort state (because table was cleared and repopulated)
+    treeWidget->sortByColumn(sortColumn, sortOrder);
 
     if (_topLevelGroups.empty()) {
         _mainwindow->getEicWidget()->replot(nullptr);
         _mainwindow->ligandWidget->resetColor();
         _mainwindow->removePeaksTable(this);
+    } else if (nextGroup != nullptr) {
+        selectPeakGroup(nextGroup);
+        auto currentItem = treeWidget->currentItem();
+        if (currentItem != nullptr) {
+            treeWidget->scrollToItem(currentItem,
+                                     QAbstractItemView::PositionAtCenter);
+        }
     }
     updateCompoundWidget();
 }
@@ -1439,7 +1475,6 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
   if (e->key() == Qt::Key_Delete) {
     QList<QTreeWidgetItem *> items = treeWidget->selectedItems();
     if (items.size() > 0) {
-      cerr << items.size() << endl;
       deleteSelectedItems();
     }
   } else if (e->key() == Qt::Key_G) {
@@ -2907,6 +2942,7 @@ bool PeakGroupTreeWidget::moveInProgress = false;
 PeakGroupTreeWidget::PeakGroupTreeWidget(TableDockWidget* parent)
     : QTreeWidget(parent)
 {
+    _sortOrder = Qt::AscendingOrder;
     table = parent;
     setDragEnabled(true);
     viewport()->setAcceptDrops(true);
@@ -3044,4 +3080,10 @@ void PeakGroupTreeWidget::paintEvent(QPaintEvent* event)
                           && dropPosition != QAbstractItemView::AboveItem);
     QTreeWidget::paintEvent(event);
     setDropIndicatorShown(true);
+}
+
+void PeakGroupTreeWidget::sortByColumn(int column, Qt::SortOrder order)
+{
+    _sortOrder = order;
+    QTreeWidget::sortItems(column, order);
 }
