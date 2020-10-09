@@ -370,6 +370,15 @@ void PeakEditor::_applyEdits()
     if (ui->syncRtCheckBox->isChecked()) {
         mp->linkIsotopeRtRange = true;
 
+        // if no regions for a particular sample were adjusted, add the
+        // currently set region for that sample so that the sync is forced for
+        // all peaks (from the different samples)
+        for (const auto& peak : _group->peaks) {
+            auto sample = peak.getSample();
+            if (_setPeakRegions.count(sample) == 0)
+                _setPeakRegions[sample] = make_pair(peak.rtmin, peak.rtmax);
+        }
+
         PeakGroup* parentGroup = nullptr;
         if (_group->childIsotopeCount() > 0) {
             parentGroup = _group.get();
