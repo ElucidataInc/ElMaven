@@ -126,6 +126,76 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
     return eics;
 }
 
+void PeakDetector::editPeakRegionForSample(PeakGroup *group,
+                                           mzSample* peakSample,
+                                           vector<EIC*>& eics,
+                                           float rtMin,
+                                           float rtMax,
+                                           ClassifierNeuralNet *clsf)
+{
+    // lambda: deletes the peak for `peakSample` in `group` if it exists
+    auto deletePeakIfExists = [group, peakSample] {
+        group->peaks.erase(remove_if(begin(group->peaks),
+                                  end(group->peaks),
+                                  [peakSample](Peak& peak) {
+                                      return peak.getSample() == peakSample;
+                                  }),
+                            end(group->peaks));
+    };
+
+    if (rtMin < 0.0f && rtMax < 0.0f) {
+        deletePeakIfExists();
+        return;
+    }
+
+    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
+        return eic->sample == peakSample;
+    });
+    if (eicFoundAt == end(eics))
+        return;
+
+    int peakIndexForSample = -1;
+    EIC* eic = *eicFoundAt;
+    bool deletePeak = false;
+    for (int i = 0; i < group->peaks.size(); ++i) {
+        Peak& peak = group->peaks[i];
+        if (peak.getSample() != peakSample)
+            continue;
+        peakIndexForSample = i;
+    }
+
+    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
+    newPeak.mzmin = group->getSlice().mzmin;
+    newPeak.mzmax = group->getSlice().mzmax;
+    eic->getPeakDetails(newPeak);
+    if (newPeak.pos > 0) {
+        if (clsf != nullptr && clsf->hasModel())
+            newPeak.quality = clsf->scorePeak(newPeak);
+
+        PeakFiltering peakFilter(group->parameters().get(), group->isIsotope());
+        if (!peakFilter.filter(newPeak)) {
+            if (peakIndexForSample < 0) {
+                group->addPeak(newPeak);
+            } else {
+                group->peaks[peakIndexForSample] = newPeak;
+            }
+        } else {
+            deletePeak = true;
+        }
+    } else {
+        deletePeak = true;
+    }
+
+    if (deletePeak)
+        deletePeakIfExists();
+
+    mzSlice slice = group->getSlice();
+    slice.rtmin = min(slice.rtmin, rtMin);
+    slice.rtmax = max(slice.rtmax, rtMax);
+    slice.rt = (slice.rtmin + slice.rtmax) / 2.0f;
+    group->setSlice(slice);
+}
+
 void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
 {
     _mavenParameters->showProgressFlag = true;
@@ -962,7 +1032,6 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                                           bool findBarplotIsotopes)
 {
-    PeakFiltering peakFilter(_mavenParameters, true);
     auto isotopes = findBarplotIsotopes ? parentGroup.childIsotopesBarPlot()
                                         : parentGroup.childIsotopes();
     vector<PeakGroup*> emptyChildren;
@@ -970,30 +1039,17 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
         auto eics = pullEICs(&child->getSlice(),
                              _mavenParameters->samples,
                              _mavenParameters);
-        for (auto eic : eics) {
-            if (eic == nullptr)
-                continue;
-
-            mzSample* sample = eic->sample;
-            auto parentPeak = parentGroup.getPeak(sample);
-            auto childPeak = child->getPeak(sample);
-            if (parentPeak == nullptr || childPeak == nullptr)
-                continue;
-
-            eic->adjustPeakBounds(*childPeak,
-                                  parentPeak->rtmin,
-                                  parentPeak->rtmax);
-            eic->getPeakDetails(*childPeak);
-            if (mzUtils::almostEqual(childPeak->peakArea, 0.0f))
-                child->deletePeak(sample);
-
-            if (_mavenParameters->clsf->hasModel())
-                _mavenParameters->clsf->scorePeak(*childPeak);
-            if (peakFilter.filter(*childPeak))
-                child->deletePeak(sample);
+        for (const auto& peak : parentGroup.peaks) {
+            auto sample = peak.getSample();
+            editPeakRegionForSample(child.get(),
+                                    sample,
+                                    eics,
+                                    peak.rtmin,
+                                    peak.rtmax,
+                                    _mavenParameters->clsf);
         }
-
         delete_all(eics);
+
         if (child->peakCount() == 0) {
             emptyChildren.push_back(child.get());
             continue;

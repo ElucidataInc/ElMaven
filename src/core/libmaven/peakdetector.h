@@ -10,6 +10,7 @@ class MavenParameters;
 class mzSample;
 class mzSlice;
 class PeakGroup;
+class ClassifierNeuralNet;
 
 /**
  * @brief The PeakDetector provides function with all the logic for peak
@@ -41,6 +42,28 @@ public:
                                       const std::vector<mzSample*>& samples,
                                       const MavenParameters* mp,
                                       bool filterUnselectedSamples = true);
+
+    /**
+     * @brief Set the RT bounds of the peak, of the given peak-group, for the
+     * given sample.
+     * @param group Pointer to the peak-group whose peak bounds will be edited.
+     * @param peakSample Pointer to an `mzSample` object.
+     * @param eics A vector of EICs which used for extracting peak region. This
+     * would not be strictly needed since the `peakSample`'s EIC can be pulled.
+     * Even so, having this as an argument allows the caller to store all EICs
+     * from a potentially parallelized fetch instead of fetching them one at a
+     * time (whenever this method is called).
+     * @param rtMin Minimum retention time (left bound) to set for the peak.
+     * @param rtMax Maximum retention time (right bound) to set for the peak.
+     * @param clsf A pointer to a classifier, which will be used for assigning
+     * quality score to edited peak.
+     */
+    static void editPeakRegionForSample(PeakGroup* group,
+                                        mzSample* peakSample,
+                                        std::vector<EIC*>& eics,
+                                        float rtMin,
+                                        float rtMax,
+                                        ClassifierNeuralNet* clsf);
 
     void sendBoostSignal(const std::string& progressText,
                          unsigned int completed_slices,

@@ -247,75 +247,6 @@ void PeakEditor::_selectionChanged()
     _gallery->showPlotFor(selectedIndexes);
 }
 
-void PeakEditor::_editPeakRegionForSample(PeakGroup *group,
-                                          mzSample* peakSample,
-                                          vector<EIC*>& eics,
-                                          float rtMin,
-                                          float rtMax)
-{
-    // lambda: deletes the peak for `peakSample` in `group` if it exists
-    auto deletePeakIfExists = [group, peakSample] {
-        group->peaks.erase(remove_if(begin(group->peaks),
-                                  end(group->peaks),
-                                  [peakSample](Peak& peak) {
-                                      return peak.getSample() == peakSample;
-                                  }),
-                            end(group->peaks));
-    };
-
-    if (rtMin < 0.0f && rtMax < 0.0f) {
-        deletePeakIfExists();
-        return;
-    }
-
-    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
-        return eic->sample == peakSample;
-    });
-    if (eicFoundAt == end(eics))
-        return;
-
-    int peakIndexForSample = -1;
-    EIC* eic = *eicFoundAt;
-    bool deletePeak = false;
-    for (int i = 0; i < group->peaks.size(); ++i) {
-        Peak& peak = group->peaks[i];
-        if (peak.getSample() != peakSample)
-            continue;
-        peakIndexForSample = i;
-    }
-
-    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
-    newPeak.mzmin = group->getSlice().mzmin;
-    newPeak.mzmax = group->getSlice().mzmax;
-    eic->getPeakDetails(newPeak);
-    if (newPeak.pos > 0) {
-        if (_clsf != nullptr)
-            newPeak.quality = _clsf->scorePeak(newPeak);
-
-        PeakFiltering peakFilter(group->parameters().get(), group->isIsotope());
-        if (!peakFilter.filter(newPeak)) {
-            if (peakIndexForSample < 0) {
-                group->addPeak(newPeak);
-            } else {
-                group->peaks[peakIndexForSample] = newPeak;
-            }
-        } else {
-            deletePeak = true;
-        }
-    } else {
-        deletePeak = true;
-    }
-
-    if (deletePeak)
-        deletePeakIfExists();
-
-    mzSlice slice = group->getSlice();
-    slice.rtmin = min(slice.rtmin, rtMin);
-    slice.rtmax = max(slice.rtmax, rtMax);
-    slice.rt = (slice.rtmin + slice.rtmax) / 2.0f;
-    group->setSlice(slice);
-}
-
 void PeakEditor::_applyEdits()
 {
     _setBusyState();
@@ -345,7 +276,12 @@ void PeakEditor::_applyEdits()
             if (isIsotopologue && rtMin < 0.0f && rtMax < 0.0f)
                 return;
 
-            _editPeakRegionForSample(group, sample, eics, rtMin, rtMax);
+            PeakDetector::editPeakRegionForSample(group,
+                                                  sample,
+                                                  eics,
+                                                  rtMin,
+                                                  rtMax,
+                                                  _clsf);
         }
         group->updateQuality();
         group->groupStatistics();
@@ -394,9 +330,11 @@ void PeakEditor::_applyEdits()
 
         auto eics = getEicsForGroup(parentGroup);
         editGroup(parentGroup, eics, (parentGroup != _group.get()));
+        delete_all(eics);
         for (auto child : parentGroup->childIsotopes()) {
             eics = getEicsForGroup(child.get());
             editGroup(child.get(), eics, (child != _group));
+            delete_all(eics);
         }
     } else {
         mp->linkIsotopeRtRange = false;
