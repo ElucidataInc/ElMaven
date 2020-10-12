@@ -1,6 +1,12 @@
 #include "numeric_treewidgetitem.h"
 
-bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const{
+bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
+{
+    // hack to prevent sorting of child tree-widget items (such as isotopes that
+    // need to have a fixed sort order
+    if (parent() != nullptr)
+        return false;
+
     int sortCol = treeWidget()->sortColumn();
     QString thisText = text(sortCol);
     QString otherText = other.text(sortCol);
