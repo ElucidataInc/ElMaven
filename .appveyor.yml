@@ -41,7 +41,6 @@ install:
     - bash -lc "tar -xzf lcov-1.12.tar.gz"
     - bash -lc "ln -s $PWD/lcov-1.12/bin/lcov /c/msys64/mingw64/bin/lcov"
     - bash -lc "ln -s $PWD/lcov-1.12/bin/geninfo /c/msys64/mingw64/bin/geninfo"
-    - bash -lc "cd $APPVEYOR_BUILD_FOLDER ; ./gcc_v7.3.0.sh"
 
 build_script:
     # write to Sentry keys file
