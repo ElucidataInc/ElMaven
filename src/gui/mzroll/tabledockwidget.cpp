@@ -1344,17 +1344,23 @@ void TableDockWidget::deleteSelectedItems()
         return;
     }
 
+    QSet<PeakGroup*> expandedParentGroups;
     QTreeWidgetItem* itemBelow = nullptr;
     QTreeWidgetItemIterator it(treeWidget);
     while (*it) {
         auto item = *it;
         if (item->isSelected()) {
+            // this branch tries to find the next item to be selected
             itemBelow = treeWidget->itemBelow(item);
             if (item->parent() != nullptr
                 && selectedItems.contains(item->parent())) {
                 while (itemBelow != nullptr && itemBelow->parent() != nullptr)
                     itemBelow = treeWidget->itemBelow(itemBelow);
             }
+        } else if (item->parent() == nullptr && item->isExpanded()) {
+            // this helps us store all parent items that were in expanded state
+            auto expandedGroup = groupForItem(item);
+            expandedParentGroups.insert(expandedGroup.get());
         }
         ++it;
     }
@@ -1384,6 +1390,7 @@ void TableDockWidget::deleteSelectedItems()
         _mainwindow->ligandWidget->resetColor();
         _mainwindow->removePeaksTable(this);
     } else if (nextGroup != nullptr) {
+        // if a next group was available, we select it and bring it in view
         selectPeakGroup(nextGroup);
         auto currentItem = treeWidget->currentItem();
         if (currentItem != nullptr) {
@@ -1391,6 +1398,21 @@ void TableDockWidget::deleteSelectedItems()
                                      QAbstractItemView::PositionAtCenter);
         }
     }
+
+    // re-expand items after table was cleared and repopulated
+    if (!_topLevelGroups.empty() && expandedParentGroups.size() > 0) {
+        QTreeWidgetItemIterator it2(treeWidget);
+        while (*it2) {
+            auto item = *(it2++);
+            if (item->parent() != nullptr)
+                continue;
+
+            auto group = groupForItem(item);
+            if (expandedParentGroups.contains(group.get()))
+                item->setExpanded(true);
+        }
+    }
+
     updateCompoundWidget();
 }
 
