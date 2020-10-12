@@ -170,6 +170,9 @@ after_build:
               }
           }
 
+          # overwrite Qt's std library with mingw's version
+          Copy-item "C:/$env:MSYS2_DIR/MINGW64/bin/libstdc++-6.dll" $BIN -Force
+
           $qt_plugins_path = $(qmake -query QT_INSTALL_PLUGINS)
           echo "Found plugins at $qt_plugins_path"
 
