@@ -274,7 +274,7 @@ void PeakEditor::_applyEdits()
             // for isotopes being readjusted because of the "sync" feature,
             // check if there is a range worth syncing with
             if (isIsotopologue && rtMin < 0.0f && rtMax < 0.0f)
-                return;
+                continue;
 
             PeakDetector::editPeakRegionForSample(group,
                                                   sample,
