@@ -1029,6 +1029,103 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     mzUtils::eraseIndexes(_mavenParameters->allgroups, indexesToErase);
 }
 
+void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
+                                           bool findBarplotIsotopes)
+{
+    if (!_mavenParameters->pullIsotopesFlag
+        || !parentGroup.hasCompoundLink()
+        || parentGroup.getCompound()->formula().empty()
+        || parentGroup.isIsotope()) {
+        return;
+    }
+
+    if (findBarplotIsotopes) {
+        parentGroup.deleteChildIsotopesBarPlot();
+    } else {
+        parentGroup.deleteChildIsotopes();
+    }
+
+    if (parentGroup.integrationType() == PeakGroup::IntegrationType::Manual
+        && _mavenParameters->linkIsotopeRtRange) {
+        vector<mzSample*> visibleSamples;
+        for (auto sample : _mavenParameters->samples) {
+            if (sample == nullptr || !sample->isSelected)
+                continue;
+            visibleSamples.push_back(sample);
+        }
+
+        MassSlicer massSlicer(_mavenParameters);
+        massSlicer.generateIsotopeSlices({parentGroup.getCompound()},
+                                         findBarplotIsotopes);
+        for (const auto& slice : massSlicer.slices) {
+            if (_mavenParameters->stop)
+                return;
+
+            if (slice->isotope.isParent())
+                continue;
+
+            auto eics = pullEICs(slice, visibleSamples, _mavenParameters);
+            auto isotopeGroup = integrateEicRegion(eics,
+                                                   parentGroup.minRt,
+                                                   parentGroup.maxRt,
+                                                   *slice,
+                                                   visibleSamples,
+                                                   _mavenParameters,
+                                                   _mavenParameters->clsf,
+                                                   true);
+            if (isotopeGroup->peakCount() == 0)
+                continue;
+
+            if (findBarplotIsotopes) {
+                parentGroup.addIsotopeChildBarPlot(*isotopeGroup);
+            } else {
+                parentGroup.addIsotopeChild(*isotopeGroup);
+            }
+        }
+    } else {
+        processCompounds({parentGroup.getCompound()},
+                         false,
+                         findBarplotIsotopes);
+        for (auto& group : _mavenParameters->allgroups) {
+            if (_mavenParameters->stop)
+                return;
+
+            // we cannot rely here on exact matches in m/z or RT because the
+            // original "parentGroup" could have been manually integrated by the
+            // user and can be different enough than our auto-integrated
+            // "group", even if they essentially represent the same peak-group.
+            if (abs(group.meanMz - parentGroup.meanMz) < 0.001
+                && abs(group.meanRt - parentGroup.meanRt) < 0.01) {
+                if (findBarplotIsotopes) {
+                    for (auto& child : group.childIsotopesBarPlot())
+                        parentGroup.addIsotopeChildBarPlot(*child);
+                } else {
+                    for (auto& child : group.childIsotopes())
+                        parentGroup.addIsotopeChild(*child);
+                }
+
+                if (_mavenParameters->linkIsotopeRtRange)
+                    linkParentIsotopeRange(parentGroup, findBarplotIsotopes);
+
+                break;
+            }
+        }
+    }
+
+    if (_mavenParameters->filterIsotopesAgainstParent) {
+        GroupFiltering groupFilter(_mavenParameters);
+        auto childType = GroupFiltering::ChildFilterType::Isotope;
+        if (findBarplotIsotopes)
+            childType = GroupFiltering::ChildFilterType::BarplotIsotope;
+        groupFilter.filterBasedOnParent(
+            parentGroup,
+            childType,
+            _mavenParameters->maxIsotopeScanDiff,
+            _mavenParameters->minIsotopicCorrelation,
+            _mavenParameters->compoundMassCutoffWindow);
+    }
+}
+
 void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                                           bool findBarplotIsotopes)
 {
@@ -1061,4 +1158,49 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
 
     for (auto group : emptyChildren)
         parentGroup.removeChild(group);
+}
+
+shared_ptr<PeakGroup>
+PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
+                                 float rtMin,
+                                 float rtMax,
+                                 const mzSlice slice,
+                                 const std::vector<mzSample*>& samples,
+                                 const MavenParameters *mp,
+                                 ClassifierNeuralNet* clsf,
+                                 bool isIsotope)
+{
+    auto parameters = make_shared<MavenParameters>(*mp);
+    auto integratedGroup =
+        make_shared<PeakGroup>(parameters, PeakGroup::IntegrationType::Manual);
+    integratedGroup->minQuality = parameters->minQuality;
+    integratedGroup->setSlice(slice);
+    integratedGroup->srmId = slice.srmId;
+    integratedGroup->setSelectedSamples(samples);
+
+    for (EIC* eic : eics) {
+        Peak peak = eic->peakForRegion(rtMin, rtMax);
+        peak.mzmin = slice.mzmin;
+        peak.mzmax = slice.mzmax;
+        eic->getPeakDetails(peak);
+        if (peak.pos > 0) {
+            if (clsf != nullptr)
+                peak.quality = clsf->scorePeak(peak);
+
+            PeakFiltering peakFiltering(parameters.get(), isIsotope);
+            if (!peakFiltering.filter(peak))
+                integratedGroup->addPeak(peak);
+        }
+    }
+
+    integratedGroup->groupStatistics();
+    int ms2Events = integratedGroup->getFragmentationEvents().size();
+    if (ms2Events > 0) {
+        float ppm = parameters->fragmentTolerance;
+        string scoringAlgo = parameters->scoringAlgo;
+        integratedGroup->computeFragPattern(ppm);
+        integratedGroup->matchFragmentation(ppm, scoringAlgo);
+    }
+
+    return integratedGroup;
 }

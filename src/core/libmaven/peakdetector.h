@@ -65,6 +65,35 @@ public:
                                         float rtMax,
                                         ClassifierNeuralNet* clsf);
 
+    /**
+     * @brief For a vector of EIC objects, integrate the region between `rtMin`
+     * and `rtMax` as a peak-group object.
+     * @param eics The EIC from which peak data will be extracted.
+     * @param rtMin The lower limit of retention time boundary.
+     * @param rtMax The upper limit of retention time boundary.
+     * @param slice The slice to be set for integrated group. Should be the
+     * slice from which `eics` was also created.
+     * @param samples The currently visible set of samples to be set for the
+     * integrated peak-group.
+     * @param mp A parameters object used for values set for current settings.
+     * A frozen copy of parameters will also be added to the integrated
+     * peak-group.
+     * @param clsf The neural-net classifier used for assigning peak quality to
+     * integrated peaks.
+     * @param isIsotope Flag used to tell peak-filtering scheme whether it
+     * should consider each peak as that of an isotope or a regular peak.
+     * @return An newly created `PeakGroup` object for the integrated region.
+     */
+    static std::shared_ptr<PeakGroup>
+    integrateEicRegion(const std::vector<EIC*>& eics,
+                       float rtMin,
+                       float rtMax,
+                       const mzSlice slice,
+                       const std::vector<mzSample*>& samples,
+                       const MavenParameters* mp,
+                       ClassifierNeuralNet* clsf,
+                       bool isIsotope);
+
     void sendBoostSignal(const std::string& progressText,
                          unsigned int completed_slices,
                          int total_slices);
@@ -116,6 +145,23 @@ public:
 
     void performMetaGrouping(bool applyGroupFilters = true,
                              bool barplotIsotopes = false);
+
+    /**
+     * @brief Given a parent isotopic group (unlabelled metabolite), find all
+     * isotopologues according to the current detection scheme.
+     * @details For manually integrated parent peak-groups, if "link RT range"
+     * among isotopologues is active, no sophisticated detection+grouping will
+     * happen. All isotopic peaks for all samples will be integrated using the
+     * parent's RT ranges for those respective samples. Filters against parent
+     * (if opted for) will still apply regardless of the integration mode.
+     * @param parentGroup Peak-group for the unlabelled form of a metabolite,
+     * whose labelled forms are desired.
+     * @param findBarplotIsotopes If `true`, any isotopes detected will be
+     * added to the parent peak-group's `childIsotopesBarPlot` vector.
+     */
+    void detectIsotopesForParent(PeakGroup& parentGroup,
+                                 bool findBarplotIsotopes = false);
+
     void linkParentIsotopeRange(PeakGroup& parentGroup,
                                 bool findBarplotIsotopes = false);
 

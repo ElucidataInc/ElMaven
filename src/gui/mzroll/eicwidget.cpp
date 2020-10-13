@@ -19,6 +19,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "peakdetector.h"
 #include "peakFiltering.h"
 #include "plot_axes.h"
 #include "point.h"
@@ -199,41 +200,16 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 
 void EicWidget::integrateRegion(float rtMin, float rtMax)
 {
-    MavenParameters* mp = getMainWindow()->mavenParameters;
-    auto parameters = make_shared<MavenParameters>(*mp);
-    auto integratedGroup =
-        make_shared<PeakGroup>(parameters, PeakGroup::IntegrationType::Manual);
-    integratedGroup->minQuality = parameters->minQuality;
-    integratedGroup->setSlice(eicParameters->_slice);
-    integratedGroup->srmId = eicParameters->_slice.srmId;
-    integratedGroup->setSelectedSamples(
-        getMainWindow()->getVisibleSamples());
-
-    for (EIC* eic : eicParameters->eics) {
-        Peak peak = eic->peakForRegion(rtMin, rtMax);
-        peak.mzmin = eicParameters->_slice.mzmin;
-        peak.mzmax = eicParameters->_slice.mzmax;
-        eic->getPeakDetails(peak);
-        if (peak.pos > 0) {
-            ClassifierNeuralNet* clsf = getMainWindow()->getClassifier();
-            if (clsf != nullptr)
-                peak.quality = clsf->scorePeak(peak);
-
-            PeakFiltering peakFiltering(parameters.get(), false);
-            if (!peakFiltering.filter(peak))
-                integratedGroup->addPeak(peak);
-        }
-    }
-
-    integratedGroup->groupStatistics();
-    int ms2Events =
-        integratedGroup->getFragmentationEvents().size();
-    if (ms2Events) {
-        float ppm = parameters->fragmentTolerance;
-        string scoringAlgo = parameters->scoringAlgo;
-        integratedGroup->computeFragPattern(ppm);
-        integratedGroup->matchFragmentation(ppm, scoringAlgo);
-    }
+    const auto& visibleSamples = getMainWindow()->getVisibleSamples();
+    auto integratedGroup = PeakDetector::integrateEicRegion(
+        eicParameters->eics,
+        rtMin,
+        rtMax,
+        eicParameters->_slice,
+        visibleSamples,
+        getMainWindow()->mavenParameters,
+        getMainWindow()->getClassifier(),
+        false); // TODO: change isotope flag based on compound-species selected
     getMainWindow()->isotopeWidget->setPeakGroupAndMore(integratedGroup, true);
 }
 

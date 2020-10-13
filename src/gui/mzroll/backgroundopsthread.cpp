@@ -317,75 +317,12 @@ void BackgroundOpsThread::pullIsotopesForFormula(string formula, int charge)
 
 void BackgroundOpsThread::pullIsotopesForGroup(PeakGroup* parentGroup)
 {
-    if (!mavenParameters->pullIsotopesFlag
-        || !parentGroup->hasCompoundLink()
-        || parentGroup->getCompound()->formula().empty()
-        || parentGroup->isIsotope()) {
-        return;
-    }
-
-    peakDetector->processCompounds({parentGroup->getCompound()}, false);
-    for (auto& group : mavenParameters->allgroups) {
-        if (mavenParameters->stop)
-            return;
-
-        // we cannot rely here on super exact matches in m/z or RT because the
-        // original "parentGroup" could have been manually integrated by the
-        // user and can be different enough than our auto-integrated "group",
-        // even if they essentially represent the same peak-group.
-        if (abs(group.meanMz - parentGroup->meanMz) < 0.001
-            && abs(group.meanRt - parentGroup->meanRt) < 0.01) {
-            parentGroup->deleteChildIsotopes();
-            for (auto& child : group.childIsotopes())
-                parentGroup->addIsotopeChild(*child);
-
-            if (mavenParameters->linkIsotopeRtRange)
-                peakDetector->linkParentIsotopeRange(*parentGroup);
-            if (mavenParameters->filterIsotopesAgainstParent) {
-                GroupFiltering groupFilter(mavenParameters);
-                groupFilter.filterBasedOnParent(
-                    *parentGroup,
-                    GroupFiltering::ChildFilterType::Isotope,
-                    mavenParameters->maxIsotopeScanDiff,
-                    mavenParameters->minIsotopicCorrelation,
-                    mavenParameters->compoundMassCutoffWindow);
-            }
-        }
-    }
+    peakDetector->detectIsotopesForParent(*parentGroup);
 }
 
 void BackgroundOpsThread::pullIsotopesForBarPlot(PeakGroup* parentGroup)
 {
-    if (!mavenParameters->pullIsotopesFlag
-        || !parentGroup->hasCompoundLink()
-        || parentGroup->isIsotope()) {
-        return;
-    }
-
-    peakDetector->processCompounds({parentGroup->getCompound()}, false, true);
-    for (auto& group : mavenParameters->allgroups) {
-        if (mavenParameters->stop)
-            return;
-
-        if (almostEqual(group.meanMz, parentGroup->meanMz)
-            && almostEqual(group.meanRt, parentGroup->meanRt)) {
-            parentGroup->deleteChildIsotopesBarPlot();
-            for (auto& child : group.childIsotopesBarPlot())
-                parentGroup->addIsotopeChildBarPlot(*child);
-
-            if (mavenParameters->linkIsotopeRtRange)
-                peakDetector->linkParentIsotopeRange(*parentGroup, true);
-            if (mavenParameters->filterIsotopesAgainstParent) {
-                GroupFiltering groupFilter(mavenParameters);
-                groupFilter.filterBasedOnParent(
-                    *parentGroup,
-                    GroupFiltering::ChildFilterType::BarplotIsotope,
-                    mavenParameters->maxIsotopeScanDiff,
-                    mavenParameters->minIsotopicCorrelation,
-                    mavenParameters->compoundMassCutoffWindow);
-            }
-        }
-    }
+    peakDetector->detectIsotopesForParent(*parentGroup, true);
 }
 
 void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
