@@ -3055,20 +3055,14 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
 
     // update the new parent
     table->refreshParentItem(item);
-    if (item->isExpanded()) {
-        table->sortChildrenAscending(item);
-    } else {
-        item->setExpanded(true);
-    }
 
     // update the old parent
     QTreeWidgetItemIterator it(sourceTable->treeWidget);
     while (*it) {
-        QTreeWidgetItem* parentItem = (*it);
-        if (parentItem->parent() != nullptr) {
-            ++it;
+        QTreeWidgetItem* parentItem = *(it++);
+        if (parentItem->parent() != nullptr)
             continue;
-        }
+
         shared_ptr<PeakGroup> group = sourceTable->groupForItem(parentItem);
         if (group == originalParent) {
             if (group->childIsotopeCount() == 0
@@ -3082,7 +3076,26 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
             }
             break;
         }
-        ++it;
+    }
+
+    QTreeWidgetItemIterator it2(table->treeWidget);
+    while (*it2) {
+        item = *(it2++);
+
+        auto currentGroup = table->groupForItem(item);
+        if (currentGroup == newParent && !item->isExpanded())
+            item->setExpanded(true);
+
+        if (currentGroup == newChild) {
+            table->treeWidget->scrollToItem(
+                item, QAbstractItemView::PositionAtCenter);
+
+            // TODO: should also be selected, but for some reason the dropped
+            // item disappears instead when selected, Qt bug?
+            // table->treeWidget->setCurrentItem(item);
+
+            break;
+        }
     }
 
     mw->autoSaveSignal({originalParent, newParent});
