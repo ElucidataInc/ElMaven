@@ -27,4 +27,5 @@ SOURCES += downloadmanager.cpp \
 HEADERS += downloadmanager.h \
            logger.h          \
            analytics.h       \
-           mixpanel.h
+           mixpanel.h        \
+           alphanum.hpp
