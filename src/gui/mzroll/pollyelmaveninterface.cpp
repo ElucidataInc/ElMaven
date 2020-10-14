@@ -736,7 +736,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     if (_selectedMode == SendMode::PollyProject) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
-    } if (_selectedApp == PollyApp::PollyPhi) {
+    } else if (_selectedApp == PollyApp::PollyPhi) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
     } else if (_selectedApp == PollyApp::QuantFit) {
         _mainwindow->getAnalytics()->hitEvent("Polly upload", "QuantFit");
@@ -799,6 +799,32 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     if (_selectedMode == SendMode::PollyProject) {
         filenames = _prepareSessionFiles(datetimestamp);
     } else {
+        if (_selectedApp == PollyApp::PollyPhi
+            && peakTableCombo->currentIndex() != -1) {
+            auto peakTable =
+                _tableNameMapping[peakTableComboAlt->currentText()];
+            int labeledGroupCount = peakTable->getLabeledGroupCount();
+            int topLevelGroupCount = peakTable->topLevelGroupCount();
+            if (topLevelGroupCount > labeledGroupCount) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Warning: possible format error");
+                msgBox.setText("The currently selected table contains labeled "
+                               "as well as unlabeled peak-groups. PollyPhi "
+                               "may not work with a mixed report like this.");
+                msgBox.addButton("Continue", QMessageBox::ActionRole);
+                QPushButton* cancelButton =
+                    msgBox.addButton("Cancel", QMessageBox::RejectRole);
+                msgBox.setDefaultButton(cancelButton);
+                msgBox.exec();
+
+                if (msgBox.clickedButton() == cancelButton) {
+                    _loadingDialog->close();
+                    QCoreApplication::processEvents();
+                    emit uploadFinished(false);
+                    return;
+                }
+            }
+        }
         filenames = _prepareFilesToUpload(qdir, datetimestamp);
     }
     if (filenames.isEmpty()) {

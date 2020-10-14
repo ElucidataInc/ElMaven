@@ -562,9 +562,11 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
   auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
     shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*topLevelGroup);
     _topLevelGroups.push_back(sharedGroup);
-    if (sharedGroup->childIsotopeCount() > 0)
+    if (sharedGroup->childIsotopeCount() > 0
+        || sharedGroup->tagString == C12_PARENT_LABEL) {
       _labeledGroups++;
-    if (sharedGroup->getCompound())
+    }
+    if (sharedGroup->hasCompoundLink())
       _targetedGroups++;
 
     int parentGroupId = _nextGroupId++;
