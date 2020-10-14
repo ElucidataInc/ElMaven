@@ -436,18 +436,23 @@ void TableDockWidget::updateLegend()
   auto labelsForLegend = TableDockWidget::labelsForLegend();
   auto iconsForLegend = TableDockWidget::iconsForLegend();
   
-  float totalCount = noiseCount + signalCount + correlatedCount + 
-          cohortCount + correlatedCohortCount + maybeGoodGroupLimit;
+  int totalCount = 0;
+  totalCount += noiseCount;
+  totalCount += signalCount;
+  totalCount += correlatedCount;
+  totalCount += cohortCount;
+  totalCount += correlatedCohortCount;
+  totalCount += mayBeGroupsCount;
 
   int count = 0;
   vector<float> countPercentage;
   
-  countPercentage.push_back((noiseCount / totalCount) * 100);
-  countPercentage.push_back((signalCount / totalCount) * 100);
-  countPercentage.push_back((correlatedCount / totalCount) * 100);
-  countPercentage.push_back((cohortCount / totalCount) * 100);
-  countPercentage.push_back((correlatedCohortCount / totalCount) * 100);
-  countPercentage.push_back((mayBeGroupsCount / totalCount) * 100);
+  countPercentage.push_back((noiseCount / static_cast<float>(totalCount)) * 100);
+  countPercentage.push_back((signalCount / static_cast<float>(totalCount)) * 100);
+  countPercentage.push_back((correlatedCount / static_cast<float>(totalCount)) * 100);
+  countPercentage.push_back((cohortCount / static_cast<float>(totalCount)) * 100);
+  countPercentage.push_back((correlatedCohortCount / static_cast<float>(totalCount)) * 100);
+  countPercentage.push_back((mayBeGroupsCount / static_cast<float>(totalCount)) * 100);
 
   for (const auto& label : labelsForLegend) {
       auto type = labelsForLegend.key(label);
@@ -455,7 +460,7 @@ void TableDockWidget::updateLegend()
 
       string labelString = label.toStdString();
       labelString += " (";
-      labelString += mzUtils::integer2string(countPercentage[count++]);
+      labelString += mzUtils::float2string(countPercentage[count++], 4);
       labelString += "%)";
 
       auto labelConverted = QString::fromStdString(labelString);
