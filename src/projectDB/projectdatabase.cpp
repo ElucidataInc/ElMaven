@@ -1371,7 +1371,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         string originalName = compoundsQuery->stringValue("original_name");
         string formula = compoundsQuery->stringValue("formula");
         int charge = compoundsQuery->integerValue("charge");
-        float mass = compoundsQuery->floatValue("mass");
+        float mz = compoundsQuery->floatValue("mass");
         string db = compoundsQuery->stringValue("db_name");
         float expectedRt = compoundsQuery->floatValue("expected_rt");
 
@@ -1386,11 +1386,11 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
         compound->setExpectedRt( expectedRt);
 
         if (formula.empty()) {
-            if (mass > 0)
-                compound->setMz( mass);
+            if (mz > 0)
+                compound->setMz(mz);
         } else {
-            compound->setMz
-                    (static_cast<float>(mcalc.computeNeutralMass(formula)));
+            compound->setMz(static_cast<float>(
+                mcalc.computeMass(formula, charge)));
         }
 
         compound->setPrecursorMz ( compoundsQuery->floatValue("precursor_mz"));
