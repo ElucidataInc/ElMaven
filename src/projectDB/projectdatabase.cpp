@@ -493,8 +493,8 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
             if (scan != nullptr) {
                 stringstream mzs;
                 stringstream ins;
-                mzs << setprecision(6);
-                ins << setprecision(2);
+                mzs << setprecision(6) << fixed;
+                ins << setprecision(2) << fixed;
 
                 // write comma-delimited m/z and intensity values
                 for(int i = 0; i < scan->nobs(); ++i) {
