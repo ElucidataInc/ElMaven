@@ -173,7 +173,7 @@ FragmentationMatchScore Compound::scoreCompoundHit(Fragment* expFrag,
 }
 
 
-string Compound::id()
+string Compound::id() const
 {
     return this->_id;
 }
@@ -183,7 +183,7 @@ void Compound::setId(string id){
     this->_id = id;
 }
 
-string Compound::name()
+string Compound::name() const
 {
     return this->_name;
 }
@@ -193,7 +193,7 @@ void Compound::setName(string name)
     this->_name = name;
 }
 
-string Compound::originalName()
+string Compound::originalName() const
 {
     return this->_originalName;
 }
@@ -217,7 +217,7 @@ string Compound::filterFormula(string formulaString)
     return formulaString;
 }
 
-string Compound::formula()
+string Compound::formula() const
 {
     return this->_formula;
 }
@@ -228,7 +228,7 @@ void Compound::setAlias(string alias)
     this->_alias = alias;
 }
 
-string Compound::alias()
+string Compound::alias() const
 {
     return this->_alias;
 }
@@ -239,7 +239,7 @@ void Compound::setExpectedRt(float rt)
     this->_expectedRt = rt;
 }
 
-float Compound::expectedRt()
+float Compound::expectedRt() const
 {
     return this->_expectedRt;
 }
@@ -250,7 +250,7 @@ void Compound::setCharge(int charge)
     this->_charge = charge;
 }
 
-int Compound::charge()
+int Compound::charge() const
 {
     return this->_charge;
 }
@@ -261,7 +261,7 @@ void Compound::setMz(float mass)
     this->_mz = mass;
 }
 
-float Compound::mz()
+float Compound::mz() const
 {
     return this->_mz;
 }
@@ -271,7 +271,7 @@ void Compound::setProductMz(float productMz)
     this->_productMz = productMz;
 }
 
-float Compound::productMz()
+float Compound::productMz() const
 {
     return this->_productMz;
 }
@@ -281,7 +281,7 @@ void Compound::setPrecursorMz(float precursorMz)
     this->_precursorMz = precursorMz;
 }
 
-float Compound::precursorMz()
+float Compound::precursorMz() const
 {
     return this->_precursorMz;
 }
@@ -291,7 +291,7 @@ void Compound::setCollisionEnergy(float collisionEnergy)
     this->_collisionEnergy = collisionEnergy;
 }
 
-float Compound::collisionEnergy()
+float Compound::collisionEnergy() const
 {
     return this->_collisionEnergy;
 }
@@ -302,12 +302,12 @@ void Compound::setDb(string db)
     this->_db = db;
 }
 
-string Compound::db()
+string Compound::db() const
 {
     return this->_db;
 }
 
-string Compound::srmId()
+string Compound::srmId() const
 {
     return this->_srmId;
 }
@@ -322,7 +322,7 @@ void Compound::setNeutralMass(float mass)
     _neutralMass = mass;
 }
 
-float Compound::neutralMass()
+float Compound::neutralMass() const
 {
     return _neutralMass;
 }
@@ -331,7 +331,8 @@ void Compound::setCategory(vector<string> category){
     _category = category;
 }
 
-vector<string> Compound::category(){
+vector<string> Compound::category() const
+{
     return _category;
 }
 
@@ -339,7 +340,8 @@ void Compound::setFragmentMzValues(vector<float> mzValues){
     _fragmentMzValues = mzValues;
 }
 
-vector<float> Compound::fragmentMzValues(){
+vector<float> Compound::fragmentMzValues() const
+{
     return _fragmentMzValues;
 }
 
@@ -347,7 +349,8 @@ void Compound::setFragmentIntensities(vector<float> intensities){
     _fragmentIntensities = intensities;
 }
 
-vector<float> Compound::fragmentIntensities(){
+vector<float> Compound::fragmentIntensities() const
+{
     return _fragmentIntensities;
 }
 
@@ -355,7 +358,8 @@ void Compound::setFragmentIonTypes(map<int, string> types){
     _fragmentIonTypes = types;
 }
 
-map<int, string> Compound::fragmentIonTypes(){
+map<int, string> Compound::fragmentIonTypes() const
+{
     return _fragmentIonTypes;
 }
 
@@ -363,7 +367,8 @@ void Compound::setSmileString(string smileString){
     _smileString = smileString;
 }
 
-string Compound::smileString(){
+string Compound::smileString() const
+{
     return _smileString;
 }
 
@@ -371,7 +376,8 @@ void Compound::setLogP(float logP){
     _logP = logP;
 }
 
-float Compound:: logP(){
+float Compound:: logP() const
+{
     return _logP;
 }
 
@@ -379,7 +385,8 @@ void Compound::setVirtualFragmentation(bool isVirtual){
     _virtualFragmentation = isVirtual;
 }
 
-bool Compound:: virtualFragmentation(){
+bool Compound:: virtualFragmentation() const
+{
     return _virtualFragmentation;
 }
 
@@ -387,7 +394,8 @@ void Compound:: setNote(string note){
     _note = note;
 }
 
-string Compound:: note(){
+string Compound:: note() const
+{
     return _note;
 }
 
@@ -395,7 +403,8 @@ void Compound::setIsDecoy(bool isDecoy){
     _isDecoy = isDecoy;
 }
 
-bool Compound::isDecoy(){
+bool Compound::isDecoy() const
+{
     return _isDecoy;
 }
 
@@ -403,7 +412,8 @@ void Compound::setMethod_id(string id){
     _method_id = id;
 }
 
-string Compound::method_id(){
+string Compound::method_id() const
+{
     return _method_id;
 }
 
@@ -411,7 +421,8 @@ void Compound::setTransition_id(int id){
     _transition_id = id;
 }
 
-int Compound::transition_id(){
+int Compound::transition_id() const
+{
     return _transition_id;
 }
 
@@ -419,7 +430,8 @@ void Compound::setKegg_id(string id){
     _kegg_id = id;
 }
 
-string Compound::kegg_id(){
+string Compound::kegg_id() const
+{
     return _kegg_id;
 }
 
@@ -427,7 +439,8 @@ void Compound::setPubchem_id(string id){
     _pubchem_id = id;
 }
 
-string Compound::pubchem_id(){
+string Compound::pubchem_id() const
+{
     return _pubchem_id;
 }
 
@@ -435,10 +448,64 @@ void Compound::setHmdb_id(string id){
     _hmdb_id = id;
 }
 
-string Compound::hmdb_id(){
+string Compound::hmdb_id() const
+{
     return  _hmdb_id;
 }
 
+ostream& operator<<(ostream& os, const Compound& compound)
+{
+    string compoundType = "Unknown";
+    if (compound.type() == Compound::Type::MS1) {
+        compoundType = "MS1";
+    } else if (compound.type() == Compound::Type::MS2) {
+        compoundType = "MS2";
+    } else if (compound.type() == Compound::Type::MRM) {
+        compoundType = "MRM";
+    }
+
+    string ionizationMode = "Neutral";
+    if (compound.ionizationMode == Compound::IonizationMode::Positive) {
+        ionizationMode = "Positive";
+    } else if (compound.ionizationMode == Compound::IonizationMode::Negative) {
+        ionizationMode = "Negative";
+    }
+
+    os << "Compound {" << "\n\t"
+       << "id: " << compound.id() << "\n\t"
+       << "name: " << compound.name() << "\n\t"
+       << "original-name: " << compound.originalName() << "\n\t"
+       << "formula: " << compound.formula() << "\n\t"
+       << "kegg-ID: " << compound.kegg_id() << "\n\t"
+       << "pubchem-ID: " << compound.pubchem_id() << "\n\t"
+       << "hmdb-ID: " << compound.hmdb_id() << "\n\t"
+       << "alias: " << compound.alias() << "\n\t"
+       << "smile-string: " << compound.smileString() << "\n\t"
+       << "srm-ID: " << compound.srmId() << "\n\t"
+       << "expected-RT: " << compound.expectedRt() << "\n\t"
+       << "charge: " << compound.charge() << "\n\t"
+       << "mz: " << compound.mz() << "\n\t"
+       << "method-ID: " << compound.method_id() << "\n\t"
+       << "precursor-mz: " << compound.precursorMz() << "\n\t"
+       << "product-mz: " << compound.productMz() << "\n\t"
+       << "collision-energy: " << compound.collisionEnergy() << "\n\t"
+       << "log-p: " << compound.logP() << "\n\t"
+       << "virtual-fragmentation: " << compound.virtualFragmentation() << "\n\t"
+       << "is-decoy: " << compound.isDecoy() << "\n\t"
+       << "ionization-mode: " << ionizationMode << "\n\t"
+       << "database: " << compound.db() << "\n\t"
+       << "fragment-mz-values: vector(size="
+           << compound.fragmentMzValues().size() << ")" << "\n\t"
+       << "fragment-intensities: vector(size="
+           << compound.fragmentIntensities().size() << ")" << "\n\t"
+       << "fragment-ion-types: vector(size="
+           << compound.fragmentIonTypes().size() << ")" << "\n\t"
+       << "category: vector(size="
+           << compound.category().size() << ")" << "\n\t"
+       << "type: " << compoundType << "\n"
+       << "}" << "\n";
+    return os;
+}
 
 class Test_CompoundFixture: public SampleLoadingFixture{
 

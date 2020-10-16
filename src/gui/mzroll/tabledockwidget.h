@@ -276,8 +276,7 @@ public slots:
   virtual void deleteSelectedItems();
   virtual void deleteGroup(PeakGroup* group);
 
-  void sortBy(int);
-  bool deleteAll();
+  bool deleteAll(bool askConfirmation = true);
   void clusterGroups();
 
   void switchTableView();
@@ -434,7 +433,7 @@ public Q_SLOTS:
 
   void deleteGroup(PeakGroup* group);
   void deleteSelectedItems();
-  void deleteAll();
+  void deleteAll(bool askConfirmation = true);
 
   void markGroupGood();
   void markGroupBad();
@@ -523,11 +522,21 @@ public:
     static RowData dragData;
     static bool moveInProgress;
 
+    Qt::SortOrder sortOrder() const { return _sortOrder; }
+    void sortByColumn(int column, Qt::SortOrder order);
+    void sortItems(int column, Qt::SortOrder order)
+    {
+        sortByColumn(column, order);
+    }
+
 protected:
     void dragEnterEvent(QDragEnterEvent* event);
     void dropEvent(QDropEvent* event);
     Qt::DropActions supportedDropActions() const;
     void paintEvent(QPaintEvent* event);
+
+private:
+    Qt::SortOrder _sortOrder;
 };
 
 #endif

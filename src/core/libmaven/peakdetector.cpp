@@ -126,6 +126,76 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
     return eics;
 }
 
+void PeakDetector::editPeakRegionForSample(PeakGroup *group,
+                                           mzSample* peakSample,
+                                           vector<EIC*>& eics,
+                                           float rtMin,
+                                           float rtMax,
+                                           ClassifierNeuralNet *clsf)
+{
+    // lambda: deletes the peak for `peakSample` in `group` if it exists
+    auto deletePeakIfExists = [group, peakSample] {
+        group->peaks.erase(remove_if(begin(group->peaks),
+                                  end(group->peaks),
+                                  [peakSample](Peak& peak) {
+                                      return peak.getSample() == peakSample;
+                                  }),
+                            end(group->peaks));
+    };
+
+    if (rtMin < 0.0f && rtMax < 0.0f) {
+        deletePeakIfExists();
+        return;
+    }
+
+    auto eicFoundAt = find_if(begin(eics), end(eics), [peakSample](EIC* eic) {
+        return eic->sample == peakSample;
+    });
+    if (eicFoundAt == end(eics))
+        return;
+
+    int peakIndexForSample = -1;
+    EIC* eic = *eicFoundAt;
+    bool deletePeak = false;
+    for (int i = 0; i < group->peaks.size(); ++i) {
+        Peak& peak = group->peaks[i];
+        if (peak.getSample() != peakSample)
+            continue;
+        peakIndexForSample = i;
+    }
+
+    Peak newPeak = eic->peakForRegion(rtMin, rtMax);
+    newPeak.mzmin = group->getSlice().mzmin;
+    newPeak.mzmax = group->getSlice().mzmax;
+    eic->getPeakDetails(newPeak);
+    if (newPeak.pos > 0) {
+        if (clsf != nullptr && clsf->hasModel())
+            newPeak.quality = clsf->scorePeak(newPeak);
+
+        PeakFiltering peakFilter(group->parameters().get(), group->isIsotope());
+        if (!peakFilter.filter(newPeak)) {
+            if (peakIndexForSample < 0) {
+                group->addPeak(newPeak);
+            } else {
+                group->peaks[peakIndexForSample] = newPeak;
+            }
+        } else {
+            deletePeak = true;
+        }
+    } else {
+        deletePeak = true;
+    }
+
+    if (deletePeak)
+        deletePeakIfExists();
+
+    mzSlice slice = group->getSlice();
+    slice.rtmin = min(slice.rtmin, rtMin);
+    slice.rtmax = max(slice.rtmax, rtMax);
+    slice.rt = (slice.rtmin + slice.rtmax) / 2.0f;
+    group->setSlice(slice);
+}
+
 void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
 {
     _mavenParameters->showProgressFlag = true;
@@ -959,10 +1029,106 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
     mzUtils::eraseIndexes(_mavenParameters->allgroups, indexesToErase);
 }
 
+void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
+                                           bool findBarplotIsotopes)
+{
+    if (!_mavenParameters->pullIsotopesFlag
+        || !parentGroup.hasCompoundLink()
+        || parentGroup.getCompound()->formula().empty()
+        || parentGroup.isIsotope()) {
+        return;
+    }
+
+    if (findBarplotIsotopes) {
+        parentGroup.deleteChildIsotopesBarPlot();
+    } else {
+        parentGroup.deleteChildIsotopes();
+    }
+
+    if (parentGroup.integrationType() == PeakGroup::IntegrationType::Manual
+        && _mavenParameters->linkIsotopeRtRange) {
+        vector<mzSample*> visibleSamples;
+        for (auto sample : _mavenParameters->samples) {
+            if (sample == nullptr || !sample->isSelected)
+                continue;
+            visibleSamples.push_back(sample);
+        }
+
+        MassSlicer massSlicer(_mavenParameters);
+        massSlicer.generateIsotopeSlices({parentGroup.getCompound()},
+                                         findBarplotIsotopes);
+        for (const auto& slice : massSlicer.slices) {
+            if (_mavenParameters->stop)
+                return;
+
+            if (slice->isotope.isParent())
+                continue;
+
+            auto eics = pullEICs(slice, visibleSamples, _mavenParameters);
+            auto isotopeGroup = integrateEicRegion(eics,
+                                                   parentGroup.minRt,
+                                                   parentGroup.maxRt,
+                                                   *slice,
+                                                   visibleSamples,
+                                                   _mavenParameters,
+                                                   _mavenParameters->clsf,
+                                                   true);
+            if (isotopeGroup->peakCount() == 0)
+                continue;
+
+            if (findBarplotIsotopes) {
+                parentGroup.addIsotopeChildBarPlot(*isotopeGroup);
+            } else {
+                parentGroup.addIsotopeChild(*isotopeGroup);
+            }
+        }
+    } else {
+        processCompounds({parentGroup.getCompound()},
+                         false,
+                         findBarplotIsotopes);
+        for (auto& group : _mavenParameters->allgroups) {
+            if (_mavenParameters->stop)
+                return;
+
+            // we cannot rely here on exact matches in m/z or RT because the
+            // original "parentGroup" could have been manually integrated by the
+            // user and can be different enough than our auto-integrated
+            // "group", even if they essentially represent the same peak-group.
+            if (abs(group.meanMz - parentGroup.meanMz) < 0.001
+                && abs(group.meanRt - parentGroup.meanRt) < 0.01) {
+                if (findBarplotIsotopes) {
+                    for (auto& child : group.childIsotopesBarPlot())
+                        parentGroup.addIsotopeChildBarPlot(*child);
+                } else {
+                    for (auto& child : group.childIsotopes())
+                        parentGroup.addIsotopeChild(*child);
+                }
+
+                if (_mavenParameters->linkIsotopeRtRange)
+                    linkParentIsotopeRange(parentGroup, findBarplotIsotopes);
+
+                break;
+            }
+        }
+    }
+
+    if (_mavenParameters->filterIsotopesAgainstParent) {
+        GroupFiltering groupFilter(_mavenParameters);
+        auto childType = GroupFiltering::ChildFilterType::Isotope;
+        if (findBarplotIsotopes)
+            childType = GroupFiltering::ChildFilterType::BarplotIsotope;
+        groupFilter.filterBasedOnParent(
+            parentGroup,
+            childType,
+            _mavenParameters->maxIsotopeScanDiff,
+            _mavenParameters->minIsotopicCorrelation,
+            _mavenParameters->compoundMassCutoffWindow);
+    }
+}
+
 void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                                           bool findBarplotIsotopes)
 {
-    PeakFiltering peakFilter(_mavenParameters, true);
     auto isotopes = findBarplotIsotopes ? parentGroup.childIsotopesBarPlot()
                                         : parentGroup.childIsotopes();
     vector<PeakGroup*> emptyChildren;
@@ -970,30 +1136,17 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
         auto eics = pullEICs(&child->getSlice(),
                              _mavenParameters->samples,
                              _mavenParameters);
-        for (auto eic : eics) {
-            if (eic == nullptr)
-                continue;
-
-            mzSample* sample = eic->sample;
-            auto parentPeak = parentGroup.getPeak(sample);
-            auto childPeak = child->getPeak(sample);
-            if (parentPeak == nullptr || childPeak == nullptr)
-                continue;
-
-            eic->adjustPeakBounds(*childPeak,
-                                  parentPeak->rtmin,
-                                  parentPeak->rtmax);
-            eic->getPeakDetails(*childPeak);
-            if (mzUtils::almostEqual(childPeak->peakArea, 0.0f))
-                child->deletePeak(sample);
-
-            if (_mavenParameters->clsf->hasModel())
-                _mavenParameters->clsf->scorePeak(*childPeak);
-            if (peakFilter.filter(*childPeak))
-                child->deletePeak(sample);
+        for (const auto& peak : parentGroup.peaks) {
+            auto sample = peak.getSample();
+            editPeakRegionForSample(child.get(),
+                                    sample,
+                                    eics,
+                                    peak.rtmin,
+                                    peak.rtmax,
+                                    _mavenParameters->clsf);
         }
-
         delete_all(eics);
+
         if (child->peakCount() == 0) {
             emptyChildren.push_back(child.get());
             continue;
@@ -1005,4 +1158,49 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
 
     for (auto group : emptyChildren)
         parentGroup.removeChild(group);
+}
+
+shared_ptr<PeakGroup>
+PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
+                                 float rtMin,
+                                 float rtMax,
+                                 const mzSlice slice,
+                                 const std::vector<mzSample*>& samples,
+                                 const MavenParameters *mp,
+                                 ClassifierNeuralNet* clsf,
+                                 bool isIsotope)
+{
+    auto parameters = make_shared<MavenParameters>(*mp);
+    auto integratedGroup =
+        make_shared<PeakGroup>(parameters, PeakGroup::IntegrationType::Manual);
+    integratedGroup->minQuality = parameters->minQuality;
+    integratedGroup->setSlice(slice);
+    integratedGroup->srmId = slice.srmId;
+    integratedGroup->setSelectedSamples(samples);
+
+    for (EIC* eic : eics) {
+        Peak peak = eic->peakForRegion(rtMin, rtMax);
+        peak.mzmin = slice.mzmin;
+        peak.mzmax = slice.mzmax;
+        eic->getPeakDetails(peak);
+        if (peak.pos > 0) {
+            if (clsf != nullptr)
+                peak.quality = clsf->scorePeak(peak);
+
+            PeakFiltering peakFiltering(parameters.get(), isIsotope);
+            if (!peakFiltering.filter(peak))
+                integratedGroup->addPeak(peak);
+        }
+    }
+
+    integratedGroup->groupStatistics();
+    int ms2Events = integratedGroup->getFragmentationEvents().size();
+    if (ms2Events > 0) {
+        float ppm = parameters->fragmentTolerance;
+        string scoringAlgo = parameters->scoringAlgo;
+        integratedGroup->computeFragPattern(ppm);
+        integratedGroup->matchFragmentation(ppm, scoringAlgo);
+    }
+
+    return integratedGroup;
 }

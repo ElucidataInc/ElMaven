@@ -50,6 +50,7 @@ class SettingsForm : public QDialog, public Ui_SettingsForm
             * @method toggleOverlap
             */
             void toggleOverlap();
+
             void show();
 
             /*

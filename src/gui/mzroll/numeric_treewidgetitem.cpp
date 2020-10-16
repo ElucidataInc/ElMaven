@@ -1,7 +1,16 @@
+#include "common/alphanum.hpp"
+
 #include "numeric_treewidgetitem.h"
 
-bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const{
+bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
+{
     int sortCol = treeWidget()->sortColumn();
+
+    // hack to prevent sorting of child tree-widget items (such as isotopes that
+    // need to have a fixed sort order
+    if (parent() != nullptr && sortCol != 1)
+        return false;
+
     QString thisText = text(sortCol);
     QString otherText = other.text(sortCol);
 
@@ -32,7 +41,6 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const{
         otherText = QString::fromStdString(to_string(otherConvertedNumber).c_str());
     }
 
-    QCollator collator;
-    collator.setNumericMode(true);
-    return collator.compare(thisText , otherText) < 0;
+    return doj::alphanum_comp(thisText.toStdString(),
+                              otherText.toStdString()) < 0;
 }

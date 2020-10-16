@@ -281,7 +281,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     sprintf(labelStr, "%c", group->label);
 
     string adductName = "";
-    if (group->adduct() != nullptr)
+    if (group->adduct() != nullptr && !group->isIsotope())
         adductName = group->adduct()->getName();
 
     _reportStream << labelStr
@@ -469,7 +469,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     }
 
     string adductName = "";
-    if (group->adduct() != nullptr)
+    if (group->adduct() != nullptr && !group->isIsotope())
         adductName = group->adduct()->getName();
 
     string tagString = group->srmId + group->tagString;

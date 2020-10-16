@@ -37,11 +37,10 @@ install:
     - bash -lc "pacman -S --noconfirm mingw64/mingw-w64-x86_64-curl"
     - bash -lc "pacman -S --noconfirm rsync"
     - C:\Python38\Scripts\pip.exe install pandas
-    - bash -lc "wget https://github.com/linux-test-project/lcov/releases/download/v1.12/lcov-1.12.tar.gz"
-    - bash -lc "tar -xzf lcov-1.12.tar.gz"
-    - bash -lc "ln -s $PWD/lcov-1.12/bin/lcov /c/msys64/mingw64/bin/lcov"
-    - bash -lc "ln -s $PWD/lcov-1.12/bin/geninfo /c/msys64/mingw64/bin/geninfo"
-    - bash -lc "cd $APPVEYOR_BUILD_FOLDER ; ./gcc_v7.3.0.sh"
+    - bash -lc "wget https://github.com/linux-test-project/lcov/releases/download/v1.15/lcov-1.15.tar.gz"
+    - bash -lc "tar -xzf lcov-1.15.tar.gz"
+    - bash -lc "ln -s $PWD/lcov-1.15/bin/lcov /c/msys64/mingw64/bin/lcov"
+    - bash -lc "ln -s $PWD/lcov-1.15/bin/geninfo /c/msys64/mingw64/bin/geninfo"
 
 build_script:
     # write to Sentry keys file
@@ -170,6 +169,9 @@ after_build:
                   }
               }
           }
+
+          # overwrite Qt's std library with mingw's version
+          Copy-item "C:/$env:MSYS2_DIR/MINGW64/bin/libstdc++-6.dll" $BIN -Force
 
           $qt_plugins_path = $(qmake -query QT_INSTALL_PLUGINS)
           echo "Found plugins at $qt_plugins_path"

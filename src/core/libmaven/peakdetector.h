@@ -10,6 +10,7 @@ class MavenParameters;
 class mzSample;
 class mzSlice;
 class PeakGroup;
+class ClassifierNeuralNet;
 
 /**
  * @brief The PeakDetector provides function with all the logic for peak
@@ -41,6 +42,57 @@ public:
                                       const std::vector<mzSample*>& samples,
                                       const MavenParameters* mp,
                                       bool filterUnselectedSamples = true);
+
+    /**
+     * @brief Set the RT bounds of the peak, of the given peak-group, for the
+     * given sample.
+     * @param group Pointer to the peak-group whose peak bounds will be edited.
+     * @param peakSample Pointer to an `mzSample` object.
+     * @param eics A vector of EICs which used for extracting peak region. This
+     * would not be strictly needed since the `peakSample`'s EIC can be pulled.
+     * Even so, having this as an argument allows the caller to store all EICs
+     * from a potentially parallelized fetch instead of fetching them one at a
+     * time (whenever this method is called).
+     * @param rtMin Minimum retention time (left bound) to set for the peak.
+     * @param rtMax Maximum retention time (right bound) to set for the peak.
+     * @param clsf A pointer to a classifier, which will be used for assigning
+     * quality score to edited peak.
+     */
+    static void editPeakRegionForSample(PeakGroup* group,
+                                        mzSample* peakSample,
+                                        std::vector<EIC*>& eics,
+                                        float rtMin,
+                                        float rtMax,
+                                        ClassifierNeuralNet* clsf);
+
+    /**
+     * @brief For a vector of EIC objects, integrate the region between `rtMin`
+     * and `rtMax` as a peak-group object.
+     * @param eics The EIC from which peak data will be extracted.
+     * @param rtMin The lower limit of retention time boundary.
+     * @param rtMax The upper limit of retention time boundary.
+     * @param slice The slice to be set for integrated group. Should be the
+     * slice from which `eics` was also created.
+     * @param samples The currently visible set of samples to be set for the
+     * integrated peak-group.
+     * @param mp A parameters object used for values set for current settings.
+     * A frozen copy of parameters will also be added to the integrated
+     * peak-group.
+     * @param clsf The neural-net classifier used for assigning peak quality to
+     * integrated peaks.
+     * @param isIsotope Flag used to tell peak-filtering scheme whether it
+     * should consider each peak as that of an isotope or a regular peak.
+     * @return An newly created `PeakGroup` object for the integrated region.
+     */
+    static std::shared_ptr<PeakGroup>
+    integrateEicRegion(const std::vector<EIC*>& eics,
+                       float rtMin,
+                       float rtMax,
+                       const mzSlice slice,
+                       const std::vector<mzSample*>& samples,
+                       const MavenParameters* mp,
+                       ClassifierNeuralNet* clsf,
+                       bool isIsotope);
 
     void sendBoostSignal(const std::string& progressText,
                          unsigned int completed_slices,
@@ -93,6 +145,23 @@ public:
 
     void performMetaGrouping(bool applyGroupFilters = true,
                              bool barplotIsotopes = false);
+
+    /**
+     * @brief Given a parent isotopic group (unlabelled metabolite), find all
+     * isotopologues according to the current detection scheme.
+     * @details For manually integrated parent peak-groups, if "link RT range"
+     * among isotopologues is active, no sophisticated detection+grouping will
+     * happen. All isotopic peaks for all samples will be integrated using the
+     * parent's RT ranges for those respective samples. Filters against parent
+     * (if opted for) will still apply regardless of the integration mode.
+     * @param parentGroup Peak-group for the unlabelled form of a metabolite,
+     * whose labelled forms are desired.
+     * @param findBarplotIsotopes If `true`, any isotopes detected will be
+     * added to the parent peak-group's `childIsotopesBarPlot` vector.
+     */
+    void detectIsotopesForParent(PeakGroup& parentGroup,
+                                 bool findBarplotIsotopes = false);
+
     void linkParentIsotopeRange(PeakGroup& parentGroup,
                                 bool findBarplotIsotopes = false);
 

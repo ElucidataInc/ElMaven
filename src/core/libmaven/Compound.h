@@ -181,17 +181,17 @@ class Compound{
          */
         void setId(string id);
 
-        string id();
+        string id() const;
 
         void setName(string name);
 
-        string name();
+        string name() const;
 
         /**
          * Original name of this compound from the DB. This does not change once
          * assigned during construction.
          */
-        string originalName();
+        string originalName() const;
 
         void setFormula(string formula);
 
@@ -208,103 +208,103 @@ class Compound{
          */
         static string filterFormula(string formulaString);
 
-        string formula();
+        string formula() const;
 
         void setAlias(string alias);
 
-        string alias();
+        string alias() const;
 
         void setExpectedRt(float expectedRt);
 
-        float expectedRt();
+        float expectedRt() const;
 
         void setCharge(int charge);
 
-        int charge();
+        int charge() const;
 
         void setMz(float mass);
 
-        float mz();
+        float mz() const;
 
         void setPrecursorMz(float precursorMz);
 
-        float precursorMz();
+        float precursorMz() const;
 
         void setProductMz(float productMz);
 
-        float productMz();
+        float productMz() const;
 
         void setCollisionEnergy(float  collisionEnergy);
 
-        float collisionEnergy();
+        float collisionEnergy() const;
 
         void setDb(string db);
 
-        string db();
+        string db() const;
 
         void setSrmId(string srmId);
 
-        string srmId();
+        string srmId() const;
 
         void setNeutralMass(float mass);
 
-        float neutralMass();
+        float neutralMass() const;
 
         void setCategory(vector<string> category);
 
-        vector<string> category();
+        vector<string> category() const;
 
         void setFragmentMzValues(vector<float> mzValues);
 
-        vector<float> fragmentMzValues();
+        vector<float> fragmentMzValues() const;
 
         void setFragmentIntensities(vector<float> intensities);
 
-        vector<float> fragmentIntensities();
+        vector<float> fragmentIntensities() const;
 
         void setFragmentIonTypes(map<int, string> types);
 
-        map<int, string> fragmentIonTypes();
+        map<int, string> fragmentIonTypes() const;
 
         void setSmileString(string smileString);
 
-        string smileString();
+        string smileString() const;
 
         void setLogP(float logP);
 
-        float logP();
+        float logP() const;
 
         void setVirtualFragmentation(bool isVirtual);
 
-        bool virtualFragmentation();
+        bool virtualFragmentation() const;
 
         void setNote(string note);
 
-        string note();
+        string note() const;
 
         void setIsDecoy(bool isDecoy);
 
-        bool isDecoy();
+        bool isDecoy() const;
 
         void setMethod_id(string id);
 
-        string method_id();
+        string method_id() const;
 
         void setTransition_id(int id);
 
-        int transition_id();
+        int transition_id() const;
 
         void setKegg_id(string id);
 
-        string kegg_id();
+        string kegg_id() const;
 
         void setPubchem_id(string id);
 
-        string pubchem_id();
+        string pubchem_id() const;
 
         void setHmdb_id(string id);
 
-        string hmdb_id();
+        string hmdb_id() const;
 
         bool operator == (const Compound& rhs) const;
 
@@ -341,4 +341,7 @@ class Compound{
          */
         static bool compFormula(const Compound* a, const Compound* b ) { return(a->_formula < b->_formula); }
 };
+
+ostream& operator<<(ostream& os, const Compound& compound);
+
 #endif

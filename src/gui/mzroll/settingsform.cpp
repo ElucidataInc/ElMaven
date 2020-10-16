@@ -221,6 +221,11 @@ SettingsForm::SettingsForm(QSettings* s, MainWindow *w): QDialog(w) {
             &SettingsForm::loadModel);
     _updateModelPath();
 
+    connect(autosaveCheckBox,
+            &QCheckBox::toggled,
+            mainwindow,
+            &MainWindow::setAutosaveEnabled);
+
     connect(this,&SettingsForm::settingsChanged, optionSettings, &OptionsDialogSettings::updateOptionsDialog);
     connect(this, &QDialog::rejected, this, &SettingsForm::triggerSettingsUpdate);
 }

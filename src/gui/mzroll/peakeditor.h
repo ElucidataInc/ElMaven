@@ -104,21 +104,6 @@ private:
     void _populateSampleList();
 
     /**
-     * @brief Set the RT bounds of the peak, of the given peak-group, for the
-     * given sample.
-     * @param group Pointer to the peak-group whose peak bounds will be edited.
-     * @param peakSample Pointer to an `mzSample` object.
-     * @param eics A vector of EICs which used for extracting peak region
-     * @param rtMin Minimum retention time (left bound) to set for the peak.
-     * @param rtMax Maximum retention time (right bound) to set for the peak.
-     */
-    void _editPeakRegionForSample(PeakGroup* group,
-                                  mzSample* peakSample,
-                                  vector<EIC*>& eics,
-                                  float rtMin,
-                                  float rtMax);
-
-    /**
      * @brief Disables most of the UI and sets the status label to inform user
      * that an edit operation is in progress.
      */

@@ -133,10 +133,6 @@ void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
 
 void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
 
-void TableDockWidget::sortBy(int col) {
-  treeWidget->sortByColumn(col, Qt::AscendingOrder);
-}
-
 void TableDockWidget::updateTableAfterAlignment()
 {
     BackgroundOpsThread::updateGroups(_topLevelGroups, _mainwindow->samples);
@@ -566,9 +562,11 @@ shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
   auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
     shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*topLevelGroup);
     _topLevelGroups.push_back(sharedGroup);
-    if (sharedGroup->childIsotopeCount() > 0)
+    if (sharedGroup->childIsotopeCount() > 0
+        || sharedGroup->tagString == C12_PARENT_LABEL) {
       _labeledGroups++;
-    if (sharedGroup->getCompound())
+    }
+    if (sharedGroup->hasCompoundLink())
       _targetedGroups++;
 
     int parentGroupId = _nextGroupId++;
@@ -624,12 +622,14 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
   return _topLevelGroups;
 }
 
-bool TableDockWidget::deleteAll()
+bool TableDockWidget::deleteAll(bool askConfirmation)
 {
   if (!topLevelGroupCount())
     return false;
-
-  auto continueDeletion = deleteAllgroupsWarning();
+  
+  auto continueDeletion = true;
+  if (askConfirmation)
+      continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
 
@@ -1348,13 +1348,75 @@ void TableDockWidget::deleteSelectedItems()
         return;
     }
 
+    QSet<PeakGroup*> expandedParentGroups;
+    QTreeWidgetItem* itemBelow = nullptr;
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        auto item = *it;
+        if (item->isSelected()) {
+            // this branch tries to find the next item to be selected
+            itemBelow = treeWidget->itemBelow(item);
+            if (item->parent() != nullptr
+                && selectedItems.contains(item->parent())) {
+                while (itemBelow != nullptr && itemBelow->parent() != nullptr)
+                    itemBelow = treeWidget->itemBelow(itemBelow);
+            }
+        } else if (item->parent() == nullptr && item->isExpanded()) {
+            // this helps us store all parent items that were in expanded state
+            auto expandedGroup = groupForItem(item);
+            expandedParentGroups.insert(expandedGroup.get());
+        }
+        ++it;
+    }
+    if (itemBelow == nullptr) {
+        int lastItemIndex = treeWidget->topLevelItemCount() - 1;
+        auto lastItem = treeWidget->topLevelItem(lastItemIndex);
+        while (lastItem != nullptr && selectedItems.contains(lastItem))
+            lastItem = treeWidget->topLevelItem(--lastItemIndex);
+        itemBelow = lastItem;
+    }
+
+    shared_ptr<PeakGroup> nextGroup = nullptr;
+    if (itemBelow != nullptr)
+        nextGroup = groupForItem(itemBelow);
+
+    // store sort state
+    int sortColumn = treeWidget->sortColumn();
+    auto sortOrder = treeWidget->sortOrder();
+
     _deleteItemsAndGroups(selectedItems);
+
+    // restore sort state (because table was cleared and repopulated)
+    treeWidget->sortByColumn(sortColumn, sortOrder);
 
     if (_topLevelGroups.empty()) {
         _mainwindow->getEicWidget()->replot(nullptr);
         _mainwindow->ligandWidget->resetColor();
         _mainwindow->removePeaksTable(this);
+    } else if (nextGroup != nullptr) {
+        // if a next group was available, we select it and bring it in view
+        selectPeakGroup(nextGroup);
+        auto currentItem = treeWidget->currentItem();
+        if (currentItem != nullptr) {
+            treeWidget->scrollToItem(currentItem,
+                                     QAbstractItemView::PositionAtCenter);
+        }
     }
+
+    // re-expand items after table was cleared and repopulated
+    if (!_topLevelGroups.empty() && expandedParentGroups.size() > 0) {
+        QTreeWidgetItemIterator it2(treeWidget);
+        while (*it2) {
+            auto item = *(it2++);
+            if (item->parent() != nullptr)
+                continue;
+
+            auto group = groupForItem(item);
+            if (expandedParentGroups.contains(group.get()))
+                item->setExpanded(true);
+        }
+    }
+
     updateCompoundWidget();
 }
 
@@ -1439,7 +1501,6 @@ void TableDockWidget::keyPressEvent(QKeyEvent *e) {
   if (e->key() == Qt::Key_Delete) {
     QList<QTreeWidgetItem *> items = treeWidget->selectedItems();
     if (items.size() > 0) {
-      cerr << items.size() << endl;
       deleteSelectedItems();
     }
   } else if (e->key() == Qt::Key_G) {
@@ -2506,7 +2567,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     for (auto group : _topLevelGroups)
         peakTable->addPeakGroup(group.get());
 
-    deleteAll();
+    deleteAll(false);
     peakTable->showAllGroups();
     showAllGroups();
 
@@ -2645,9 +2706,9 @@ void BookmarkTableDockWidget::deleteSelectedItems()
   TableDockWidget::deleteSelectedItems();
 }
 
-void BookmarkTableDockWidget::deleteAll()
+void BookmarkTableDockWidget::deleteAll(bool askConfirmation)
 {
-  bool allDeleted = TableDockWidget::deleteAll();
+  bool allDeleted = TableDockWidget::deleteAll(askConfirmation);
   if (allDeleted)
     sameMzRtGroups.clear();
 }
@@ -2907,6 +2968,7 @@ bool PeakGroupTreeWidget::moveInProgress = false;
 PeakGroupTreeWidget::PeakGroupTreeWidget(TableDockWidget* parent)
     : QTreeWidget(parent)
 {
+    _sortOrder = Qt::AscendingOrder;
     table = parent;
     setDragEnabled(true);
     viewport()->setAcceptDrops(true);
@@ -2997,20 +3059,14 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
 
     // update the new parent
     table->refreshParentItem(item);
-    if (item->isExpanded()) {
-        table->sortChildrenAscending(item);
-    } else {
-        item->setExpanded(true);
-    }
 
     // update the old parent
     QTreeWidgetItemIterator it(sourceTable->treeWidget);
     while (*it) {
-        QTreeWidgetItem* parentItem = (*it);
-        if (parentItem->parent() != nullptr) {
-            ++it;
+        QTreeWidgetItem* parentItem = *(it++);
+        if (parentItem->parent() != nullptr)
             continue;
-        }
+
         shared_ptr<PeakGroup> group = sourceTable->groupForItem(parentItem);
         if (group == originalParent) {
             if (group->childIsotopeCount() == 0
@@ -3024,7 +3080,26 @@ void PeakGroupTreeWidget::dropEvent(QDropEvent* event)
             }
             break;
         }
-        ++it;
+    }
+
+    QTreeWidgetItemIterator it2(table->treeWidget);
+    while (*it2) {
+        item = *(it2++);
+
+        auto currentGroup = table->groupForItem(item);
+        if (currentGroup == newParent && !item->isExpanded())
+            item->setExpanded(true);
+
+        if (currentGroup == newChild) {
+            table->treeWidget->scrollToItem(
+                item, QAbstractItemView::PositionAtCenter);
+
+            // TODO: should also be selected, but for some reason the dropped
+            // item disappears instead when selected, Qt bug?
+            // table->treeWidget->setCurrentItem(item);
+
+            break;
+        }
     }
 
     mw->autoSaveSignal({originalParent, newParent});
@@ -3044,4 +3119,10 @@ void PeakGroupTreeWidget::paintEvent(QPaintEvent* event)
                           && dropPosition != QAbstractItemView::AboveItem);
     QTreeWidget::paintEvent(event);
     setDropIndicatorShown(true);
+}
+
+void PeakGroupTreeWidget::sortByColumn(int column, Qt::SortOrder order)
+{
+    _sortOrder = order;
+    QTreeWidget::sortItems(column, order);
 }
