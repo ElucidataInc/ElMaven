@@ -622,12 +622,14 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
   return _topLevelGroups;
 }
 
-bool TableDockWidget::deleteAll()
+bool TableDockWidget::deleteAll(bool askConfirmation)
 {
   if (!topLevelGroupCount())
     return false;
-
-  auto continueDeletion = deleteAllgroupsWarning();
+  
+  auto continueDeletion = true;
+  if (askConfirmation)
+      continueDeletion = deleteAllgroupsWarning();
   if (!continueDeletion)
     return false;
 
@@ -2565,7 +2567,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
     for (auto group : _topLevelGroups)
         peakTable->addPeakGroup(group.get());
 
-    deleteAll();
+    deleteAll(false);
     peakTable->showAllGroups();
     showAllGroups();
 
@@ -2704,9 +2706,9 @@ void BookmarkTableDockWidget::deleteSelectedItems()
   TableDockWidget::deleteSelectedItems();
 }
 
-void BookmarkTableDockWidget::deleteAll()
+void BookmarkTableDockWidget::deleteAll(bool askConfirmation)
 {
-  bool allDeleted = TableDockWidget::deleteAll();
+  bool allDeleted = TableDockWidget::deleteAll(askConfirmation);
   if (allDeleted)
     sameMzRtGroups.clear();
 }

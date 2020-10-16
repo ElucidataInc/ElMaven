@@ -276,7 +276,7 @@ public slots:
   virtual void deleteSelectedItems();
   virtual void deleteGroup(PeakGroup* group);
 
-  bool deleteAll();
+  bool deleteAll(bool askConfirmation = true);
   void clusterGroups();
 
   void switchTableView();
@@ -433,7 +433,7 @@ public Q_SLOTS:
 
   void deleteGroup(PeakGroup* group);
   void deleteSelectedItems();
-  void deleteAll();
+  void deleteAll(bool askConfirmation = true);
 
   void markGroupGood();
   void markGroupBad();
