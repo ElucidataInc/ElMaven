@@ -61,12 +61,17 @@ void mzSample::addScan(Scan* s)
         return;
 
     // skip scans that do not match mslevel
-    if (mzSample::filter_mslevel and s->mslevel != mzSample::filter_mslevel)
+    if (mzSample::filter_mslevel and s->mslevel != mzSample::filter_mslevel) {
+        delete s;
         return;
+    }
+
     // skip scans that do not match polarity
     if (mzSample::filter_polarity
-        and s->getPolarity() != mzSample::filter_polarity)
+        and s->getPolarity() != mzSample::filter_polarity) {
+        delete s;
         return;
+    }
 
     // unsigned int sizeBefore = s->intensity.size();
     if (mzSample::filter_centroidScans == true) {
@@ -1166,13 +1171,18 @@ EIC* mzSample::getEIC(float precursorMz,
             continue;
         if (precursorMz != 0.0f && abs(scan->precursorMz - precursorMz) > amuQ1)
             continue;
-        if (productMz != 0.0f && abs(scan->productMz - productMz) > amuQ3)
-            continue;
         if (collisionEnergy != 0.0f
             && scan->collisionEnergy != 0.0f
             && abs(scan->collisionEnergy - collisionEnergy) > 0.5) {
             continue;
         }
+
+        // NOTE: we check for product m/z later while iterating over individual
+        // observations because, for mzXML files, the scans may actually contain
+        // multiple m/z and intensity points (just like a spectra should),
+        // unlike chromatogram-extracted scans from mzML files (which contain
+        // a single mz-intensity observation). This way, we can maintain
+        // compatibility with both the formats.
 
         float eicMz = 0;
         float eicIntensity = 0;
@@ -1180,6 +1190,9 @@ EIC* mzSample::getEIC(float precursorMz,
         switch ((EIC::EicType)eicType) {
         case EIC::MAX: {
             for (unsigned int k = 0; k < scan->nobs(); k++) {
+                if (productMz != 0.0f && abs(scan->mz[k] - productMz) > amuQ3)
+                    continue;
+
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
@@ -1202,6 +1215,9 @@ EIC* mzSample::getEIC(float precursorMz,
             double sumMz = 0.0;
             double sumIntensity = 0.0;
             for (unsigned int k = 0; k < scan->nobs(); k++) {
+                if (productMz != 0.0f && abs(scan->mz[k] - productMz) > amuQ3)
+                    continue;
+
                 double intensity = static_cast<double>(scan->intensity[k]);
                 sumIntensity += intensity;
                 sumMz += static_cast<double>(scan->mz[k]) * intensity;
@@ -1216,6 +1232,9 @@ EIC* mzSample::getEIC(float precursorMz,
 
         default: {
             for (unsigned int k = 0; k < scan->nobs(); k++) {
+                if (productMz != 0.0f && abs(scan->mz[k] - productMz) > amuQ3)
+                    continue;
+
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
