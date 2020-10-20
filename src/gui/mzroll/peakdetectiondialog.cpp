@@ -649,6 +649,18 @@ void PeakDetectionDialog::findPeaks()
                 setDetectionMode(false);
                 close();
             });
+    connect(peakupdater, 
+            &BackgroundOpsThread::toggleCancel, 
+            this,
+            [this] {
+                if (cancelButton->isEnabled()) {
+                    cancelButton->setEnabled(false);
+                } else {
+                    cancelButton->setEnabled(true);
+                }     
+            });
+
+    
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 
     // RUN THREAD

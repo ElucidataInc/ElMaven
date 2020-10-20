@@ -99,6 +99,14 @@ signals:
      */
     void restoreAlignment();
 
+    /**
+     * @brief Some functions of classification runs outside
+     * El-MAVEN and cancellation at that point can not be 
+     * handled and hence signal to disable/enable cancel button
+     * in peak detector dialog.
+     */
+    void toggleCancel(); 
+    
     void newPeakGroup(PeakGroup* group);
 
 protected:

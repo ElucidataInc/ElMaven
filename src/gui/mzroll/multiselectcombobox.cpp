@@ -19,6 +19,8 @@ MultiSelectComboBox::MultiSelectComboBox(QWidget* parent) :
     setStyleSheet("QComboBox QAbstractItemView { "
                   "selection-background-color: #eee; "
                   "}");
+    
+    this->view()->setMinimumWidth(400);
 
     connect(this,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),

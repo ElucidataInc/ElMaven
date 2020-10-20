@@ -430,7 +430,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     else{
         return;
     }
-
+    Q_EMIT(toggleCancel());
     if (!QFile::exists(mlBinary)) {
         bool downloadSuccess = downloadPeakMlFilesFromURL("moi");
         if(!downloadSuccess) {
@@ -590,7 +590,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
             correlations[groupId] = group_correlations;
         }
     }
-
+    Q_EMIT(toggleCancel());
     auto assignPrediction = [&] (PeakGroup* group, 
                                  map<int, pair<int, float>> predictions,
                                  map<int, multimap<float, string>> inferences,
@@ -617,6 +617,12 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     int groupSize = groups.size();
     int countGroups = 0;
     for (auto& group : groups) {
+         if (mavenParameters->stop) {
+            mavenParameters->allgroups.clear();
+            terminate();
+            removeFiles();
+            return;
+        }
         emit updateProgressBar("Classifying Peakgroups", countGroups++, groupSize);
         assignPrediction(&group, 
                          predictions, 
@@ -718,9 +724,9 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     } else {
         if(fileName == "moi")
         {
-            #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+            //#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
                 changeMode(tempDir.toStdString());
-            #endif 
+            //#endif 
         }
         return true;
     }
