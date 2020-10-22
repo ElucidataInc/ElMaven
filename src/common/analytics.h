@@ -4,6 +4,8 @@
 #include <string>
 #include <QString>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 
 class Analytics {
 

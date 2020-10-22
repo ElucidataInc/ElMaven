@@ -49,8 +49,10 @@ void DownloadManager::download(bool async)
         // synchronous request
         QEventLoop loop;
         connect(_reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-        connect(_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
-                &loop, &QEventLoop::quit);
+        connect(_reply,
+                static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+                &loop,
+                &QEventLoop::quit);
         loop.exec();
         if(_reply->error() == QNetworkReply::NoError) {
             _data += _reply->readAll();
@@ -69,8 +71,10 @@ void DownloadManager::download(bool async)
     } else {
         connect(_reply, &QNetworkReply::readyRead, this, &DownloadManager::dataAvailable);
         connect(_reply, &QNetworkReply::finished, this, &DownloadManager::finished);
-        connect(_reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
-                this, &DownloadManager::error);
+        connect(_reply,
+                static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+                this,
+                &DownloadManager::error);
     }
 }
 
