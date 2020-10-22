@@ -637,6 +637,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                              correlations);
         } 
     }
+    file.close();
     removeFiles();
 }
 
@@ -712,7 +713,7 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     if (!_dlManager->err) {
         auto downloadedData = _dlManager->getData();
         QFile file(tempDir);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Append)) {
             file.write(downloadedData);
         }
     } else {
@@ -724,9 +725,9 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     } else {
         if(fileName == "moi")
         {
-            //#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+            #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
                 changeMode(tempDir.toStdString());
-            //#endif 
+            #endif 
         }
         return true;
     }
