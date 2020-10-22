@@ -13,6 +13,7 @@ RelabelGroupsDialog::RelabelGroupsDialog(TableDockWidget* tabledockWidget):
     //default values
     _badGroupLimit = 0.3;
     _maybeGoodGroupLimit = 0.6;
+    _inRelabelingMode = false;
     
     _slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, _tabledockWidget);
     gridLayout_2->addWidget(_slider);
@@ -24,6 +25,7 @@ RelabelGroupsDialog::RelabelGroupsDialog(TableDockWidget* tabledockWidget):
 
 void RelabelGroupsDialog::showDialog()
 {
+    _inRelabelingMode = false;
     QDialog::exec();
 }
 
