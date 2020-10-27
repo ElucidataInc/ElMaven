@@ -576,6 +576,13 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
             make_move_iterator(peakgroups.end()));
     };
 
+    float minRtOverAllSamples = numeric_limits<float>::max();
+    for (auto sample : _mavenParameters->samples)
+        minRtOverAllSamples = min(minRtOverAllSamples, sample->minRt);
+    float maxRtOverAllSamples = numeric_limits<float>::min();
+    for (auto sample : _mavenParameters->samples)
+        maxRtOverAllSamples = max(maxRtOverAllSamples, sample->maxRt);
+
     if (!appendNewGroups)
         _mavenParameters->allgroups.clear();
 
@@ -587,6 +594,9 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
         }
 
         mzSlice* slice = slices[s];
+        slice->rtmin = max(slice->rtmin, minRtOverAllSamples);
+        slice->rtmax = min(slice->rtmax, maxRtOverAllSamples);
+
         vector<EIC*> eics = pullEICs(slice,
                                      _mavenParameters->samples,
                                      _mavenParameters);
@@ -1063,6 +1073,7 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
             visibleSamples.push_back(sample);
         }
 
+        auto parentSlice = parentGroup.getSlice();
         MassSlicer massSlicer(_mavenParameters);
         massSlicer.generateIsotopeSlices({parentGroup.getCompound()},
                                          findBarplotIsotopes);
@@ -1073,6 +1084,8 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
             if (slice->isotope.isParent())
                 continue;
 
+            slice->rtmin = parentSlice.rtmin;
+            slice->rtmax = parentSlice.rtmax;
             auto eics = pullEICs(slice, visibleSamples, _mavenParameters);
             auto isotopeGroup = integrateEicRegion(eics,
                                                    parentGroup.minRt,
@@ -1092,6 +1105,7 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
                 parentGroup.addIsotopeChild(*isotopeGroup);
             }
         }
+        massSlicer.clearSlices();
     } else {
         processCompounds({parentGroup.getCompound()},
                          false,
