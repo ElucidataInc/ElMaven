@@ -684,7 +684,7 @@ int Database::loadCompoundCSVFile(string file,
 Compound* Database::extractCompoundfromEachLine(vector<string>& fields, map<string, int> & header, int loadCount, string filename) {
     string id, name, formula, polarityString;
     string note;
-    float rt = 0, mz = 0, charge = 0, collisionenergy = 0, precursormz = 0, productmz = 0;
+    float rt = 0, mz = 0, charge = 0, collisionenergy = 0, precursormz = 0, productmz = 0, mass = 0;
     int NumOfFields = fields.size();
     vector<string> categorylist;
 
@@ -692,6 +692,9 @@ Compound* Database::extractCompoundfromEachLine(vector<string>& fields, map<stri
 
     if (header.count("mz") && header["mz"] < NumOfFields)  
         mz = string2float(fields[header["mz"]]);
+
+    if ( header.count("mass") && header["mass"] < NumOfFields)
+        mass = string2float(fields[ header["mass"]]);
 
     //Expected RT is given importance over RT. So if Expected RT is
     //present in the DB that will be taken to the RT field in compounds
@@ -752,15 +755,20 @@ Compound* Database::extractCompoundfromEachLine(vector<string>& fields, map<stri
 
     //The compound should atleast have formula so that
     //mass can be calculated from the formula
-    if ( mz > 0 || !formula.empty() || precursormz > 0) {
+    if ( mz > 0 || !formula.empty() || precursormz > 0 || mass > 0.0f) {
         Compound* compound = new Compound(id,name,formula,charge);
 
         compound->setExpectedRt (rt);
 
-        if (mz == 0)
-            mz = MassCalculator::computeMass(formula, charge);
-        
-        
+        if(mass != 0)
+                compound->setNeutralMass(mass);
+
+        if (mz == 0 && !formula.empty())
+            mz = MassCalculator::computeMass(formula,charge);
+        else if (mass != 0.0f) {
+            mz = MassCalculator::adjustMass(mass, charge);
+        }
+     
         compound->setMz(mz);
         compound->setDb  (dbname);
         compound->setExpectedRt(rt);
