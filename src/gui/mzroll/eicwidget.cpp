@@ -8,7 +8,6 @@
 #include "boxplot.h"
 #include "classifierNeuralNet.h"
 #include "datastructures/adduct.h"
-#include "datastructures/mzSlice.h"
 #include "eiclogic.h"
 #include "globals.h"
 #include "isotopeswidget.h"
@@ -201,11 +200,15 @@ void EicWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 void EicWidget::integrateRegion(float rtMin, float rtMax)
 {
     const auto& visibleSamples = getMainWindow()->getVisibleSamples();
+    auto slice = eicParameters->_slice;
+    auto bounds = visibleSamplesBounds();
+    slice.rtmin = bounds.rtmin;
+    slice.rtmax = bounds.rtmax;
     auto integratedGroup = PeakDetector::integrateEicRegion(
         eicParameters->eics,
         rtMin,
         rtMax,
-        eicParameters->_slice,
+        slice,
         visibleSamples,
         getMainWindow()->mavenParameters,
         getMainWindow()->getClassifier(),

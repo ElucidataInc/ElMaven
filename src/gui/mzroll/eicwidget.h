@@ -6,6 +6,7 @@
 #include "stable.h"
 
 #include "datastructures/isotope.h"
+#include "datastructures/mzSlice.h"
 
 class EIC;
 class EICLogic;
@@ -37,6 +38,7 @@ public:
 	void addPeakPositions();
 	void setBarplotPosition(PeakGroup* group);
     void renderPdf(shared_ptr<PeakGroup> group, QPainter* painter);
+    mzSlice visibleSamplesBounds();
 
 public Q_SLOTS:
 	void setMzSlice(float mz1, float mz2 = 0.0);
@@ -255,7 +257,6 @@ private:
 	void cleanup();		//deallocate eics, fragments, peaks, peakgroups
 	void clearPlot();	//removes non permenent graphics objects
 	void findPlotBounds(); //find _minX, _maxX...etc
-	mzSlice visibleSamplesBounds();
 
 	float toX(float x);
 	float toY(float y);

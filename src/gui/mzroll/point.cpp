@@ -221,6 +221,11 @@ void EicPoint::mouseDoubleClickEvent(QGraphicsSceneMouseEvent*) {
     if (_group != nullptr) {
         _group = make_shared<PeakGroup>(*_group,
                                         PeakGroup::IntegrationType::Manual);
+        auto slice = _group->getSlice();
+        auto bounds = _mw->getEicWidget()->visibleSamplesBounds();
+        slice.rtmin = bounds.rtmin;
+        slice.rtmax = bounds.rtmax;
+        _group->setSlice(slice);
         _mw->isotopeWidget->setPeakGroupAndMore(_group, true);
     }
 
