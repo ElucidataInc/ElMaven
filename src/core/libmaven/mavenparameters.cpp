@@ -524,10 +524,12 @@ void MavenParameters::setOptionsDialogSettings(const char* key, const char* valu
         setIonizationMode((Polarity)polarity);
     }
 
-    if (strcmp(key, "ionizationType") == 0 && stoi(value) == 1) {
-        MassCalculator::ionizationType = MassCalculator::EI;
-    } else {
-        MassCalculator::ionizationType = MassCalculator::ESI;
+    if (strcmp(key, "ionizationType") == 0) {
+        if (stoi(value) == 1) {
+            MassCalculator::ionizationType = MassCalculator::EI;
+        } else {
+            MassCalculator::ionizationType = MassCalculator::ESI;
+        }
     }
 
     if(strcmp(key, "q1Accuracy") == 0)

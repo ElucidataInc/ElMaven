@@ -97,6 +97,11 @@ float Adduct::computeParentMass(float mz)
 
 float Adduct::computeAdductMz(float parentMass)
 {
+    if (isParent() && MassCalculator::ionizationType == MassCalculator::EI) {
+        MassCalculator massCalc;
+        return massCalc.adjustMass(parentMass, _charge);
+    }
+
     return (parentMass * static_cast<float>(_nmol) + _mass)
            / static_cast<float>(abs(_charge));
 }

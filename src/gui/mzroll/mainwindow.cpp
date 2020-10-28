@@ -3599,8 +3599,9 @@ void MainWindow::addToHistory(const mzSlice& slice) {
 bool MainWindow::addSample(mzSample* sample) {
 	if (sample && sample->scans.size() > 0) {
 		samples.push_back(sample);
-		mavenParameters->samples.push_back(sample);	
-        settingsForm->setSettingsIonizationMode("Auto-detect");
+        mavenParameters->samples.push_back(sample);
+        if (settingsForm->ionizationType->currentText() != "EI")
+            settingsForm->setSettingsIonizationMode("Auto-detect");
 		return true;
 	} else {
 		delete (sample);
