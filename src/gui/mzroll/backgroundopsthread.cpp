@@ -638,7 +638,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         } 
     }
     file.close();
-    removeFiles();
+ //   removeFiles();
 }
 
 bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
