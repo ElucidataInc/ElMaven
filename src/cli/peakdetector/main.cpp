@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
                 spectralHeatmap->processSpectralHeatMapImage(sample, path);
             }
         }
-    } else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
+    } else {
         log.info() << "No peaks found. Please try again with different "
                       "parameters."
                    << flush;
