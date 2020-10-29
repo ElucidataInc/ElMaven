@@ -698,7 +698,7 @@ class mzSample
     float maxIntensity;
     float minIntensity;
     float totalIntensity;
-    float peakCapacity;
+    double peakCapacity;
 
     int _sampleOrder; //Sample display order
 

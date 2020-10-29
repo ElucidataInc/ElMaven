@@ -1938,8 +1938,8 @@ vector<float> mzSample::getIntensityDistribution(int mslevel)
 
 void mzSample::setPeakCapacity(vector<PeakGroup> groups)
 {
-    float peakFWHMSum = 0;
-    int peakCount;
+    double peakFWHMSum = 0;
+    long unsigned int peakCount = 0;
     for (auto group : groups) {
         for (auto peak : group.peaks){
             if (peak.getSample() == this) {
@@ -1965,7 +1965,7 @@ void mzSample::setPeakCapacity(vector<PeakGroup> groups)
         }
     }
 
-    float avgPeakFWHM = peakFWHMSum / peakCount;
+    double avgPeakFWHM = peakFWHMSum / peakCount;
 
     peakCapacity = (maxRt - minRt) / avgPeakFWHM;
 }
