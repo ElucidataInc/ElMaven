@@ -24,8 +24,9 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven     \
                 $$top_srcdir/src/pollyCLI          \
                 $$top_srcdir/3rdparty/obiwarp      \
                 $$top_srcdir/3rdparty/Eigen        \
-                $$top_srcdir/src/                   \
-                $$top_srcdir/3rdparty/libmgf
+                $$top_srcdir/src/                  \
+                $$top_srcdir/3rdparty/libmgf       \
+                $$top_srcdir/3rdparty/imageExport 
 
 QMAKE_LFLAGS  +=  -L$$top_builddir/libs/
 
@@ -67,10 +68,12 @@ SOURCES	= options.cpp                                            \
           $$top_srcdir/src/core/libmaven/classifierNeuralNet.cpp \
           main.cpp                                               \
           parseoptions.cpp                                       \
-          peakdetectorcli.cpp
+          peakdetectorcli.cpp                                    \
+          spectralHeatmap.cpp   
 
 HEADERS += $$top_srcdir/src/core/libmaven/classifier.h          \
            $$top_srcdir/src/core/libmaven/classifierNeuralNet.h \
            options.h                                            \
            parseoptions.h                                       \
-           peakdetectorcli.h
+           peakdetectorcli.h                                    \
+           spectralHeatmap.h

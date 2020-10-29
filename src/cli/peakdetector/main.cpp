@@ -4,6 +4,7 @@
 #include "common/logger.h"
 #include "mavenparameters.h"
 #include "peakdetectorcli.h"
+#include "spectralHeatmap.h"
 
 int main(int argc, char *argv[]) {
 
@@ -107,6 +108,17 @@ int main(int argc, char *argv[]) {
             peakdetectorCLI->exportSampleReport("sampleReport");
         if (peakdetectorCLI->saveAnalysisAsProject())
             peakdetectorCLI->saveEmdb();
+        if (peakdetectorCLI->exportColorMaps) {
+            SpectralHeatmap *spectralHeatmap = new SpectralHeatmap();
+            auto samples = peakdetectorCLI->mavenParameters->samples;
+            for (auto sample : samples) {
+                auto path = peakdetectorCLI->fileSavePath;
+                path += "/";
+                path += sample->sampleName;
+                path += ".jpg";
+                spectralHeatmap->processSpectralHeatMapImage(sample, path);
+            }
+        }
     } else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
         log.info() << "No peaks found. Please try again with different "
                       "parameters."

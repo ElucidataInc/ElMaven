@@ -72,6 +72,8 @@ public:
     AlignmentMode alignMode;
     int exportPeaks;
     int exportSamples;
+    int exportColorMaps;
+    string fileSavePath;
 
     PeakDetectorCLI(Logger* log,
                     Analytics* analytics,
@@ -237,6 +239,8 @@ public:
                     "report, otherwise 0 <int>",
             "R?exportSampleReport: Export sample report that contains peak capacity"
                 "per sample. Enter 1 for exporting report, otherwise 0 <int>",
+            "M?exportColorMap: Export color map that signifies the top view for sample's"
+                "mz/rt. Enter path for exporting color maps.<string>",
             nullptr
         };
         return options;

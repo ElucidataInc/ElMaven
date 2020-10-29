@@ -34,6 +34,9 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log,
     _pollyIntegration = new PollyIntegration(_dlManager);
     _redirectTo = "gsheet_sym_polly_elmaven";
     _currentPollyApp = PollyApp::None;
+    exportPeaks = 0;
+    exportSamples = 0;
+    exportColorMaps = 0;
 
     analytics->hitScreenView("CLI");
 
@@ -267,6 +270,11 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         
         case 'R':
             exportSamples = atoi(optarg);
+            break;
+        
+        case 'M':
+            exportColorMaps = 1;
+            fileSavePath = optarg;
             break;
         
         default:
