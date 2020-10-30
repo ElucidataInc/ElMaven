@@ -26,7 +26,6 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledockWidget)
     _absoluteTotalWeight = 0;
     _totalWeight = 0;
     
-    initialiseLabelName();
 }
 
 void ClassificationWidget::showClassification()
@@ -201,12 +200,11 @@ int ClassificationWidget::makeArrowForNegatives(float shapValue,
                           Linepen);
 
 
-    string shapValueString = mzUtils::float2string(shapValue, 3);
-    string changedLabel = _changedLabelName[label];                      
-    changedLabel += " = ";
-    changedLabel += shapValueString;
+    string shapValueString = mzUtils::float2string(shapValue, 3);                    
+    label += " = ";
+    label += shapValueString;
 
-    QString peakFeature = QString(changedLabel.c_str());
+    QString peakFeature = QString(label.c_str());
     QString featureText = tr("%1").arg(peakFeature);
 
     QGraphicsTextItem* title = _scene.addText(featureText, font);
@@ -282,11 +280,10 @@ int ClassificationWidget::makeArrowForPositives(float shapValue,
                           Linepen);
 
 
-    string shapValueString = mzUtils::float2string(shapValue, 3);
-    string changedLabel = _changedLabelName[label];                      
-    changedLabel += " = ";
-    changedLabel += shapValueString;
-    QString peakFeature = QString(changedLabel.c_str());
+    string shapValueString = mzUtils::float2string(shapValue, 3);                    
+    label += " = ";
+    label += shapValueString;
+    QString peakFeature = QString(label.c_str());
     QString featureText = tr("%1").arg(peakFeature);
 
     QGraphicsTextItem* title = _scene.addText(featureText, font);
@@ -297,7 +294,7 @@ int ClassificationWidget::makeArrowForPositives(float shapValue,
     else if (featureText.size() < 40)
         title->setPos(startPosition + x_displacement, 250 + counter * 10);
     else
-        title->setPos(startPosition + x_displacement - changedLabel.size(), 
+        title->setPos(startPosition + x_displacement - label.size(), 
                       250 + counter * 10);
 
     return (startPosition + x_displacement); 
