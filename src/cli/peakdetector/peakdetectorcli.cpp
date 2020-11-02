@@ -684,12 +684,22 @@ void PeakDetectorCLI::loadSamples(vector<string>& filenames)
 
     for (unsigned int i = 0; i < filenames.size(); i++) {
         mzSample* sample = new mzSample();
+        auto sampleFilename = filenames[i];
         try {
-            sample->loadSample(filenames[i].c_str());
+            _log->info() << "Loading file: " << sampleFilename << std::flush;
+            sample->loadSample(sampleFilename.c_str());
         } catch (const std::bad_alloc&) {
-            cerr << "MemoryError: " << "ran out of memory" << endl;
+            _log->info() << "MemoryError: "
+                         << "ran out of memory"
+                         << std::flush;
+            mzUtils::delete_all(sample->scans);
+        } catch (...) {
+            _log->info() << "Error: " << "something went wrong while loading "
+                         << sampleFilename
+                         << std::flush;
             mzUtils::delete_all(sample->scans);
         }
+
         if (!sample->scans.empty()) {
             sample->sampleName = mzUtils::cleanFilename(filenames[i]);
             sample->isSelected = true;
