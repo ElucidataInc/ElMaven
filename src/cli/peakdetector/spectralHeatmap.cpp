@@ -1,5 +1,7 @@
 #include <iostream>
-#include <QString.h>
+
+#include <QString>
+
 #include "standardincludes.h"
 #include "spectralHeatmap.h"
 #include "Scan.h"
