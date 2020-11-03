@@ -889,7 +889,11 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
             if (compound == nullptr)
                 continue;
 
-            if (group.isotope().isParent() && group.adduct()->isParent()) {
+            bool noAdduct = group.adduct() == nullptr;
+            bool noIsotope = group.isotope().isNone();
+            bool parentAdductAndIsotope = (group.adduct()->isParent()
+                                           && group.isotope().isParent());
+            if (noAdduct || noIsotope || parentAdductAndIsotope) {
                 if (parentCompounds.count(compound) == 0)
                     parentCompounds[compound] = {};
                 parentCompounds[compound].push_back(i);
