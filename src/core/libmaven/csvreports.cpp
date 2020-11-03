@@ -463,6 +463,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                           << SEP << 0.0f
                           << SEP << 0.0f
                           << SEP << 0
+                          << SEP << "NA"
+                          << SEP << 0.0f
                           << endl;
         }
     } else if (group->isGhost()) {
@@ -486,11 +488,13 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    string ppmDiff = "";
-    if (group->getCompound() != NULL) {
-        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
-        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
+    if (group->hasCompoundLink()) {
+        compoundName = _sanitizeString(
+                           group->getCompound()->name().c_str()).toStdString();
+        compoundID = _sanitizeString(
+                         group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(
+                      group->getCompound()->formula().c_str()).toStdString();
     } else {
         // absence of a group compound means this group was created using
         // untargeted detection,
@@ -528,29 +532,19 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
             sampleName =
                 _sanitizeString(sample->sampleName.c_str()).toStdString();
         }
-        if (group->getCompound()) {
-            float ppmDist = 0;
-            if (!group->getCompound()->formula().empty()) {
-                int charge = getMavenParameters()->getCharge(group->getCompound());
-                if (group->parent != NULL) {
-                    ppmDist = mzUtils::massCutoffDist(
-                        (double)group->getExpectedMz(charge),
-                        (double)peak.peakMz,
-                        getMavenParameters()->massCutoffMerge);
-                } else {
-                    ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
-                                                    (double) peak.peakMz,
-                                                    getMavenParameters()->massCutoffMerge);
-                }
-                ppmDiff = mzUtils::float2string(ppmDist, 6);
-            }
-            else {
-                ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mz(), (double) peak.peakMz,getMavenParameters()->massCutoffMerge);
-                ppmDiff = mzUtils::float2string(ppmDist, 6);
-            }
-        } else {
-            ppmDiff = "NA";
+
+        string ppmDiff = "NA";
+        if (group->hasCompoundLink()) {
+            int charge = getMavenParameters()->getCharge(group->getCompound());
+            double expectedMz = group->getExpectedMz(charge);
+            double observedMz = static_cast<double>(peak.peakMz);
+            auto cutoff = getMavenParameters()->massCutoffMerge;
+            auto ppmDist = mzUtils::massCutoffDist(expectedMz,
+                                                   observedMz,
+                                                   cutoff);
+            ppmDiff = mzUtils::float2string(ppmDist, 6);
         }
+
         _reportStream << fixed << setprecision(6)
                       << group->groupId()
                       << SEP << compoundName
@@ -584,7 +578,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << ppmDiff
                       << setprecision(3) << fixed
                       << SEP << peak.fwhm;
-            _reportStream << endl;
+        _reportStream << endl;
     }
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";
