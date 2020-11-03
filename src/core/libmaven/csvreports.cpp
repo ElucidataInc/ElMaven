@@ -302,28 +302,21 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     string formula = "";
     float expectedRtDiff = 0;
     float ppmDist = 0;
-    if (group->getCompound() != NULL) {
-        compoundName = _sanitizeString(group->getCompound()->name().c_str()).toStdString();
-        compoundID   = _sanitizeString(group->getCompound()->id().c_str()).toStdString();
-        formula = _sanitizeString(group->getCompound()->formula().c_str()).toStdString();
-        if (!group->getCompound()->formula().empty()) {
-            int charge = getMavenParameters()->getCharge(group->getCompound());
-            if (group->parent != NULL) {
-                ppmDist = mzUtils::massCutoffDist(
-                    (double)group->getExpectedMz(charge),
-                    (double)group->meanMz,
-                    getMavenParameters()->massCutoffMerge);
-            } else {
-                ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->adjustedMass(charge),
-                                                  (double) group->meanMz,
-                                                  getMavenParameters()->massCutoffMerge);
-            }
-        }
-        else {
-            ppmDist = mzUtils::massCutoffDist((double) group->getCompound()->mz(), (double) group->meanMz,getMavenParameters()->massCutoffMerge);
-        }
+    if (group->hasCompoundLink()) {
+        compoundName = _sanitizeString(
+                           group->getCompound()->name().c_str()).toStdString();
+        compoundID = _sanitizeString(
+                         group->getCompound()->id().c_str()).toStdString();
+        formula = _sanitizeString(
+                      group->getCompound()->formula().c_str()).toStdString();
+
+        int charge = getMavenParameters()->getCharge(group->getCompound());
+        double expectedMz = group->getExpectedMz(charge);
+        double observedMz = static_cast<double>(group->meanMz);
+        auto cutoff = getMavenParameters()->massCutoffMerge;
+        ppmDist = mzUtils::massCutoffDist(expectedMz, observedMz, cutoff);
+
         expectedRtDiff = group->expectedRtDiff();
-        // TODO: Added this while merging this file
     } else {
         // absence of a group compound means this group was created using
         // untargeted detection, we set compound name and ID to {mz}@{rt}
