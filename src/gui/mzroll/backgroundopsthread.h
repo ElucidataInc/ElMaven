@@ -109,6 +109,8 @@ signals:
     
     void newPeakGroup(PeakGroup* group);
 
+    void noInternet();
+
 protected:
     void run(void);
 
@@ -172,6 +174,13 @@ private:
 	 * from user's system
 	 */
 	void removeFiles();
+
+    /**
+     * @brief Checks for active internet connection before downloading the
+     * required files.
+     * @return Boolean value. True if active else false
+     */ 
+    bool _checkInternetConnection();
 
 	DownloadManager *_dlManager;
 	PollyIntegration *_pollyIntegration;

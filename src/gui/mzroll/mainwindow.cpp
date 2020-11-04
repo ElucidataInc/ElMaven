@@ -1001,6 +1001,20 @@ void MainWindow::threadSave(const QString filename, const bool saveRawData)
     saveWorker->saveProject(filename, saveRawData);
 }
 
+void MainWindow::noActiveInternet() {
+    QMessageBox *warning = new QMessageBox(this);
+            
+    auto htmlText = QString("<p><b>Failed to download required files. Check for internet "
+                            " connection and try again later.</b></p>");
+    htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+    warning->setText(htmlText);
+    warning->setIcon(QMessageBox::Icon::Critical);
+
+    auto yesButton = warning->addButton(tr("Ok"),
+                                QMessageBox::AcceptRole);
+    warning->exec();
+    QCoreApplication::processEvents();
+}
 void MainWindow::unsupportedFormat(QStringList unsupportedFileList) 
 {
     QString fileList = "";

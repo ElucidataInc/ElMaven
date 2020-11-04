@@ -91,6 +91,11 @@ void BackgroundOpsThread::run(void)
             SIGNAL(alignmentComplete(QList<PeakGroup>)),
             mainwindow->sampleRtWidget,
             SLOT(plotGraph()));
+    
+    connect(this, 
+            SIGNAL(noInternet()),
+            mainwindow, 
+            SLOT(noActiveInternet()));
 
     mavenParameters->stop = false;
 
@@ -638,7 +643,16 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         } 
     }
     file.close();
- //   removeFiles();
+    removeFiles();
+}
+
+bool BackgroundOpsThread::_checkInternetConnection() {
+    ErrorStatus response = _pollyIntegration->activeInternet();
+    if (response == ErrorStatus::Failure ||
+        response == ErrorStatus::Error) {
+        return false;
+    }
+    return true;
 }
 
 bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
@@ -651,6 +665,11 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
                     + QDir::separator()
                     + "ElMaven";
 
+    if (!_checkInternetConnection()) {
+        Q_EMIT(noInternet());
+        return false;
+    }
+        
     if(fileName == "moi")
     {
         #if defined(Q_OS_MAC)
@@ -704,7 +723,8 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     auto dataValue = dataObj["data"].toObject();
     auto error = dataValue["error"].toString();
     if (!error.isEmpty()){
-
+        Q_EMIT(noInternet());
+        return false;
     }
     
     auto url = dataValue["id"].toString();
