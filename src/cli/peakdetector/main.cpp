@@ -74,6 +74,9 @@ int main(int argc, char *argv[]) {
     //load files
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
 
+    //load adduct file
+    if (peakdetectorCLI->adductFilename != "")  peakdetectorCLI->loadAdductFile();
+
     //get retention time resolution
     peakdetectorCLI->mavenParameters->setAverageScanTime();
 

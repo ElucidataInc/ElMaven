@@ -37,6 +37,7 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log,
     exportPeaks = 0;
     exportSamples = 0;
     exportColorMaps = 0;
+    adductFilename = "";
 
     analytics->hitScreenView("CLI");
 
@@ -275,6 +276,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         case 'M':
             exportColorMaps = 1;
             fileSavePath = optarg;
+            break;
+
+        case 'D': 
+            adductFilename = optarg;
             break;
         
         default:
@@ -656,6 +661,18 @@ void PeakDetectorCLI::loadCompoundsFile()
 
     _log->info() << "Loaded " << loadCount << " compounds" << std::flush;
     cout << endl;
+}
+
+void PeakDetectorCLI::loadAdductFile()
+{   
+    _log->info() << "Loading adduct file…" << std::flush;
+    
+    mavenParameters->searchAdducts = true;
+
+    _db.loadAdducts(adductFilename);
+    auto adducts = _db.adductsDB();
+
+    mavenParameters->setChosenAdductList(adducts);
 }
 
 void PeakDetectorCLI::loadSamples(vector<string>& filenames)

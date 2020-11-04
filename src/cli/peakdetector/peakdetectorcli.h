@@ -74,6 +74,7 @@ public:
     int exportSamples;
     int exportColorMaps;
     string fileSavePath;
+    string adductFilename;
 
     PeakDetectorCLI(Logger* log,
                     Analytics* analytics,
@@ -117,6 +118,13 @@ public:
      * appropriate warnings or exit
      */
     void loadCompoundsFile();
+
+    /**
+     * @brief load user provided adduct file
+     * @details load the adduct file and set the chosen 
+     * list of adducts to the maven parameters.
+     */
+    void loadAdductFile();
 
     /**
      * [loadSamples description]
@@ -241,6 +249,7 @@ public:
                 "per sample. Enter 1 for exporting report, otherwise 0 <int>",
             "M?exportColorMap: Export color map that signifies the top view for sample's"
                 "mz/rt. Enter path for exporting color maps.<string>",
+            "D?adductList: Enter full path to adducts file.<string>",    
             nullptr
         };
         return options;
