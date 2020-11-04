@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
-    <height>696</height>
+    <width>717</width>
+    <height>684</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -754,19 +754,6 @@
          </layout>
         </widget>
        </item>
-       <item>
-        <spacer name="verticalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="groupFilteringTab">
@@ -1263,20 +1250,6 @@
       <property name="bottomMargin">
        <number>6</number>
       </property>
-      <item row="4" column="5">
-       <widget class="QPushButton" name="cancelButton">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QPushButton" name="computeButton">
-        <property name="text">
-         <string>Find Peaks</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="3">
        <widget class="QProgressBar" name="progressBar">
         <property name="value">
@@ -1288,6 +1261,20 @@
        <widget class="QLabel" name="statusText">
         <property name="text">
          <string>Status</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
+       <widget class="QPushButton" name="cancelButton">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QPushButton" name="computeButton">
+        <property name="text">
+         <string>Find Peaks</string>
         </property>
        </widget>
       </item>
