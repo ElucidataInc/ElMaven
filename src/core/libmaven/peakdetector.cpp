@@ -559,7 +559,8 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
 
         // we do not filter non-parent adducts or non-parent isotopologues
         bool isParentGroup = slice->adduct == nullptr
-                             || slice->isotope.isNone()
+                             || (slice->adduct->isParent()
+                                 && slice->isotope.isNone())
                              || (slice->adduct->isParent()
                                  && slice->isotope.isParent());
         if (isParentGroup && applyGroupFilters) {
@@ -624,7 +625,8 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
 
         // we only filter parent peak-groups on group filtering parameters
         bool isParentGroup = slice->adduct == nullptr
-                             || slice->isotope.isNone()
+                             || (slice->adduct->isParent()
+                                 && slice->isotope.isNone())
                              || (slice->adduct->isParent()
                                  && slice->isotope.isParent());
         if (isParentGroup
@@ -889,11 +891,14 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
             if (compound == nullptr)
                 continue;
 
-            bool noAdduct = group.adduct() == nullptr;
-            bool noIsotope = group.isotope().isNone();
-            bool parentAdductAndIsotope = (group.adduct()->isParent()
-                                           && group.isotope().isParent());
-            if (noAdduct || noIsotope || parentAdductAndIsotope) {
+            bool notAdduct = group.adduct() == nullptr;
+            bool parentAdductAndNotIsotope = (group.adduct()->isParent()
+                                              && group.isotope().isNone());
+            bool parentAdductAndParentIsotope = (group.adduct()->isParent()
+                                                 && group.isotope().isParent());
+            if (notAdduct
+                || parentAdductAndNotIsotope
+                || parentAdductAndParentIsotope) {
                 if (parentCompounds.count(compound) == 0)
                     parentCompounds[compound] = {};
                 parentCompounds[compound].push_back(i);
