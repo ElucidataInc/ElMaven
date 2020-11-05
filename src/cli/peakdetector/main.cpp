@@ -92,6 +92,8 @@ int main(int argc, char *argv[]) {
 	//process compound list
     if (peakdetectorCLI->mavenParameters->compounds.size()
         && !peakdetectorCLI->mavenParameters->processAllSlices) {
+        peakdetectorCLI->mavenParameters->filterAdductsAgainstParent = false;
+        peakdetectorCLI->mavenParameters->parentAdductRequired = false;
         peakdetectorCLI->peakDetector->processCompounds(
             peakdetectorCLI->mavenParameters->compounds);
 	}
