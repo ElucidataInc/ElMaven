@@ -429,12 +429,12 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     auto mlBinary = tempDir + QDir::separator() + "moi.exe";
 #endif
     QString mlModel;
-    if(mainwindow->mavenParameters->peakMlModelType == "Global Model Elucidata"){
+    // if(mainwindow->mavenParameters->peakMlModelType == "Global Model Elucidata"){
         mlModel = tempDir + QDir::separator() + "model.pickle.dat";
-    }
-    else{
-        return;
-    }
+    // }
+    // else{
+    //     return;
+    // }
     Q_EMIT(toggleCancel());
     if (!QFile::exists(mlBinary)) {
         bool downloadSuccess = downloadPeakMlFilesFromURL("moi");

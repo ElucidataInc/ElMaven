@@ -17,6 +17,10 @@
 #include "pollyelmaveninterface.h"
 #include "superSlider.h"
 #include "mzUtils.h"
+#include "pollyintegration.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
 {
@@ -192,6 +196,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 SLOT(setValue(double)));
 
         peakMl->setChecked(false);
+        getModelsList();
         slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
         gridLayout_6->addWidget(slider);
         connect(peakMl, &QGroupBox::toggled,
@@ -264,6 +269,7 @@ void PeakDetectionDialog::loginSuccessful()
     mainwindow->mavenParameters->peakMlModelType =
         modelTypes->currentText().toStdString();
     modelTypes->setEnabled(true);
+    getModelsList();
 }
 
 void PeakDetectionDialog::unsuccessfulLogin()
@@ -477,6 +483,8 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         matchFragmentationOptions->setChecked(fragmentationWasEnabled);
         modelTypes->clear();
         modelTypes->addItem("Global Model Elucidata");
+        for (auto model : _modelsList)
+            modelTypes->addItem(QString::fromStdString(model));
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
@@ -501,6 +509,59 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         }
 
         QDialog::exec();
+    }
+}
+
+void PeakDetectionDialog::getModelsList()
+{
+    QStringList args;
+    _modelsList.clear();
+    auto _dlManager = new DownloadManager();
+    auto _pollyIntegration = new PollyIntegration(_dlManager);
+
+    auto cookieFile = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "cookie.json" ;
+    
+    ifstream readCookie(cookieFile.toStdString());
+    json cookieInput = json::parse(readCookie);
+    string refreshToken = cookieInput["refreshToken"];
+    string idToken = cookieInput["idToken"];
+
+    QString cookies;
+    cookies += "refreshToken=";
+    cookies += QString::fromStdString(refreshToken);
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += QString::fromStdString(idToken);
+
+    args << cookies;
+
+    auto res = _pollyIntegration->runQtProcess("listBucketObjects", args);
+    QString str(res[0].constData());
+    if (str.isEmpty())
+        return;
+    auto splitString = mzUtils::split(str.toStdString(), "\n");
+    auto data = splitString[splitString.size() - 2];
+    auto dataQstring = QString::fromStdString(data);
+    QJsonObject dataObj;
+
+    QJsonDocument doc = QJsonDocument::fromJson(dataQstring.toUtf8());
+    dataObj = doc.object();  
+    
+    auto dataValue = dataObj["data"].toObject();
+    auto error = dataValue["error"].toString();
+    if (!error.isEmpty())
+        return;
+    
+    auto models = dataValue["attributes"].toObject();
+    if (!models.empty()) {
+        auto values = models.value("models").toArray();
+        for (auto value : values) {
+            _modelsList.push_back(value.toString().toStdString());
+        }
+        _modelsList.erase(_modelsList.begin());
     }
 }
 
