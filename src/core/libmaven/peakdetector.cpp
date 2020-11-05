@@ -683,7 +683,7 @@ void _keepNBestRanked(unordered_map<Compound*, vector<size_t>>& compoundGroups,
         sort(begin(groupIndexes), end(groupIndexes), [&](size_t a, size_t b) {
             PeakGroup& group = container[a];
             PeakGroup& otherGroup = container[b];
-            return group.groupRank > otherGroup.groupRank;
+            return group.groupRank < otherGroup.groupRank;
         });
         for (size_t i = nBest; i < groupIndexes.size(); ++i)
             indexesToDelete.push_back(groupIndexes[i]);
