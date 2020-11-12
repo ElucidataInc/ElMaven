@@ -494,6 +494,7 @@ private Q_SLOTS:
 
     void _postProjectLoadActions();
     void _handleUnrecognizedProjectVersion(QString projectFilename);
+    void _confirmMsMsType();
 
 private:
     Controller* _controller;

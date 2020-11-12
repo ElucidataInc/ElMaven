@@ -180,8 +180,13 @@ class mzLink
 */
 class mzSample
 {
+public:
+    enum class MsMsType {
+        DDA,
+        PRM,
+        None
+    };
 
-  public:
     /**
     * @brief Constructor for class mzSample
     */
@@ -681,6 +686,9 @@ class mzSample
 
     vector<float> getIntensityDistribution(int mslevel);
 
+    inline void setMsMsType(MsMsType msMsType) { _msMsType = msMsType; }
+    inline MsMsType msMsType() const { return _msMsType; }
+
     deque<Scan *> scans;
     string sampleName;
     string fileName;
@@ -728,6 +736,7 @@ class mzSample
     int _id;
     unsigned int _numMS1Scans;
     unsigned int _numMS2Scans;
+    MsMsType _msMsType;
 
     void sampleNaming(const char *filename);
     void checkSampleBlank(const char *filename);
