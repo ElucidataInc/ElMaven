@@ -429,6 +429,8 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     auto mlBinary = tempDir + QDir::separator() + "moi.exe";
 #endif
     QString mlModel;
+    // Following code is commented out because for now we have only one model in
+    // aws bucket. Once, we have more comments would be removed.  
     // if(mainwindow->mavenParameters->peakMlModelType == "Global Model Elucidata"){
         mlModel = tempDir + QDir::separator() + "model.pickle.dat";
     // }
@@ -694,7 +696,7 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     auto cookieFile = QStandardPaths::writableLocation(
                     QStandardPaths::GenericConfigLocation)
                     + QDir::separator() 
-                    + "cookie.json" ;
+                    + "El-MAVEN_cookie.json" ;
     
     ifstream readCookie(cookieFile.toStdString());
     json cookieInput = json::parse(readCookie);

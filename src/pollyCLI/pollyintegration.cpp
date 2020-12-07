@@ -16,7 +16,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     setObjectName("PollyIntegration");
 
     credFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cred_file";
-    cookieFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "cookie.json";
+    cookieFile = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::GenericConfigLocation) + QDir::separator() + "El-MAVEN_cookie.json";
 
     // It's important to look for node in the system first, as it might not always be present in the bin dir.
      nodePath = QStandardPaths::findExecutable("node");
