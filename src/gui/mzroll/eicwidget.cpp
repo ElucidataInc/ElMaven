@@ -1591,7 +1591,7 @@ void EicWidget::setCompound(Compound* compound, Isotope isotope, Adduct* adduct)
     slice.adduct = adduct;
 
     MavenParameters* mp = getMainWindow()->mavenParameters;
-    int charge = mp->getCharge(compound);
+    int charge = mp->getCharge();
     if (adduct != nullptr)
         charge = adduct->getCharge();
     slice.calculateMzMinMax(mp->compoundMassCutoffWindow, charge);

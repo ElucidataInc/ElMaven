@@ -547,7 +547,7 @@ PeakGroup createGhostParent(Compound* compound, MavenParameters* mp)
     mzSlice slice;
     slice.compound = compound;
     slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
-                            mp->getCharge(compound));
+                            mp->getCharge());
     slice.calculateRTMinMax(false, 0.0f);
     parentGroup.setSlice(slice);
 

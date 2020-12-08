@@ -600,11 +600,18 @@ double PeakGroup::getExpectedMz(int charge) {
                && hasCompoundLink()
                && getCompound()->mz() > 0) {
         Compound* compound = getCompound();
-        if (adduct() != nullptr && !compound->formula().empty()) {
+
+        // for parent adducts, the global charge should be used and not that
+        // of the associated adduct's
+        if (adduct() != nullptr
+            && !adduct()->isParent()
+            && !compound->formula().empty()) {
             // computing the mass adjusted for adduct's mass
             auto mass = MassCalculator::computeNeutralMass(compound->formula());
             mz = adduct()->computeAdductMz(mass);
-        } else if (adduct() != nullptr && compound->neutralMass() != 0.0f) {
+        } else if (adduct() != nullptr
+                   && !adduct()->isParent()
+                   && compound->neutralMass() != 0.0f) {
             // computing the mass adjusted for adduct's mass
             auto mass = compound->neutralMass();
             mz = adduct()->computeAdductMz(mass);
