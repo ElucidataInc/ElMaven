@@ -82,9 +82,13 @@ void MassSlicer::generateCompoundSlices(vector<Compound*> compounds,
         } else {
             mzSlice* slice = new mzSlice;
             slice->compound = compound;
-            slice->adduct = adduct;
             slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
-                                     adduct->getCharge());
+                                     _mavenParameters->getCharge());
+
+            // we intentionally set the adduct after calculating min/max m/z
+            // so that the global charge is used for adjusting compound's mass
+            slice->adduct = adduct;
+
             slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
                                      _mavenParameters->compoundRTWindow);
             slices.push_back(slice);
@@ -146,10 +150,14 @@ void MassSlicer::generateIsotopeSlices(vector<Compound*> compounds,
         for (auto isotope : massList) {
             mzSlice* slice = new mzSlice;
             slice->compound = compound;
-            slice->adduct = adduct;
             slice->isotope = isotope;
             slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
-                                     adduct->getCharge());
+                                     _mavenParameters->getCharge());
+
+            // we intentionally set the adduct after calculating min/max m/z
+            // so that the global charge is used for adjusting compound's mass
+            slice->adduct = adduct;
+
             slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
                                      _mavenParameters->compoundRTWindow);
             slices.push_back(slice);
@@ -187,9 +195,20 @@ void MassSlicer::generateAdductSlices(vector<Compound*> compounds,
 
             mzSlice* slice = new mzSlice;
             slice->compound = compound;
-            slice->adduct = adduct;
-            slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
-                                     adduct->getCharge());
+
+            // depending on whether the adduct is of a parent type or not, we
+            // use the global charge or the adduct's charge to calculate m/z
+            if (adduct->isParent()) {
+                slice->calculateMzMinMax(
+                    _mavenParameters->compoundMassCutoffWindow,
+                    _mavenParameters->getCharge());
+                slice->adduct = adduct;
+            } else {
+                slice->adduct = adduct;
+                slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
+                                         adduct->getCharge());
+            }
+
             slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
                                      _mavenParameters->compoundRTWindow);
             slices.push_back(slice);

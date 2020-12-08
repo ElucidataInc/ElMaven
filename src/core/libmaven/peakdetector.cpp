@@ -856,7 +856,7 @@ _makeMeta(Compound* compound,
         mzSlice slice;
         slice.compound = compound;
         slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
-                                mp->getCharge(compound));
+                                mp->getCharge());
         slice.calculateRTMinMax(false, 0.0f);
         container.back().setSlice(slice);
         container.back().setSelectedSamples(mp->samples);
