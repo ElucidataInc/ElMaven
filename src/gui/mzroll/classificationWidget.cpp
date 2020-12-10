@@ -17,7 +17,8 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledockWidget)
     _sceneView->setRenderHints(QPainter::Antialiasing);
     _layout->addWidget(_sceneView);
     _inferenceVisual->setLayout(_layout);
-    _inferenceVisual->resize(QSize(900, 400));
+    _inferenceVisual->setMinimumSize(QSize(900, 400));
+    _inferenceVisual->setMaximumSize(QSize(900, 400));
     _inferenceVisual->setWindowTitle("Classification inference");
 
     _group = _tableDockWidget->getSelectedGroup().get();
@@ -28,46 +29,53 @@ ClassificationWidget::ClassificationWidget(TableDockWidget *tabledockWidget)
     
 }
 
-void ClassificationWidget::showClassification()
+void ClassificationWidget::renderGhostGroupMessage()
 {
-    setTitle();
+    QFont font = QApplication::font();
+    font.setPixelSize(24);
+    QGraphicsTextItem* noPeaksMessage =
+        _scene.addText("Empty groups are not classified.", font);
 
-    if (_group->isGhost()) {
-        QFont font = QApplication::font();
-        font.setPixelSize(24);
-        QGraphicsTextItem* noPeaksMessage =
-            _scene.addText("Empty groups are not classified.", font);
+    auto messageBounds = noPeaksMessage->boundingRect();
+    int messageWidth = messageBounds.width();
+    int messageHeight = messageBounds.height();
+    int xPos = (_scene.width() / 2) - (messageWidth / 2);
+    int yPos = (_scene.height() / 2) - (messageHeight / 2);
+    noPeaksMessage->setPos(xPos, yPos);
+    noPeaksMessage->setDefaultTextColor(Qt::white);
 
-        auto messageBounds = noPeaksMessage->boundingRect();
-        int messageWidth = messageBounds.width();
-        int messageHeight = messageBounds.height();
-        int xPos = (_scene.width() / 2) - (messageWidth / 2);
-        int yPos = (_scene.height() / 2) - (messageHeight / 2);
-        noPeaksMessage->setPos(xPos, yPos);
-        noPeaksMessage->setDefaultTextColor(Qt::white);
+    QPainterPath path;
+    messageBounds.setHeight(messageBounds.height() + 12);
+    messageBounds.setWidth(messageBounds.width() + 24);
+    path.addRoundedRect(messageBounds, 8, 8);
+    QGraphicsPathItem* boundingRect = _scene.addPath(path,
+                                                    QPen(Qt::darkGray),
+                                                    QBrush(Qt::darkGray));
+    boundingRect->setPos(xPos - 12, yPos - 6);
+    boundingRect->setZValue(999);
+    noPeaksMessage->setZValue(1000);
+    _inferenceVisual->exec();
+}
 
-        QPainterPath path;
-        messageBounds.setHeight(messageBounds.height() + 12);
-        messageBounds.setWidth(messageBounds.width() + 24);
-        path.addRoundedRect(messageBounds, 8, 8);
-        QGraphicsPathItem* boundingRect = _scene.addPath(path,
-                                                        QPen(Qt::darkGray),
-                                                        QBrush(Qt::darkGray));
-        boundingRect->setPos(xPos - 12, yPos - 6);
-        boundingRect->setZValue(999);
-        noPeaksMessage->setZValue(1000);
-        _inferenceVisual->exec();
-        return;
+void ClassificationWidget::getAttributesTotalWeight()
+{
+    auto predictionInference = _group->predictionInference();
+
+    for (auto it = predictionInference.begin();
+        it != predictionInference.end();
+        ++it)
+    {
+        _totalWeight += it->first;
     }
+}
 
-    showLegend();
-
+void ClassificationWidget::getAbsoluteTotalWeight() 
+{
     auto predictionInference = _group->predictionInference();
 
     int counter = 0;
-    int startPosition = _scene.width() - 500;
 
-    // Only top 3 attributes taken in account.
+    // Only top 5 attributes taken in account.
     // getting total weights.
     for (auto it = predictionInference.begin();
          it != predictionInference.end() && counter <  5;
@@ -87,23 +95,58 @@ void ClassificationWidget::showClassification()
     }
 
     _absoluteTotalWeight = abs(_sumNegativeWeights) + _sumPositiveWeights;
-    _totalWeight = _sumNegativeWeights + _sumPositiveWeights;
+}
+
+void ClassificationWidget::showClassification()
+{
+    setTitle();
+
+    if (_group->isGhost()) {
+        renderGhostGroupMessage();
+        return;
+    }
+
+    showLegend();
+
+    auto predictionInference = _group->predictionInference();
+
+    getAttributesTotalWeight();
+    getAbsoluteTotalWeight();
     setOutputValue();
 
+    int counter = 0;
+    int startPosition = _scene.width() - 550;
+    
+    // Extracting values that are needed.
+    multimap<float, string> positiveInference;
+    multimap<float, string> negativeInference;
+    for (auto it = predictionInference.rbegin();
+         it != predictionInference.rend() && counter <  5;
+         ++it)
+    {
+        positiveInference.insert({it->first, it->second});
+        counter++;
+    } 
     counter = 0;
-    //making left side arrows with negatives
     for (auto it = predictionInference.begin();
          it != predictionInference.end() && counter <  5;
          ++it)
     {
+        negativeInference.insert({it->first, it->second});
+        counter++;
+    } 
+    
+    //making left side arrows with positives
+    counter = 0;
+    for (auto it = positiveInference.begin(); it != positiveInference.end(); ++it) {
         if (counter == 0){
-            startPosition = makeArrowForNegatives(it->first, 
+            startPosition = makeArrowForPositives(it->first, 
                                                   it->second, 
                                                   counter, 
                                                   startPosition);
         }
         else
-            startPosition = makeArrowForNegatives(it->first, 
+            startPosition = makeArrowForPositives(it->first, 
                                                   it->second, 
                                                   counter, 
                                                   startPosition + 4);
@@ -112,28 +155,29 @@ void ClassificationWidget::showClassification()
     }
 
     counter = 0;
-    //making right side arrows with positives
-    for (auto it = predictionInference.rbegin();
-         it != predictionInference.rend() && counter < 5;
+    //making right side arrows with negatives
+    for (auto it = negativeInference.rbegin();
+         it != negativeInference.rend();
          ++it)
     {   
         if(counter == 0){
-            startPosition = makeArrowForPositives(it->first, 
+            startPosition = makeArrowForNegatives(it->first, 
                                                   it->second, 
                                                   counter, 
                                                   startPosition);
         }
         else
-            startPosition = makeArrowForPositives(it->first, 
+            startPosition = makeArrowForNegatives(it->first, 
                                                   it->second, 
                                                   counter, 
                                                   startPosition + 4);
         counter++;
-     }
+    }
+
     _inferenceVisual->exec();
 }
 
-int ClassificationWidget::makeArrowForNegatives(float shapValue, 
+int ClassificationWidget::makeArrowForPositives(float shapValue, 
                                                 string label, 
                                                 int counter, 
                                                 int startPosition)
@@ -143,7 +187,7 @@ int ClassificationWidget::makeArrowForNegatives(float shapValue,
     pen.setWidth(1);
     pen.setColor(Qt::red);
     auto color = pen.color();
-    double alpha = 0.8 - (shapValue / _sumNegativeWeights);
+    double alpha = shapValue / _sumPositiveWeights;
     color.setAlphaF(alpha);
     QBrush brush;
     brush.setColor(color);
@@ -159,9 +203,8 @@ int ClassificationWidget::makeArrowForNegatives(float shapValue,
     
     // Calculating percentage for shap value. 
     // and width of the arrow.
-    shapValue  = 0.5 + shapValue; // to normalize negative value. as (-0.1 > -0.4).
-    float percentage = (abs(shapValue)/_absoluteTotalWeight) * 100;
-    int x_displacement = percentage * 4; // for width of arrow.
+    float percentage = (shapValue/_absoluteTotalWeight) * 100;
+    int x_displacement = percentage * 3; // for width of arrow.
 
     if (counter != 4) {
         // for proper arrow shape.
@@ -214,7 +257,7 @@ int ClassificationWidget::makeArrowForNegatives(float shapValue,
     return (startPosition + x_displacement);
 }
 
-int ClassificationWidget::makeArrowForPositives(float shapValue, 
+int ClassificationWidget::makeArrowForNegatives(float shapValue, 
                                                 string label, 
                                                 int counter, 
                                                 int startPosition)
@@ -224,7 +267,7 @@ int ClassificationWidget::makeArrowForPositives(float shapValue,
     pen.setWidth(1);
     pen.setColor(Qt::blue);
     auto color = pen.color();
-    double alpha = shapValue / _sumPositiveWeights;
+    double alpha = 0.6 - shapValue / _sumNegativeWeights;
     color.setAlphaF(alpha);
     QBrush brush;
     brush.setColor(color);
@@ -240,8 +283,10 @@ int ClassificationWidget::makeArrowForPositives(float shapValue,
 
     // Calculating percentage for shap value. 
     // and width of the arrow.
-    float percentage = (shapValue/_absoluteTotalWeight) * 100;
-    int x_displacement = percentage * 3; // for width of arrow.
+    float normalisedShapValue  = 0.5 + shapValue; // to normalize negative value. as (-0.1 > -0.4).
+    float percentage = (abs(normalisedShapValue)/_absoluteTotalWeight) * 100;
+    int x_displacement = percentage * 4; // for width of arrow.
+
 
     if (counter == 0) {
 
@@ -289,13 +334,7 @@ int ClassificationWidget::makeArrowForPositives(float shapValue,
     QGraphicsTextItem* title = _scene.addText(featureText, font);
     title->setHtml(featureText);
 
-    if (featureText.size() < 30)
-        title->setPos(startPosition + x_displacement + 40, 250 + counter * 10);
-    else if (featureText.size() < 40)
-        title->setPos(startPosition + x_displacement, 250 + counter * 10);
-    else
-        title->setPos(startPosition + x_displacement - label.size(), 
-                      250 + counter * 10);
+    title->setPos(startPosition + x_displacement/2 + 70 - featureText.size() * 2, 250 + counter * 10);
 
     return (startPosition + x_displacement); 
 }
@@ -337,7 +376,7 @@ void ClassificationWidget::showLegend()
         pxSize = 20;
     font.setPixelSize(pxSize);
     
-    QString legendString = "Attributes contributing noise";
+    QString legendString = "Attributes contributing signal";
     QGraphicsTextItem* legend = _scene.addText(legendString, font);
     QGraphicsRectItem* square = new QGraphicsRectItem(_scene.width() - 120,30,10,10);
     square->setBrush(QBrush(Qt::red));
@@ -345,7 +384,7 @@ void ClassificationWidget::showLegend()
     legend->setPos(_scene.width() - 100, 20);
     legend->update();
 
-    legendString = "Attributes contributing signal";
+    legendString = "Attributes contributing noise";
     legend = _scene.addText(legendString, font);
     square = new QGraphicsRectItem(_scene.width() - 120,50,10,10);
     square->setBrush(QBrush(Qt::blue));

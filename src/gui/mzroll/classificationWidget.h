@@ -77,6 +77,22 @@ class ClassificationWidget : public QGraphicsView
          */ 
         void setOutputValue();
 
+        /**
+         * @brief Render message that ghost peaks are not 
+         * classified.
+         */ 
+        void renderGhostGroupMessage();
+
+        /**
+         * @brief Calculates the total weight of the attributes. It
+         * is required for setting output value for the shap figure. 
+         * 
+         * This function will be removed once kailash provides the new output
+         * file format.
+         */ 
+        void getAttributesTotalWeight();
+
+        void getAbsoluteTotalWeight();
 };
 
 #endif // CLASSIFICATIONWIDGET_H
