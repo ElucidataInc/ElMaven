@@ -196,6 +196,8 @@ class PeakGroup{
         float noiseRange;
         float mayBeRange;
         bool isClassified;
+        float baseValue;
+        float outputValue;
 
         //for sample contrasts  ratio and pvalue
         float changeFoldRatio;
