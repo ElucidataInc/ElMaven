@@ -112,7 +112,7 @@ void ClassificationWidget::showClassification()
 
     getAttributesTotalWeight();
     getAbsoluteTotalWeight();
-    setOutputValue();
+    setBaseValue();
 
     int counter = 0;
     int startPosition = _scene.width() - 550;
@@ -153,6 +153,8 @@ void ClassificationWidget::showClassification()
 
         counter++;
     }
+
+    setOutputValue(startPosition);
 
     counter = 0;
     //making right side arrows with negatives
@@ -393,15 +395,15 @@ void ClassificationWidget::showLegend()
     legend->update();
 }
 
-void ClassificationWidget::setOutputValue()
+void ClassificationWidget::setBaseValue()
 {
     QString tagString;
-    tagString = "Output Value = ";
-    QString outputString = tr("<b>%1</b>").arg(tagString);
-    
-    string outputValue = mzUtils::float2string(_totalWeight, 3);
+    tagString = "Base Value = ";
+    QString basevalueString = tr("<b>%1</b>").arg(tagString);
 
-    outputString += QString::fromStdString(outputValue);
+    string baseValue = mzUtils::float2string(_group->baseValue, 3);
+
+    basevalueString += QString::fromStdString(baseValue);
 
     QFont font = QApplication::font();
     int pxSize = _scene.height() * 0.03;
@@ -411,10 +413,43 @@ void ClassificationWidget::setOutputValue()
         pxSize = 20;
     font.setPixelSize(pxSize);
 
-    QGraphicsTextItem* outputTitle = _scene.addText(outputString, font);
-    outputTitle->setHtml(outputString);
+    QGraphicsTextItem* outputTitle = _scene.addText(basevalueString, font);
+    outputTitle->setHtml(basevalueString);
     int titleWidth = outputTitle->boundingRect().width();
-    outputTitle->setPos(_scene.width() / 2 - titleWidth / 2, 100);
+    outputTitle->setPos(_scene.width() / 2 - titleWidth / 2, 60);
     outputTitle->update();
 }
 
+void ClassificationWidget::setOutputValue(int startPosition)
+{
+    QString tagString;
+    tagString = "Output Value = ";
+    QString outputValueString = tr("<b>%1</b>").arg(tagString);
+
+    string outputValue = mzUtils::float2string(_group->outputValue, 3);
+
+    outputValueString += QString::fromStdString(outputValue);
+
+    QFont font = QApplication::font();
+    int pxSize = _scene.height() * 0.03;
+    if (pxSize < 14)
+        pxSize = 14;
+    if (pxSize > 20)
+        pxSize = 20;
+    font.setPixelSize(pxSize);
+
+    QPen Linepen;
+    QColor color(Qt::black);
+    Linepen.setWidth(1);
+    Linepen.setColor(color);
+    Linepen.setStyle( Qt::DashLine );
+    auto line = _scene.addLine(QLineF(startPosition, 150,
+                                      startPosition, 125),
+                               Linepen);
+
+    QGraphicsTextItem* outputTitle = _scene.addText(outputValueString, font);
+    outputTitle->setHtml(outputValueString);
+    int titleWidth = outputTitle->boundingRect().width();
+    outputTitle->setPos(startPosition  - 50, 100);
+    outputTitle->update();
+}

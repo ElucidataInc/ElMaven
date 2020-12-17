@@ -72,10 +72,16 @@ class ClassificationWidget : public QGraphicsView
 
 
         /**
+         * @brief Sets base value for a peakgroup to the
+         * scene.
+         */ 
+        void setBaseValue();
+
+        /**
          * @brief Sets output value for a peakgroup to the
          * scene.
          */ 
-        void setOutputValue();
+        void setOutputValue(int startPosition);
 
         /**
          * @brief Render message that ghost peaks are not 

@@ -112,6 +112,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     meanMz = o.meanMz;
     _expectedMz = o._expectedMz;
 
+    baseValue = o.baseValue;
+    outputValue = o.outputValue;
+
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
