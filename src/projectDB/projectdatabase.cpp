@@ -247,7 +247,9 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :prediction_probability             \
                      , :prediction_inference_key           \
                      , :prediction_inference_value         \
-                     , :correlated_groups                  )");
+                     , :correlated_groups                  \
+                     , :base_value                         \
+                     , :output_value                       )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -329,6 +331,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                       PeakGroup::integralValueForLabel(group->predictedLabel()));
     groupsQuery->bind(":prediction_probability",
                       group->predictionProbability());
+    groupsQuery->bind(":base_value", group->baseValue);
+    groupsQuery->bind(":output_value", group->outputValue);
     string keyString = "";
     string valueString = "";
     auto inference = group->predictionInference();
@@ -1238,6 +1242,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         group->setType(static_cast<PeakGroup::GroupType>(groupsQuery->integerValue("type")));
         group->setTableName(groupsQuery->stringValue("table_name"));
         group->minQuality = groupsQuery->doubleValue("min_quality");
+
+        group->baseValue = groupsQuery->doubleValue("base_value");
+        group->outputValue = groupsQuery->doubleValue("output_value");
 
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
