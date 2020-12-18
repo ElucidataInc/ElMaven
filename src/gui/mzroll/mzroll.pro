@@ -218,7 +218,6 @@ HEADERS += stable.h \
            multiselectcombobox.h \
            correlationtable.h   \
            classificationWidget.h   \
-           QHistogramSlider.h       \
            superSlider.h            \
            relabelGroupsDialog.h 
 
@@ -278,7 +277,6 @@ SOURCES += mainwindow.cpp  \
            multiselectcombobox.cpp \
            correlationtable.cpp     \
            classificationWidget.cpp \
-           QHistogramSlider.cpp     \
            superSlider.cpp          \
            relabelGroupsDialog.cpp
 

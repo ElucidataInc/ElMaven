@@ -470,9 +470,7 @@ private:
    * belong to that subset.
    */
   QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> _peakTableGroupedBySubsets();
-  
-  QDialog *filtersDialog;
-  QMap<QString, QHistogramSlider *> sliders;  
+   
   ClusterDialog *clusterDialog;
   PeakTableSubsetType peakTableSelection;
   bool tableSelectionFlagUp;

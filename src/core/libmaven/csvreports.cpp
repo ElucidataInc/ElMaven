@@ -276,7 +276,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group, bool tableClassified)
         if (label == 'b')
             return;
     } else if ( selectionFlag == 10) {
-        if (group->isHiddenFromTable)
+        if (group->isGroupHidden())
             return;
     }
 

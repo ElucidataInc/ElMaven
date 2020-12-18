@@ -44,7 +44,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     sampleMean=0;
 
     deletedFlag = false;
-    isHiddenFromTable = false;
+    _isHiddenFromTable = false;
 
     totalSampleCount=0;
     maxNoNoiseObs=0;
@@ -1077,13 +1077,12 @@ void PeakGroup::setUserLabel(char label)
     _predictionInference.clear();
     _userLabel = label;
 
-    if (parent != nullptr && tagString == "C12 PARENT") {
+    if (parent != nullptr && parent->tagString == C12_PARENT_LABEL) {
         parent->setUserLabel(label);
         return;
     }
 
     for (auto& child : _childIsotopes) {
-        if (child->tagString == "C12 PARENT" && child->_userLabel != label)
             child->setUserLabel(label);
     }
 }
@@ -1103,13 +1102,12 @@ void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
     }
     _predictionProbability = probability;
 
-    if (parent != nullptr && tagString == "C12 PARENT") {
+    if (parent != nullptr && parent->tagString == C12_PARENT_LABEL) {
         parent->setPredictedLabel(label, probability);
         return;
     }
     for (auto& child : _childIsotopes) {
-        if (child->tagString == "C12 PARENT"
-            && child->_predictedLabel != label
+        if (child->_predictedLabel != label
             && child->_predictionProbability != probability)
             child->setPredictedLabel(label, probability);
     }

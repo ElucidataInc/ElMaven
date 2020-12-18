@@ -151,9 +151,7 @@ class PeakGroup{
         float meanRt;
         float meanMz;
         int totalSampleCount;
-        /* Hidden when filtered out in classified table */
-        bool isHiddenFromTable;
-
+    
         int  ms2EventCount;
 
         FragmentationMatchScore fragMatchScore;
@@ -690,6 +688,14 @@ class PeakGroup{
             return _parameters;
         }
 
+        bool isGroupHidden() {
+            return _isHiddenFromTable;
+        }
+
+        void setIsGrooupHidden(bool flag) {
+            _isHiddenFromTable = flag;
+        }
+
         IntegrationType integrationType() const { return _integrationType; }
 
         int groupId() const { return _groupId; }
@@ -823,6 +829,9 @@ class PeakGroup{
 
         mzSlice _slice;
         bool _sliceSet;
+
+        /* Hidden when filtered out in classified table */
+        bool _isHiddenFromTable;
   
         float _expectedMz;
         float _expectedAbundance;

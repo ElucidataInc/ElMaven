@@ -420,8 +420,6 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                    + QDir::separator()
                    + "ElMaven";
 
-    // TODO: binary name will keep changing and should not be hardcoded
-    // TODO: model should not exist anywhere on the filesystem
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
     auto mlBinary = tempDir + QDir::separator() + "moi";
 #endif
@@ -474,16 +472,16 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
              << endl;
         return;
     }
-    QString badGroupLimit = QString::fromStdString(
+    QString bad_group_limit = QString::fromStdString(
                                 mzUtils::float2string(mavenParameters->badGroupLimit, 1));
-    QString maybeGoodGroupLimit = QString::fromStdString(
+    QString maybeGood_group_limit = QString::fromStdString(
                                     mzUtils::float2string(mavenParameters->maybeGoodGroupLimit, 1));
     QStringList mlArguments;
     mlArguments << "--input_attributes_file" << peakAttributesFile
                 << "--output_moi_file" << classificationOutputFile
                 << "--model_path" << mlModel
-                << "--bad_group_limit" << badGroupLimit
-                << "--maybeGood_group_limit" << maybeGoodGroupLimit;
+                << "--bad_group_limit" << bad_group_limit
+                << "--maybeGood_group_limit" << maybeGood_group_limit;
     QProcess subProcess;
     subProcess.setWorkingDirectory(QFileInfo(mlBinary).path());
     subProcess.start(mlBinary, mlArguments);
@@ -632,11 +630,10 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     for (auto& group : groups) {
         if (mavenParameters->stop) {
             mavenParameters->allgroups.clear();
-            terminate();
             removeFiles();
             return;
         }
-        emit updateProgressBar("Classifying Peakgroups", countGroups++, groupSize);
+        emit updateProgressBar("Classifying peak-groups...", countGroups++, groupSize);
         assignPrediction(&group, 
                          predictions, 
                          inferences, 
@@ -646,7 +643,6 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         for (auto& child : group.childIsotopes()) {
             if (mavenParameters->stop) {
                 mavenParameters->allgroups.clear();
-                terminate();
                 removeFiles();
                 return;
             }
@@ -659,7 +655,6 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         for (auto& child : group.childAdducts()) {
             if (mavenParameters->stop) {
                 mavenParameters->allgroups.clear();
-                terminate();
                 removeFiles();
                 return;
             }
@@ -694,6 +689,8 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
                     + "ElMaven";
 
     if (!_checkInternetConnection()) {
+        mavenParameters->allgroups.clear();
+        removeFiles();
         Q_EMIT(noInternet());
         return false;
     }
@@ -727,7 +724,6 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     ifstream readCookie(cookieFile.toStdString());
     if (!readCookie.is_open()) {
         mavenParameters->allgroups.clear();
-        terminate();
         removeFiles();
         return false;
     }
@@ -749,22 +745,18 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     QString str(res[0].constData());
     auto splitString = mzUtils::split(str.toStdString(), "\n");
     auto data = splitString[splitString.size() - 2];
-    auto dataQstring = QString::fromStdString(data);
-    QJsonObject dataObj;
+    json dataObject = json::parse(data);
 
-    QJsonDocument doc = QJsonDocument::fromJson(dataQstring.toUtf8());
-    dataObj = doc.object();  
-    
-    auto dataValue = dataObj["data"].toObject();
-    auto error = dataValue["error"].toString();
-    if (!error.isEmpty()){
+    if (!dataObject["data"]["error"].is_null()){
+        mavenParameters->allgroups.clear();
+        removeFiles();
         Q_EMIT(noInternet());
         return false;
     }
     
-    auto url = dataValue["id"].toString();
+    auto url = dataObject["data"]["id"].get<string>();
     
-    _dlManager->setRequest(url, this, false);
+    _dlManager->setRequest(QString::fromStdString(url), this, false);
     if (!_dlManager->err) {
         auto downloadedData = _dlManager->getData();
         QFile file(tempDir);

@@ -1,6 +1,5 @@
 #include <algorithm>
 
-#include <QHistogramSlider.h>
 #include <qtconcurrentrun.h>
 
 #include "alignmentdialog.h"
@@ -186,8 +185,6 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
           SIGNAL(updateRelabelStatusBar(QString, int, int)),
           relabelDialog,
           SLOT(setProgressBar(QString, int, int)));
-
-  setupFiltersDialog();
 
   setAcceptDrops(true);
   _cycleInProgress = false;
@@ -446,14 +443,20 @@ void TableDockWidget::updateLegend()
 
   int count = 0;
   vector<float> countPercentage;
-  
-  countPercentage.push_back((noiseCount / static_cast<float>(totalCount)) * 100);
-  countPercentage.push_back((signalCount / static_cast<float>(totalCount)) * 100);
-  countPercentage.push_back((correlatedCount / static_cast<float>(totalCount)) * 100);
-  countPercentage.push_back((cohortCount / static_cast<float>(totalCount)) * 100);
-  countPercentage.push_back((correlatedCohortCount / static_cast<float>(totalCount)) * 100);
-  countPercentage.push_back((mayBeGroupsCount / static_cast<float>(totalCount)) * 100);
 
+  if (!totalCount) {
+    for (int i = 0; i < 6; i++) {
+      countPercentage.push_back(0.0f);
+    }
+  } else {
+    countPercentage.push_back((noiseCount / static_cast<float>(totalCount)) * 100);
+    countPercentage.push_back((signalCount / static_cast<float>(totalCount)) * 100);
+    countPercentage.push_back((correlatedCount / static_cast<float>(totalCount)) * 100);
+    countPercentage.push_back((cohortCount / static_cast<float>(totalCount)) * 100);
+    countPercentage.push_back((correlatedCohortCount / static_cast<float>(totalCount)) * 100);
+    countPercentage.push_back((mayBeGroupsCount / static_cast<float>(totalCount)) * 100);
+  }
+  
   for (const auto& label : labelsForLegend) {
       auto type = labelsForLegend.key(label);
       auto icon = iconsForLegend.value(type);
@@ -1071,7 +1074,7 @@ void TableDockWidget::showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets)
       for (auto item : itemsForSubset) {
         item->setHidden(true);
         auto group = groupForItem(item);
-        group->isHiddenFromTable = true;
+        group->setIsGrooupHidden(true);
       }
     }
   }
@@ -1088,7 +1091,7 @@ void TableDockWidget::showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets)
       for (auto item : itemsForSubset) {
         item->setHidden(false); 
         auto group = groupForItem(item);
-        group->isHiddenFromTable = false;
+        group->setIsGrooupHidden(false);
       }
     }
   }
@@ -2469,7 +2472,7 @@ void TableDockWidget::renderPdf(QString fileName)
               && child->userLabel() != 'g' ) 
               continue;
           if (peakTableSelection == PeakTableSubsetType::Displayed
-              && child->isHiddenFromTable)
+              && child->isGroupHidden())
               continue; 
               
             _mainwindow->getEicWidget()->renderPdf(child, &painter);
@@ -2739,29 +2742,6 @@ void TableDockWidget::writeMascotGeneric(QString filename) {
     }
   }
   file.close();
-}
-
-void TableDockWidget::setupFiltersDialog() {
-
-  filtersDialog = new QDialog(this);
-  QVBoxLayout *layout = new QVBoxLayout(filtersDialog);
-
-  sliders["PeakQuality"] = new QHistogramSlider(this);
-  sliders["PeakIntensity"] = new QHistogramSlider(this);
-  sliders["PeakWidth"] = new QHistogramSlider(this);
-  sliders["GaussianFit"] = new QHistogramSlider(this);
-  sliders["PeakAreaFractional"] = new QHistogramSlider(this);
-  sliders["PeakAreaTop"] = new QHistogramSlider(this);
-  sliders["S/N Ratio"] = new QHistogramSlider(this);
-  sliders["GoodPeakCount"] = new QHistogramSlider(this);
-
-  Q_FOREACH (QHistogramSlider *slider, sliders) {
-    connect(slider, SIGNAL(minBoundChanged(double)), SLOT(filterPeakTable()));
-    connect(slider, SIGNAL(maxBoundChanged(double)), SLOT(filterPeakTable()));
-    layout->addWidget(slider);
-  }
-
-  filtersDialog->setLayout(layout);
 }
 
 void TableDockWidget::showRelabelWidget()

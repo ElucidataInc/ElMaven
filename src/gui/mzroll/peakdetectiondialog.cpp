@@ -558,25 +558,15 @@ void PeakDetectionDialog::getModelsList()
         return;
     auto splitString = mzUtils::split(str.toStdString(), "\n");
     auto data = splitString[splitString.size() - 2];
-    auto dataQstring = QString::fromStdString(data);
-    QJsonObject dataObj;
-
-    QJsonDocument doc = QJsonDocument::fromJson(dataQstring.toUtf8());
-    dataObj = doc.object();  
+    json dataObject = json::parse(data);
     
-    auto dataValue = dataObj["data"].toObject();
-    auto error = dataValue["error"].toString();
-    if (!error.isEmpty())
+    if (!dataObject["data"]["error"].is_null()){
         return;
-    
-    auto models = dataValue["attributes"].toObject();
-    if (!models.empty()) {
-        auto values = models.value("models").toArray();
-        for (auto value : values) {
-            _modelsList.push_back(value.toString().toStdString());
-        }
-        _modelsList.erase(_modelsList.begin());
     }
+    
+    for (int i = 1; i < dataObject["data"]["attributes"]["models"].size(); i++) {
+        _modelsList.push_back(dataObject["data"]["attributes"]["models"][i].get<string>());
+    }    
 }
 
 void PeakDetectionDialog::refreshCompoundDatabases()
