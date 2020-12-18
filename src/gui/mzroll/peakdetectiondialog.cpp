@@ -249,17 +249,25 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
 
 void PeakDetectionDialog::getLoginForPeakMl()
 {
-    bool notRequireLogin = mainwindow->pollyElmavenInterfaceDialog->loginForPeakMl();
-    if(notRequireLogin){
-        peakMlSet = true;
-        mainwindow->mavenParameters->peakMl = true;
-        modelTypes->setEnabled(true);
-        getModelsList();
-        modelTypes->clear();
-        modelTypes->addItem("Global Model Elucidata");
-        for (auto model : _modelsList)
-            modelTypes->addItem(QString::fromStdString(model));
+    auto fileLocation = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                        + QDir::separator();
+
+    auto cookieFile = fileLocation + "El-MAVEN_cookie.json";
+    QFile file(cookieFile);
+    if (file.exists()) {
+        loginSuccessful();
     }
+    else {
+        // Remove cred file and refreshTokenFile to maintain
+        // consistency.
+        auto credFile = fileLocation + "cred_file";
+        QFile file (credFile);
+        file.remove();
+        QFile refreshTokenFile (credFile + "_refreshToken");
+        refreshTokenFile.remove();
+        mainwindow->pollyElmavenInterfaceDialog->loginForPeakMl();
+    }     
 }
 
 void PeakDetectionDialog::loginSuccessful()
@@ -269,6 +277,8 @@ void PeakDetectionDialog::loginSuccessful()
     mainwindow->mavenParameters->peakMl = true;
     modelTypes->setEnabled(true);
     getModelsList();
+    modelTypes->clear();
+    modelTypes->addItem("Global Model Elucidata");
     for (auto model : _modelsList)
         modelTypes->addItem(QString::fromStdString(model));
 }

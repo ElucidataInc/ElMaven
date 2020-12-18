@@ -211,20 +211,16 @@ void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
     QCoreApplication::processEvents();
 }
 
-bool PollyElmavenInterfaceDialog::loginForPeakMl()
+void PollyElmavenInterfaceDialog::loginForPeakMl()
 {
-    int askForLogin = _pollyIntegration->askForLogin();
-    if (askForLogin == 1) {
-        try {
-            _callLoginForm(false);
-        } catch (...) {
-            QMessageBox msgBox(this);
-            msgBox.setWindowModality(Qt::NonModal);
-            msgBox.setWindowTitle("Error in loading login form");
-            msgBox.exec();
-        }
-    }
-    return true;
+    try {
+        _callLoginForm(false);
+    } catch (...) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowModality(Qt::NonModal);
+        msgBox.setWindowTitle("Error in loading login form");
+        msgBox.exec();
+    } 
 }
 
 void PollyElmavenInterfaceDialog::emitLoginReady()

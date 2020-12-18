@@ -715,6 +715,13 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
                     + "El-MAVEN_cookie.json" ;
     
     ifstream readCookie(cookieFile.toStdString());
+    if (!readCookie.is_open()) {
+        mavenParameters->allgroups.clear();
+        terminate();
+        removeFiles();
+        return false;
+    }
+        
     json cookieInput = json::parse(readCookie);
     string refreshToken = cookieInput["refreshToken"];
     string idToken = cookieInput["idToken"];

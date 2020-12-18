@@ -159,7 +159,14 @@ public:
 
     bool showPollyApps;
 
-    bool loginForPeakMl();
+    /** 
+     * @brief Shows the login form.
+     * @details When peak curation is selected through peak detection 
+     * dialog, the login form must appear. This reason to make it as 
+     * a separate function is that - pollyApps must not appear after 
+     * successful login.
+     */ 
+    void loginForPeakMl();
 
 public Q_SLOTS:
     /**
