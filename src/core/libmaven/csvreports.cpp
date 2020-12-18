@@ -631,6 +631,10 @@ bool CSVReports::writeDataForPeakMl(const string& filePath,
                 if (!child->isGhost())
                     writePeakInfo(*child, child.get()->groupId());
             }
+            for (auto &child : group.childAdducts()) {
+                if (!child->isGhost())
+                    writePeakInfo(*child, child.get()->groupId());
+            }
         } 
         file.close();
         return true;

@@ -466,16 +466,6 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                                        + QDir::separator()
                                        + "peak_ml_output.csv";
 
-    // // have to enumerated and assign each group with an ID, because multiple
-    // // groups at this point have the same ID
-    int startId = 1;
-    for (auto& group : groups) {
-        group.setGroupId(startId++);
-        for (auto& child : group.childIsotopes()) {
-            child->setGroupId(startId++);
-        }
-    }
-
     CSVReports::writeDataForPeakMl(peakAttributesFile.toStdString(),
                                    groups);
     if (!QFile::exists(peakAttributesFile)) {
@@ -640,7 +630,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     int groupSize = groups.size();
     int countGroups = 0;
     for (auto& group : groups) {
-         if (mavenParameters->stop) {
+        if (mavenParameters->stop) {
             mavenParameters->allgroups.clear();
             terminate();
             removeFiles();
@@ -654,11 +644,31 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     }
     for (auto& group : groups) {
         for (auto& child : group.childIsotopes()) {
+            if (mavenParameters->stop) {
+                mavenParameters->allgroups.clear();
+                terminate();
+                removeFiles();
+                return;
+            }
             assignPrediction(child.get(), 
                              predictions, 
                              inferences, 
                              correlations);
         } 
+
+        for (auto& child : group.childAdducts()) {
+            if (mavenParameters->stop) {
+                mavenParameters->allgroups.clear();
+                terminate();
+                removeFiles();
+                return;
+            }
+            assignPrediction(child.get(), 
+                             predictions, 
+                             inferences, 
+                             correlations);
+        }
+
     }
     file.close();
     removeFiles();
