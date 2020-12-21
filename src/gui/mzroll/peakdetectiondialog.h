@@ -2,7 +2,7 @@
 #define PEAKDETECTIONDIALOG_H
 
 #include "ui_peakdetectiondialog.h"
-#include "superSlider.h"
+#include "rangeSlider.h"
 #include "stable.h"
 
 class MainWindow;
@@ -80,8 +80,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                     void findPeaksClicked();
         public:
                 QString massCutoffType;
-                bool peakMlSet;
-                RangeSlider* slider; 
 
         protected:
                 virtual void closeEvent(QCloseEvent* event) override;
@@ -95,6 +93,8 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                 PeakDetectionSettings* peakSettings;
                 bool _inDetectionMode;
                 vector<string> _modelsList;
+                bool _peakMlSet;
+                RangeSlider* _slider; 
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();

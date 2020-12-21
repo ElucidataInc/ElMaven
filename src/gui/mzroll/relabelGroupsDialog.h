@@ -2,7 +2,7 @@
 #define RELABELGROUPSDIALOG_h
 
 #include "ui_relabelgroupsdialog.h"
-#include "superSlider.h"
+#include "rangeSlider.h"
 #include "tabledockwidget.h"
 #include "stable.h"
 

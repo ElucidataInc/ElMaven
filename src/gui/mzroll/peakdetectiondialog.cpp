@@ -15,7 +15,6 @@
 #include "peakdetector.h"
 #include "tabledockwidget.h"
 #include "pollyelmaveninterface.h"
-#include "superSlider.h"
 #include "mzUtils.h"
 #include "pollyintegration.h"
 #include "json.hpp"
@@ -133,7 +132,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         setModal(false);
         peakupdater = NULL;
 
-        peakMlSet = false;
+        _peakMlSet = false;
 
         massCutoffType = "ppm";
         peakSettings = new PeakDetectionSettings(this);
@@ -195,8 +194,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
 
-        slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
-        gridLayout_6->addWidget(slider);
+        _slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
+        gridLayout_6->addWidget(_slider);
         connect(peakMl, &QGroupBox::toggled,
                 [this](const bool checked)
                 {
@@ -204,12 +203,12 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                         getLoginForPeakMl();
                     }
                     else{
-                        peakMlSet = false;
+                        _peakMlSet = false;
                         mainwindow->mavenParameters->peakMl = false;
                         modelTypes->setEnabled(false);
                     }
                 });
-        connect (slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
+        connect (_slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
         connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
@@ -272,7 +271,7 @@ void PeakDetectionDialog::getLoginForPeakMl()
 
 void PeakDetectionDialog::loginSuccessful()
 {
-    peakMlSet = true;
+    _peakMlSet = true;
     peakMl->setChecked(true);
     mainwindow->mavenParameters->peakMl = true;
     modelTypes->setEnabled(true);
@@ -285,7 +284,7 @@ void PeakDetectionDialog::loginSuccessful()
 
 void PeakDetectionDialog::unsuccessfulLogin()
 {
-    peakMlSet = false;
+    _peakMlSet = false;
     peakMl->setChecked(false);
     modelTypes->setEnabled(false);
     if(mainwindow)
@@ -436,7 +435,7 @@ void PeakDetectionDialog::show() {
     if (mainwindow == NULL) return;
 
     peakMl->setChecked(false);
-    peakMlSet = false;
+    _peakMlSet = false;
     mainwindow->mavenParameters->peakMl = false;
     modelTypes->setEnabled(false);
 
@@ -848,10 +847,10 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         mavenParameters->samples = mainwindow->getSamples();
 
-        if(peakMlSet) {
+        if(_peakMlSet) {
             mavenParameters->peakMl = true;
-            mavenParameters->badGroupLimit = slider->GetLowerValue() / 10.0;
-            mavenParameters->maybeGoodGroupLimit = slider->GetUpperValue() / 10.0;
+            mavenParameters->badGroupLimit = _slider->GetLowerValue() / 10.0;
+            mavenParameters->maybeGoodGroupLimit = _slider->GetUpperValue() / 10.0;
             mavenParameters->peakMlModelType = modelTypes->currentText().toStdString();
         }
         peakupdater->setMavenParameters(mavenParameters);

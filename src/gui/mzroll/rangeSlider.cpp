@@ -1,4 +1,4 @@
-#include "superSlider.h"
+#include "rangeSlider.h"
 #include "mainwindow.h"
 #include <QDebug>
 

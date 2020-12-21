@@ -1,5 +1,5 @@
-#ifndef SUPERSLIDER_H
-#define SUPERSLIDER_H
+#ifndef RANGESLIDER_H
+#define RANGESLIDER_H
 #pragma once
 
 #include <QWidget>
