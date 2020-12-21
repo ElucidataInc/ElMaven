@@ -20,10 +20,10 @@
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
-       <widget class="QLabel" name="statusText">
+      <item row="3" column="2">
+       <widget class="QPushButton" name="relabelButton">
         <property name="text">
-         <string>Status</string>
+         <string>Re-Label</string>
         </property>
        </widget>
       </item>
@@ -34,10 +34,10 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QPushButton" name="relabelButton">
+      <item row="1" column="0">
+       <widget class="QLabel" name="statusText">
         <property name="text">
-         <string>Re-Label</string>
+         <string>Status</string>
         </property>
        </widget>
       </item>
@@ -50,7 +50,20 @@
       <string>Peak curation parameters</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="2">
+      <item row="0" column="1">
+       <widget class="QLabel" name="noiseRange">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Noise Range: 0.0 - 0.3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4" alignment="Qt::AlignRight">
        <widget class="QLabel" name="signalRange">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -63,18 +76,8 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="noiseRange">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Noise Range: 0.0 - 0.3</string>
-        </property>
-       </widget>
+      <item row="0" column="3">
+       <layout class="QHBoxLayout" name="horizontalLayout"/>
       </item>
      </layout>
     </widget>

@@ -14,10 +14,9 @@ RelabelGroupsDialog::RelabelGroupsDialog(TableDockWidget* tabledockWidget):
     _badGroupLimit = 0.3;
     _maybeGoodGroupLimit = 0.6;
     _inRelabelingMode = false;
-    
+    this->setFixedSize(700,this->height());
     _slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, _tabledockWidget);
-    gridLayout_2->addWidget(_slider);
-    
+    horizontalLayout->addWidget(_slider);
     connect (_slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
     connect (relabelButton, SIGNAL(clicked()), this, SLOT(handleRelabel()));
     
@@ -69,6 +68,8 @@ void RelabelGroupsDialog::closeEvent(QCloseEvent* event)
         event->ignore();
         return;
     }
+    relabelProgressBar->setRange(0, 100);
+    relabelProgressBar->setValue(0);
     _tabledockWidget->legend()->uncheckRelabel();
     QDialog::close();   
 }
