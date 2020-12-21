@@ -204,7 +204,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                     }
                     else{
                         _peakMlSet = false;
-                        mainwindow->mavenParameters->peakMl = false;
+                        mainwindow->mavenParameters->classifyUsingPeakMl = false;
                         modelTypes->setEnabled(false);
                     }
                 });
@@ -273,7 +273,7 @@ void PeakDetectionDialog::loginSuccessful()
 {
     _peakMlSet = true;
     peakMl->setChecked(true);
-    mainwindow->mavenParameters->peakMl = true;
+    mainwindow->mavenParameters->classifyUsingPeakMl = true;
     modelTypes->setEnabled(true);
     getModelsList();
     modelTypes->clear();
@@ -288,7 +288,7 @@ void PeakDetectionDialog::unsuccessfulLogin()
     peakMl->setChecked(false);
     modelTypes->setEnabled(false);
     if(mainwindow)
-        mainwindow->mavenParameters->peakMl = false;
+        mainwindow->mavenParameters->classifyUsingPeakMl = false;
 }
 void PeakDetectionDialog::onReset()
 {
@@ -436,7 +436,7 @@ void PeakDetectionDialog::show() {
 
     peakMl->setChecked(false);
     _peakMlSet = false;
-    mainwindow->mavenParameters->peakMl = false;
+    mainwindow->mavenParameters->classifyUsingPeakMl = false;
     modelTypes->setEnabled(false);
 
     mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
@@ -695,7 +695,7 @@ void PeakDetectionDialog::findPeaks()
     }
 
     TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName, 
-                                                            mainwindow->mavenParameters->peakMl);
+                                                            mainwindow->mavenParameters->classifyUsingPeakMl);
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
@@ -825,7 +825,16 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
 
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
+    
+    if(_peakMlSet) {
+        mainwindow->mavenParameters->classifyUsingPeakMl = true;
+        mainwindow->mavenParameters->badGroupUpperLimit = _slider->GetLowerValue() / 10.0;
+        mainwindow->mavenParameters->goodGroupLowerLimit = _slider->GetUpperValue() / 10.0;
+        mainwindow->mavenParameters->peakMlModelType = modelTypes->currentText().toStdString();
+    }
+
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
+    
     if (settings != NULL) {
 
         mavenParameters->writeCSVFlag = false;
@@ -847,12 +856,6 @@ void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
 
         mavenParameters->samples = mainwindow->getSamples();
 
-        if(_peakMlSet) {
-            mavenParameters->peakMl = true;
-            mavenParameters->badGroupLimit = _slider->GetLowerValue() / 10.0;
-            mavenParameters->maybeGoodGroupLimit = _slider->GetUpperValue() / 10.0;
-            mavenParameters->peakMlModelType = modelTypes->currentText().toStdString();
-        }
         peakupdater->setMavenParameters(mavenParameters);
 
     }

@@ -127,13 +127,13 @@ TableDockWidget::TableDockWidget(MainWindow *mw) {
   tableSelectionFlagUp = false;
   tableSelectionFlagDown = false;
 
-  if (_mainwindow->mavenParameters->peakMl)
+  if (_mainwindow->mavenParameters->classifyUsingPeakMl)
     hasClassifiedGroups = true;
   else 
     hasClassifiedGroups = false;
   
-  badGroupLimit = _mainwindow->mavenParameters->badGroupLimit;
-  maybeGoodGroupLimit = _mainwindow->mavenParameters->maybeGoodGroupLimit;
+  badGroupLimit = _mainwindow->mavenParameters->badGroupUpperLimit;
+  maybeGoodGroupLimit = _mainwindow->mavenParameters->goodGroupLowerLimit;
 
   setWidget(treeWidget);
   setupPeakTable();
@@ -967,14 +967,8 @@ void TableDockWidget::showAllGroups() {
 
     // Setting curation parameters;
     if (hasClassifiedGroups) {
-      group->model = _mainwindow->mavenParameters->peakMlModelType;
-      group->noiseRange = badGroupLimit;
-      group->mayBeRange = maybeGoodGroupLimit;
       group->isClassified = true;
       for (auto childIsotope : group->childIsotopes()) {
-        childIsotope->model = _mainwindow->mavenParameters->peakMlModelType;
-        childIsotope->noiseRange = badGroupLimit;
-        childIsotope->mayBeRange = maybeGoodGroupLimit;
         childIsotope->isClassified = true;
       }
     }

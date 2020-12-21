@@ -162,7 +162,7 @@ void BackgroundOpsThread::writeCSVRep(string setName)
     //     for (auto& child : group.childIsotopes())
     //         child->setUniqueId(++lastUniqueId);
 
-    if (mainwindow->mavenParameters->peakMl) 
+    if (mainwindow->mavenParameters->classifyUsingPeakMl) 
         classifyGroups(mavenParameters->allgroups);
 
     emitGroups();
@@ -473,9 +473,9 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         return;
     }
     QString bad_group_limit = QString::fromStdString(
-                                mzUtils::float2string(mavenParameters->badGroupLimit, 1));
+                                mzUtils::float2string(mavenParameters->badGroupUpperLimit, 1));
     QString maybeGood_group_limit = QString::fromStdString(
-                                    mzUtils::float2string(mavenParameters->maybeGoodGroupLimit, 1));
+                                    mzUtils::float2string(mavenParameters->goodGroupLowerLimit, 1));
     QStringList mlArguments;
     mlArguments << "--input_attributes_file" << peakAttributesFile
                 << "--output_moi_file" << classificationOutputFile

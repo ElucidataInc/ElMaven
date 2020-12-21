@@ -125,8 +125,10 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
         quantileSignalBlankRatio = 0.0;
         quantilePeakWidth = 0.0;
 
-        peakMl = false;
+        classifyUsingPeakMl = false;
         peakMlModelType = "";
+        badGroupUpperLimit = 0.0f;
+        goodGroupLowerLimit = 0.0f;
 
         //options dialog::peak grouping tab-widget
 	distXWeight = 1.0;
@@ -312,6 +314,10 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     // vectors are meant to be used only by the global `MavenParameters` object,
     // which will not be created by a copy operation like this.
     samples = mp.samples;
+
+    peakMlModelType = mp.peakMlModelType;
+    badGroupUpperLimit = mp.badGroupUpperLimit;
+    goodGroupLowerLimit = mp.goodGroupLowerLimit;
 }
 
 void MavenParameters::setOutputDir(QString outdir) {

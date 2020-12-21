@@ -188,11 +188,6 @@ class PeakGroup{
         int goodPeakCount;
         float groupRank;
 
-        //Model used in peakML.
-        string model;
-
-        float noiseRange;
-        float mayBeRange;
         bool isClassified;
         float baseValue;
         float outputValue;

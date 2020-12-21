@@ -272,10 +272,10 @@ class MavenParameters
         bool useOverlap;
 
         //for enabling peak Ml curation
-        bool peakMl;
+        bool classifyUsingPeakMl;
         string peakMlModelType;
-        float badGroupLimit;
-        float maybeGoodGroupLimit;
+        float badGroupUpperLimit;
+        float goodGroupLowerLimit;
 
 
         /*

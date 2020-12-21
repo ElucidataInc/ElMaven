@@ -59,9 +59,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
 
     _predictedLabel = ClassifiedLabel::None;
     _predictionProbability = 0.0f;
-    model = "";
-    noiseRange = 0.0;
-    mayBeRange = 0.0;
+    
     baseValue = 0.0;
     outputValue = 0.0;
     isClassified = false;
