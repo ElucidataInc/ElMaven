@@ -344,7 +344,7 @@ public Q_SLOTS:
     void markGroup(shared_ptr<PeakGroup> group, char label);
     int getIonizationMode();
 	void setTotalCharge();
-    void noActiveInternet();
+    void showWarning(QString message);
 
     void setUserMassCutoff(double cutoff);
 	MassCutoff * getUserMassCutoff() {

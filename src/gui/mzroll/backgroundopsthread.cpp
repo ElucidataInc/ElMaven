@@ -93,9 +93,9 @@ void BackgroundOpsThread::run(void)
             SLOT(plotGraph()));
     
     connect(this, 
-            SIGNAL(noInternet()),
+            SIGNAL(noInternet(QString)),
             mainwindow, 
-            SLOT(noActiveInternet()));
+            SLOT(showWarning(QString)));
 
     mavenParameters->stop = false;
 
@@ -691,7 +691,10 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     if (!_checkInternetConnection()) {
         mavenParameters->allgroups.clear();
         removeFiles();
-        Q_EMIT(noInternet());
+        auto htmlText = QString("<p><b>Failed to download required files. Check for internet "
+                            " connection and try again later.</b></p>");
+        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        Q_EMIT(noInternet(htmlText));
         return false;
     }
         
@@ -750,7 +753,10 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     if (!dataObject["data"]["error"].is_null()){
         mavenParameters->allgroups.clear();
         removeFiles();
-        Q_EMIT(noInternet());
+        auto htmlText = QString("<p><b>Failed to download required files. Check for internet "
+                            " connection and try again later.</b></p>");
+        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        Q_EMIT(noInternet(htmlText));
         return false;
     }
     

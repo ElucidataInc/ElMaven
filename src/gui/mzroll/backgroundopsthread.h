@@ -109,7 +109,7 @@ signals:
     
     void newPeakGroup(PeakGroup* group);
 
-    void noInternet();
+    void noInternet(QString message);
 
 protected:
     void run(void);
