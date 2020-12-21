@@ -46,7 +46,7 @@ private slots:
 
 private:
     Ui::LoginForm *ui;
-    bool _showPollyApp;
+    bool _showEPI;
 };
 
 #endif // LOGINFORM_H

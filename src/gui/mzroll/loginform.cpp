@@ -19,7 +19,7 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog, b
     _pollyelmaveninterfacedialog = pollyelmaveninterfacedialog;
     _pollyintegration = _pollyelmaveninterfacedialog->getMainWindow()->getController()->iPolly;
 
-    _showPollyApp = showPollyApp;
+    _showEPI = showPollyApp;
     
     ui->setupUi(this);
     setWindowTitle("Sign in to Polly™");
@@ -66,7 +66,7 @@ void LoginForm::login(QString username, QString password)
     if (response == ErrorStatus::Success) {
         qDebug() << "Logged in, moving on now…";
         hide();
-        if (_showPollyApp) {
+        if (_showEPI) {
             _pollyelmaveninterfacedialog->initialSetup();
             _pollyelmaveninterfacedialog->show();
         } else {

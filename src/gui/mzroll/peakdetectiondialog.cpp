@@ -91,8 +91,8 @@ void PeakDetectionSettings::updatePeakSettings(string key, string value)
         if(QString(v.typeName()).contains("QGroupBox"))
             v.value<QGroupBox*>()->setChecked(std::stod(value));
 
-/*        if(QString(v.typeName()).contains("QCheckBox"))
-            v.value<QCheckBox*>()->setChecked(std::stod(value));*/
+        if(QString(v.typeName()).contains("QCheckBox"))
+            v.value<QCheckBox*>()->setChecked(std::stod(value));
 
         if(QString(v.typeName()).contains("QSpinBox"))
             v.value<QSpinBox*>()->setValue(std::stod(value));

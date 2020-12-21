@@ -25,27 +25,6 @@
   <property name="windowTitle">
    <string>Support Information</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QPushButton {
-	background-color: white;
-	padding: 6px;
-	border: 1px solid orange;
-	border-radius: 3px;
-	text-align: left;
-	margin: 6px 3px;
-}
-
-QPushButton:hover {
-	background-color: rgb(117, 110, 210);
-	color: white;
-	border: 1px solid rgb(117, 110, 210);
-}
-
-QPushButton:focus {
-	outline: none;
-	border: 1px solid black;
-}</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
