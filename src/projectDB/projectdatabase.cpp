@@ -911,7 +911,10 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :filter_adducts_against_parent    \
                      , :parent_isotope_required          \
                      , :parent_adduct_required           \
-                     , :peak_width_quantile              )");
+                     , :peak_width_quantile              \
+                     , :peakMlModel                      \
+                     , :badGroupUpperLimit               \
+                     , :goodGroupLowerLimit )");
     return cursor;
 }
 
@@ -1071,6 +1074,11 @@ void ProjectDatabase::saveGroupSettings(const PeakGroup* group, int groupId)
 
     auto settingsMap = fromParametersToMap(group->parameters());
     _bindSettingsFromMap(settingsQuery, settingsMap);
+
+    settingsQuery->bind(":peakMlModel", BSTRING(settingsMap.at("peakMlModel")));
+    settingsQuery->bind(":badGroupUpperLimit", BDOUBLE(settingsMap.at("badGroupUpperLimit")));
+    settingsQuery->bind(":goodGroupLowerLimit", BDOUBLE(settingsMap.at("goodGroupLowerLimit")));
+    
     if (!settingsQuery->execute())
         cerr << "Error: failed to save group settings." << endl;
 }
@@ -1790,6 +1798,10 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
     settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
 
+    settingsMap["peakMlModel"] = variant(settingsQuery->stringValue("peakMlModel"));
+    settingsMap["badGroupUpperLimit"] = variant(settingsQuery->doubleValue("badGroupUpperLimit"));
+    settingsMap["goodGroupLowerLimit"] = variant(settingsQuery->doubleValue("goodGroupLowerLimit"));
+
     // alignment settings, using the same key as DB column name
     settingsMap["alignment_algorithm"] = settingsQuery->integerValue("alignment_algorithm");
     settingsMap["alignment_good_peak_count"] = settingsQuery->integerValue("alignment_good_peak_count");
@@ -2207,6 +2219,9 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
 
     // active table is a session-level setting only
     settingsMap["activeTableName"] = string();
+    settingsMap["peakMlModel"] = mp->peakMlModelType;
+    settingsMap["badGroupUpperLimit"] = static_cast<double>(mp->badGroupUpperLimit);
+    settingsMap["goodGroupLowerLimit"] = static_cast<double>(mp->goodGroupLowerLimit);
 
     return settingsMap;
 }
@@ -2321,6 +2336,9 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     // ?? = settingsMap["mainWindowPeakQuantitation"];
     // ?? settingsMap["mainWindowMassResolution"];
 
+    mp.peakMlModelType = BSTRING(settingsMap["peakMlModel"]);
+    mp.goodGroupLowerLimit = BDOUBLE(settingsMap["goodGroupLowerLimit"]);
+    mp.badGroupUpperLimit = BDOUBLE(settingsMap["badGroupUpperLimit"]);
     return mp;
 }
 

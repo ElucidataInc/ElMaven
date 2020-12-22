@@ -817,13 +817,20 @@ map<int, string> dbVersionUpgradeScripts = {
         "COMMIT;"
     },
     {
-         6,
+        6,
         "BEGIN TRANSACTION;"
         "ALTER TABLE peakgroups ADD COLUMN predicted_label INTEGER;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_probability REAL;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_inference_key TEXT;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_inference_value TEXT;"
         "ALTER TABLE peakgroups ADD COLUMN correlated_groups TEXT;"
+        "ALTER TABLE peakgroups ADD COLUMN base_value;"
+        "ALTER TABLE peakgroups ADD COLUMN output_value;"
+
+        "ALTER TABLE user_settings ADD COLUMN peakMlModel;"
+        "ALTER TABLE user_settings ADD COLUMN badGroupUpperLimit;"
+        "ALTER TABLE user_settings ADD COLUMN goodGroupLowerLimit;"
+
         "COMMIT;"  
     }
 };
