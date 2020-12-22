@@ -328,12 +328,10 @@ shared_ptr<PeakGroup> TableDockWidget::groupForItem(QTreeWidgetItem *item)
   if (item == nullptr)
     return nullptr;
   
-  int index;
+  int index = 0;
   if (hasClassifiedGroups)
     index = 1;
-  else
-    index = 0;
-
+  
   auto var = item->data(index, Qt::UserRole);
   
   auto rowData = var.value<RowData>();
@@ -972,6 +970,9 @@ void TableDockWidget::showAllGroups() {
       for (auto childIsotope : group->childIsotopes()) {
         childIsotope->isClassified = true;
       }
+      for (auto childAdducts : group->childAdducts()) {
+        childAdducts->isClassified = true;
+      }
     }
     
     RowData rowData = _rowDataForThisTable(i);
@@ -1256,7 +1257,7 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                         _mainwindow->mavenParameters);
   QList<shared_ptr<PeakGroup>> selectedGroups;
   
-  if (static_cast<int>(peakTableSelection) == 10)
+  if (peakTableSelection == PeakTableSubsetType::Displayed)
     selectedGroups = getDisplayedGroups();
   else
     selectedGroups = getSelectedGroups();
@@ -2202,30 +2203,6 @@ void TableDockWidget::unmarkGroup() {
   _mainwindow->autoSaveSignal(currentGroups);
 }
 
-// bool TableDockWidget::checkLabeledGroups() {
-
-//   int totalCount = 0;
-//   int goodCount = 0;
-//   int badCount = 0;
-
-//   if (_mainwindow->peaksMarked >= allgroups.size()) {
-//     for (int i = 0; i < allgroups.size(); i++) {
-//       char groupLabel = allgroups[i].userLabel();
-//       if (groupLabel == 'g') {
-//         goodCount++;
-//       } else if (groupLabel == 'b') {
-//         badCount++;
-//       }
-//       totalCount++;
-//     }
-
-//     if (totalCount == goodCount + badCount)
-//       return true;
-//   }
-
-//   return false;
-// }
-
 void TableDockWidget::markGroupIgnored() {
   setGroupLabel('i');
   showNextGroup();
@@ -2666,9 +2643,9 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
       QAction *z8 = menu.addAction("Explain classification");
       classificationWidget = new ClassificationWidget(this);
       connect(z8,
-              SIGNAL(triggered()),
+              &QAction::triggered,
               classificationWidget,
-          SLOT(showClassification()));
+              &ClassificationWidget::showClassification);
   }
 
   QAction *selectedAction = menu.exec(event->globalPos());
@@ -2757,7 +2734,7 @@ void TableDockWidget::relabelGroups(float changedBadLimit, float changedMaybeGoo
     QMessageBox::warning(this,
                           "No Change!",
                           "The curation parameters you entered are same as" 
-                          " in classified table.\nYou may change the range"
+                          "they were in the classified peak-table.\nYou may change the range"
                           " and try again.\n");
    _legend->uncheckRelabel();
    connect(_legend,
@@ -2799,7 +2776,7 @@ void TableDockWidget::relabelGroups(float changedBadLimit, float changedMaybeGoo
   int totalSteps = groups.size();
   int steps = 1;
   for (auto &group : groups) {
-    Q_EMIT(updateRelabelStatusBar("Relabeling", steps, totalSteps));
+    Q_EMIT(updateRelabelStatusBar("Relabeling...", steps, totalSteps));
     steps++;
     changePrediction(group.get(), 
                     changedBadLimit,

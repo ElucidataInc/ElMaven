@@ -1,6 +1,5 @@
 #ifndef RANGESLIDER_H
 #define RANGESLIDER_H
-#pragma once
 
 #include <QWidget>
 #include <QPainter>

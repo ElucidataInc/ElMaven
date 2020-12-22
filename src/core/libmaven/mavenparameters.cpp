@@ -315,6 +315,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     // which will not be created by a copy operation like this.
     samples = mp.samples;
 
+    classifyUsingPeakMl = mp.classifyUsingPeakMl;
     peakMlModelType = mp.peakMlModelType;
     badGroupUpperLimit = mp.badGroupUpperLimit;
     goodGroupLowerLimit = mp.goodGroupLowerLimit;

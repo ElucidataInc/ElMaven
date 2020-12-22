@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include "pollyelmaveninterface.h"
 #include "pollyintegration.h"
+#include "peakdetectiondialog.h"
 #include "ui_loginform.h"
 
 
@@ -45,8 +46,14 @@ LoginForm::LoginForm(PollyElmavenInterfaceDialog* pollyelmaveninterfacedialog, b
                 ui->login_label->clear();
                 ui->pushButton->setEnabled(true);
             });
-    connect(this, SIGNAL(loginSuccessful()), _pollyelmaveninterfacedialog, SLOT(emitLoginReady()));
-    connect(this, SIGNAL(widgetClosed()), _pollyelmaveninterfacedialog, SLOT(loginFormClosed()));
+    connect(this, 
+            &LoginForm::loginSuccessful, 
+            _pollyelmaveninterfacedialog->getMainWindow()->peakDetectionDialog, 
+            &PeakDetectionDialog::loginSuccessful);
+    connect(this, 
+            &LoginForm::widgetClosed, 
+            _pollyelmaveninterfacedialog->getMainWindow()->peakDetectionDialog, 
+            &PeakDetectionDialog::unsuccessfulLogin);
 }
 
 LoginForm::~LoginForm()

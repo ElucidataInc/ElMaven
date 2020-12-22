@@ -152,24 +152,6 @@ void BackgroundOpsThread::qtSignalSlot(const string& progressText,
                            total_slices);
 }
 
-void BackgroundOpsThread::writeCSVRep(string setName)
-{
-    // int lastUniqueId = 0;
-    // for (auto&group : mavenParameters->allgroups)
-    //     group.setUniqueId(++lastUniqueId);
-
-    // for(auto&group : mavenParameters->allgroups)
-    //     for (auto& child : group.childIsotopes())
-    //         child->setUniqueId(++lastUniqueId);
-
-    if (mainwindow->mavenParameters->classifyUsingPeakMl) 
-        classifyGroups(mavenParameters->allgroups);
-
-    emitGroups();
-
-    Q_EMIT(updateProgressBar("Done", 1, 1));
-}
-
 void BackgroundOpsThread::align()
 {
     // these if-else statements will take care of all corner cases of
@@ -317,7 +299,10 @@ void BackgroundOpsThread::computePeaks()
         peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
     }
     
-    writeCSVRep("slices");
+    if (mainwindow->mavenParameters->classifyUsingPeakMl) 
+        classifyGroups(mavenParameters->allgroups);
+
+    emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
 }
@@ -341,7 +326,10 @@ void BackgroundOpsThread::findFeatures()
         peakDetector->mavenParameters()->searchAdducts = hadSearchAdducts;
     }
     
-    writeCSVRep("allSlices");
+    if (mainwindow->mavenParameters->classifyUsingPeakMl) 
+        classifyGroups(mavenParameters->allgroups);
+
+    emitGroups();
 
     emit updateProgressBar("Status", 0, 100);
 }
@@ -426,11 +414,11 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
 #ifdef Q_OS_WIN
     auto mlBinary = tempDir + QDir::separator() + "moi.exe";
 #endif
-    QString mlModel;
+    QString ml_model;
     // Following code is commented out because for now we have only one model in
     // aws bucket. Once, we have more comments would be removed.  
-    // if(mainwindow->mavenParameters->peakMlModelType == "Global Model Elucidata"){
-        mlModel = tempDir + QDir::separator() + "model.pickle.dat";
+    // if(mainwindow->mavenParameters->peakml_modelType == "Global Model Elucidata"){
+        ml_model = tempDir + QDir::separator() + "model.pickle.dat";
     // }
     // else{
     //     return;
@@ -445,11 +433,11 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
             return;
         }
     }
-    if (!QFile::exists(mlModel)) {
+    if (!QFile::exists(ml_model)) {
         bool downloadSuccess = downloadPeakMlFilesFromURL("model.pickle.dat");
         if(!downloadSuccess) {
             cerr << "Error: ML model not found at path: "
-                << mlModel.toStdString()
+                << ml_model.toStdString()
                 << endl;
             return;
         }
@@ -457,18 +445,29 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     
     Q_EMIT(updateProgressBar("Preparing inputs for classification…", 0, 0));
     
-    QString peakAttributesFile = tempDir
+    QString peak_attributes_file = tempDir
                                  + QDir::separator()
                                  + "peak_ml_input.csv";
-    QString classificationOutputFile = tempDir
+    QString classification_output_file = tempDir
                                        + QDir::separator()
                                        + "peak_ml_output.csv";
 
-    CSVReports::writeDataForPeakMl(peakAttributesFile.toStdString(),
+    int startId = 1;
+    for (auto& group : groups) {
+        group.setGroupId(startId++);
+        for (auto& child : group.childIsotopes()) {
+            child->setGroupId(startId++);
+        }
+        for (auto& child : group.childAdducts()) {
+            child->setGroupId(startId++);
+        }
+    }
+
+    CSVReports::writeDataForPeakMl(peak_attributes_file.toStdString(),
                                    groups);
-    if (!QFile::exists(peakAttributesFile)) {
+    if (!QFile::exists(peak_attributes_file)) {
         cerr << "Error: peak attributes input file not found at path: "
-             << peakAttributesFile.toStdString()
+             << peak_attributes_file.toStdString()
              << endl;
         return;
     }
@@ -477,25 +476,25 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     QString maybeGood_group_limit = QString::fromStdString(
                                     mzUtils::float2string(mavenParameters->goodGroupLowerLimit, 1));
     QStringList mlArguments;
-    mlArguments << "--input_attributes_file" << peakAttributesFile
-                << "--output_moi_file" << classificationOutputFile
-                << "--model_path" << mlModel
+    mlArguments << "--input_attributes_file" << peak_attributes_file
+                << "--output_moi_file" << classification_output_file
+                << "--model_path" << ml_model
                 << "--bad_group_limit" << bad_group_limit
                 << "--maybeGood_group_limit" << maybeGood_group_limit;
     QProcess subProcess;
     subProcess.setWorkingDirectory(QFileInfo(mlBinary).path());
     subProcess.start(mlBinary, mlArguments);
     subProcess.waitForFinished(-1);
-    if (!QFile::exists(classificationOutputFile)) {
+    if (!QFile::exists(classification_output_file)) {
         qDebug() << "MOI stdout:" << subProcess.readAllStandardOutput();
         qDebug() << "MOI stderr:" << subProcess.readAllStandardError();
         cerr << "Error: peak classification output file not found at path: "
-             << peakAttributesFile.toStdString()
+             << peak_attributes_file.toStdString()
              << endl;
         return;
     }
 
-    QFile file(classificationOutputFile);
+    QFile file(classification_output_file);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         cerr << "Error: failed to open classification output file" << endl;
         return;

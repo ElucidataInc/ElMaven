@@ -1071,18 +1071,7 @@ void PeakGroup::setUserLabel(char label)
         // ignore invalid labels
         return;
     }
-    _predictionProbability = 0.0f;
-    _predictionInference.clear();
     _userLabel = label;
-
-    if (parent != nullptr && parent->tagString == C12_PARENT_LABEL) {
-        parent->setUserLabel(label);
-        return;
-    }
-
-    for (auto& child : _childIsotopes) {
-            child->setUserLabel(label);
-    }
 }
 
 void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
@@ -1099,16 +1088,6 @@ void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
         this->_userLabel = 'g';
     }
     _predictionProbability = probability;
-
-    if (parent != nullptr && parent->tagString == C12_PARENT_LABEL) {
-        parent->setPredictedLabel(label, probability);
-        return;
-    }
-    for (auto& child : _childIsotopes) {
-        if (child->_predictedLabel != label
-            && child->_predictionProbability != probability)
-            child->setPredictedLabel(label, probability);
-    }
 }
 
 void PeakGroup::setPredictionInference(const multimap<float, string>& inference)

@@ -86,7 +86,7 @@ script:
 
         # export encoded update repository URL
         export UPDATE_REPO_URL_BASE64=`echo $UPDATE_REPO_URL | base64`
-        
+
         qmake CONFIG+=release CONFIG+=force_debug_info CONFIG+=separate_debug_info NOTESTS=yes
         make -j4;
       fi

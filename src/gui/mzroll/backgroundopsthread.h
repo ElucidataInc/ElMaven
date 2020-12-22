@@ -141,12 +141,6 @@ private:
     bool _performPolyFitAlignment;
 
     /**
-	 * [write CSV Report]
-	 * @param setName [name of the set]
-	 */
-	void writeCSVRep(string setName);
-
-    /**
 	 * @brief Downloads binary and model from S3 bucket 
 	 * if the two files does not exist on user's pc. 
 	 * @param filename Tells the file either model or 
