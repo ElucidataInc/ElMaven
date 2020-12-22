@@ -355,6 +355,7 @@ QTreeWidgetItem * TableDockWidget::itemForGroup(PeakGroup * group)
       return *it; 
     ++it;
   }
+  return nullptr;
 }
 
 void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
