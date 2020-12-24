@@ -637,8 +637,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                          predictions, 
                          inferences, 
                          correlations);
-    }
-    for (auto& group : groups) {
+
         for (auto& child : group.childIsotopes()) {
             if (mavenParameters->stop) {
                 mavenParameters->allgroups.clear();
@@ -662,8 +661,8 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                              inferences, 
                              correlations);
         }
-
     }
+    
     file.close();
     removeFiles();
 }

@@ -477,6 +477,8 @@ private:
   bool tableSelectionFlagDown;
   QShortcut * ctrlZ;
 
+  void saveLabelForUndo(PeakGroup* group);
+
 private slots:
   void _refreshCycleBuffer();
 };

@@ -336,7 +336,7 @@ int ClassificationWidget::makeArrowForNegatives(float shapValue,
     QGraphicsTextItem* title = _scene.addText(featureText, font);
     title->setHtml(featureText);
 
-    title->setPos(startPosition + x_displacement/2 + 70 - featureText.size() * 2, 250 + counter * 10);
+    title->setPos(startPosition + x_displacement/2 + 70 - featureText.size() * 4, 250 + counter * 10);
 
     return (startPosition + x_displacement); 
 }

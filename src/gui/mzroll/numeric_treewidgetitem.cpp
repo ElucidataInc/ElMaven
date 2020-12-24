@@ -15,7 +15,10 @@ static PeakGroup::ClassifiedLabel labelForString(const QString& labelString)
         return PeakGroup::ClassifiedLabel::Pattern;
     } else if (labelString == "PeakGroup::ClassifiedLabel::CorrelationAndPattern") {
         return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::MaybeGood") {
+        return PeakGroup::ClassifiedLabel::MaybeGood;
     }
+
     return PeakGroup::ClassifiedLabel::None;
 }
 
@@ -36,8 +39,8 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
     // takes care of sorting based on PeakML class labels
     QString thisLabelString = this->data(sortCol, Qt::UserRole).value<QString>();
     QString otherLabelString = other.data(sortCol, Qt::UserRole).value<QString>();
-    auto thisLabel = PeakGroup::labelForString(thisLabelString.toStdString());
-    auto otherLabel = PeakGroup::labelForString(otherLabelString.toStdString());
+    auto thisLabel = labelForString(thisLabelString);
+    auto otherLabel = labelForString(otherLabelString);
     if (thisLabel != PeakGroup::ClassifiedLabel::None
         || otherLabel != PeakGroup::ClassifiedLabel::None) {
         return thisLabel < otherLabel;
