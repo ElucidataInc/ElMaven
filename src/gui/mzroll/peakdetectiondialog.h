@@ -25,13 +25,6 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, Added while merging mainwindow
 				 void setMavenParameters(QSettings *settings);
                  bool databaseSearchEnabled();
-                 /**
-                  * @brief Runs QtProcess to hit Polly API that returns the 
-                  * list of Models that is stored in S3 bucket for that 
-                  * particular organisation of the current user.
-                  * @return vector of model names.
-                  */ 
-                 void getModelsList();
 
 		public Q_SLOTS:
 				 void findPeaks();
@@ -71,6 +64,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void setQuantType(QString type);
                  void triggerSettingsUpdate();
                 void onReset();
+                void handleAuthorization(QStringList models, QString status);
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);

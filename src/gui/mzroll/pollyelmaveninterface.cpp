@@ -13,6 +13,10 @@
 #include "pollywaitdialog.h"
 #include "projectdockwidget.h"
 #include "tabledockwidget.h"
+#include "peakdetectiondialog.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     : QDialog(mw), _mainwindow(mw), _loginform(nullptr)
@@ -27,6 +31,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _activeTable = nullptr;
     _pollyIntegration = _mainwindow->getController()->iPolly;
     _loadingDialog = new PollyWaitDialog(this);
+    _loadingDialogForPeakML = new PollyWaitDialog(_mainwindow->peakDetectionDialog);
     _uploadInProgress = false;
     _lastCohortFileWasValid = false;
     
@@ -78,8 +83,19 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
-    connect(this, SIGNAL(loginResponse()), _mainwindow->peakDetectionDialog, SLOT(loginSuccessful()));
-    connect(this, SIGNAL(loginUnsuccessful()), _mainwindow->peakDetectionDialog, SLOT(unsuccessfulLogin()));
+    connect(_worker, 
+            &EPIWorkerThread::peakMLAuthenticationFinished,
+            this,
+            &PollyElmavenInterfaceDialog::peakMLAccessControl);
+    connect(sendModeTab,
+            &QTabWidget::currentChanged,
+            this,
+            &PollyElmavenInterfaceDialog::_changeMode);
+
+    connect(this, 
+            &PollyElmavenInterfaceDialog::peakMLAccess,
+            _mainwindow->peakDetectionDialog,
+            &PeakDetectionDialog::handleAuthorization);        
 }
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
@@ -102,6 +118,9 @@ void EPIWorkerThread::run()
     case RunMethod::SendEmail:
         _sendEmail();
         break;
+    case RunMethod::FetchPeakMLModels:
+        _getModels();
+        break;  
     default:
         break;
     }
@@ -220,6 +239,84 @@ void PollyElmavenInterfaceDialog::loginForPeakMl()
         msgBox.setWindowTitle("Error in loading login form");
         msgBox.exec();
     } 
+}
+
+void PollyElmavenInterfaceDialog::getModelsForPeakML() 
+{
+    _worker->wait();
+    _worker->setMethodToRun(EPIWorkerThread::RunMethod::FetchPeakMLModels);
+    _worker->start();
+    
+    _loadingDialogForPeakML->setWindowFlag(Qt::WindowTitleHint, true);
+    _loadingDialogForPeakML->open();
+    _loadingDialogForPeakML->statusLabel->setVisible(true);
+    _loadingDialogForPeakML->statusLabel->setStyleSheet("QLabel {color : green;}");
+    _loadingDialogForPeakML->statusLabel->setText("Fetching user data...");
+    _loadingDialogForPeakML->label->setVisible(true);
+    _loadingDialogForPeakML->label->setMovie(_loadingDialogForPeakML->movie);
+    _loadingDialogForPeakML->label->setAlignment(Qt::AlignCenter);
+    QCoreApplication::processEvents();
+}
+
+void PollyElmavenInterfaceDialog::peakMLAccessControl(QStringList models, QString status) {
+    _loadingDialogForPeakML->close();
+    emit peakMLAccess(models, status);
+}
+
+void EPIWorkerThread::_getModels() {
+    QStringList args;
+    QStringList models;
+    
+    auto cookieFile = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "El-MAVEN_cookie.json" ;
+    
+    ifstream readCookie(cookieFile.toStdString());
+    if(!readCookie.is_open()) {
+        emit peakMLAuthenticationFinished(models, "Error");
+        return;
+    }
+
+    json cookieInput = json::parse(readCookie);
+    string refreshToken = cookieInput["refreshToken"];
+    string idToken = cookieInput["idToken"];
+
+    QString cookies;
+    cookies += "refreshToken=";
+    cookies += QString::fromStdString(refreshToken);
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += QString::fromStdString(idToken);
+
+    args << cookies;
+    
+    auto res = _pollyIntegration->runQtProcess("listBucketObjects", args);
+    if (!res.size()) {
+        emit peakMLAuthenticationFinished(models, "Error");
+        return;
+    }
+
+    QString str(res[0].constData());
+    if (str.isEmpty()) {
+        emit peakMLAuthenticationFinished(models, "Error");
+        return;
+    }
+
+    auto splitString = mzUtils::split(str.toStdString(), "\n");
+    auto data = splitString[splitString.size() - 2];
+    json dataObject = json::parse(data);
+    
+    if (!dataObject["data"]["error"].is_null()){
+        emit peakMLAuthenticationFinished(models, "Error");
+    }
+    
+    for (int i = 1; i < dataObject["data"]["attributes"]["models"].size(); i++) {
+        QString modelName = QString::fromStdString(dataObject["data"]["attributes"]["models"][i].get<string>());
+        models.push_back(modelName);
+    }
+    
+    emit peakMLAuthenticationFinished(models, "OK");
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()

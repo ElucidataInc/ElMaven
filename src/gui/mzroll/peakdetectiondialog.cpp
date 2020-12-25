@@ -269,27 +269,39 @@ void PeakDetectionDialog::getLoginForPeakMl()
     }     
 }
 
+void PeakDetectionDialog::handleAuthorization(QStringList models, QString status) {
+    if (status != "OK") {
+        unsuccessfulLogin();
+        // TODO: Message needs to change once license part is done.
+        auto htmlText = QString("<p><b>Something went wrong.</b></p>");
+            htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        mainwindow->showWarning(htmlText);
+    } else {
+        modelTypes->clear();
+        modelTypes->addItem("Global Model Elucidata");
+        for (auto model : models)
+            modelTypes->addItem(model);
+    }
+}
+
 void PeakDetectionDialog::loginSuccessful()
-{
+{ 
     _peakMlSet = true;
     peakMl->setChecked(true);
     mainwindow->mavenParameters->classifyUsingPeakMl = true;
     modelTypes->setEnabled(true);
-    getModelsList();
-    modelTypes->clear();
-    modelTypes->addItem("Global Model Elucidata");
-    for (auto model : _modelsList)
-        modelTypes->addItem(QString::fromStdString(model));
+    mainwindow->pollyElmavenInterfaceDialog->getModelsForPeakML();
 }
 
 void PeakDetectionDialog::unsuccessfulLogin()
-{
+{   
     _peakMlSet = false;
     peakMl->setChecked(false);
     modelTypes->setEnabled(false);
     if(mainwindow)
         mainwindow->mavenParameters->classifyUsingPeakMl = false;
 }
+
 void PeakDetectionDialog::onReset()
 {
     emit resetSettings(peakSettings->getSettings().keys());
@@ -493,8 +505,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         matchFragmentationOptions->setChecked(fragmentationWasEnabled);
         modelTypes->clear();
         modelTypes->addItem("Global Model Elucidata");
-        for (auto model : _modelsList)
-            modelTypes->addItem(QString::fromStdString(model));
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
@@ -520,52 +530,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
 
         QDialog::exec();
     }
-}
-
-void PeakDetectionDialog::getModelsList()
-{
-    QStringList args;
-    _modelsList.clear();
-    auto _dlManager = new DownloadManager();
-    auto _pollyIntegration = new PollyIntegration(_dlManager);
-
-    auto cookieFile = QStandardPaths::writableLocation(
-                    QStandardPaths::GenericConfigLocation)
-                    + QDir::separator() 
-                    + "El-MAVEN_cookie.json" ;
-    
-    ifstream readCookie(cookieFile.toStdString());
-    if(!readCookie.is_open())
-        return;
-
-    json cookieInput = json::parse(readCookie);
-    string refreshToken = cookieInput["refreshToken"];
-    string idToken = cookieInput["idToken"];
-
-    QString cookies;
-    cookies += "refreshToken=";
-    cookies += QString::fromStdString(refreshToken);
-    cookies += ";";
-    cookies += "idToken=";
-    cookies += QString::fromStdString(idToken);
-
-    args << cookies;
-
-    auto res = _pollyIntegration->runQtProcess("listBucketObjects", args);
-    QString str(res[0].constData());
-    if (str.isEmpty())
-        return;
-    auto splitString = mzUtils::split(str.toStdString(), "\n");
-    auto data = splitString[splitString.size() - 2];
-    json dataObject = json::parse(data);
-    
-    if (!dataObject["data"]["error"].is_null()){
-        return;
-    }
-    
-    for (int i = 1; i < dataObject["data"]["attributes"]["models"].size(); i++) {
-        _modelsList.push_back(dataObject["data"]["attributes"]["models"][i].get<string>());
-    }    
 }
 
 void PeakDetectionDialog::refreshCompoundDatabases()
