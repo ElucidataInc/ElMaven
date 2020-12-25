@@ -481,6 +481,8 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                 << "--model_path" << ml_model
                 << "--bad_group_limit" << bad_group_limit
                 << "--maybeGood_group_limit" << maybeGood_group_limit;
+
+    Q_EMIT(updateProgressBar("Executing Polly-PeakML…", 0, 0));
     QProcess subProcess;
     subProcess.setWorkingDirectory(QFileInfo(mlBinary).path());
     subProcess.start(mlBinary, mlArguments);
@@ -513,7 +515,16 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                                    "correlations",
                                    "output value",
                                    "base value"};
+    Q_EMIT(toggleCancel());
+    Q_EMIT(updateProgressBar("Preparing outputs for classification…", 0, 0));                                   
     while (!file.atEnd()) {
+        
+        if (mavenParameters->stop) {
+            mavenParameters->allgroups.clear();
+            removeFiles();
+            return;
+        }
+
         string line = file.readLine().trimmed().toStdString();
         if (line.empty())
             continue;
@@ -595,7 +606,7 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
             correlations[groupId] = group_correlations;
         }
     }
-    Q_EMIT(toggleCancel());
+
     auto assignPrediction = [&] (PeakGroup* group, 
                                  map<int, pair<int, float>> predictions,
                                  map<int, multimap<float, string>> inferences,
