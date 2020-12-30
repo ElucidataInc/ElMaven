@@ -1257,7 +1257,10 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
                         _mainwindow->getUserQuantType(),
                         ms2GroupExists,
                         includeSetNamesLines,
-                        _mainwindow->mavenParameters);
+                        _mainwindow->mavenParameters, 
+                        false, 
+                        hasClassifiedGroups);
+                 
   QList<shared_ptr<PeakGroup>> selectedGroups;
   
   if (peakTableSelection == PeakTableSubsetType::Displayed)
@@ -1269,9 +1272,6 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
 
   for (auto group : _topLevelGroups) {
     if (selectedGroups.contains(group)) {
-      if (hasClassifiedGroups)
-        csvreports.addGroup(group.get(), true);
-      else
         csvreports.addGroup(group.get());
     }
   }

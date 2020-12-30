@@ -20,7 +20,8 @@ CSVReports::CSVReports(string filename,
                        bool prmReport,
                        bool includeSetNamesLine,
                        MavenParameters* mp,
-                       bool pollyExport)
+                       bool pollyExport, 
+                       bool groupsClassified)
 {
     samples = insamples;
     _pollyExport = pollyExport;
@@ -31,6 +32,7 @@ CSVReports::CSVReports(string filename,
     _reportType = reportType;
     _prmReport = prmReport;
     _includeSetNamesLine = includeSetNamesLine;
+    _groupsClassifed = groupsClassified;
 
     if (reportType == ReportType::PeakReport) {
         if (samples.size() == 0)
@@ -115,8 +117,10 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                                 << "ms2Purity";
         }
 
-        groupReportcolnames << "classificationLabel"
-                            << "classificationProbability";
+        if (!_pollyExport && _groupsClassifed) {
+            groupReportcolnames << "classificationLabel"
+                                << "classificationProbability";
+        }
 
         int cohort_offset = groupReportcolnames.size() - 1;
         QString header = groupReportcolnames.join(SEP.c_str());
@@ -180,7 +184,7 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
     }
 }
 
-void CSVReports::addGroup(PeakGroup* group, bool tableClassified)
+void CSVReports::addGroup(PeakGroup* group)
 {
     if (_reportType == ReportType::PeakReport) {
         _writePeakInfo(group);
@@ -191,15 +195,15 @@ void CSVReports::addGroup(PeakGroup* group, bool tableClassified)
     }
 
     if (_reportType == ReportType::GroupReport) {
-        _writeGroupInfo(group, tableClassified);
+        _writeGroupInfo(group);
         for (auto subGroup : group->childIsotopes())
-            _writeGroupInfo(subGroup.get(), tableClassified);
+            _writeGroupInfo(subGroup.get());
         for (auto subGroup : group->childAdducts())
-            _writeGroupInfo(subGroup.get(), tableClassified);
+            _writeGroupInfo(subGroup.get());
     }
 }
 
-void CSVReports::_writeGroupInfo(PeakGroup* group, bool tableClassified)
+void CSVReports::_writeGroupInfo(PeakGroup* group)
 {
     if (!_reportStream.is_open())
         return;
@@ -262,7 +266,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group, bool tableClassified)
     }
 
     char label = group->userLabel();
-    if (!tableClassified) {
+    if (!_groupsClassifed) {
         if (group->parent != nullptr && !group->parent->isGhost())
             label = group->parent->userLabel();
     } 
@@ -366,9 +370,10 @@ void CSVReports::_writeGroupInfo(PeakGroup* group, bool tableClassified)
                       << SEP << group->fragmentationPattern.purity;
     }
 
-    _reportStream << SEP << PeakGroup::labelToString(group->predictedLabel())
+    if (!_pollyExport && _groupsClassifed) {
+        _reportStream << SEP << PeakGroup::labelToString(group->predictedLabel())
                   << SEP << group->predictionProbability();
-
+    }
     // for intensity values, we only write two digits of floating point
     // precision since these values are supposed to be large (in the order of
     // >10^3).

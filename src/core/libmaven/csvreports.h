@@ -59,7 +59,8 @@ class CSVReports
                    bool prmReport = false,
                    bool includeSetNamesLine = false,
                    MavenParameters* mp = NULL,
-                   bool pollyExport = false);
+                   bool pollyExport = false,
+                   bool groupsClassifed = false);
 
         /**
          *@brief-    destructor, just close all open output files opened for writing
@@ -75,7 +76,7 @@ class CSVReports
         /**
          *@brief-    add group for writing csv about
          */
-        void addGroup(PeakGroup* group, bool tableClassified = false);
+        void addGroup(PeakGroup* group);
 
         QString getErrorReport(void)
         {
@@ -111,8 +112,7 @@ class CSVReports
         /**
          *@brief-  helper function to write group info
          */
-        void _writeGroupInfo(PeakGroup* group,
-                            bool tableClassified);
+        void _writeGroupInfo(PeakGroup* group);
         /**
          *@brief-  helper function to write peak info
          */
@@ -162,6 +162,10 @@ class CSVReports
         bool _pollyExport;
         bool _prmReport;
         bool _includeSetNamesLine;
+        /**
+         * @param For peakML classified groups 
+         */
+        bool _groupsClassifed;
 
         /**
          * @brief Write column name in output file for group report.
