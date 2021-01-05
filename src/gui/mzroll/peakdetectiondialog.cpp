@@ -4,6 +4,7 @@
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
+#include "common/mixpanel.h"
 #include "backgroundopsthread.h"
 #include "database.h"
 #include "ligandwidget.h"
@@ -141,6 +142,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
         _inDetectionMode = false;
+        
+        auto tracker = parent->getUsageTracker();
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
@@ -197,7 +200,7 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         _slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
         verticalLayout_3->addWidget(_slider);
         connect(peakMl, &QGroupBox::toggled,
-                [this](const bool checked)
+                [this, tracker](const bool checked)
                 {
                     if(checked){
                         getLoginForPeakMl();
@@ -207,6 +210,9 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                         mainwindow->mavenParameters->classifyUsingPeakMl = false;
                         modelTypes->setEnabled(false);
                     }
+                    QMap<QString, QVariant> eventDetails;
+                    eventDetails["Clicked button"] = "PeakML";
+                    tracker->trackEvent("Peak detection dialog", eventDetails);
                 });
         connect (_slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
