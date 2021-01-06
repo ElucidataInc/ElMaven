@@ -705,12 +705,15 @@ void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
 void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
                                                       QString tableName)
 {
-    if (!table->getGroups().isEmpty() && table->getTargetedGroupCount() > 0) {
-        if (_selectedApp == PollyApp::PollyPhi
-            && table->getLabeledGroupCount() > 0) {
-            peakTableCombo->addItem(tableName);
-        } else if ( _selectedApp == PollyApp::QuantFit) {
-            peakTableCombo->addItem(tableName);
+    if (!table->getGroups().isEmpty()) {
+        if (_selectedMode == SendMode::PollyApp
+            && table->getTargetedGroupCount() > 0) {
+            if (_selectedApp == PollyApp::PollyPhi
+                && table->getLabeledGroupCount() > 0) {
+                peakTableCombo->addItem(tableName);
+            } else if ( _selectedApp == PollyApp::QuantFit) {
+                peakTableCombo->addItem(tableName);
+            }
         }
         peakTableComboAlt->addItem(tableName);
         _tableNameMapping[tableName] = table;
