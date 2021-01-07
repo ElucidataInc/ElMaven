@@ -571,7 +571,7 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
             return;
 
         _mavenParameters->allgroups.insert(
-            _mavenParameters->allgroups.begin(),
+            _mavenParameters->allgroups.end(),
             make_move_iterator(peakgroups.begin()),
             make_move_iterator(peakgroups.end()));
     };
