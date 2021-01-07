@@ -683,6 +683,14 @@ class PeakGroup{
             return _parameters;
         }
 
+        /**
+         * @brief Set parameters used while integrating this peak-group.
+         */
+        void setParameters(shared_ptr<MavenParameters> mp)
+        {
+            _parameters = mp;
+        }
+
         bool isGroupHidden() {
             return _isHiddenFromTable;
         }
