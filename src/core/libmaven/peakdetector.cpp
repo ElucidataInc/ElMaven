@@ -1082,6 +1082,7 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
                                                    _mavenParameters,
                                                    _mavenParameters->clsf,
                                                    true);
+            delete_all(eics);
             if (isotopeGroup->peakCount() == 0)
                 continue;
 

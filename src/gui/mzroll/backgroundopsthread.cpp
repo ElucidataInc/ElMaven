@@ -346,6 +346,7 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
         }
         group->updateQuality();
         group->groupStatistics();
+        delete_all(eics);
     };
 
     for(auto group : groups) {
