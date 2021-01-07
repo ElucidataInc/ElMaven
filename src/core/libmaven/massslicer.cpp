@@ -428,12 +428,15 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
     }
 
     // remove merged slices
-    slices.erase(remove_if(slices.begin(),
-                           slices.end(),
-                           [](mzSlice* slice) {
-                               return (slice->ionCount == -1.0f);
-                           }),
-                 slices.end());
+    vector<size_t> indexesToErase;
+    for (size_t i = 0; i < slices.size(); ++i) {
+        auto slice = slices[i];
+        if (slice->ionCount == -1.0f) {
+            delete slice;
+            indexesToErase.push_back(i);
+        }
+    }
+    mzUtils::eraseIndexes(slices, indexesToErase);
 }
 
 void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
