@@ -2367,8 +2367,9 @@ PeakTableDockWidget::~PeakTableDockWidget() {
   delete toolBar;
 }
 
-void PeakTableDockWidget::destroy() {
-
+void PeakTableDockWidget::destroy()
+{
+  TableDockWidget::deleteAll(false);
   cleanUp();
   deleteLater();
   _mainwindow->removePeaksTable(this);
@@ -2377,8 +2378,11 @@ void PeakTableDockWidget::destroy() {
 void PeakTableDockWidget::deleteAll()
 {
   auto allDeleted = TableDockWidget::deleteAll();
-  if (allDeleted)
-    destroy();
+  if (allDeleted) {
+    cleanUp();
+    deleteLater();
+    _mainwindow->removePeaksTable(this);
+  }
 }
 
 void PeakTableDockWidget::cleanUp()
