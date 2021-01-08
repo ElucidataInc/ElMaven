@@ -493,8 +493,6 @@ void TableDockWidget::addRow(RowData& indexData, QTreeWidgetItem* root)
 
   if (group == nullptr)
     return;
-  if (group->meanMz <= 0 && !group->isGhost())
-    return;
 
   NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
   if (root == nullptr) {
