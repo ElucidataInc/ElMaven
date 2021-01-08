@@ -201,7 +201,6 @@ void PeakEditor::_setRtRangeAndValues()
 void PeakEditor::_setSyncRtCheckbox()
 {
     if ((_group->childIsotopeCount() == 0 && !_group->isIsotope())
-        || (_group->parent != nullptr && _group->parent->isGhost())
         || _group->isAdduct()) {
         ui->syncRtCheckBox->setChecked(false);
         ui->syncRtCheckBox->setEnabled(false);
@@ -213,7 +212,7 @@ void PeakEditor::_setSyncRtCheckbox()
     MavenParameters* parameters = _group->parameters().get();
     if (parameters->linkIsotopeRtRange
         && (_group->childIsotopeCount() > 0
-            || _group->tagString == "C12 PARENT")) {
+            || _group->tagString == C12_PARENT_LABEL)) {
         ui->syncRtCheckBox->setChecked(true);
     } else {
         ui->syncRtCheckBox->setChecked(false);
@@ -328,11 +327,13 @@ void PeakEditor::_applyEdits()
             return;
         }
 
-        auto eics = getEicsForGroup(parentGroup);
-        editGroup(parentGroup, eics, (parentGroup != _group.get()));
-        delete_all(eics);
+        if (!parentGroup->isGhost()) {
+            auto eics = getEicsForGroup(parentGroup);
+            editGroup(parentGroup, eics, (parentGroup != _group.get()));
+            delete_all(eics);
+        }
         for (auto child : parentGroup->childIsotopes()) {
-            eics = getEicsForGroup(child.get());
+            auto eics = getEicsForGroup(child.get());
             editGroup(child.get(), eics, (child != _group));
             delete_all(eics);
         }
