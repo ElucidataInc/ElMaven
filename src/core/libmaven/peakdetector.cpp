@@ -571,7 +571,7 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
             return;
 
         _mavenParameters->allgroups.insert(
-            _mavenParameters->allgroups.begin(),
+            _mavenParameters->allgroups.end(),
             make_move_iterator(peakgroups.begin()),
             make_move_iterator(peakgroups.end()));
     };
@@ -1082,6 +1082,7 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
                                                    _mavenParameters,
                                                    _mavenParameters->clsf,
                                                    true);
+            delete_all(eics);
             if (isotopeGroup->peakCount() == 0)
                 continue;
 
