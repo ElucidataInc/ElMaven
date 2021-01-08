@@ -236,6 +236,8 @@ public slots:
   void exportJson();
   void exportSpectralLib();
 
+  void markDuplicatesAsBad();
+
   void UploadPeakBatchToCloud();
   void showSelectedGroup();
   void setGroupLabel(char label);
