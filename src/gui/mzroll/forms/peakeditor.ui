@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
+    <width>776</width>
     <height>580</height>
    </rect>
   </property>
@@ -65,7 +65,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Drop top [X] percent intensities</string>
+                 <string>Allow top [x] percent intensities as part of the real signal</string>
                 </property>
                </widget>
               </item>

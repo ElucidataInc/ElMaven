@@ -32,6 +32,12 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     recursionCheck = false;
     _plotItems.clear();
 
+    _leftEdit = nullptr;
+    _leftProxyEdit = nullptr;
+    _rightEdit = nullptr;
+    _rightProxyEdit = nullptr;
+
+    _rightMarker = nullptr;
     _leftMarker = nullptr;
     _rightMarker = nullptr;
     _markerBeingDragged = nullptr;
@@ -56,6 +62,10 @@ void GalleryWidget::clear()
     _plotItems.clear();
     delete_all(_eics);
     _peakBounds.clear();
+    _leftEdit = nullptr;
+    _rightEdit = nullptr;
+    _leftProxyEdit = nullptr;
+    _rightProxyEdit = nullptr;
     _leftMarker = nullptr;
     _rightMarker = nullptr;
 }
@@ -217,9 +227,57 @@ void GalleryWidget::replot()
     recursionCheck = false;
 }
 
+void GalleryWidget::_drawBoundaryEditables(float rt1,
+                                           float x1,
+                                           float rt2,
+                                           float x2,
+                                           bool allPeaksEmpty)
+{
+    if (_leftProxyEdit != nullptr) {
+        delete _leftProxyEdit;
+        _leftProxyEdit = nullptr;
+    }
+    scene()->update();
+    if (_rightProxyEdit != nullptr) {
+        delete _rightProxyEdit;
+        _rightProxyEdit = nullptr;
+    }
+    scene()->update();
+
+    if (allPeaksEmpty)
+        return;
+
+    const float height = 24.0f;
+    const float width = 48.0f;
+    const float xOffset = 2.0f;
+    const float yOffset = 12.0f;
+
+    _leftEdit = new QLineEdit();
+    _leftEdit->setAlignment(Qt::AlignRight);
+    _leftEdit->setText(QString::number(rt1, 'f', 3));
+    _leftProxyEdit = scene()->addWidget(_leftEdit);
+    _leftProxyEdit->setZValue(1000);
+    _leftProxyEdit->setGeometry(QRectF(x1 - width - xOffset,
+                                       yOffset,
+                                       width,
+                                       height));
+
+    _rightEdit = new QLineEdit();
+    _rightEdit->setAlignment(Qt::AlignLeft);
+    _rightEdit->setText(QString::number(rt2, 'f', 3));
+    _rightProxyEdit = scene()->addWidget(_rightEdit);
+    _rightProxyEdit->setZValue(1000);
+    _rightProxyEdit->setGeometry(QRectF(x2 + xOffset,
+                                        yOffset,
+                                        width,
+                                        height));
+}
+
 void GalleryWidget::_drawBoundaryMarkers()
 {
     bool allPeaksEmpty = true;
+    float rt1 = numeric_limits<float>::max();
+    float rt2 = numeric_limits<float>::min();
     float x1 = numeric_limits<float>::max();
     float x2 = numeric_limits<float>::min();
     for (int index : _indexesOfVisibleItems) {
@@ -233,6 +291,8 @@ void GalleryWidget::_drawBoundaryMarkers()
             continue;
 
         allPeaksEmpty = false;
+        rt1 = min(rt1, rtMin);
+        rt2 = max(rt2, rtMax);
         x1 = min(x1, static_cast<float>(plot->mapToPlot(rtMin, 0.0f).x()));
         x2 = max(x2, static_cast<float>(plot->mapToPlot(rtMax, 0.0f).x()));
     }
@@ -250,6 +310,8 @@ void GalleryWidget::_drawBoundaryMarkers()
     }
     scene()->update();
 
+    _drawBoundaryEditables(rt1, x1, rt2, x2, allPeaksEmpty);
+
     if (allPeaksEmpty)
         return;
 
@@ -260,11 +322,11 @@ void GalleryWidget::_drawBoundaryMarkers()
 
     QPen pen(Qt::black, 1, Qt::DashLine, Qt::FlatCap, Qt::RoundJoin);
     _leftMarker->setPen(pen);
-    _leftMarker->setZValue(1000);
+    _leftMarker->setZValue(990);
     _leftMarker->setLine(x1, yStart, x1, yEnd);
     _leftMarker->update();
     _rightMarker->setPen(pen);
-    _rightMarker->setZValue(1000);
+    _rightMarker->setZValue(990);
     _rightMarker->setLine(x2, yStart, x2, yEnd);
     _rightMarker->update();
 
@@ -310,41 +372,46 @@ QGraphicsLineItem* GalleryWidget::_markerNear(QPointF pos)
     return nullptr;
 }
 
+float GalleryWidget::_closestRealRt(float approximateRt, EIC* eic)
+{
+    float closestRealRt = approximateRt;
+    float minDiff = numeric_limits<float>::max();
+    for (size_t i = 0; i < eic->size(); ++i) {
+        float rt = eic->rt[i];
+        if (rt < _minRt)
+            continue;
+        if (rt > _maxRt)
+            break;
+        float diff = abs(rt - approximateRt);
+        if (diff < minDiff) {
+            closestRealRt = rt;
+            minDiff = diff;
+        }
+    }
+    return closestRealRt;
+}
+
+float GalleryWidget::_convertXCoordinateToRt(float x, EIC* eic)
+{
+    // given an X-coordinate, converts it to the closest RT in `eic`
+    float width = static_cast<float>(_boxW);
+    float offset = static_cast<float>(_axesOffset);
+    float ratio = (x - offset) / (width - offset);
+    float approximatedRt = _minRt + (ratio * (_maxRt - _minRt));
+    return _closestRealRt(approximatedRt, eic);
+}
+
 void GalleryWidget::_refillVisiblePlots(float x1, float x2)
 {
     if (_plotItems.empty() || _indexesOfVisibleItems.empty())
         return;
 
-    // lambda: given an X-coordinate, converts it to the closest RT in `eic`
-    auto toRt = [this](float coordinate, EIC* eic) {
-        float width = static_cast<float>(_boxW);
-        float offset = static_cast<float>(_axesOffset);
-        float ratio = (coordinate - offset) / (width - offset);
-        float approximatedRt = _minRt + (ratio * (_maxRt - _minRt));
-
-        float closestRealRt = approximatedRt;
-        float minDiff = numeric_limits<float>::max();
-        for (size_t i = 0; i < eic->size(); ++i) {
-            float rt = eic->rt[i];
-            if (rt < _minRt)
-                continue;
-            if (rt > _maxRt)
-                break;
-            float diff = abs(rt - approximatedRt);
-            if (diff < minDiff) {
-                closestRealRt = rt;
-                minDiff = diff;
-            }
-        }
-        return closestRealRt;
-    };
-
     for (int index : _indexesOfVisibleItems) {
         auto plot = _plotItems.at(index);
         auto eic = _eics.at(index);
 
-        float peakRtMin = toRt(x1, eic);
-        float peakRtMax = toRt(x2, eic);
+        float peakRtMin = _convertXCoordinateToRt(x1, eic);
+        float peakRtMax = _convertXCoordinateToRt(x2, eic);
         _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
         emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
 
@@ -400,13 +467,11 @@ void GalleryWidget::_fillPlotData()
         auto plot = _plotItems[i];
         auto eic = _eics[i];
         auto& peakBounds = _peakBounds.at(eic);
+        float peakRtMin = _closestRealRt(peakBounds.first, eic);
+        float peakRtMax = _closestRealRt(peakBounds.second, eic);
+
         plot->clearData();
-        plot->addData(eic,
-                      _minRt,
-                      _maxRt,
-                      true,
-                      peakBounds.first,
-                      peakBounds.second);
+        plot->addData(eic, _minRt, _maxRt, true, peakRtMin, peakRtMax);
 
         // make sure all plots are scaled into a single inclusive x-range
         plot->setXBounds(_minRt, _maxRt);
@@ -479,6 +544,29 @@ void GalleryWidget::_deleteCurrentPeak()
     replot();
 }
 
+void GalleryWidget::_setRtRegionForVisiblePeaks(float minRt, float maxRt)
+{
+    if (_plotItems.empty() || _indexesOfVisibleItems.empty())
+        return;
+
+    if (_minRt >= minRt - 0.5f)
+        _minRt = max(0.0f, minRt - 0.5f);
+    if (_maxRt <= maxRt + 0.5f)
+        _maxRt = maxRt + 0.5f;
+
+    for (int index : _indexesOfVisibleItems) {
+        auto eic = _eics.at(index);
+        float peakRtMin = _closestRealRt(minRt, eic);
+        float peakRtMax = _closestRealRt(maxRt, eic);
+        _peakBounds[eic] = make_pair(peakRtMin, peakRtMax);
+        emit peakRegionSet(eic->sample, peakRtMin, peakRtMax);
+    }
+
+    _fillPlotData();
+    _scaleVisibleYAxis();
+    replot();
+}
+
 void GalleryWidget::wheelEvent(QWheelEvent* event)
 {
     event->ignore();
@@ -492,6 +580,12 @@ void GalleryWidget::resizeEvent(QResizeEvent* event)
 
 void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
 {
+    if ((_leftProxyEdit != nullptr && _leftEdit->hasFocus())
+        || (_rightProxyEdit != nullptr && _rightEdit->hasFocus())) {
+        QGraphicsView::contextMenuEvent(event);
+        return;
+    }
+
     event->ignore();
     QMenu menu;
 
@@ -520,14 +614,35 @@ void GalleryWidget::contextMenuEvent(QContextMenuEvent* event)
 
 void GalleryWidget::keyPressEvent(QKeyEvent *event)
 {
+    if ((_leftProxyEdit != nullptr && _leftEdit->hasFocus())
+        || (_rightProxyEdit != nullptr && _rightEdit->hasFocus())) {
+        QGraphicsView::keyPressEvent(event);
+        if (event->key() == Qt::Key_Return) {
+            bool minOk;
+            float minRt = _leftEdit->text().toFloat(&minOk);
+            bool maxOk;
+            float maxRt = _rightEdit->text().toFloat(&maxOk);
+            if (minOk && maxOk) {
+                if (minRt > maxRt)
+                    minRt = maxRt;
+                if (maxRt < minRt)
+                    maxRt = minRt;
+                _setRtRegionForVisiblePeaks(minRt, maxRt);
+            }
+        }
+        return;
+    }
+
     if (event->key() == Qt::Key_Up
         || event->key() == Qt::Key_Down
         || event->key() == Qt::Key_Left
         || event->key() == Qt::Key_Right) {
         event->ignore();
     } else if (event->key() == Qt::Key_C) {
+        event->accept();
         _createNewPeak();
     } else if (event->key() == Qt::Key_Delete) {
+        event->accept();
         _deleteCurrentPeak();
     }
 }
@@ -549,8 +664,15 @@ void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
         return;
     }
 
+    float editableRt = 0.0f;
+    QLineEdit* editable = nullptr;
+    QGraphicsProxyWidget* editableWidget = nullptr;
+
     float x = 0.0f;
     if (_markerBeingDragged == _leftMarker) {
+        editable = _leftEdit;
+        editableWidget = _leftProxyEdit;
+
         float x1 = mousePos.x();
         float x2 = _rightMarker->line().x1();
         if (x1 >= x2)
@@ -558,13 +680,18 @@ void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
         _refillVisiblePlots(x1, x2);
 
         x = numeric_limits<float>::max();
+        editableRt = numeric_limits<float>::max();
         for (int index : _indexesOfVisibleItems) {
             auto plot = _plotItems.at(index);
             auto eic = _eics.at(index);
             float rt = _peakBounds.at(eic).first;
             x = min(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+            editableRt = min(editableRt, rt);
         }
     } else if (_markerBeingDragged == _rightMarker) {
+        editable = _rightEdit;
+        editableWidget = _rightProxyEdit;
+
         float x1 = _leftMarker->line().x1();
         float x2 = mousePos.x();
         if (x1 >= x2)
@@ -572,26 +699,56 @@ void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
         _refillVisiblePlots(x1, x2);
 
         x = numeric_limits<float>::min();
+        editableRt = numeric_limits<float>::min();
         for (int index : _indexesOfVisibleItems) {
             auto plot = _plotItems.at(index);
             auto eic = _eics.at(index);
             float rt = _peakBounds.at(eic).second;
             x = max(x, static_cast<float>(plot->mapToPlot(rt, 0.0f).x()));
+            editableRt = max(editableRt, rt);
         }
     }
 
     auto line = _markerBeingDragged->line();
     _markerBeingDragged->setLine(QLineF(x, line.y1(), x, line.y2()));
+
+    // move the editable entries for RT for the corresponding marker
+    if (editable != nullptr && editableWidget != nullptr) {
+        editable->setText(QString::number(editableRt, 'f', 3));
+        auto rect = editableWidget->geometry();
+        auto rectX = rect.x();
+        auto rectY = rect.y();
+        auto rectWidth = rect.width();
+        auto rectHeight = rect.height();
+
+        auto xOffset = 2.0f;
+        if (editableWidget == _leftProxyEdit) {
+            rectX = x - rectWidth - xOffset;
+            if (rectX < _axesOffset)
+                rectX = _axesOffset + 1;
+        } else if (editableWidget == _rightProxyEdit) {
+            rectX = x + xOffset;
+            if (rectX + rectWidth > _boxW)
+                rectX = _boxW - rectWidth - 1;
+        }
+        editableWidget->setGeometry(QRectF(rectX,
+                                           rectY,
+                                           rectWidth,
+                                           rectHeight));
+    }
+
     scene()->update();
 }
 
 void GalleryWidget::mousePressEvent(QMouseEvent* event)
 {
     _markerBeingDragged = _markerNear(event->pos());
+    if (_markerBeingDragged == nullptr)
+        QGraphicsView::mousePressEvent(event);
 }
 
 void GalleryWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-    Q_UNUSED(event);
     _markerBeingDragged = nullptr;
+    QGraphicsView::mouseReleaseEvent(event);
 }
