@@ -130,7 +130,8 @@
                                            , isotope_n15_count                  INTEGER                           \
                                            , isotope_s34_count                  INTEGER                           \
                                            , isotope_h2_count                   INTEGER                           \
-                                           , predicted_label                    INTEGER                           \
+                                           , peakML_label_id                    INTEGER                           \
+                                           , peakML_label                       TEXT                              \
                                            , prediction_probability             REAL                              \
                                            , prediction_inference_key           TEXT                              \
                                            , prediction_inference_value         TEXT                              \

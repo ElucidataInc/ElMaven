@@ -819,7 +819,8 @@ map<int, string> dbVersionUpgradeScripts = {
     {
         6,
         "BEGIN TRANSACTION;"
-        "ALTER TABLE peakgroups ADD COLUMN predicted_label INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_label_id INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_label TEXT;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_probability REAL;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_inference_key TEXT;"
         "ALTER TABLE peakgroups ADD COLUMN prediction_inference_value TEXT;"

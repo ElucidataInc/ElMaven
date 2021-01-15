@@ -243,7 +243,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :isotope_n15_count                  \
                      , :isotope_s34_count                  \
                      , :isotope_h2_count                   \
-                     , :predicted_label                    \
+                     , :peakML_label_id                    \
+                     , :peakML_label                       \
                      , :prediction_probability             \
                      , :prediction_inference_key           \
                      , :prediction_inference_value         \
@@ -327,8 +328,25 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     }
     groupsQuery->bind(":sample_ids", sample_ids);
 
-    groupsQuery->bind(":predicted_label",
+    string peakML_label = "";
+    if (group->isClassified) {
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 0)
+            peakML_label = "Noise";  
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 1)
+            peakML_label = "Signal";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 2)
+            peakML_label = "Signal with only correlation";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 3)
+            peakML_label = "Signal with only cohort-variance";        
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 4)
+            peakML_label = "Signal with correlation and cohort-variance";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 5)
+            peakML_label = "May be good signal";   
+    }
+
+    groupsQuery->bind(":peakML_label_id",
                       PeakGroup::integralValueForLabel(group->predictedLabel()));
+    groupsQuery->bind(":peakML_label", peakML_label);
     groupsQuery->bind(":prediction_probability",
                       group->predictionProbability());
     groupsQuery->bind(":base_value", group->baseValue);
@@ -1182,7 +1200,7 @@ map<string, bool> ProjectDatabase::loadTableSettings()
     map<string, bool> tableResponse;
     while (tableQuery->next())
     {
-        int label = tableQuery->integerValue("predicted_label");
+        int label = tableQuery->integerValue("peakML_label_id");
         string tableName = tableQuery->stringValue("table_name");
         bool hasClassified = false;
         if(label >= 0)
@@ -1344,9 +1362,9 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         group->setSlice(slice);
 
         // load PeakML attributes (only if the prediction label is non-empty)
-        string predictedLabel = groupsQuery->stringValue("predicted_label");
+        string predictedLabel = groupsQuery->stringValue("peakML_label_id");
         if (!predictedLabel.empty()) {
-            int value = groupsQuery->integerValue("predicted_label");
+            int value = groupsQuery->integerValue("peakML_label_id");
             float probability = groupsQuery->doubleValue("prediction_probability");
             group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
                                      probability);
