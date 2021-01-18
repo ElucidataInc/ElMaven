@@ -652,14 +652,15 @@ void GalleryWidget::mouseMoveEvent(QMouseEvent* event)
     auto mousePos = event->pos();
 
     if (_markerBeingDragged == nullptr) {
+        QGraphicsView::mouseMoveEvent(event);
         if (_rightMarker != nullptr
             && _markerNear(mousePos) == _rightMarker) {
-            setCursor(Qt::SizeHorCursor);
+            viewport()->setCursor(Qt::SizeHorCursor);
         } else if (_leftMarker != nullptr
                    && _markerNear(mousePos) == _leftMarker) {
-            setCursor(Qt::SizeHorCursor);
+            viewport()->setCursor(Qt::SizeHorCursor);
         } else {
-            setCursor(Qt::ArrowCursor);
+            viewport()->setCursor(Qt::ArrowCursor);
         }
         return;
     }
