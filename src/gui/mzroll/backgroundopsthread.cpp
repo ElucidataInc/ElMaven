@@ -414,15 +414,19 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
 #ifdef Q_OS_WIN
     auto mlBinary = tempDir + QDir::separator() + "moi.exe";
 #endif
-    QString ml_model;
-    // Following code is commented out because for now we have only one model in
-    // aws bucket. Once, we have more comments would be removed.  
-    // if(mainwindow->mavenParameters->peakml_modelType == "Global Model Elucidata"){
-        ml_model = tempDir + QDir::separator() + "model.pickle.dat";
-    // }
-    // else{
-    //     return;
-    // }
+    QString ml_model; 
+    string ml_modelName = "";
+    // Because modelName on AWS exists with underscores in place of space with extension 
+    // '.dat'
+    auto splitOnSpace = mzUtils::split(mainwindow->mavenParameters->peakMlModelType, " ");
+    for (size_t i = 0; i < splitOnSpace.size(); i++) {
+        ml_modelName += splitOnSpace[i];
+        if (i != splitOnSpace.size()-1)
+            ml_modelName += "_";
+    }
+    ml_modelName += ".dat";
+    ml_model = tempDir + QDir::separator() + QString::fromStdString(ml_modelName);
+
     Q_EMIT(toggleCancel());
     if (!QFile::exists(mlBinary)) {
         bool downloadSuccess = downloadPeakMlFilesFromURL("moi");
@@ -434,7 +438,8 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
         }
     }
     if (!QFile::exists(ml_model)) {
-        bool downloadSuccess = downloadPeakMlFilesFromURL("model.pickle.dat");
+        int modelId = mainwindow->mavenParameters->availablePeakMLModels[mainwindow->mavenParameters->peakMlModelType];
+        bool downloadSuccess = downloadPeakMLModel(QString::fromStdString(ml_modelName), modelId);
         if(!downloadSuccess) {
             cerr << "Error: ML model not found at path: "
                 << ml_model.toStdString()
@@ -707,27 +712,21 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
         return false;
     }
         
-    if(fileName == "moi")
-    {
-        #if defined(Q_OS_MAC)
-            args << "Mac/moi";
-            tempDir = tempDir + QDir::separator() + "moi";
-        #endif
+    #if defined(Q_OS_MAC)
+        args << "Mac/moi";
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
 
-        #if defined(Q_OS_LINUX)
-            args << "Unix/moi";
-            tempDir = tempDir + QDir::separator() + "moi";
-        #endif
-        
-        #ifdef Q_OS_WIN
-            args << "Windows/moi.exe";
-            tempDir = tempDir + QDir::separator() + "moi.exe" ;
-        #endif
-    } else {
-        args << "global_model_elucidata.dat";
-        tempDir = tempDir + QDir::separator() + "model.pickle.dat";
-    }
-
+    #if defined(Q_OS_LINUX)
+        args << "Unix/moi";
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
+    
+    #ifdef Q_OS_WIN
+        args << "Windows/moi.exe";
+        tempDir = tempDir + QDir::separator() + "moi.exe" ;
+    #endif
+    
     auto cookieFile = QStandardPaths::writableLocation(
                     QStandardPaths::GenericConfigLocation)
                     + QDir::separator() 
@@ -759,16 +758,6 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     auto data = splitString[splitString.size() - 2];
     json dataObject = json::parse(data);
 
-    if (!dataObject["data"]["error"].is_null()){
-        mavenParameters->allgroups.clear();
-        removeFiles();
-        auto htmlText = QString("<p><b>Failed to download required files. Check for internet "
-                            " connection and try again later.</b></p>");
-        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
-        Q_EMIT(noInternet(htmlText));
-        return false;
-    }
-    
     auto url = dataObject["data"]["id"].get<string>();
     
     _dlManager->setRequest(QString::fromStdString(url), this, false);
@@ -785,14 +774,89 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     if (!QFile::exists(tempDir)) {
         return false;
     } else {
-        if(fileName == "moi")
-        {
-            #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                changeMode(tempDir.toStdString());
-            #endif 
-        }
+        #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+            changeMode(tempDir.toStdString());
+        #endif 
         return true;
     }
+}
+
+bool BackgroundOpsThread::downloadPeakMLModel(QString modelName, int modelId) {
+    QStringList args;
+
+    Q_EMIT(updateProgressBar("Configuring PeakML...", 0, 0));
+    auto tempDir = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + "ElMaven";
+
+    if (!_checkInternetConnection()) {
+        mavenParameters->allgroups.clear();
+        removeFiles();
+        auto htmlText = QString("<p><b>Failed to download required files. Check for internet "
+                            " connection and try again later.</b></p>");
+        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        Q_EMIT(noInternet(htmlText));
+        return false;
+    }
+    string model_id = mzUtils::integer2string(modelId);
+    args << QString::fromStdString(model_id);
+    tempDir = tempDir + QDir::separator() + modelName;
+
+    auto cookieFile = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "El-MAVEN_cookie.json" ;
+    
+    ifstream readCookie(cookieFile.toStdString());
+    if (!readCookie.is_open()) {
+        mavenParameters->allgroups.clear();
+        removeFiles();
+        return false;
+    }
+        
+    json cookieInput = json::parse(readCookie);
+    string refreshToken = cookieInput["refreshToken"];
+    string idToken = cookieInput["idToken"];
+
+    QString cookies;
+    cookies += "refreshToken=";
+    cookies += QString::fromStdString(refreshToken);
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += QString::fromStdString(idToken);
+    
+    args << cookies;
+
+    auto res = _pollyIntegration->runQtProcess("downloadPeakMLModel", args);
+
+    QString str(res[0].constData());
+    auto splitString = mzUtils::split(str.toStdString(), "\n");
+    auto data = splitString[splitString.size() - 2];
+
+    json dataObject = json::parse(data);
+    
+    auto url = dataObject["data"]["attributes"]["signed_url"].get<string>();
+    
+    _dlManager->setRequest(QString::fromStdString(url), this, false);
+    if (!_dlManager->err) {
+        auto downloadedData = _dlManager->getData();
+        QFile file(tempDir);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+            file.write(downloadedData);
+        }
+    } else {
+        auto htmlText = QString("<p><b>Somthing went wrong. Failed to download required files.</b></p>");
+        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        Q_EMIT(noInternet(htmlText));
+        return false;
+    }
+   
+    if (!QFile::exists(tempDir)) {
+        return false;
+    }
+
+    return true;
 }
 
 void BackgroundOpsThread::changeMode(string fileName)
@@ -807,9 +871,19 @@ void BackgroundOpsThread::removeFiles()
                    QStandardPaths::GenericConfigLocation)
                    + QDir::separator()
                    + "ElMaven" 
-                   + QDir::separator()
-                   + "model.pickle.dat";
+                   + QDir::separator();
     
+    string ml_modelName = "";
+    auto splitOnSpace = mzUtils::split(mainwindow->mavenParameters->peakMlModelType, " ");
+    for (size_t i = 0; i < splitOnSpace.size(); i++) {
+        ml_modelName += splitOnSpace[i];
+        if (i != splitOnSpace.size()-1)
+            ml_modelName += "_";
+    }
+    ml_modelName += ".dat";
+
+    tempDir += QString::fromStdString(ml_modelName);
+
     string fileName = tempDir.toStdString();
 
     if (QFile::exists(tempDir))

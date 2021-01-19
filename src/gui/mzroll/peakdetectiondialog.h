@@ -64,7 +64,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void setQuantType(QString type);
                  void triggerSettingsUpdate();
                 void onReset();
-                void handleAuthorization(QStringList models, QString status);
+                void handleAuthorization(QMap<QString, int> models, QString status);
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);

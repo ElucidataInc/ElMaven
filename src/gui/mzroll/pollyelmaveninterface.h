@@ -14,6 +14,10 @@ class LoginForm;
 class TableDockWidget;
 class PollyWaitDialog;
 
+// QMap can not be used directly in signals and slots
+// in threads. Hence, we first need to register it's type
+// and then make use of registered datatype.
+typedef QMap<QString,int> StringMap;
 class EPIWorkerThread : public QThread
 {
     Q_OBJECT
@@ -65,7 +69,7 @@ Q_SIGNALS:
                        QString datetimestamp);
     void projectsReady(QVariantMap projectNamesId);
     void authenticationFinished(QString username, QString status);
-    void peakMLAuthenticationFinished(QStringList models, QString status);
+    void peakMLAuthenticationFinished(StringMap models, QString status);
 
 private:
 
@@ -192,7 +196,7 @@ public Q_SLOTS:
 
     void showEPIError(QString errorMessage);
 
-    void peakMLAccessControl(QStringList models, QString status);
+    void peakMLAccessControl(StringMap models, QString status);
 
 Q_SIGNALS:
 
@@ -206,7 +210,7 @@ Q_SIGNALS:
      * @brief Signal emitted when worker thread finished authentication for peakML
      * and in authorization has been handled by peak detection dialog.
      */ 
-    void peakMLAccess(QStringList models, QString status);
+    void peakMLAccess(QMap<QString, int> models, QString status);
 
 private:
 

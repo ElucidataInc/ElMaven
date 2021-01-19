@@ -83,10 +83,13 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
+            
+    // Register QMap<QString, int>
+    qRegisterMetaType<StringMap>("StringMap");
     connect(_worker, 
-            &EPIWorkerThread::peakMLAuthenticationFinished,
+            SIGNAL(peakMLAuthenticationFinished(StringMap, QString)),
             this,
-            &PollyElmavenInterfaceDialog::peakMLAccessControl);
+            SLOT(peakMLAccessControl(StringMap, QString)));
     connect(sendModeTab,
             &QTabWidget::currentChanged,
             this,
@@ -258,14 +261,14 @@ void PollyElmavenInterfaceDialog::getModelsForPeakML()
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::peakMLAccessControl(QStringList models, QString status) {
+void PollyElmavenInterfaceDialog::peakMLAccessControl(QMap<QString, int> modelDetails, QString status) {
     _loadingDialogForPeakML->close();
-    emit peakMLAccess(models, status);
+    emit peakMLAccess(modelDetails, status);
 }
 
 void EPIWorkerThread::_getModels() {
     QStringList args;
-    QStringList models;
+    QMap<QString, int> modelDetails;
     
     auto cookieFile = QStandardPaths::writableLocation(
                     QStandardPaths::GenericConfigLocation)
@@ -274,7 +277,7 @@ void EPIWorkerThread::_getModels() {
     
     ifstream readCookie(cookieFile.toStdString());
     if(!readCookie.is_open()) {
-        emit peakMLAuthenticationFinished(models, "Error");
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
         return;
     }
 
@@ -291,32 +294,43 @@ void EPIWorkerThread::_getModels() {
 
     args << cookies;
     
-    auto res = _pollyIntegration->runQtProcess("listBucketObjects", args);
+    auto res = _pollyIntegration->runQtProcess("fetchModels", args);
+
     if (!res.size()) {
-        emit peakMLAuthenticationFinished(models, "Error");
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
         return;
     }
 
     QString str(res[0].constData());
     if (str.isEmpty()) {
-        emit peakMLAuthenticationFinished(models, "Error");
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
         return;
     }
 
     auto splitString = mzUtils::split(str.toStdString(), "\n");
     auto data = splitString[splitString.size() - 2];
     json dataObject = json::parse(data);
-    
-    if (!dataObject["data"]["error"].is_null()){
-        emit peakMLAuthenticationFinished(models, "Error");
+
+    if (dataObject["data"].size() == 0) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
     }
     
-    for (int i = 1; i < dataObject["data"]["attributes"]["models"].size(); i++) {
-        QString modelName = QString::fromStdString(dataObject["data"]["attributes"]["models"][i].get<string>());
-        models.push_back(modelName);
+    for (size_t i = 0; i < dataObject["data"].size(); i++) {
+        string underscoredModelName = dataObject["data"][i]["attributes"]["model_name"].get<string>();
+        // ModelName on AWS exists with underscores. These underscores should be
+        // replaced by spaces which is more presentable.
+        auto splitExtension = mzUtils::split(underscoredModelName, ".dat");
+        auto removeUnderscore =  mzUtils::split(splitExtension[0], "_");
+        string modelName = "";
+        for (int i = 0; i < removeUnderscore.size(); i++) {
+            modelName += removeUnderscore[i];
+            if (i != removeUnderscore.size() -1)
+                modelName += " ";
+        }
+        QString qtStringModelName = QString::fromStdString(modelName);
+        modelDetails[qtStringModelName] = dataObject["data"][i]["attributes"]["model_id"].get<int>();
     }
-    
-    emit peakMLAuthenticationFinished(models, "OK");
+    emit peakMLAuthenticationFinished(modelDetails, "OK");
 }
 
 void PollyElmavenInterfaceDialog::initialSetup()

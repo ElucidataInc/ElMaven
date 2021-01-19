@@ -275,7 +275,7 @@ void PeakDetectionDialog::getLoginForPeakMl()
     }     
 }
 
-void PeakDetectionDialog::handleAuthorization(QStringList models, QString status) {
+void PeakDetectionDialog::handleAuthorization(QMap<QString, int> modelDetails, QString status) {
     if (status != "OK") {
         unsuccessfulLogin();
         // TODO: Message needs to change once license part is done.
@@ -283,10 +283,13 @@ void PeakDetectionDialog::handleAuthorization(QStringList models, QString status
             htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
         mainwindow->showWarning(htmlText);
     } else {
-        modelTypes->clear();
-        modelTypes->addItem("Global Model Elucidata");
-        for (auto model : models)
-            modelTypes->addItem(model);
+        QMapIterator<QString, int> iterator(modelDetails);
+        while (iterator.hasNext()) {
+            iterator.next();
+            string modelName = iterator.key().toStdString();
+            mainwindow->mavenParameters->availablePeakMLModels.insert({modelName, iterator.value()});
+            modelTypes->addItem(iterator.key());
+        }
     }
 }
 
@@ -510,7 +513,6 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
         }
         matchFragmentationOptions->setChecked(fragmentationWasEnabled);
         modelTypes->clear();
-        modelTypes->addItem("Global Model Elucidata");
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
