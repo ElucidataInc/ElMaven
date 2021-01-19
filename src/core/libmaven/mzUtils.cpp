@@ -1044,6 +1044,69 @@ namespace mzUtils {
         int nCpu = thread::hardware_concurrency();
         return nCpu;
     }
+
+    int compareDates(string date1, string date2) 
+    {
+        auto splitDate1 = split(date1, "-");
+        auto splitDate2 = split(date2, "-");
+        auto year1 = string2integer(splitDate1[0]);
+        auto year2 = string2integer(splitDate2[0]);
+        auto month1 = string2integer(splitDate1[1]);
+        auto month2 = string2integer(splitDate2[1]);
+        auto day1 = string2integer(splitDate1[2]);
+        auto day2 = string2integer(splitDate2[2]);
+        
+        if (year1 < year2) {
+            return -1;
+        } else if (year1 == year2) {
+            if (month1 < month2) {
+                return -1;
+            } else if (month1 == month2) {
+                if (day1 < day2)
+                    return -1;
+                else if (day1 == day2)
+                    return 0;
+                else
+                    return 1;
+            } else {
+                return 1;
+            }
+        } else {
+            return 1;
+        } 
+        return 1;
+    }
+
+    bool compareTime(string time1, string time2) 
+    {
+        auto splitTime1 = split(time1, ":");
+        auto splitTime2 = split(time2, ":");
+        auto hour1 = string2integer(splitTime1[0]);
+        auto hour2 = string2integer(splitTime2[0]);
+        auto minutes1 = string2integer(splitTime1[1]);
+        auto minutes2 = string2integer(splitTime2[1]);
+        auto seconds1 = string2integer(splitTime1[2]);
+        auto seconds2 = string2integer(splitTime2[2]);
+        
+        if (hour1 < hour2) {
+            return true;
+        } else if (hour1 == hour2) {
+            if (minutes1 < minutes2) {
+                return true;
+            } else if (minutes1 == minutes2) {
+                if (seconds1 < seconds2)
+                    return true;
+                else
+                    return false;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return false;
+    }
+
 } //namespace end
 
 //////////////////////////////////////TestCases/////////////////////////////

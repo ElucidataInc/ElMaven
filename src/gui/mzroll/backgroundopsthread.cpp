@@ -428,15 +428,16 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
     ml_model = tempDir + QDir::separator() + QString::fromStdString(ml_modelName);
 
     Q_EMIT(toggleCancel());
-    if (!QFile::exists(mlBinary)) {
-        bool downloadSuccess = downloadPeakMlFilesFromURL("moi");
-        if(!downloadSuccess) {
-            cerr << "Error: ML binary not found at path: "
-                << mlBinary.toStdString()
-                << endl;
-            return;
-        }
+    
+    // checks 'moi' version and download if necessary.
+    bool downloadSuccess = downloadPeakMlBinary();
+    if(!downloadSuccess) {
+        cerr << "Error: ML binary not found at path: "
+            << mlBinary.toStdString()
+            << endl;
+        return;
     }
+    
     if (!QFile::exists(ml_model)) {
         int modelId = mainwindow->mavenParameters->availablePeakMLModels[mainwindow->mavenParameters->peakMlModelType];
         bool downloadSuccess = downloadPeakMLModel(QString::fromStdString(ml_modelName), modelId);
@@ -692,7 +693,63 @@ bool BackgroundOpsThread::_checkInternetConnection() {
     return true;
 }
 
-bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
+bool BackgroundOpsThread::checkPeakMlBinaryVersion(string timestamp) {
+    
+    bool downloadLatestMoi = false;
+    auto timestampFilePath = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                        + QDir::separator() 
+                        + "ElMaven"
+                        + QDir::separator() 
+                        + "El-MAVEN_peakML_version.json" ;
+    
+    ifstream timestampFile(timestampFilePath.toStdString());
+    
+    // If timestamp file doesn't exist, download the new moi.
+    if (!timestampFile.is_open()) {
+        downloadLatestMoi = true;
+        removePeakMLBinary();
+        return downloadLatestMoi;
+    }
+    
+    // If timestamp file exists, but moi doesn't exists.
+    if (!peakMLBinaryExists()) {
+        downloadLatestMoi = true;
+        return downloadLatestMoi;
+    }
+
+    // If timestamp file and moi exists, check for the
+    // last changed. 
+    json root = json::parse(timestampFile);
+    string savedTimestamp = root["timestamp"];
+
+    // extract date and time from the timestamps.
+    auto splitSaved = mzUtils::split(savedTimestamp, " ");
+    auto savedDate = splitSaved[0];
+    auto hourTimeFormatSaved = mzUtils::split(splitSaved[1], "+");
+    auto savedTime = hourTimeFormatSaved[0];
+
+    auto splitApiTimeStamp = mzUtils::split(timestamp, " ");
+    auto apiResponseDate = splitApiTimeStamp[0];
+    auto hourTimeFormatNew = mzUtils::split(splitApiTimeStamp[1], "+");
+    auto apiResponseTime = hourTimeFormatNew[0];
+
+    // If saved timestamp is less than the one in api response. 
+    // This means the moi has been changed on Aws. we need to 
+    // download latest moi.
+    if (mzUtils::compareDates(savedDate, apiResponseDate) == -1
+        || (mzUtils::compareDates(savedDate, apiResponseDate) == 0
+            && mzUtils::compareTime(savedTime,apiResponseTime))
+        ) {
+            downloadLatestMoi = true;
+            removePeakMLBinary();
+            return downloadLatestMoi;
+        }
+
+    return downloadLatestMoi;
+}
+
+bool BackgroundOpsThread::downloadPeakMlBinary() {
  
     QStringList args;
 
@@ -711,19 +768,23 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
         Q_EMIT(noInternet(htmlText));
         return false;
     }
-        
+    args << "moi";
+    string operatingSystem = "";
     #if defined(Q_OS_MAC)
-        args << "Mac/moi";
+        args << "mac";
+        operatingSystem = "mac";
         tempDir = tempDir + QDir::separator() + "moi";
     #endif
 
     #if defined(Q_OS_LINUX)
-        args << "Unix/moi";
+        args << "linux";
+        operatingSystem = "unix";
         tempDir = tempDir + QDir::separator() + "moi";
     #endif
     
     #ifdef Q_OS_WIN
-        args << "Windows/moi.exe";
+        args << "windows";
+        operatingSystem = "windows";
         tempDir = tempDir + QDir::separator() + "moi.exe" ;
     #endif
     
@@ -752,14 +813,28 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
     
     args << cookies;
 
-    auto res = _pollyIntegration->runQtProcess("downloadFilesForPeakML", args);
+    auto res = _pollyIntegration->runQtProcess("downloadPeakMLBinary", args);
+
     QString str(res[0].constData());
     auto splitString = mzUtils::split(str.toStdString(), "\n");
     auto data = splitString[splitString.size() - 2];
     json dataObject = json::parse(data);
 
-    auto url = dataObject["data"]["id"].get<string>();
+    string url = "";
+    string timestamp = "";
+    for (size_t i = 0;  i < dataObject["data"].size(); i++) {
+        if (dataObject["data"][i]["attributes"]["supported_os"] == operatingSystem) {
+            url = dataObject["data"][i]["attributes"]["signed_url"].get<string>();
+            timestamp = dataObject["data"][i]["attributes"]["last_modified"].get<string>();
+            break;
+        }
+    }
     
+    auto downloadLatestMoi = checkPeakMlBinaryVersion(timestamp);
+
+    if (!downloadLatestMoi)
+        return true;
+
     _dlManager->setRequest(QString::fromStdString(url), this, false);
     if (!_dlManager->err) {
         auto downloadedData = _dlManager->getData();
@@ -768,7 +843,10 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
             file.write(downloadedData);
         }
     } else {
-        cerr <<  "\n\nError occured while downloading" << endl;
+        auto htmlText = QString("<p><b>Somthing went wrong. Failed to download required files.</b></p>");
+        htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        Q_EMIT(noInternet(htmlText));
+        return false;
     }
    
     if (!QFile::exists(tempDir)) {
@@ -777,6 +855,7 @@ bool BackgroundOpsThread::downloadPeakMlFilesFromURL(QString fileName) {
         #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
             changeMode(tempDir.toStdString());
         #endif 
+        writePeakMLTimestampFile(timestamp);
         return true;
     }
 }
@@ -857,6 +936,71 @@ bool BackgroundOpsThread::downloadPeakMLModel(QString modelName, int modelId) {
     }
 
     return true;
+}
+
+void BackgroundOpsThread::writePeakMLTimestampFile(string timestamp) {
+    json timestampFile;
+
+    timestampFile["timestamp"] = timestamp;
+
+    auto filePath = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "ElMaven"
+                    + QDir::separator() 
+                    + "El-MAVEN_peakML_version.json" ;
+    
+    std::ofstream file(filePath.toStdString());
+    file << timestampFile;
+    file.close();
+}
+
+bool BackgroundOpsThread::peakMLBinaryExists() {
+    auto tempDir = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + "ElMaven";
+
+    #if defined(Q_OS_MAC)
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
+
+    #if defined(Q_OS_LINUX)
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
+    
+    #ifdef Q_OS_WIN
+        tempDir = tempDir + QDir::separator() + "moi.exe" ;
+    #endif   
+    
+    string fileName = tempDir.toStdString();      
+    if (QFile::exists(tempDir))
+        return true;
+    else 
+        return false;
+}
+
+void BackgroundOpsThread::removePeakMLBinary() {
+    auto tempDir = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator()
+                    + "ElMaven";
+
+    #if defined(Q_OS_MAC)
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
+
+    #if defined(Q_OS_LINUX)
+        tempDir = tempDir + QDir::separator() + "moi";
+    #endif
+    
+    #ifdef Q_OS_WIN
+        tempDir = tempDir + QDir::separator() + "moi.exe" ;
+    #endif   
+    
+    string fileName = tempDir.toStdString();      
+    if (QFile::exists(tempDir))
+        remove(fileName.c_str());
 }
 
 void BackgroundOpsThread::changeMode(string fileName)

@@ -278,8 +278,7 @@ void PeakDetectionDialog::getLoginForPeakMl()
 void PeakDetectionDialog::handleAuthorization(QMap<QString, int> modelDetails, QString status) {
     if (status != "OK") {
         unsuccessfulLogin();
-        // TODO: Message needs to change once license part is done.
-        auto htmlText = QString("<p><b>Something went wrong.</b></p>");
+        auto htmlText = QString("<p><b>Something went wrong. Kindly check for your authentication</b></p>");
             htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
         mainwindow->showWarning(htmlText);
     } else {

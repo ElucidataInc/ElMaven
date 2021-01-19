@@ -149,13 +149,13 @@ private:
 	bool downloadPeakMlFilesFromAws(QString fileName);
 
     /**
-	 * @brief Downloads binary and model from S3 bucket 
-	 * if the two files does not exist on user's pc using 
+	 * @brief Downloads binaryfrom S3 bucket 
+	 * if the file does not exist on user's pc using 
      * signed URL. 
 	 * @param filename Tells the file either model or 
 	 * binary to be downloaded. 
 	 */ 
-	bool downloadPeakMlFilesFromURL(QString fileName);
+	bool downloadPeakMlBinary();
     
     /**
 	 * @brief Downloads model from S3 bucket if the model does not exist 
@@ -164,6 +164,20 @@ private:
      * downloaded.
 	 */ 
     bool downloadPeakMLModel(QString modelName, int modelId);
+
+    /**
+	 * @brief Checks if already downloaded binary file is older than the
+     * one uploaded on AWS. If it is older, it downloads the new moi file
+     * and remove the previous one. 
+     * @details A file 'El-MAVEN_peakML_version.json is maintained in 
+     * El-MAVEN writable directory which contains the information of 
+     * last downloaded moi which is checked against the latest timestamp
+     * available in api response.
+     * @param timeStamp Timestamp from Api response
+	 */ 
+    bool checkPeakMlBinaryVersion(string timestamp);
+
+    void writePeakMLTimestampFile(string timestamp);
 	
 	/**
 	 * @brief Changes the mode of the file and gives it executable rights. 
@@ -176,6 +190,9 @@ private:
 	 * from user's system
 	 */
 	void removeFiles();
+
+    void removePeakMLBinary();
+    bool peakMLBinaryExists();
 
     /**
      * @brief Checks for active internet connection before downloading the
