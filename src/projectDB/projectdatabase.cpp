@@ -1375,22 +1375,14 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             multimap<float, string> inference;
             size_t keyPos = 0;
             size_t valuePos = 0;
-            while (true) {
-                keyPos = predictionInferenceKeys.find(",");
-                valuePos = predictionInferenceValues.find(",");
 
-                // both positions should be valid and equal in the number of
-                // times they occur
-                if (keyPos == string::npos || valuePos == string::npos)
-                    break;
-
-                float key = atof(predictionInferenceKeys.substr(0, keyPos).c_str());
-                string value = predictionInferenceValues.substr(0, valuePos);
+            auto splitKeys = mzUtils::split(predictionInferenceKeys, ",");
+            auto splitValues = mzUtils::split(predictionInferenceValues, ",");
+            
+            for (size_t i = 0; i < splitKeys.size(); i++) {
+                float key = mzUtils::string2float(splitKeys[i]);
+                string value = splitValues[i];
                 inference.insert(make_pair(key, value));
-
-                // (position + 1) to erase the delimiters as well
-                predictionInferenceKeys.erase(0, keyPos + 1);
-                predictionInferenceValues.erase(0, valuePos + 1);
             }
             group->setPredictionInference(inference);
         }
