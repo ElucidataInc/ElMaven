@@ -310,6 +310,11 @@ void EPIWorkerThread::_getModels() {
     auto splitString = mzUtils::split(str.toStdString(), "\n");
     auto data = splitString[splitString.size() - 2];
     json dataObject = json::parse(data);
+    
+    if(dataObject["data"].is_null()) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
 
     if (dataObject["data"].size() == 0) {
         emit peakMLAuthenticationFinished(modelDetails, "Error");
