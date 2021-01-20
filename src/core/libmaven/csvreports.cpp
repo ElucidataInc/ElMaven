@@ -117,9 +117,16 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                                 << "ms2Purity";
         }
 
+        // If tables are classified.
         if (!_pollyExport && _groupsClassifed) {
-            groupReportcolnames << "classificationLabel"
-                                << "classificationProbability";
+            groupReportcolnames << "peakML_label_id"
+                                << "peakML_label"
+                                << "peakML_probability"
+                                << "peakML_inference_key"
+                                << "peakML_inference_value"
+                                << "peakML_correlated_groups"
+                                << "peakML_base_value"
+                                << "peakML_output_value";
         }
 
         int cohort_offset = groupReportcolnames.size() - 1;
@@ -178,6 +185,18 @@ void CSVReports::_insertPeakReportColumnNamesintoCSVFile()
                            << "noNoiseObs"
                            << "signalBaseLineRatio"
                            << "fromBlankSample";
+        
+        // If tables are classified.
+        if (!_pollyExport && _groupsClassifed) {
+            peakReportcolnames << "peakML_label_id"
+                                << "peakML_label"
+                                << "peakML_probability"
+                                << "peakML_inference_key"
+                                << "peakML_inference_value"
+                                << "peakML_correlated_groups"
+                                << "peakML_base_value"
+                                << "peakML_output_value";
+        }                   
 
         QString header = peakReportcolnames.join(SEP.c_str());
         _reportStream << header.toStdString() << endl;
@@ -371,8 +390,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     }
 
     if (!_pollyExport && _groupsClassifed) {
-        _reportStream << SEP << PeakGroup::labelToString(group->predictedLabel())
-                  << SEP << group->predictionProbability();
+        _writePeakMLInfo(group);
     }
     // for intensity values, we only write two digits of floating point
     // precision since these values are supposed to be large (in the order of
@@ -389,6 +407,71 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
         }
     }
     _reportStream << endl;
+}
+
+void CSVReports::_writePeakMLInfo(PeakGroup* group) 
+{
+    string peakML_label = "";
+    if (group->isClassified) {
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 0)
+            peakML_label = "Noise";  
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 1)
+            peakML_label = "Signal";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 2)
+            peakML_label = "Signal with only correlation";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 3)
+            peakML_label = "Signal with only cohort-variance";        
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 4)
+            peakML_label = "Signal with correlation and cohort-variance";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 5)
+            peakML_label = "May be good signal";   
+    }
+
+    auto inference = group->predictionInference();
+    string keyString = "";
+    string valueString = "";
+    if (!inference.empty()) {
+        for (auto& element : inference) {
+            keyString += to_string(element.first) + "; ";
+            valueString += element.second + "; ";
+        }
+        // remove extra delimiters at the end
+        keyString.pop_back();
+        valueString.pop_back();
+    }
+
+    string correlatedGroups = "";
+    if (group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::Correlation
+        || group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+    {
+        correlatedGroups += "{";
+        auto correlatedGroupMap = group->getCorrelatedGroups();
+        int size = correlatedGroupMap.size();
+        int count = 0;
+        for(auto it = correlatedGroupMap.begin(); 
+        it != correlatedGroupMap.end(); 
+        it++)
+        {   
+            count++;
+            correlatedGroups += mzUtils::integer2string(it->first);
+            correlatedGroups += ": ";
+            correlatedGroups += mzUtils::float2string(it->second, 2);
+            if(count != size)
+                correlatedGroups += "; ";
+        }
+        correlatedGroups += "}";
+    }
+
+    _reportStream << SEP << int(group->predictedLabel())
+                  << SEP << peakML_label 
+                  << SEP << group->predictionProbability()
+                  << SEP << keyString
+                  << SEP << valueString
+                  << SEP << correlatedGroups
+                  << SEP << group->baseValue
+                  << SEP << group->outputValue;
 }
 
 void CSVReports::_writePeakInfo(PeakGroup* group)
@@ -538,8 +621,11 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << peak.peakAreaTopCorrected
                       << SEP << peak.noNoiseObs
                       << SEP << peak.signalBaselineRatio
-                      << SEP << peak.fromBlankSample
-                      << endl;
+                      << SEP << peak.fromBlankSample;
+            if (!_pollyExport && _groupsClassifed) {
+                _writePeakMLInfo(group);
+            }
+            _reportStream << endl;
     }
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";
@@ -572,8 +658,11 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0.0f
-                      << SEP << "NA"
-                      << endl;
+                      << SEP << "NA";
+            if (!_pollyExport && _groupsClassifed) {
+                _writePeakMLInfo(group);
+            }
+            _reportStream << endl;
     }
 }
 

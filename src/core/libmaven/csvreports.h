@@ -119,6 +119,11 @@ class CSVReports
         void _writePeakInfo(PeakGroup* group);
 
         /**
+         * @brief helper function to write peakML info
+         */ 
+        void _writePeakMLInfo(PeakGroup* group);
+
+        /**
          *@brief -   update string with escape sequence for
          *  writing special character
          */
