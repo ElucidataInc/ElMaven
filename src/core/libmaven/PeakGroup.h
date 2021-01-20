@@ -189,8 +189,8 @@ class PeakGroup{
         float groupRank;
 
         bool isClassified;
-        float baseValue;
-        float outputValue;
+        float peakMLBaseValue;
+        float peakMLOutputValue;
 
         //for sample contrasts  ratio and pvalue
         float changeFoldRatio;

@@ -349,8 +349,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":peakML_label", peakML_label);
     groupsQuery->bind(":peakML_probability",
                       group->predictionProbability());
-    groupsQuery->bind(":peakML_base_value", group->baseValue);
-    groupsQuery->bind(":peakML_output_value", group->outputValue);
+    groupsQuery->bind(":peakML_base_value", group->peakMLBaseValue);
+    groupsQuery->bind(":peakML_output_value", group->peakMLOutputValue);
     string keyString = "";
     string valueString = "";
     auto inference = group->predictionInference();
@@ -1269,8 +1269,8 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         group->setTableName(groupsQuery->stringValue("table_name"));
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
-        group->baseValue = groupsQuery->doubleValue("peakML_base_value");
-        group->outputValue = groupsQuery->doubleValue("peakML_output_value");
+        group->peakMLBaseValue = groupsQuery->doubleValue("peakML_base_value");
+        group->peakMLOutputValue = groupsQuery->doubleValue("peakML_output_value");
 
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");

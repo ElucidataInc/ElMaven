@@ -470,8 +470,8 @@ void CSVReports::_writePeakMLInfo(PeakGroup* group)
                   << SEP << keyString
                   << SEP << valueString
                   << SEP << correlatedGroups
-                  << SEP << group->baseValue
-                  << SEP << group->outputValue;
+                  << SEP << group->peakMLBaseValue
+                  << SEP << group->peakMLOutputValue;
 }
 
 void CSVReports::_writePeakInfo(PeakGroup* group)

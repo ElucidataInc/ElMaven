@@ -401,7 +401,7 @@ void ClassificationWidget::setBaseValue()
     tagString = "Base Value = ";
     QString basevalueString = tr("<b>%1</b>").arg(tagString);
 
-    string baseValue = mzUtils::float2string(_group->baseValue, 3);
+    string baseValue = mzUtils::float2string(_group->peakMLBaseValue, 3);
 
     basevalueString += QString::fromStdString(baseValue);
 
@@ -426,7 +426,7 @@ void ClassificationWidget::setOutputValue(int startPosition)
     tagString = "Output Value = ";
     QString outputValueString = tr("<b>%1</b>").arg(tagString);
 
-    string outputValue = mzUtils::float2string(_group->outputValue, 3);
+    string outputValue = mzUtils::float2string(_group->peakMLOutputValue, 3);
 
     outputValueString += QString::fromStdString(outputValue);
 

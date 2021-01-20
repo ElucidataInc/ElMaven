@@ -632,8 +632,8 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
 
                                 if (shapValues.count(group->groupId())) {
                                     auto shapValue = shapValues.at(group->groupId());
-                                    group->outputValue = shapValue.first;
-                                    group->baseValue = shapValue.second;
+                                    group->peakMLOutputValue = shapValue.first;
+                                    group->peakMLBaseValue = shapValue.second;
                                 }
 
                                 auto& group_correlations = correlations.at(group->groupId());

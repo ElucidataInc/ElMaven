@@ -60,8 +60,8 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     _predictedLabel = ClassifiedLabel::None;
     _predictionProbability = 0.0f;
     
-    baseValue = 0.0;
-    outputValue = 0.0;
+    peakMLBaseValue = 0.0;
+    peakMLOutputValue = 0.0;
     isClassified = false;
 
     //quantileIntensityPeaks = 0;
@@ -110,8 +110,8 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     meanMz = o.meanMz;
     _expectedMz = o._expectedMz;
 
-    baseValue = o.baseValue;
-    outputValue = o.outputValue;
+    peakMLBaseValue = o.peakMLBaseValue;
+    peakMLOutputValue = o.peakMLOutputValue;
 
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
