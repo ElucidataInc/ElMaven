@@ -245,12 +245,12 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :isotope_h2_count                   \
                      , :peakML_label_id                    \
                      , :peakML_label                       \
-                     , :prediction_probability             \
-                     , :prediction_inference_key           \
-                     , :prediction_inference_value         \
-                     , :correlated_groups                  \
-                     , :base_value                         \
-                     , :output_value                       )");
+                     , :peakML_probability                 \
+                     , :peakML_inference_key               \
+                     , :peakML_inference_value             \
+                     , :peakML_correlated_groups           \
+                     , :peakML_base_value                  \
+                     , :peakML_output_value                       )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -347,10 +347,10 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":peakML_label_id",
                       PeakGroup::integralValueForLabel(group->predictedLabel()));
     groupsQuery->bind(":peakML_label", peakML_label);
-    groupsQuery->bind(":prediction_probability",
+    groupsQuery->bind(":peakML_probability",
                       group->predictionProbability());
-    groupsQuery->bind(":base_value", group->baseValue);
-    groupsQuery->bind(":output_value", group->outputValue);
+    groupsQuery->bind(":peakML_base_value", group->baseValue);
+    groupsQuery->bind(":peakML_output_value", group->outputValue);
     string keyString = "";
     string valueString = "";
     auto inference = group->predictionInference();
@@ -388,10 +388,10 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
         correlatedGroups += "}";
     }
 
-    groupsQuery->bind(":correlated_groups", correlatedGroups);
+    groupsQuery->bind(":peakML_correlated_groups", correlatedGroups);
 
-    groupsQuery->bind(":prediction_inference_key", keyString);
-    groupsQuery->bind(":prediction_inference_value", valueString);
+    groupsQuery->bind(":peakML_inference_key", keyString);
+    groupsQuery->bind(":peakML_inference_value", valueString);
 
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
@@ -1269,14 +1269,14 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         group->setTableName(groupsQuery->stringValue("table_name"));
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
-        group->baseValue = groupsQuery->doubleValue("base_value");
-        group->outputValue = groupsQuery->doubleValue("output_value");
+        group->baseValue = groupsQuery->doubleValue("peakML_base_value");
+        group->outputValue = groupsQuery->doubleValue("peakML_output_value");
 
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
         string compoundName = groupsQuery->stringValue("compound_name");
 
-        string correlatedGroups = groupsQuery->stringValue("correlated_groups");
+        string correlatedGroups = groupsQuery->stringValue("peakML_correlated_groups");
         
         // removing json brackets.
         if (correlatedGroups.size() > 2)
@@ -1365,17 +1365,17 @@ vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         string predictedLabel = groupsQuery->stringValue("peakML_label_id");
         if (!predictedLabel.empty()) {
             int value = groupsQuery->integerValue("peakML_label_id");
-            float probability = groupsQuery->doubleValue("prediction_probability");
+            float probability = groupsQuery->doubleValue("peakML_probability");
             group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
                                      probability);
             string predictionInferenceKeys =
-                groupsQuery->stringValue("prediction_inference_key");
+                groupsQuery->stringValue("peakML_inference_key");
             string predictionInferenceValues =
-                groupsQuery->stringValue("prediction_inference_value");
+                groupsQuery->stringValue("peakML_inference_value");
             multimap<float, string> inference;
             size_t keyPos = 0;
             size_t valuePos = 0;
-
+            
             auto splitKeys = mzUtils::split(predictionInferenceKeys, ",");
             auto splitValues = mzUtils::split(predictionInferenceValues, ",");
             

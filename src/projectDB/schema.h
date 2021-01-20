@@ -132,12 +132,12 @@
                                            , isotope_h2_count                   INTEGER                           \
                                            , peakML_label_id                    INTEGER                           \
                                            , peakML_label                       TEXT                              \
-                                           , prediction_probability             REAL                              \
-                                           , prediction_inference_key           TEXT                              \
-                                           , prediction_inference_value         TEXT                              \
-                                           , correlated_groups                  TEXT                              \
-                                           , base_value                         REAL                              \
-                                           , output_value                       REAL                              );"
+                                           , peakML_probability                 REAL                              \
+                                           , peakML_inference_key               TEXT                              \
+                                           , peakML_inference_value             TEXT                              \
+                                           , peakML_correlated_groups           TEXT                              \
+                                           , peakML_base_value                  REAL                              \
+                                           , peakML_output_value                REAL                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
