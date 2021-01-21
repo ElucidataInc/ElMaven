@@ -301,6 +301,18 @@ void EPIWorkerThread::_getModels() {
         return;
     }
 
+    //if there is standard error look for error message
+    QByteArray errorResponse = res.at(1);
+    string errorString = errorResponse.toStdString();
+
+    if (mzUtils::contains(errorString, "unauthorized")) {
+        if (QFile::exists(cookieFile)) {
+            remove(cookieFile.toStdString().c_str());
+        }
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
     QString str(res[0].constData());
     if (str.isEmpty()) {
         emit peakMLAuthenticationFinished(modelDetails, "Error");
