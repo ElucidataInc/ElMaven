@@ -7,8 +7,8 @@ bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
     int sortCol = treeWidget()->sortColumn();
 
     // hack to prevent sorting of child tree-widget items (such as isotopes that
-    // need to have a fixed sort order
-    if (parent() != nullptr && sortCol != 1)
+    // need to have a fixed sort order)
+    if (parent() != nullptr && type() == 0 && sortCol != 1)
         return false;
 
     QString thisText = text(sortCol);
