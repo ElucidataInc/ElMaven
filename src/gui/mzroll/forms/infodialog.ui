@@ -212,6 +212,9 @@
             &lt;/html&gt;
       </string>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>
