@@ -4207,15 +4207,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowTic = new QToolButton(parent);
 		btnShowTic->setCheckable(true);
-		btnShowTic->setChecked(false);
+		btnShowTic->setChecked(false); 
 		btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
 		btnShowTic->setToolTip(tr("Show TICs"));
-		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(),
-				SLOT(showTicLine(bool)));
-		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
-
+        connect(btnShowTic, &QToolButton::toggled, mw->getEicWidget(), &EicWidget::showTicLine);
+        connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionTicChecked, btnShowTic, &QToolButton::setChecked);
 		return btnShowTic;
-
 	}
 	else if (btnName == "btnShowBarplot") {
 

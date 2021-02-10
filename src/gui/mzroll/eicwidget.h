@@ -97,9 +97,7 @@ public Q_SLOTS:
 	void showPeaks(bool f) {
 		_showPeaks = f;
 	}
-	void showTicLine(bool f) {
-		_showTicLine = f;
-	}
+	void showTicLine(bool f);
     void showBicLine(bool f) { //TODO: Sahil Added while mergin eicWidget
 		_showBicLine=f;
 	}
@@ -192,7 +190,8 @@ Q_SIGNALS:
 	void peakMarkedEicWidget();
     void groupSet(shared_ptr<PeakGroup>);
     void compoundSet(Compound*);
-
+	void optionTicChecked(bool);
+	
 private:
 	EICLogic* eicParameters;
 	float _focusLineRt;					// 0
