@@ -838,8 +838,39 @@ void ProjectDockWidget::setLastOpenedProject(QString filename)
     _lastOpenedProject = filename;
 }
 
+QString ProjectDockWidget::showExportEicInputDialog() 
+{
+    QInputDialog* optionDialog = new QInputDialog(_mainwindow);
+
+    bool ok;
+    int currentIndex = 0;
+    bool textEditable = false;
+    QString title = "EIC Export Options";
+    QString label = "Export EIC as:";
+    QStringList items = { "Sliced EIC", "Chromatogram" };
+
+    QString text = optionDialog->getItem(_mainwindow, title, label, items, 
+                                            currentIndex, textEditable, &ok);
+
+    if (!ok)
+        return "cancelled";
+    
+    return text;
+}
+
 void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
 {
+    bool saveChromatogram;
+    if (saveRawData) {
+        QString chosenOption = showExportEicInputDialog();
+        if (chosenOption == "cancelled")
+            return;
+        else if (chosenOption == "Sliced EIC")
+            saveChromatogram = false;
+        else 
+            saveChromatogram = true;
+    }
+        
     QSettings* settings = _mainwindow->getSettings();
 
     QString dir = ".";

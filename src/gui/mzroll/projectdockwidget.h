@@ -57,6 +57,13 @@ public Q_SLOTS:
      */ 
     void saveState();
 
+    /**
+     * @brief This input dialog takes user input on whether he wants to export
+     * the EIC(s) as sliced or the whole chromatogram.
+     * @return Returns QString, i.e the option chosen. If the returned text is 
+     * 'cancelled', it would not save emDB.
+     */ 
+    QString showExportEicInputDialog();
     
 
     /**
