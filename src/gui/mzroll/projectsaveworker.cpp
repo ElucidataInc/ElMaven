@@ -10,13 +10,15 @@ ProjectSaveWorker::ProjectSaveWorker(MainWindow *mw)
 }
 
 void ProjectSaveWorker::saveProject(const QString fileName,
-                                    const bool saveRawData)
+                                    const bool saveRawData, 
+                                    const bool saveChromatogram)
 {
     if (fileName.isEmpty())
         return;
 
     _currentProjectName = fileName;
     _saveRawData = saveRawData;
+    _saveChromatogram = saveChromatogram;
     start();
 }
 
@@ -53,7 +55,8 @@ void ProjectSaveWorker::_saveSqliteProject()
 
     auto success = _mw->fileLoader->writeSQLiteProject(_currentProjectName,
                                                        _saveRawData,
-                                                       _isTempProject);
+                                                       _isTempProject,
+                                                       _saveChromatogram);
     if (!success)
         _currentProjectName = "";
 }

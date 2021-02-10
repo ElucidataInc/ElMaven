@@ -152,11 +152,14 @@ Q_OBJECT
          * and once set cannot be changed.
          * @param isTempProject If false, then the writer will emit signals to
          * notify any listeners about the progress of save operation.
+         * @param saveChromatogram If emDB is saved with raw EIC data, saveChromatogram
+         * depicts whether the EIC(s) are to be sliced or whole chromatogram must be saved. 
          * @return true if the write operation was successful, false otherwise.
          */
         bool writeSQLiteProject(const QString filename,
                                 const bool saveRawData = false,
-                                const bool isTempProject = true);
+                                const bool isTempProject = true, 
+                                const bool saveChromatogram = false);
 
         /**
          * @brief Create a `ProjectDatabase` instance for the given filename.

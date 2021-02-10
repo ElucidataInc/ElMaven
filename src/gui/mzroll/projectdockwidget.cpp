@@ -896,7 +896,7 @@ void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
     if (QFile::exists(fileName))
         QFile::remove(fileName);
 
-    _mainwindow->threadSave(fileName, saveRawData);
+    _mainwindow->threadSave(fileName, saveRawData, saveChromatogram);
 }
 
 void ProjectDockWidget::saveSQLiteProject()

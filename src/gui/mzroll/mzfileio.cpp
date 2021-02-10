@@ -633,7 +633,8 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
 
 bool mzFileIO::writeSQLiteProject(const QString filename,
                                   const bool saveRawData,
-                                  const bool isTempProject)
+                                  const bool isTempProject,
+                                  const bool saveChromatogram)
 {
     _sqliteDbSaveInProgress = true;
 
@@ -666,11 +667,12 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         qDebug() << "closing the current project…";
         closeSQLiteProject();
 
-        qDebug() << "creating new project to save…";
+        qDebug() << "creating new project to save…" << saveChromatogram;
         auto version = _mainwindow->appVersion().toStdString();
         _currentProject = new ProjectDatabase(filename.toStdString(),
                                               version,
-                                              saveRawData);
+                                              saveRawData,
+                                              saveChromatogram);
     }
 
     if (_currentProject) {

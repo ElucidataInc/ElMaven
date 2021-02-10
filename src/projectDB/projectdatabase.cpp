@@ -20,9 +20,11 @@
 
 ProjectDatabase::ProjectDatabase(const string& dbFilename,
                                  const string& version,
-                                 const bool saveRawData)
+                                 const bool saveRawData,
+                                 const bool saveChromatogram)
 {
     _setSaveRawData(dbFilename, saveRawData);
+    _saveChromatogramForRawData = saveChromatogram;
     _connection = new Connection(dbFilename);
 
     // figure out whether this database needs upgrade
@@ -408,6 +410,20 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     return lastInsertedGroupId;
 }
 
+pair<float, float> ProjectDatabase::_getRtMinMaxForSamples(vector<mzSample*> samples)
+{
+    float rtMin = numeric_limits<float>::max();
+    float rtMax = numeric_limits<float>::min();
+    for (auto sample : samples) {
+        if (sample->minRt < rtMin) 
+            rtMin = sample->minRt;
+        if (sample->maxRt > rtMax)
+            rtMax = sample->maxRt;
+    }
+    pair<float, float> rtPair(rtMin, rtMax);
+    return rtPair;
+}
+
 void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
                                      const int databaseId)
 {
@@ -415,7 +431,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
         cerr << "Error: failed to create peaks table" << endl;
         return;
     }
-
+    
     vector<EIC*> eics;
     if (_saveRawData && group->hasSlice()) {
         mzSlice eicSlice = group->getSlice();
@@ -426,14 +442,33 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
             auto mzDelta = cutoff->massCutoffValue(group->meanMz);
             float mzMin = group->meanMz - mzDelta;
             float mzMax = group->meanMz + mzDelta;
-            float rtMin = max(group->minRt - rtPadding, 0.0f);
-            float rtMax = group->maxRt + rtPadding;
+            float rtMin, rtMax;
+            if (_saveChromatogramForRawData) {
+                // set rtMin and rtMax according the sample list
+                auto rtMinMaxPair = _getRtMinMaxForSamples(group->samples);
+                rtMin = rtMinMaxPair.first;
+                rtMax = rtMinMaxPair.second;
+            } else {
+                rtMin = max(group->minRt - rtPadding, 0.0f);
+                rtMax = group->maxRt + rtPadding;
+            }
             eicSlice = mzSlice(mzMin, mzMax, rtMin, rtMax);
         } else {
+            float rtMin, rtMax;
+            if (_saveChromatogramForRawData) {
+                // set rtMin and rtMax according the sample list
+                auto rtMinMaxPair = _getRtMinMaxForSamples(group->samples);
+                rtMin = max(rtMinMaxPair.first, 0.0f);
+                rtMax = rtMinMaxPair.second;
+            } else {
+                // Rt min and max for saving only group peak
+                rtMin = max(group->minRt - rtPadding, 0.0f);
+                rtMax = group->maxRt + rtPadding;
+            }
             if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
-                eicSlice.rtmin = max(group->minRt - rtPadding, 0.0f);
+                eicSlice.rtmin = rtMin;
             if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
-                eicSlice.rtmax = group->maxRt + rtPadding;
+                eicSlice.rtmax = rtMax;
         }
         eics = PeakDetector::pullEICs(&eicSlice,
                                       group->samples,

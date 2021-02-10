@@ -375,8 +375,10 @@ public Q_SLOTS:
      * @param filename String name of a  project file to save to.
      * @param saveRawData Whether the emDB should be saved with raw EIC and
      * spectra for peaks. `false` by default.
+     * @param saveChromatogram If emDB is saved with raw EIC data, saveChromatogram
+     * depicts whether the EIC(s) are to be sliced or whole chromatogram must be saved. 
      */
-    void threadSave(const QString filename, const bool saveRawData = false);
+    void threadSave(const QString filename, const bool saveRawData = false, const bool saveChromatogram = false);
 
     /**
      * @brief Get the latest project that was loaded/saved by the user.
