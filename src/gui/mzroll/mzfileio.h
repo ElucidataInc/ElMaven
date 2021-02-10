@@ -135,9 +135,11 @@ Q_OBJECT
          * @brief Write current session data into a SQLite database meant to be
          * uploaded to Polly.
          * @param filename Name of the on-disk database file.
+         * @param saveRawData Boolean that describes if the user wants to export
+         * emDB with raw data or not.
          * @return `true` if write was successful, `false` otherwise.
          */
-        bool writeSQLiteProjectForPolly(QString filename);
+        bool writeSQLiteProjectForPolly(QString filename, bool saveRawData);
 
         /**
          * @brief Write current session data into a SQLite database.

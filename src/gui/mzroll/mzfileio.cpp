@@ -770,14 +770,22 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
     return false;
 }
 
-bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
+bool mzFileIO::writeSQLiteProjectForPolly(QString filename, bool saveRawData)
 {
     vector<mzSample*> sampleSet = _mainwindow->getSamples();
     if (sampleSet.size() == 0)
         return false;
 
     auto version = _mainwindow->appVersion().toStdString();
-    auto sessionDb = new ProjectDatabase(filename.toStdString(), version);
+    // For polly if the user choses to export emDB with raw data
+    // then the emDB must be written with the whole chromatogram 
+    // and not just the peakGroup information. Hence, third and 
+    // fourth parameters are both set to saveRawData. 
+    auto sessionDb = new ProjectDatabase(filename.toStdString(), 
+                                        version, 
+                                        saveRawData, 
+                                        saveRawData);
+
     if (sessionDb) {
         sessionDb->deleteAll();
         sessionDb->saveGlobalSettings(_settingsMap);
