@@ -1858,10 +1858,8 @@ void EicWidget::contextMenuEvent(QContextMenuEvent * event)
 	QAction* o3 = options.addAction("Show TIC");
 	o3->setCheckable(true);
 	o3->setChecked(_showTicLine);
-    
 	connect(o3, SIGNAL(toggled(bool)), SLOT(showTicLine(bool)));
 	connect(o3, SIGNAL(toggled(bool)), SLOT(replot()));
-
 
 	//TODO: Sahil, added this action while merging eicwidget
     QAction* o31 = options.addAction("Show BIC");
