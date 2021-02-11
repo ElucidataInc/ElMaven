@@ -1775,7 +1775,7 @@ void EicWidget::print(QPaintDevice* printer) {
 }
 
 void EicWidget::showTicLine(bool f) {
-	_showTicLine = f;
+    _showTicLine = f;
     optionTicChecked(f);
 }
 
@@ -1785,7 +1785,7 @@ void EicWidget::showBarPlot(bool f) {
 }
 
 void EicWidget::showBoxPlot(bool f) {
-	_showBoxPlot = f;
+    _showBoxPlot = f;
     optionBoxPlotChecked(f);
 }
 

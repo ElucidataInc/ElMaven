@@ -187,9 +187,9 @@ Q_SIGNALS:
 	void peakMarkedEicWidget();
     void groupSet(shared_ptr<PeakGroup>);
     void compoundSet(Compound*);
-	void optionTicChecked(bool);
-	void optionBarPlotChecked(bool);
-	void optionBoxPlotChecked(bool);
+    void optionTicChecked(bool);
+    void optionBarPlotChecked(bool);
+    void optionBoxPlotChecked(bool);
 	
 private:
 	EICLogic* eicParameters;
