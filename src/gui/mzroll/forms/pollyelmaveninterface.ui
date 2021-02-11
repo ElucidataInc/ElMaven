@@ -538,6 +538,9 @@
            <property name="text">
             <string>Complete-Range EIC</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </widget>
         </item>
