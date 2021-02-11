@@ -4222,8 +4222,9 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         btnShowBarplot->setToolTip(tr("Show bar-plot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
-		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
+		connect(btnShowBarplot,&QToolButton::toggled, mw->getEicWidget(), &EicWidget::showBarPlot);
 		connect(btnShowBarplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionBarPlotChecked, btnShowBarplot, &QToolButton::setChecked);
 		return btnShowBarplot;
 	}
 	else if (btnName == "btnShowIsotopeplot") {

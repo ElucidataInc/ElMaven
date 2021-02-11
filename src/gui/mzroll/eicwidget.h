@@ -135,9 +135,8 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-	void showBarPlot(bool f) {
-		_showBarPlot = f;
-	}
+	void showBarPlot(bool f);
+	
 	void showBoxPlot(bool f) {
 		_showBoxPlot = f;
 	}
@@ -191,6 +190,7 @@ Q_SIGNALS:
     void groupSet(shared_ptr<PeakGroup>);
     void compoundSet(Compound*);
 	void optionTicChecked(bool);
+	void optionBarPlotChecked(bool);
 	
 private:
 	EICLogic* eicParameters;
