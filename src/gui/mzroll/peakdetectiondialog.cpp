@@ -292,8 +292,28 @@ void PeakDetectionDialog::handleAuthorization(QMap<QString, int> modelDetails, Q
     }
 }
 
+bool PeakDetectionDialog::_checkForCohortFile()
+{
+    auto samples = mainwindow->samples;
+    
+    for (auto sample : samples) {
+        if (sample->getSetName() == "") 
+            return false;
+    }
+    return true;
+}
+
 void PeakDetectionDialog::loginSuccessful()
 { 
+    bool cohortUploaded = _checkForCohortFile();
+    if (!cohortUploaded) {
+        QString warningMessage = QString("<p><b>Cohorts must be defined to be able to access Polly-PeakML.</b></p>");
+        warningMessage += "<p>Please define cohorts for the samples and try again later.</p>";
+
+        mainwindow->showWarning(warningMessage);
+        unsuccessfulLogin();
+        return;
+    }
     _peakMlSet = true;
     peakMl->setChecked(true);
     mainwindow->mavenParameters->classifyUsingPeakMl = true;

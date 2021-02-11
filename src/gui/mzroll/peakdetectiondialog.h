@@ -93,6 +93,12 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings);
+                /**
+                 * @brief peakML must only be given access if the user has uploaded 
+                 * cohort file. This function checks if cohort file is uploaded or not.
+                 * @return Boolean that determines whether uploaded or not.
+                 */ 
+                bool _checkForCohortFile();
 };
 
 Q_DECLARE_METATYPE(QString*)
