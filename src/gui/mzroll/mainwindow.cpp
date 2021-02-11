@@ -4247,9 +4247,11 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         btnShowBoxplot->setToolTip(tr("Show box-plot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)),mw,SLOT(analyticsBoxPlot()));
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+		connect(btnShowBoxplot, &QToolButton::toggled, mw->getEicWidget(), &EicWidget::showBoxPlot);
+		connect(btnShowBoxplot, SIGNAL(toggled(bool)), mw, SLOT(analyticsBoxPlot()));
+		connect(btnShowBoxplot, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionBoxPlotChecked, btnShowBoxplot, &QToolButton::setChecked);
+
 		return btnShowBoxplot;
 	}
     else if (btnName == "spacer") {

@@ -137,9 +137,7 @@ public Q_SLOTS:
 
 	void showBarPlot(bool f);
 	
-	void showBoxPlot(bool f) {
-		_showBoxPlot = f;
-	}
+	void showBoxPlot(bool f);
 
 	void autoZoom(bool f) {
 		_autoZoom = f;
@@ -191,6 +189,7 @@ Q_SIGNALS:
     void compoundSet(Compound*);
 	void optionTicChecked(bool);
 	void optionBarPlotChecked(bool);
+	void optionBoxPlotChecked(bool);
 	
 private:
 	EICLogic* eicParameters;

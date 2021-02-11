@@ -1784,6 +1784,11 @@ void EicWidget::showBarPlot(bool f) {
     optionBarPlotChecked(f);
 }
 
+void EicWidget::showBoxPlot(bool f) {
+	_showBoxPlot = f;
+    optionBoxPlotChecked(f);
+}
+
 void EicWidget::contextMenuEvent(QContextMenuEvent * event)
 {
 	event->ignore();
