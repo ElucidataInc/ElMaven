@@ -908,7 +908,13 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
                            + "_"
                            + "session.emDB";
     bool saveRawData = exportRawData->isChecked();
-    if (_mainwindow->fileLoader->writeSQLiteProjectForPolly(emdbFilename, saveRawData)) {
+    bool saveChromatogram;
+    if (saveRawData && slicedEic->isChecked()) {
+        saveChromatogram = false;
+    }  else if (saveRawData && chromatogram->isChecked()) {
+        saveChromatogram = true;
+    }
+    if (_mainwindow->fileLoader->writeSQLiteProjectForPolly(emdbFilename, saveRawData, saveChromatogram)) {
         filenames.append(emdbFilename);
     } else {
         _showErrorMessage("Error",

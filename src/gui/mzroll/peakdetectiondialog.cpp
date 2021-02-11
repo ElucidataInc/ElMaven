@@ -307,7 +307,7 @@ void PeakDetectionDialog::loginSuccessful()
 { 
     bool cohortUploaded = _checkForCohortFile();
     if (!cohortUploaded) {
-        QString warningMessage = QString("<p><b>Cohorts must be defined to be able to access Polly-PeakML.</b></p>");
+        QString warningMessage = QString("<p><b>Cohorts must be defined to be able to run Polly-PeakML.</b></p>");
         warningMessage += "<p>Please define cohorts for the samples and try again later.</p>";
 
         mainwindow->showWarning(warningMessage);

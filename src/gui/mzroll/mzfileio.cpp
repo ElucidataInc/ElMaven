@@ -770,7 +770,7 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
     return false;
 }
 
-bool mzFileIO::writeSQLiteProjectForPolly(QString filename, bool saveRawData)
+bool mzFileIO::writeSQLiteProjectForPolly(QString filename, bool saveRawData, bool saveChromatogram)
 {
     vector<mzSample*> sampleSet = _mainwindow->getSamples();
     if (sampleSet.size() == 0)
@@ -784,7 +784,7 @@ bool mzFileIO::writeSQLiteProjectForPolly(QString filename, bool saveRawData)
     auto sessionDb = new ProjectDatabase(filename.toStdString(), 
                                         version, 
                                         saveRawData, 
-                                        saveRawData);
+                                        saveChromatogram);
 
     if (sessionDb) {
         sessionDb->deleteAll();

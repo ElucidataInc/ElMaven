@@ -137,9 +137,11 @@ Q_OBJECT
          * @param filename Name of the on-disk database file.
          * @param saveRawData Boolean that describes if the user wants to export
          * emDB with raw data or not.
+         * @param saveChromatogram Boolean if saveRawData is true, variable describes whether
+         * the sliced or complete-range EIC must be saved.
          * @return `true` if write was successful, `false` otherwise.
          */
-        bool writeSQLiteProjectForPolly(QString filename, bool saveRawData);
+        bool writeSQLiteProjectForPolly(QString filename, bool saveRawData, bool saveChromatogram);
 
         /**
          * @brief Write current session data into a SQLite database.
