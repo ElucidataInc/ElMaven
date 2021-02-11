@@ -97,7 +97,7 @@ public Q_SLOTS:
 	void showPeaks(bool f) {
 		_showPeaks = f;
 	}
-	void showTicLine(bool f);
+    void showTicLine(bool f);
     void showBicLine(bool f) { //TODO: Sahil Added while mergin eicWidget
 		_showBicLine=f;
 	}
