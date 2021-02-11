@@ -847,7 +847,7 @@ QString ProjectDockWidget::showExportEicInputDialog()
     bool textEditable = false;
     QString title = "EIC Export Options";
     QString label = "Export EIC as:";
-    QStringList items = { "Sliced EIC", "Chromatogram" };
+    QStringList items = { "Sliced EIC", "Complete-range EIC" };
 
     QString text = optionDialog->getItem(_mainwindow, title, label, items, 
                                             currentIndex, textEditable, &ok);
