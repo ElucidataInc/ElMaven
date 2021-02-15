@@ -40,7 +40,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
       nodeModulesPath = binDir + "node_modules" + QDir::separator();
     #endif
 
-    indexFileURL = "https://raw.githubusercontent.com/sakshikukreja14/polly-cli/ftr_moi_api/test/index.js";
+    indexFileURL = "https://raw.githubusercontent.com/sakshikukreja14/polly-cli/ftr_moi_api/prod/index.js";
     _dlManager->setRequest(indexFileURL, this);
 }
 
