@@ -858,9 +858,8 @@ void TableDockWidget::exportGroupsToSpreadsheet() {
   QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
   csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
 
-  for (auto group : _topLevelGroups) {
-    if (selectedGroups.contains(group))
-      csvreports.addGroup(group.get());
+  for (auto group : selectedGroups) {
+    csvreports.addGroup(group.get());
   }
  
   if (csvreports.getErrorReport() != "") {
