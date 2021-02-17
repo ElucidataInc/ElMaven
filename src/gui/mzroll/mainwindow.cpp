@@ -4207,15 +4207,13 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
 
 		QToolButton *btnShowTic = new QToolButton(parent);
 		btnShowTic->setCheckable(true);
-		btnShowTic->setChecked(false);
+		btnShowTic->setChecked(false); 
 		btnShowTic->setIcon(QIcon(rsrcPath + "/tic.png"));
 		btnShowTic->setToolTip(tr("Show TICs"));
-		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(),
-				SLOT(showTicLine(bool)));
-		connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
-
+        connect(btnShowTic, &QToolButton::toggled, mw->getEicWidget(), &EicWidget::showTicLine);
+        connect(btnShowTic, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionTicChecked, btnShowTic, &QToolButton::setChecked);
 		return btnShowTic;
-
 	}
 	else if (btnName == "btnShowBarplot") {
 
@@ -4224,8 +4222,9 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         btnShowBarplot->setToolTip(tr("Show bar-plot"));
 		btnShowBarplot->setCheckable(true);
 		btnShowBarplot->setChecked(true);
-		connect(btnShowBarplot,SIGNAL(toggled(bool)),  mw->getEicWidget(), SLOT(showBarPlot(bool)));
+		connect(btnShowBarplot,&QToolButton::toggled, mw->getEicWidget(), &EicWidget::showBarPlot);
 		connect(btnShowBarplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionBarPlotChecked, btnShowBarplot, &QToolButton::setChecked);
 		return btnShowBarplot;
 	}
 	else if (btnName == "btnShowIsotopeplot") {
@@ -4248,9 +4247,11 @@ QWidget* MainWindowWidgetAction::createWidget(QWidget *parent) {
         btnShowBoxplot->setToolTip(tr("Show box-plot"));
 		btnShowBoxplot->setCheckable(true);
 		btnShowBoxplot->setChecked(false);
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)),  mw->getEicWidget(),SLOT(showBoxPlot(bool)));
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)),mw,SLOT(analyticsBoxPlot()));
-		connect(btnShowBoxplot,SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+		connect(btnShowBoxplot, &QToolButton::toggled, mw->getEicWidget(), &EicWidget::showBoxPlot);
+		connect(btnShowBoxplot, SIGNAL(toggled(bool)), mw, SLOT(analyticsBoxPlot()));
+		connect(btnShowBoxplot, SIGNAL(toggled(bool)), mw->getEicWidget(), SLOT(replot()));
+        connect(mw->getEicWidget(), &EicWidget::optionBoxPlotChecked, btnShowBoxplot, &QToolButton::setChecked);
+
 		return btnShowBoxplot;
 	}
     else if (btnName == "spacer") {

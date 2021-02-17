@@ -1774,6 +1774,21 @@ void EicWidget::print(QPaintDevice* printer) {
 	render(&painter);
 }
 
+void EicWidget::showTicLine(bool f) {
+    _showTicLine = f;
+    optionTicChecked(f);
+}
+
+void EicWidget::showBarPlot(bool f) {
+    _showBarPlot = f;
+    optionBarPlotChecked(f);
+}
+
+void EicWidget::showBoxPlot(bool f) {
+    _showBoxPlot = f;
+    optionBoxPlotChecked(f);
+}
+
 void EicWidget::contextMenuEvent(QContextMenuEvent * event)
 {
 	event->ignore();

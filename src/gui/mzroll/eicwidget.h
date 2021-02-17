@@ -97,9 +97,7 @@ public Q_SLOTS:
 	void showPeaks(bool f) {
 		_showPeaks = f;
 	}
-	void showTicLine(bool f) {
-		_showTicLine = f;
-	}
+    void showTicLine(bool f);
     void showBicLine(bool f) { //TODO: Sahil Added while mergin eicWidget
 		_showBicLine=f;
 	}
@@ -137,12 +135,9 @@ public Q_SLOTS:
 		f ? setCursor(Qt::SizeHorCursor) : setCursor(Qt::ArrowCursor);
 	}
 
-	void showBarPlot(bool f) {
-		_showBarPlot = f;
-	}
-	void showBoxPlot(bool f) {
-		_showBoxPlot = f;
-	}
+	void showBarPlot(bool f);
+	
+	void showBoxPlot(bool f);
 
 	void autoZoom(bool f) {
 		_autoZoom = f;
@@ -192,7 +187,10 @@ Q_SIGNALS:
 	void peakMarkedEicWidget();
     void groupSet(shared_ptr<PeakGroup>);
     void compoundSet(Compound*);
-
+    void optionTicChecked(bool);
+    void optionBarPlotChecked(bool);
+    void optionBoxPlotChecked(bool);
+	
 private:
 	EICLogic* eicParameters;
 	float _focusLineRt;					// 0
