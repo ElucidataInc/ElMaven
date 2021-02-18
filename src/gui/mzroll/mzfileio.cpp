@@ -80,7 +80,7 @@ mzSample* mzFileIO::loadSample(const QString& filename){
 
     sample = new mzSample();
     try {
-        sample->loadSample( filename.toLatin1().data() );
+        sample->loadSample( filename.toStdString() );
     } catch (const std::bad_alloc&) {
         cerr << "MemoryError: " << "ran out of memory" << endl;
         mzUtils::delete_all(sample->scans);
