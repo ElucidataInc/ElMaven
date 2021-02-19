@@ -895,8 +895,10 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
             bool parentAdductAndNotIsotope = false;
             bool parentAdductAndParentIsotope = false;
             if(!notAdduct) {
-                parentAdductAndNotIsotope = (group.adduct()->isParent() && group.isotope().isNone());
-                parentAdductAndParentIsotope= (group.adduct()->isParent() && group.isotope().isParent());
+                parentAdductAndNotIsotope = (group.adduct()->isParent() 
+                                             && group.isotope().isNone());
+                parentAdductAndParentIsotope = (group.adduct()->isParent() 
+                                                && group.isotope().isParent());
             }
             
             if (notAdduct
