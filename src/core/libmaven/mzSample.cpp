@@ -1163,14 +1163,21 @@ EIC* mzSample::getEIC(float precursorMz,
                       float amuQ1 = 0.5,
                       float amuQ3 = 0.5)
 {
-    EIC* e = new EIC();
-    e->sampleName = sampleName;
-    e->sample = this;
-    e->totalIntensity = 0;
-    e->maxIntensity = 0;
-    e->mzmin = 0;
-    e->mzmax = 0;
+    // lambda: constructs a fresh EIC object with some initializations
+    auto newEic = [this]() {
+        EIC* e = new EIC();
+        e->sampleName = sampleName;
+        e->sample = this;
+        e->totalIntensity = 0;
+        e->maxIntensity = 0;
+        e->mzmin = 0;
+        e->mzmax = 0;
+        return e;
+    };
 
+    map<string, EIC*> filterlineEicMap;
+    map<string, vector<float>> filterlinePrecursorDeltas;
+    map<string, vector<float>> filterlineProductDeltas;
     for (unsigned int i = 0; i < scans.size(); i++) {
         Scan* scan = scans[i];
         if (filterline != "" && scan->filterLine != filterline)
@@ -1194,6 +1201,7 @@ EIC* mzSample::getEIC(float precursorMz,
 
         float eicMz = 0;
         float eicIntensity = 0;
+        string eicFilterline = "";
 
         switch ((EIC::EicType)eicType) {
         case EIC::MAX: {
@@ -1204,14 +1212,7 @@ EIC* mzSample::getEIC(float precursorMz,
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
-
-                    // We set the filterline to be the SRM ID of the first scan
-                    // that matches, so that all subsequent observations also
-                    // originate from the same SRM ID. Since, there could be
-                    // multiple SRM chromatograms that satisfy the m/z checks
-                    // above, but in the absence of CE, their observations may
-                    // not be differentiable.
-                    filterline = scan->filterLine;
+                    eicFilterline = scan->filterLine;
                 }
             }
             break;
@@ -1233,7 +1234,7 @@ EIC* mzSample::getEIC(float precursorMz,
             if (sumIntensity != 0.0) {
                 eicMz = static_cast<float>(sumMz / sumIntensity);
                 eicIntensity = static_cast<float>(sumIntensity);
-                filterline = scan->filterLine;
+                eicFilterline = scan->filterLine;
             }
             break;
         }
@@ -1246,12 +1247,28 @@ EIC* mzSample::getEIC(float precursorMz,
                 if (scan->intensity[k] > eicIntensity) {
                     eicIntensity = scan->intensity[k];
                     eicMz = scan->mz[k];
-                    filterline = scan->filterLine;
+                    eicFilterline = scan->filterLine;
                 }
             }
             break;
         }
         }
+
+        EIC* e = nullptr;
+        vector<float> precursorDeltas;
+        vector<float> productDeltas;
+        if (filterlineEicMap.count(eicFilterline) > 0) {
+            e = filterlineEicMap[eicFilterline];
+            precursorDeltas = filterlinePrecursorDeltas[eicFilterline];
+            productDeltas = filterlineProductDeltas[eicFilterline];
+        } else {
+            e = newEic();
+            filterlineEicMap[eicFilterline] = e;
+        }
+        precursorDeltas.push_back(abs(scan->precursorMz - precursorMz));
+        filterlinePrecursorDeltas[eicFilterline] = precursorDeltas;
+        productDeltas.push_back(abs(eicMz - productMz));
+        filterlineProductDeltas[eicFilterline] = productDeltas;
 
         // if rt is already present save the higher intensity for that rt
         // this can happen when there are multiple product m/z for the same
@@ -1281,23 +1298,68 @@ EIC* mzSample::getEIC(float precursorMz,
         }
     }
 
-    if (e->rt.size() > 0) {
-        e->rtmin = e->rt[0];
-        e->rtmax = e->rt[e->size() - 1];
-    }
-
-    float scale = getNormalizationConstant();
-    if (scale != 1.0)
-        for (unsigned int j = 0; j < e->size(); j++) {
-            e->intensity[j] *= scale;
+    // lambda: make some adjustments to the generated EIC before returning
+    auto adjustEic = [this](EIC* eic) {
+        if (eic->rt.size() > 0) {
+            eic->rtmin = eic->rt[0];
+            eic->rtmax = eic->rt[eic->size() - 1];
         }
 
-    // if (e->size() == 0)
-    //     cerr << "getEIC(Q1,CE,Q3): is empty" << precursorMz << " "
-    //          << collisionEnergy << " " << productMz << endl;
-    // std::cerr << "getEIC(Q1,CE,Q3): srm" << precursorMz << " "
-    //           << e->intensity.size() << endl;
-    return e;
+        float scale = getNormalizationConstant();
+        if (scale != 1.0) {
+            for (size_t j = 0; j < eic->size(); j++) {
+                eic->intensity[j] *= scale;
+            }
+        }
+    };
+
+    if (filterlineEicMap.size() == 1) {
+        // just one EIC, must be the right one
+        EIC* eic = (*begin(filterlineEicMap)).second;
+        adjustEic(eic);
+        return eic;
+    }
+
+    // In case there were multiple chromatograms for the same precursor-product
+    // pair, we check which of them is the closer one and return that one. For
+    // SRM experiments, the chromatogram ID is stored in the filterline string,
+    // which can be used to differentiate between product chromatograms.
+    EIC* eic = nullptr;
+    float bestDeltaScore = numeric_limits<float>::max();
+    for (auto& elem : filterlineEicMap) {
+        string filterline = elem.first;
+        EIC* eicAlt = elem.second;
+        auto precursorDeltas = filterlinePrecursorDeltas.at(filterline);
+        auto productDeltas = filterlineProductDeltas.at(filterline);
+        if (eicAlt->size() > 0
+            && precursorDeltas.size() > 0
+            && productDeltas.size() > 0) {
+            auto meanPrecursorDelta = accumulate(begin(precursorDeltas),
+                                                 end(precursorDeltas),
+                                                 0.0) / precursorDeltas.size();
+            auto meanProductDelta = accumulate(begin(precursorDeltas),
+                                               end(precursorDeltas),
+                                               0.0) / productDeltas.size();
+            float deltaScore = hypotf(meanPrecursorDelta, meanProductDelta);
+            if (deltaScore < bestDeltaScore) {
+                eic = eicAlt;
+                bestDeltaScore = deltaScore;
+            }
+        }
+    }
+
+    // Now a separate loop to clear the unused EICs
+    for (auto& elem : filterlineEicMap) {
+        EIC* e = elem.second;
+        if (e != eic)
+            delete e;
+    }
+
+    if (eic == nullptr)
+        eic = newEic();
+
+    adjustEic(eic);
+    return eic;
 }
 
 EIC* mzSample::getEIC(string srm, int eicType)
