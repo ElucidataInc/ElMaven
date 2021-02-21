@@ -1265,10 +1265,6 @@ EIC* mzSample::getEIC(float precursorMz,
             e = newEic();
             filterlineEicMap[eicFilterline] = e;
         }
-        precursorDeltas.push_back(abs(scan->precursorMz - precursorMz));
-        filterlinePrecursorDeltas[eicFilterline] = precursorDeltas;
-        productDeltas.push_back(abs(eicMz - productMz));
-        filterlineProductDeltas[eicFilterline] = productDeltas;
 
         // if rt is already present save the higher intensity for that rt
         // this can happen when there are multiple product m/z for the same
@@ -1296,6 +1292,11 @@ EIC* mzSample::getEIC(float precursorMz,
             e->rtAtMaxIntensity = scan->rt;
             e->mzAtMaxIntensity = eicMz;
         }
+
+        precursorDeltas.push_back(abs(scan->precursorMz - precursorMz));
+        filterlinePrecursorDeltas[eicFilterline] = precursorDeltas;
+        productDeltas.push_back(abs(eicMz - productMz));
+        filterlineProductDeltas[eicFilterline] = productDeltas;
     }
 
     // lambda: make some adjustments to the generated EIC before returning
@@ -1329,10 +1330,12 @@ EIC* mzSample::getEIC(float precursorMz,
     for (auto& elem : filterlineEicMap) {
         string filterline = elem.first;
         EIC* eicAlt = elem.second;
+        if (eicAlt->size() == 0 || eicAlt->maxIntensity == 0.0f)
+            continue;
+
         auto precursorDeltas = filterlinePrecursorDeltas.at(filterline);
         auto productDeltas = filterlineProductDeltas.at(filterline);
-        if (eicAlt->size() > 0
-            && precursorDeltas.size() > 0
+        if (precursorDeltas.size() > 0
             && productDeltas.size() > 0) {
             auto meanPrecursorDelta = accumulate(begin(precursorDeltas),
                                                  end(precursorDeltas),
