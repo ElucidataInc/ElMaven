@@ -1200,7 +1200,7 @@ EIC* mzSample::getEIC(float precursorMz,
         // compatibility with both the formats.
 
         float eicMz = 0;
-        float eicIntensity = 0;
+        float eicIntensity = -0.01;
         string eicFilterline = "";
 
         switch ((EIC::EicType)eicType) {
@@ -1273,6 +1273,11 @@ EIC* mzSample::getEIC(float precursorMz,
             e = newEic();
             filterlineEicMap[eicFilterline] = e;
         }
+
+        // Have to do this since we started with a default negative value,
+        // which itself makes sure that zero observations are not ignored.
+        if (eicIntensity < 0.0f)
+            eicIntensity = 0.0f;
 
         // if rt is already present save the higher intensity for that rt
         // this can happen when there are multiple product m/z for the same
@@ -1398,7 +1403,7 @@ EIC* mzSample::getEIC(string srm, int eicType)
         for (unsigned int i = 0; i < srmscans.size(); i++) {
             Scan* scan = scans[srmscans[i]];
             float eicMz = 0;
-            float eicIntensity = 0;
+            float eicIntensity = -0.01f;
 
             switch ((EIC::EicType)eicType) {
             case EIC::MAX: {
@@ -1445,6 +1450,11 @@ EIC* mzSample::getEIC(string srm, int eicType)
                 break;
             }
             }
+
+            // Have to do this since we started with a default negative value,
+            // which itself makes sure that zero observations are not ignored.
+            if (eicIntensity < 0.0f)
+                eicIntensity = 0.0f;
 
             e->scannum.push_back(scan->scannum);
             e->rt.push_back(scan->rt);
