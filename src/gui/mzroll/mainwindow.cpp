@@ -683,7 +683,11 @@ using namespace mzUtils;
                     msgBox.setInformativeText("Please make sure your file "
                                               "import settings do not conflict "
                                               "with the type of samples being "
-                                              "loaded.");
+                                              "loaded.\n\nIf your settings are "
+                                              "correct, then it could be that "
+                                              "the file is corrupted or empty. "
+                                              "Reconverting them might fix "
+                                              "the problem.");
                 }
                 msgBox.setStyleSheet("QMessageBox { font-weight: normal; }");
                 msgBox.addButton(QMessageBox::Ok);

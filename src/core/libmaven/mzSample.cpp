@@ -810,8 +810,7 @@ void mzSample::parseMzXML(const char* filename)
         setInstrumentSettigs(doc, spectrumstore);
         // parse mzXML information from the scan
         parseMzXMLData(spectrumstore);
-    } else
-        throw MavenException(ErrorMsg::ParsemzXml);
+    }
 }
 
 /**
