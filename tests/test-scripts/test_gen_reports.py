@@ -22,6 +22,7 @@ script_url = (
 bin_path = path.abspath(path.join(path.dirname(__file__), '..', '..', 'bin'))
 peakdetector_path = path.join(bin_path, "peakdetector")
 samples_path = path.join(bin_path, "methods", "091215_120*.mzXML")
+settings_path = path.join(path.dirname(__file__), "settings.xml")
 
 
 def download_script():
@@ -115,6 +116,7 @@ def test_regular_lcms_reports(output_dir):
     reports = generate_reports(output_dir,
                                project_path,
                                [peakdetector_path,
+                                "-x", settings_path,
                                 "-c", "1",
                                 "-d", dummy_db(),
                                 "-f", "0000",
@@ -140,6 +142,7 @@ def test_labeled_lcms_reports(output_dir):
     reports = generate_reports(output_dir,
                                project_path,
                                [peakdetector_path,
+                                "-x", settings_path,
                                 "-c", "1",
                                 "-d", dummy_db(),
                                 "-f", "0001",
@@ -165,6 +168,7 @@ def test_feature_detection_reports(output_dir):
     reports = generate_reports(output_dir,
                                project_path,
                                [peakdetector_path,
+                                "-x", settings_path,
                                 "-e", "1",
                                 "-i", "1500000",
                                 "-I", "1.0",

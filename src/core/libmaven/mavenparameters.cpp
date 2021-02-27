@@ -674,11 +674,11 @@ bool MavenParameters::loadSettings(const char* data)
 
     pugi::xml_node pnode = xmlDoc.child("Settings");
 
-    for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
-
-                setIsotopeDialogSettings(it->name(), it->text().get());
-                setPeakDetectionSettings(it->name(), it->text().get());
-                setOptionsDialogSettings(it->name(), it->text().get());
+    for (pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
+        setIsotopeDialogSettings(it->name(), it->text().get());
+        setAdductsDialogSettings(it->name(), it->text().get());
+        setPeakDetectionSettings(it->name(), it->text().get());
+        setOptionsDialogSettings(it->name(), it->text().get());
     }
 
     return true;
@@ -696,12 +696,12 @@ void MavenParameters::reset(const std::list<string>& keys)
 
     pugi::xml_node pnode = xmlDoc.child("Settings");
 
-    for(pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
-
-        if( std::find(keys.begin(), keys.end(), it->name()) != keys.end() ) {
+    for (pugi::xml_node_iterator it = pnode.begin(); it != pnode.end(); ++it) {
+        if (std::find(keys.begin(), keys.end(), it->name()) != keys.end()) {
             setOptionsDialogSettings(it->name(), it->text().get());
             setPeakDetectionSettings(it->name(), it->text().get());
             setIsotopeDialogSettings(it->name(), it->text().get());
+            setAdductsDialogSettings(it->name(), it->text().get());
         }
     }
 }
