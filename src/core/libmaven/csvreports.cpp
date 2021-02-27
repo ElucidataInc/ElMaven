@@ -300,8 +300,8 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
     string compoundName = "";
     string compoundID = "";
     string formula = "";
-    float expectedRtDiff = 0;
-    float ppmDist = 0;
+    float expectedRtDiff = -1.0f;
+    float ppmDist = -1.0f;
     if (group->hasCompoundLink()) {
         compoundName = _sanitizeString(
                            group->getCompound()->name().c_str()).toStdString();
@@ -326,13 +326,16 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
         compoundID = compoundName;
     }
 
+    string expRtString = expectedRtDiff < 0.0f ? "NA"
+                                               : to_string(expectedRtDiff);
+    string ppmDistString = ppmDist < 0.0f ? "NA" : to_string(ppmDist);
     _reportStream << SEP << compoundName
                   << SEP << compoundID
                   << SEP << formula
                   << setprecision(3)
-                  << SEP << expectedRtDiff
+                  << SEP << expRtString
                   << setprecision(6)
-                  << SEP << ppmDist;
+                  << SEP << ppmDistString;
 
     if (group->parent != NULL) {
         _reportStream << SEP << group->parent->meanMz;
@@ -407,13 +410,13 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                           << SEP << sampleName
                           << SEP << (adduct == nullptr ? "" : adduct->getName())
                           << SEP << "C12 PARENT"
-                          << SEP << 0.0f
-                          << SEP << 0.0f
-                          << SEP << 0.0f
+                          << SEP << "NA"
+                          << SEP << "NA"
+                          << SEP << "NA"
                           << setprecision(3)
-                          << SEP << 0.0f
-                          << SEP << 0.0f
-                          << SEP << 0.0f
+                          << SEP << "NA"
+                          << SEP << "NA"
+                          << SEP << "NA"
                           << SEP << 0.0f
                           << setprecision(2)
                           << SEP << 0.0f
@@ -424,7 +427,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                           << SEP << 0.0f
                           << SEP << 0.0f
                           << SEP << 0.0f
-                          << SEP << 0
+                          << SEP << "NA"
                           << endl;
         }
     } else if (group->isGhost()) {
@@ -536,13 +539,13 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << sampleName
                       << SEP << adductName
                       << SEP << tagString
-                      << SEP << 0.0f
-                      << SEP << 0.0f
-                      << SEP << 0.0f
+                      << SEP << "NA"
+                      << SEP << "NA"
+                      << SEP << "NA"
                       << setprecision(3)
-                      << SEP << 0.0f
-                      << SEP << 0.0f
-                      << SEP << 0.0f
+                      << SEP << "NA"
+                      << SEP << "NA"
+                      << SEP << "NA"
                       << SEP << 0.0f
                       << setprecision(2)
                       << SEP << 0.0f
@@ -553,7 +556,7 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
                       << SEP << 0.0f
                       << SEP << 0.0f
                       << SEP << 0.0f
-                      << SEP << 0
+                      << SEP << "NA"
                       << endl;
     }
 }
