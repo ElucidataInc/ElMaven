@@ -389,8 +389,11 @@ void SettingsForm::getFormValues()
     settings->setValue("aslsAsymmetry", asymmetrySlider->value());
 
     // change ionization type
-    if (ionizationType->currentText() == "EI")  MassCalculator::ionizationType = MassCalculator::EI;
-    else MassCalculator::ionizationType = MassCalculator::ESI;
+    if (ionizationType->currentText() == "EI") {
+        MassCalculator::ionizationType = MassCalculator::EI;
+    } else {
+        MassCalculator::ionizationType = MassCalculator::ESI;
+    }
 
     mzSample::setFilter_centroidScans( centroid_scan_flag->checkState() == Qt::Checked );
     mzSample::setFilter_minIntensity( scan_filter_min_intensity->value() );
