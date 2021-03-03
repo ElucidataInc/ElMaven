@@ -1,6 +1,8 @@
 #ifndef GALLERYWIDGET_H
 #define GALLERYWIDGET_H
 
+#include <QGraphicsProxyWidget>
+
 #include "stable.h"
 
 class EIC;
@@ -45,6 +47,10 @@ private:
     map<EIC*, pair<float, float>> _peakBounds;
     QGraphicsLineItem* _leftMarker;
     QGraphicsLineItem* _rightMarker;
+    QGraphicsProxyWidget* _leftProxyEdit;
+    QGraphicsProxyWidget* _rightProxyEdit;
+    QLineEdit* _leftEdit;
+    QLineEdit* _rightEdit;
     QGraphicsLineItem* _markerBeingDragged;
     bool _scaleForHighestPeak;
 
@@ -53,15 +59,23 @@ private:
     float _rtBuffer;
 
     void _drawBoundaryMarkers();
+    void _drawBoundaryEditables(float rt1,
+                                float x1,
+                                float rt2,
+                                float x2,
+                                bool allPeaksEmpty);
     QGraphicsLineItem* _markerNear(QPointF pos);
     void _refillVisiblePlots(float x1, float x2);
     void _scaleVisibleYAxis();
     void _fillPlotData();
     bool _visibleItemsHavePeakData();
+    float _closestRealRt(float approximateRt, EIC* eic);
+    float _convertXCoordinateToRt(float x, EIC* eic);
 
 private slots:
     void _createNewPeak();
     void _deleteCurrentPeak();
+    void _setRtRegionForVisiblePeaks(float minRt, float maxRt);
 
 protected:
     bool recursionCheck;

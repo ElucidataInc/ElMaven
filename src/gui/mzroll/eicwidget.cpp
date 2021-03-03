@@ -1685,15 +1685,37 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
         setMzSlice(group->getSlice());
     }
 
-    auto parentGroup = group->parent == nullptr ? group.get() : group->parent;
-    if (parentGroup->isGhost()) {
+    if (_autoZoom) {
+        if (group->parent != nullptr) {
+            auto parentGroup = group->parent;
+            float rtMin = numeric_limits<float>::max();
+            float rtMax = numeric_limits<float>::min();
+            if (parentGroup->isGhost() || parentGroup->isEmpty()) {
+                // zoom to the combined (common) region of all child siblings
+                for (auto& child : parentGroup->childIsotopes()) {
+                    rtMin = min(rtMin, child->minRt);
+                    rtMax = max(rtMax, child->maxRt);
+                }
+                for (auto& child : parentGroup->childAdducts()) {
+                    rtMin = min(rtMin, child->minRt);
+                    rtMax = max(rtMax, child->maxRt);
+                }
+            } else {
+                rtMin = parentGroup->minRt - 2.0f * _zoomFactor;
+                rtMax = parentGroup->maxRt + 2.0f * _zoomFactor;
+            }
+            eicParameters->_slice.rtmin = rtMin - 2.0f * _zoomFactor;
+            eicParameters->_slice.rtmax = rtMax + 2.0f * _zoomFactor;
+        } else {
+            if (group->isGhost() || group->isEmpty()) {
+                resetZoom();
+            } else {
+                eicParameters->_slice.rtmin = group->minRt - 2.0f * _zoomFactor;
+                eicParameters->_slice.rtmax = group->maxRt + 2.0f * _zoomFactor;
+            }
+        }
+    } else {
         resetZoom();
-    } else if (_autoZoom && !parentGroup->isEmpty()) {
-        eicParameters->_slice.rtmin = parentGroup->minRt - 2 * _zoomFactor;
-        eicParameters->_slice.rtmax = parentGroup->maxRt + 2 * _zoomFactor;
-    } else if (_autoZoom) {
-        eicParameters->_slice.rtmin = parentGroup->meanRt - 2.5f * _zoomFactor;
-        eicParameters->_slice.rtmax = parentGroup->meanRt + 2.5f * _zoomFactor;
     }
 
     //make sure that plot region is within visible samPle bounds;

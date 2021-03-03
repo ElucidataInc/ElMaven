@@ -493,8 +493,6 @@ void TableDockWidget::addRow(RowData& indexData, QTreeWidgetItem* root)
 
   if (group == nullptr)
     return;
-  if (group->meanMz <= 0 && !group->isGhost())
-    return;
 
   NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
   if (root == nullptr) {
@@ -1106,6 +1104,111 @@ void TableDockWidget::exportSpectralLib()
             library.writePeakGroupData(child.get());
         for (auto& child : group->childAdducts())
             library.writePeakGroupData(child.get());
+    }
+}
+
+void TableDockWidget::markDuplicatesAsBad() {
+    QStringList selectionItems;
+    selectionItems
+        << "Parent compounds only"
+        << "Parent compounds and their isotopes"
+        << "Parent compounds and their adducts"
+        << "All compounds";
+
+    bool ok;
+    QString item =
+        QInputDialog::getItem(this,
+                              "Mark duplicates as bad",
+                              "This operation will automatically mark "
+                              "duplicates of all compounds as \"bad\"\n"
+                              "peak-groups. The original for each "
+                              "compound is decided from rows with the\n"
+                              "same name but with the highest rank among "
+                              "them. The rest of them are regarded\n"
+                              "as duplicates.\n\n"
+                              "If isotopes or adducts are also considered "
+                              "then they will be compared with\n"
+                              "their siblings only (i.e., along with the "
+                              "name they must share the same parent).",
+                              selectionItems,
+                              0,
+                              false,
+                              &ok);
+
+    // lambda: given a map of vectors and a peak-group, adds the peak-group to
+    // the vector mapped against its name
+    auto indexGroup = [](map<string, vector<shared_ptr<PeakGroup>>>& duplicates,
+                         const shared_ptr<PeakGroup>& group) {
+        auto name = group->getName();
+        if (duplicates.count(name) == 0) {
+            duplicates[name] = {};
+        }
+        duplicates[name].push_back(group);
+    };
+
+    // lambda: given a map of vector of peak-groups, within each vector, mark
+    // all but the best peak-group as a "bad" one
+    auto markAllButTheBest =
+        [](map<string, vector<shared_ptr<PeakGroup>>>& duplicates) {
+            for (auto& elem : duplicates) {
+                auto& groups = elem.second;
+                if (groups.size() <= 1)
+                    continue;
+
+                sort(begin(groups),
+                     end(groups),
+                     [](shared_ptr<PeakGroup>& a, shared_ptr<PeakGroup>& b) {
+                         return a->groupRank < b->groupRank;
+                     });
+                for (size_t i = 1; i < groups.size(); ++i) {
+                    auto& group = groups[i];
+                    group->setLabel('b');
+                }
+            }
+        };
+
+    if (ok && !item.isEmpty()) {
+        map<string, vector<shared_ptr<PeakGroup>>> duplicateParents;
+        if (item == selectionItems.at(0)) {
+            // only parent items
+            for (auto& group : _topLevelGroups)
+                indexGroup(duplicateParents, group);
+        } else if (item == selectionItems.at(1)) {
+            // parent items and their child isotopes
+            for (auto& group : _topLevelGroups) {
+                indexGroup(duplicateParents, group);
+
+                map<string, vector<shared_ptr<PeakGroup>>> duplicateChildren;
+                for (auto& child : group->childIsotopes())
+                    indexGroup(duplicateChildren, child);
+                markAllButTheBest(duplicateChildren);
+            }
+        } else if (item == selectionItems.at(2)) {
+            // parent items and their child adducts
+            for (auto& group : _topLevelGroups) {
+                indexGroup(duplicateParents, group);
+
+                map<string, vector<shared_ptr<PeakGroup>>> duplicateChildren;
+                for (auto& child : group->childAdducts())
+                    indexGroup(duplicateChildren, child);
+                markAllButTheBest(duplicateChildren);
+            }
+        } else if (item == selectionItems.at(3)) {
+            // parent items and their child isotopes as well adducts
+            for (auto& group : _topLevelGroups) {
+                indexGroup(duplicateParents, group);
+
+                map<string, vector<shared_ptr<PeakGroup>>> duplicateChildren;
+                for (auto& child : group->childIsotopes())
+                    indexGroup(duplicateChildren, child);
+                for (auto& child : group->childAdducts())
+                    indexGroup(duplicateChildren, child);
+                markAllButTheBest(duplicateChildren);
+            }
+        }
+
+        markAllButTheBest(duplicateParents);
+        updateTable();
     }
 }
 
@@ -1785,8 +1888,14 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
           this,
           &TableDockWidget::showIntegrationSettings);
 
-  QAction *z4 = menu.addAction("Delete all groups from this table");
-  connect(z4, SIGNAL(triggered()), SLOT(deleteAll()));
+  QAction *z4 = menu.addAction("Mark duplicates as bad");
+  connect(z4,
+          &QAction::triggered,
+          this,
+          &TableDockWidget::markDuplicatesAsBad);
+
+  QAction *z5 = menu.addAction("Delete all groups from this table");
+  connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
 
   if (treeWidget->selectedItems().empty()) {
     // disable actions not relevant when nothing is selected
