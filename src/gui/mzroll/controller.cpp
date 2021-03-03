@@ -30,6 +30,17 @@ Controller::Controller()
     _mw->hide();
     updateUi();
 
+    // We set the mass cutoff here finally, otherwise the previous `updateUi`
+    // call would overwrite anything that was set before. This next invocation
+    // makes sure that both the main-window and the peak-detection dialog's
+    // mass cutoff is the same when the application starts.
+    _mw->setUserMassCutoff(5);
+    if (_mw->getSettings()->contains("massCutoffWindowBox")) {
+        _mw->setUserMassCutoff(
+            _mw->getSettings()->value("massCutoffWindowBox").toDouble()
+        );
+    }
+
     connect(_mw->isotopeDialog,
             &IsotopeDialog::updateSettings,
             this,
