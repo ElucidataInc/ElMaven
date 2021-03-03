@@ -448,8 +448,9 @@ void PeakDetectionDialog::toggleFragmentation()
     auto iter = find_if(begin(samples),
                         end(samples),
                         [](mzSample* s) {
-                           return ((s->ms1ScanCount() > 0)
-                                   && (s->ms2ScanCount() > 0));
+                           return (s->ms1ScanCount() > 0
+                                   && s->ms2ScanCount() > 0
+                                   && s->msMsType() == mzSample::MsMsType::DDA);
                         });
     bool foundDda = iter != end(samples);
 

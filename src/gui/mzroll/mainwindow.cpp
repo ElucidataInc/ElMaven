@@ -605,6 +605,10 @@ using namespace mzUtils;
             SIGNAL(sampleLoaded()),
             this,
             SLOT(_warnIfNISTPolarityMismatch()));
+    connect(fileLoader,
+            &mzFileIO::sampleLoaded,
+            this,
+            &MainWindow::_confirmMsMsType);
 
 	connect(fileLoader,SIGNAL(sampleLoaded()), this, SLOT(setInjectionOrderFromTimeStamp()));
     connect(fileLoader,SIGNAL(sampleLoaded()),projectDockWidget, SLOT(updateSampleList()));
@@ -1543,8 +1547,6 @@ void MainWindow::setCompoundFocus(Compound* compound,
     if (fragPanel->isVisible())
         showFragmentationScans(mz);
 
-    QString compoundName(compound->name().c_str());
-
     if (compound)
         setUrl(compound);
 }
@@ -2139,6 +2141,38 @@ void MainWindow::_warnIfNISTPolarityMismatch()
         }
         else {
             analytics->hitEvent("PRM", "Closed", "Polarity Mismatch prompt");
+        }
+    }
+}
+
+void MainWindow::_confirmMsMsType()
+{
+    QList<mzSample*> msMsSamples;
+    for (auto sample : samples) {
+        if (sample->ms1ScanCount() > 0 && sample->ms2ScanCount() > 0)
+            msMsSamples.append(sample);
+    }
+
+    if (msMsSamples.isEmpty())
+        return;
+
+    // TODO: add DIA when/if SWATH branch is merged
+    QStringList msMsTypes;
+    msMsTypes << tr("DDA") << tr("PRM");
+
+    QString type = QInputDialog::getItem(this,
+                                         tr("Select MS/MS type"),
+                                         tr("One or more samples have MS/MS "
+                                            "data. Please tell El-MAVEN the\n"
+                                            "acquisition type of this data:"),
+                                         msMsTypes,
+                                         0,
+                                         false);
+    for (auto sample : msMsSamples) {
+        if (type == "PRM") {
+            sample->setMsMsType(mzSample::MsMsType::PRM);
+        } else {
+            sample->setMsMsType(mzSample::MsMsType::DDA);
         }
     }
 }
@@ -4002,8 +4036,10 @@ void MainWindow::showFragmentationScans(float pmz)
         return;
     fragPanel->clearTree();
     for (auto sample : samples) {
-        if (sample->ms1ScanCount() == 0)
+        if (sample->ms1ScanCount() == 0
+            || sample->msMsType() != mzSample::MsMsType::DDA) {
             continue;
+        }
 
         for (auto scan : sample->scans) {
 	        if (scan->mslevel != 2) continue;

@@ -25,6 +25,7 @@ mzSample::mzSample() : _setName(""), injectionOrder(0)
     _id = -1;
     _numMS1Scans = 0;
     _numMS2Scans = 0;
+    _msMsType = MsMsType::None;
     maxMz = maxRt = 0;
     minMz = minRt = 0;
     isBlank = false;
