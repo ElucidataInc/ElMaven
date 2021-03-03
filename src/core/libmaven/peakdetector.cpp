@@ -168,7 +168,25 @@ void PeakDetector::editPeakRegionForSample(PeakGroup *group,
     newPeak.mzmin = group->getSlice().mzmin;
     newPeak.mzmax = group->getSlice().mzmax;
     eic->getPeakDetails(newPeak);
+
     if (newPeak.pos > 0) {
+        // We assign each the new peak with a rank based on its relative area
+        // among all peaks in the original EIC. This has to be done because
+        // quality assignment depends on it and the default peak rank gives a
+        // bad score. See also `EIC::getStatistics`.
+        auto peaks = eic->peaks;
+        if (peaks.empty()) {
+            newPeak.peakRank = 0; // best possible rank
+        } else {
+            sort(begin(peaks), end(peaks), Peak::compArea);
+            for (size_t i = 0; i < peaks.size(); i++) {
+                if (newPeak.peakArea >= peaks[i].peakArea) {
+                    newPeak.peakRank = i;
+                    break;
+                }
+            }
+        }
+
         if (clsf != nullptr && clsf->hasModel())
             newPeak.quality = clsf->scorePeak(newPeak);
 
@@ -1210,6 +1228,23 @@ PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
         peak.mzmax = slice.mzmax;
         eic->getPeakDetails(peak);
         if (peak.pos > 0) {
+            // We assign each the new peak with a rank based on its relative
+            // area among all peaks in the original EIC. This has to be done
+            // because quality assignment depends on it and the default peak
+            // rank gives a bad score. See also `EIC::getStatistics`.
+            auto peaks = eic->peaks;
+            if (peaks.empty()) {
+                peak.peakRank = 0; // best possible rank
+            } else {
+                sort(begin(peaks), end(peaks), Peak::compArea);
+                for (size_t i = 0; i < peaks.size(); i++) {
+                    if (peak.peakArea >= peaks[i].peakArea) {
+                        peak.peakRank = i;
+                        break;
+                    }
+                }
+            }
+
             if (clsf != nullptr)
                 peak.quality = clsf->scorePeak(peak);
 
