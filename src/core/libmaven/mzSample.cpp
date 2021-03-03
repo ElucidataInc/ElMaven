@@ -343,6 +343,14 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
 
         cleanFilterLine(chromatogramId);
 
+        int scanPolarity = -1;
+        map<string, string> chromatogramParams = mzML_cvParams(chromatogram);
+        if (chromatogramParams.count("positive scan")) {
+            scanPolarity = 1;
+        } else if (chromatogramParams.count("negative scan")) {
+            scanPolarity = -1;
+        }
+
         vector<float> timeVector;
         vector<float> intsVector;
 
@@ -368,7 +376,6 @@ void mzSample::parseMzMLChromatogramList(const xml_node& chromatogramList)
         if (activationParams.count("collision energy"))
             collisionEnergy = string2float(activationParams["collision energy"]);
 
-        int scanPolarity = -1;
         for (xml_node binaryDataArray = binaryDataArrayList.child("binaryDataArray");
              binaryDataArray;
              binaryDataArray =
