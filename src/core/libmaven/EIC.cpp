@@ -1069,7 +1069,7 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                     if (overlap == 0 and a.rtmin > b.rtmax)
                         break;
 
-                    if (distx > mp->grouping_maxRtWindow && overlap < 0.2)
+                    if (distx > mp->grouping_maxRtWindow || overlap < 0.2)
                         continue;
 
                     score = 1.0
