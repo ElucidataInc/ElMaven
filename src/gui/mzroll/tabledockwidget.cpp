@@ -1893,6 +1893,7 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
         }
     }
 
+    if (!destinationPeakTable) return;
     for(auto group : selected) {
       destinationPeakTable->addPeakGroup(group.get());
     }
@@ -1915,6 +1916,7 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
         }
     }
 
+    if (!sourcePeakTable) return;
     for(auto group : selected) {
       sourcePeakTable->deleteGroup(group.get());
     }
@@ -2731,10 +2733,6 @@ void BookmarkTableDockWidget::showMsgBox(bool check, int tableNo) {
 
   msgBox->open();
 }
-
-
-
-
 
 void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
 {
