@@ -1248,7 +1248,7 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
             break;
 
         eicMz = 0;
-        eicIntensity = 0;
+        eicIntensity = -0.01f;
 
         //binary search
         mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
@@ -1282,6 +1282,7 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
         {
             double sumMz = 0.0;
             double sumIntensity = 0.0;
+            vector<float> mzValues;
             for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
             {
                 if (scan->mz[scanIdx] < mzmin)
@@ -1292,10 +1293,16 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
                 double intensity = static_cast<double>(scan->intensity[scanIdx]);
                 sumIntensity += intensity;
                 sumMz += static_cast<double>(scan->mz[scanIdx]) * intensity;
+                mzValues.push_back(scan->mz[scanIdx]);
             }
             if (sumIntensity != 0.0) {
                 eicMz = static_cast<float>(sumMz / sumIntensity);
                 eicIntensity = static_cast<float>(sumIntensity);
+            } else {
+                eicMz = accumulate(begin(mzValues),
+                                   end(mzValues),
+                                   0.0) / mzValues.size();
+                eicIntensity = 0.0f;
             }
             break;
         }
@@ -1318,6 +1325,11 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
             break;
         }
         }
+
+        // Have to do this since we started with a default negative value,
+        // which itself makes sure that zero observations are not ignored.
+        if (eicIntensity < 0.0f)
+            eicIntensity = 0.0f;
 
         this->scannum.push_back(scanNum);
         this->rt.push_back(scan->rt);
