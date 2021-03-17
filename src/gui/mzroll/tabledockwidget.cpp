@@ -1875,6 +1875,7 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
   QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
   QString bookmarkTableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
 
+  // Adding the rows to the Destination Table
   if(bookmarkTableName == destinationTableName) {
     BookmarkTableDockWidget* destinationPeakTable = _mainwindow->bookmarkedPeaks;
     for(auto group : selected) {
@@ -1887,9 +1888,7 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
     for (auto table : peaksTableList) {
         if (table->titlePeakTable->text() == destinationTableName) {
             destinationPeakTable = table;
-        }
-        if(destinationPeakTable != nullptr) {
-          break;
+            break;
         }
     }
 
@@ -1900,27 +1899,8 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
     destinationPeakTable->showAllGroups();
   }
 
-  if(bookmarkTableName == sourceTableName) {
-    BookmarkTableDockWidget* sourcePeakTable = _mainwindow->bookmarkedPeaks;
-    for(auto group : selected) {
-      sourcePeakTable->deleteGroup(group.get());
-    }
-  } else {
-    TableDockWidget* sourcePeakTable = nullptr;
-    for (auto table : peaksTableList) {
-        if (table->titlePeakTable->text() == sourceTableName) {
-            sourcePeakTable = table;
-        }
-        if(sourcePeakTable != nullptr) {
-          break;
-        }
-    }
-
-    if (!sourcePeakTable) return;
-    for(auto group : selected) {
-      sourcePeakTable->deleteGroup(group.get());
-    }
-  }
+  // Deleting the rows from the Source Table
+  deleteSelectedItems();
 }
 
 void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
@@ -1955,7 +1935,7 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
   QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
   int n = peaksTableList.count();
 
-  QMenu* subMenu = menu.addMenu(tr("Move to Table"));
+  QMenu* subMenu = menu.addMenu(tr("Move to another table…"));
   
   QMap<QAction*, QString> actionsAndTables;
   QString tableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
@@ -1983,12 +1963,13 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
             &QAction::triggered,
             this,
             [this, tableName]() { this->moveSelectedRows(tableName); });
-    if (selected.count() == 0) {
-      // disable action not relevant when nothing is selected
-      action->setEnabled(false);
-    }
   }
   
+  if(selected.count() == 0) {
+    // disable actions not relevant when nothing is selected
+    subMenu->setEnabled(false);
+  }
+
   if (treeWidget->selectedItems().empty()) {
     // disable actions not relevant when nothing is selected
     z0->setEnabled(false);
