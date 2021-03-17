@@ -1868,6 +1868,41 @@ void TableDockWidget::showIntegrationSettings()
   log.exec();
 }
 
+void TableDockWidget::moveSelectedRows(QString destinationTableName) {
+
+  QString sourceTableName = this->titlePeakTable->text();
+  QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
+  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+  QString bookmarkTableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
+
+  // Adding the rows to the Destination Table
+  if(bookmarkTableName == destinationTableName) {
+    BookmarkTableDockWidget* destinationPeakTable = _mainwindow->bookmarkedPeaks;
+    for(auto group : selected) {
+      destinationPeakTable->addPeakGroup(group.get());
+    }
+    destinationPeakTable->showAllGroups();
+    destinationPeakTable->setVisible(true);
+  } else {
+    TableDockWidget* destinationPeakTable = nullptr;
+    for (auto table : peaksTableList) {
+        if (table->titlePeakTable->text() == destinationTableName) {
+            destinationPeakTable = table;
+            break;
+        }
+    }
+
+    if (!destinationPeakTable) return;
+    for(auto group : selected) {
+      destinationPeakTable->addPeakGroup(group.get());
+    }
+    destinationPeakTable->showAllGroups();
+  }
+
+  // Deleting the rows from the Source Table
+  deleteSelectedItems();
+}
+
 void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
   if (treeWidget->topLevelItemCount() < 1)
       return;
@@ -1896,6 +1931,44 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
 
   QAction *z5 = menu.addAction("Delete all groups from this table");
   connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
+
+  QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
+  int n = peaksTableList.count();
+
+  QMenu* subMenu = menu.addMenu(tr("Move to another table…"));
+  
+  QMap<QAction*, QString> actionsAndTables;
+  QString tableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
+  if(this->titlePeakTable->text() != tableName ) {
+    QAction* z5 = subMenu->addAction(tableName);
+    actionsAndTables[z5] = tableName;
+  }
+  
+  for (int i = 0; i < n; i++) {
+    tableName = peaksTableList[i]->titlePeakTable->text();
+    if(this->titlePeakTable->text() != tableName){
+      QAction* z5 = subMenu->addAction(tableName);
+      actionsAndTables[z5] = tableName;
+    }
+  }
+
+  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+
+  QMapIterator<QAction*, QString> iter(actionsAndTables);
+  while (iter.hasNext()) {
+    iter.next();
+    QAction* action = iter.key();
+    QString tableName = iter.value();
+    connect(action,
+            &QAction::triggered,
+            this,
+            [this, tableName]() { this->moveSelectedRows(tableName); });
+  }
+  
+  if(selected.count() == 0) {
+    // disable actions not relevant when nothing is selected
+    subMenu->setEnabled(false);
+  }
 
   if (treeWidget->selectedItems().empty()) {
     // disable actions not relevant when nothing is selected

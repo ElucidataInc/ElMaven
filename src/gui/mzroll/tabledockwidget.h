@@ -193,6 +193,8 @@ public:
   bool deleteAllgroupsWarning();
   
 public slots:
+
+  void moveSelectedRows(QString destinationTableName);
   void updateCompoundWidget();
   shared_ptr<PeakGroup> addPeakGroup(PeakGroup *group);
   void sortChildrenAscending(QTreeWidgetItem *item);
