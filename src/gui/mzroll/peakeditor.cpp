@@ -21,6 +21,7 @@ PeakEditor::PeakEditor(MainWindow *parent,
 {
     ui->setupUi(this);
     ui->sampleList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    ui->sampleList->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     _gallery = new GalleryWidget(this);
     ui->graphicsLayout->addWidget(_gallery);
 
