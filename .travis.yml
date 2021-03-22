@@ -31,8 +31,7 @@ install:
 
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
         brew install grep;
-        curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/c3ed67c71e9ea2e0d51809a2b4d5b968b1a6ac70/Formula/llvm@6.rb
-        brew install ./llvm\@6.rb
+        brew install llvm@7
 
         # brew no longer provides Qt 5.11, so we use an older formula for the same
         curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/65a45a9e61f15046a256cdba6a008f38f79570c9/Formula/qt.rb
@@ -64,9 +63,9 @@ script:
   - |
     git submodule update --init --recursive
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      export LDFLAGS="-L/usr/local/opt/llvm@6/lib -Wl,-rpath,/usr/local/opt/llvm@6/lib"
-      export PATH="/usr/local/opt/llvm@6/bin/:$PATH"
-      export CPPFLAGS="-I/usr/local/opt/llvm@6/include -I/usr/local/opt/llvm@6/c++/v1/"
+      export LDFLAGS="-L/usr/local/opt/llvm@7/lib -Wl,-rpath,/usr/local/opt/llvm@7/lib"
+      export PATH="/usr/local/opt/llvm@7/bin/:$PATH"
+      export CPPFLAGS="-I/usr/local/opt/llvm@7/include -I/usr/local/opt/llvm@7/c++/v1/"
 
       if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
         qmake CONFIG+=debug -o Makefile build.pro;
