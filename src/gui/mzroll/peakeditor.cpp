@@ -110,6 +110,13 @@ PeakEditor::PeakEditor(MainWindow *parent,
             &QCheckBox::toggled,
             _gallery,
             &GalleryWidget::setScaleForHighestPeak);
+    connect(ui->yZoomSlider,
+            &QSlider::valueChanged,
+            [this](int value) {
+                // The `value` is a number range [0, 99]
+                float fractionalZoom = static_cast<float>(value) / 100.0f;
+                _gallery->setYZoomScale(1.0 - fractionalZoom);
+            });
 }
 
 PeakEditor::~PeakEditor()
