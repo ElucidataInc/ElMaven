@@ -85,7 +85,7 @@ void GroupSettingsLog::_displayGroupSettings()
             return make_pair(tr("Smoothness"),
                              tr("%1").arg(mp->aslsSmoothness));
         }
-        return make_pair(tr("Drop top [X] % intensities"),
+        return make_pair(tr("Allow top [x] percent intensities as part of the real signal"),
                          tr("%1 %").arg(mp->baseline_dropTopX));
     };
 
