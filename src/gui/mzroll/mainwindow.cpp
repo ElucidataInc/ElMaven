@@ -728,14 +728,6 @@ using namespace mzUtils;
 	setIonizationModeLabel();
 	setTotalCharge();
 
-  // This been set here why is this here; beacuse of this
-  // in the show function of peak detector its been made to set to this
-  // value
-    setUserMassCutoff(5);
-	if (settings->contains("massCutoffWindowBox")) {
-		setUserMassCutoff(settings->value("massCutoffWindowBox").toDouble());
-	}
-
 	QRectF view = settings->value("mzslice").value<QRectF>();
 	if (view.width() > 0 && view.height() > 0) {
 		eicWidget->setMzSlice(
@@ -1342,16 +1334,17 @@ void MainWindow::removeAllPeakTables()
     }
 }
 
-void MainWindow::setUserMassCutoff(double x)
+void MainWindow::setUserMassCutoff(double cutoff)
 {
-    double cutoff = x;
     string type = massCutoffComboBox->currentText().toStdString();
     _massCutoffWindow->setMassCutoffAndType(cutoff, type);
+    mavenParameters->compoundMassCutoffWindow->setMassCutoff(cutoff);
     massCalcWidget->setMassCutoff(_massCutoffWindow);
     eicWidget->setMassCutoff(_massCutoffWindow);
     fileLoader->insertSettingForSave("mainWindowMassResolution",
                                      variant(cutoff));
-    mavenParameters->compoundMassCutoffWindow->setMassCutoff(x);
+    if (!peakDetectionDialog->isVisible())
+        peakDetectionDialog->compoundPPMWindow->setValue(cutoff);
 }
 
 void MainWindow::setIonizationModeLabel()
@@ -3326,14 +3319,6 @@ void MainWindow::createToolBars() {
             SIGNAL(valueChanged(double)),
             this,
             SLOT(setUserMassCutoff(double)));
-    void (QDoubleSpinBox::* doubleChanged)(double) =
-        &QDoubleSpinBox::valueChanged;
-    connect(massCutoffWindowBox,
-            doubleChanged,
-            [=] (double value) {
-                if (!peakDetectionDialog->isVisible())
-                    peakDetectionDialog->compoundPPMWindow->setValue(value);
-            });
     double initMassCutoff = settings->value("massCutoffWindowBox").toDouble();
     massCutoffWindowBox->setValue(initMassCutoff);
     peakDetectionDialog->compoundPPMWindow->setValue(initMassCutoff);

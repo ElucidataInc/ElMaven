@@ -208,6 +208,14 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 [&](QString type) {
                     mainwindow->setUserQuantType(type);
                 });
+
+        void (QDoubleSpinBox::* doubleChanged)(double) =
+            &QDoubleSpinBox::valueChanged;
+        connect(compoundPPMWindow,
+                doubleChanged,
+                [=] (double value) {
+                    mainwindow->massCutoffWindowBox->setValue(value);
+                });
 }
 
 void PeakDetectionDialog::onReset()

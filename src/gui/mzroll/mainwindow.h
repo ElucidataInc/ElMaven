@@ -350,7 +350,7 @@ public Q_SLOTS:
     int getIonizationMode();
 	void setTotalCharge();
 
-	void setUserMassCutoff(double x);
+    void setUserMassCutoff(double cutoff);
 	MassCutoff * getUserMassCutoff() {
 		return _massCutoffWindow;
 	}
