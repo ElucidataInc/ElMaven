@@ -15,7 +15,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 !macx: LIBS += -fopenmp
 
-INCLUDEPATH += $$top_srcdir/src/
+INCLUDEPATH += $$top_srcdir/src/    \
+               $$top_srcdir/3rdparty/json \
 
 SOURCES	=   pollyintegration.cpp \
 			

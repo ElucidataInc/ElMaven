@@ -2,6 +2,10 @@
 #include <common/downloadmanager.h>
 #include <common/logger.h>
 #include <QTemporaryFile>
+#include "core/libmaven/mzUtils.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 PollyIntegration::PollyIntegration(DownloadManager* dlManager):
     _dlManager(dlManager),
@@ -35,7 +39,7 @@ PollyIntegration::PollyIntegration(DownloadManager* dlManager):
       nodeModulesPath = binDir + "node_modules" + QDir::separator();
     #endif
 
-    indexFileURL = "https://raw.githubusercontent.com/ElucidataInc/polly-cli/master/prod/index.js";
+    indexFileURL = "https://raw.githubusercontent.com/sakshikukreja14/polly-cli/add_workspacesAPI/prod/index.js";
     _dlManager->setRequest(indexFileURL, this);
 }
 
@@ -541,21 +545,55 @@ void PollyIntegration::logout() {
 
 QVariantMap PollyIntegration::getUserProjects() {
     QVariantMap userProjects;
-    QString getProjectsCommand = "get_Project_names";
-    QList<QByteArray> resultAndError = runQtProcess(getProjectsCommand, QStringList() << credFile);
-    if (_hasError(resultAndError))
-        return userProjects;
+    QString cookies;
 
-    QList<QByteArray> testList = resultAndError.at(0).split('\n');
-    QByteArray resultJsons = testList[testList.size() - 2];
-    QJsonDocument doc(QJsonDocument::fromJson(resultJsons));
-    // Get JSON object
-    QJsonArray jsonArray = doc.array();
-    for (int i = 0; i < jsonArray.size(); ++i) {
-        QJsonValue projectJson = jsonArray.at(i);
-        QVariantMap projectMap = projectJson.toObject().toVariantMap();
-        userProjects[projectMap["id"].toString()] = projectMap["name"].toString();
+    QFile file(credFile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
+        return userProjects;
+    QTextStream idTokenStream(&file);
+    QString idToken;    
+    idToken = idTokenStream.readAll();
+    file.close();
+
+    QFile refreshTokenFile (credFile + "_refreshToken");
+    if (!refreshTokenFile.open(QIODevice::ReadOnly | QIODevice::Text)) 
+        return userProjects;
+    QTextStream refreshTokenStream(&refreshTokenFile);
+    QString refreshToken;    
+    refreshToken = refreshTokenStream.readAll();
+    refreshTokenFile.close();
+
+    cookies += "refreshToken=";
+    cookies += refreshToken;
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += idToken;
+
+    QString getProjectsCommand = "get_Project_names";
+    QString next = "/workspaces?page%5Bsize%5D=100";
+
+    while (true) {
+        QList<QByteArray> resultAndError = runQtProcess(getProjectsCommand, QStringList() << cookies << next);
+        QString str(resultAndError[0].constData());
+        auto splitString = mzUtils::split(str.toStdString(), "\n");
+        auto data = splitString[splitString.size() - 2];
+        json dataObject = json::parse(data);
+        for (int i = 0; i < dataObject["data"].size(); i++) {
+            auto temp = dataObject["data"][i]["attributes"];
+            auto projectIdPointer = temp.find("id");
+            auto projectNamePointer = temp.find("name");
+            int projectId = projectIdPointer.value().get<int>();
+            string projectName = projectNamePointer.value().get<std::string>();
+            userProjects[QString::fromStdString(mzUtils::integer2string(projectId))] = QString::fromStdString(projectName); 
+        }
+
+        auto nextObject = dataObject["links"].find("next");
+        if (nextObject.value().type_name() == "string") 
+            next = QString::fromStdString(nextObject.value().get<std::string>());
+        else 
+            break;
     }
+    
     return userProjects;
 }
 
