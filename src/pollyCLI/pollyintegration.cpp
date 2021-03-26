@@ -563,13 +563,9 @@ QVariantMap PollyIntegration::getUserProjects() {
     refreshToken = refreshTokenStream.readAll();
     refreshTokenFile.close();
 
-    cookies += "refreshToken=";
-    cookies += refreshToken;
-    cookies += ";";
-    cookies += "idToken=";
-    cookies += idToken;
+    cookies += QString("refreshToken=%1;idToken=%2").arg(refreshToken, idToken);
 
-    QString getProjectsCommand = "get_Project_names";
+    QString getProjectsCommand = "getProjectNamesV2";
     QString next = "/workspaces?page%5Bsize%5D=100";
 
     while (true) {
