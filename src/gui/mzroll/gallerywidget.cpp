@@ -26,6 +26,8 @@ GalleryWidget::GalleryWidget(QWidget* parent)
     _maxRt = 0.0f;
     _rtBuffer = 0.5f;
 
+    _yZoomScale = 1.0f;
+
     _boxW = 300;
     _boxH = 200;
     _axesOffset = 18;
@@ -79,6 +81,13 @@ void GalleryWidget::setRtBounds(float minRt, float maxRt)
 {
     _minRt = minRt;
     _maxRt = maxRt;
+    _fillPlotData();
+    replot();
+}
+
+void GalleryWidget::setYZoomScale(float yZoomScale)
+{
+    _yZoomScale = yZoomScale;
     _fillPlotData();
     replot();
 }
@@ -451,6 +460,8 @@ void GalleryWidget::_scaleVisibleYAxis()
             maxIntensity = max(maxIntensity, plotIntensities.second);
         }
     }
+
+    maxIntensity = _yZoomScale * maxIntensity;
 
     for (int index : _indexesOfVisibleItems) {
         auto plot = _plotItems.at(index);

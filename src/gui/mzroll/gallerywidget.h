@@ -23,6 +23,7 @@ public:
     pair<float, float> rtBounds();
     void setRtBounds(float minRt, float maxRt);
     float rtBuffer() { return _rtBuffer; }
+    void setYZoomScale(float yZoomScale);
 
 signals:
     void peakRegionSet(mzSample*, float, float);
@@ -57,6 +58,8 @@ private:
     float _minRt;
     float _maxRt;
     float _rtBuffer;
+
+    float _yZoomScale;
 
     void _drawBoundaryMarkers();
     void _drawBoundaryEditables(float rt1,

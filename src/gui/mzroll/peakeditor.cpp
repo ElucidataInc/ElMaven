@@ -21,6 +21,7 @@ PeakEditor::PeakEditor(MainWindow *parent,
 {
     ui->setupUi(this);
     ui->sampleList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    ui->sampleList->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     _gallery = new GalleryWidget(this);
     ui->graphicsLayout->addWidget(_gallery);
 
@@ -110,6 +111,13 @@ PeakEditor::PeakEditor(MainWindow *parent,
             &QCheckBox::toggled,
             _gallery,
             &GalleryWidget::setScaleForHighestPeak);
+    connect(ui->yZoomSlider,
+            &QSlider::valueChanged,
+            [this](int value) {
+                // The `value` is a number range [0, 99]
+                float fractionalZoom = static_cast<float>(value) / 100.0f;
+                _gallery->setYZoomScale(1.0 - fractionalZoom);
+            });
 }
 
 PeakEditor::~PeakEditor()
