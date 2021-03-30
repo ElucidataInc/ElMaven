@@ -6,13 +6,6 @@
 
 class Logger;
 
-enum class PollyApp: int
-{
-    PollyPhi = 0,
-    QuantFit = 1,
-    None = 2
-};
-
 enum class ErrorStatus: int
 {
     Success = 0,
@@ -150,37 +143,6 @@ public:
                                 QString uploadProjectIdThread,
                                 QString datetimestamp);
 
-    /**
-     * @brief Extract out a component ID from a.JSON response obtained by
-     * requesting to api/component endpoint.
-     * @param app The Polly application for which ID is needed.
-     * @return The component ID as a QString.
-     */
-    QString obtainComponentId(PollyApp app);
-
-    QString obtainComponentName(PollyApp app);
-
-    /**
-     * @brief Get the status of current user's application licenses on Polly.
-     * @return A map of PollyApp and a boolean value indicating whether the user
-     * should have access to that application.
-     */
-    QMap<PollyApp, bool> getAppLicenseStatus();
-
-    /**
-     * @brief Extract out a workflow ID from a JSON response obtained by
-     * requesting to api/wf-fe-info endpoint.
-     * @param workflowName The Polly application for which ID is needed.
-     * @return The workflow ID as a QString.
-     */
-    QString obtainWorkflowId(PollyApp app);
-
-    /**
-     * @brief Get the string name of a PollyApp enum identifier.
-     * @return A string with name of the app.
-     */
-    static QString stringForApp(PollyApp app);
-
 public slots:
     void requestSuccess();
     void requestFailed();
@@ -197,7 +159,6 @@ private:
     unsigned int _retries;
     QString indexFileURL;
 
-    QPair<ErrorStatus, QMap<QString, QStringList>> _fetchAppLicense();
     bool _checkForIndexFile();
     bool validCohorts(QStringList cohorts);
     bool _hasError(QList<QByteArray>);

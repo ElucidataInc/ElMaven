@@ -918,13 +918,6 @@ void MainWindow::showNotification(TableDockWidget* table) {
             SIGNAL(promptClicked()),
             SLOT(showPollyElmavenInterfaceDialog()));
     connect(fluxomicsPrompt,
-            &Notificator::promptClicked,
-            this,
-            [=] {
-                analytics->hitEvent("Prompt", "Clicked", "PollyPhi");
-                pollyElmavenInterfaceDialog->switchToApp(PollyApp::PollyPhi);
-            });
-    connect(fluxomicsPrompt,
             SIGNAL(promptClicked(TableDockWidget*)),
             pollyElmavenInterfaceDialog,
             SLOT(setSelectedTable(TableDockWidget*)));

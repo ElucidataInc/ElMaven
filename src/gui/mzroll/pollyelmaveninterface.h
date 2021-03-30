@@ -8,8 +8,6 @@
 #include "stable.h"
 #include "ui_pollyelmaveninterface.h"
 
-Q_DECLARE_METATYPE(PollyApp)
-
 class PollyIntegration;
 class MainWindow;
 class LoginForm;
@@ -64,7 +62,6 @@ Q_SIGNALS:
     void filesUploaded(QStringList patchId,
                        QString uploadProjectIdThread,
                        QString datetimestamp);
-    void licensesReady(QMap<PollyApp, bool> licenseMap);
     void projectsReady(QVariantMap projectNamesId);
     void authenticationFinished(QString username, QString status);
 
@@ -115,7 +112,6 @@ class PollyElmavenInterfaceDialog : public QDialog,
 public:
 
     enum class SendMode {
-        PollyApp,
         PollyProject
     };
 
@@ -164,14 +160,6 @@ public:
     MainWindow* getMainWindow();
 
 public Q_SLOTS:
-
-    /**
-     * @brief Switch to a given Polly app.
-     * @param app A PollyApp enum that signifies which application should be
-     * selected.
-     */
-    void switchToApp(PollyApp app);
-
     /**
      * @brief Select the peak table in the table combo box, if the given table
      * name exists.
@@ -197,11 +185,6 @@ private:
      * @brief A pointer to the main application window.
      */
     MainWindow* _mainwindow;
-
-    /**
-     * @brief The current selected Polly application.
-     */
-    PollyApp _selectedApp;
 
     /**
      * @brief A pointer to the currently selected peak table.
@@ -236,12 +219,6 @@ private:
     PollyIntegration* _pollyIntegration;
 
     /**
-     * @brief A URL that will lead the user to their analysis using sent data on
-     * the selected Polly web app.
-     */
-    QMap<PollyApp, QUrl> _redirectionUrlMap;
-
-    /**
      * @brief A URL that will open the Polly project to which the last session
      * data upload was made.
      */
@@ -257,12 +234,6 @@ private:
      * their IDs.
      */
     QVariantMap _projectNameIdMap;
-
-    /**
-     * @brief A map which contains the mapping of licenses names with their
-     * active state.
-     */
-    QMap<PollyApp, bool> _licenseMap;
 
     /**
      * @brief Name of the temporary directory where files are contained before
@@ -406,14 +377,6 @@ private Q_SLOTS:
     void _handleProjects(QVariantMap projectNameIdMap);
 
     /**
-     * @brief Handle information fetched from Polly about current user's
-     * licenses.
-     * @param licenseMap A map of application names to their license status on
-     * Polly.
-     */
-    void _handleLicenses(QMap<PollyApp, bool> licenseMap);
-
-    /**
      * @brief Handle the result of authentication status post-process.
      * @param username The username for which the authentication was performed.
      * @param status A QString storing status value of the authentication
@@ -460,12 +423,6 @@ private Q_SLOTS:
 
     /**
      * @brief Open a URL in desktop environment's browser that takes the user to
-     * a Polly application's interface where they can proceed with the analysis.
-     */
-    void _goToPollyApp();
-
-    /**
-     * @brief Open a URL in desktop environment's browser that takes the user to
      * the Polly project where they can proceed with their analysis.
      */
     void _goToPollyProject();
@@ -474,11 +431,6 @@ private Q_SLOTS:
      * @brief Log-out of Polly for the currently logged in user.
      */
     void _logout();
-
-    /**
-     * @brief Change the currently selected Polly application.
-     */
-    void _changePage();
 
     /**
      * @brief Hide the form and switch to advert if the user is not licensed for
@@ -494,12 +446,6 @@ private Q_SLOTS:
      */
     void _reviseGroupOptions(QString tableName);
 
-    /**
-     * @brief Switch for the currently selected mode of data upload. This will
-     * either be sending files for a specific Polly application or only to a
-     * Polly project.
-     */
-    void _changeMode();
 };
 
 #endif

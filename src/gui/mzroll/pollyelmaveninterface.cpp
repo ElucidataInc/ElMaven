@@ -20,9 +20,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     setupUi(this);
     setModal(true);
 
-    qRegisterMetaType<PollyApp>("PollyApp");
-    qRegisterMetaType<QMap<PollyApp, bool>>();
-
     auto configLocation = QStandardPaths::QStandardPaths::GenericConfigLocation;
     _writeableTempDir = QStandardPaths::writableLocation(configLocation)
                         + QDir::separator()
@@ -51,8 +48,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
                                 "QListView {"
                                 "outline: 0;"
                                 "}");
-    workflowMenu->setCurrentRow(int(PollyApp::PollyPhi));
-
+    
     gotoPollyButton->setVisible(false);
     gotoPollyButtonAlt->setVisible(false);
 
@@ -65,17 +61,11 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     groupSetCombo->setCurrentIndex(0);
     groupSetComboAlt->setCurrentIndex(0);
 
-    _selectedMode = SendMode::PollyApp;
-
     // init worker thread
     _worker = new EPIWorkerThread(_pollyIntegration);
     connect(_pollyIntegration, SIGNAL(receivedEPIError(QString)), SLOT(showEPIError(QString)));
 
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
-    connect(workflowMenu,
-            SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-            this,
-            SLOT(_changePage()));
     connect(peakTableCombo,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             peakTableComboAlt,
@@ -138,10 +128,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             existingProjectCombo,
             &QComboBox::setCurrentIndex);
-    connect(gotoPollyButton,
-            &QPushButton::clicked,
-            this,
-            &PollyElmavenInterfaceDialog::_goToPollyApp);
     connect(gotoPollyButtonAlt,
             &QPushButton::clicked,
             this,
@@ -151,30 +137,10 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     connect(this,
             SIGNAL(uploadFinished(bool)),
             SLOT(_performPostUploadTasks(bool)));
-    connect(tutorialLink,
-            &QLabel::linkActivated,
-            [=](const QString &link) {
-                QDesktopServices::openUrl(QUrl(link));
-                auto appName = PollyIntegration::stringForApp(_selectedApp);
-                _mainwindow->getAnalytics()->hitEvent("PollyDialog",
-                                                      "ViewTutorial",
-                                                      appName);
-            });
-    connect(demoButton,
-            &QPushButton::clicked,
-            [=] {
-                QDesktopServices::openUrl(
-                    QUrl("https://calendly.com/elucidata/polly-demo"));
-                auto appName = PollyIntegration::stringForApp(_selectedApp);
-                _mainwindow->getAnalytics()->hitEvent("PollyDialog",
-                                                      "DemoButton",
-                                                      appName);
-            });
     connect(peakTableCombo,
             &QComboBox::currentTextChanged,
             this,
             &PollyElmavenInterfaceDialog::_reviseGroupOptions);
-
     connect(_worker,
             SIGNAL(projectsReady(QVariantMap)),
             this,
@@ -191,10 +157,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
-    connect(sendModeTab,
-            &QTabWidget::currentChanged,
-            this,
-            &PollyElmavenInterfaceDialog::_changeMode);
 }
 
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
@@ -246,13 +208,6 @@ void EPIWorkerThread::_authenticateUserAndFetchData()
         status = "ok";
         emit authenticationFinished(_pollyIntegration->getCurrentUsername(),
                                     status);
-    }
-
-    qDebug() << "Fetching licenses from Polly…";
-    if (status == "ok") {
-        QMap<PollyApp, bool> licenseMap =
-            _pollyIntegration->getAppLicenseStatus();
-        emit licensesReady(licenseMap);
     }
 
     qDebug() << "Fetching projects from Polly…";
@@ -307,86 +262,6 @@ void PollyElmavenInterfaceDialog::setSelectedTable(TableDockWidget *table)
 {
     if (table)
         peakTableCombo->setCurrentText(table->titlePeakTable->text());
-}
-
-void PollyElmavenInterfaceDialog::switchToApp(PollyApp app)
-{
-    workflowMenu->setCurrentRow(static_cast<int>(app));
-}
-
-void PollyElmavenInterfaceDialog::_changePage()
-{
-    QCoreApplication::processEvents();
-    _selectedApp = PollyApp(workflowMenu->currentRow());
-    if (_selectedApp == PollyApp::PollyPhi) {
-        viewTitle->setText("Upload to PollyPhi™ Relative");
-        viewTitleAdvert->setText("PollyPhi™ Relative");
-        appAdvertLabel->setText(
-            "Relative flux (φ) workflow allows the user to process LCMS "
-            "labeled targeted single time point data with insightful "
-            "visualizations. Go from raw data to visualizations in less than 5 "
-            "minutes. The application handles C13 labeled, single time point "
-            "experiments, provides automated peak picking with manual "
-            "curation, allows quality checking samples to identify and reject "
-            "outliers, performs natural abundance correction, calculates "
-            "fractional enrichment, pool total values, and allows the user to "
-            "visualize them."
-        );
-        tutorialLink->setText("<a href='https://www.youtube.com/watch?v=LiMoEGXbMyo'>View Tutorial</a>");
-    } else if (_selectedApp == PollyApp::QuantFit) {
-        viewTitle->setText("Upload to Polly™ QuantFit");
-        viewTitleAdvert->setText("Polly™ QuantFit");
-        appAdvertLabel->setText(
-            "For some analysis like kinetic flux analysis, absolute "
-            "concentrations of the metabolites are required. PollyTM QuantFit "
-            "supports calibration - the process of quantifying samples of "
-            "unknown concentrations with known (standard) samples. In order to "
-            "quantify metabolites, experiments are done with standard samples "
-            "of known concentrations. Using these data points we get "
-            "mathematical mappings from intensities to concentrations which "
-            "are used to calculate concentrations of experimental intensities. "
-            "It further allows normalization of data with respect to internal "
-            "standards and allows scaling which neutralizes the effect of "
-            "initial dilution."
-        );
-        tutorialLink->setText("<a href='https://www.youtube.com/watch?v=Ma5Ti3GRayE'>View Tutorial</a>");
-    }
-
-    startupDataLoad();
-}
-
-void PollyElmavenInterfaceDialog::_changeMode()
-{
-    int index = sendModeTab->currentIndex();
-
-    QString tabText = sendModeTab->tabText(index);
-    _mainwindow->getAnalytics()->hitEvent("PollyDialog",
-                                          "SendModeChanged",
-                                          tabText);
-
-    if (index == 0) {
-        // send to a Polly app
-        _selectedMode = SendMode::PollyApp;
-    } else {
-        // send only to Polly project
-        _selectedMode = SendMode::PollyProject;
-    }
-    _hideFormIfNotLicensed();
-}
-
-void PollyElmavenInterfaceDialog::_goToPollyApp()
-{
-    QString appName = "";
-    if (_selectedApp == PollyApp::PollyPhi) {
-        appName = "PollyPhi";
-    } else if (_selectedApp == PollyApp::QuantFit) {
-        appName = "QuantFit";
-    }
-    _mainwindow->getAnalytics()->hitEvent("PollyDialog",
-                                          "DirectedToApp",
-                                          appName);
-
-    QDesktopServices::openUrl(_redirectionUrlMap[_selectedApp]);
 }
 
 void PollyElmavenInterfaceDialog::_goToPollyProject()
@@ -530,15 +405,10 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
     }
 }
 
-void PollyElmavenInterfaceDialog::_handleLicenses(QMap<PollyApp, bool> licenseMap)
-{
-    _licenseMap = licenseMap;
-}
-
 void PollyElmavenInterfaceDialog::_handleProjects(QVariantMap projectNameIdMap)
 {
     _projectNameIdMap = projectNameIdMap;
-    _changePage();
+    startupDataLoad();
 }
 
 void PollyElmavenInterfaceDialog::_resetUiElements()
@@ -577,12 +447,7 @@ void PollyElmavenInterfaceDialog::startupDataLoad()
     if (_projectNameIdMap.isEmpty()) {
         _projectNameIdMap = _pollyIntegration->getUserProjects();
     }
-    if (_licenseMap.isEmpty()) {
-        _licenseMap = _pollyIntegration->getAppLicenseStatus();
-        _changePage();
-        return;
-    }
-
+    
     _populateProjects();
     _populateTables();
 
@@ -629,30 +494,22 @@ void PollyElmavenInterfaceDialog::_populateTables()
 
 void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
 {
-    if (!_licenseMap.value(_selectedApp)) {
-        stackedWidget->setCurrentWidget(advertBox);
-        demoButton->setDefault(true);
-    } else if (_selectedMode == SendMode::PollyApp) {
-        stackedWidget->setCurrentWidget(pollyForm);
-        gotoPollyButton->setDefault(true);
-    } else if (_selectedMode == SendMode::PollyProject) {
-        gotoPollyButtonAlt->setDefault(true);
-    }
+    gotoPollyButtonAlt->setDefault(true);   
 }
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 {
-    if (_selectedApp == PollyApp::PollyPhi) {
-        gotoPollyButton->setText("Start Fluxing");
-    } else if (_selectedApp == PollyApp::QuantFit) {
-        gotoPollyButton->setText("Start Quantification");
-    }
+    // if (_selectedApp == PollyApp::PollyPhi) {
+    //     gotoPollyButton->setText("Start Fluxing");
+    // } else if (_selectedApp == PollyApp::QuantFit) {
+    //     gotoPollyButton->setText("Start Quantification");
+    // }
 
-    if (_redirectionUrlMap[_selectedApp].isEmpty()) {
-        gotoPollyButton->setVisible(false);
-    } else if (!_uploadInProgress) {
-        gotoPollyButton->setVisible(true);
-    }
+    // if (_redirectionUrlMap[_selectedApp].isEmpty()) {
+    //     gotoPollyButton->setVisible(false);
+    // } else if (!_uploadInProgress) {
+    //     gotoPollyButton->setVisible(true);
+    // }
 
     if (_projectRedirectionUrl.isEmpty()) {
         gotoPollyButtonAlt->setVisible(false);
@@ -706,15 +563,6 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
                                                       QString tableName)
 {
     if (!table->getGroups().isEmpty()) {
-        if (_selectedMode == SendMode::PollyApp
-            && table->getTargetedGroupCount() > 0) {
-            if (_selectedApp == PollyApp::PollyPhi
-                && table->getLabeledGroupCount() > 0) {
-                peakTableCombo->addItem(tableName);
-            } else if ( _selectedApp == PollyApp::QuantFit) {
-                peakTableCombo->addItem(tableName);
-            }
-        }
         peakTableComboAlt->addItem(tableName);
         _tableNameMapping[tableName] = table;
     }
@@ -737,14 +585,8 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     gotoPollyButtonAlt->setVisible(false);
 
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
-    if (_selectedMode == SendMode::PollyProject) {
-        _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
-    } else if (_selectedApp == PollyApp::PollyPhi) {
-        _mainwindow->getAnalytics()->hitEvent("Polly upload", "PollyPhi");
-    } else if (_selectedApp == PollyApp::QuantFit) {
-        _mainwindow->getAnalytics()->hitEvent("Polly upload", "QuantFit");
-    }
-
+    _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
+    
     statusUpdate->setStyleSheet("QLabel { color : green;}");
     statusUpdate->setText("Connecting…");
     statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
@@ -799,37 +641,9 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     datetimestamp.replace(":", "-");
 
     QStringList filenames;
-    if (_selectedMode == SendMode::PollyProject) {
-        filenames = _prepareSessionFiles(datetimestamp);
-    } else {
-        if (_selectedApp == PollyApp::PollyPhi
-            && peakTableCombo->currentIndex() != -1) {
-            auto peakTable =
-                _tableNameMapping[peakTableComboAlt->currentText()];
-            int labeledGroupCount = peakTable->getLabeledGroupCount();
-            int topLevelGroupCount = peakTable->topLevelGroupCount();
-            if (topLevelGroupCount > labeledGroupCount) {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle("Warning: possible format error");
-                msgBox.setText("The currently selected table contains labeled "
-                               "as well as unlabeled peak-groups. PollyPhi "
-                               "may not work with a mixed report like this.");
-                msgBox.addButton("Continue", QMessageBox::ActionRole);
-                QPushButton* cancelButton =
-                    msgBox.addButton("Cancel", QMessageBox::RejectRole);
-                msgBox.setDefaultButton(cancelButton);
-                msgBox.exec();
-
-                if (msgBox.clickedButton() == cancelButton) {
-                    _loadingDialog->close();
-                    QCoreApplication::processEvents();
-                    emit uploadFinished(false);
-                    return;
-                }
-            }
-        }
-        filenames = _prepareFilesToUpload(qdir, datetimestamp);
-    }
+    
+    filenames = _prepareSessionFiles(datetimestamp);
+    
     if (filenames.isEmpty()) {
         statusUpdate->setStyleSheet("QLabel { color : red;}");
         statusUpdate->setText("File preparation failed.");
@@ -924,13 +738,9 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
     QCoreApplication::processEvents();
     QString redirectionUrl = "";
 
-    if (!patchId.isEmpty() && _selectedMode == SendMode::PollyProject) {
+    if (!patchId.isEmpty()) {
         redirectionUrl = _getProjectRedirectionUrl(uploadProjectIdThread);
         _projectRedirectionUrl = QUrl(redirectionUrl);
-    } else if (!patchId.isEmpty()) {
-        redirectionUrl = _getAppRedirectionUrl(datetimestamp,
-                                               uploadProjectIdThread);
-        _redirectionUrlMap[_selectedApp] = QUrl(redirectionUrl);
     }
 
     if (!redirectionUrl.isEmpty()) {
@@ -947,21 +757,9 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
                                        "project - \"%1\"").arg(project);
         QString emailContent = QString("<a href='%1'></a>").arg(redirectionUrl);
         QString appname = "";
-        if (_selectedMode == SendMode::PollyProject) {
-            appname = "project";
-        } else {
-            switch (_selectedApp) {
-            case PollyApp::PollyPhi:
-                appname = "pollyphi";
-                break;
-            case PollyApp::QuantFit:
-                appname = "quantfit";
-                break;
-            default:
-                break;
-            }
-        }
-
+        
+        appname = "project";
+        
         _worker->wait();
         _worker->setMethodToRun(EPIWorkerThread::RunMethod::SendEmail);
         _worker->setEmailArgs(usernameLabel->text(),
@@ -975,169 +773,9 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
 }
 
 QString
-PollyElmavenInterfaceDialog::_getAppRedirectionUrl(QString datetimestamp,
-                                                   QString uploadProjectIdThread)
-{
-    QString redirectionUrl = "";
-
-    switch (_selectedApp) {
-    case PollyApp::PollyPhi: {
-        QString landingPage = QString("relative_lcms_elmaven");
-        QString workflowId = 
-            _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
-        QString workflowName = _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
-        QString workflowRequestId =
-            _pollyIntegration->createWorkflowRequest(uploadProjectIdThread,
-                                                     workflowName,
-                                                     workflowId);
-        if (workflowRequestId.isEmpty())
-            return redirectionUrl;
-
-        // send to google sheets if sample cohort file is not valid
-        if (!_lastCohortFileWasValid)
-            landingPage = QString("gsheet_sym_polly_elmaven");
-
-        if (workflowId == "-1")
-            return redirectionUrl;
-
-        redirectionUrl = 
-            _pollyIntegration->getWorkflowEndpoint(workflowId,
-                                                   workflowRequestId,
-                                                   landingPage,
-                                                   uploadProjectIdThread,
-                                                   datetimestamp);
-        break;
-    } case PollyApp::QuantFit: {
-        QString componentId =
-            _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
-        if (componentId == "-1")
-            return redirectionUrl;
-
-        QString runRequestId =
-            _pollyIntegration->createRunRequest(componentId,
-                                                uploadProjectIdThread);
-        if (runRequestId.isEmpty())
-            return redirectionUrl;
-
-        redirectionUrl = _pollyIntegration->getComponentEndpoint(componentId,
-                                                                 runRequestId,
-                                                                 datetimestamp);
-        break;
-    } default:
-        break;
-    }
-
-    return redirectionUrl;
-}
-
-QString
 PollyElmavenInterfaceDialog::_getProjectRedirectionUrl(QString projectId)
 {
     return _pollyIntegration->getProjectUrl(projectId);
-}
-
-QStringList PollyElmavenInterfaceDialog::_prepareFilesToUpload(QDir qdir,
-                                                               QString datetimestamp)
-{
-    QStringList filenames;
-    TableDockWidget* peakTable = nullptr;
-
-    // check for no peak tables
-    if (peakTableCombo->currentIndex() == -1) {
-        _showErrorMessage("Error",
-                          "No peak tables available. Either there are "
-                          "no peak tables in the current session or "
-                          "the existing ones are not suitable for "
-                          "the selected Polly app.",
-                          QMessageBox::Warning);
-        return filenames;
-    }
-
-    peakTable = _tableNameMapping[peakTableCombo->currentText()];
-
-    QCoreApplication::processEvents();
-
-    QString compoundDb = _mainwindow->ligandWidget->getDatabaseName();
-    _mainwindow->ligandWidget->saveCompoundList(_writeableTempDir
-                                                + QDir::separator()
-                                                + datetimestamp
-                                                + "_Compound_DB_Elmaven.csv",
-                                                compoundDb);
-
-    qDebug() << "Preparing group report…";
-
-    // Preparing the CSV file
-    QCoreApplication::processEvents();
-
-    if (groupSetCombo->currentIndex() == 0) {
-        peakTable->wholePeakSet();
-    } else if (groupSetCombo->currentIndex() == 1) {
-        peakTable->goodPeakSet();
-    } else if (groupSetCombo->currentIndex() == 2) {
-        peakTable->excludeBadPeakSet();
-    }
-
-    peakTable->treeWidget->selectAll();
-    peakTable->prepareDataForPolly(_writeableTempDir,
-                                   "Groups Summary Matrix Format "
-                                   "Comma Delimited (*.csv)",
-                                    datetimestamp + "_Peak_table_all_");
-
-    // Preparing the json file
-    QCoreApplication::processEvents();
-
-    QString jsonFilename = _writeableTempDir
-                            + QDir::separator()
-                            + datetimestamp
-                            + "_Peaks_information_json_Elmaven_Polly.json";
-
-    if (_selectedApp == PollyApp::PollyPhi) {
-        peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, true);
-        QCoreApplication::processEvents();
-        //Preparing the sample cohort file
-        QString sampleCohortFileName = _writeableTempDir + QDir::separator() + datetimestamp +
-                                        "_Cohort_Mapping_Elmaven.csv";
-        _mainwindow->projectDockWidget->prepareSampleCohortFile(sampleCohortFileName);
-        _lastCohortFileWasValid = _pollyIntegration->validSampleCohort(sampleCohortFileName);
-
-        CSVReports csvrpt;
-        QList<shared_ptr<PeakGroup>> selectedGroups =
-            peakTable->getSelectedGroups();
-        std::list<PeakGroup> groups;
-
-        auto tableGroups = peakTable->getGroups();
-        for (auto group : tableGroups) {
-            if (selectedGroups.contains(group))
-                groups.push_back(PeakGroup(*(group.get())));
-        }
-        QString modelFile = _writeableTempDir
-                            + QDir::separator()
-                            + datetimestamp
-                            + "_Cloud_model_mapping_file.csv";
-        csvrpt.writeDataForPolly(modelFile.toStdString(), groups);
-    } else
-        peakTable->exportJsonToPolly(_writeableTempDir, jsonFilename, false);
-
-    // Saving settings file
-    QByteArray ba = (_writeableTempDir + QDir::separator()
-                     + datetimestamp
-                     + "_maven_analysis_settings"
-                     + ".xml").toLatin1();
-    const char* savePath = ba.data();
-    _mainwindow->mavenParameters->saveSettings(savePath);
-    qDebug() << "Settings saved";
-
-    qdir.setFilter(QDir::Files | QDir::NoSymLinks);
-    QFileInfoList fileList = qdir.entryInfoList();
-
-    for (auto fileInfo : fileList) {
-        QString tmp_filename = _writeableTempDir
-                               + QDir::separator()
-                               + fileInfo.fileName();
-        filenames.append(tmp_filename);
-    }
-
-    return filenames;
 }
 
 QStringList
@@ -1285,8 +923,6 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
 void PollyElmavenInterfaceDialog::_logout()
 {
     usernameLabel->setText("");
-    _licenseMap.clear();
-    _redirectionUrlMap.clear();
     _lastCohortFileWasValid = false;
     _pollyIntegration->logout();
     _projectNameIdMap = QVariantMap();
