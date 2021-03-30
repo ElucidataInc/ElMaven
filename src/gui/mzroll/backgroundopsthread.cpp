@@ -337,9 +337,10 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
         auto eics  = PeakDetector::pullEICs(&slice, samples, mp);
         for(auto eic : eics) {
             for(Peak& peak :  group->peaks) {
-                if (eic->getSample() == peak.getSample())
+                if (eic->getSample() == peak.getSample()) {
+                    eic->adjustPeakBounds(peak, group->minRt, group->maxRt);
                     eic->getPeakDetails(peak);
-
+                }
                 if (mp->clsf->hasModel())
                     mp->clsf->scorePeak(peak);
             }
