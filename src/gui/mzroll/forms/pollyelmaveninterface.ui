@@ -109,7 +109,7 @@
      </property>
      <widget class="QWidget" name="sendToProjectTab">
       <attribute name="title">
-       <string>Send to Project Files</string>
+       <string>Send Files to Workspace</string>
       </attribute>
       <widget class="QWidget" name="horizontalLayoutWidget_5">
        <property name="geometry">
@@ -163,7 +163,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>An emDB and JSON file for all your tables in this session will be sent to the Polly project selected below.</string>
+        <string>An emDB and JSON file for all your tables in this session will be sent to the Polly workspace selected below.</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -195,7 +195,7 @@
         <item>
          <widget class="QPushButton" name="gotoPollyButtonAlt">
           <property name="text">
-           <string>Go to Project</string>
+           <string>Go to Polly-Workspace</string>
           </property>
           <property name="default">
            <bool>true</bool>
@@ -233,7 +233,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Project on Polly</string>
+        <string>Workspace on Polly</string>
        </property>
        <widget class="QWidget" name="gridLayoutWidget_2">
         <property name="geometry">
@@ -248,7 +248,7 @@
          <item row="1" column="0">
           <widget class="QRadioButton" name="existingProjectRadioAlt">
            <property name="text">
-            <string>Select existing project</string>
+            <string>Select existing workspace</string>
            </property>
           </widget>
          </item>
@@ -261,7 +261,7 @@
          <item row="0" column="0">
           <widget class="QRadioButton" name="newProjectRadioAlt">
            <property name="text">
-            <string>Create new project</string>
+            <string>Create new workspace</string>
            </property>
           </widget>
          </item>
