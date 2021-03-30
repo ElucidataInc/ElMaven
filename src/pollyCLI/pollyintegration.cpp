@@ -620,8 +620,6 @@ ErrorStatus PollyIntegration::sendEmail(QString userEmail,
                                                                   << emailMessage
                                                                   << emailContent
                                                                   << appName);
-    std::cerr << "\n\n\n";
-    qDebug() << resultAndError;
     if (_hasError(resultAndError))
         return ErrorStatus::Error;
 

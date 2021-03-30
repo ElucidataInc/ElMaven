@@ -29,36 +29,12 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _loadingDialog = new PollyWaitDialog(this);
     _uploadInProgress = false;
     _lastCohortFileWasValid = false;
-
-    workflowMenu->setStyleSheet("QListView::item {"
-                                "border: 1px solid transparent;"
-                                "border-radius: 4px;"
-                                "padding: 6px;"
-                                "}"
-                                "QListView::item:selected {"
-                                "border-color: rgb(150, 150, 255);"
-                                "background-color: rgb(235, 235, 255);"
-                                "}"
-                                "QListView::item:enabled {"
-                                "color: black;"
-                                "}"
-                                "QListView::item:disabled {"
-                                "color: gray;"
-                                "}"
-                                "QListView {"
-                                "outline: 0;"
-                                "}");
     
-    gotoPollyButton->setVisible(false);
     gotoPollyButtonAlt->setVisible(false);
 
-    groupSetCombo->addItem("All Groups");
     groupSetComboAlt->addItem("All Groups");
-    groupSetCombo->addItem("Only Good Groups");
     groupSetComboAlt->addItem("Only Good Groups");
-    groupSetCombo->addItem("Exclude Bad Groups");
     groupSetComboAlt->addItem("Exclude Bad Groups");
-    groupSetCombo->setCurrentIndex(0);
     groupSetComboAlt->setCurrentIndex(0);
 
     // init worker thread
@@ -66,78 +42,23 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     connect(_pollyIntegration, SIGNAL(receivedEPIError(QString)), SLOT(showEPIError(QString)));
 
     connect(logoutButton, SIGNAL(clicked(bool)), SLOT(_logout()));
-    connect(peakTableCombo,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            peakTableComboAlt,
-            &QComboBox::setCurrentIndex);
-    connect(peakTableComboAlt,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            peakTableCombo,
-            &QComboBox::setCurrentIndex);
-    connect(groupSetCombo,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            groupSetComboAlt,
-            &QComboBox::setCurrentIndex);
-    connect(groupSetComboAlt,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            groupSetCombo,
-            &QComboBox::setCurrentIndex);
-    connect(newProjectRadio,
+    connect(newProjectRadioAlt,
             &QRadioButton::toggled,
             this,
             &PollyElmavenInterfaceDialog::_enableNewProjectUi);
-    connect(newProjectRadio,
-            &QRadioButton::toggled,
-            newProjectRadioAlt,
-            &QRadioButton::setChecked);
-    connect(newProjectRadioAlt,
-            &QRadioButton::toggled,
-            newProjectRadio,
-            &QRadioButton::setChecked);
-    connect(newProjectEntry,
-            &QLineEdit::textChanged,
-            [this](QString text) {
-                int position = newProjectEntryAlt->cursorPosition();
-                newProjectEntryAlt->setText(text);
-                newProjectEntryAlt->setCursorPosition(position);
-            });
-    connect(newProjectEntryAlt,
-            &QLineEdit::textChanged,
-            [this](QString text) {
-                int position = newProjectEntry->cursorPosition();
-                newProjectEntry->setText(text);
-                newProjectEntry->setCursorPosition(position);
-            });
-    connect(existingProjectRadio,
+    connect(existingProjectRadioAlt,
             &QRadioButton::toggled,
             this,
             &PollyElmavenInterfaceDialog::_enableExistingProjectUi);
-    connect(existingProjectRadio,
-            &QRadioButton::toggled,
-            existingProjectRadioAlt,
-            &QRadioButton::setChecked);
-    connect(existingProjectRadioAlt,
-            &QRadioButton::toggled,
-            existingProjectRadio,
-            &QRadioButton::setChecked);
-    connect(existingProjectCombo,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            existingProjectComboAlt,
-            &QComboBox::setCurrentIndex);
-    connect(existingProjectComboAlt,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            existingProjectCombo,
-            &QComboBox::setCurrentIndex);
     connect(gotoPollyButtonAlt,
             &QPushButton::clicked,
             this,
             &PollyElmavenInterfaceDialog::_goToPollyProject);
-    connect(uploadButton, SIGNAL(clicked(bool)), SLOT(_uploadDataToPolly()));
     connect(uploadButtonAlt, SIGNAL(clicked(bool)), SLOT(_uploadDataToPolly()));
     connect(this,
             SIGNAL(uploadFinished(bool)),
             SLOT(_performPostUploadTasks(bool)));
-    connect(peakTableCombo,
+    connect(peakTableComboAlt,
             &QComboBox::currentTextChanged,
             this,
             &PollyElmavenInterfaceDialog::_reviseGroupOptions);
@@ -261,7 +182,7 @@ void EPIWorkerThread::_removeFilesFromDir(QDir dir, QStringList files)
 void PollyElmavenInterfaceDialog::setSelectedTable(TableDockWidget *table)
 {
     if (table)
-        peakTableCombo->setCurrentText(table->titlePeakTable->text());
+        peakTableComboAlt->setCurrentText(table->titlePeakTable->text());
 }
 
 void PollyElmavenInterfaceDialog::_goToPollyProject()
@@ -274,22 +195,16 @@ void PollyElmavenInterfaceDialog::_goToPollyProject()
 
 void PollyElmavenInterfaceDialog::_enableNewProjectUi()
 {
-    newProjectEntry->setEnabled(true);
     newProjectEntryAlt->setEnabled(true);
-    existingProjectCombo->setEnabled(false);
     existingProjectComboAlt->setEnabled(false);
-    existingProjectRadio->setChecked(false);
     existingProjectRadioAlt->setChecked(false);
     QCoreApplication::processEvents();
 }
 
 void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
 {
-    existingProjectCombo->setEnabled(true);
     existingProjectComboAlt->setEnabled(true);
-    newProjectEntry->setEnabled(false);
     newProjectEntryAlt->setEnabled(false);
-    newProjectRadio->setChecked(false);
     newProjectRadioAlt->setChecked(false);
     QCoreApplication::processEvents();
 }
@@ -350,15 +265,12 @@ void PollyElmavenInterfaceDialog::_callInitialEPIForm()
 {
     show();
     if (!_uploadInProgress) {
-        statusUpdate->setStyleSheet("QLabel { color : green;}");
-        statusUpdate->clear();
         statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
         statusUpdateAlt->clear();
     }
     usernameLabel->setText("");
-    uploadButton->setEnabled(false);
     uploadButtonAlt->setEnabled(false);
-    existingProjectCombo->clear();
+    existingProjectComboAlt->clear();
 
     _worker->wait();
     _worker->setMethodToRun(EPIWorkerThread::RunMethod::AuthenticateAndFetchData);
@@ -417,26 +329,18 @@ void PollyElmavenInterfaceDialog::_resetUiElements()
     if (_uploadInProgress)
         return;
 
-    peakTableCombo->clear();
     peakTableComboAlt->clear();
 
-    newProjectEntry->setEnabled(true);
-    newProjectRadio->setChecked(true);
     newProjectEntryAlt->setEnabled(true);
     newProjectRadioAlt->setChecked(true);
-    newProjectEntry->clear();
     newProjectEntryAlt->clear();
 
-    existingProjectRadio->setChecked(false);
     existingProjectRadioAlt->setChecked(false);
-    existingProjectCombo->clear();
     existingProjectComboAlt->clear();
 
-    uploadButton->setEnabled(true);
     uploadButtonAlt->setEnabled(true);
     _showPollyButtonIfUrlExists();
 
-    statusUpdate->clear();
     statusUpdateAlt->clear();
     QCoreApplication::processEvents();
 }
@@ -460,7 +364,6 @@ void PollyElmavenInterfaceDialog::_populateProjects()
 {
     QStringList keys = _projectNameIdMap.keys();
     for (auto key : keys) {
-        existingProjectCombo->addItem(_projectNameIdMap[key].toString());
         existingProjectComboAlt->addItem(_projectNameIdMap[key].toString());
     }
 }
@@ -479,13 +382,13 @@ void PollyElmavenInterfaceDialog::_populateTables()
     }
 
     // set latest table by default
-    peakTableCombo->setCurrentIndex(peakTableCombo->count() - 1);
-    _reviseGroupOptions(peakTableCombo->currentText());
+    peakTableComboAlt->setCurrentIndex(peakTableComboAlt->count() - 1);
+    _reviseGroupOptions(peakTableComboAlt->currentText());
 
     // set to active table if available
     if (_activeTable && _tableNameMapping.values().contains(_activeTable)) {
         QString tableName = _tableNameMapping.key(_activeTable);
-        peakTableCombo->setCurrentText(tableName);
+        peakTableComboAlt->setCurrentText(tableName);
 
         // reset active table
         _activeTable = nullptr;
@@ -499,18 +402,6 @@ void PollyElmavenInterfaceDialog::_hideFormIfNotLicensed()
 
 void PollyElmavenInterfaceDialog::_showPollyButtonIfUrlExists()
 {
-    // if (_selectedApp == PollyApp::PollyPhi) {
-    //     gotoPollyButton->setText("Start Fluxing");
-    // } else if (_selectedApp == PollyApp::QuantFit) {
-    //     gotoPollyButton->setText("Start Quantification");
-    // }
-
-    // if (_redirectionUrlMap[_selectedApp].isEmpty()) {
-    //     gotoPollyButton->setVisible(false);
-    // } else if (!_uploadInProgress) {
-    //     gotoPollyButton->setVisible(true);
-    // }
-
     if (_projectRedirectionUrl.isEmpty()) {
         gotoPollyButtonAlt->setVisible(false);
     } else {
@@ -533,28 +424,21 @@ void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
         if (group->label != 'b')
             allBad = false;
     }
-    auto model = dynamic_cast<QStandardItemModel*>(groupSetCombo->model());
     auto modelAlt = dynamic_cast<QStandardItemModel*>(groupSetComboAlt->model());
 
     // if any group is good, enable "Only Good Groups"
-    auto item = model->item(1, 0);
     auto itemAlt = modelAlt->item(1, 0);
     if (anyGood) {
-        item->setEnabled(true);
         itemAlt->setEnabled(true);
     } else {
-        item->setEnabled(false);
         itemAlt->setEnabled(false);
     }
 
     // if all groups are bad, disable "Exclude Bad Groups"
-    item = model->item(2, 0);
     itemAlt = modelAlt->item(2, 0);
     if (allBad) {
-        item->setEnabled(false);
         itemAlt->setEnabled(false);
     } else {
-        item->setEnabled(true);
         itemAlt->setEnabled(true);
     }
 }
@@ -571,14 +455,8 @@ void PollyElmavenInterfaceDialog::_addTableIfPossible(TableDockWidget* table,
 void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 {
     _uploadInProgress = true;
-    gotoPollyButton->setVisible(false);
-    uploadButton->setEnabled(false);
-    peakTableCombo->setEnabled(false);
     peakTableComboAlt->setEnabled(false);
-    groupSetCombo->setEnabled(false);
     groupSetComboAlt->setEnabled(false);
-    projectOptions->setEnabled(false);
-    workflowMenu->setEnabled(false);
     sendModeTab->setEnabled(false);
     projectOptionsAlt->setEnabled(false);
     uploadButtonAlt->setEnabled(false);
@@ -586,9 +464,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 
     _mainwindow->getAnalytics()->hitEvent("Exports", "Polly");
     _mainwindow->getAnalytics()->hitEvent("Polly upload", "Project");
-    
-    statusUpdate->setStyleSheet("QLabel { color : green;}");
-    statusUpdate->setText("Connecting…");
+
     statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
     statusUpdateAlt->setText("Connecting…");
     QCoreApplication::processEvents();
@@ -596,9 +472,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     ErrorStatus response = _pollyIntegration->activeInternet();
     if (response == ErrorStatus::Failure ||
         response == ErrorStatus::Error) {
-        statusUpdate->setText("No internet access.");
         statusUpdateAlt->setText("No internet access.");
-        uploadButton->setEnabled(true);
         uploadButtonAlt->setEnabled(true);
         return;
     }
@@ -611,8 +485,6 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
         return;
     }
 
-    statusUpdate->setStyleSheet("QLabel {color : green; }");
-    statusUpdate->setText("Preparing files…");
     statusUpdateAlt->setStyleSheet("QLabel {color : green; }");
     statusUpdateAlt->setText("Preparing files…");
     QCoreApplication::processEvents();
@@ -645,8 +517,6 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     filenames = _prepareSessionFiles(datetimestamp);
     
     if (filenames.isEmpty()) {
-        statusUpdate->setStyleSheet("QLabel { color : red;}");
-        statusUpdate->setText("File preparation failed.");
         statusUpdateAlt->setStyleSheet("QLabel { color : red;}");
         statusUpdateAlt->setText("File preparation failed.");
         _loadingDialog->close();
@@ -655,8 +525,6 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
         return;
     }
 
-    statusUpdate->setStyleSheet("QLabel { color : green;}");
-    statusUpdate->setText("Sending files to Polly…");
     statusUpdateAlt->setStyleSheet("QLabel { color : green;}");
     statusUpdateAlt->setText("Sending files to Polly…");
     QCoreApplication::processEvents();
@@ -664,7 +532,6 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _pollyProjectId = _getProjectId();
     if (_pollyProjectId.isEmpty()) {
         emit uploadFinished(false);
-        statusUpdate->clear();
         statusUpdateAlt->clear();
         return;
     }
@@ -673,11 +540,8 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     ErrorStatus response2 = _pollyIntegration->activeInternet();
     if (response2 == ErrorStatus::Failure ||
         response2 == ErrorStatus::Error) {
-        statusUpdate->setStyleSheet("QLabel {color : red;}");
-        statusUpdate->setText("Internet connection interrupted");
         statusUpdateAlt->setStyleSheet("QLabel {color : red;}");
         statusUpdateAlt->setText("Internet connection interrupted");
-        uploadButton->setEnabled(true);
         uploadButtonAlt->setEnabled(true);
         return;
     }
@@ -690,10 +554,10 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
 
 QString PollyElmavenInterfaceDialog::_getProjectId()
 {
-    if (existingProjectRadio->isChecked()) {
+    if (existingProjectRadioAlt->isChecked()) {
         QStringList keys = _projectNameIdMap.keys();
         QString projectId =
-            _projectNameIdMap.key(existingProjectCombo->currentText());
+            _projectNameIdMap.key(existingProjectComboAlt->currentText());
 
         if (projectId.isEmpty())
             _showErrorMessage("Error",
@@ -702,8 +566,8 @@ QString PollyElmavenInterfaceDialog::_getProjectId()
         return projectId;
     }
 
-    if (newProjectRadio->isChecked()) {
-        if (newProjectEntry->text().isEmpty()) {
+    if (newProjectRadioAlt->isChecked()) {
+        if (newProjectEntryAlt->text().isEmpty()) {
             _showErrorMessage("Error",
                               "Invalid project name. "
                               "Please enter a non-empty name.",
@@ -712,8 +576,8 @@ QString PollyElmavenInterfaceDialog::_getProjectId()
         }
 
         QString newProjectId =
-            _pollyIntegration->createProjectOnPolly(newProjectEntry->text());
-        _projectNameIdMap.insert(newProjectId, newProjectEntry->text());
+            _pollyIntegration->createProjectOnPolly(newProjectEntryAlt->text());
+        _projectNameIdMap.insert(newProjectId, newProjectEntryAlt->text());
         return newProjectId;
     }
 
@@ -747,7 +611,6 @@ void PollyElmavenInterfaceDialog::_performPostFilesUploadTasks(QStringList patch
         qDebug() << "Redirection URL:" << redirectionUrl;
 
         _performPostUploadTasks(true);
-        statusUpdate->clear();
         statusUpdateAlt->clear();
         _showPollyButtonIfUrlExists();
 
@@ -934,26 +797,17 @@ void PollyElmavenInterfaceDialog::_logout()
 void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
 {
     _uploadInProgress = false;
-    uploadButton->setEnabled(true);
     uploadButtonAlt->setEnabled(true);
-    peakTableCombo->setEnabled(true);
     peakTableComboAlt->setEnabled(true);
-    groupSetCombo->setEnabled(true);
     groupSetComboAlt->setEnabled(true);
-    projectOptions->setEnabled(true);
     projectOptionsAlt->setEnabled(true);
-    workflowMenu->setEnabled(true);
     sendModeTab->setEnabled(true);
-    statusUpdate->setEnabled(true);
     statusUpdateAlt->setEnabled(true);
     if (uploadSuccessful) {
-        statusUpdate->setStyleSheet("QLabel { color : green; }");
         statusUpdateAlt->setStyleSheet("QLabel { color : green; }");
     } else {
-        statusUpdate->setStyleSheet("QLabel { color : red; }");
         statusUpdateAlt->setStyleSheet("QLabel { color : red; }");
     }
-    statusUpdate->clear();
     statusUpdateAlt->clear();
 }
 
