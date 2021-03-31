@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Polly El-MAVEN Interface</string>
+   <string>Send files to Polly workspace</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -53,175 +53,191 @@
    <property name="verticalSpacing">
     <number>12</number>
    </property>
-   <item row="0" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="logoutButton">
-       <property name="text">
-        <string>Log out</string>
+   <item row="0" column="0" colspan="2">
+    <widget class="QWidget" name="sendModeTab" native="true">
+     <widget class="QWidget" name="horizontalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>440</y>
+        <width>391</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <spacer name="horizontalSpacer_13">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="gotoPollyButtonAlt">
+         <property name="text">
+          <string>Go to Polly workspace</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_14">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_8">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>60</y>
+        <width>391</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="tableOptions_3">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>An emDB and JSON file for all your tables in this session will be sent to the Polly workspace selected below.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>75</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select Table</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="usernameLabel">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>291</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="logoutButton">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>0</y>
+        <width>86</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Log out</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>411</width>
+        <height>501</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QComboBox" name="peakTableComboAlt">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>60</y>
+         <width>131</width>
+         <height>32</height>
+        </rect>
        </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="usernameLabel">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <underline>true</underline>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+       <property name="maximumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>134</width>
+         <height>16777215</height>
         </size>
        </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QTabWidget" name="sendModeTab">
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="sendToProjectTab">
-      <attribute name="title">
-       <string>Send Files to Workspace</string>
-      </attribute>
-      <widget class="QWidget" name="horizontalLayoutWidget_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>240</y>
-         <width>391</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <item>
-         <widget class="QLabel" name="statusUpdateAlt">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_12">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="uploadButtonAlt">
-          <property name="text">
-           <string>Upload</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="label_4">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>10</y>
-         <width>389</width>
-         <height>41</height>
+         <y>100</y>
+         <width>86</width>
+         <height>26</height>
         </rect>
        </property>
        <property name="text">
-        <string>An emDB and JSON file for all your tables in this session will be sent to the Polly workspace selected below.</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
+        <string>Select Groups</string>
        </property>
       </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_7">
+      <widget class="QComboBox" name="groupSetComboAlt">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>440</y>
-         <width>391</width>
+         <x>260</x>
+         <y>100</y>
+         <width>131</width>
          <height>32</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_8">
-        <item>
-         <spacer name="horizontalSpacer_13">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="gotoPollyButtonAlt">
-          <property name="text">
-           <string>Go to Polly-Workspace</string>
-          </property>
-          <property name="default">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_14">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>134</width>
+         <height>16777215</height>
+        </size>
+       </property>
       </widget>
       <widget class="QGroupBox" name="projectOptionsAlt">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>130</y>
+         <y>140</y>
          <width>389</width>
          <height>101</height>
         </rect>
@@ -245,13 +261,6 @@
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="existingProjectRadioAlt">
-           <property name="text">
-            <string>Select existing workspace</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="newProjectEntryAlt"/>
          </item>
@@ -291,28 +300,35 @@
            </property>
           </spacer>
          </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="existingProjectRadioAlt">
+           <property name="text">
+            <string>Select existing workspace</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_8">
+      <widget class="QWidget" name="horizontalLayoutWidget_5">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>260</y>
          <width>391</width>
          <height>32</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="tableOptions_3">
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="statusUpdateAlt">
           <property name="text">
-           <string>Select Table</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_15">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -325,78 +341,24 @@
          </spacer>
         </item>
         <item>
-         <widget class="QComboBox" name="peakTableComboAlt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>134</width>
-            <height>16777215</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_9">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>90</y>
-         <width>391</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="tableOptions_4">
-        <item>
-         <widget class="QLabel" name="label_4">
+         <widget class="QPushButton" name="uploadButtonAlt">
           <property name="text">
-           <string>Select Groups</string>
+           <string>Upload</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_16">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QComboBox" name="groupSetComboAlt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>134</width>
-            <height>16777215</height>
-           </size>
+          <property name="autoDefault">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <zorder>horizontalLayoutWidget_5</zorder>
-      <zorder>label_2</zorder>
-      <zorder>horizontalLayoutWidget_7</zorder>
-      <zorder>horizontalLayoutWidget_8</zorder>
-      <zorder>horizontalLayoutWidget_9</zorder>
-      <zorder>projectOptionsAlt</zorder>
      </widget>
+     <zorder>groupBox</zorder>
+     <zorder>horizontalLayoutWidget_7</zorder>
+     <zorder>horizontalLayoutWidget_8</zorder>
+     <zorder>label_6</zorder>
+     <zorder>usernameLabel</zorder>
+     <zorder>logoutButton</zorder>
     </widget>
    </item>
   </layout>
