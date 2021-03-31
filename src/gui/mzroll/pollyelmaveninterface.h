@@ -111,10 +111,6 @@ class PollyElmavenInterfaceDialog : public QDialog,
 
 public:
 
-    enum class SendMode {
-        PollyProject
-    };
-
     /**
      * @brief Constructor for the dialog.
      * @param mw A pointer to the main window of the application, used to create
@@ -252,11 +248,6 @@ private:
      * prepared for upload was valid or not.
      */
     bool _lastCohortFileWasValid;
-
-    /**
-     * @brief Stores which mode the dialog is currently set to be in.
-     */
-    SendMode _selectedMode;
 
     /**
      * @brief A worker thread that allows separating blocking operations from

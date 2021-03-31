@@ -103,12 +103,8 @@ int main(int argc, char *argv[]) {
 		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
         if (peakdetectorCLI->saveAnalysisAsProject())
             peakdetectorCLI->saveEmdb();
-    } else if (!(peakdetectorCLI->pollyArgs.isEmpty())){
-        log.info() << "No peaks found. Please try again with different "
-                      "parameters."
-                   << flush;
-    }
-
+    } 
+    
     //cleanup
     delete_all(peakdetectorCLI->mavenParameters->samples);
     peakdetectorCLI->mavenParameters->samples.clear();

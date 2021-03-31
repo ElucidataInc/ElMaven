@@ -31,7 +31,6 @@
 #include "mzSample.h"
 #include "options.h"
 #include "parseoptions.h"
-#include "pollyintegration.h"
 #include "pugixml.hpp"
 
 #ifndef __APPLE__
@@ -45,7 +44,6 @@
 
 using namespace std;
 
-class PollyIntegration;
 class ParseOptions;
 class DownloadManager;
 class Logger;
@@ -68,7 +66,6 @@ public:
     bool saveJsonEIC;
     PeakGroup::QType quantitationType;
     string clsfModelFilename;
-    QString pollyArgs;
     AlignmentMode alignMode;
 
     PeakDetectorCLI(Logger* log,
@@ -145,20 +142,7 @@ public:
      * @brief save project as CSV
      * @param setName file name with full path
      */
-    void saveCSV(string setName, bool pollyExport);
-
-    /**
-     * [Uploads Maven data to Polly and redirects the user to polly]
-     * @param jspath  [path to index.js file]
-     * @param nodepath  [path to node executable]
-     * @param filenames [List of files to be uploaded on polly]
-     */
-    QString uploadToPolly(QString jsPath,
-                          QString nodePath,
-                          QStringList filenames,
-                          QMap<QString, QString> creds);
-
-    int prepareCompoundDbForPolly(QString fileName);
+    void saveCSV(string setName);
 
     bool saveAnalysisAsProject() { return !_projectName.isEmpty(); }
 
@@ -217,16 +201,6 @@ public:
                 "a time. <int>",
             "z?minSignalBaseLineRatio: Enter min signal to baseline ratio "
                 "threshold for a group. <float>",
-            "A?pollyApp: Polly application to upload to after peak detection "
-                "finishes. Enter 1 for PollyPhi or 2 for QuantFit. <int>",
-            "E?pollyExtra: Any miscellaneous information that needs to be sent "
-                "to Polly. <string>",
-            "N?pollyProject: Polly project where we want to upload our files. "
-                "<string>",
-            "P?pollyCred: Polly sign in credentials, username, password "
-                "provided in xml file. <string>",
-            "S?sampleCohort: Sample cohort file needed for PollyPhi workflow. "
-                "<string>",
             nullptr
         };
         return options;
@@ -234,17 +208,11 @@ public:
 
 private:
     DownloadManager* _dlManager;
-    QString _pollyProject;
-    QString _sampleCohortFile;
-    QString _redirectTo;
-    PollyIntegration* _pollyIntegration;
     vector<mzSample*> _samples;
     ParseOptions* _parseOptions;
     Database _db;
     JSONReports* _jsonReports;
     bool _reduceGroupsFlag;
-    PollyApp _currentPollyApp;
-    QString _pollyExtraInfo;
     Logger *_log;
     Analytics* _analytics;
     QString _projectName;
@@ -271,31 +239,6 @@ private:
 
     QStringList _getSampleList();
 
-    void _makeSampleCohortFile(QString sampleCohortFilename,
-                               QStringList loadedSamples);
-
-    bool _sendUserEmail(QMap<QString, QString> creds, QString redirectionUrl);
-
-    QMap<QString, QString> _readCredentialsFromXml(QString filename);
-
-    /**
-     * @brief checks if data is not compatible with Polly
-     * @return QString message/warning regarding incompatibility
-     */
-    QString _isReadyForPolly();
-
-    /**
-     * @brief Creates a redirection URL based on the current state of the
-     * dialog.
-     * @param datetimestamp A timestamp string that will be used to generate a
-     * unique URL for a project.
-     * @param uploadProjectIdThread Project ID of the user project to send files
-     * to.
-     * @return Redirection URL as a QString.
-     */
-    QString _getRedirectionUrl(QString datetimestamp, QString uploadProjectId);
-
-    bool _incompatibleWithPollyApp();
 };
 
 struct Arguments
@@ -308,7 +251,6 @@ struct Arguments
         generalArgs << "int" << "alignSamples" << "0";
         generalArgs << "int" << "saveEicJson" << "0";
         generalArgs << "string" << "outputdir" << "0";
-        generalArgs << "string" << "pollyExtra" << "";
         generalArgs << "string" << "samples" << "path/to/sample1";
         generalArgs << "string" << "samples" << "path/to/sample2";
         generalArgs << "string" << "samples" << "path/to/sample3";
