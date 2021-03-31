@@ -366,7 +366,6 @@ public Q_SLOTS:
 	QWidget* eicWidgetController();
     void saveSettings();
     void loadSettings();
-    void showNotification(TableDockWidget* table);
 
     /**
      * @brief Save method that can be called when user explicitly asks for a

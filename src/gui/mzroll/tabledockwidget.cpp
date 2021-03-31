@@ -1288,11 +1288,6 @@ QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
   return selectedGroups;
 }
 
-void TableDockWidget::showNotification()
-{
-  _mainwindow->showNotification(this);
-}
-
 shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup()
 {
   QTreeWidgetItem *item = treeWidget->currentItem();
@@ -2300,15 +2295,13 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
-
+    
     connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
     connect(exportAll,
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
-    connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
     connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2316,7 +2309,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
-    connect(exportGood, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeakSet()));
     connect(excludeBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2324,7 +2316,6 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
-    connect(excludeBad, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeakSet()));
     connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
@@ -2332,14 +2323,12 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
             SIGNAL(triggered()),
             td,
             SLOT(exportGroupsToSpreadsheet()));
-    connect(exportBad, SIGNAL(triggered()), td, SLOT(showNotification()));
     return btnGroupCSV;
   } else if (btnName == "btnSaveJson") {
     QToolButton *btnSaveJson = new QToolButton(parent);
     btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
     btnSaveJson->setToolTip(tr("Export EICs to JSON (.json)"));
     connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
-    connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(showNotification()));
     return btnSaveJson;
   } else if (btnName == "btnScatter") {
     QToolButton *btnScatter = new QToolButton(parent);
@@ -2403,11 +2392,9 @@ QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
 
     connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
     connect(exportSelected, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(showNotification()));
 
     connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
     connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-    connect(exportAll, SIGNAL(triggered()), td, SLOT(showNotification()));
     return btnPDF;
   } else if (btnName == "btnX") {
     QToolButton *btnX = new QToolButton(parent);

@@ -901,28 +901,6 @@ void MainWindow::sendPeaksGA()
     }
 }
 
-void MainWindow::showNotification(TableDockWidget* table) {
-    QIcon icon = QIcon(":/images/notification.png");
-    QString title("");
-    QString message("Make your analyses more insightful with Machine learning."
-                    "\nView your fluxomics workflow in PollyPhi.");
-
-    if (table->topLevelGroupCount() == 0 || table->getLabeledGroupCount() == 0)
-        return;
-
-    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
-                                                            title,
-                                                            message,
-                                                            table);
-    connect(fluxomicsPrompt,
-            SIGNAL(promptClicked()),
-            SLOT(showPollyElmavenInterfaceDialog()));
-    connect(fluxomicsPrompt,
-            SIGNAL(promptClicked(TableDockWidget*)),
-            pollyElmavenInterfaceDialog,
-            SLOT(setSelectedTable(TableDockWidget*)));
-}
-
 void MainWindow::createPeakTable(QString filenameNew) {
     projectDockWidget->setLastOpenedProject(filenameNew);
     TableDockWidget * peaksTable = this->addPeaksTable();
