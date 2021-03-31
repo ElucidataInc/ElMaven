@@ -19,7 +19,6 @@ class QSpinBox;
 class Adduct;
 class SRMList;
 class Controller;
-class VideoPlayer;
 class SettingsForm;
 class EicWidget;
 class PlotDockWidget;
@@ -111,8 +110,7 @@ public:
 
 	SRMList *srmList;
     map<string, Compound*> annotation;
-	
-	VideoPlayer* vidPlayer;
+
 	SpectraWidget *spectraWidget;
 	SpectraWidget* fragSpectraWidget;
     GroupRtWidget* groupRtWidget;

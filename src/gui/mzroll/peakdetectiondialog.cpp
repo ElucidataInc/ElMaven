@@ -14,7 +14,6 @@
 #include "peakdetectiondialog.h"
 #include "peakdetector.h"
 #include "tabledockwidget.h"
-#include "videoplayer.h"
 
 PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
 {
@@ -567,8 +566,6 @@ void PeakDetectionDialog::findPeaks()
                 setDetectionMode(false);
                 close();
             });
-    if(!settings->value("hideVideoPlayer", 0).toBool())
-        connect(peakupdater, SIGNAL(finished()), mainwindow->vidPlayer, SLOT(show()));
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 
     // RUN THREAD

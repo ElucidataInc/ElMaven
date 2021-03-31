@@ -35,7 +35,6 @@ TARGET = "El-MAVEN"
 
 RC_FILE = mzroll.rc
 RESOURCES +=  mzroll.qrc
-win32: RESOURCES += win_pollyphi.qrc
 ICON = maven.icns
 
 linux {
@@ -208,7 +207,6 @@ HEADERS += stable.h \
            notificator.h \
            notificator_p.h \
 #           $$top_srcdir/crasehandler/elmavexceptionhandler.h \
-           videoplayer.h \
            isotopedialog.h \
            adductwidget.h \
            autoupdater.h \
@@ -263,7 +261,6 @@ SOURCES += mainwindow.cpp  \
            pollywaitdialog.cpp \
            peaktabledeletiondialog.cpp \
            notificator.cpp \
-           videoplayer.cpp \
            isotopedialog.cpp \
            adductwidget.cpp \
            autoupdater.cpp \

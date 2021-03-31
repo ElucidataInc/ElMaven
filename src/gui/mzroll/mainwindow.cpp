@@ -52,7 +52,6 @@
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 #include "updatedialog.h"
-#include "videoplayer.h"
 #include "eiclogic.h"
 
 
@@ -553,8 +552,6 @@ using namespace mzUtils;
             &ScatterPlot::groupSelected,
             this,
             &MainWindow::setPeakGroup);
-
-    vidPlayer = new VideoPlayer(settings, this, nullptr);
 
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, projectDockWidget, Qt::Vertical);
@@ -2907,9 +2904,6 @@ void MainWindow::createMenus() {
 
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
     connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
-
-    QAction* mlModelVideo = helpMenu->addAction("How ML model works");
-    connect(mlModelVideo, &QAction::triggered, vidPlayer, &VideoPlayer::show);
 
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));
