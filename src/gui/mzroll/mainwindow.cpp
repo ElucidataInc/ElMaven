@@ -52,7 +52,6 @@
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 #include "updatedialog.h"
-#include "videoplayer.h"
 #include "eiclogic.h"
 
 
@@ -554,8 +553,6 @@ using namespace mzUtils;
             this,
             &MainWindow::setPeakGroup);
 
-    vidPlayer = new VideoPlayer(settings, this, nullptr);
-
 	addDockWidget(Qt::LeftDockWidgetArea, ligandWidget, Qt::Vertical);
 	addDockWidget(Qt::LeftDockWidgetArea, projectDockWidget, Qt::Vertical);
 
@@ -899,35 +896,6 @@ void MainWindow::sendPeaksGA()
     } else {
         analytics->hitEvent("Peak Detection", "Find Peaks");
     }
-}
-
-void MainWindow::showNotification(TableDockWidget* table) {
-    QIcon icon = QIcon(":/images/notification.png");
-    QString title("");
-    QString message("Make your analyses more insightful with Machine learning."
-                    "\nView your fluxomics workflow in PollyPhi.");
-
-    if (table->topLevelGroupCount() == 0 || table->getLabeledGroupCount() == 0)
-        return;
-
-    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
-                                                            title,
-                                                            message,
-                                                            table);
-    connect(fluxomicsPrompt,
-            SIGNAL(promptClicked()),
-            SLOT(showPollyElmavenInterfaceDialog()));
-    connect(fluxomicsPrompt,
-            &Notificator::promptClicked,
-            this,
-            [=] {
-                analytics->hitEvent("Prompt", "Clicked", "PollyPhi");
-                pollyElmavenInterfaceDialog->switchToApp(PollyApp::PollyPhi);
-            });
-    connect(fluxomicsPrompt,
-            SIGNAL(promptClicked(TableDockWidget*)),
-            pollyElmavenInterfaceDialog,
-            SLOT(setSelectedTable(TableDockWidget*)));
 }
 
 void MainWindow::createPeakTable(QString filenameNew) {
@@ -2936,9 +2904,6 @@ void MainWindow::createMenus() {
 
 	QAction* tutorial = helpMenu->addAction("Video Tutorials");
     connect(tutorial,SIGNAL(triggered()), signalMapper, SLOT(map()));
-
-    QAction* mlModelVideo = helpMenu->addAction("How ML model works");
-    connect(mlModelVideo, &QAction::triggered, vidPlayer, &VideoPlayer::show);
 
 	QAction* faq = helpMenu->addAction("FAQs");
 	connect(faq, SIGNAL(triggered()), signalMapper, SLOT(map()));

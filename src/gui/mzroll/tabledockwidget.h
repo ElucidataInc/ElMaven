@@ -201,7 +201,6 @@ public slots:
   virtual void setupPeakTable();
   shared_ptr<PeakGroup> getSelectedGroup();
   QList<shared_ptr<PeakGroup>> getSelectedGroups();
-  void showNotification();
 
   void showFocusedGroups();
   void clearFocusedGroups();

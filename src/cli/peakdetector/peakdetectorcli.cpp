@@ -31,9 +31,6 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log,
     _reduceGroupsFlag = true;
     _parseOptions = new ParseOptions();
     _dlManager = new DownloadManager;
-    _pollyIntegration = new PollyIntegration(_dlManager);
-    _redirectTo = "gsheet_sym_polly_elmaven";
-    _currentPollyApp = PollyApp::None;
 
     analytics->hitScreenView("CLI");
 
@@ -66,7 +63,6 @@ PeakDetectorCLI::PeakDetectorCLI(Logger* log,
 PeakDetectorCLI::~PeakDetectorCLI()
 {
     delete _dlManager;
-    delete _pollyIntegration;
 }
 
 void PeakDetectorCLI::processOptions(int argc, char* argv[])
@@ -98,15 +94,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
 
             break;
 
-        case 'A':
-            if (atoi(optarg) == 1) {
-                _currentPollyApp = PollyApp::PollyPhi;
-            } else if (atoi(optarg) == 2) {
-                _currentPollyApp = PollyApp::QuantFit;
-            } else {
-                _currentPollyApp = PollyApp::None;
-            }
-
         case 'c':
             mavenParameters->compoundRTWindow = atof(optarg);
             mavenParameters->matchRtFlag = true;
@@ -127,10 +114,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
             mavenParameters->processAllSlices = true;
             if (atoi(optarg) == 0)
                 mavenParameters->processAllSlices = false;
-            break;
-
-        case 'E':
-            _pollyExtraInfo = QString(optarg);
             break;
 
         case 'f': {
@@ -200,21 +183,6 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
         case 'p':
             mavenParameters->massCutoffMerge->setMassCutoffAndType(atof(optarg),
                                                                    "ppm");
-            break;
-
-        case 'P':
-            // parse polly specific arguments here
-            pollyArgs = QString(optarg);
-            break;
-
-        case 'N':
-            // parse polly project argument here
-            _pollyProject = QString(optarg);
-            break;
-
-        case 'S':
-            // parse sample cohort filename here
-            _sampleCohortFile = QString(optarg);
             break;
 
         case 'q':
@@ -554,9 +522,6 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
             mavenParameters->outputdir =
                 node.attribute("value").value() + string(DIR_SEPARATOR_STR);
 
-        } else if (strcmp(node.name(), "pollyExtra") == 0) {
-            _pollyExtraInfo = QString(node.attribute("value").value());
-
         } else if (strcmp(node.name(), "samples") == 0) {
             string sampleStr = node.attribute("value").value();
             if (QFile::exists(QString::fromStdString(sampleStr))) {
@@ -574,7 +539,6 @@ void PeakDetectorCLI::_processGeneralArgsXML(xml_node& generalArgs)
         }
     }
 }
-
 
 void PeakDetectorCLI::processSettingsFromGui(const string& settingsFilepath)
 {
@@ -740,7 +704,6 @@ void PeakDetectorCLI::alignSamples(const int& method)
     }
 }
 
-
 void PeakDetectorCLI::saveEmdb()
 {
     if (_projectName.isEmpty())
@@ -793,150 +756,6 @@ void PeakDetectorCLI::saveEmdb()
                   << std::flush;
 }
 
-void PeakDetectorCLI::_makeSampleCohortFile(QString sampleCohortFilename,
-                                           QStringList loadedSamples)
-{
-    QFile file(sampleCohortFilename);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    QTextStream out(&file);
-    out << "Sample"
-        << ",Cohort"
-        << "\n";
-    for (const auto& sampleName : loadedSamples) {
-        out << sampleName << ",\n";
-    }
-
-    _log->debug() << "Sample cohort file prepared. Moving on to gsheet "
-                     "interface now…"
-                  << std::flush;
-    file.close();
-}
-
-QString PeakDetectorCLI::_isReadyForPolly()
-{
-    QString message = "ready";
-    if (mavenParameters->ligandDbFilename == "") {
-        message =
-            "Please provide compound database file. It is required for using "
-            "Polly applications.";
-        return message;
-    }
-    if (!saveJsonEIC) {
-        _log->debug() << "JSON file is required for using Polly applications. "
-                         "Overriding existing settings to save JSON data file…"
-                      << std::flush;
-        saveJsonEIC = true;
-    }
-    return message;
-}
-
-int PeakDetectorCLI::prepareCompoundDbForPolly(QString fileName)
-{
-    try {
-        if (fileName.isEmpty())
-            return 0;
-
-        QString SEP = "\t";
-        if (fileName.endsWith(".csv", Qt::CaseInsensitive)) {
-            SEP = ",";
-        } else if (!fileName.endsWith(".tab", Qt::CaseInsensitive)) {
-            fileName = fileName + ".tab";
-            SEP = "\t";
-        }
-
-        QFile data(fileName);
-        if (data.open(QFile::WriteOnly | QFile::Truncate)) {
-            QTextStream out(&data);
-
-            // header
-            out << "polarity" << SEP;
-            out << "compound" << SEP;
-            // Addiditional headers added when merging with Maven776 - Kiran
-            out << "mz" << SEP;
-            out << "charge" << SEP;
-            out << "precursorMz" << SEP;
-            out << "collisionEnergy" << SEP;
-            out << "productMz" << SEP;
-            out << "expectedRt" << SEP;
-            out << "id" << SEP;
-            out << "formula" << SEP;
-            out << "srmId" << SEP;
-            out << "category" << endl;
-
-            for (unsigned int i = 0; i < mavenParameters->compounds.size();
-                 i++) {
-                Compound* compound = mavenParameters->compounds[i];
-
-                QString charpolarity;
-                if (compound->charge() > 0)
-                    charpolarity = "+";
-                if (compound->charge() < 0)
-                    charpolarity = "-";
-
-                QStringList category;
-                auto categoryVect = compound->category();
-                for (int i = 0; i < categoryVect.size(); i++) {
-                    category << QString(categoryVect[i].c_str());
-                }
-
-                out << charpolarity << SEP;
-                out << QString(compound->name().c_str()) << SEP;
-                out << compound->mz() << SEP;
-                out << compound->charge() << SEP;
-                out << compound->precursorMz() << SEP;
-                out << compound->collisionEnergy() << SEP;
-                out << compound->productMz() << SEP;
-                out << compound->expectedRt() << SEP;
-                out << compound->id().c_str() << SEP;
-                out << compound->formula().c_str() << SEP;
-                out << compound->srmId().c_str() << SEP;
-                out << category.join(";") << SEP;
-                out << "\n";
-            }
-        }
-        return 1;
-    } catch (...) {
-        return 0;
-    }
-}
-
-bool PeakDetectorCLI::_incompatibleWithPollyApp() 
-{
-    //MRM data is not compatible with PollyPhi
-    bool onlyMS2 = true;
-    for (auto sample : mavenParameters->samples) {
-        if (sample->ms1ScanCount())
-            onlyMS2 = false;
-    }
-    if (onlyMS2 && _currentPollyApp == PollyApp::PollyPhi) {
-        _log->debug() << "PollyPhi currently does not support purely MS2 data. "
-                      << "Please use an MS1 or DDA dataset."
-                      << std::flush;
-        return true;
-    }
-    
-    //Untargeted data is not compatible with any app atm
-    if (mavenParameters->processAllSlices) {
-        _log->debug() << "Untargeted data is not supported on Polly. Please switch off"
-                      << " mass slicing and provide a compound database."
-                      << std::flush;
-        return true;
-    }
-
-    //Unlabelled data is not the desired data for PollyPhi
-    if (!mavenParameters->pullIsotopesFlag && 
-        _currentPollyApp == PollyApp::PollyPhi) {
-        _log->debug() << "PollyPhi is used for the analysis of labeled data. Please "
-                      << "switch on isotope detection using paramater -f."
-                     << std::flush;
-        return true;
-    }
-
-    return false;
-}
-
 void PeakDetectorCLI::writeReport(string setName,
                                   QString jsPath,
                                   QString nodePath)
@@ -948,202 +767,13 @@ void PeakDetectorCLI::writeReport(string setName,
     // reduce groups
     _groupReduction();
 
-    // save files in the output dir if Polly arguments have not been provided
-    if (_currentPollyApp == PollyApp::None || pollyArgs.isEmpty()) {
-        // create an output folder
-        mzUtils::createDir(mavenParameters->outputdir);
-        string fileName = mavenParameters->outputdir + setName;
+    // create an output folder
+    mzUtils::createDir(mavenParameters->outputdir);
+    string fileName = mavenParameters->outputdir + setName;
 
-        _log->info() << "Saving data reports…" << std::flush;
-        saveJson(fileName);
-        saveCSV(fileName, false);
-    } else {
-        if (_incompatibleWithPollyApp())
-            exit(0);
-
-        // try uploading to Polly
-        QMap<QString, QString> creds = _readCredentialsFromXml(pollyArgs);
-        if (creds.empty()) {
-            _log->error() << "Error in credentials file. Exiting.." << std::flush;
-            exit(1);
-        }
-
-        QDateTime currentTime;
-        const QString format = "dd-MM-yyyy_hh_mm_ss";
-        QString datetimestamp = currentTime.currentDateTime().toString(format);
-        datetimestamp.replace(" ", "_");
-        datetimestamp.replace(":", "-");
-
-        QString writableTempDir =
-            QStandardPaths::writableLocation(
-                QStandardPaths::QStandardPaths::GenericConfigLocation)
-            + QDir::separator() + "tmp_Elmaven_Polly_files";
-        QDir qdir(writableTempDir);
-        if (!qdir.exists()) {
-            QDir().mkdir(writableTempDir);
-            QDir qdir(writableTempDir);
-        }
-
-        QString csvFilename =
-            writableTempDir + QDir::separator() + datetimestamp
-            + "_Peak_table_all_Elmaven_Polly";  // uploading the csv file
-        QString jsonFilename =
-            writableTempDir + QDir::separator() + datetimestamp
-            + "_Peaks_information_json_Elmaven_Polly";  //  uploading the json
-                                                        //  file
-        QString compoundDbFilename =
-            writableTempDir + QDir::separator() + datetimestamp
-            + "_Compound_DB_Elmaven_Polly";  //  uploading the compound DB file
-        QString sampleCohortFilename =
-            writableTempDir + QDir::separator() + datetimestamp
-            + "_Cohort_Mapping_Elmaven";  //  uploading the sample cohort file
-        int compoundDbStatus =
-            prepareCompoundDbForPolly(compoundDbFilename + ".csv");
-        QString readyStatus = _isReadyForPolly();
-        if (!(readyStatus == "ready") || compoundDbStatus == 0) {
-            _log->debug() << "Error while preparing files for Polly: "
-                          << readyStatus.toStdString()
-                          << std::flush;
-            return;
-        }
-
-        _log->info() << "Storing temporary data files…" << std::flush;
-        saveJson(jsonFilename.toStdString());
-        saveCSV(csvFilename.toStdString(), true);
-        cout << endl;
-
-        _log->info() << "Uploading data files to Polly…" << std::flush;
-        try {
-            // add more files to upload, if desired…
-            QStringList filesToBeUploaded =
-                QStringList() << csvFilename + ".csv"
-                              << jsonFilename + ".json"
-                              << compoundDbFilename + ".csv";
-
-            if (_currentPollyApp == PollyApp::PollyPhi) {
-                QStringList loadedSamples = _getSampleList();
-
-                // check validity of sample cohort file if present
-                bool validSampleCohort = false;
-
-                if (!_sampleCohortFile.isEmpty()) {
-                    validSampleCohort = _pollyIntegration->validSampleCohort(
-                        _sampleCohortFile, loadedSamples);
-                }
-
-                if (validSampleCohort) {
-                    bool statusSampleCopy = QFile::copy(
-                        _sampleCohortFile, sampleCohortFilename + ".csv");
-                    _log->debug() << "Sample cohort copy status: "
-                                  << statusSampleCopy
-                                  << std::flush;
-                    _redirectTo = "relative_lcms_elmaven";
-                } else {
-                    _log->debug() << "There was some problem with the sample cohort "
-                                     "file, you will be redirected to an interface "
-                                     "on Polly where you can make the cohort file "
-                                     "again."
-                                  << std::flush;
-                    _makeSampleCohortFile(sampleCohortFilename + ".csv",
-                                         loadedSamples);
-                }
-
-                filesToBeUploaded << sampleCohortFilename + ".csv";
-            }
-
-            // jspath and nodepath are very important here. Node executable will
-            // be used to connect to Polly, with the help of index.js script.
-            QString uploadProjectId = uploadToPolly(jsPath,
-                                                    nodePath,
-                                                    filesToBeUploaded,
-                                                    creds);
-
-            QString redirectionUrl = "";
-
-            // upload was successful if non empty project ID,
-            // redirect the user to Polly…
-            if (!uploadProjectId.isEmpty()) {
-                redirectionUrl = _getRedirectionUrl(datetimestamp,
-                                                    uploadProjectId);
-            } else {
-                _log->error() << "Unable to upload data to Polly."
-                              << std::flush;
-            }
-
-            _log->debug() << "Redirection URL: \""
-                          << redirectionUrl.toStdString()
-                          << "\""
-                          << std::flush;
-
-            // if redirection URL is not empty then we send the user an email
-            // with that URL
-            if (!redirectionUrl.isEmpty()) {
-                bool response = _sendUserEmail(creds, redirectionUrl);
-                string status = response == 1 ? "success"
-                                              : "failure";
-                _log->info() << "Emailer status: "
-                             << status
-                             << "!"
-                             << std::flush;
-            } else {
-                _log->error() << "Failed to obtain a redirection URL."
-                              << std::flush;
-            }
-        } catch (...) {
-            _log->error() << "Something went wrong when trying to upload data "
-                             "to Polly. Please check the CLI arguments."
-                          << std::flush;
-        }
-        bool status = qdir.removeRecursively();
-    }
-}
-
-QString PeakDetectorCLI::_getRedirectionUrl(QString datetimestamp,
-                                            QString uploadProjectId)
-{
-    QString redirectionUrl = "";
-    switch (_currentPollyApp) {
-    case PollyApp::PollyPhi: {
-        QString workflowId = 
-            _pollyIntegration->obtainWorkflowId(PollyApp::PollyPhi);
-
-        QString workflowName = 
-            _pollyIntegration->obtainComponentName(PollyApp::PollyPhi);
-
-        QString workflowRequestId =
-            _pollyIntegration->createWorkflowRequest(uploadProjectId,
-                                                     workflowName,
-                                                     workflowId);
-        if (!workflowRequestId.isEmpty()) {
-            redirectionUrl =
-                _pollyIntegration->getWorkflowEndpoint(workflowId,
-                                                        workflowRequestId,
-                                                        _redirectTo,
-                                                        uploadProjectId,
-                                                        datetimestamp);
-        } else {
-            _log->error() << "Unable to create workflow request id. Please try "
-                             "again."
-                          << std::flush;
-        }
-        break;
-    } case PollyApp::QuantFit: {
-        QString componentId =
-            _pollyIntegration->obtainComponentId(PollyApp::QuantFit);
-        QString runRequestId =
-            _pollyIntegration->createRunRequest(componentId,
-                                                uploadProjectId,
-                                                _pollyExtraInfo);
-        if (!runRequestId.isEmpty()) {
-            redirectionUrl =
-                _pollyIntegration->getComponentEndpoint(componentId,
-                                                        runRequestId,
-                                                        datetimestamp);
-        }
-        break;
-    } default: break;
-    }
-    return redirectionUrl;
+    _log->info() << "Saving data reports…" << std::flush;
+    saveJson(fileName);
+    saveCSV(fileName);
 }
 
 QStringList PeakDetectorCLI::_getSampleList()
@@ -1193,177 +823,7 @@ void PeakDetectorCLI::saveJson(string setName)
     }
 }
 
-QMap<QString, QString> PeakDetectorCLI::_readCredentialsFromXml(QString filename)
-{
-    QMap<QString, QString> creds;
-    QDomDocument doc;
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly) || !doc.setContent(&file)) {
-        _log->error() << "Something is wrong with your credentials file. "
-                         "Please try again with a valid xml file."
-                      << std::flush;
-        return creds;
-    }
-
-    // Get the root element
-    QDomElement docElem = doc.documentElement();
-
-    // you could check the root tag name here if it matters
-    QString rootTag = docElem.tagName();  // == credentials
-    if (rootTag != "credentials") {
-        _log->error() << "The root tag of your credentials file is not "
-                         "correct. Please try again with a valid xml file."
-                      << std::flush;
-        return creds;
-    }
-    QDomNodeList polly_creds = doc.elementsByTagName("pollyaccountdetails");
-    for (int i = 0; i < polly_creds.size(); i++) {
-        QDomNode n = polly_creds.item(i);
-        QDomElement username = n.firstChildElement("username");
-        QDomElement password = n.firstChildElement("password");
-        if (username.isNull() || password.isNull()) {
-            _log->error() << "Both username and password must be provided in "
-                             "the credentials file.Please try again"
-                          << std::flush;
-            return creds;
-        }
-        creds["polly_username"] = username.text();
-        creds["polly_password"] = password.text();
-        // Only considering the first occurance
-        break;
-    }
-    return creds;
-}
-
-QString PeakDetectorCLI::uploadToPolly(QString jsPath,
-                                       QString nodePath,
-                                       QStringList filenames,
-                                       QMap<QString, QString> creds)
-{
-    QString uploadProjectId;
-
-    // set jspath and nodepath for _pollyIntegration library .
-    _pollyIntegration->jsPath = jsPath;
-    _pollyIntegration->nodePath = nodePath;
-    if (!_pollyIntegration->checkNodeExecutable()) {
-        #ifdef Q_OS_MAC
-            _log->error() << "`node_bin` was not found in your system path. "
-                          << "Please contact the technical team at elmaven@elucidata.io"
-                          << std::flush;
-        #else
-            _log->error() << "NodeJS was not found on this system. "
-                          "Please install NodeJS and try again."
-                          << std::flush;
-        #endif
-        exit(1);
-    }
-
-    // In case of CLI, we don't want persistent login as of now, so deleting
-    // existing Token everytime and starting afresh. In future if persistent
-    // login is required in CLI, just delete the two lines below this comment.
-    QFile pollyCredFile(_pollyIntegration->getCredFile());
-    pollyCredFile.remove();
-
-    ErrorStatus response = _pollyIntegration->activeInternet();
-    if (response == ErrorStatus::Failure ||
-        response == ErrorStatus::Error) {
-        _log->error() << "No internet access. Please connect to the internet "
-                         "and try again."
-                      << std::flush;
-        return uploadProjectId;
-    }
-
-    ErrorStatus loginResponse = _pollyIntegration->authenticateLogin(
-        creds["polly_username"], creds["polly_password"]);
-    if (loginResponse == ErrorStatus::Failure) {
-        _log->error() << "Incorrect credentials. Please recheck." << std::flush;
-        return uploadProjectId;
-    } else if (loginResponse == ErrorStatus::Error) {
-        _log->error() << "A server error was encountered. Please contact tech "
-                         "support at elmaven@elucidata.io if the problem "
-                         "persists."
-                      << std::flush;
-        return uploadProjectId;
-    }
-
-
-    _analytics->hitEvent("Exports", "Polly");
-    if (_currentPollyApp == PollyApp::PollyPhi) {
-        _analytics->hitEvent("Polly upload", "PollyPhi");
-    } else if (_currentPollyApp == PollyApp::QuantFit) {
-        _analytics->hitEvent("Polly upload", "QuantFit");
-    }
-
-    // User is logged in, now proceeding to upload…
-
-    // This will list all the project corresponding to the user on polly…
-    QVariantMap projectNamesId = _pollyIntegration->getUserProjects();
-    QStringList keys = projectNamesId.keys();
-    QString projectId;
-    if (_pollyProject.isEmpty()) {
-        _pollyProject = "Default_Elmaven_Polly_Project";
-    }
-    for (const auto& key : keys) {
-        if (projectNamesId[key].toString() == _pollyProject) {
-            // that means the name provided by the user matches a project.
-            projectId = key;
-        }
-    }
-    if (projectId.isEmpty()) {
-        // In case no project matches with the user defined name,
-        // Create the project and upload to it. This makes the project name to
-        // be mandatory.
-        _log->error() << "Creating new project with name: \""
-                      << _pollyProject.toStdString()
-                      << "\""
-                      << std::flush;
-        QString newProjectId =
-            _pollyIntegration->createProjectOnPolly(_pollyProject);
-        uploadProjectId = newProjectId;
-    } else {
-        uploadProjectId = projectId;
-    }
-
-    _pollyIntegration->exportData(filenames, uploadProjectId);
-
-    return uploadProjectId;
-}
-
-bool PeakDetectorCLI::_sendUserEmail(QMap<QString, QString> creds,
-                                      QString redirectionUrl)
-{
-    QString userEmail = creds["polly_username"];
-    QString emailMessage = QString("Data Successfully uploaded to Polly "
-                               "project - \"%1\"").arg(_pollyProject);
-    QString emailUrl = QString("<a href='%1'></a>").arg(redirectionUrl);
-    QString appname = "";
-    switch (_currentPollyApp) {
-    case PollyApp::PollyPhi: {
-        appname = "pollyphi";
-        break;
-    } case PollyApp::QuantFit: {
-        appname = "quantfit";
-        break;
-    } default:
-        break;
-    }
-
-    ErrorStatus errorstatus = _pollyIntegration->sendEmail(userEmail,
-                                          emailMessage,
-                                          emailUrl,
-                                          appname);
-
-    if (errorstatus == ErrorStatus::Success)
-        status = true;
-    else {
-        status = false;
-    } 
-
-
-    return status;
-}
-
-void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
+void PeakDetectorCLI::saveCSV(string setName)
 {
 #ifndef __APPLE__
     double startSavingCSV = getTime();
@@ -1404,7 +864,7 @@ void PeakDetectorCLI::saveCSV(string setName, bool pollyExport)
     csvreports = new CSVReports(fileName, CSVReports::ReportType::GroupReport,
                                 mavenParameters->samples, quantitationType,  
                                 ddaGroupExists, includeSetNamesLine,
-                                mavenParameters, pollyExport);
+                                mavenParameters);
 
     for (int i = 0; i < mavenParameters->allgroups.size(); i++) {
         PeakGroup& group = mavenParameters->allgroups[i];

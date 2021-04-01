@@ -188,7 +188,7 @@ void TestCLI::testWriteReport() {
         peakdetectorCLI->peakDetector->processCompounds(
             peakdetectorCLI->mavenParameters->compounds);
 
-        peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv", false);
+        peakdetectorCLI->saveCSV(peakdetectorCLI->mavenParameters->outputdir + "testcsv");
         QFileInfo csvFile(QString::fromStdString(peakdetectorCLI->mavenParameters->outputdir + "testcsv" + ".csv"));
         QVERIFY(csvFile.exists() && csvFile.isFile());
 	}
