@@ -830,7 +830,7 @@ Peak EIC::peakForRegion(float rtMin, float rtMax)
         if (rt[i] < rtMin || rt[i] > rtMax)
             continue;
 
-        if (peak.minpos == 0) {
+        if (peak.minpos > i) {
             peak.minpos = i;
             peak.splineminpos = i;
             peak.rtmin = rt[i];
