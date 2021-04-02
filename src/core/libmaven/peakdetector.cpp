@@ -169,8 +169,8 @@ void PeakDetector::editPeakRegionForSample(PeakGroup *group,
     newPeak.mzmax = group->getSlice().mzmax;
     eic->getPeakDetails(newPeak);
 
-    if (newPeak.pos > 0) {
-        // We assign each the new peak with a rank based on its relative area
+    if (newPeak.pos >= 0) {
+        // We assign each new peak with a rank based on its relative area
         // among all peaks in the original EIC. This has to be done because
         // quality assignment depends on it and the default peak rank gives a
         // bad score. See also `EIC::getStatistics`.
@@ -1227,8 +1227,8 @@ PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
         peak.mzmin = slice.mzmin;
         peak.mzmax = slice.mzmax;
         eic->getPeakDetails(peak);
-        if (peak.pos > 0) {
-            // We assign each the new peak with a rank based on its relative
+        if (peak.pos >= 0) {
+            // We assign each new peak with a rank based on its relative
             // area among all peaks in the original EIC. This has to be done
             // because quality assignment depends on it and the default peak
             // rank gives a bad score. See also `EIC::getStatistics`.

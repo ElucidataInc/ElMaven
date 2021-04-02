@@ -19,9 +19,9 @@ Peak::Peak() {
     localMaxFlag = 0;
     maxscan = 0;
     medianMz = 0;
-    minpos = pos;
+    minpos = numeric_limits<unsigned int>::max();
     maxpos = pos;
-    splineminpos = pos;
+    splineminpos = numeric_limits<unsigned int>::max();
     splinemaxpos = pos;
     minscan = 0;
     mzmax = 0;
@@ -64,9 +64,9 @@ Peak::Peak(EIC* e, int p) {
     localMaxFlag=0;
     maxscan=0;
     medianMz=0;
-    minpos=pos;
+    minpos=numeric_limits<unsigned int>::max();
     maxpos=pos;
-    splineminpos=pos;
+    splineminpos=numeric_limits<unsigned int>::max();
     splinemaxpos=pos;
     minscan=0;
     mzmax=0;
