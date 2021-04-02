@@ -1174,9 +1174,15 @@ void MainWindow::saveProject(bool explicitSave)
 
 void MainWindow::showAlignmentErrorDialog(QString errorMessage)
 {
-    QMessageBox alignmentError;
-    alignmentError.setText(errorMessage);
-    alignmentError.open();
+    QMessageBox *alignmentError = new QMessageBox(this);
+    
+    alignmentError->setText(errorMessage);
+    alignmentError->setIcon(QMessageBox::Icon::Warning);
+
+    auto yesButton = alignmentError->addButton(tr("Ok"),
+                                QMessageBox::AcceptRole);
+    alignmentError->exec();
+    QCoreApplication::processEvents();
 }
 
 QDockWidget* MainWindow::createDockWidget(QString title, QWidget* w) {

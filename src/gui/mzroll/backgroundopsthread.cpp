@@ -204,13 +204,32 @@ void BackgroundOpsThread::alignWithObiWarp()
         false,
         mainwindow->alignmentDialog->binSizeObiWarp->value());
 
+    vector <mzSample*> samplesToAlign;
+    int countMs2Samples = 0;
+    for (auto sample : mavenParameters->samples) {
+        if (sample->ms1ScanCount() == 0 && sample->ms2ScanCount()) {
+            countMs2Samples++;
+        } else {
+            samplesToAlign.push_back(sample);
+        }
+    }
+
+    if (countMs2Samples == mavenParameters->samples.size()) {
+        auto htmlText = QString("The loaded samples contain purely MS2 data. "
+                                "Alignment cannot be performed for such samples "
+                                "and will therefore be aborted. Currently, El-MAVEN " 
+                                "supports alignment of full-scan MS1 and DDA data only.");
+        emit alignmentError(htmlText);
+        return;
+    }
+
     emit updateProgressBar("Aligning samples…", 0, 100);
 
     Aligner aligner;
     aligner.setAlignmentProgress.connect(
         boost::bind(&BackgroundOpsThread::qtSlot, this, _1, _2, _3));
 
-    auto stopped = aligner.alignWithObiWarp(mavenParameters->samples,
+    auto stopped = aligner.alignWithObiWarp(samplesToAlign,
                                             obiParams,
                                             mavenParameters);
     delete obiParams;
@@ -219,7 +238,7 @@ void BackgroundOpsThread::alignWithObiWarp()
         emit restoreAlignment();
 
         // restore previous RTs
-        for (auto sample : mavenParameters->samples)
+        for (auto sample : samplesToAlign)
             sample->restorePreviousRetentionTimes();
 
         // stopped without user intervention
