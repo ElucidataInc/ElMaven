@@ -1428,7 +1428,7 @@ bool TableDockWidget::deleteAllgroupsWarning()
     return false;
 }
 
-void TableDockWidget::deleteSelectedItems()
+void TableDockWidget::deleteSelectedItems(bool groupsMovedToAnotherTable)
 {
     QSet<QTreeWidgetItem*> selectedItems;
     int topLevelItemsBeingDeleted = 0;
@@ -1440,7 +1440,8 @@ void TableDockWidget::deleteSelectedItems()
 
     // checks if the selected item count is same as the no. of top-level
     // groups in the table.
-    if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
+    if (topLevelItemsBeingDeleted == topLevelGroupCount()
+        && !groupsMovedToAnotherTable) {
         deleteAll();
         return;
     }
@@ -1895,7 +1896,7 @@ void TableDockWidget::moveSelectedRows(QString destinationTableName) {
   }
 
   // Deleting the rows from the Source Table
-  deleteSelectedItems();
+  deleteSelectedItems(true);
 }
 
 void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {

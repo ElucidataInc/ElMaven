@@ -276,7 +276,7 @@ public slots:
   void showConsensusSpectra();
 
   virtual void showAllGroups();
-  virtual void deleteSelectedItems();
+  virtual void deleteSelectedItems(bool groupsMovedToAnotherTable = false);
   virtual void deleteGroup(PeakGroup* group);
 
   bool deleteAll(bool askConfirmation = true);

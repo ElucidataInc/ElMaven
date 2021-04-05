@@ -457,7 +457,7 @@ void PollyElmavenInterfaceDialog::_uploadDataToPolly()
     _uploadInProgress = true;
     peakTableComboAlt->setEnabled(false);
     groupSetComboAlt->setEnabled(false);
-    sendModeTab->setEnabled(false);
+    mainForm->setEnabled(false);
     projectOptionsAlt->setEnabled(false);
     uploadButtonAlt->setEnabled(false);
     gotoPollyButtonAlt->setVisible(false);
@@ -801,7 +801,7 @@ void PollyElmavenInterfaceDialog::_performPostUploadTasks(bool uploadSuccessful)
     peakTableComboAlt->setEnabled(true);
     groupSetComboAlt->setEnabled(true);
     projectOptionsAlt->setEnabled(true);
-    sendModeTab->setEnabled(true);
+    mainForm->setEnabled(true);
     statusUpdateAlt->setEnabled(true);
     if (uploadSuccessful) {
         statusUpdateAlt->setStyleSheet("QLabel { color : green; }");
