@@ -23,8 +23,6 @@ environment:
     secure: z3ZI9fB/7hbyMhWdZv9HVMdAqGGB2GmtIeqGPxCOiSNjfLwQIVsNtuOFxSTC3Pty
   UPDATE_REPO_URL:
     secure: JDDxl2ZAdBCu+BvfRCt4jkbEnCctwtGBoTdA3l74mwRS5LDPRyEfGxOyrxK43rbwhHaYk5w/7iIrP0vxFYiM9vYjBSsSlO3s/TWiprifBrg=
-  GITHUB_OAUTH_TOKEN:
-    secure: Ylh59JQ/EvFcR4ybhtMjhC7ytqhMhr0/BNLQg1TCd0L9lNUgR4Rpi2sx/mhMj27q
 
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -291,7 +289,7 @@ artifacts:
 deploy:
     - provider: GitHub
       auth_token:
-          secure: $(GITHUB_OAUTH_TOKEN)
+          secure: TVTb3zTJz43Xl5du7hKCp6gOcwMVRS8V2+HidpzMUgVHoqwsVVRPi5DVyZiM4joH
       release: $(APPVEYOR_REPO_TAG_NAME)
       artifact: $(INSTALLER).exe
       draft: true
