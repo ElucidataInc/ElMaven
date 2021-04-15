@@ -1390,7 +1390,7 @@ vector<Compound*> ProjectDatabase::loadCompounds(const string databaseName)
                 compound->setMz(mz);
         } else {
             compound->setMz(static_cast<float>(
-                mcalc.computeMass(formula, charge)));
+                mcalc.computeNeutralMass(formula)));
         }
 
         compound->setPrecursorMz ( compoundsQuery->floatValue("precursor_mz"));
