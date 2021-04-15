@@ -1336,7 +1336,7 @@ TEST_SUITE("Testing mzUtils functions")
 
     TEST_CASE("Testing fileExists")
     {
-        REQUIRE((mzUtils::fileExists("testCharge.xml")) == true);
+        REQUIRE((mzUtils::fileExists("build.pro")) == true);
         REQUIRE((mzUtils::fileExists("hello.cpp")) == false);
     }
 
