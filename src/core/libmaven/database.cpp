@@ -77,8 +77,32 @@ bool Database::addCompound(Compound* newCompound)
             Compound* possibleCopy = _compoundIdNameDbMap[newCompound->id()
                                                          + nameWithSuffix
                                                          + newCompound->db()];
-            if (possibleCopy != nullptr && *newCompound == *possibleCopy)
-                return false;
+            
+            // Two compounds must be compared using masses at same charge.
+            bool isSame = false;
+            if (possibleCopy) {
+                auto possibleCopyMz = possibleCopy->mz();
+                auto newCompoundMz = newCompound->mz();
+                auto possibleCopyCharge = possibleCopy->charge();
+
+                // Charge of newly-formed compound used to calculate mz. 
+                // If mz of compounds are different even on same charge
+                // then these compounds are treated as different.
+                possibleCopy->setMz(possibleCopy->adjustedMass(newCompound->charge()));
+                possibleCopy->setCharge(newCompound->charge());
+                newCompound->setMz(newCompound->adjustedMass(newCompound->charge()));
+
+                if (*newCompound == *possibleCopy)
+                    isSame = true;
+
+                // Restoring original values for mass and charge.
+                possibleCopy->setMz(possibleCopyMz);
+                possibleCopy->setCharge(possibleCopyCharge);
+                newCompound->setMz(newCompoundMz);    
+            }
+        
+            if (isSame)
+                return false;   
 
             newCompound->setName(originalName);
         }
