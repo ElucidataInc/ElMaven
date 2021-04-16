@@ -1669,13 +1669,17 @@ void EicWidget::setPeakGroup(shared_ptr<PeakGroup> group)
     if (group == nullptr)
         return;
 
+    auto displayedGroup = eicParameters->displayedGroup();
+    if (group == displayedGroup)
+        return;
+    
     int charge = group->parameters()->getCharge(group->getCompound());
 	if (group->getExpectedMz(charge) != -1) {
 		eicParameters->_slice.mz = group->getExpectedMz(charge);
 	} else {
 		eicParameters->_slice.mz = group->meanMz;
 	}
-
+    eicParameters->setDisplayedGroup(group);
 	eicParameters->_slice.compound = group->getCompound();
     eicParameters->_slice.srmId = group->srmId;
 
