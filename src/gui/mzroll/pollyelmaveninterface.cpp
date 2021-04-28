@@ -90,11 +90,6 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(peakMLAuthenticationFinished(StringMap, QString)),
             this,
             SLOT(peakMLAccessControl(StringMap, QString)));
-    connect(sendModeTab,
-            &QTabWidget::currentChanged,
-            this,
-            &PollyElmavenInterfaceDialog::_changeMode);
-
     connect(this, 
             &PollyElmavenInterfaceDialog::peakMLAccess,
             _mainwindow->peakDetectionDialog,

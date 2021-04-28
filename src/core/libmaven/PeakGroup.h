@@ -125,6 +125,9 @@ class PeakGroup{
         string srmId;
         string tagString;
 
+        /** classification label */
+        char label;
+
         /**
          * @brief returns group name
          * @method getName
@@ -347,6 +350,13 @@ class PeakGroup{
          * or '\0' if unassigned.
          */
         char userLabel() const { return _userLabel; }
+
+        /**
+         * [setLabel ]
+         * @method setLabel
+         * @param  label    []
+         */
+        void setLabel(char label);
 
         /**
          * @brief Get the adduct form for this `PeakGroup`.
