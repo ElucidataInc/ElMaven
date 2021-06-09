@@ -481,12 +481,14 @@ void BackgroundOpsThread::classifyGroups(vector<PeakGroup>& groups)
                                 mzUtils::float2string(mavenParameters->badGroupUpperLimit, 1));
     QString maybeGood_group_limit = QString::fromStdString(
                                     mzUtils::float2string(mavenParameters->goodGroupLowerLimit, 1));
+    QString parallel = "True";
     QStringList mlArguments;
     mlArguments << "--input_attributes_file" << peak_attributes_file
                 << "--output_moi_file" << classification_output_file
                 << "--model_path" << ml_model
                 << "--bad_group_limit" << bad_group_limit
-                << "--maybeGood_group_limit" << maybeGood_group_limit;
+                << "--maybeGood_group_limit" << maybeGood_group_limit
+                << "--parallel" << parallel;
 
     Q_EMIT(updateProgressBar("Executing Polly-PeakML…", 0, 0));
     QProcess subProcess;
