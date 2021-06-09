@@ -14,6 +14,10 @@ class LoginForm;
 class TableDockWidget;
 class PollyWaitDialog;
 
+// QMap can not be used directly in signals and slots
+// in threads. Hence, we first need to register it's type
+// and then make use of registered datatype.
+typedef QMap<QString,int> StringMap;
 class EPIWorkerThread : public QThread
 {
     Q_OBJECT
@@ -24,7 +28,8 @@ public:
     {
         AuthenticateAndFetchData,
         UploadFiles,
-        SendEmail
+        SendEmail,
+        FetchPeakMLModels
     };
 
     EPIWorkerThread(PollyIntegration *pi) : _pollyIntegration(pi) {}
@@ -64,6 +69,7 @@ Q_SIGNALS:
                        QString datetimestamp);
     void projectsReady(QVariantMap projectNamesId);
     void authenticationFinished(QString username, QString status);
+    void peakMLAuthenticationFinished(StringMap models, QString status);
 
 private:
 
@@ -98,6 +104,8 @@ private:
     void _sendEmail();
 
     void _removeFilesFromDir(QDir dir, QStringList files);
+
+    void _getModels();
 };
 
 /**
@@ -155,6 +163,27 @@ public:
      */
     MainWindow* getMainWindow();
 
+    string userName;
+
+    bool showPollyApps;
+
+    /** 
+     * @brief Shows the login form.
+     * @details When peak curation is selected through peak detection 
+     * dialog, the login form must appear. This reason to make it as 
+     * a separate function is that - pollyApps must not appear after 
+     * successful login.
+     */ 
+    void loginForPeakMl();
+
+     /**
+     * @brief Runs QtProcess to hit Polly API that returns the 
+     * list of Models that is stored in S3 bucket for that 
+     * particular organisation of the current user.
+     * @return vector of model names.
+     */
+    void getModelsForPeakML();
+
 public Q_SLOTS:
     /**
      * @brief Select the peak table in the table combo box, if the given table
@@ -167,6 +196,8 @@ public Q_SLOTS:
 
     void showEPIError(QString errorMessage);
 
+    void peakMLAccessControl(StringMap models, QString status);
+
 Q_SIGNALS:
 
     /**
@@ -174,6 +205,12 @@ Q_SIGNALS:
      * or otherwise.
      */
     void uploadFinished(bool success);
+
+    /**
+     * @brief Signal emitted when worker thread finished authentication for peakML
+     * and in authorization has been handled by peak detection dialog.
+     */ 
+    void peakMLAccess(QMap<QString, int> models, QString status);
 
 private:
 
@@ -203,6 +240,12 @@ private:
      * their data.
      */
     PollyWaitDialog* _loadingDialog;
+
+    /**
+     * @brief A pointer to the loading dialog that fetches user data for peakML
+     * and appear on the top of peak detection dialog.
+     */ 
+    PollyWaitDialog* _loadingDialogForPeakML;
 
     /**
      * @brief A pointer to loginform class.
@@ -258,7 +301,7 @@ private:
     /**
      * @brief This function calls login form UI to take credentials from user.
      */
-    void _callLoginForm();
+    void _callLoginForm(bool showPollyApps = true);
 
     /**
      * @brief This function calls initial login UI to connect to Polly and fetch

@@ -59,7 +59,8 @@ class CSVReports
                    bool prmReport = false,
                    bool includeSetNamesLine = false,
                    MavenParameters* mp = NULL,
-                   bool pollyExport = false);
+                   bool pollyExport = false,
+                   bool groupsClassifed = false);
 
         /**
          *@brief-    destructor, just close all open output files opened for writing
@@ -104,6 +105,9 @@ class CSVReports
             selectionFlag = selFlag;
         }
 
+        static bool writeDataForPeakMl(const string& filePath,
+                                       vector<PeakGroup>& groups);
+
     private:
         /**
          *@brief-  helper function to write group info
@@ -113,6 +117,11 @@ class CSVReports
          *@brief-  helper function to write peak info
          */
         void _writePeakInfo(PeakGroup* group);
+
+        /**
+         * @brief helper function to write peakML info
+         */ 
+        void _writePeakMLInfo(PeakGroup* group);
 
         /**
          *@brief -   update string with escape sequence for
@@ -158,6 +167,10 @@ class CSVReports
         bool _pollyExport;
         bool _prmReport;
         bool _includeSetNamesLine;
+        /**
+         * @param For peakML classified groups 
+         */
+        bool _groupsClassifed;
 
         /**
          * @brief Write column name in output file for group report.

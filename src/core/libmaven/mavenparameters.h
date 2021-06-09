@@ -271,6 +271,15 @@ class MavenParameters
         double overlapWeight;
         bool useOverlap;
 
+        //for enabling peak Ml curation
+        bool classifyUsingPeakMl;
+        string peakMlModelType;
+        // Map to store all the available models for
+        // the user.
+        map<string, int> availablePeakMLModels;
+        float badGroupUpperLimit;
+        float goodGroupLowerLimit;
+
 
         /*
          * @breif load user defined or default settings(Default_Settings.xml)

@@ -815,6 +815,24 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN isotope_h2_count INTEGER;"
 
         "COMMIT;"
+    },
+    {
+        6,
+        "BEGIN TRANSACTION;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_label_id INTEGER;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_label TEXT;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_probability REAL;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_inference_key TEXT;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_inference_value TEXT;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_correlated_groups TEXT;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_base_value;"
+        "ALTER TABLE peakgroups ADD COLUMN peakML_output_value;"
+
+        "ALTER TABLE user_settings ADD COLUMN peakMlModel;"
+        "ALTER TABLE user_settings ADD COLUMN badGroupUpperLimit;"
+        "ALTER TABLE user_settings ADD COLUMN goodGroupLowerLimit;"
+
+        "COMMIT;"  
     }
 };
 

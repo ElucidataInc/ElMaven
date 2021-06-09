@@ -44,6 +44,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     sampleMean=0;
 
     deletedFlag = false;
+    _isHiddenFromTable = false;
 
     totalSampleCount=0;
     maxNoNoiseObs=0;
@@ -53,11 +54,15 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     maxPeakOverlap=0;
     maxQuality=0;
     avgPeakQuality=0;
-    groupQuality=0;
-    weightedAvgPeakQuality=0;
-    predictedLabel=0;
     minQuality = 0.2;
     minIntensity = 0;
+
+    _predictedLabel = ClassifiedLabel::None;
+    _predictionProbability = 0.0f;
+    
+    peakMLBaseValue = 0.0;
+    peakMLOutputValue = 0.0;
+    isClassified = false;
 
     //quantileIntensityPeaks = 0;
     //quantileQualityPeaks = 0;
@@ -73,7 +78,7 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
     parent = nullptr;
 
     isFocused=false;
-    label=0;    //classification label
+    _userLabel = '\0';    // default user classification label
 
     goodPeakCount=0;
     _type = GroupType::None;
@@ -87,68 +92,68 @@ PeakGroup::PeakGroup(shared_ptr<MavenParameters> parameters,
 }
 
 void PeakGroup::copyObj(const PeakGroup& o)  {
-    _groupId= o._groupId;
-    _metaGroupId= o._metaGroupId;
+    _groupId = o._groupId;
+    _metaGroupId = o._metaGroupId;
     clusterId = o.clusterId;
-    groupRank= o.groupRank;
+    groupRank = o.groupRank;
 
     minQuality = o.minQuality;
     minIntensity = o.minIntensity;
-    maxIntensity= o.maxIntensity;
+    maxIntensity = o.maxIntensity;
     maxAreaTopIntensity = o.maxAreaTopIntensity;
     maxAreaIntensity = o.maxAreaIntensity;
     maxHeightIntensity = o.maxHeightIntensity;
     maxAreaNotCorrectedIntensity = o.maxAreaNotCorrectedIntensity;
     maxAreaTopNotCorrectedIntensity = o.maxAreaTopNotCorrectedIntensity;
     currentIntensity = o.currentIntensity;
-    meanRt=o.meanRt;
-    meanMz=o.meanMz;
+    meanRt = o.meanRt;
+    meanMz = o.meanMz;
     _expectedMz = o._expectedMz;
+
+    peakMLBaseValue = o.peakMLBaseValue;
+    peakMLOutputValue = o.peakMLOutputValue;
 
     ms2EventCount = o.ms2EventCount;
     fragMatchScore = o.fragMatchScore;
     fragmentationPattern = o.fragmentationPattern;
 
-    blankMax=o.blankMax;
-    blankSampleCount=o.blankSampleCount;
-    blankMean=o.blankMean;
+    blankMax = o.blankMax;
+    blankSampleCount = o.blankSampleCount;
+    blankMean = o.blankMean;
 
     //quantileIntensityPeaks = o.quantileIntensityPeaks;
     //quantileQualityPeaks = o.quantileQualityPeaks;
 
-    sampleMax=o.sampleMax;
-    sampleCount=o.sampleCount;
-    sampleMean=o.sampleMean;
+    sampleMax = o.sampleMax;
+    sampleCount = o.sampleCount;
+    sampleMean = o.sampleMean;
 
-    totalSampleCount=o.totalSampleCount;
-    maxNoNoiseObs=o.maxNoNoiseObs;
-    maxPeakFracionalArea=o.maxPeakFracionalArea;
-    maxSignalBaseRatio=o.maxSignalBaseRatio;
-    maxSignalBaselineRatio=o.maxSignalBaselineRatio;
-    maxPeakOverlap=o.maxPeakOverlap;
-    maxQuality=o.maxQuality;
-    avgPeakQuality=o.avgPeakQuality;
-    groupQuality=o.groupQuality;
-    weightedAvgPeakQuality=o.weightedAvgPeakQuality;
-    predictedLabel=o.predictedLabel;
+    totalSampleCount = o.totalSampleCount;
+    maxNoNoiseObs = o.maxNoNoiseObs;
+    maxPeakFracionalArea = o.maxPeakFracionalArea;
+    maxSignalBaseRatio = o.maxSignalBaseRatio;
+    maxSignalBaselineRatio = o.maxSignalBaselineRatio;
+    maxPeakOverlap = o.maxPeakOverlap;
+    maxQuality = o.maxQuality;
+    avgPeakQuality = o.avgPeakQuality;
     _expectedAbundance = o._expectedAbundance;
-
+   
     deletedFlag = o.deletedFlag;
 
-    minRt=o.minRt;
-    maxRt=o.maxRt;
+    minRt = o.minRt;
+    maxRt = o.maxRt;
 
-    minMz=o.minMz;
-    maxMz=o.maxMz;
+    minMz = o.minMz;
+    maxMz = o.maxMz;
 
     parent = o.parent;
     setSlice(o.getSlice());
 
-    srmId=o.srmId;
-    isFocused=o.isFocused;
-    label=o.label;
+    srmId = o.srmId;
+    isFocused = o.isFocused;
+    _userLabel = o._userLabel;
 
-    goodPeakCount=o.goodPeakCount;
+    goodPeakCount = o.goodPeakCount;
     _type = o._type;
     _sliceSet = o.hasSlice();
     tagString = o.tagString;
@@ -162,6 +167,9 @@ void PeakGroup::copyObj(const PeakGroup& o)  {
     markedGoodByCloudModel = o.markedGoodByCloudModel;
 
     _tableName = o.tableName();
+    setPredictedLabel(o.predictedLabel(), o.predictionProbability());
+    setPredictionInference(o.predictionInference());
+    _correlatedGroups = o.getCorrelatedGroups();
 
     copyChildren(o);
     _parameters = make_shared<MavenParameters>(*(o.parameters().get()));
@@ -573,17 +581,12 @@ void PeakGroup::updateQuality() {
     goodPeakCount=0;
 
     float peakQualitySum=0;
-    float weightedSum=0;
-    float sumWeights=0;
     for(const auto peak : peaks) {
         if(peak.quality > maxQuality) maxQuality = peak.quality;
         if(peak.quality > minQuality) goodPeakCount++; //Sabu
         peakQualitySum += peak.quality;
-        weightedSum += peak.quality * peak.peakIntensity;
-        sumWeights += peak.peakIntensity;
     }
     avgPeakQuality = peakQualitySum / peaks.size();
-    weightedAvgPeakQuality = weightedSum / sumWeights;
 }
 
 double PeakGroup::getExpectedMz(int charge)
@@ -661,9 +664,6 @@ void PeakGroup::groupStatistics() {
     maxPeakFracionalArea=0;
     maxQuality=0;
     avgPeakQuality=0;
-    groupQuality=0;
-    weightedAvgPeakQuality=0;
-    predictedLabel=0;
     goodPeakCount=0;
     maxSignalBaselineRatio=0;
     //quantileIntensityPeaks;
@@ -672,8 +672,6 @@ void PeakGroup::groupStatistics() {
     //@Kailash: Added for Avg Peak Quality and Intensity Weighted Peak Quality
     float peakQualitySum=0;
     float highestIntensity=0;
-    float weightedSum = 0;
-    float sumWeights = 0;
 
     for(unsigned int i=0; i< peaks.size(); i++) {
         if(peaks[i].pos != 0 && peaks[i].baseMz != 0) { rtSum += peaks[i].rt; mzSum += peaks[i].baseMz; nonZeroCount++; }
@@ -725,13 +723,10 @@ void PeakGroup::groupStatistics() {
             if(peaks[i].peakIntensity > sampleMax) sampleMax = peaks[i].peakIntensity;
         }
 
-        weightedSum += peaks[i].quality * peaks[i].peakIntensity;
-        sumWeights += peaks[i].peakIntensity;
         peakQualitySum += peaks[i].quality;
         if (peaks[i].peakIntensity > highestIntensity) highestIntensity = peaks[i].peakIntensity;
     }
     avgPeakQuality = peakQualitySum / peaks.size();
-    weightedAvgPeakQuality = weightedSum/sumWeights;
 
     if (sampleCount>0) sampleMean = sampleMean/sampleCount;
     if (nonZeroCount) {
@@ -805,7 +800,7 @@ void PeakGroup::reorderSamples() {
     }
 }
 
-string PeakGroup::getName() {
+string PeakGroup::getName() const {
     string tag;
 
     // compound is assigned in case of targeted search
@@ -1068,4 +1063,71 @@ void PeakGroup::setGroupId(int groupId)
     for (auto& peak : peaks) {
         peak.groupNum = groupId;
     }
+}
+void PeakGroup::setUserLabel(char label)
+{
+    if (label == 'g') {
+        _predictedLabel = ClassifiedLabel::Signal;
+    } else if (label == 'b') {
+        _predictedLabel = ClassifiedLabel::Noise;
+    } else if (label == '\0') {
+        _predictedLabel = ClassifiedLabel::None;
+    } else {
+        // ignore invalid labels
+        return;
+    }
+    _userLabel = label;
+}
+
+void PeakGroup::setPredictedLabel(const ClassifiedLabel label,
+                                  const float probability)
+{
+    _predictedLabel = label;
+    if (_predictedLabel == ClassifiedLabel::None) {
+        this->_userLabel = '\0';
+    } else if (_predictedLabel == ClassifiedLabel::MaybeGood) {
+        this->_userLabel = '\0';
+    } else if (_predictedLabel == ClassifiedLabel::Noise) {
+        this->_userLabel = 'b';
+    } else {
+        this->_userLabel = 'g';
+    }
+    _predictionProbability = probability;
+}
+
+void PeakGroup::setPredictionInference(const multimap<float, string>& inference)
+{
+    _predictionInference = inference;
+}
+
+PeakGroup::ClassifiedLabel PeakGroup::predictedLabel() const
+{
+    return _predictedLabel;
+}
+
+float PeakGroup::predictionProbability() const
+{
+    return _predictionProbability;
+}
+
+multimap<float, string> PeakGroup::predictionInference() const
+{
+    return _predictionInference;
+}
+
+void PeakGroup::addCorrelatedGroup(int groupId,
+                                   const float correlationFactor)
+{
+    _correlatedGroups[groupId] = correlationFactor;
+}
+
+map<int, float> PeakGroup::getCorrelatedGroups() const
+{
+    return _correlatedGroups;
+}
+
+void PeakGroup::setCorrelatedGroups(map<int, float> correlatedGroups)
+{
+    _correlatedGroups.clear();
+    _correlatedGroups = correlatedGroups;
 }

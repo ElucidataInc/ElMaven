@@ -18,9 +18,12 @@ public:
      * @param fileName Path of the file where the emDB file will be saved.
      * @param saveRawData Whether the file should contain raw EIC and spectra
      * information for peaks.
+     * @param saveChromatogram If emDB is saved with raw EIC data, saveChromatogram
+     * depicts whether the EIC(s) are to be sliced or whole chromatogram must be saved. 
      */
     virtual void saveProject(const QString fileName,
-                             const bool saveRawData = false);
+                             const bool saveRawData = false,
+                             const bool saveChromatogram = false);
 
     /**
      * @brief Update the currently set emDB project. This should be the last
@@ -42,6 +45,7 @@ protected:
     QString _currentProjectName;
     QList<shared_ptr<PeakGroup>> _groupsToSave;
     bool _saveRawData;
+    bool _saveChromatogram;
     bool _isTempProject;
 
     void run();
@@ -76,7 +80,8 @@ public:
      * thus completely ignoring the file path provided.
      */
     void saveProject(const QString filename,
-                     const bool saveRawData = false) override
+                     const bool saveRawData = false,
+                     const bool saveChromatogram = false) override
     {
         saveProject(saveRawData);
     }

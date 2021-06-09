@@ -633,7 +633,8 @@ void mzFileIO::updateGroup(PeakGroup* group, QString tableName)
 
 bool mzFileIO::writeSQLiteProject(const QString filename,
                                   const bool saveRawData,
-                                  const bool isTempProject)
+                                  const bool isTempProject,
+                                  const bool saveChromatogram)
 {
     _sqliteDbSaveInProgress = true;
 
@@ -666,11 +667,12 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
         qDebug() << "closing the current project…";
         closeSQLiteProject();
 
-        qDebug() << "creating new project to save…";
+        qDebug() << "creating new project to save…" << saveChromatogram;
         auto version = _mainwindow->appVersion().toStdString();
         _currentProject = new ProjectDatabase(filename.toStdString(),
                                               version,
-                                              saveRawData);
+                                              saveRawData,
+                                              saveChromatogram);
     }
 
     if (_currentProject) {
@@ -768,14 +770,22 @@ bool mzFileIO::writeSQLiteProject(const QString filename,
     return false;
 }
 
-bool mzFileIO::writeSQLiteProjectForPolly(QString filename)
+bool mzFileIO::writeSQLiteProjectForPolly(QString filename, bool saveRawData, bool saveChromatogram)
 {
     vector<mzSample*> sampleSet = _mainwindow->getSamples();
     if (sampleSet.size() == 0)
         return false;
 
     auto version = _mainwindow->appVersion().toStdString();
-    auto sessionDb = new ProjectDatabase(filename.toStdString(), version);
+    // For polly if the user choses to export emDB with raw data
+    // then the emDB must be written with the whole chromatogram 
+    // and not just the peakGroup information. Hence, third and 
+    // fourth parameters are both set to saveRawData. 
+    auto sessionDb = new ProjectDatabase(filename.toStdString(), 
+                                        version, 
+                                        saveRawData, 
+                                        saveChromatogram);
+
     if (sessionDb) {
         sessionDb->deleteAll();
         sessionDb->saveGlobalSettings(_settingsMap);
@@ -1032,16 +1042,22 @@ void mzFileIO::_postSampleLoadOperations()
     // create tables for stored peak groups, this can only be done in the
     // main loop
     auto tableNames = _currentProject->getTableNames();
+    auto tableSettings = _currentProject->loadTableSettings();
+
     for (auto name : tableNames) {
         auto tableName = QString::fromStdString(name);
         TableDockWidget* table = nullptr;
         for (auto t : _mainwindow->getPeakTableList())
             if (t->windowTitle() == tableName)
                 table = t;
-
+        
         if (!table
             && tableName != _mainwindow->bookmarkedPeaks->windowTitle()) {
-            _mainwindow->addPeaksTable(tableName);
+            bool hasClassifiedGroups = false;
+            auto it = tableSettings.find(name);
+            if(it != tableSettings.end())
+                hasClassifiedGroups= tableSettings[name];
+            _mainwindow->addPeaksTable(tableName, hasClassifiedGroups);
         }
     }
 
@@ -1152,7 +1168,8 @@ PeakGroup* mzFileIO::readGroupXML(QXmlStreamReader& xml, PeakGroup* parent)
     group->tagIsotope(xml.attributes().value("tagString").toString().toStdString(),
                       xml.attributes().value("expectedMz").toString().toFloat(),
                       0.0f);
-    group->label = xml.attributes().value("label").toString().toInt();
+    group->setExpectedMz(xml.attributes().value("expectedMz").toString().toFloat());
+    group->setUserLabel(xml.attributes().value("label").toString().toInt());
     group->setType((PeakGroup::GroupType)xml.attributes()
                        .value("type")
                        .toString()

@@ -91,7 +91,6 @@ INCLUDEPATH +=  $$top_srcdir/src/core/libmaven  \
                 $$top_srcdir/3rdparty/Logger \
                 $$top_srcdir/src/pollyCLI \
                 $$top_srcdir/src/projectDB \
-                $$top_srcdir/3rdparty/libsvm \
                 $$top_srcdir/3rdparty/libmgf \
                 $$top_srcdir/3rdparty/json \
                 $$top_srcdir/src/ 
@@ -111,9 +110,8 @@ LIBS +=  -lmaven \
          -lz \
          -lpollyCLI \
          -lprojectDB \
-         -lsvm \
          -lcommon \
-         -lmgf
+         -lmgf 
 
 macx {
 
@@ -137,6 +135,7 @@ INSTALLS += sources target
 
 FORMS = forms/settingsform.ui  \
         forms/isotopeswidget.ui \
+        forms/correlationtable.ui \
         forms/librarymanager.ui \
         forms/masscalcwidget.ui \
         forms/peakdetectiondialog.ui \
@@ -155,7 +154,8 @@ FORMS = forms/settingsform.ui  \
         forms/adductwidget.ui \
         forms/updatedialog.ui \
         forms/peakeditor.ui \
-        forms/groupsettingslog.ui
+        forms/groupsettingslog.ui   \
+        forms/relabelgroupsdialog.ui
 
 HEADERS += stable.h \
            backgroundopsthread.h \
@@ -213,7 +213,12 @@ HEADERS += stable.h \
            updatedialog.h \
            peakeditor.h \
            groupsettingslog.h \
-           projectsaveworker.h
+           projectsaveworker.h \
+           multiselectcombobox.h \
+           correlationtable.h   \
+           classificationWidget.h   \
+           rangeSlider.h            \
+           relabelGroupsDialog.h 
 
 SOURCES += mainwindow.cpp  \
            backgroundopsthread.cpp \
@@ -267,7 +272,12 @@ SOURCES += mainwindow.cpp  \
            updatedialog.cpp \
            peakeditor.cpp \
            groupsettingslog.cpp \
-           projectsaveworker.cpp
+           projectsaveworker.cpp \
+           multiselectcombobox.cpp \
+           correlationtable.cpp     \
+           classificationWidget.cpp \
+           rangeSlider.cpp          \
+           relabelGroupsDialog.cpp
 
 linux {
     SOURCES -= autoupdater.cpp

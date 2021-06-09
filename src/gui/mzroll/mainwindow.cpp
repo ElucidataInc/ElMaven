@@ -13,11 +13,11 @@
 #include "Compound.h"
 #include "controller.h"
 #include "classifierNeuralNet.h"
+#include "correlationtable.h"
 #include "datastructures/adduct.h"
 #include "eiclogic.h"
 #include "eicwidget.h"
 #include "globals.h"
-#include "groupClassifier.h"
 #include "grouprtwidget.h"
 #include "infodialog.h"
 #include "isotopedialog.h"
@@ -48,12 +48,10 @@
 #include "settingsform.h"
 #include "spectrawidget.h"
 #include "suggest.h"
-#include "svmPredictor.h"
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 #include "updatedialog.h"
 #include "eiclogic.h"
-
 
 #ifdef WIN32
 #include <windows.h>
@@ -374,13 +372,7 @@ using namespace mzUtils;
     clsfModelFilename = appDir + "default.model";
     weightsFile = appDir + "group.weights";
     modelFile = appDir + "svm.model";
-
-	groupClsf = new groupClassifier();
-    groupClsf->loadModel(weightsFile.toStdString());
  
-  	groupPred = new svmPredictor();
-    groupPred->loadModel(modelFile.toStdString());
-
     if (QFile::exists(clsfModelFilename)) {
         settings->setValue("peakClassifierFile", clsfModelFilename);
         clsf->loadModel( clsfModelFilename.toStdString());
@@ -429,6 +421,13 @@ using namespace mzUtils;
 	btnBugs->setHidden(true);
 
 	setWindowIcon(QIcon(":/images/icon.png"));
+
+    //setting correlation table 
+    _correlationTable = new CorrelationTable;
+    addDockWidget(Qt::BottomDockWidgetArea,
+                  _correlationTable,
+                  Qt::Horizontal);
+    _correlationTable->setVisible(false);
 
 	//dock widgets
     setDockOptions(QMainWindow::AllowNestedDocks
@@ -529,7 +528,8 @@ using namespace mzUtils;
     srmDockWidget->setQQQToolBar();
 
     isotopeDialog = new IsotopeDialog(this);
-
+    
+    _usageTracker = new Mixpanel;
 	peakDetectionDialog = new PeakDetectionDialog(this);
 	peakDetectionDialog->setSettings(settings);
     connect(peakDetectionDialog, SIGNAL(findPeaksClicked()),
@@ -848,7 +848,6 @@ using namespace mzUtils;
 		}
 	}
 
-    _usageTracker = new Mixpanel;
     _infoDialog = new InfoDialog(this);
     _statusPriority = 0;
 }
@@ -979,7 +978,7 @@ void MainWindow::explicitSave()
     saveProject(true);
 }
 
-void MainWindow::threadSave(const QString filename, const bool saveRawData)
+void MainWindow::threadSave(const QString filename, const bool saveRawData, const bool saveChromatogram)
 {
     if (saveWorker->isRunning()) {
         QMessageBox::information(this,
@@ -999,9 +998,20 @@ void MainWindow::threadSave(const QString filename, const bool saveRawData)
 
     autosaveWorker->deleteCurrentProject();
     _latestUserProjectName = filename;
-    saveWorker->saveProject(filename, saveRawData);
+    saveWorker->saveProject(filename, saveRawData, saveChromatogram);
 }
 
+void MainWindow::showWarning(QString message) {
+    QMessageBox *warning = new QMessageBox(this);
+    
+    warning->setText(message);
+    warning->setIcon(QMessageBox::Icon::Warning);
+
+    auto yesButton = warning->addButton(tr("Ok"),
+                                QMessageBox::AcceptRole);
+    warning->exec();
+    QCoreApplication::processEvents();
+}
 void MainWindow::unsupportedFormat(QStringList unsupportedFileList) 
 {
     QString fileList = "";
@@ -1264,8 +1274,9 @@ void MainWindow::setUrl(Compound* c) {
 	setUrl(url, link);
 }
 
-TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle) {
-    TableDockWidget* panel = new PeakTableDockWidget(this, tableTitle);
+TableDockWidget* MainWindow::addPeaksTable(const QString& tableTitle, 
+                                           bool hasClassifiedGroups) {
+    TableDockWidget* panel = new PeakTableDockWidget(this, tableTitle, hasClassifiedGroups);
     analytics->hitEvent("New Table", "Peak Table");
 
     addDockWidget(Qt::BottomDockWidgetArea, panel, Qt::Horizontal);
@@ -4385,7 +4396,7 @@ void MainWindow::markGroup(shared_ptr<PeakGroup> group, char label) {
 	if (!group)
 		return;
 
-	group->setLabel(label);
+    group->setUserLabel(label);
 	bookmarkPeakGroup(group);
 }
 

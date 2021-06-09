@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>372</width>
-    <height>408</height>
+    <width>373</width>
+    <height>466</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -183,6 +183,19 @@
         </property>
         <property name="text">
          <string>Cite El-MAVEN</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="peakMLButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>PeakML</string>
         </property>
        </widget>
       </item>

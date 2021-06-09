@@ -242,11 +242,11 @@ void ClassifierNaiveBayes::classify(PeakGroup* grp) {
 
 void ClassifierNaiveBayes::refineModel(PeakGroup* grp) {
 	if (grp == NULL)
-		return;
-	if (grp->label == 'g' || grp->label == 'b') {
+        return;
+    if (grp->userLabel() == 'g' || grp->userLabel() == 'b') {
 		for (unsigned int j = 0; j < grp->peaks.size(); j++) {
 			Peak& p = grp->peaks[j];
-			p.label = grp->label;
+            p.label = grp->userLabel();
 			if (p.width < 2 || p.signalBaselineRatio <= 1)
 				p.label = 'b';
 			if (p.label == 'g' || p.label == 'b') {

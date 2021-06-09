@@ -51,6 +51,53 @@ class PeakGroup{
                   IntegrationType integrationType);
         PeakGroup(const PeakGroup& o,
                   IntegrationType integrationType = IntegrationType::Inherit);
+
+        enum class ClassifiedLabel {
+            None,                // the group has not been classified using ML yet
+            Noise,               // the group is too noisy to be a metbolite
+            Signal,              // the group shows a clear signal but may not be an interesting metabolite
+            Correlation,         // the group is a signal and is correlated to one or more signals
+            Pattern,             // the group is a signal and shows interesting inter-cohort intensity pattern
+            CorrelationAndPattern, // the group is a signal which shows correlation as well as intensity pattern
+            MaybeGood               // the group wich lies between limits for good and bad peakgroup by the user.
+        };
+
+        static string labelToString (ClassifiedLabel label)
+        {
+            if (label == ClassifiedLabel::Noise)
+                return "ClassifiedLabel::Noise";
+            if (label == ClassifiedLabel::Signal)
+                return "ClassifiedLabel::Signal";
+            if (label == ClassifiedLabel::Correlation)
+                return "ClassifiedLabel::Correlation";
+            if (label == ClassifiedLabel::Pattern)
+                return "ClassifiedLabel::Pattern";
+            if (label == ClassifiedLabel::CorrelationAndPattern)
+                return "ClassifiedLabel::CorrelationAndPattern";
+            if (label == ClassifiedLabel::MaybeGood)
+                return "ClassifiedLabel::MaybeGood";
+            return "ClassifiedLabel::None";
+        }
+
+        static ClassifiedLabel labelForString(const string& labelString)
+        {
+            if (labelString == "ClassifiedLabel::Signal") {
+                return PeakGroup::ClassifiedLabel::Signal;
+            } else if (labelString == "ClassifiedLabel::Noise") {
+                return PeakGroup::ClassifiedLabel::Noise;
+            } else if (labelString == "ClassifiedLabel::Correlation") {
+                return PeakGroup::ClassifiedLabel::Correlation;
+            } else if (labelString == "ClassifiedLabel::Pattern") {
+                return PeakGroup::ClassifiedLabel::Pattern;
+            } else if (labelString == "ClassifiedLabel::CorrelationAndPattern") {
+                return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            } else if (labelString == "ClassifiedLabel::MaybeGood") {
+                return PeakGroup::ClassifiedLabel::MaybeGood;
+            }
+            return PeakGroup::ClassifiedLabel::None;
+        }
+
+        PeakGroup();
         PeakGroup& operator=(const PeakGroup& o);
 
         bool operator==(const PeakGroup* o);
@@ -80,13 +127,14 @@ class PeakGroup{
 
         /** classification label */
         char label;
+
         /**
          * @brief returns group name
          * @method getName
          * @detail returns compound name, tagString, srmID, meanMz@meanRt or groupId in this order of preference
          * @return string
          */
-        string getName();
+        string getName() const;
 
         bool isFocused;
 
@@ -106,7 +154,7 @@ class PeakGroup{
         float meanRt;
         float meanMz;
         int totalSampleCount;
-
+    
         int  ms2EventCount;
 
         FragmentationMatchScore fragMatchScore;
@@ -134,18 +182,18 @@ class PeakGroup{
         unsigned int  maxPeakOverlap;
         float maxQuality;
         float avgPeakQuality;
-        //@Kailash: group quality computed using neural network
         int markedGoodByCloudModel = 0;
         int markedBadByCloudModel = 0;
-        float groupQuality;
-        float weightedAvgPeakQuality;
-        int predictedLabel;
         double minQuality;
         float maxPeakFracionalArea;
         float maxSignalBaseRatio;
         float maxSignalBaselineRatio;
         int goodPeakCount;
         float groupRank;
+
+        bool isClassified;
+        float peakMLBaseValue;
+        float peakMLOutputValue;
 
         //for sample contrasts  ratio and pvalue
         float changeFoldRatio;
@@ -264,6 +312,11 @@ class PeakGroup{
         
         double getExpectedMz(int charge);
 
+        void setExpectedMz(double mz)
+        {   
+            _expectedMz = mz;
+        }
+
         float getExpectedAbundance() const;
 
         void tagIsotope(string isotopeName,
@@ -281,6 +334,22 @@ class PeakGroup{
             if (parent != nullptr)
                 _type = GroupType::Isotope;
         }
+
+        /**
+         * @brief Assign a label to this peak group.
+         * @details If this method is called with one of the valid user labels,
+         * then user decision overrides any PeakML classified predictions.
+         * @param label A character that is either 'g' (good), 'b' (bad) or
+         * '\0' (unset).
+         */
+        void setUserLabel(const char label);
+
+        /**
+         * @brief Get the current good/bad label assigned to this peak group.
+         * @return A character, denoting a good peak if 'g', a bad peak if 'b'
+         * or '\0' if unassigned.
+         */
+        char userLabel() const { return _userLabel; }
 
         /**
          * [setLabel ]
@@ -624,11 +693,148 @@ class PeakGroup{
             return _parameters;
         }
 
+        /**
+         * @brief Set parameters used while integrating this peak-group.
+         */
+        void setParameters(shared_ptr<MavenParameters> mp)
+        {
+            _parameters = mp;
+        }
+
+        bool isGroupHidden() {
+            return _isHiddenFromTable;
+        }
+
+        void setIsGrooupHidden(bool flag) {
+            _isHiddenFromTable = flag;
+        }
+
         IntegrationType integrationType() const { return _integrationType; }
 
         int groupId() const { return _groupId; }
         int metaGroupId() const { return _metaGroupId; }
         void setGroupId(int groupId);
+
+        /*
+         * @brief Set the classification label for this PeakGroup.
+         * @details Anything other than `PeakGroup::ClassifiedLabel::Noise` or
+         * `PeakGroup::ClassifiedLabel::None` will be marked as a good ('g')
+         * group.
+         * @param label The PeakML class to assign.
+         * @param probability The probability for this classification.
+         */
+        void setPredictedLabel(const ClassifiedLabel label,
+                               const float probability);
+
+        /**
+         * @brief Set the inference values for assigned classification.
+         * @param inference A multi-map of computed values mapping to each peak
+         * attribute. A `multimap` is used so that "views" can later on use it
+         * to display top N features responsible for classification, which would
+         * be a tedious process if we used a map of attributes:values instead.
+         */
+        void setPredictionInference(const multimap<float, string>& inference);
+
+        /**
+         * @brief Get the predicted label for this peak group.
+         * @return A `PeakGroup::ClassifiedLabel` denoting the predicted class.
+         */
+        ClassifiedLabel predictedLabel() const;
+
+        /**
+         * @brief The proability with which this group has been assigned its
+         * current PeakML class.
+         * @return A floating point value representing confidence of
+         * prediction.
+         */
+        float predictionProbability() const;
+
+        /**
+         * @brief Obtain inferences that can help illustrate why the peak-group
+         * was assigned its current probability.
+         * @return A `std::multimap` storing values mapping to every known
+         * attribute.
+         */
+        multimap<float, string> predictionInference() const;
+
+        /**
+         * @brief Add a peak-group ID to the internal correlation records.
+         * @param correlatedGroup An ID for a peak-group that is believed to be
+         * correlated with this peak-group.
+         * @param correlationFactor A floating point value (between 0 and 1)
+         * that signifies how closely the two peak-groups resemble in terms of
+         * their intensity pattern.
+         */
+        void addCorrelatedGroup(int groupId, const float correlationFactor);
+
+        /**
+         * @brief Obtain a map of peak-groups and their correlation values, that
+         * exhibit a similar intensity pattern w.r.t. this peak-group.
+         * @return A map of peak-group IDs mapping to their correlation factor
+         * with this group.
+         */
+        map<int, float> getCorrelatedGroups() const;
+
+        /**
+         * @brief Sets correlated groups and their values, for a peak-group.
+         * @param CorrelationGroups Map with the groups-id's and correlation-value 
+         * that are correlated to peak-group. 
+         */ 
+        void setCorrelatedGroups(map<int, float> CorrelationGroups);
+
+        /**
+         * @brief Converts an integer prediction-class identifier to its
+         * corresponding `PeakGroup::ClassifiedLabel`.
+         * @details This function should be regarded as complementary to
+         * `PeakGroup::integralValueForClass`, assisting in conversion from a
+         * primitive representation (integer).
+         * @param An integer which has to be converted to a `ClassifiedLabel`.
+         * @return A `PeakGroup::ClassifiedLabel`.
+         */
+        static ClassifiedLabel classificationLabelForValue(int value)
+        {
+            if (value == 0)
+                return PeakGroup::ClassifiedLabel::Noise;
+            if (value == 1)
+                return PeakGroup::ClassifiedLabel::Signal;
+            if (value == 2)
+                return PeakGroup::ClassifiedLabel::Correlation;
+            if (value == 3)
+                return PeakGroup::ClassifiedLabel::Pattern;
+            if (value == 4)
+                return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+            if (value == 5)
+                return PeakGroup::ClassifiedLabel::MaybeGood;
+            return PeakGroup::ClassifiedLabel::None;
+        };
+
+        /**
+         * @brief Converts a `PeakGroup::ClassifiedLabel` identifier to an
+         * integer value, guaranteed to be unique for all possible classes.
+         * @details This function should be regarded as complementary to
+         * `PeakGroup::classificationLabelForValue`, assisting in conversion to
+         * a primitive representation (integer).
+         * @param label A `PeakGroup::ClassifiedLabel` that needs to be
+         * converted to an integer.
+         * @return An integer, unique for each enum value.
+         */
+        static int integralValueForLabel(ClassifiedLabel label)
+        {
+            if (label == PeakGroup::ClassifiedLabel::Noise)
+                return 0;
+            if (label == PeakGroup::ClassifiedLabel::Signal)
+                return 1;
+            if (label == PeakGroup::ClassifiedLabel::Correlation)
+                return 2;
+            if (label == PeakGroup::ClassifiedLabel::Pattern)
+                return 3;
+            if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+                return 4;
+            if (label == PeakGroup::ClassifiedLabel::MaybeGood)
+                return 5;
+            return -1;
+        }
+
 
     private:
         int _groupId;
@@ -637,6 +843,9 @@ class PeakGroup{
         mzSlice _slice;
         bool _sliceSet;
 
+        /* Hidden when filtered out in classified table */
+        bool _isHiddenFromTable;
+  
         float _expectedMz;
         float _expectedAbundance;
 
@@ -649,5 +858,16 @@ class PeakGroup{
         IntegrationType _integrationType;
 
         void _updateType();
+        
+        // user classification label
+        char _userLabel;
+
+        // group IDs (with score) with which this group is correlated
+        map<int, float> _correlatedGroups;
+
+        // properties for PeakML classification
+        ClassifiedLabel _predictedLabel;
+        float _predictionProbability;
+        multimap<float, string> _predictionInference;
 };
 #endif

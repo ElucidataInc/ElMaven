@@ -55,10 +55,13 @@ public:
      * used to deduce whether the database needs schema upgrade.
      * @param Boolean that decides whether or not the project should save raw
      * EIC and spectra for peaks. Once set this property cannot be changed.
+     * @param Boolean that decides whether whole chromatogram or sliced EIC 
+     * should be save as raw data.
      */
     ProjectDatabase(const string& dbFilename,
                     const string& version,
-                    const bool saveRawData = false);
+                    const bool saveRawData = false, 
+                    const bool saveChromatogram = false);
 
     /**
      * @brief Destroy the object and close database connection.
@@ -230,6 +233,14 @@ public:
     vector<PeakGroup*> loadGroups(const vector<mzSample*>& loaded,
                                   const MavenParameters* globalParams);
 
+    /**
+     * @brief Loads peakgroup table and makes a map which represent
+     * the information whether the table has classified groups or not.
+     * @return Map which has tablename and a bool that tells whether the group 
+     * are classified or not.
+     */ 
+    map<string, bool> loadTableSettings();
+    
     /**
      * @brief Load peaks for a given peak group.
      * @param group The PeakGroup for which peaks are to be loaded.
@@ -473,6 +484,12 @@ private:
     bool _saveRawData;
 
     /**
+     * @brief _saveChromatogramForRawData If _setRawData is set to true the user is given
+     * option to choose to save whole chromatogram or sliced EIC.
+     */
+    bool _saveChromatogramForRawData;
+
+    /**
      * @brief Assign each sample in the given vector with a unique ID.
      * @details This unique ID is extremely important in ensuring that other
      * object information such as peaks, peaks groups, scans and alignment
@@ -546,6 +563,13 @@ private:
      * saved for peaks.
      */
     void _setSaveRawData(const string& filePath, const bool saveRawData);
+
+    /**
+     * @brief Calculates rtmin and rtmax of the samples that are present
+     * in the group.
+     * @return Returns the pair of rtmin and rtmax of the samples.
+     */ 
+    pair<float, float> _getRtMinMaxForSamples(vector<mzSample*> samples);
 };
 
 #endif // PROJECTDATABASE_H
