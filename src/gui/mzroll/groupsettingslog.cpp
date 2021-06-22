@@ -111,6 +111,8 @@ void GroupSettingsLog::_displayGroupSettings()
             tracerNames << "N15";
         if (mp->S34Labeled_BPE)
             tracerNames << "S34";
+        if (mp->O18Labeled_BPE)
+            tracerNames << "O18";
         if (tracerNames.isEmpty())
             return tr("None");
         return tracerNames.join(", ");

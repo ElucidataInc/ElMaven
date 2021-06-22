@@ -229,6 +229,7 @@ class MavenParameters
         bool N15Labeled_BPE;
         bool S34Labeled_BPE;
         bool D2Labeled_BPE;
+        bool O18Labeled_BPE;
 
         bool C13Labeled_Barplot;
         bool N15Labeled_Barplot;

@@ -110,6 +110,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	N15Labeled_BPE = false;
 	S34Labeled_BPE = false;
 	D2Labeled_BPE = false;
+    O18Labeled_BPE = false;
 	
 	C13Labeled_Barplot = true;
 	N15Labeled_Barplot = false;
@@ -276,6 +277,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     N15Labeled_BPE = mp.N15Labeled_BPE;
     S34Labeled_BPE = mp.S34Labeled_BPE;
     D2Labeled_BPE = mp.D2Labeled_BPE;
+    O18Labeled_BPE = mp.O18Labeled_BPE;
 
     C13Labeled_Barplot = mp.C13Labeled_Barplot;
     N15Labeled_Barplot = mp.N15Labeled_Barplot;
@@ -341,6 +343,9 @@ void MavenParameters::setIsotopeDialogSettings(const char* key, const char* valu
 
     if(strcmp(key, "S34LabelBPE") == 0)
         S34Labeled_BPE = atof(value);
+
+    if(strcmp(key, "O18LabelBPE") == 0)
+        O18Labeled_BPE = atof(value);
 
     if(strcmp(key, "filterIsotopesAgainstParent") == 0)
         filterIsotopesAgainstParent = atoi(value);
