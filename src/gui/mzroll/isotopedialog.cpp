@@ -10,6 +10,7 @@ IsotopeDialogSettings::IsotopeDialogSettings(IsotopeDialog* dialog):id(dialog)
     settings.insert("C13LabelBPE", QVariant::fromValue(id->C13Labeled_BPE));
     settings.insert("N15LabelBPE", QVariant::fromValue(id->N15Labeled_BPE));
     settings.insert("S34LabelBPE", QVariant::fromValue(id->S34Labeled_BPE));
+    settings.insert("O18LabelBPE", QVariant::fromValue(id->O18Labeled_BPE));
     
     settings.insert("filterIsotopesAgainstParent", QVariant::fromValue(id->filterIsotopesAgainstParent));
     settings.insert("minIsotopeParentCorrelation", QVariant::fromValue(id->minIsotopicCorrelation));
@@ -67,7 +68,8 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                     if (!D2Labeled_BPE->isChecked()
                         && !C13Labeled_BPE->isChecked()
                         && !N15Labeled_BPE->isChecked()
-                        && !S34Labeled_BPE->isChecked()) {
+                        && !S34Labeled_BPE->isChecked()
+                        && !O18Labeled_BPE->isChecked()) {
                         C13Labeled_BPE->setChecked(true);
                     }
                     filterIsotopesAgainstParent->setEnabled(true);
@@ -79,6 +81,7 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
                     D2Labeled_BPE->setChecked(false);
                     N15Labeled_BPE->setChecked(false);
                     S34Labeled_BPE->setChecked(false);
+                    O18Labeled_BPE->setChecked(false);
                     filterIsotopesAgainstParent->setChecked(false);
                     filterIsotopesAgainstParent->setEnabled(false);
                     parentIsotopeRequired->setChecked(false);
@@ -90,7 +93,8 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
         if (!D2Labeled_BPE->isChecked()
             && !C13Labeled_BPE->isChecked()
             && !N15Labeled_BPE->isChecked()
-            && !S34Labeled_BPE->isChecked()) {
+            && !S34Labeled_BPE->isChecked()
+            && !O18Labeled_BPE->isChecked()) {
             reportIsotopesOptions->setChecked(false);
         }
     };
@@ -98,6 +102,7 @@ IsotopeDialog::IsotopeDialog(MainWindow* parent) : QDialog(parent) {
     connect(C13Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
     connect(N15Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
     connect(S34Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
+    connect(O18Labeled_BPE, &QCheckBox::toggled, checkIsotopeDetectionValid);
 }
 
 IsotopeDialog::~IsotopeDialog()
