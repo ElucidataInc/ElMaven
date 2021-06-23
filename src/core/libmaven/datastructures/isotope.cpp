@@ -2,7 +2,7 @@
 #include "isotope.h"
 #include "mzUtils.h"
 
-Isotope::Isotope(std::string name, double mass, int c, int n, int s, int h)
+Isotope::Isotope(std::string name, double mass, int c, int n, int s, int h, int o)
 {
     this->mass = mass;
     this->name = name;
@@ -10,6 +10,7 @@ Isotope::Isotope(std::string name, double mass, int c, int n, int s, int h)
     N15 = n;
     S34 = s;
     H2 = h;
+    O18 = o;
     abundance = 0.0;
 }
 
@@ -22,6 +23,7 @@ Isotope::Isotope()
     C13 = 0;
     S34 = 0;
     H2 = 0;
+    O18 = 0;
 }
 
 Isotope::Isotope(const Isotope &b)
@@ -33,6 +35,7 @@ Isotope::Isotope(const Isotope &b)
     S34 = b.S34;
     C13 = b.C13;
     H2 = b.H2;
+    O18 = b.O18;
 }
 
 Isotope& Isotope::operator=(const Isotope &b)
@@ -44,6 +47,7 @@ Isotope& Isotope::operator=(const Isotope &b)
     S34 = b.S34;
     C13 = b.C13;
     H2 = b.H2;
+    O18 = b.O18;
     return *this;
 }
 
@@ -55,7 +59,8 @@ bool Isotope::operator==(const Isotope &b) const
             && C13 == b.C13
             && N15 == b.N15
             && S34 == b.S34
-            && H2 == b.H2);
+            && H2 == b.H2
+            && O18 == b.O18);
 }
 
 bool Isotope::operator<(const Isotope &b) const
@@ -68,6 +73,8 @@ bool Isotope::operator<(const Isotope &b) const
         return N15 < b.N15;
     if (S34 != b.S34)
         return S34 < b.S34;
+    if (O18 != b.O18)
+        return O18 < b.O18;
     return name < b.name;
 }
 

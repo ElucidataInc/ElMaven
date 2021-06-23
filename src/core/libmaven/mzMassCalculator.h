@@ -107,6 +107,7 @@ class MassCalculator {
                                                bool N15Flag,
                                                bool S34Flag,
                                                bool D2Flag,
+                                               bool O18Flag,
                                                Adduct *adduct = nullptr);
 
         /**

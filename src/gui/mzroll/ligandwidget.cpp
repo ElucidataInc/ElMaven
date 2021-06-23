@@ -388,6 +388,8 @@ LigandWidget::LigandTreeState LigandWidget::_currentState()
         state.isotopeTracers.insert("S34");
     if (_mw->mavenParameters->D2Labeled_BPE)
         state.isotopeTracers.insert("D2");
+    if (_mw->mavenParameters->O18Labeled_BPE)
+        state.isotopeTracers.insert("O18");
 
     state.showingAdducts = _mw->mavenParameters->searchAdducts;
     for (auto adduct : _mw->adductWidget->getSelectedAdducts())
@@ -690,12 +692,14 @@ void LigandWidget::updateIsotopesAndAdducts()
             bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
             bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
             bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
+            bool findO18 = _mw->mavenParameters->O18Labeled_BPE;
             auto isotopes = MassCalculator::computeIsotopes(compound->formula(),
                                                             charge,
                                                             findC13,
                                                             findN15,
                                                             findS34,
                                                             findD2,
+                                                            findO18,
                                                             defaultAdduct);
             for (auto& isotope : isotopes) {
                 if (isotope.name == C12_PARENT_LABEL)
@@ -838,6 +842,7 @@ void LigandWidget::showLigand()
             bool findN15 = _mw->mavenParameters->N15Labeled_BPE;
             bool findS34 = _mw->mavenParameters->S34Labeled_BPE;
             bool findD2 = _mw->mavenParameters->D2Labeled_BPE;
+            bool findO18 = _mw->mavenParameters->O18Labeled_BPE;
             int charge = _mw->mavenParameters->getCharge(compound);
             auto isotopes = MassCalculator::computeIsotopes(compound->formula(),
                                                             charge,
@@ -845,6 +850,7 @@ void LigandWidget::showLigand()
                                                             findN15,
                                                             findS34,
                                                             findD2,
+                                                            findO18,
                                                             defaultAdduct);
             auto c12IsotopePos = find_if(begin(isotopes),
                                          end(isotopes),

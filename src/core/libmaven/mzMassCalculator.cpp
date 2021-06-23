@@ -105,6 +105,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula,
                                                 bool N15Flag,
                                                 bool S34Flag,
                                                 bool D2Flag,
+                                                bool O18Flag,
                                                 Adduct* adduct)
 {
     map<string, int> atoms = getComposition(formula);
@@ -112,6 +113,7 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula,
     int NatomCount = atoms[N_STRING_ID];
     int SatomCount = atoms[S_STRING_ID];
     int HatomCount = atoms[H_STRING_ID];
+    int OatomCount = atoms[O_STRING_ID];
 
     vector<Isotope> isotopes;
     double parentMass = computeNeutralMass(formula);
@@ -160,6 +162,17 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula,
         }
     }
 
+    if (C13Flag && O18Flag) {
+        for (int i = 1; i <= CatomCount; i++) {
+            for (int j = 1; j <= OatomCount; j++) {
+                string name = C13O18_LABEL + integer2string(i) + "-" + integer2string(j);
+                double mass = parentMass + (j * O_MASS_DELTA) + (i * C_MASS_DELTA);
+                Isotope x(name, mass, i, 0, j, 0);
+                isotopes.push_back(x);
+            }
+        }
+    }
+
     if(D2Flag) {
         for (int i = 1; i <= HatomCount; i++) {
             Isotope x(H2_LABEL + integer2string(i), parentMass + (i * D_MASS_DELTA),
@@ -184,12 +197,21 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula,
         }
     }
 
+    if (O18Flag) {
+        for (int i = 1; i <= OatomCount; i++) {
+            Isotope x(O18_LABEL + integer2string(i),
+                    parentMass + (i * O_MASS_DELTA), 0, 0, i, 0);
+            isotopes.push_back(x);
+        }
+    }
+
     for (unsigned int i = 0; i < isotopes.size(); i++) {
         Isotope& x = isotopes[i];
         int c = x.C13;
         int n = x.N15;
         int s = x.S34;
         int d = x.H2;
+        int o = x.O18;
 
         if (adduct != nullptr) {
             isotopes[i].mass = adduct->computeAdductMz(isotopes[i].mass);
@@ -205,7 +227,9 @@ vector<Isotope> MassCalculator::computeIsotopes(string formula,
             mzUtils::nchoosek(SatomCount, s) *
             pow(S32_ABUNDANCE, SatomCount - s) * pow(S34_ABUNDANCE, s) *
             mzUtils::nchoosek(HatomCount, d) *
-            pow(H_ABUNDANCE, HatomCount - d) * pow(H2_ABUNDANCE, d);
+            pow(H_ABUNDANCE, HatomCount - d) * pow(H2_ABUNDANCE, d) *
+            mzUtils::nchoosek(OatomCount, o) *
+            pow(O18_ABUNDANCE, OatomCount - o) * pow(O18_ABUNDANCE, o);
     }
 
     return isotopes;
