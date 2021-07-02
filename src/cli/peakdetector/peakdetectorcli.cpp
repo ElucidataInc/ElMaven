@@ -138,6 +138,10 @@ void PeakDetectorCLI::processOptions(int argc, char* argv[])
                     mavenParameters->D2Labeled_BPE = true;
                 else
                     mavenParameters->D2Labeled_BPE = false;
+                if (label & 16)
+                    mavenParameters->O18Labeled_BPE = true;
+                else
+                    mavenParameters->O18Labeled_BPE = false;
             }
         } break;
 
@@ -390,6 +394,10 @@ void PeakDetectorCLI::_processPeaksArgsXML(xml_node& peaksArgs)
                     mavenParameters->D2Labeled_BPE = true;
                 else
                     mavenParameters->D2Labeled_BPE = false;
+                if (label & 16)
+                    mavenParameters->O18Labeled_BPE = true;
+                else
+                    mavenParameters->O18Labeled_BPE = false;
             }
 
         } else if (strcmp(node.name(), "grouping_maxRtWindow") == 0) {

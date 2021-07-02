@@ -162,7 +162,7 @@ public:
             "d?db: Enter full path to database file. <string>",
             "e?processAllSlices: Enter non-zero integer to run untargeted peak "
                 "detection. <int>",
-            "f?pullIsotopes: Enter 1111 to pull all isotopic labels, 0000 for "
+            "f?pullIsotopes: Enter 11111 to pull all isotopic labels, 0000 for "
                 "no isotopes. <int>",
             "g?grouping_maxRtWindow: Enter the maximum Rt difference between "
                 "peaks in a group. <float>",
