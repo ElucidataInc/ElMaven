@@ -132,11 +132,13 @@ void MassSlicer::generateIsotopeSlices(vector<Compound*> compounds,
         bool findN15 = _mavenParameters->N15Labeled_BPE;
         bool findS34 = _mavenParameters->S34Labeled_BPE;
         bool findD2 = _mavenParameters->D2Labeled_BPE;
+        bool findO18 = _mavenParameters->O18Labeled_BPE;
         if (sliceBarplotIsotopes) {
             findC13 = _mavenParameters->C13Labeled_Barplot;
             findN15 = _mavenParameters->N15Labeled_Barplot;
             findS34 = _mavenParameters->S34Labeled_Barplot;
             findD2 = _mavenParameters->D2Labeled_Barplot;
+            findO18 = _mavenParameters->O18Labeled_Barplot;
         }
 
         vector<Isotope> massList =
@@ -146,6 +148,7 @@ void MassSlicer::generateIsotopeSlices(vector<Compound*> compounds,
                                             findN15,
                                             findS34,
                                             findD2,
+                                            findO18,
                                             adduct);
         for (auto isotope : massList) {
             mzSlice* slice = new mzSlice;

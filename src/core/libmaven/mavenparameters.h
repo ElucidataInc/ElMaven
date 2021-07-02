@@ -235,6 +235,7 @@ class MavenParameters
         bool N15Labeled_Barplot;
         bool S34Labeled_Barplot;
         bool D2Labeled_Barplot;
+        bool O18Labeled_Barplot;
 
         float minRt;
         float maxRt;

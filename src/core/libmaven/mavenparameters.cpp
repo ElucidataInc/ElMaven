@@ -116,6 +116,7 @@ MavenParameters::MavenParameters(string settingsPath):lastUsedSettingsPath(setti
 	N15Labeled_Barplot = false;
 	S34Labeled_Barplot = false;
 	D2Labeled_Barplot = false;
+    O18Labeled_Barplot = false;
 
         alignMaxIterations = 10;  //TODO: Sahil - Kiran, Added while merging mainwindow
         alignPolynomialDegree = 5; //TODO: Sahil - Kiran, Added while merging mainwindow
@@ -283,6 +284,7 @@ void MavenParameters::copyFrom(const MavenParameters& mp)
     N15Labeled_Barplot = mp.N15Labeled_Barplot;
     S34Labeled_Barplot = mp.S34Labeled_Barplot;
     D2Labeled_Barplot = mp.D2Labeled_Barplot;
+    O18Labeled_Barplot = mp.O18Labeled_Barplot;
 
     alignMaxIterations = mp.alignMaxIterations;
     alignPolynomialDegree = mp.alignPolynomialDegree;
