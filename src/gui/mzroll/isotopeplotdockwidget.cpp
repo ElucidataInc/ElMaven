@@ -64,6 +64,10 @@ void IsotopePlotDockWidget::setToolBar()
     _S34->setChecked(false);
     labelLayout->addWidget(_S34);
 
+    _O18 = new QCheckBox("O18", labelBox);
+    _O18->setChecked(true);
+    labelLayout->addWidget(_O18);
+
     labelLayout->setSpacing(12);
     toolBar->addWidget(labelBox);
 
@@ -97,6 +101,7 @@ void IsotopePlotDockWidget::setToolBar()
     connect(_N15, SIGNAL(toggled(bool)), this, SLOT(updateN15Flag(bool)));
     connect(_D2, SIGNAL(toggled(bool)), this, SLOT(updateD2Flag(bool)));
     connect(_S34, SIGNAL(toggled(bool)), this, SLOT(updateS34Flag(bool)));
+    connect(_O18, SIGNAL(toggled(bool)), this, SLOT(updateO18Flag(bool)));
     connect(poolLabels, SIGNAL(valueChanged(double)), this, SLOT(setPoolThreshold(double)));
 
     if (_mw->isotopePlot != nullptr) {
@@ -136,6 +141,15 @@ void IsotopePlotDockWidget::setToolBar()
                         _S34->setChecked(group->parameters()->S34Labeled_BPE);
                     _S34->setDisabled(alreadyIntegrated);
                 });
+        connect(_mw->isotopePlot,
+                &IsotopePlot::peakGroupSet,
+                _O18,
+                [&] (bool alreadyIntegrated) {
+                    const PeakGroup* group = _mw->isotopePlot->peakGroup();
+                    if (group != nullptr && alreadyIntegrated)
+                        _O18->setChecked(group->parameters()->O18Labeled_BPE);
+                    _O18->setDisabled(alreadyIntegrated);
+                });
     }
 }
 
@@ -160,6 +174,12 @@ void IsotopePlotDockWidget::updateD2Flag(bool setState)
 void IsotopePlotDockWidget::updateS34Flag(bool setState)
 {
     _mw->mavenParameters->S34Labeled_Barplot = setState;
+    recompute();
+}
+
+void IsotopePlotDockWidget::updateO18Flag(bool setState)
+{
+    _mw->mavenParameters->O18Labeled_Barplot = setState;
     recompute();
 }
 

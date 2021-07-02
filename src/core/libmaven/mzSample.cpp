@@ -41,6 +41,7 @@ mzSample::mzSample() : _setName(""), injectionOrder(0)
     _N15Labeled = false;
     _S34Labeled = false;  // Feng note: added to track S34 labeling state
     _D2Labeled = false;   // Feng note: added to track D2 labeling state
+    _O18Labeled = false;
     // _setName =  "A"; //naman     Variable '_setName' is assigned in
     // constructor body. Consider performing initialization in initialization
     // list.

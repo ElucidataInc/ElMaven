@@ -22,6 +22,7 @@ private Q_SLOTS:
     void updateN15Flag(bool setState);
     void updateD2Flag(bool setState);
     void updateS34Flag(bool setState);
+    void updateO18Flag(bool setState);
     void setPoolThreshold(double poolThreshold);
 
 private:
@@ -31,6 +32,7 @@ private:
     QCheckBox* _D2;
     QCheckBox* _N15;
     QCheckBox* _S34;
+    QCheckBox* _O18;
 
     void setToolBar();
     void recompute();

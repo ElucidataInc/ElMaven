@@ -588,6 +588,13 @@ public:
     bool N15Labeled() const { return _N15Labeled; }
 
     /**
+     * [O18Labeled]
+     * @method O18Labeled
+     * @return [true or false]
+     */
+    bool O18Labeled() const { return _O18Labeled; }
+
+    /**
                           * [compare Sample Order]
                           * @method compSampleOrder
                           * @param  a               [sample a]
@@ -711,6 +718,7 @@ public:
 
     bool _C13Labeled;
     bool _N15Labeled;
+    bool _O18Labeled;
     bool _S34Labeled; //Feng note: added to track S34 labeling state
     bool _D2Labeled; //Feng note: added to track D2 labeling state
 
