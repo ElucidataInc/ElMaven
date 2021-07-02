@@ -815,6 +815,16 @@ map<int, string> dbVersionUpgradeScripts = {
         "ALTER TABLE peakgroups ADD COLUMN isotope_h2_count INTEGER;"
 
         "COMMIT;"
+    }, 
+    {
+        5,
+        "BEGIN TRANSACTION;"
+
+        "ALTER TABLE peakgroups ADD COLUMN isotope_o18_count INTEGER;"
+
+        "ALTER TABLE user_settings ADD COLUMN o18_label_bpe INTEGER;"
+
+        "COMMIT;"
     }
 };
 

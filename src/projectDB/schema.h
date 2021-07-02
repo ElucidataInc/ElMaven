@@ -129,7 +129,8 @@
                                            , isotope_c13_count                  INTEGER                           \
                                            , isotope_n15_count                  INTEGER                           \
                                            , isotope_s34_count                  INTEGER                           \
-                                           , isotope_h2_count                   INTEGER                           );"
+                                           , isotope_h2_count                   INTEGER                           \
+                                           , isotope_o18_count                  INTEGER                           );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
@@ -192,6 +193,7 @@
                                               , c13_label_bpe                    INTEGER \
                                               , n15_label_bpe                    INTEGER \
                                               , s34_label_bpe                    INTEGER \
+                                              , o18_label_bpe                    INTEGER \
                                               , min_isotope_parent_correlation   REAL    \
                                               , max_isotope_scan_diff            INTEGER \
                                               , link_isotope_rt_range            INTEGER \

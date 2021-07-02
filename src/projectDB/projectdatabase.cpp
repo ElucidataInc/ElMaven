@@ -242,7 +242,8 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :isotope_c13_count                  \
                      , :isotope_n15_count                  \
                      , :isotope_s34_count                  \
-                     , :isotope_h2_count                   )");
+                     , :isotope_h2_count                   \
+                     , :isotope_o18_count                  )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -256,6 +257,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     groupsQuery->bind(":isotope_n15_count", group->isotope().N15);
     groupsQuery->bind(":isotope_s34_count", group->isotope().S34);
     groupsQuery->bind(":isotope_h2_count", group->isotope().H2);
+    groupsQuery->bind(":isotope_o18_count", group->isotope().O18);
 
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
     groupsQuery->bind(":group_rank", group->groupRank);
@@ -775,6 +777,7 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :c13_label_bpe                    \
                      , :n15_label_bpe                    \
                      , :s34_label_bpe                    \
+                     , :o18_label_bpe                    \
                      , :min_isotope_parent_correlation   \
                      , :max_isotope_scan_diff            \
                      , :link_isotope_rt_range            \
@@ -896,6 +899,7 @@ void _bindSettingsFromMap(Cursor* settingsQuery,
     settingsQuery->bind(":c13_label_bpe", BINT(settingsMap.at("C13LabelBPE")));
     settingsQuery->bind(":n15_label_bpe", BINT(settingsMap.at("N15LabelBPE")));
     settingsQuery->bind(":s34_label_bpe", BINT(settingsMap.at("S34LabelBPE")));
+    settingsQuery->bind(":o18_label_bpe", BINT(settingsMap.at("O18LabelBPE")));
 
     settingsQuery->bind(":filter_isotopes_against_parent", BINT(settingsMap.at("filterIsotopesAgainstParent")));
     settingsQuery->bind(":min_isotope_parent_correlation", BDOUBLE(settingsMap.at("minIsotopeParentCorrelation")));
@@ -1233,6 +1237,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         isotope.N15 = groupsQuery->floatValue("isotope_n15_count");
         isotope.S34 = groupsQuery->floatValue("isotope_s34_count");
         isotope.H2 = groupsQuery->floatValue("isotope_h2_count");
+        isotope.O18 = groupsQuery->floatValue("isotope_o18_count");
         if (!isotope.isNone())
             slice.isotope = isotope;
 
@@ -1588,6 +1593,7 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["C13LabelBPE"] = variant(settingsQuery->integerValue("c13_label_bpe"));
     settingsMap["N15LabelBPE"] = variant(settingsQuery->integerValue("n15_label_bpe"));
     settingsMap["S34LabelBPE"] = variant(settingsQuery->integerValue("s34_label_bpe"));
+    settingsMap["O18LabelBPE"] = variant(settingsQuery->integerValue("o18_label_bpe"));
 
     settingsMap["filterIsotopesAgainstParent"] = variant(settingsQuery->integerValue("filter_isotopes_against_parent"));
     settingsMap["minIsotopeParentCorrelation"] = variant(settingsQuery->doubleValue("min_isotope_parent_correlation"));
@@ -1980,6 +1986,7 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
     settingsMap["C13LabelBPE"] = static_cast<int>(mp->C13Labeled_BPE);
     settingsMap["N15LabelBPE"] = static_cast<int>(mp->N15Labeled_BPE);
     settingsMap["S34LabelBPE"] = static_cast<int>(mp->S34Labeled_BPE);
+    settingsMap["O18LabelBPE"] = static_cast<int>(mp->O18Labeled_BPE);
 
     settingsMap["filterIsotopesAgainstParent"] = static_cast<int>(mp->filterIsotopesAgainstParent);
     settingsMap["minIsotopeParentCorrelation"] = mp->minIsotopicCorrelation;
@@ -2120,6 +2127,7 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     mp.C13Labeled_BPE = static_cast<bool>(BINT(settingsMap["C13LabelBPE"]));
     mp.N15Labeled_BPE = static_cast<bool>(BINT(settingsMap["N15LabelBPE"]));
     mp.S34Labeled_BPE = static_cast<bool>(BINT(settingsMap["S34LabelBPE"]));
+    mp.O18Labeled_BPE = static_cast<bool>(BINT(settingsMap["O18LabelBPE"]));
 
     mp.filterIsotopesAgainstParent = static_cast<bool>(BINT(settingsMap["filterIsotopesAgainstParent"]));
     mp.minIsotopicCorrelation = BDOUBLE(settingsMap["minIsotopeParentCorrelation"]);
