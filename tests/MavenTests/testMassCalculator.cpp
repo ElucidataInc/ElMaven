@@ -86,6 +86,7 @@ void TestMassCalculator::testComputeIsotopes() {
     bool N15Labeled_BPE = true;
     bool S34Labeled_BPE = true;
     bool D2Labeled_BPE = true;
+    bool O18Labeled_BPE = false;
 
     vector<Isotope> isotopes = MassCalculator::computeIsotopes(
         formula,
@@ -93,7 +94,8 @@ void TestMassCalculator::testComputeIsotopes() {
         C13Labeled_BPE,
         N15Labeled_BPE,
         S34Labeled_BPE,
-        D2Labeled_BPE
+        D2Labeled_BPE,
+        O18Labeled_BPE
     );
 
     //verify number of isotopes
@@ -121,6 +123,7 @@ void TestMassCalculator::testComputeIsotopes() {
     N15Labeled_BPE = false;
     S34Labeled_BPE = true;
     D2Labeled_BPE = false;
+    O18Labeled_BPE = false;
 
     vector<Isotope> isotopes1 = MassCalculator::computeIsotopes(
         formula,
@@ -128,7 +131,8 @@ void TestMassCalculator::testComputeIsotopes() {
         C13Labeled_BPE,
         N15Labeled_BPE,
         S34Labeled_BPE,
-        D2Labeled_BPE
+        D2Labeled_BPE,
+        O18Labeled_BPE
     );
 
     //verify number of isotopes
