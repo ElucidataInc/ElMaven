@@ -50,6 +50,7 @@ mzSlice& mzSlice::operator=(const mzSlice& b)
     srmId = b.srmId;
     mz = b.mz;
     rt = b.rt;
+    precursorMz = b.precursorMz;
     return *this;
 }
 

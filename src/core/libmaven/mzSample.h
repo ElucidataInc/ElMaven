@@ -184,7 +184,7 @@ class mzLink
 class mzSample
 {
     public:
-    enum class MsMsType { DDA, PRM, None };
+    enum class MsMsType { DDA, PRM, DIA, None };
 
     /**
      * @brief Constructor for class mzSample

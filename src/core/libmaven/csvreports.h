@@ -33,7 +33,7 @@ class CSVReports
      * the acquisition mode for their data.
      * @param groups A vector of PeakGroup objects.
      */
-    static AcquisitionMode guessAcquisitionMode(const vector<PeakGroup>& groups)
+    static AcquisitionMode guessAcquisitionMode(vector<PeakGroup>& groups)
     {
         auto ms2GroupAt =
             find_if(begin(groups), end(groups), [](const PeakGroup& group) {

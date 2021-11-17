@@ -16,7 +16,6 @@ CSVReports::CSVReports(string filename,
                        ReportType reportType,
                        vector<mzSample*>& insamples,
                        PeakGroup::QType quantType,
-                       bool prmReport,
                        AcquisitionMode mode,
                        bool includeSetNamesLine,
                        MavenParameters* mp,
@@ -246,7 +245,7 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                       << SEP << "NA" << SEP << 0.0;
 
         // if this is a MS2 report, add MS2 specific columns
-        if (_prmReport && !_pollyExport) {
+        if (!_pollyExport) {
             for (int i = 0; i < 10; ++i)
                 _reportStream << SEP << 0.0;
         }
@@ -334,13 +333,13 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
         expectedRtDiff < 0.0f ? "NA" : to_string(expectedRtDiff);
     string ppmDistString = ppmDist < 0.0f ? "NA" : to_string(ppmDist);
     _reportStream << SEP << compoundName << SEP
-                  << compoundID
+                  << compoundID;
 
-        if (_acquisitionMode == AcquisitionMode::DIA) _reportStream
-                  << SEP << fragment;
+    if (_acquisitionMode == AcquisitionMode::DIA) 
+        _reportStream << SEP << fragment;
 
-    << SEP << formula << setprecision(3) << SEP << expRtString
-    << setprecision(6) << SEP << ppmDistString;
+    _reportStream << SEP << formula << setprecision(3) << SEP << expRtString
+                  << setprecision(6) << SEP << ppmDistString;
 
     if (group->parent != NULL) {
         _reportStream << SEP << group->parent->meanMz;
@@ -502,7 +501,6 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
     // different systems.
     std::sort(group->peaks.begin(), group->peaks.end(), Peak::compSampleName);
 
-    ++_groupId;
     vector<mzSample*> samplesWithNoPeak = samples;
     for (unsigned int j = 0; j < group->peaks.size(); j++) {
         Peak& peak = group->peaks[j];
@@ -521,25 +519,25 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
 
         _reportStream << fixed << setprecision(6) << group->groupId() << SEP
                       << compoundName << SEP
-                      << compoundID
+                      << compoundID;
 
             if (_acquisitionMode == AcquisitionMode::DIA) _reportStream
                       << SEP << fragment;
 
-        << SEP << formula << SEP << sampleName << SEP << adductName << SEP
-        << tagString << SEP << peak.peakMz << SEP << peak.mzmin << SEP
-        << peak.mzmax << setprecision(3) << SEP << peak.rt << SEP << peak.rtmin
-        << SEP << peak.rtmax << SEP
-        << peak.quality
-        // for intensity values, we only write two digits of
-        // floating point precision
-        // since these values are supposed to be large
-        // (in the order of >10^3).
-        << setprecision(2) << SEP << peak.peakIntensity << SEP << peak.peakArea
-        << SEP << peak.peakSplineArea << SEP << peak.peakAreaTop << SEP
-        << peak.peakAreaCorrected << SEP << peak.peakAreaTopCorrected << SEP
-        << peak.noNoiseObs << SEP << peak.signalBaselineRatio << SEP
-        << peak.fromBlankSample << endl;
+        _reportStream << SEP << formula << SEP << sampleName << SEP << adductName << SEP
+            << tagString << SEP << peak.peakMz << SEP << peak.mzmin << SEP
+            << peak.mzmax << setprecision(3) << SEP << peak.rt << SEP << peak.rtmin
+            << SEP << peak.rtmax << SEP
+            << peak.quality
+            // for intensity values, we only write two digits of
+            // floating point precision
+            // since these values are supposed to be large
+            // (in the order of >10^3).
+            << setprecision(2) << SEP << peak.peakIntensity << SEP << peak.peakArea
+            << SEP << peak.peakSplineArea << SEP << peak.peakAreaTop << SEP
+            << peak.peakAreaCorrected << SEP << peak.peakAreaTopCorrected << SEP
+            << peak.noNoiseObs << SEP << peak.signalBaselineRatio << SEP
+            << peak.fromBlankSample << endl;
     }
     for (auto sample : samplesWithNoPeak) {
         string sampleName = "";

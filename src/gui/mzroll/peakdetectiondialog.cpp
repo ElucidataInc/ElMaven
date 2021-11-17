@@ -58,8 +58,8 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog)
     settings.insert("fragmentTolerance",
                     QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
-    settings.insert("fragAnnotationLimit",
-                    QVariant::fromValue(pd->fragAnnotationLimit));
+    // settings.insert("fragAnnotationLimit",
+    //                 QVariant::fromValue(pd->fragAnnotationLimit));
     settings.insert("scoringAlgo", QVariant::fromValue(pd->scoringAlgo));
 
     // group filtering settings
@@ -214,21 +214,21 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) : QDialog(parent)
             mainwindow->massCalcWidget->fragPpm,
             SLOT(setValue(double)));
 
-    connect(scoringAlgo, &QComboBox::currentTextChanged, [this]() {
-        this->mainwindow->getAnalytics()->hitEvent("Peak Detection",
-                                                   "Frag matching algo changed",
-                                                   scoringAlgo->currentText());
-        if (scoringAlgo->currentIndex() == 0) {
-            // weighted dot-product
-            minFragMatchScore->setMaximum(1.0);
-            minFragMatchScore->setSingleStep(0.05);
-        } else {
-            // hypergeometric score
-            minFragMatchScore->setMaximum(1000.0);
-            minFragMatchScore->setSingleStep(5.0);
-        }
-        minFragMatchScore->setValue(0.0);
-    });
+    // connect(scoringAlgo, &QComboBox::currentTextChanged, [this]() {
+    //     this->mainwindow->getAnalytics()->hitEvent("Peak Detection",
+    //                                                "Frag matching algo changed",
+    //                                                scoringAlgo->currentText());
+    //     if (scoringAlgo->currentIndex() == 0) {
+    //         // weighted dot-product
+    //         minFragMatchScore->setMaximum(1.0);
+    //         minFragMatchScore->setSingleStep(0.05);
+    //     } else {
+    //         // hypergeometric score
+    //         minFragMatchScore->setMaximum(1000.0);
+    //         minFragMatchScore->setSingleStep(5.0);
+    //     }
+    //     minFragMatchScore->setValue(0.0);
+    // });
 
     connect(quantileIntensity,
             SIGNAL(valueChanged(int)),
@@ -518,11 +518,14 @@ void PeakDetectionDialog::refreshCompoundDatabases()
 void PeakDetectionDialog::toggleFragmentation()
 {
     auto samples = mainwindow->getVisibleSamples();
-    auto iter = find_if(begin(samples), end(samples), [](mzSample* s) {
-        return (s->ms1ScanCount() > 0 && s->ms2ScanCount() > 0
-                && (s->msMsType() == mzSample::MsMsType::DDA
-                    || s->msMsType() == mzSample::MsMsType::DIA));
-        s
+    auto iter = find_if(begin(samples), 
+                        end(samples), 
+                        [](mzSample* s) {
+                            bool hasMs1 = s->ms1ScanCount() > 0;
+                            bool hasDda = s->ms2ScanCount() > 0;
+                            bool hasDia = s->diaScanCount() > 0;
+                            return (hasMs1 && hasDda)
+                                   || (hasMs1 && hasDia);
     });
     bool hasFragmentation = iter != end(samples);
 

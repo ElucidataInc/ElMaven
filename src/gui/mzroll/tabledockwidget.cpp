@@ -866,9 +866,9 @@ void TableDockWidget::exportGroupsToSpreadsheet()
         reportType = CSVReports::ReportType::GroupReport;
     }
 
-    vector<PeakGroup*> groupVector;
+    vector<PeakGroup> groupVector;
     for (auto group : _topLevelGroups)
-        groupVector.push_back(group.get());
+        groupVector.push_back(*(group.get()));
     auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
 
     CSVReports csvreports(fileName.toStdString(),
@@ -957,9 +957,9 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         reportType = CSVReports::ReportType::PeakReport;
     }
 
-    vector<PeakGroup*> groupVector;
+    vector<PeakGroup> groupVector;
     for (auto group : _topLevelGroups)
-        groupVector.push_back(group.get());
+        groupVector.push_back(*(group.get()));
     auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
 
     CSVReports csvreports(fileName.toStdString(),

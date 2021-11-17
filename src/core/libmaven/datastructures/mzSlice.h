@@ -110,21 +110,7 @@ class mzSlice
      * @param b object of class mzSlice
      * @return mzSlice object of class mzSlice
      */
-    mzSlice& operator=(const mzSlice& b)
-    {
-        mzmin = b.mzmin;
-        mzmax = b.mzmax;
-        rtmin = b.rtmin;
-        rtmax = b.rtmax;
-        ionCount = b.ionCount;
-        compound = b.compound;
-        adduct = b.adduct;
-        srmId = b.srmId;
-        mz = b.mz;
-        rt = b.rt;
-        precursorMz = b.precursorMz;
-        return *this;
-    }
+    mzSlice& operator=(const mzSlice& b);
 
     /**
      * @brief operator overloading for less than operator in class mzSlice

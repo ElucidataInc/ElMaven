@@ -1164,6 +1164,8 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         scene()->update();
     }
 
+}
+
     void EicWidget::setTitle()
     {
         QFont font = QApplication::font();
@@ -1938,57 +1940,36 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
         replot(nullptr);
     }
 
-    void EicWidget::showFragmentForSelectedGroup(float fragmentMz)
-    {
-        if (getMainWindow()->sampleCount() == 0)
-            return;
-        vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
-        if (samples.empty())
-            return;
-        auto precursorGroup = getSelectedGroup();
-        if (precursorGroup == nullptr)
-            return;
+void EicWidget::showFragmentForSelectedGroup(float fragmentMz)
+{
+    if (getMainWindow()->sampleCount() == 0)
+        return;
 
-        precursorGroup = new PeakGroup(*precursorGroup);
-        const PeakGroup* fragmentGroup =
-            precursorGroup->nearestFragmentGroup(fragmentMz);
-        if (fragmentGroup == nullptr)
-            return;
-        auto fragmentSlice = fragmentGroup->getSlice();
-        eicParameters->_slice.mz = fragmentSlice.mz;
-        eicParameters->_slice.mzmin = fragmentSlice.mzmin;
-        eicParameters->_slice.mzmax = fragmentSlice.mzmax;
-        eicParameters->_slice.precursorMz = precursorGroup->getSlice().mz;
-        _plottingMs2 = true;
-        cleanup();
-        computeEICs();
-        replot(precursorGroup);
-    }
+    vector<mzSample*> samples = getMainWindow()->getVisibleSamples();
+    if (samples.empty())
+        return;
 
-    void EicWidget::setSelectedGroup(shared_ptr<PeakGroup> group)
-    {
-        if (_frozen)
-            return;
-        if (_plottingMs2 && group != nullptr) {
-            float fragmentMz = eicParameters->_slice.mz;
-            auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
-            if (fragmentGroup != nullptr) {
-                // make a non-const copy
-                auto fragmentGroupCopy = make_shared<PeakGroup>(*fragmentGroup);
-                if (_showBarPlot)
-                    addBarPlot(fragmentGroupCopy);
-                if (_showBoxPlot)
-                    addBoxPlot(fragmentGroupCopy);
-            }
-        } else if (group != nullptr) {
-            if (_showBarPlot)
-                addBarPlot(group);
-            if (_showBoxPlot)
-                addBoxPlot(group);
-        }
-        eicParameters->setDisplayedGroup(group);
-        eicParameters->setSelectedGroup(group);
-    }
+    auto precursorGroup = getSelectedGroup();
+    if (precursorGroup == nullptr)
+        return;
+
+    const PeakGroup* fragmentGroup =
+        precursorGroup->nearestFragmentGroup(fragmentMz);
+    if (fragmentGroup == nullptr)
+        return;
+
+    auto fragmentSlice = fragmentGroup->getSlice();
+    eicParameters->_slice.mz = fragmentSlice.mz;
+    eicParameters->_slice.mzmin = fragmentSlice.mzmin;
+    eicParameters->_slice.mzmax = fragmentSlice.mzmax;
+    eicParameters->_slice.precursorMz = precursorGroup->getSlice().mz;
+
+    _plottingMs2 = true;
+    cleanup();
+    computeEICs();
+    replot(precursorGroup);
+}
+
 
     void EicWidget::groupPeaks()
     {
@@ -2220,12 +2201,12 @@ void EicWidget::replot(shared_ptr<PeakGroup> group)
             auto fragmentGroup = group->nearestFragmentGroup(fragmentMz);
             if (fragmentGroup != nullptr) {
                 // make a non-const copy
-                auto fragmentGroupCopy = new PeakGroup(*fragmentGroup);
+                shared_ptr<PeakGroup> fragmentGroupCopy(new PeakGroup(*fragmentGroup));
                 if (_showBarPlot)
                     addBarPlot(fragmentGroupCopy);
                 if (_showBoxPlot)
                     addBoxPlot(fragmentGroupCopy);
-                delete fragmentGroupCopy;
+                delete fragmentGroupCopy.get();
             }
         } else {
             if (_showBarPlot)

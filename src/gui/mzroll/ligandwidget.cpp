@@ -938,11 +938,6 @@ void LigandWidget::matchFragmentation()
                           .arg(QString::number(mz, 'f', 5))
                           .arg(QString::number(ints, 'f', 2));
     }
-
-    _mw->spectraMatchingForm->fragmentsText->setPlainText(
-        searchText.join("\n"));
-    _mw->spectraMatchingForm->precursorMz->setText(
-        QString::number(precursorMz, 'f', 6));
 }
 
 void LigandWidget::keyPressEvent(QKeyEvent* event)

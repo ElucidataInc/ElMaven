@@ -731,6 +731,10 @@ class PeakGroup
     bool hasDdaPeaks() const;
     bool hasDiaPeaks() const;
 
+    void setExpectedMz(float expectedMz) {
+        _expectedMz = expectedMz;
+    }
+
     private:
     int _groupId;
     int _metaGroupId;

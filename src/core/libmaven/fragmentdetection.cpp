@@ -3,7 +3,7 @@
 #include "fragmentdetection.h"
 #include "masscutofftype.h"
 #include "mavenparameters.h"
-#include "mzMassSlicer.h"
+#include "massslicer.h"
 #include "mzSample.h"
 #include "mzUtils.h"
 #include "PeakDetector.h"
@@ -20,22 +20,13 @@ FragmentDetection::detectFragmentsUntargeted(MavenParameters* parameters,
         return {};
 
     auto mp = make_shared<MavenParameters>(*parameters);
-    MassSlices slicing;
+    MassSlicer slicing(mp.get()) ;
     slicing.disableSignals = true;
-    slicing.setSamples(mp->samples);
-    slicing.setMavenParameters(mp.get());
-    slicing.setMsLevel(2, precursorMz);
-    slicing.setMinRt(precursorRt - rtDeviationLimit);
-    slicing.setMaxRt(precursorRt + rtDeviationLimit);
-
-    // ignore fragments below this intensity
-    slicing.setMinIntensity(100.0f);
-
     MassCutoff massCutoff;
     massCutoff.setMassCutoffAndType(mp->fragmentTolerance, "ppm");
 
     // TODO: step size - MS/MS slice width should be user adjustable
-    slicing.algorithmB(&massCutoff, mp->rtStepSize * 10);
+    // slicing.algorithmB(&massCutoff, mp->rtStepSize * 10);
     if (slicing.slices.empty())
         return {};
 
@@ -97,7 +88,7 @@ FragmentDetection::detectFragmentsTargeted(MavenParameters* parameters,
         return nearestMz;
     };
     for (auto& group : msMsGroups)
-        group.expectedMz = nearestExpectedMz(group.meanMz);
+        group.setExpectedMz(nearestExpectedMz(group.meanMz));
 
     // cleanup
     delete_all(slices);

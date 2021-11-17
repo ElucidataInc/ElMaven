@@ -28,6 +28,8 @@ class MassSlicer {
 
         vector<mzSlice*> slices;
 
+        bool disableSignals;
+
         void generateCompoundSlices(vector<Compound*> compounds,
                                     bool clearPrevious = true);
 
@@ -54,9 +56,24 @@ class MassSlicer {
          */
         void clearSlices();
 
+        /**
+         * @brief Set the MS level at which slices will be generated. If MS
+         * level is 2, for swath data, then precursor m/z should be provided,
+         * so that the correct SWATH window is used for scans.
+         * @param msLevel An integer specifying the MS level.
+         * @param precursorMz Optional m/z of precursor ion, whose SWATH window
+         * will be used for creating slices, if data is DIA.
+         */
+        void setMsLevel(int msLevel, float precursorMz = 0.0f) {
+            _msLevel = msLevel;
+            _precursorMz = precursorMz;
+        }
+
     private:
         vector<mzSample*> _samples;
         MavenParameters* _mavenParameters;
+        int _msLevel;
+        float _precursorMz;
 
         /**
          * @brief Merge neighbouring slices that are related to each other,

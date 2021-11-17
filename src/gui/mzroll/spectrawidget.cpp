@@ -247,44 +247,6 @@ void SpectraWidget::setScan(Peak* peak)
     repaint();
 }
 
-void SpectraWidget::overlayPeptideFragmentation(QString peptideSeq,
-                                                MassCutoff* productMassCutoff)
-{
-    if (!_currentScan)
-        return;
-    if (peptideSeq.isEmpty())
-        return;
-
-    Peptide record(peptideSeq.toStdString(), 0, "");
-    vector<FragmentIon*> ions;
-    record.generateFragmentIons(ions, "CID");
-
-    SpectralHit hit;
-    hit.score = 0;
-    hit.matchCount = 0;
-    hit.sampleName = "";
-    hit.productPPM = productMassCutoff->getMassCutoff();
-    hit.precursorMz = record.monoisotopicMZ();
-    hit.scan = _currentScan;
-
-    vector<bool> seen(_currentScan->nobs(), false);
-    for (unsigned int i = 0; i < ions.size(); i++) {
-        FragmentIon* ion = ions[i];
-        int pos = _currentScan->findClosestHighestIntensityPos(
-            ion->m_mz, productMassCutoff);
-        if (pos != -1 and seen[pos] == false) {
-            ion->m_mzDiff = abs(_currentScan->mz[pos] - ion->m_mz);
-
-            hit.mzList << _currentScan->mz[pos];
-            hit.intensityList << _currentScan->intensity[pos];
-            seen[pos] = true;
-        }
-    }
-
-    delete_all(ions);
-    overlaySpectralHit(hit);
-}
-
 void SpectraWidget::overlayPeakGroup(shared_ptr<PeakGroup> group)
 {
     _currentGroup =
@@ -1390,6 +1352,7 @@ void SpectraWidget::contextMenuEvent(QContextMenuEvent* event)
 
         menu.exec(event->globalPos());
     }
+}
 
     void SpectraWidget::spectraToClipboard()
     {

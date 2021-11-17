@@ -22,16 +22,6 @@ using namespace mzUtils;
 MassSlicer::MassSlicer(MavenParameters* mp) : _mavenParameters(mp)
 {
     _samples = _mavenParameters->samples;
-    _maxSlices = INT_MAX;
-    _minRt = FLT_MIN;
-    _minMz = FLT_MIN;
-    _minIntensity = FLT_MIN;
-    _maxRt = FLT_MAX;
-    _maxMz = FLT_MAX;
-    _maxIntensity = FLT_MAX;
-    _minCharge = 0;
-    _maxCharge = INT_MAX;
-    massCutoff = NULL;
     _msLevel = 1;
     _precursorMz = -1.0f;
     disableSignals = false;
@@ -252,17 +242,14 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
         rtWindow = accumulate(begin(_samples),
                               end(_samples),
                               0.0f,
-                              [rtStep, this](float sum, mzSample* sample) {
-                                  return sum
-                                         + (sample->getAverageScanTime(_msLevel)
-                                            * rtStep);
-                              })
-                   / static_cast<float>(samples.size());
+                              [rtStep](float sum, mzSample* sample) {
+                                  return sum + (sample->getAverageScanTime()
+                                                * rtStep);
+                              }) / static_cast<float>(_samples.size());
     }
-    if (_msLevel == 1)
-        cerr << "RT window used: " << rtWindow << endl;
+    cerr << "RT window used: " << rtWindow << endl;
 
-    sendSignal("Status", 0, 1);
+    sendSignal("Status", 0 , 1);
 
     // looping over every sample
     for (unsigned int i = 0; i < _samples.size(); i++) {
@@ -274,7 +261,9 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
 
         // updating progress on samples
         if (_mavenParameters->showProgressFlag) {
-            string progressText = "Processing " + to_string(i + 1) + " out of "
+            string progressText = "Processing "
+                                  + to_string(i + 1)
+                                  + " out of "
                                   + to_string(_mavenParameters->samples.size())
                                   + " sample(s)…";
             sendSignal(progressText, currentScans, totalScans);
@@ -291,13 +280,8 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
 
             currentScans++;
 
-            if (scan->mslevel != _msLevel)
+            if (scan->mslevel != 1)
                 continue;
-            if (scan->msType() == Scan::MsType::DIA
-                && (_precursorMz < scan->swathWindowMin()
-                    || _precursorMz > scan->swathWindowMax())) {
-                continue;
-            }
 
             // Checking if RT is in the given min to max RT range
             if (!isBetweenInclusive(scan->rt, minFeatureRt, maxFeatureRt))
@@ -313,36 +297,39 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
                 if (!isBetweenInclusive(mz, minFeatureMz, maxFeatureMz))
                     continue;
 
-                if (!isBetweenInclusive(
-                        intensity, minFeatureIntensity, maxFeatureIntensity)) {
+                if (!isBetweenInclusive(intensity,
+                                        minFeatureIntensity,
+                                        maxFeatureIntensity)) {
                     continue;
                 }
 
                 // create new slice with the given bounds
                 float cutoff = massCutoff->massCutoffValue(mz);
-                mzSlice* s = new mzSlice(
-                    mz - cutoff, mz + cutoff, rt - rtWindow, rt + rtWindow);
+                mzSlice* s = new mzSlice(mz - cutoff,
+                                         mz + cutoff,
+                                         rt - rtWindow,
+                                         rt + rtWindow);
                 s->ionCount = intensity;
                 s->rt = scan->rt;
                 s->mz = mz;
-                s->precursorMz = _precursorMz;
                 slices.push_back(s);
             }
 
-            // progress update
-            if (_mavenParameters->showProgressFlag) {
-                string progressText =
-                    "Processing " + to_string(i + 1) + " out of "
-                    + to_string(_mavenParameters->samples.size())
-                    + " sample(s)…\n" + to_string(slices.size())
-                    + " slices created";
-                sendSignal(progressText, currentScans, totalScans);
+            // progress update 
+            if (_mavenParameters->showProgressFlag ) {
+                string progressText = "Processing "
+                                      + to_string(i + 1)
+                                      + " out of "
+                                      + to_string(_mavenParameters->samples.size())
+                                      + " sample(s)…\n"
+                                      + to_string(slices.size())
+                                      + " slices created";
+                sendSignal(progressText,currentScans,totalScans);
             }
         }
     }
 
-    if (_msLevel == 1)
-        cerr << "Found " << slices.size() << " slices" << endl;
+    cerr << "Found " << slices.size() << " slices" << endl;
 
     // before reduction sort by mz first then by rt
     sort(begin(slices),
@@ -355,18 +342,17 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
          });
     _reduceSlices(massCutoff);
 
-    if (_msLevel == 1)
-        cerr << "Reduced to " << slices.size() << " slices" << endl;
+    cerr << "Reduced to " << slices.size() << " slices" << endl;
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
     _mergeSlices(massCutoff, rtWindow);
     _adjustSlices(massCutoff);
 
-    if (_msLevel == 1) {
-        cerr << "After final merging and adjustments, " << slices.size()
-             << " slices remain" << endl;
-    }
-    sendSignal("Mass slicing done.", 1, 1);
+    cerr << "After final merging and adjustments, "
+         << slices.size()
+         << " slices remain"
+         << endl;
+    sendSignal("Mass slicing done.", 1 , 1);
 }
 
 void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
@@ -665,16 +651,12 @@ void MassSlicer::_adjustSlices(MassCutoff* massCutoff)
             break;
         }
 
-        auto eics = PeakDetector::pullEICs(
-            slice, _mavenParameters->samples, _mavenParameters);
+        auto eics = PeakDetector::pullEICs(slice,
+                                           _mavenParameters->samples,
+                                           _mavenParameters);
         float highestIntensity = 0.0f;
         float mzAtHighestIntensity = 0.0f;
         for (auto eic : eics) {
-            if (almostEqual(eic->maxIntensity, 0.0f)) {
-                ++numZeroEics;
-                continue;
-            }
-
             size_t size = eic->intensity.size();
             for (int i = 0; i < size; ++i) {
                 if (eic->spline[i] > highestIntensity) {
@@ -683,27 +665,14 @@ void MassSlicer::_adjustSlices(MassCutoff* massCutoff)
                 }
             }
         }
-        if (numZeroEics == eics.size()) {
-            // this slice has no data
-            slice->ionCount = -1.0f;
-        } else {
-            float cutoff = mavenParameters->massCutoffMerge->massCutoffValue(
-                mzAtHighestIntensity);
-            slice->mzmin = mzAtHighestIntensity - cutoff;
-            slice->mzmax = mzAtHighestIntensity + cutoff;
-            slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
-        }
+        float cutoff = massCutoff->massCutoffValue(mzAtHighestIntensity);
+        slice->mzmin =  mzAtHighestIntensity - cutoff;
+        slice->mzmax =  mzAtHighestIntensity + cutoff;
+        slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
 
         delete_all(eics);
 
         ++progressCount;
         sendSignal("Adjusting slices…", progressCount, slices.size());
     }
-
-    // remove empty slices
-    slices.erase(
-        remove_if(slices.begin(),
-                  slices.end(),
-                  [](mzSlice* slice) { return (slice->ionCount == -1.0f); }),
-        slices.end());
 }

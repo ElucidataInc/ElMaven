@@ -364,18 +364,6 @@ MainWindow::MainWindow(Controller* controller, QWidget* parent)
 #endif
     }
 
-    QString ligandDbFilename =
-        pathwaysFolder + "/"
-        + settings->value("ligandDbFilename").value<QString>();
-    if (QFile::exists(ligandDbFilename)) {
-        DB.connect(ligandDbFilename.toStdString());
-        DB.loadAll();
-    }
-
-    QString commonFragments = dataDir + "/" + "FRAGMENTS.csv";
-    if (QFile::exists(commonFragments))
-        DB.loadFragments(commonFragments.toStdString());
-
     clsf = new ClassifierNeuralNet();  // clsf = new ClassifierNaiveBayes();
     mavenParameters =
         new MavenParameters(QString(QStandardPaths::writableLocation(
@@ -1576,7 +1564,7 @@ void MainWindow::setCompoundFocus(Compound* compound,
 
     if (eicWidget->isVisible() && samples.size() > 0) {
         if (fragmentMz > 0.0f) {
-            eicWidget->showMsMsEic(c->adjustedMass(mavenParameters->charge),
+            eicWidget->showMsMsEic(compound->adjustedMass(mavenParameters->charge),
                                    fragmentMz);
         } else {
             eicWidget->setCompound(compound, isotope, adduct);
