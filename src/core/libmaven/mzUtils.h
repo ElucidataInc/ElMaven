@@ -230,7 +230,7 @@ namespace mzUtils
     Output:
         data    1-D array[ns] of smoothed data
     ****************************************************************/
-    void  gaussian1d_smoothing(int ns, int nsr, float* data);
+    void gaussian1d_smoothing(int ns, int nsr, float* data);
 
     /**
      * [smoothAverage ]
@@ -434,13 +434,13 @@ namespace mzUtils
     vector<string> split(const string& str, const string& sep);
 
     /**
-     * @brief splitCSVFields split csv files which might have coma in 
+     * @brief splitCSVFields split csv files which might have coma in
      * the values of the field, where a simple coma split function would
-     * give unexpected results. 
-     * @param s String to be split. 
+     * give unexpected results.
+     * @param s String to be split.
      * @param c Seperator.
      * @return vector of string.
-     */ 
+     */
     vector<string> splitCSVFields(const string& s, const string& c);
 
     /**
@@ -459,7 +459,9 @@ namespace mzUtils
      * @param s2    string.
      * @return      Return s1, if it contains else an empty string.
      */
-    bool contains(const string& first, const string& second, const bool ignoreCase = true);
+    bool contains(const string& first,
+                  const string& second,
+                  const bool ignoreCase = true);
 
     /**
      * @brief cleanFilename Gives the name of the file, removing the extension
@@ -559,7 +561,8 @@ namespace mzUtils
      * @param b Second double value to be compared.
      * @return True if the values are relatively close to each other.
      */
-    bool almostEqual(double a, double b,
+    bool almostEqual(double a,
+                     double b,
                      double epsilon = std::numeric_limits<double>::epsilon());
 
     /**
@@ -569,7 +572,8 @@ namespace mzUtils
      * @param b Second float value to be compared.
      * @return True if the values are relatively close to each other.
      */
-    bool almostEqual(float a, float b,
+    bool almostEqual(float a,
+                     float b,
                      float epsilon = std::numeric_limits<float>::epsilon());
 
     /**
@@ -652,6 +656,7 @@ namespace mzUtils
                     cerr << "delete_all() segfaulting.. ";
                 }
             }
+            my_vector.clear();
         }
         my_vector.clear();
     }
@@ -682,6 +687,85 @@ namespace mzUtils
     }
 
     /**
+     * @brief Apply a digital FIR filter to a signal.
+     * @param signal The 1D signal to be filtered.
+     * @param filter A 1D filter to be applied to the signal.
+     * @return 1D output for the filtered signal.
+     */
+    std::vector<double> filterSignal(const std::vector<double>& signal,
+                                     const std::vector<double>& filter);
+
+    /**
+     * @brief Apply a digital FIR filter to a signal.
+     * @param signal The 1D signal to be filtered.
+     * @param filter A 1D filter to be applied to the signal.
+     * @return 1D output for the filtered signal.
+     */
+
+    std::vector<float> filterSignal(const std::vector<float>& signal,
+                                    const std::vector<float>& filter);
+
+    /**
+     * @brief Calculates the nth order derivative of the given signal.
+     * @param signal The 1D signal whose difference needs to be computed.
+     * @param order Number of times the difference operation will be
+     * repeated. After each iteration, the resulting signal loses 1 element
+     * in size.
+     * @return 1D output representing the nth order derivative of signal.
+     * The size of this output is signal's size - `order`.
+     */
+    std::vector<double> derivative(const std::vector<double>& signal,
+                                   const int order = 1);
+
+    /**
+     * @brief Calculates the nth order derivative of the given signal.
+     * @param signal The 1D signal whose difference needs to be computed.
+     * @param order Number of times the difference operation will be
+     * repeated. After each iteration, the resulting signal loses 1 element
+     * in size.
+     * @return 1D output representing the nth order derivative of signal.
+     * The size of this output is signal's size - `order`.
+     */
+    std::vector<float> derivative(const std::vector<float>& signal,
+                                  const int order = 1);
+
+    /**
+     * @brief The ideal slope of a signal measures its consistency in terms
+     * of following a proper bi-gaussian trend - i.e., no spikes in either
+     * of its edges.
+     * @param signal A 1D signal whose ideal slope needs to be calculated.
+     * @return The ideal slope of the signal.
+     */
+    float idealSlopeValue(vector<double> signal);
+
+    /**
+     * @brief The ideal slope of a signal measures its consistency in terms
+     * of following a proper bi-gaussian trend - i.e., no spikes in either
+     * of its edges.
+     * @param signal A 1D signal whose ideal slope needs to be calculated.
+     * @return The ideal slope of the signal.
+     */
+    float idealSlopeValue(vector<float> signal);
+
+    /**
+     * @brief The sharpness of a slope hints its symmetry while considering
+     * its surrounding noise/peaks. This value can help resolve between two
+     * adjacent multiplexed signals.
+     * @param signal A 1D signal whose sharpnes needs to be calculated.
+     * @return The sharpness value of the signal.
+     */
+    float sharpnessValue(vector<double> signal);
+
+    /**
+     * @brief The sharpness of a slope hints its symmetry while considering
+     * its surrounding noise/peaks. This value can help resolve between two
+     * adjacent multiplexed signals.
+     * @param signal A 1D signal whose sharpnes needs to be calculated.
+     * @return The sharpness value of the signal.
+     */
+    float sharpnessValue(vector<float> signal);
+
+    /**
      * @brief Removes elements at given indexes from a vector. Please note, that
      * this function will disturb the order of elements in the vector being
      * filtered.
@@ -708,8 +792,9 @@ namespace mzUtils
      * vector. This predicate should represent the order logic itself.
      */
     template<typename T, typename Predicate>
-    typename vector<T>::iterator
-    insertSorted(vector<T>& vec, T const& item, Predicate pred)
+    typename vector<T>::iterator insertSorted(vector<T>& vec,
+                                              T const& item,
+                                              Predicate pred)
     {
         return vec.insert(upper_bound(begin(vec), end(vec), item, pred), item);
     }

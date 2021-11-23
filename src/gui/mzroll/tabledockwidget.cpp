@@ -2,15 +2,19 @@
 
 #include <qtconcurrentrun.h>
 
-#include "alignmentdialog.h"
-#include "common/analytics.h"
-#include "clusterdialog.h"
 #include "Compound.h"
+#include "EIC.h"
+#include "PeakGroup.h"
+#include "Scan.h"
+#include "alignmentdialog.h"
+#include "backgroundopsthread.h"
+#include "classificationWidget.h"
+#include "classifierNeuralNet.h"
+#include "clusterdialog.h"
+#include "common/analytics.h"
 #include "controller.h"
 #include "correlationtable.h"
-#include "classifierNeuralNet.h"
 #include "csvreports.h"
-#include "EIC.h"
 #include "eicwidget.h"
 #include "globals.h"
 #include "grouprtwidget.h"
@@ -27,168 +31,156 @@
 #include "mzUtils.h"
 #include "notificator.h"
 #include "numeric_treewidgetitem.h"
+#include "peakdetector.h"
 #include "peakeditor.h"
-#include "PeakGroup.h"
 #include "peaktabledeletiondialog.h"
+#include "relabelGroupsDialog.h"
 #include "saveJson.h"
-#include "Scan.h"
 #include "scatterplot.h"
 #include "spectrallibexport.h"
 #include "spectrawidget.h"
 #include "tabledockwidget.h";
-#include "peakdetector.h"
-#include "backgroundopsthread.h"
-#include "classificationWidget.h"
-#include "relabelGroupsDialog.h"
 
 QMap<int, QString> TableDockWidget::_idTitleMap;
 
 const QMap<PeakGroup::ClassifiedLabel, QString>
 TableDockWidget::labelsForLegend()
 {
-  static QMap<PeakGroup::ClassifiedLabel, QString> labels = {
-    {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
-     "Signal with correlation and cohort-variance"},
-    {PeakGroup::ClassifiedLabel::Correlation,
-     "Signal with only correlation"},
-    {PeakGroup::ClassifiedLabel::Pattern,
-     "Signal with only cohort-variance"},
-    {PeakGroup::ClassifiedLabel::Signal,
-     "Signal"},
-    {PeakGroup::ClassifiedLabel::Noise,
-     "Noise"},
-    {PeakGroup::ClassifiedLabel::MaybeGood, 
-      "May be good signal"}
-  };
-  return labels;
+    static QMap<PeakGroup::ClassifiedLabel, QString> labels = {
+        {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
+         "Signal with correlation and cohort-variance"},
+        {PeakGroup::ClassifiedLabel::Correlation,
+         "Signal with only correlation"},
+        {PeakGroup::ClassifiedLabel::Pattern,
+         "Signal with only cohort-variance"},
+        {PeakGroup::ClassifiedLabel::Signal, "Signal"},
+        {PeakGroup::ClassifiedLabel::Noise, "Noise"},
+        {PeakGroup::ClassifiedLabel::MaybeGood, "May be good signal"}};
+    return labels;
 }
 
-const QMap<PeakGroup::ClassifiedLabel, QIcon>
-TableDockWidget::iconsForLegend()
+const QMap<PeakGroup::ClassifiedLabel, QIcon> TableDockWidget::iconsForLegend()
 {
-  static QMap<PeakGroup::ClassifiedLabel, QIcon> icons {
-    {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
-     QIcon(":/images/moi_pattern_correlated.png")},
-    {PeakGroup::ClassifiedLabel::Correlation,
-     QIcon(":/images/moi_correlated.png")},
-    {PeakGroup::ClassifiedLabel::Pattern,
-     QIcon(":/images/moi_pattern.png")},
-    {PeakGroup::ClassifiedLabel::Signal,
-     QIcon(":/images/good.png")},
-    {PeakGroup::ClassifiedLabel::Noise,
-     QIcon(":/images/bad.png")},
-    {PeakGroup::ClassifiedLabel::MaybeGood,
-     QIcon(":/images/maybeGood.png")}
-  };
-  return icons;
+    static QMap<PeakGroup::ClassifiedLabel, QIcon> icons{
+        {PeakGroup::ClassifiedLabel::CorrelationAndPattern,
+         QIcon(":/images/moi_pattern_correlated.png")},
+        {PeakGroup::ClassifiedLabel::Correlation,
+         QIcon(":/images/moi_correlated.png")},
+        {PeakGroup::ClassifiedLabel::Pattern,
+         QIcon(":/images/moi_pattern.png")},
+        {PeakGroup::ClassifiedLabel::Signal, QIcon(":/images/good.png")},
+        {PeakGroup::ClassifiedLabel::Noise, QIcon(":/images/bad.png")},
+        {PeakGroup::ClassifiedLabel::MaybeGood,
+         QIcon(":/images/maybeGood.png")}};
+    return icons;
 }
 
-TableDockWidget::TableDockWidget(MainWindow *mw) {
-  QDateTime current_time;
-  const QString format = "dd-MM-yyyy_hh_mm_ss";
-  QString datetimestamp= current_time.currentDateTime().toString(format);
-  datetimestamp.replace(" ","_");
-  datetimestamp.replace(":","-");
-  
-  uploadId = datetimestamp+"_Peak_table_"+QString::number(lastTableId());
+TableDockWidget::TableDockWidget(MainWindow* mw)
+{
+    QDateTime current_time;
+    const QString format = "dd-MM-yyyy_hh_mm_ss";
+    QString datetimestamp = current_time.currentDateTime().toString(format);
+    datetimestamp.replace(" ", "_");
+    datetimestamp.replace(":", "-");
 
-  writableTempS3Dir = QStandardPaths::writableLocation(
-                                                QStandardPaths::QStandardPaths::GenericConfigLocation)
-                                                + QDir::separator()
-                                                + "tmp_Elmaven_s3_files_"
-                                                + QString::number(lastTableId());
-  if (!QDir(writableTempS3Dir).exists())
-    QDir().mkdir(writableTempS3Dir);
+    uploadId = datetimestamp + "_Peak_table_" + QString::number(lastTableId());
 
-  setAllowedAreas(Qt::AllDockWidgetAreas);
-  setFloating(false);
-  _mainwindow = mw;
-  _labeledGroups = 0;
-  _targetedGroups = 0;
-  _nextGroupId = 1;
-  _legend = nullptr;
-  pal = palette();
-  setAutoFillBackground(true);
-  pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
-  setPalette(pal);
-  setDefaultStyle();
+    writableTempS3Dir =
+        QStandardPaths::writableLocation(
+            QStandardPaths::QStandardPaths::GenericConfigLocation)
+        + QDir::separator() + "tmp_Elmaven_s3_files_"
+        + QString::number(lastTableId());
+    if (!QDir(writableTempS3Dir).exists())
+        QDir().mkdir(writableTempS3Dir);
 
-  viewType = groupView;
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    setFloating(false);
+    _mainwindow = mw;
+    _labeledGroups = 0;
+    _targetedGroups = 0;
+    _nextGroupId = 1;
+    _legend = nullptr;
+    pal = palette();
+    setAutoFillBackground(true);
+    pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+    setPalette(pal);
+    setDefaultStyle();
 
-  treeWidget = new PeakGroupTreeWidget(this);
-  relabelDialog = new RelabelGroupsDialog(this);
+    viewType = groupView;
 
-  treeWidget->setSortingEnabled(false);
-  treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  treeWidget->setObjectName("PeakGroupTable");
-  treeWidget->setFocusPolicy(Qt::NoFocus);
-  treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-  this->setFocusPolicy(Qt::ClickFocus);
-  tableSelectionFlagUp = false;
-  tableSelectionFlagDown = false;
+    treeWidget = new PeakGroupTreeWidget(this);
+    relabelDialog = new RelabelGroupsDialog(this);
 
-  if (_mainwindow->mavenParameters->classifyUsingPeakMl)
-    hasClassifiedGroups = true;
-  else 
-    hasClassifiedGroups = false;
-  
-  badGroupLimit = _mainwindow->mavenParameters->badGroupUpperLimit;
-  maybeGoodGroupLimit = _mainwindow->mavenParameters->goodGroupLowerLimit;
+    treeWidget->setSortingEnabled(false);
+    treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    treeWidget->setObjectName("PeakGroupTable");
+    treeWidget->setFocusPolicy(Qt::NoFocus);
+    treeWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->setFocusPolicy(Qt::ClickFocus);
+    tableSelectionFlagUp = false;
+    tableSelectionFlagDown = false;
 
-  setWidget(treeWidget);
-  setupPeakTable();
+    if (_mainwindow->mavenParameters->classifyUsingPeakMl)
+        hasClassifiedGroups = true;
+    else
+        hasClassifiedGroups = false;
 
-  ctrlZ = new QShortcut(this); // Initialize the object
-  ctrlZ->setKey(Qt::CTRL + Qt::Key_Z); // Set the key code
-  connect(ctrlZ, SIGNAL(activated()), this, SLOT(undoLabel()));
+    badGroupLimit = _mainwindow->mavenParameters->badGroupUpperLimit;
+    maybeGoodGroupLimit = _mainwindow->mavenParameters->goodGroupLowerLimit;
 
-  connect(treeWidget,
-          &QTreeWidget::itemClicked,
-          this,
-          &TableDockWidget::showSelectedGroup);
-  connect(treeWidget,
-          &QTreeWidget::itemSelectionChanged,
-          this,
-          &TableDockWidget::_refreshCycleBuffer);
-          
-  connect(treeWidget,
-          SIGNAL(itemSelectionChanged()),
-          SLOT(showSelectedGroup()));
+    setWidget(treeWidget);
+    setupPeakTable();
 
-  connect(treeWidget,
-          &QTreeWidget::itemExpanded,
-          this,
-          &TableDockWidget::sortChildrenAscending);
+    ctrlZ = new QShortcut(this);          // Initialize the object
+    ctrlZ->setKey(Qt::CTRL + Qt::Key_Z);  // Set the key code
+    connect(ctrlZ, SIGNAL(activated()), this, SLOT(undoLabel()));
 
-  clusterDialog = new ClusterDialog(this);
-  connect(clusterDialog->clusterButton,
-          SIGNAL(clicked(bool)),
-          SLOT(clusterGroups()));
-  connect(clusterDialog->clearButton,
-          SIGNAL(clicked(bool)),
-          SLOT(clearClusters()));
+    connect(treeWidget,
+            &QTreeWidget::itemClicked,
+            this,
+            &TableDockWidget::showSelectedGroup);
+    connect(treeWidget,
+            &QTreeWidget::itemSelectionChanged,
+            this,
+            &TableDockWidget::_refreshCycleBuffer);
 
-  connect(this,
-          SIGNAL(updateProgressBar(QString, int, int, bool)),
-          _mainwindow,
-          SLOT(setProgressBar(QString, int, int, bool)));
-  connect(this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
-  connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
-  
-  // selections in correlation table will trigger selection in this table
-  connect(mw->getCorrelationTable(),
-          SIGNAL(groupNameSelected(string)),
-          this,
-          SLOT(displayNextGroupInCorrelationTable(string)));
-  
-  connect(this, 
-          SIGNAL(updateRelabelStatusBar(QString, int, int)),
-          relabelDialog,
-          SLOT(setProgressBar(QString, int, int)));
+    connect(
+        treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showSelectedGroup()));
 
-  setAcceptDrops(true);
-  _cycleInProgress = false;
-  
+    connect(treeWidget,
+            &QTreeWidget::itemExpanded,
+            this,
+            &TableDockWidget::sortChildrenAscending);
+
+    clusterDialog = new ClusterDialog(this);
+    connect(clusterDialog->clusterButton,
+            SIGNAL(clicked(bool)),
+            SLOT(clusterGroups()));
+    connect(clusterDialog->clearButton,
+            SIGNAL(clicked(bool)),
+            SLOT(clearClusters()));
+
+    connect(this,
+            SIGNAL(updateProgressBar(QString, int, int, bool)),
+            _mainwindow,
+            SLOT(setProgressBar(QString, int, int, bool)));
+    connect(
+        this, SIGNAL(UploadPeakBatch()), this, SLOT(UploadPeakBatchToCloud()));
+    connect(this, SIGNAL(renderedPdf()), this, SLOT(pdfReadyNotification()));
+
+    // selections in correlation table will trigger selection in this table
+    connect(mw->getCorrelationTable(),
+            SIGNAL(groupNameSelected(string)),
+            this,
+            SLOT(displayNextGroupInCorrelationTable(string)));
+
+    connect(this,
+            SIGNAL(updateRelabelStatusBar(QString, int, int)),
+            relabelDialog,
+            SLOT(setProgressBar(QString, int, int)));
+
+    setAcceptDrops(true);
+    _cycleInProgress = false;
 }
 int TableDockWidget::noiseCount = 0;
 int TableDockWidget::signalCount = 0;
@@ -197,18 +189,23 @@ int TableDockWidget::cohortCount = 0;
 int TableDockWidget::correlatedCohortCount = 0;
 int TableDockWidget::mayBeGroupsCount = 0;
 
-TableDockWidget::~TableDockWidget() {
-  if (clusterDialog != NULL)
-    delete clusterDialog;
-  if(ctrlZ)
-      delete ctrlZ;
+TableDockWidget::~TableDockWidget()
+{
+    if (clusterDialog != NULL)
+        delete clusterDialog;
+    if (ctrlZ)
+        delete ctrlZ;
 }
 
-void TableDockWidget::sortChildrenAscending(QTreeWidgetItem *item) {
-  item->sortChildren(1, Qt::AscendingOrder);
+void TableDockWidget::sortChildrenAscending(QTreeWidgetItem* item)
+{
+    item->sortChildren(1, Qt::AscendingOrder);
 }
 
-void TableDockWidget::showClusterDialog() { clusterDialog->show(); }
+void TableDockWidget::showClusterDialog()
+{
+    clusterDialog->show();
+}
 
 void TableDockWidget::updateTableAfterAlignment()
 {
@@ -216,147 +213,145 @@ void TableDockWidget::updateTableAfterAlignment()
     showAllGroups();
 }
 
-void TableDockWidget::setIntensityColName() {
-  QTreeWidgetItem *header = treeWidget->headerItem();
-  QString temp;
-  PeakGroup::QType qtype = _mainwindow->getUserQuantType();
-  switch (qtype) {
-  case PeakGroup::AreaTop:
-    temp = "Max AreaTop";
-    break;
-  case PeakGroup::Area:
-    temp = "Max Area";
-    break;
-  case PeakGroup::Height:
-    temp = "Max Height";
-    break;
-  case PeakGroup::AreaNotCorrected:
-    temp = "Max AreaNotCorrected";
-    break;
-  case PeakGroup::AreaTopNotCorrected:
-    temp = "Max AreaTopNotCorrected";
-    break;
-  default:
-    temp = _mainwindow->currentIntensityName;
-    break;
-  }
-  _mainwindow->currentIntensityName = temp;
-  header->setText(10, temp);
+void TableDockWidget::setIntensityColName()
+{
+    QTreeWidgetItem* header = treeWidget->headerItem();
+    QString temp;
+    PeakGroup::QType qtype = _mainwindow->getUserQuantType();
+    switch (qtype) {
+    case PeakGroup::AreaTop:
+        temp = "Max AreaTop";
+        break;
+    case PeakGroup::Area:
+        temp = "Max Area";
+        break;
+    case PeakGroup::Height:
+        temp = "Max Height";
+        break;
+    case PeakGroup::AreaNotCorrected:
+        temp = "Max AreaNotCorrected";
+        break;
+    case PeakGroup::AreaTopNotCorrected:
+        temp = "Max AreaTopNotCorrected";
+        break;
+    default:
+        temp = _mainwindow->currentIntensityName;
+        break;
+    }
+    _mainwindow->currentIntensityName = temp;
+    header->setText(10, temp);
 }
 
 void TableDockWidget::undoLabel()
 {
-  if (!hasClassifiedGroups)
-    return;
-  
-  auto groups = getSelectedGroups();
-  for(auto group : groups) {
-    
-    auto id = undoBuffer[group->groupId()];
-    group->setPredictedLabel(group->labelForString(id.first), id.second);
-    saveLabelForUndo(group.get());
-    
-    auto item = itemForGroup(group.get());
-    updateItem(item);
-    updateLegend();
-    updateStatus();
-  }
-  
+    if (!hasClassifiedGroups)
+        return;
+
+    auto groups = getSelectedGroups();
+    for (auto group : groups) {
+        auto id = undoBuffer[group->groupId()];
+        group->setPredictedLabel(group->labelForString(id.first), id.second);
+        saveLabelForUndo(group.get());
+
+        auto item = itemForGroup(group.get());
+        updateItem(item);
+        updateLegend();
+        updateStatus();
+    }
 }
 
 void TableDockWidget::displayNextGroupInCorrelationTable(string groupName)
 {
-  if (_mainwindow->getCorrelationTable()->currentTable() == this) {
-    auto wasBlocked = treeWidget->blockSignals(true);
-    for (auto item : _cycleBuffer) {
-      if (item->text(2).toStdString() == groupName) {
-        treeWidget->setCurrentItem(item);
-        treeWidget->scrollTo(treeWidget->currentIndex(),
-                              QAbstractItemView::PositionAtCenter);
-        showSelectedGroup();
-        break;
-      }
+    if (_mainwindow->getCorrelationTable()->currentTable() == this) {
+        auto wasBlocked = treeWidget->blockSignals(true);
+        for (auto item : _cycleBuffer) {
+            if (item->text(2).toStdString() == groupName) {
+                treeWidget->setCurrentItem(item);
+                treeWidget->scrollTo(treeWidget->currentIndex(),
+                                     QAbstractItemView::PositionAtCenter);
+                showSelectedGroup();
+                break;
+            }
+        }
+        treeWidget->blockSignals(wasBlocked);
     }
-    treeWidget->blockSignals(wasBlocked);
-  }
 }
 
-void TableDockWidget::setupPeakTable() {
-
-  QStringList colNames;
-
-  // Add common coulmns to the Table
-  if(hasClassifiedGroups) {
-    colNames << "Label";
-  }
-  colNames << "#";
-  colNames << "ID";
-  colNames << "Observed m/z";
-  colNames << "Expected m/z";
-  colNames << "RT";
-
-  if (viewType == groupView) {
-
-    // Add group view columns to the peak table
-    colNames << "Δ RT";
-    colNames << "# peaks";
-    colNames << "# good peaks";
-    colNames << "Max width";
-    colNames << "Max AreaTop";
-    colNames << "Max S/N";
-    colNames << "Max quality";
-    colNames << "MS2 score";
-    colNames << "#MS2 events";
-    if(hasClassifiedGroups)
-      colNames << "Classification Probability"; 
-    colNames << "Rank";
-  } else if (viewType == peakView) {
-    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
-    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-    for (unsigned int i = 0; i < vsamples.size(); i++) {
-      // Add peak view columns to the table
-      colNames << QString(vsamples[i]->sampleName.c_str());
-    }
-  }
-
-  treeWidget->setColumnCount(colNames.size());
-  treeWidget->setHeaderLabels(colNames);
-  treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  treeWidget->header()->adjustSize();
-  treeWidget->setSortingEnabled(true);
-}
-
-shared_ptr<PeakGroup> TableDockWidget::groupForItem(QTreeWidgetItem *item)
+void TableDockWidget::setupPeakTable()
 {
-  if (item == nullptr)
+    QStringList colNames;
+
+    // Add common coulmns to the Table
+    if (hasClassifiedGroups) {
+        colNames << "Label";
+    }
+    colNames << "#";
+    colNames << "ID";
+    colNames << "Observed m/z";
+    colNames << "Expected m/z";
+    colNames << "RT";
+
+    if (viewType == groupView) {
+        // Add group view columns to the peak table
+        colNames << "Δ RT";
+        colNames << "# peaks";
+        colNames << "# good peaks";
+        colNames << "Max width";
+        colNames << "Max AreaTop";
+        colNames << "Max S/N";
+        colNames << "Max quality";
+        colNames << "MS2 score";
+        colNames << "#MS2 events";
+        if (hasClassifiedGroups)
+            colNames << "Classification Probability";
+        colNames << "Rank";
+    } else if (viewType == peakView) {
+        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
+        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+        for (unsigned int i = 0; i < vsamples.size(); i++) {
+            // Add peak view columns to the table
+            colNames << QString(vsamples[i]->sampleName.c_str());
+        }
+    }
+
+    treeWidget->setColumnCount(colNames.size());
+    treeWidget->setHeaderLabels(colNames);
+    treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    treeWidget->header()->adjustSize();
+    treeWidget->setSortingEnabled(true);
+}
+
+shared_ptr<PeakGroup> TableDockWidget::groupForItem(QTreeWidgetItem* item)
+{
+    if (item == nullptr)
+        return nullptr;
+
+    int index = 0;
+    if (hasClassifiedGroups)
+        index = 1;
+
+    auto var = item->data(index, Qt::UserRole);
+
+    auto rowData = var.value<RowData>();
+    auto group = _topLevelGroups.at(rowData.parentIndex);
+    if (rowData.childType == RowData::ChildType::Isotope) {
+        group = group->childIsotopes().at(rowData.childIndex);
+    } else if (rowData.childType == RowData::ChildType::Adduct) {
+        group = group->childAdducts().at(rowData.childIndex);
+    }
+    return group;
+}
+
+QTreeWidgetItem* TableDockWidget::itemForGroup(PeakGroup* group)
+{
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        auto grp = groupForItem(*it).get();
+        if (grp == group)
+            return *it;
+        ++it;
+    }
     return nullptr;
-  
-  int index = 0;
-  if (hasClassifiedGroups)
-    index = 1;
-  
-  auto var = item->data(index, Qt::UserRole);
-  
-  auto rowData = var.value<RowData>();
-  auto group = _topLevelGroups.at(rowData.parentIndex);
-  if (rowData.childType == RowData::ChildType::Isotope) {
-      group = group->childIsotopes().at(rowData.childIndex);
-  } else if (rowData.childType == RowData::ChildType::Adduct) {
-      group = group->childAdducts().at(rowData.childIndex);
-  }
-  return group;
-}
-
-QTreeWidgetItem * TableDockWidget::itemForGroup(PeakGroup * group)
-{
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    auto grp = groupForItem(*it).get();
-    if (grp == group)
-      return *it; 
-    ++it;
-  }
-  return nullptr;
 }
 
 void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
@@ -375,17 +370,15 @@ void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
     auto parent = groupForItem(item);
     if (parent->childIsotopeCount() > 0) {
         for (size_t i = 0; i < parent->childIsotopeCount(); ++i) {
-            RowData rowData = _rowDataForThisTable(parentRowData.parentIndex,
-                                                   RowData::ChildType::Isotope,
-                                                   i);
+            RowData rowData = _rowDataForThisTable(
+                parentRowData.parentIndex, RowData::ChildType::Isotope, i);
             addRow(rowData, item);
         }
     }
     if (parent->childAdductsCount() > 0) {
         for (size_t i = 0; i < parent->childAdductsCount(); ++i) {
-            RowData rowData = _rowDataForThisTable(parentRowData.parentIndex,
-                                                   RowData::ChildType::Adduct,
-                                                   i);
+            RowData rowData = _rowDataForThisTable(
+                parentRowData.parentIndex, RowData::ChildType::Adduct, i);
             addRow(rowData, item);
         }
     }
@@ -393,100 +386,105 @@ void TableDockWidget::refreshParentItem(QTreeWidgetItem* item)
 
 void TableDockWidget::updateLegend()
 {
-  noiseCount = 0;
-  signalCount = 0;
-  correlatedCount = 0;
-  cohortCount = 0;
-  correlatedCohortCount = 0;
-  mayBeGroupsCount = 0;
-  _legend->clear();
-  
-  auto incrementClassification = [&] (PeakGroup* group)
-                                {
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::Noise" || 
-                                        group->userLabel() == 'b')
-                                        noiseCount++;
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::Signal" ||
-                                        group->userLabel() == 'g')
-                                        signalCount++;
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::Correlation")
-                                        correlatedCount++;
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::Pattern")
-                                        cohortCount++;
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::CorrelationAndPattern")
-                                        correlatedCohortCount++;
-                                    if (group->labelToString(group->predictedLabel()) 
-                                        == "ClassifiedLabel::MaybeGood")
-                                        mayBeGroupsCount++;
-                                };
-  for (auto group : _topLevelGroups)
-  {
-    incrementClassification(group.get());
-    for (auto childIsotope : group->childIsotopes())
-      incrementClassification(childIsotope.get()); 
-  }
-  
-  _legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  auto labelsForLegend = TableDockWidget::labelsForLegend();
-  auto iconsForLegend = TableDockWidget::iconsForLegend();
-  
-  int totalCount = 0;
-  totalCount += noiseCount;
-  totalCount += signalCount;
-  totalCount += correlatedCount;
-  totalCount += cohortCount;
-  totalCount += correlatedCohortCount;
-  totalCount += mayBeGroupsCount;
+    noiseCount = 0;
+    signalCount = 0;
+    correlatedCount = 0;
+    cohortCount = 0;
+    correlatedCohortCount = 0;
+    mayBeGroupsCount = 0;
+    _legend->clear();
 
-  int count = 0;
-  vector<float> countPercentage;
-
-  if (!totalCount) {
-    for (int i = 0; i < 6; i++) {
-      countPercentage.push_back(0.0f);
+    auto incrementClassification = [&](PeakGroup* group) {
+        if (group->labelToString(group->predictedLabel())
+                == "ClassifiedLabel::Noise"
+            || group->userLabel() == 'b')
+            noiseCount++;
+        if (group->labelToString(group->predictedLabel())
+                == "ClassifiedLabel::Signal"
+            || group->userLabel() == 'g')
+            signalCount++;
+        if (group->labelToString(group->predictedLabel())
+            == "ClassifiedLabel::Correlation")
+            correlatedCount++;
+        if (group->labelToString(group->predictedLabel())
+            == "ClassifiedLabel::Pattern")
+            cohortCount++;
+        if (group->labelToString(group->predictedLabel())
+            == "ClassifiedLabel::CorrelationAndPattern")
+            correlatedCohortCount++;
+        if (group->labelToString(group->predictedLabel())
+            == "ClassifiedLabel::MaybeGood")
+            mayBeGroupsCount++;
+    };
+    for (auto group : _topLevelGroups) {
+        incrementClassification(group.get());
+        for (auto childIsotope : group->childIsotopes())
+            incrementClassification(childIsotope.get());
     }
-  } else {
-    countPercentage.push_back((noiseCount / static_cast<float>(totalCount)) * 100);
-    countPercentage.push_back((signalCount / static_cast<float>(totalCount)) * 100);
-    countPercentage.push_back((correlatedCount / static_cast<float>(totalCount)) * 100);
-    countPercentage.push_back((cohortCount / static_cast<float>(totalCount)) * 100);
-    countPercentage.push_back((correlatedCohortCount / static_cast<float>(totalCount)) * 100);
-    countPercentage.push_back((mayBeGroupsCount / static_cast<float>(totalCount)) * 100);
-  }
-  
-  for (const auto& label : labelsForLegend) {
-      auto type = labelsForLegend.key(label);
-      auto icon = iconsForLegend.value(type);
 
-      string labelString = label.toStdString();
-      labelString += " (";
-      labelString += mzUtils::float2string(countPercentage[count++], 4);
-      labelString += "%)";
+    _legend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    auto labelsForLegend = TableDockWidget::labelsForLegend();
+    auto iconsForLegend = TableDockWidget::iconsForLegend();
 
-      auto labelConverted = QString::fromStdString(labelString);
-      _legend->addItem(icon, labelConverted);
-  }
-  _legend->addItem(QIcon(":/images/relabel.png"), "Re-Label");
-  _legend->selectAll();
+    int totalCount = 0;
+    totalCount += noiseCount;
+    totalCount += signalCount;
+    totalCount += correlatedCount;
+    totalCount += cohortCount;
+    totalCount += correlatedCohortCount;
+    totalCount += mayBeGroupsCount;
+
+    int count = 0;
+    vector<float> countPercentage;
+
+    if (!totalCount) {
+        for (int i = 0; i < 6; i++) {
+            countPercentage.push_back(0.0f);
+        }
+    } else {
+        countPercentage.push_back((noiseCount / static_cast<float>(totalCount))
+                                  * 100);
+        countPercentage.push_back((signalCount / static_cast<float>(totalCount))
+                                  * 100);
+        countPercentage.push_back(
+            (correlatedCount / static_cast<float>(totalCount)) * 100);
+        countPercentage.push_back((cohortCount / static_cast<float>(totalCount))
+                                  * 100);
+        countPercentage.push_back(
+            (correlatedCohortCount / static_cast<float>(totalCount)) * 100);
+        countPercentage.push_back(
+            (mayBeGroupsCount / static_cast<float>(totalCount)) * 100);
+    }
+
+    for (const auto& label : labelsForLegend) {
+        auto type = labelsForLegend.key(label);
+        auto icon = iconsForLegend.value(type);
+
+        string labelString = label.toStdString();
+        labelString += " (";
+        labelString += mzUtils::float2string(countPercentage[count++], 4);
+        labelString += "%)";
+
+        auto labelConverted = QString::fromStdString(labelString);
+        _legend->addItem(icon, labelConverted);
+    }
+    _legend->addItem(QIcon(":/images/relabel.png"), "Re-Label");
+    _legend->selectAll();
 }
 
-void TableDockWidget::updateTable() {
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    updateItem(*it);
-    ++it;
-  }
-  updateStatus();
-  if (hasClassifiedGroups)
-    updateLegend();
+void TableDockWidget::updateTable()
+{
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        updateItem(*it);
+        ++it;
+    }
+    updateStatus();
+    if (hasClassifiedGroups)
+        updateLegend();
 }
 
-void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem *item)
+void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem* item)
 {
     auto group = groupForItem(item);
     int numGood = 0;
@@ -511,239 +509,259 @@ void TableDockWidget::_paintClassificationDisagreement(QTreeWidgetItem *item)
     item->setBackground(0, brush);
 }
 
-void TableDockWidget::updateItem(QTreeWidgetItem *item, bool updateChildren) {
-  shared_ptr<PeakGroup> group = groupForItem(item);
-  if (group == nullptr)
-    return;
+void TableDockWidget::updateItem(QTreeWidgetItem* item, bool updateChildren)
+{
+    shared_ptr<PeakGroup> group = groupForItem(item);
+    if (group == nullptr)
+        return;
 
-  for (int i = 0; i < treeWidget->columnCount(); ++i)
-    item->setTextAlignment(i, Qt::AlignRight);
+    for (int i = 0; i < treeWidget->columnCount(); ++i)
+        item->setTextAlignment(i, Qt::AlignRight);
+    item->setTextAlignment(1, Qt::AlignLeft);  // compound name
 
-  if (hasClassifiedGroups)
-    item->setTextAlignment(2, Qt::AlignLeft); // compound name for peakML tables.
-  else
-    item->setTextAlignment(1, Qt::AlignLeft); // compound name for non-peakML tables.
-  
-  if (group->isGhost()) {
+    if (group->isGhost()) {
+        item->setText(0, QString::number(group->groupId()));
+        item->setText(1, QString(group->getName().c_str()));
+        if (updateChildren) {
+            for (int i = 0; i < item->childCount(); ++i)
+                updateItem(item->child(i));
+        }
+        return;
+    }
+
+    for (int i = 0; i < treeWidget->columnCount(); ++i)
+        item->setTextAlignment(i, Qt::AlignRight);
+
+    if (hasClassifiedGroups)
+        item->setTextAlignment(
+            2, Qt::AlignLeft);  // compound name for peakML tables.
+    else
+        item->setTextAlignment(
+            1, Qt::AlignLeft);  // compound name for non-peakML tables.
+
+    if (group->isGhost()) {
+        if (hasClassifiedGroups) {
+            item->setText(1, QString::number(group->groupId()));
+            item->setText(2, QString(group->getName().c_str()));
+        } else {
+            item->setText(0, QString::number(group->groupId()));
+            item->setText(1, QString(group->getName().c_str()));
+        }
+
+        if (updateChildren) {
+            for (int i = 0; i < item->childCount(); ++i)
+                updateItem(item->child(i));
+        }
+        return;
+    }
+
+    int index = 0;
+    if (hasClassifiedGroups)
+        index = 1;
+    // Find maximum number of peaks
+    if (maxPeaks < group->peakCount())
+        maxPeaks = group->peakCount();
+
+    // Updating the peakid
+    item->setText(index++, QString::number(group->groupId()));
+    item->setText(index++, QString(group->getName().c_str()));
+    item->setText(index++, QString::number(group->meanMz, 'f', 4));
+
+    int charge = group->parameters()->getCharge(group->getCompound());
+    if (group->getExpectedMz(charge) != -1) {
+        float mz = group->getExpectedMz(charge);
+        item->setText(index++, QString::number(mz, 'f', 4));
+    } else {
+        item->setText(index++, "NA");
+    }
+
+    item->setText(index++, QString::number(group->meanRt, 'f', 2));
+
+    if (viewType == groupView) {
+        auto expectedRtDiff = group->expectedRtDiff();
+        if (expectedRtDiff == -1.0f) {
+            item->setText(index++, "NA");
+        } else {
+            item->setText(index++, QString::number(expectedRtDiff, 'f', 2));
+        }
+        item->setText(
+            index++,
+            QString::number(group->sampleCount + group->blankSampleCount));
+        item->setText(index++, QString::number(group->goodPeakCount));
+        item->setText(index++, QString::number(group->maxNoNoiseObs));
+        item->setText(
+            index++, QString::number(extractMaxIntensity(group.get()), 'g', 3));
+        item->setText(index++,
+                      QString::number(group->maxSignalBaselineRatio, 'f', 0));
+        item->setText(index++, QString::number(group->maxQuality, 'f', 2));
+        item->setText(
+            index++,
+            QString::number(group->fragMatchScore.mergedScore, 'f', 2));
+        item->setText(index++, QString::number(group->ms2EventCount));
+        item->setText(index++,
+                      QString::number(group->predictionProbability(), 'f', 2));
+        item->setText(index++, QString::number(group->groupRank, 'e', 6));
+
+        if (fabs(group->changeFoldRatio) >= 0) {
+            item->setText(index++,
+                          QString::number(group->changeFoldRatio, 'f', 3));
+            item->setText(index++,
+                          QString::number(group->changePValue, 'f', 6));
+        }
+    } else if (viewType == peakView) {
+        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
+        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+        vector<float> yvalues = group->getOrderedIntensityVector(
+            vsamples, _mainwindow->getUserQuantType());
+        for (unsigned int i = 0; i < yvalues.size(); i++) {
+            if (hasClassifiedGroups)
+                item->setText(6 + i, QString::number(yvalues[i], 'f', 2));
+            else
+                item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
+        }
+        heatmapBackground(item);
+    }
+
     if (hasClassifiedGroups) {
-      item->setText(1, QString::number(group->groupId()));
-      item->setText(2, QString(group->getName().c_str()));
+        item->setIcon(0, iconsForLegend()[group->predictedLabel()]);
+        QString castLabel = QString::fromStdString(
+            PeakGroup::labelToString(group->predictedLabel()));
+        item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+
+        if (group->predictedLabel()
+            == PeakGroup::ClassifiedLabel::Correlation) {
+            QString castLabel = "PeakGroup::ClassifiedLabel::Correlation";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else if (group->predictedLabel()
+                   == PeakGroup::ClassifiedLabel::Pattern) {
+            QString castLabel = "PeakGroup::ClassifiedLabel::Pattern";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else if (group->predictedLabel()
+                   == PeakGroup::ClassifiedLabel::CorrelationAndPattern) {
+            QString castLabel =
+                "PeakGroup::ClassifiedLabel::CorrelationAndPattern";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else if (group->predictedLabel()
+                   == PeakGroup::ClassifiedLabel::Signal) {
+            // we have to store stringified classifier labels because QVariant
+            // has issues with standard enum classes
+            QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else if (group->predictedLabel()
+                   == PeakGroup::ClassifiedLabel::Noise) {
+            QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else if (group->predictedLabel()
+                   == PeakGroup::ClassifiedLabel::MaybeGood) {
+            QString castLabel = "PeakGroup::ClassifiedLabel::MaybeGood";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        } else {
+            QString castLabel = "PeakGroup::ClassifiedLabel::None";
+            item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
+        }
     } else {
-      item->setText(0, QString::number(group->groupId()));
-      item->setText(1, QString(group->getName().c_str()));
+        if (group->userLabel() == 'g') {
+            item->setIcon(0, QIcon(":/images/good.png"));
+        } else if (group->userLabel() == 'b') {
+            item->setIcon(0, QIcon(":/images/bad.png"));
+        }
     }
-    
+    if (!hasClassifiedGroups)
+        _paintClassificationDisagreement(item);
+
     if (updateChildren) {
-      for (int i = 0; i < item->childCount(); ++i)
-        updateItem(item->child(i));
+        for (int i = 0; i < item->childCount(); ++i)
+            updateItem(item->child(i));
     }
-    return;
-  }
-
-  int index = 0;
-  if (hasClassifiedGroups)
-    index = 1;
-  //Find maximum number of peaks
-  if (maxPeaks < group->peakCount()) maxPeaks = group->peakCount();
-
-  // Updating the peakid
-  item->setText(index++, QString::number(group->groupId()));
-  item->setText(index++, QString(group->getName().c_str()));
-  item->setText(index++, QString::number(group->meanMz, 'f', 4));
-
-  int charge = group->parameters()->getCharge(group->getCompound());
-  if (group->getExpectedMz(charge) != -1) {
-    float mz = group->getExpectedMz(charge);
-    item->setText(index++, QString::number(mz, 'f', 4));
-  } else {
-    item->setText(index++, "NA");
-  }
-
-  item->setText(index++, QString::number(group->meanRt, 'f', 2));
-
-  if (viewType == groupView) {
-    auto expectedRtDiff = group->expectedRtDiff();
-    if (expectedRtDiff == -1.0f) {
-      item->setText(index++, "NA");
-    } else {
-      item->setText(index++, QString::number(expectedRtDiff, 'f', 2));
-    }
-    item->setText(index++, QString::number(group->sampleCount
-                                     + group->blankSampleCount));
-    item->setText(index++, QString::number(group->goodPeakCount));
-    item->setText(index++, QString::number(group->maxNoNoiseObs));
-    item->setText(index++, QString::number(extractMaxIntensity(group.get()), 'g', 3));
-    item->setText(index++, QString::number(group->maxSignalBaselineRatio, 'f', 0));
-    item->setText(index++, QString::number(group->maxQuality, 'f', 2));
-    item->setText(index++, QString::number(group->fragMatchScore.mergedScore, 'f', 2));
-    item->setText(index++, QString::number(group->ms2EventCount));
-    item->setText(index++, QString::number(group->predictionProbability(), 'f', 2));
-    item->setText(index++, QString::number(group->groupRank, 'e', 6));
-
-    if (fabs(group->changeFoldRatio) >= 0) {
-      item->setText(index++, QString::number(group->changeFoldRatio, 'f', 3));
-      item->setText(index++, QString::number(group->changePValue, 'f', 6));
-    }
-  } else if (viewType == peakView) {
-    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
-    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-    vector<float> yvalues = group->getOrderedIntensityVector(
-        vsamples, _mainwindow->getUserQuantType());
-    for (unsigned int i = 0; i < yvalues.size(); i++) {
-      if (hasClassifiedGroups)
-        item->setText(6 + i, QString::number(yvalues[i], 'f', 2));
-      else
-        item->setText(5 + i, QString::number(yvalues[i], 'f', 2));
-    }
-    heatmapBackground(item);
-  }
-
-  if (hasClassifiedGroups) {
-    item->setIcon(0, iconsForLegend()[group->predictedLabel()]);
-    QString castLabel =
-        QString::fromStdString(PeakGroup::labelToString(group->predictedLabel()));
-    item->setData(0, Qt::UserRole, QVariant::fromValue(castLabel));
-    
-    if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Correlation) {
-      QString castLabel = "PeakGroup::ClassifiedLabel::Correlation";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Pattern) {
-      QString castLabel = "PeakGroup::ClassifiedLabel::Pattern";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel()
-              == PeakGroup::ClassifiedLabel::CorrelationAndPattern) {
-      QString castLabel = "PeakGroup::ClassifiedLabel::CorrelationAndPattern";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Signal) {
-      // we have to store stringified classifier labels because QVariant has
-      // issues with standard enum classes
-      QString castLabel = "PeakGroup::ClassifiedLabel::Signal";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise) {
-      QString castLabel = "PeakGroup::ClassifiedLabel::Noise";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else if (group->predictedLabel() == PeakGroup::ClassifiedLabel::MaybeGood){
-      QString castLabel = "PeakGroup::ClassifiedLabel::MaybeGood";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    } else {
-      QString castLabel = "PeakGroup::ClassifiedLabel::None";
-      item->setData(0,
-                    Qt::UserRole,
-                    QVariant::fromValue(castLabel));
-    }
-  } else {
-    if (group->userLabel() == 'g') {
-        item->setIcon(0, QIcon(":/images/good.png"));
-    } else if (group->userLabel() == 'b') {
-        item->setIcon(0, QIcon(":/images/bad.png"));
-    }
-  }
-  if (!hasClassifiedGroups)
-    _paintClassificationDisagreement(item);
-
-  if (updateChildren) {
-    for (int i = 0; i < item->childCount(); ++i)
-      updateItem(item->child(i));
-  }
 }
 
-void TableDockWidget::updateCompoundWidget() {
-  _mainwindow->ligandWidget->resetColor();
-  QMap<Compound*, bool> parentCompounds;
-  QMap<Compound*, set<Isotope>> compoundIsotopeForms;
-  QMap<Compound*, set<Adduct*>> compoundAdductForms;
-  for (auto& group : _topLevelGroups) {
-    if (group == nullptr || !group->hasCompoundLink())
-      continue;
+void TableDockWidget::updateCompoundWidget()
+{
+    _mainwindow->ligandWidget->resetColor();
+    QMap<Compound*, bool> parentCompounds;
+    QMap<Compound*, set<Isotope>> compoundIsotopeForms;
+    QMap<Compound*, set<Adduct*>> compoundAdductForms;
+    for (auto& group : _topLevelGroups) {
+        if (group == nullptr || !group->hasCompoundLink())
+            continue;
 
-    Compound* compound = group->getCompound();
-    if (parentCompounds.contains(compound)) {
-        parentCompounds[compound] = parentCompounds[compound]
-                                    || !group->isGhost();
-    } else {
-        parentCompounds[compound] = !group->isGhost();
+        Compound* compound = group->getCompound();
+        if (parentCompounds.contains(compound)) {
+            parentCompounds[compound] =
+                parentCompounds[compound] || !group->isGhost();
+        } else {
+            parentCompounds[compound] = !group->isGhost();
+        }
+
+        if (!compoundIsotopeForms.contains(compound))
+            compoundIsotopeForms.insert(compound, {});
+        for (auto& child : group->childIsotopes())
+            compoundIsotopeForms[compound].insert(child->isotope());
+
+        if (!compoundAdductForms.contains(compound))
+            compoundAdductForms.insert(compound, {});
+        for (auto& child : group->childAdducts())
+            compoundAdductForms[compound].insert(child->adduct());
     }
 
-    if (!compoundIsotopeForms.contains(compound))
-      compoundIsotopeForms.insert(compound, {});
-    for (auto& child : group->childIsotopes())
-      compoundIsotopeForms[compound].insert(child->isotope());
+    for (auto compound : parentCompounds.keys())
+        _mainwindow->ligandWidget->markAsDone(compound,
+                                              !parentCompounds[compound]);
 
-    if (!compoundAdductForms.contains(compound))
-      compoundAdductForms.insert(compound, {});
-    for (auto& child : group->childAdducts())
-      compoundAdductForms[compound].insert(child->adduct());
-  }
-
-  for (auto compound : parentCompounds.keys())
-    _mainwindow->ligandWidget->markAsDone(compound, !parentCompounds[compound]);
-
-  for (auto compound : compoundIsotopeForms.keys()) {
-    auto isotopes = compoundIsotopeForms[compound];
-    for (auto& isotope : isotopes)
-      _mainwindow->ligandWidget->markAsDone(compound, isotope);
-  }
-  for (auto compound : compoundAdductForms.keys()) {
-    auto adducts = compoundAdductForms[compound];
-    for (auto& adduct : adducts)
-      _mainwindow->ligandWidget->markAsDone(compound, adduct);
-  }
+    for (auto compound : compoundIsotopeForms.keys()) {
+        auto isotopes = compoundIsotopeForms[compound];
+        for (auto& isotope : isotopes)
+            _mainwindow->ligandWidget->markAsDone(compound, isotope);
+    }
+    for (auto compound : compoundAdductForms.keys()) {
+        auto adducts = compoundAdductForms[compound];
+        for (auto& adduct : adducts)
+            _mainwindow->ligandWidget->markAsDone(compound, adduct);
+    }
 }
 
-void TableDockWidget::heatmapBackground(QTreeWidgetItem *item) {
-  if (viewType != peakView)
-    return;
+void TableDockWidget::heatmapBackground(QTreeWidgetItem* item)
+{
+    if (viewType != peakView)
+        return;
 
-  int firstColumn = 5;
-  StatisticsVector<float> values;
-  float sum = 0;
-  for (unsigned int i = firstColumn; i < item->columnCount(); i++) {
-    values.push_back(item->text(i).toFloat());
-  }
-
-  if (values.size()) {
-    // normalize
-    float mean = values.mean();
-    float sd = values.stddev();
-
-    float max = values.maximum();
-    float min = values.minimum();
-    float range = max - min;
-
-    for (int i = 0; i < values.size(); i++) {
-      if (max != 0)
-        values[i] = abs((max - values[i]) / max); // Z-score
+    int firstColumn = 5;
+    StatisticsVector<float> values;
+    float sum = 0;
+    for (unsigned int i = firstColumn; i < item->columnCount(); i++) {
+        values.push_back(item->text(i).toFloat());
     }
 
-    QColor color = 0xfe7400;
-    for (int i = 0; i < values.size(); i++) {
-      float value = values[i];
-      float prob = value;
-      if (prob < 0)
-        prob = 0;
-      color.setAlpha((1.0f - prob) * 210);
+    if (values.size()) {
+        // normalize
+        float mean = values.mean();
+        float sd = values.stddev();
 
-      item->setBackgroundColor(firstColumn + i, color);
+        float max = values.maximum();
+        float min = values.minimum();
+        float range = max - min;
+
+        for (int i = 0; i < values.size(); i++) {
+            if (max != 0)
+                values[i] = abs((max - values[i]) / max);  // Z-score
+        }
+
+        QColor color = 0xfe7400;
+        for (int i = 0; i < values.size(); i++) {
+            float value = values[i];
+            float prob = value;
+            if (prob < 0)
+                prob = 0;
+            color.setAlpha((1.0f - prob) * 210);
+
+            item->setBackgroundColor(firstColumn + i, color);
+        }
     }
-  }
 }
 
-RowData
-TableDockWidget::_rowDataForThisTable(size_t parentIndex,
-                                      RowData::ChildType childType,
-                                      size_t childIndex)
+RowData TableDockWidget::_rowDataForThisTable(size_t parentIndex,
+                                              RowData::ChildType childType,
+                                              size_t childIndex)
 {
     RowData rowData;
     rowData.tableId = tableId;
@@ -755,62 +773,59 @@ TableDockWidget::_rowDataForThisTable(size_t parentIndex,
 
 void TableDockWidget::addRow(RowData& indexData, QTreeWidgetItem* root)
 {
-  shared_ptr<PeakGroup> group = _topLevelGroups.at(indexData.parentIndex);
-  if (root != nullptr) {
-    if (indexData.childType == RowData::ChildType::Isotope) {
-      group = group->childIsotopes().at(indexData.childIndex);
-    } else if (indexData.childType == RowData::ChildType::Adduct) {
-      group = group->childAdducts().at(indexData.childIndex);
+    shared_ptr<PeakGroup> group = _topLevelGroups.at(indexData.parentIndex);
+    if (root != nullptr) {
+        if (indexData.childType == RowData::ChildType::Isotope) {
+            group = group->childIsotopes().at(indexData.childIndex);
+        } else if (indexData.childType == RowData::ChildType::Adduct) {
+            group = group->childAdducts().at(indexData.childIndex);
+        }
     }
-  }
 
-  if (group == nullptr)
-    return;
+    if (group == nullptr)
+        return;
 
-  NumericTreeWidgetItem *item = new NumericTreeWidgetItem(root, 0);
-  if (root == nullptr) {
-      item->setFlags(Qt::ItemIsSelectable
-                     | Qt::ItemIsEnabled
-                     | Qt::ItemIsDropEnabled);
-  } else {
-      item->setFlags(Qt::ItemIsSelectable
-                     | Qt::ItemIsEnabled
-                     | Qt::ItemIsDragEnabled);
-  }
-
-  if (hasClassifiedGroups)
-    item->setData(1, Qt::UserRole, QVariant::fromValue(indexData));
-  else
-    item->setData(0, Qt::UserRole, QVariant::fromValue(indexData));
-
-  if (root == nullptr)
-    treeWidget->addTopLevelItem(item);
-
-  updateItem(item, false);
-
-  if (group->childIsotopeCount() > 0) {
-    for (size_t i = 0; i < group->childIsotopeCount(); ++i) {
-      RowData rowData = _rowDataForThisTable(indexData.parentIndex,
-                                             RowData::ChildType::Isotope,
-                                             i);
-      addRow(rowData, item);
+    NumericTreeWidgetItem* item = new NumericTreeWidgetItem(root, 0);
+    if (root == nullptr) {
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled
+                       | Qt::ItemIsDropEnabled);
+    } else {
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled
+                       | Qt::ItemIsDragEnabled);
     }
-  }
-  if (group->childAdductsCount() > 0) {
-    for (size_t i = 0; i < group->childAdductsCount(); ++i) {
-      RowData rowData = _rowDataForThisTable(indexData.parentIndex,
-                                             RowData::ChildType::Adduct,
-                                             i);
-      addRow(rowData, item);
+
+    if (hasClassifiedGroups)
+        item->setData(1, Qt::UserRole, QVariant::fromValue(indexData));
+    else
+        item->setData(0, Qt::UserRole, QVariant::fromValue(indexData));
+
+    if (root == nullptr)
+        treeWidget->addTopLevelItem(item);
+
+    updateItem(item, false);
+
+    if (group->childIsotopeCount() > 0) {
+        for (size_t i = 0; i < group->childIsotopeCount(); ++i) {
+            RowData rowData = _rowDataForThisTable(
+                indexData.parentIndex, RowData::ChildType::Isotope, i);
+            addRow(rowData, item);
+        }
     }
-  }
+    if (group->childAdductsCount() > 0) {
+        for (size_t i = 0; i < group->childAdductsCount(); ++i) {
+            RowData rowData = _rowDataForThisTable(
+                indexData.parentIndex, RowData::ChildType::Adduct, i);
+            addRow(rowData, item);
+        }
+    }
 }
 
-void ListView::keyPressEvent(QKeyEvent *event) {
-  if (event->matches(QKeySequence::Copy)) {
-    // set all selected compound name to clipboard
-    QApplication::clipboard()->setText(strings.join("\n"));
-  }
+void ListView::keyPressEvent(QKeyEvent* event)
+{
+    if (event->matches(QKeySequence::Copy)) {
+        // set all selected compound name to clipboard
+        QApplication::clipboard()->setText(strings.join("\n"));
+    }
 }
 
 PeakGroup createGhostParent(Compound* compound, MavenParameters* mp)
@@ -821,472 +836,579 @@ PeakGroup createGhostParent(Compound* compound, MavenParameters* mp)
     // set an appropriate slice for ghost parent
     mzSlice slice;
     slice.compound = compound;
-    slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
-                            mp->getCharge());
+    slice.calculateMzMinMax(mp->compoundMassCutoffWindow, mp->getCharge());
     slice.calculateRTMinMax(false, 0.0f);
     parentGroup.setSlice(slice);
 
     return parentGroup;
 }
 
-shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup *group)
+shared_ptr<PeakGroup> TableDockWidget::addPeakGroup(PeakGroup* group)
 {
-  if (group == nullptr)
-    return nullptr;
+    if (group == nullptr)
+        return nullptr;
 
     auto label = group->labelToString(group->predictedLabel());
     auto probability = group->predictionProbability();
     pair<string, float> groupLabel = make_pair(label, probability);
     undoBuffer[group->groupId()] = groupLabel;
 
-  auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
-    shared_ptr<PeakGroup> sharedGroup = make_shared<PeakGroup>(*topLevelGroup);
-    _topLevelGroups.push_back(sharedGroup);
-    if (sharedGroup->childIsotopeCount() > 0
-        || sharedGroup->tagString == C12_PARENT_LABEL) {
-      _labeledGroups++;
-    }
-    if (sharedGroup->hasCompoundLink())
-      _targetedGroups++;
-
-    int parentGroupId = _nextGroupId++;
-    for (auto& child : _topLevelGroups.back()->childIsotopes())
-        child->setGroupId(_nextGroupId++);
-    for (auto& child : _topLevelGroups.back()->childAdducts())
-        child->setGroupId(_nextGroupId++);
-    _topLevelGroups.back()->setGroupId(parentGroupId);
-    _topLevelGroups.back()->setTableName(titlePeakTable->text().toStdString());
-    return _topLevelGroups.back();
-  };
-
-  shared_ptr<PeakGroup> insertedGroup = nullptr;
-  if (group->isIsotope() || group->isAdduct()) {
-    shared_ptr<PeakGroup> topLevelParent = nullptr;
-    for (auto& parentGroup : _topLevelGroups) {
-      if (parentGroup->isGhost()
-          && parentGroup->getCompound() == group->getCompound()) {
-        topLevelParent = parentGroup;
-        if (group->isIsotope()) {
-          insertedGroup = parentGroup->addIsotopeChild(*group);
-        } else if (group->isAdduct()) {
-          insertedGroup = parentGroup->addAdductChild(*group);
+    auto newTopLevelGroup = [this](PeakGroup* topLevelGroup) {
+        shared_ptr<PeakGroup> sharedGroup =
+            make_shared<PeakGroup>(*topLevelGroup);
+        _topLevelGroups.push_back(sharedGroup);
+        if (sharedGroup->childIsotopeCount() > 0
+            || sharedGroup->tagString == C12_PARENT_LABEL) {
+            _labeledGroups++;
         }
-      }
+        if (sharedGroup->hasCompoundLink())
+            _targetedGroups++;
+
+        int parentGroupId = _nextGroupId++;
+        for (auto& child : _topLevelGroups.back()->childIsotopes())
+            child->setGroupId(_nextGroupId++);
+        for (auto& child : _topLevelGroups.back()->childAdducts())
+            child->setGroupId(_nextGroupId++);
+        _topLevelGroups.back()->setGroupId(parentGroupId);
+        _topLevelGroups.back()->setTableName(
+            titlePeakTable->text().toStdString());
+        return _topLevelGroups.back();
+    };
+
+    shared_ptr<PeakGroup> insertedGroup = nullptr;
+    if (group->isIsotope() || group->isAdduct()) {
+        shared_ptr<PeakGroup> topLevelParent = nullptr;
+        for (auto& parentGroup : _topLevelGroups) {
+            if (parentGroup->isGhost()
+                && parentGroup->getCompound() == group->getCompound()) {
+                topLevelParent = parentGroup;
+                if (group->isIsotope()) {
+                    insertedGroup = parentGroup->addIsotopeChild(*group);
+                } else if (group->isAdduct()) {
+                    insertedGroup = parentGroup->addAdductChild(*group);
+                }
+            }
+        }
+
+        if (insertedGroup == nullptr || topLevelParent == nullptr) {
+            PeakGroup parentGroup = createGhostParent(
+                group->getCompound(), group->parameters().get());
+            topLevelParent = newTopLevelGroup(&parentGroup);
+            if (topLevelParent != nullptr && group->isIsotope()) {
+                insertedGroup = topLevelParent->addIsotopeChild(*group);
+            } else if (topLevelParent != nullptr && group->isAdduct()) {
+                insertedGroup = topLevelParent->addAdductChild(*group);
+            }
+        }
+        insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
+        insertedGroup->setGroupId(_nextGroupId++);
+
+        // NOTE: top-level group's ID must be set after setting the IDs of
+        // its children, such that each child's `metaGroupId` is overwritten
+        topLevelParent->setGroupId(topLevelParent->groupId());
+    } else {
+        insertedGroup = newTopLevelGroup(group);
     }
 
-    if (insertedGroup == nullptr || topLevelParent == nullptr) {
-      PeakGroup parentGroup = createGhostParent(group->getCompound(),
-                                                group->parameters().get());
-      topLevelParent = newTopLevelGroup(&parentGroup);
-      if (topLevelParent != nullptr && group->isIsotope()) {
-        insertedGroup = topLevelParent->addIsotopeChild(*group);
-      } else if (topLevelParent != nullptr && group->isAdduct()) {
-        insertedGroup = topLevelParent->addAdductChild(*group);
-      }
-    }
-    insertedGroup->setTableName(this->titlePeakTable->text().toStdString());
-    insertedGroup->setGroupId(_nextGroupId++);
-
-    // NOTE: top-level group's ID must be set after setting the IDs of its
-    // children, such that each child's `metaGroupId` is overwritten
-    topLevelParent->setGroupId(topLevelParent->groupId());
-  } else {
-    insertedGroup = newTopLevelGroup(group);
-  }
-
-  return insertedGroup;
+    return insertedGroup;
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getGroups()
 {
-  return _topLevelGroups;
+    return _topLevelGroups;
 }
 
 bool TableDockWidget::deleteAll(bool askConfirmation)
 {
-  if (!topLevelGroupCount())
-    return false;
-  
-  auto continueDeletion = true;
-  if (askConfirmation)
-      continueDeletion = deleteAllgroupsWarning();
-  if (!continueDeletion)
-    return false;
+    if (!topLevelGroupCount())
+        return false;
 
-  if (treeWidget->currentItem()) {
-      _mainwindow->getEicWidget()->unSetPeakTableGroup(
-          groupForItem(treeWidget->currentItem()));
-  }
+    auto continueDeletion = true;
+    if (askConfirmation)
+        continueDeletion = deleteAllgroupsWarning();
+    if (!continueDeletion)
+        return false;
 
-  disconnect(treeWidget,
-             &QTreeWidget::itemSelectionChanged,
-             this,
-             &TableDockWidget::showSelectedGroup);
-  treeWidget->clear();
-  _topLevelGroups.clear();
-  connect(treeWidget,
-          &QTreeWidget::itemSelectionChanged,
-          this,
-          &TableDockWidget::showSelectedGroup);
+    if (treeWidget->currentItem()) {
+        _mainwindow->getEicWidget()->unSetPeakTableGroup(
+            groupForItem(treeWidget->currentItem()));
+    }
 
-  _mainwindow->getEicWidget()->replotForced();
+    disconnect(treeWidget,
+               &QTreeWidget::itemSelectionChanged,
+               this,
+               &TableDockWidget::showSelectedGroup);
+    treeWidget->clear();
+    _topLevelGroups.clear();
+    connect(treeWidget,
+            &QTreeWidget::itemSelectionChanged,
+            this,
+            &TableDockWidget::showSelectedGroup);
 
-  this->hide();
-  return true;
+    _mainwindow->getEicWidget()->replotForced();
+
+    this->hide();
+    return true;
 }
 
 void TableDockWidget::noPeakFound()
 {
-  QMessageBox *warning = new QMessageBox(this);
-  auto htmlText = QString("No peaks were detected. Either the search was "
-                          "prematurely cancelled or the settings were too "
-                          "strict for this data. To get a better idea of what "
-                          "settings to use, try manually browsing over your "
-                          "samples using a compound database.");
-   
-  warning->setText(htmlText);
-  warning->setIcon(QMessageBox::Icon::Information);
-  warning->exec();
+    QMessageBox* warning = new QMessageBox(this);
+    auto htmlText = QString(
+        "No peaks were detected. Either the search was "
+        "prematurely cancelled or the settings were too "
+        "strict for this data. To get a better idea of what "
+        "settings to use, try manually browsing over your "
+        "samples using a compound database.");
 
-  QCoreApplication::processEvents();
+    warning->setText(htmlText);
+    warning->setIcon(QMessageBox::Icon::Information);
+    warning->exec();
+
+    QCoreApplication::processEvents();
 }
 
-void TableDockWidget::showAllGroups() {
-  treeWidget->clear();
+void TableDockWidget::showAllGroups()
+{
+    treeWidget->clear();
 
-  setFocus();
-  treeWidget->setSortingEnabled(false);
+    setFocus();
+    treeWidget->setSortingEnabled(false);
 
-  setupPeakTable();
-  if (hasClassifiedGroups)
-    updateLegend();
-  if (viewType == groupView)
-    setIntensityColName();
+    setupPeakTable();
+    if (hasClassifiedGroups)
+        updateLegend();
+    if (viewType == groupView)
+        setIntensityColName();
 
-  QMap<int, QTreeWidgetItem *> parents;
-  for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
-    auto group = _topLevelGroups[i];
+    QMap<int, QTreeWidgetItem*> parents;
+    for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
+        auto group = _topLevelGroups[i];
 
-    // Setting curation parameters;
+        // Setting curation parameters;
+        if (hasClassifiedGroups) {
+            group->isClassified = true;
+            for (auto childIsotope : group->childIsotopes()) {
+                childIsotope->isClassified = true;
+            }
+            for (auto childAdducts : group->childAdducts()) {
+                childAdducts->isClassified = true;
+            }
+        }
+
+        RowData rowData = _rowDataForThisTable(i);
+
+        int clusterId = group->clusterId;
+        if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
+            if (!parents.contains(clusterId)) {
+                parents[clusterId] = new QTreeWidgetItem(treeWidget);
+                if (hasClassifiedGroups) {
+                    parents[clusterId]->setText(
+                        0, QString("Cluster ") + QString::number(clusterId));
+                    parents[clusterId]->setText(
+                        6, QString::number(allgroups[i].meanRt, 'f', 2));
+                    parents[clusterId]->setExpanded(true);
+                } else {
+                    parents[clusterId]->setText(
+                        0, QString("Cluster ") + QString::number(clusterId));
+                    parents[clusterId]->setText(
+                        5, QString::number(allgroups[i].meanRt, 'f', 2));
+                    parents[clusterId]->setExpanded(true);
+                }
+            }
+            QTreeWidgetItem* parent = parents[clusterId];
+            addRow(rowData, parent);
+        } else {
+            addRow(rowData, nullptr);
+        }
+    }
+    QScrollBar* vScroll = treeWidget->verticalScrollBar();
+    if (vScroll) {
+        vScroll->setSliderPosition(vScroll->maximum());
+    }
+    // sort by group id.
+    if (hasClassifiedGroups)
+        treeWidget->sortByColumn(1, Qt::AscendingOrder);
+    else
+        treeWidget->sortByColumn(0, Qt::AscendingOrder);
+
+    treeWidget->setSortingEnabled(true);
+    treeWidget->header()->setStretchLastSection(false);
+    updateStatus();
+    updateCompoundWidget();
+
     if (hasClassifiedGroups) {
-      group->isClassified = true;
-      for (auto childIsotope : group->childIsotopes()) {
-        childIsotope->isClassified = true;
-      }
-      for (auto childAdducts : group->childAdducts()) {
-        childAdducts->isClassified = true;
-      }
-    }
-    
-    RowData rowData = _rowDataForThisTable(i);
-
-    int clusterId = group->clusterId;
-    if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
-      if (!parents.contains(clusterId)) {
-        parents[clusterId] = new QTreeWidgetItem(treeWidget);
-        if(hasClassifiedGroups)
-        {
-            parents[clusterId]->setText(0, QString("Cluster ") +
-                                               QString::number(clusterId));
-            parents[clusterId]->setText(
-                6, QString::number(allgroups[i].meanRt, 'f', 2));
-            parents[clusterId]->setExpanded(true);
-        }
-        else
-        {
-            parents[clusterId]->setText(0, QString("Cluster ") +
-                                               QString::number(clusterId));
-            parents[clusterId]->setText(
-                5, QString::number(allgroups[i].meanRt, 'f', 2));
-            parents[clusterId]->setExpanded(true);
-        }
-      }
-      QTreeWidgetItem *parent = parents[clusterId];
-      addRow(rowData, parent);
+        treeWidget->setColumnWidth(2, 250);  // Compound name for peakML tables.
+        treeWidget->header()->setSectionResizeMode(2, QHeaderView::Interactive);
     } else {
-      addRow(rowData, nullptr);
+        treeWidget->header()->setSectionResizeMode(1, QHeaderView::Interactive);
+        treeWidget->setColumnWidth(
+            1, 250);  // compound name for non-peakML tables.
     }
-  }
-  QScrollBar *vScroll = treeWidget->verticalScrollBar();
-  if (vScroll) {
-    vScroll->setSliderPosition(vScroll->maximum());
-  }
-  // sort by group id. 
-  if(hasClassifiedGroups)
-    treeWidget->sortByColumn(1, Qt::AscendingOrder);
-  else
-    treeWidget->sortByColumn(0, Qt::AscendingOrder);
-  
-  treeWidget->setSortingEnabled(true);
-  treeWidget->header()->setStretchLastSection(false);
-  updateStatus();
-  updateCompoundWidget();
-
-  if (hasClassifiedGroups) {
-    treeWidget->setColumnWidth(2, 250);   // Compound name for peakML tables. 
-    treeWidget->header()->setSectionResizeMode(2,QHeaderView::Interactive);
-  }
-  else {
-    treeWidget->header()->setSectionResizeMode(1,QHeaderView::Interactive);
-    treeWidget->setColumnWidth(1, 250);   // compound name for non-peakML tables. 
-  }
-  
 }
 
 QMap<TableDockWidget::PeakTableSubsetType, int>
 TableDockWidget::countBySubsets()
 {
-  auto itemsBySubset = _peakTableGroupedBySubsets();
-  QMap<PeakTableSubsetType, int> numItemsPerSubset;
+    auto itemsBySubset = _peakTableGroupedBySubsets();
+    QMap<PeakTableSubsetType, int> numItemsPerSubset;
 
-  auto insertCountForSubset = [&](PeakTableSubsetType subset) {
-    numItemsPerSubset.insert(subset,
-                             itemsBySubset.value(subset).size());
-  };
+    auto insertCountForSubset = [&](PeakTableSubsetType subset) {
+        numItemsPerSubset.insert(subset, itemsBySubset.value(subset).size());
+    };
 
-  insertCountForSubset(PeakTableSubsetType::Selected);
-  insertCountForSubset(PeakTableSubsetType::Whole);
-  insertCountForSubset(PeakTableSubsetType::Good);
-  insertCountForSubset(PeakTableSubsetType::Bad);
-  insertCountForSubset(PeakTableSubsetType::ExcludeBad);
-  insertCountForSubset(PeakTableSubsetType::Unmarked);
-  insertCountForSubset(PeakTableSubsetType::Correlated);
-  insertCountForSubset(PeakTableSubsetType::Variance);
-  insertCountForSubset(PeakTableSubsetType::CorrelatedVariance);
-  insertCountForSubset(PeakTableSubsetType::MaybeGood);
+    insertCountForSubset(PeakTableSubsetType::Selected);
+    insertCountForSubset(PeakTableSubsetType::Whole);
+    insertCountForSubset(PeakTableSubsetType::Good);
+    insertCountForSubset(PeakTableSubsetType::Bad);
+    insertCountForSubset(PeakTableSubsetType::ExcludeBad);
+    insertCountForSubset(PeakTableSubsetType::Unmarked);
+    insertCountForSubset(PeakTableSubsetType::Correlated);
+    insertCountForSubset(PeakTableSubsetType::Variance);
+    insertCountForSubset(PeakTableSubsetType::CorrelatedVariance);
+    insertCountForSubset(PeakTableSubsetType::MaybeGood);
 
-  return numItemsPerSubset;
+    return numItemsPerSubset;
 }
 
 void TableDockWidget::showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets)
 {
-  auto itemsBySubset = _peakTableGroupedBySubsets();
+    auto itemsBySubset = _peakTableGroupedBySubsets();
 
-  // first, we hide all items from subsets that are not in the inclusion list
-  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>>
-      hideItr(itemsBySubset);
-  while (hideItr.hasNext()) {
-    hideItr.next();
-    auto subset = hideItr.key();
-    auto& itemsForSubset = hideItr.value();
-    if (!visibleSubsets.contains(subset)) {
-      for (auto item : itemsForSubset) {
-        item->setHidden(true);
-        auto group = groupForItem(item);
-        group->setIsGrooupHidden(true);
-      }
+    // first, we hide all items from subsets that are not in the inclusion
+    // list
+    QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>> hideItr(
+        itemsBySubset);
+    while (hideItr.hasNext()) {
+        hideItr.next();
+        auto subset = hideItr.key();
+        auto& itemsForSubset = hideItr.value();
+        if (!visibleSubsets.contains(subset)) {
+            for (auto item : itemsForSubset) {
+                item->setHidden(true);
+                auto group = groupForItem(item);
+                group->setIsGrooupHidden(true);
+            }
+        }
     }
-  }
 
-  // next, we separately show visible subset because some of the items that
-  // were hidden in the last iteration might have to be shown again
-  QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>>
-      showItr(itemsBySubset);
-  while (showItr.hasNext()) {
-    showItr.next();
-    auto subset = showItr.key();
-    auto& itemsForSubset = showItr.value();
-    if (visibleSubsets.contains(subset)) {
-      for (auto item : itemsForSubset) {
-        item->setHidden(false); 
-        auto group = groupForItem(item);
-        group->setIsGrooupHidden(false);
-      }
+    // next, we separately show visible subset because some of the items
+    // that were hidden in the last iteration might have to be shown again
+    QMapIterator<PeakTableSubsetType, QList<QTreeWidgetItem*>> showItr(
+        itemsBySubset);
+    while (showItr.hasNext()) {
+        showItr.next();
+        auto subset = showItr.key();
+        auto& itemsForSubset = showItr.value();
+        if (visibleSubsets.contains(subset)) {
+            for (auto item : itemsForSubset) {
+                item->setHidden(false);
+                auto group = groupForItem(item);
+                group->setIsGrooupHidden(false);
+            }
+        }
     }
-  }
 }
 
 void TableDockWidget::filterForSelectedLabels()
 {
-  QList<PeakTableSubsetType> selectedSubsets;
-  auto selectedLabels = _legend->selectedTexts();
+    QList<PeakTableSubsetType> selectedSubsets;
+    auto selectedLabels = _legend->selectedTexts();
 
-  if (selectedLabels.contains("Re-Label")) {
-    showRelabelWidget();
-    return;
-  }
+    if (selectedLabels.contains("Re-Label")) {
+        showRelabelWidget();
+        return;
+    }
 
-  for (auto& label : selectedLabels) {  
-    auto removedPercentage = mzUtils::split(label.toStdString(), " (");
-    auto originalLabel = QString::fromStdString(removedPercentage[0]);
-    auto predictionLabel = labelsForLegend().key(originalLabel);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
-      selectedSubsets.append(PeakTableSubsetType::Bad);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::Signal)
-      selectedSubsets.append(PeakTableSubsetType::Good);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::Correlation)
-      selectedSubsets.append(PeakTableSubsetType::Correlated);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::Pattern)
-      selectedSubsets.append(PeakTableSubsetType::Variance);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
-      selectedSubsets.append(PeakTableSubsetType::CorrelatedVariance);
-    if (predictionLabel == PeakGroup::ClassifiedLabel::MaybeGood)
-      selectedSubsets.append(PeakTableSubsetType::MaybeGood);
-  }
-  
-  selectedSubsets.append(PeakTableSubsetType::Unmarked);
-  showOnlySubsets(selectedSubsets);
+    for (auto& label : selectedLabels) {
+        auto removedPercentage = mzUtils::split(label.toStdString(), " (");
+        auto originalLabel = QString::fromStdString(removedPercentage[0]);
+        auto predictionLabel = labelsForLegend().key(originalLabel);
+        if (predictionLabel == PeakGroup::ClassifiedLabel::Noise)
+            selectedSubsets.append(PeakTableSubsetType::Bad);
+        if (predictionLabel == PeakGroup::ClassifiedLabel::Signal)
+            selectedSubsets.append(PeakTableSubsetType::Good);
+        if (predictionLabel == PeakGroup::ClassifiedLabel::Correlation)
+            selectedSubsets.append(PeakTableSubsetType::Correlated);
+        if (predictionLabel == PeakGroup::ClassifiedLabel::Pattern)
+            selectedSubsets.append(PeakTableSubsetType::Variance);
+        if (predictionLabel
+            == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+            selectedSubsets.append(PeakTableSubsetType::CorrelatedVariance);
+        if (predictionLabel == PeakGroup::ClassifiedLabel::MaybeGood)
+            selectedSubsets.append(PeakTableSubsetType::MaybeGood);
+    }
+
+    selectedSubsets.append(PeakTableSubsetType::Unmarked);
+    showOnlySubsets(selectedSubsets);
 }
 
-float TableDockWidget::extractMaxIntensity(PeakGroup *group) {
-  float temp;
-  PeakGroup::QType qtype = _mainwindow->getUserQuantType();
-  switch (qtype) {
-  case PeakGroup::AreaTop:
-    temp = group->maxAreaTopIntensity;
-    break;
-  case PeakGroup::Area:
-    temp = group->maxAreaIntensity;
-    break;
-  case PeakGroup::Height:
-    temp = group->maxHeightIntensity;
-    break;
-  case PeakGroup::AreaNotCorrected:
-    temp = group->maxAreaNotCorrectedIntensity;
-    break;
-  case PeakGroup::AreaTopNotCorrected:
-    temp = group->maxAreaTopNotCorrectedIntensity;
-    break;
-  default:
-    temp = group->currentIntensity;
-    break;
-  }
-  group->currentIntensity = temp;
-  return temp;
+float TableDockWidget::extractMaxIntensity(PeakGroup* group)
+{
+    float temp;
+    PeakGroup::QType qtype = _mainwindow->getUserQuantType();
+    switch (qtype) {
+    case PeakGroup::AreaTop:
+        temp = group->maxAreaTopIntensity;
+        break;
+    case PeakGroup::Area:
+        temp = group->maxAreaIntensity;
+        break;
+    case PeakGroup::Height:
+        temp = group->maxHeightIntensity;
+        break;
+    case PeakGroup::AreaNotCorrected:
+        temp = group->maxAreaNotCorrectedIntensity;
+        break;
+    case PeakGroup::AreaTopNotCorrected:
+        temp = group->maxAreaTopNotCorrectedIntensity;
+        break;
+    default:
+        temp = group->currentIntensity;
+        break;
+    }
+    group->currentIntensity = temp;
+    return temp;
 }
 
-void TableDockWidget::exportGroupsToSpreadsheet() {
+void TableDockWidget::exportGroupsToSpreadsheet()
+{
+    vector<mzSample*> samples = _mainwindow->getSamples();
 
-  vector<mzSample *> samples = _mainwindow->getSamples();
+    if (topLevelGroupCount() == 0) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
 
-  if (topLevelGroupCount() == 0) {
-    QString msg = "Peaks Table is Empty";
-    QMessageBox::warning(this, tr("Error"), msg);
-    return;
-  }
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
 
-  QString dir = ".";
-  QSettings *settings = _mainwindow->getSettings();
+    if (settings->contains("lastDir"))
+        dir = settings->value("lastDir").value<QString>();
 
-  if (settings->contains("lastDir"))
-    dir = settings->value("lastDir").value<QString>();
+    QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
+    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
+    QString peaksTAB = "Peaks Detailed Format (*.tab)";
+    QString groupsSCSV =
+        "Groups Summary Matrix Format Comma Delimited With Set Names "
+        "(*.csv)";
+    QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
+    QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
 
-  QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
-  QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
-  QString peaksTAB = "Peaks Detailed Format (*.tab)";
-  QString groupsSCSV =
-      "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
-  QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
-  QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
+    QString peaksListQE = "Inclusion List QE (*.csv)";
+    QString mascotMGF = "Mascot Format MS2 Scans (*.mgf)";
 
-  QString peaksListQE = "Inclusion List QE (*.csv)";
-  QString mascotMGF = "Mascot Format MS2 Scans (*.mgf)";
+    QString sFilterSel;
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        tr("Export Groups"),
+        dir,
+        groupsCSV + ";;" + groupsSCSV + ";;" + groupsTAB + ";;" + groupsSTAB
+            + ";;" + peaksCSV + ";;" + peaksTAB + ";;" + peaksListQE + ";;"
+            + mascotMGF,
+        &sFilterSel);
 
-  QString sFilterSel;
-  QString fileName = QFileDialog::getSaveFileName(
-      this, tr("Export Groups"), dir,
-      groupsCSV + ";;" + groupsSCSV + ";;" + groupsTAB + ";;" + groupsSTAB +
-          ";;" + peaksCSV + ";;" + peaksTAB + ";;" + peaksListQE + ";;" +
-          mascotMGF,
-      &sFilterSel);
+    if (fileName.isEmpty())
+        return;
 
-  if (fileName.isEmpty())
-    return;
+    QCoreApplication::processEvents();
+}
 
-  if (sFilterSel == groupsSCSV || sFilterSel == peaksCSV ||
-      sFilterSel == groupsCSV) {
-    if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
-      fileName = fileName + ".csv";
-  }
+void TableDockWidget::showAllGroups()
+{
+    treeWidget->clear();
 
-  if (sFilterSel == groupsSTAB || sFilterSel == peaksTAB ||
-      sFilterSel == groupsTAB) {
-    if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
-      fileName = fileName + ".tab";
-  }
+    setFocus();
+    treeWidget->setSortingEnabled(false);
 
-  if (samples.size() == 0)
-    return;
+    setupPeakTable();
+    if (viewType == groupView)
+        setIntensityColName();
 
-  if (sFilterSel == groupsSCSV || sFilterSel == groupsSTAB ||
-      sFilterSel == groupsCSV || sFilterSel == groupsTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Groups");
-  if (sFilterSel == peaksCSV || sFilterSel == peaksTAB)
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks");
+    QMap<int, QTreeWidgetItem*> parents;
+    int numGroupsWithMsMsEvents = 0;
+    int numGroupsWithMsMsFragments = 0;
+    for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
+        auto group = _topLevelGroups[i];
+        RowData rowData = _rowDataForThisTable(i);
 
-  if (sFilterSel == peaksListQE) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks List");
-    writeQEInclusionList(fileName);
-    return;
-  } else if (sFilterSel == mascotMGF) {
-    _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Mascot");
-    writeMascotGeneric(fileName);
-    return;
-  }
+        int clusterId = group->clusterId;
+        if (clusterId && group->meanMz > 0 && group->peakCount() > 0) {
+            if (!parents.contains(clusterId)) {
+                parents[clusterId] = new QTreeWidgetItem(treeWidget);
+                parents[clusterId]->setText(
+                    0, QString("Cluster ") + QString::number(clusterId));
+                parents[clusterId]->setText(
+                    5, QString::number(group->meanRt, 'f', 2));
+                parents[clusterId]->setExpanded(true);
+            }
+            QTreeWidgetItem* parent = parents[clusterId];
+            addRow(rowData, parent);
+        } else {
+            addRow(rowData, nullptr);
+        }
 
- 
-  auto ms2GroupAt = find_if(begin(_topLevelGroups),
-                            end(_topLevelGroups),
-                            [] (shared_ptr<PeakGroup> group) {
-                              if (!group->hasCompoundLink())
-                                  return false;
-                              return (group->getCompound()->type()
-                                      == Compound::Type::MS2);
-                            });
-  bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
-  bool includeSetNamesLines = false;
+        if (group->fragmentationType()
+            == PeakGroup::FragmentationType::MsMsWithEvents) {
+            numGroupsWithMsMsEvents += 1;
+        } else if (group->fragmentationType()
+                   == PeakGroup::FragmentationType::MsMsWithFragments) {
+            numGroupsWithMsMsFragments += 1;
+        }
+    }
 
-  auto reportType = CSVReports::ReportType::GroupReport;
-  if (sFilterSel == groupsSCSV) {
-    reportType = CSVReports::ReportType::GroupReport;
-    includeSetNamesLines = true;
-  } else if (sFilterSel == groupsSTAB) {
-    reportType = CSVReports::ReportType::GroupReport;
-    includeSetNamesLines = true;
-  } else if (sFilterSel == peaksCSV) {
-    reportType = CSVReports::ReportType::PeakReport;
-  } else if (sFilterSel == peaksTAB) {
-    reportType = CSVReports::ReportType::PeakReport;
-  } else {
-    reportType = CSVReports::ReportType::GroupReport;
-  }
+    QScrollBar* vScroll = treeWidget->verticalScrollBar();
+    if (vScroll) {
+        vScroll->setSliderPosition(vScroll->maximum());
+    }
+    treeWidget->sortByColumn(0, Qt::AscendingOrder);
+    treeWidget->setSortingEnabled(true);
+    treeWidget->header()->setStretchLastSection(false);
+    updateStatus();
+    updateCompoundWidget();
+    //@Kailash: Check and validate all groups automatically
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item = (*itr);
+        shared_ptr<PeakGroup> grp = groupForItem(item);
+        validateGroup(grp.get(), item);
+        itr++;
+    }
 
-  CSVReports csvreports(fileName.toStdString(),
-                        reportType,
-                        samples,
-                        _mainwindow->getUserQuantType(),
-                        ms2GroupExists,
-                        includeSetNamesLines,
-                        _mainwindow->mavenParameters, 
-                        false, 
-                        hasClassifiedGroups);
-                 
-  QList<shared_ptr<PeakGroup>> selectedGroups;
-  
-  if (peakTableSelection == PeakTableSubsetType::Displayed)
-    selectedGroups = getDisplayedGroups();
-  else
-    selectedGroups = getSelectedGroups();
+    treeWidget->header()->setSectionResizeMode(1, QHeaderView::Interactive);
+    treeWidget->setColumnWidth(1, 250);
+    if (numGroupsWithMsMsEvents == 0 && numGroupsWithMsMsFragments == 0) {
+        treeWidget->hideColumn(12);
+        treeWidget->hideColumn(13);
+    } else if (numGroupsWithMsMsEvents == 0) {
+        treeWidget->hideColumn(13);
+    }
+}
 
-  csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
+void TableDockWidget::exportGroupsToSpreadsheet()
+{
+    vector<mzSample*> samples = _mainwindow->getSamples();
 
-  for (auto group : _topLevelGroups) {
-    if (selectedGroups.contains(group)) {
+    if (topLevelGroupCount() == 0) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+
+    if (settings->contains("lastDir"))
+        dir = settings->value("lastDir").value<QString>();
+
+    QString groupsSTAB = "Groups Summary Matrix Format With Set Names (*.tab)";
+    QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
+    QString peaksTAB = "Peaks Detailed Format (*.tab)";
+    QString groupsSCSV =
+        "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
+    QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
+    QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
+
+    QString peaksListQE = "Inclusion List QE (*.csv)";
+    QString mascotMGF = "Mascot Format MS2 Scans (*.mgf)";
+
+    QString sFilterSel;
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        tr("Export Groups"),
+        dir,
+        groupsCSV + ";;" + groupsSCSV + ";;" + groupsTAB + ";;" + groupsSTAB
+            + ";;" + peaksCSV + ";;" + peaksTAB + ";;" + peaksListQE + ";;"
+            + mascotMGF,
+        &sFilterSel);
+
+    if (fileName.isEmpty())
+        return;
+
+    if (sFilterSel == groupsSCSV || sFilterSel == peaksCSV
+        || sFilterSel == groupsCSV) {
+        if (!fileName.endsWith(".csv", Qt::CaseInsensitive))
+            fileName = fileName + ".csv";
+    }
+
+    if (sFilterSel == groupsSTAB || sFilterSel == peaksTAB
+        || sFilterSel == groupsTAB) {
+        if (!fileName.endsWith(".tab", Qt::CaseInsensitive))
+            fileName = fileName + ".tab";
+    }
+
+    if (samples.size() == 0)
+        return;
+
+    if (sFilterSel == groupsSCSV || sFilterSel == groupsSTAB
+        || sFilterSel == groupsCSV || sFilterSel == groupsTAB)
+        _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Groups");
+    if (sFilterSel == peaksCSV || sFilterSel == peaksTAB)
+        _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks");
+
+    if (sFilterSel == peaksListQE) {
+        _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Peaks List");
+        writeQEInclusionList(fileName);
+        return;
+    } else if (sFilterSel == mascotMGF) {
+        _mainwindow->getAnalytics()->hitEvent("Exports", "CSV", "Mascot");
+        writeMascotGeneric(fileName);
+        return;
+    }
+
+    auto ms2GroupAt = find_if(
+        begin(_topLevelGroups),
+        end(_topLevelGroups),
+        [](shared_ptr<PeakGroup> group) {
+            if (!group->hasCompoundLink())
+                return false;
+            return (group->getCompound()->type() == Compound::Type::MS2);
+        });
+    bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
+    bool includeSetNamesLines = false;
+
+    auto reportType = CSVReports::ReportType::GroupReport;
+    if (sFilterSel == groupsSCSV) {
+        reportType = CSVReports::ReportType::GroupReport;
+        includeSetNamesLines = true;
+    } else if (sFilterSel == groupsSTAB) {
+        reportType = CSVReports::ReportType::GroupReport;
+        includeSetNamesLines = true;
+    } else if (sFilterSel == peaksCSV) {
+        reportType = CSVReports::ReportType::PeakReport;
+    } else if (sFilterSel == peaksTAB) {
+        reportType = CSVReports::ReportType::PeakReport;
+    } else {
+        reportType = CSVReports::ReportType::GroupReport;
+    }
+
+    CSVReports csvreports(fileName.toStdString(),
+                          reportType,
+                          samples,
+                          _mainwindow->getUserQuantType(),
+                          ms2GroupExists,
+                          includeSetNamesLines,
+                          _mainwindow->mavenParameters);
+    QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
+    csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
+
+    for (auto group : selectedGroups) {
         csvreports.addGroup(group.get());
     }
-  }
- 
-  if (csvreports.getErrorReport() != "") {
-    QMessageBox msgBox(_mainwindow);
-    msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(csvreports.getErrorReport());
-    msgBox.exec();
-  }
+
+    if (csvreports.getErrorReport() != "") {
+        QMessageBox msgBox(_mainwindow);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText(csvreports.getErrorReport());
+        msgBox.exec();
+    }
 }
 
 void TableDockWidget::prepareDataForPolly(QString writableTempDir,
                                           QString exportFormat,
-                                          QString userFilename) {
+                                          QString userFilename)
+{
     vector<mzSample*> samples = _mainwindow->getSamples();
 
     if (topLevelGroupCount() == 0) {
@@ -1299,7 +1421,8 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     QString groupsTAB = "Groups Summary Matrix Format (*.tab)";
     QString peaksTAB = "Peaks Detailed Format (*.tab)";
     QString groupsSCSV =
-        "Groups Summary Matrix Format Comma Delimited With Set Names (*.csv)";
+        "Groups Summary Matrix Format Comma Delimited With Set Names "
+        "(*.csv)";
     QString groupsCSV = "Groups Summary Matrix Format Comma Delimited (*.csv)";
     QString peaksCSV = "Peaks Detailed Format Comma Delimited (*.csv)";
 
@@ -1334,14 +1457,14 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         return;
     }
 
-    auto ms2GroupAt = find_if(begin(_topLevelGroups),
-                              end(_topLevelGroups),
-                              [](shared_ptr<PeakGroup> group) {
-                                if (!group->hasCompoundLink())
-                                  return false;
-                                return (group->getCompound()->type()
-                                        == Compound::Type::MS2);
-                              });
+    auto ms2GroupAt = find_if(
+        begin(_topLevelGroups),
+        end(_topLevelGroups),
+        [](shared_ptr<PeakGroup> group) {
+            if (!group->hasCompoundLink())
+                return false;
+            return (group->getCompound()->type() == Compound::Type::MS2);
+        });
     bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
     bool includeSetNamesLines = false;
 
@@ -1384,32 +1507,30 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
 }
 
 void TableDockWidget::exportJsonToPolly(QString writableTempDir,
-                                        QString jsonfileName, 
+                                        QString jsonfileName,
                                         bool addMLInfo)
 {
+    if (topLevelGroupCount() == 0) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
 
-  if (topLevelGroupCount() == 0) {
-    QString msg = "Peaks Table is Empty";
-    QMessageBox::warning(this, tr("Error"), msg);
-    return;
-  }
+    // copy all groups from <_topLevelGroups> to <vallgroups> which is used
+    // by <libmaven/jsonReports.cpp>
+    vallgroups.clear();
+    for (auto group : _topLevelGroups)
+        vallgroups.push_back(*(group.get()));
 
-  // copy all groups from <_topLevelGroups> to <vallgroups> which is used by
-  // <libmaven/jsonReports.cpp>
-  vallgroups.clear();
-  for (auto group : _topLevelGroups)
-    vallgroups.push_back(*(group.get()));
-
-  jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
-  jsonReports->save(jsonfileName.toStdString(),
-                    vallgroups,
-                    _mainwindow->getVisibleSamples());
+    jsonReports = new JSONReports(_mainwindow->mavenParameters, addMLInfo);
+    jsonReports->save(jsonfileName.toStdString(),
+                      vallgroups,
+                      _mainwindow->getVisibleSamples());
 }
 
 UploadPeaksToCloudThread::UploadPeaksToCloudThread(PollyIntegration* iPolly)
 {
     _pollyintegration = iPolly;
-    
 };
 
 void UploadPeaksToCloudThread::run()
@@ -1417,71 +1538,78 @@ void UploadPeaksToCloudThread::run()
     qDebug() << "Checking for active internet connection..";
     QString status;
     ErrorStatus response = _pollyintegration->activeInternet();
-    if (response == ErrorStatus::Failure ||
-        response == ErrorStatus::Error) {
+    if (response == ErrorStatus::Failure || response == ErrorStatus::Error) {
         qDebug() << "No internet connection..aborting upload";
         return;
     }
-    ErrorStatus uploadStatus = _pollyintegration->UploadPeaksToCloud(sessionId,fileName, filePath);
-    if (uploadStatus == ErrorStatus::Failure ||
-        uploadStatus == ErrorStatus::Error) {
+    ErrorStatus uploadStatus =
+        _pollyintegration->UploadPeaksToCloud(sessionId, fileName, filePath);
+    if (uploadStatus == ErrorStatus::Failure
+        || uploadStatus == ErrorStatus::Error) {
         qDebug() << "Peaks upload failed...";
         return;
     }
     return;
 }
 
-UploadPeaksToCloudThread::~UploadPeaksToCloudThread()
-{
-}
+UploadPeaksToCloudThread::~UploadPeaksToCloudThread() {}
 
-void TableDockWidget::UploadPeakBatchToCloud(){
-    jsonReports=new JSONReports(_mainwindow->mavenParameters);
-    QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_" + QString::number(uploadCount) +  ".json";
-    jsonReports->save(filePath.toStdString(),subsetPeakGroups,_mainwindow->getVisibleSamples());
+void TableDockWidget::UploadPeakBatchToCloud()
+{
+    jsonReports = new JSONReports(_mainwindow->mavenParameters);
+    QString filePath = writableTempS3Dir + QDir::separator() + uploadId + "_"
+                       + QString::number(uploadCount) + ".json";
+    jsonReports->save(filePath.toStdString(),
+                      subsetPeakGroups,
+                      _mainwindow->getVisibleSamples());
 
     PollyIntegration* iPolly = _mainwindow->getController()->iPolly;
-    UploadPeaksToCloudThread *uploadPeaksToCloudThread = new UploadPeaksToCloudThread(iPolly);
-    connect(uploadPeaksToCloudThread, &UploadPeaksToCloudThread::finished, uploadPeaksToCloudThread, &QObject::deleteLater);
+    UploadPeaksToCloudThread* uploadPeaksToCloudThread =
+        new UploadPeaksToCloudThread(iPolly);
+    connect(uploadPeaksToCloudThread,
+            &UploadPeaksToCloudThread::finished,
+            uploadPeaksToCloudThread,
+            &QObject::deleteLater);
     uploadPeaksToCloudThread->sessionId = uploadId;
-    uploadPeaksToCloudThread->fileName = uploadId + "_" + QString::number(uploadCount) ;
+    uploadPeaksToCloudThread->fileName =
+        uploadId + "_" + QString::number(uploadCount);
     uploadPeaksToCloudThread->filePath = filePath;
     uploadPeaksToCloudThread->start();
 }
 
-void TableDockWidget::exportJson() {
+void TableDockWidget::exportJson()
+{
+    if (topLevelGroupCount() == 0) {
+        QString msg = "Peaks Table is Empty";
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
 
-  if (topLevelGroupCount() == 0) {
-    QString msg = "Peaks Table is Empty";
-    QMessageBox::warning(this, tr("Error"), msg);
-    return;
-  }
+    _mainwindow->getAnalytics()->hitEvent("Exports", "JSON");
 
-  _mainwindow->getAnalytics()->hitEvent("Exports", "JSON");
+    // copy all groups from <_topLevelGroups> to <vallgroups> which is used
+    // by <libmaven/jsonReports.cpp>
+    vallgroups.clear();
+    for (auto group : _topLevelGroups)
+        vallgroups.push_back(*(group.get()));
 
-  // copy all groups from <_topLevelGroups> to <vallgroups> which is used by
-  // <libmaven/jsonReports.cpp>
-  vallgroups.clear();
-  for (auto group : _topLevelGroups)
-    vallgroups.push_back(*(group.get()));
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+    if (settings->contains("lastDir"))
+        dir = settings->value("lastDir").value<QString>();
 
-  QString dir = ".";
-  QSettings *settings = _mainwindow->getSettings();
-  if (settings->contains("lastDir"))
-    dir = settings->value("lastDir").value<QString>();
+    QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Save EICs to Json File"), dir, tr("*.json"));
+    if (fileName.isEmpty())
+        return;
+    if (!fileName.endsWith(".json", Qt::CaseInsensitive))
+        fileName = fileName + ".json";
 
-  QString fileName = QFileDialog::getSaveFileName(
-      this, tr("Save EICs to Json File"), dir, tr("*.json"));
-  if (fileName.isEmpty())
-    return;
-  if (!fileName.endsWith(".json", Qt::CaseInsensitive))
-    fileName = fileName + ".json";
-
-  saveJson *jsonSaveThread = new saveJson();
-  jsonSaveThread->setMainwindow(_mainwindow);
-  jsonSaveThread->setPeakTable(this);
-  jsonSaveThread->setfileName(fileName.toStdString());
-  jsonSaveThread->start();
+    saveJson* jsonSaveThread = new saveJson();
+    jsonSaveThread->setMainwindow(_mainwindow);
+    jsonSaveThread->setPeakTable(this);
+    jsonSaveThread->setfileName(fileName.toStdString());
+    jsonSaveThread->start();
 }
 
 void TableDockWidget::exportSpectralLib()
@@ -1491,7 +1619,10 @@ void TableDockWidget::exportSpectralLib()
                                              "",
                                              "Limit number of fragments per "
                                              "compound",
-                                             20, 1, 100, 1,
+                                             20,
+                                             1,
+                                             100,
+                                             1,
                                              &ok);
     if (!ok)
         return;
@@ -1510,9 +1641,8 @@ void TableDockWidget::exportSpectralLib()
     if (QFile::exists(fileName))
         QFile::remove(fileName);
 
-    SpectralLibExport library(fileName.toStdString(),
-                              SpectralLibExport::Format::Nist,
-                              limitNumPeaks);
+    SpectralLibExport library(
+        fileName.toStdString(), SpectralLibExport::Format::Nist, limitNumPeaks);
     for (auto group : _topLevelGroups) {
         library.writePeakGroupData(group.get());
         for (auto& child : group->childIsotopes())
@@ -1522,13 +1652,13 @@ void TableDockWidget::exportSpectralLib()
     }
 }
 
-void TableDockWidget::markDuplicatesAsBad() {
+void TableDockWidget::markDuplicatesAsBad()
+{
     QStringList selectionItems;
-    selectionItems
-        << "Parent compounds only"
-        << "Parent compounds and their isotopes"
-        << "Parent compounds and their adducts"
-        << "All compounds";
+    selectionItems << "Parent compounds only"
+                   << "Parent compounds and their isotopes"
+                   << "Parent compounds and their adducts"
+                   << "All compounds";
 
     bool ok;
     QString item =
@@ -1550,8 +1680,8 @@ void TableDockWidget::markDuplicatesAsBad() {
                               false,
                               &ok);
 
-    // lambda: given a map of vectors and a peak-group, adds the peak-group to
-    // the vector mapped against its name
+    // lambda: given a map of vectors and a peak-group, adds the peak-group
+    // to the vector mapped against its name
     auto indexGroup = [](map<string, vector<shared_ptr<PeakGroup>>>& duplicates,
                          const shared_ptr<PeakGroup>& group) {
         auto name = group->getName();
@@ -1561,8 +1691,8 @@ void TableDockWidget::markDuplicatesAsBad() {
         duplicates[name].push_back(group);
     };
 
-    // lambda: given a map of vector of peak-groups, within each vector, mark
-    // all but the best peak-group as a "bad" one
+    // lambda: given a map of vector of peak-groups, within each vector,
+    // mark all but the best peak-group as a "bad" one
     auto markAllButTheBest =
         [](map<string, vector<shared_ptr<PeakGroup>>>& duplicates) {
             for (auto& elem : duplicates) {
@@ -1627,312 +1757,311 @@ void TableDockWidget::markDuplicatesAsBad() {
     }
 }
 
-vector<EIC *> TableDockWidget::getEICs(float rtmin,
-                                       float rtmax,
-                                       PeakGroup &grp) {
-  vector<EIC *> eics;
-  for (int i = 0; i < grp.peaks.size(); i++) {
-    float mzmin = grp.meanMz - 0.2;
-    float mzmax = grp.meanMz + 0.2;
-    vector<mzSample *> samples = _mainwindow->getSamples();
-    for (unsigned int j = 0; j < samples.size(); j++) {
-      if (!grp.srmId.empty()) {
-        EIC *eic = samples[j]->getEIC(grp.srmId,
-                                      _mainwindow->mavenParameters->eicType);
-        eics.push_back(eic);
-      } else {
-        EIC *eic = samples[j]->getEIC(mzmin, mzmax,
-                                      rtmin, rtmax, 1,
-                                      _mainwindow->mavenParameters->eicType,
-                                      _mainwindow->mavenParameters->filterline);
-        eics.push_back(eic);
-      }
+vector<EIC*> TableDockWidget::getEICs(float rtmin, float rtmax, PeakGroup& grp)
+{
+    vector<EIC*> eics;
+    for (int i = 0; i < grp.peaks.size(); i++) {
+        float mzmin = grp.meanMz - 0.2;
+        float mzmax = grp.meanMz + 0.2;
+        vector<mzSample*> samples = _mainwindow->getSamples();
+        for (unsigned int j = 0; j < samples.size(); j++) {
+            if (!grp.srmId.empty()) {
+                EIC* eic = samples[j]->getEIC(
+                    grp.srmId, _mainwindow->mavenParameters->eicType);
+                eics.push_back(eic);
+            } else {
+                EIC* eic = samples[j]->getEIC(
+                    mzmin,
+                    mzmax,
+                    rtmin,
+                    rtmax,
+                    1,
+                    _mainwindow->mavenParameters->eicType,
+                    _mainwindow->mavenParameters->filterline);
+                eics.push_back(eic);
+            }
+        }
     }
-  }
-  return (eics);
+    return (eics);
 }
 
 bool TableDockWidget::selectPeakGroup(shared_ptr<PeakGroup> group)
 {
-  if (group == nullptr)
-    return false;
+    if (group == nullptr)
+        return false;
 
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    QTreeWidgetItem *item = (*it);
-    shared_ptr<PeakGroup> currentGroup = groupForItem(item);
-    if (currentGroup == group) {
-        treeWidget->setCurrentItem(item);
-      return true;
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        shared_ptr<PeakGroup> currentGroup = groupForItem(item);
+        if (currentGroup == group) {
+            treeWidget->setCurrentItem(item);
+            return true;
+        }
+        ++it;
     }
-    ++it;
-  }
-  return false;
+    return false;
 }
 
 void TableDockWidget::showSelectedGroup()
 {
-  QTreeWidgetItem *item = treeWidget->currentItem();
-  if (!item)
-    return; 
-  
-  shared_ptr<PeakGroup> group = groupForItem(item);
-  
-  if (group == nullptr)
-    return;
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (!item)
+        return;
 
-  if (group->isGhost()) {
-    emit ghostPeakGroupSelected(true);
-  } else {
-    emit ghostPeakGroupSelected(false);
-  }
-  
-  _mainwindow->setPeakGroup(group);
+    shared_ptr<PeakGroup> group = groupForItem(item);
+
+    if (group == nullptr)
+        return;
+
+    if (group->isGhost()) {
+        emit ghostPeakGroupSelected(true);
+    } else {
+        emit ghostPeakGroupSelected(false);
+    }
+
+    _mainwindow->setPeakGroup(group);
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getSelectedGroups()
 {
-  QList<shared_ptr<PeakGroup>> selectedGroups;
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      shared_ptr<PeakGroup> group = groupForItem(item);
-      if (group != nullptr) {
-        selectedGroups.append(group);
-      }
+    QList<shared_ptr<PeakGroup>> selectedGroups;
+    Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
+        if (item) {
+            shared_ptr<PeakGroup> group = groupForItem(item);
+            if (group != nullptr) {
+                selectedGroups.append(group);
+            }
+        }
     }
-  }
-  return selectedGroups;
+    return selectedGroups;
 }
 
 QList<shared_ptr<PeakGroup>> TableDockWidget::getDisplayedGroups()
 {
-  QList<shared_ptr<PeakGroup>> displayedGroups;
- 
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      if (item->isHidden())
-        continue;
+    QList<shared_ptr<PeakGroup>> displayedGroups;
 
-      shared_ptr<PeakGroup> group = groupForItem(item);
-      if (group != nullptr) {
-        displayedGroups.append(group);
-      }
+    Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
+        if (item) {
+            if (item->isHidden())
+                continue;
 
+            shared_ptr<PeakGroup> group = groupForItem(item);
+            if (group != nullptr) {
+                displayedGroups.append(group);
+            }
+        }
     }
-  }
-  
-  return displayedGroups;
+
+    return displayedGroups;
 }
 
-QList<PeakGroup *>
-TableDockWidget::getCustomGroups(PeakTableSubsetType peakSelection) {
-  QList<PeakGroup *> selectedGroups;
-  PeakTableSubsetType temppeakSelection = peakSelection;
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      QVariant v = item->data(1, Qt::UserRole);
-      PeakGroup *group = v.value<PeakGroup *>();
-      if (group != NULL) {
-        if (temppeakSelection == PeakTableSubsetType::Good) {
-          if (group->userLabel() == 'g') {
-            selectedGroups.append(group);
-          }
-        } else if (temppeakSelection == PeakTableSubsetType::Bad) {
-          if (group->userLabel() == 'b') {
-            selectedGroups.append(group);
-          }
-        } else {
-          selectedGroups.append(group);
+QList<PeakGroup*> TableDockWidget::getCustomGroups(
+    PeakTableSubsetType peakSelection)
+{
+    QList<PeakGroup*> selectedGroups;
+    PeakTableSubsetType temppeakSelection = peakSelection;
+    Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
+        if (item) {
+            QVariant v = item->data(1, Qt::UserRole);
+            PeakGroup* group = v.value<PeakGroup*>();
+            if (group != NULL) {
+                if (temppeakSelection == PeakTableSubsetType::Good) {
+                    if (group->userLabel() == 'g') {
+                        selectedGroups.append(group);
+                    }
+                } else if (temppeakSelection == PeakTableSubsetType::Bad) {
+                    if (group->userLabel() == 'b') {
+                        selectedGroups.append(group);
+                    }
+                } else {
+                    selectedGroups.append(group);
+                }
+            }
         }
-      }
     }
-  }
-  return selectedGroups;
+    return selectedGroups;
 }
 
 QMap<TableDockWidget::PeakTableSubsetType, QList<QTreeWidgetItem*>>
-TableDockWidget::_peakTableGroupedBySubsets() {
-  QList<QTreeWidgetItem*> allItems;
-  QList<QTreeWidgetItem*> selectedItems;
-  QList<QTreeWidgetItem*> goodItems;
-  QList<QTreeWidgetItem*> badItems;
-  QList<QTreeWidgetItem*> nonBadItems;
-  QList<QTreeWidgetItem*> unmarkedItems;
-  QList<QTreeWidgetItem*> correlatedItems;
-  QList<QTreeWidgetItem*> varianceItems;
-  QList<QTreeWidgetItem*> correlatedVarianceItems;
-  QList<QTreeWidgetItem*> maybeGoodItems;
+TableDockWidget::_peakTableGroupedBySubsets()
+{
+    QList<QTreeWidgetItem*> allItems;
+    QList<QTreeWidgetItem*> selectedItems;
+    QList<QTreeWidgetItem*> goodItems;
+    QList<QTreeWidgetItem*> badItems;
+    QList<QTreeWidgetItem*> nonBadItems;
+    QList<QTreeWidgetItem*> unmarkedItems;
+    QList<QTreeWidgetItem*> correlatedItems;
+    QList<QTreeWidgetItem*> varianceItems;
+    QList<QTreeWidgetItem*> correlatedVarianceItems;
+    QList<QTreeWidgetItem*> maybeGoodItems;
 
-  QTreeWidgetItemIterator itr(treeWidget);
-  while (*itr) {
-    QTreeWidgetItem *item = (*itr);
-    if (item) {
-      auto group = groupForItem(item).get();
-     
-      if (group == nullptr)
-        continue;
+    QTreeWidgetItemIterator itr(treeWidget);
+    while (*itr) {
+        QTreeWidgetItem* item = (*itr);
+        if (item) {
+            auto group = groupForItem(item).get();
 
-      // all groups are inserted into this list
-      allItems.append(item);
+            if (group == nullptr)
+                continue;
 
-      // all selected groups are inserted into this list
-      if (item->isSelected())
-        selectedItems.append(item);
+            // all groups are inserted into this list
+            allItems.append(item);
 
-      auto label = group->predictedLabel();
-      if (label == PeakGroup::ClassifiedLabel::Noise) {
-        badItems.append(item);
-      } else {
-        nonBadItems.append(item);
-      }
-      if (label == PeakGroup::ClassifiedLabel::Signal)
-        goodItems.append(item);
-      if (label == PeakGroup::ClassifiedLabel::None)
-        unmarkedItems.append(item);
-      if (label == PeakGroup::ClassifiedLabel::Correlation)
-        correlatedItems.append(item);
-      if (label == PeakGroup::ClassifiedLabel::Pattern)
-        varianceItems.append(item);
-      if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
-        correlatedVarianceItems.append(item);
-      if (label == PeakGroup::ClassifiedLabel::MaybeGood)
-        maybeGoodItems.append(item);
+            // all selected groups are inserted into this list
+            if (item->isSelected())
+                selectedItems.append(item);
+
+            auto label = group->predictedLabel();
+            if (label == PeakGroup::ClassifiedLabel::Noise) {
+                badItems.append(item);
+            } else {
+                nonBadItems.append(item);
+            }
+            if (label == PeakGroup::ClassifiedLabel::Signal)
+                goodItems.append(item);
+            if (label == PeakGroup::ClassifiedLabel::None)
+                unmarkedItems.append(item);
+            if (label == PeakGroup::ClassifiedLabel::Correlation)
+                correlatedItems.append(item);
+            if (label == PeakGroup::ClassifiedLabel::Pattern)
+                varianceItems.append(item);
+            if (label == PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+                correlatedVarianceItems.append(item);
+            if (label == PeakGroup::ClassifiedLabel::MaybeGood)
+                maybeGoodItems.append(item);
+        }
+        ++itr;
     }
-    ++itr;
-  }
 
-  QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> itemsBySubset;
-  itemsBySubset.insert(PeakTableSubsetType::Selected, selectedItems);
-  itemsBySubset.insert(PeakTableSubsetType::Whole, allItems);
-  itemsBySubset.insert(PeakTableSubsetType::Good, goodItems);
-  itemsBySubset.insert(PeakTableSubsetType::Bad, badItems);
-  itemsBySubset.insert(PeakTableSubsetType::ExcludeBad, nonBadItems);
-  itemsBySubset.insert(PeakTableSubsetType::Unmarked, unmarkedItems);
-  itemsBySubset.insert(PeakTableSubsetType::Correlated, correlatedItems);
-  itemsBySubset.insert(PeakTableSubsetType::Variance, varianceItems);
-  itemsBySubset.insert(PeakTableSubsetType::CorrelatedVariance,
-                       correlatedVarianceItems);
-  itemsBySubset.insert(PeakTableSubsetType::MaybeGood,
-                       maybeGoodItems);
+    QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> itemsBySubset;
+    itemsBySubset.insert(PeakTableSubsetType::Selected, selectedItems);
+    itemsBySubset.insert(PeakTableSubsetType::Whole, allItems);
+    itemsBySubset.insert(PeakTableSubsetType::Good, goodItems);
+    itemsBySubset.insert(PeakTableSubsetType::Bad, badItems);
+    itemsBySubset.insert(PeakTableSubsetType::ExcludeBad, nonBadItems);
+    itemsBySubset.insert(PeakTableSubsetType::Unmarked, unmarkedItems);
+    itemsBySubset.insert(PeakTableSubsetType::Correlated, correlatedItems);
+    itemsBySubset.insert(PeakTableSubsetType::Variance, varianceItems);
+    itemsBySubset.insert(PeakTableSubsetType::CorrelatedVariance,
+                         correlatedVarianceItems);
+    itemsBySubset.insert(PeakTableSubsetType::MaybeGood, maybeGoodItems);
 
-  return itemsBySubset;
+    return itemsBySubset;
 }
 
 void TableDockWidget::hideEvent(QHideEvent* event)
 {
-  QDockWidget::hideEvent(event);
-  if (_mainwindow->getCorrelationTable()->currentTable() == this)
-    _mainwindow->getCorrelationTable()->setVisible(false);
+    QDockWidget::hideEvent(event);
+    if (_mainwindow->getCorrelationTable()->currentTable() == this)
+        _mainwindow->getCorrelationTable()->setVisible(false);
 }
 
 void TableDockWidget::showEvent(QShowEvent* event)
 {
-  QDockWidget::showEvent(event);
-  _refreshCycleBuffer();
+    QDockWidget::showEvent(event);
+    _refreshCycleBuffer();
 }
 
 void TableDockWidget::_refreshCycleBuffer()
 {
-  if (treeWidget->topLevelItemCount() == 0)
-    return;
+    if (treeWidget->topLevelItemCount() == 0)
+        return;
 
-  if (_cycleInProgress) {
+    if (_cycleInProgress) {
+        int currentGroupId = treeWidget->currentItem()->text(1).toInt();
+        _mainwindow->getCorrelationTable()->selectGroupId(currentGroupId);
+        return;
+    }
+
+    auto selectedGroup = getSelectedGroup();
+    if (selectedGroup == nullptr)
+        return;
+
+    _cycleBuffer.clear();
+
+    auto correlatedGroups = selectedGroup->getCorrelatedGroups();
+
+    if (correlatedGroups.empty()) {
+        _mainwindow->getCorrelationTable()->setVisible(false);
+        return;
+    }
+    _mainwindow->getCorrelationTable()->setVisible(true);
+    _mainwindow->getCorrelationTable()->setReferencePeakGroup(
+        selectedGroup.get());
+    _mainwindow->getCorrelationTable()->setCurrentTable(this);
+
+    auto processGroupForCorrelation =
+        [&](PeakGroup* group, PeakGroup* selectedGroup, TableDockWidget* tb) {
+            auto item = itemForGroup(group);
+
+            if (group == selectedGroup) {
+                tb->_cycleBuffer.append(item);
+            }
+
+            if (correlatedGroups.count(group->groupId())) {
+                tb->_cycleBuffer.append(item);
+                auto corr = correlatedGroups.at(group->groupId());
+                tb->_mainwindow->getCorrelationTable()->addCorrelatedPeakGroup(
+                    group, corr);
+            }
+        };
+
+    for (int i = 0; i < _topLevelGroups.size(); i++) {
+        auto group = _topLevelGroups[i];
+        if (group == nullptr)
+            continue;
+        processGroupForCorrelation(group.get(), selectedGroup.get(), this);
+
+        for (auto& child : group->childIsotopes())
+            processGroupForCorrelation(child.get(), selectedGroup.get(), this);
+    }
+
     int currentGroupId = treeWidget->currentItem()->text(1).toInt();
     _mainwindow->getCorrelationTable()->selectGroupId(currentGroupId);
-    return;
-  }
-
-  auto selectedGroup = getSelectedGroup();
-  if (selectedGroup == nullptr)
-    return;
-
-  _cycleBuffer.clear();
-
-  auto correlatedGroups = selectedGroup->getCorrelatedGroups();
-
-  if (correlatedGroups.empty()) {
-    _mainwindow->getCorrelationTable()->setVisible(false);
-    return;
-  }
-  _mainwindow->getCorrelationTable()->setVisible(true);
-  _mainwindow->getCorrelationTable()->setReferencePeakGroup(selectedGroup.get());
-  _mainwindow->getCorrelationTable()->setCurrentTable(this);
-  
-  auto processGroupForCorrelation = [&] (PeakGroup* group, 
-                                         PeakGroup* selectedGroup,
-                                         TableDockWidget* tb) {
-                                        auto item = itemForGroup(group);
-                                
-                                        if (group == selectedGroup) {
-                                          tb->_cycleBuffer.append(item);
-                                        }
-
-                                        if (correlatedGroups.count(group->groupId())) {
-                                          tb->_cycleBuffer.append(item);
-                                          auto corr = correlatedGroups.at(group->groupId());
-                                          tb->_mainwindow->getCorrelationTable()->addCorrelatedPeakGroup(group, 
-                                                                                                         corr);
-                                        }
-                                    };
-
-  for (int i = 0; i < _topLevelGroups.size(); i++)
-  {
-    auto group = _topLevelGroups[i];
-    if (group == nullptr)
-        continue;
-    processGroupForCorrelation(group.get(), 
-                               selectedGroup.get(), 
-                                this);
-
-    for (auto& child : group->childIsotopes())
-      processGroupForCorrelation(child.get(), 
-                                  selectedGroup.get(), 
-                                  this);
-  }
-
-  int currentGroupId = treeWidget->currentItem()->text(1).toInt();
-  _mainwindow->getCorrelationTable()->selectGroupId(currentGroupId);
 }
 
-shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup() {
-  QTreeWidgetItem *item = treeWidget->currentItem();
-  if (!item)
-    return NULL;
-  shared_ptr<PeakGroup> group = groupForItem(item);
-  if (group != nullptr) {
-    return group;
-  } else
-    return shared_ptr<PeakGroup>(nullptr);
+shared_ptr<PeakGroup> TableDockWidget::getSelectedGroup()
+{
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (!item)
+        return NULL;
+    shared_ptr<PeakGroup> group = groupForItem(item);
+    if (group != nullptr) {
+        return group;
+    } else
+        return shared_ptr<PeakGroup>(nullptr);
 }
 
 void TableDockWidget::setGroupLabel(char label)
 {
-  Q_FOREACH (QTreeWidgetItem *item, treeWidget->selectedItems()) {
-    if (item) {
-      shared_ptr<PeakGroup> group = groupForItem(item);
+    Q_FOREACH (QTreeWidgetItem* item, treeWidget->selectedItems()) {
+        if (item) {
+            shared_ptr<PeakGroup> group = groupForItem(item);
 
-      multimap<float, string> predictionInference;
-      if (hasClassifiedGroups) {
-        predictionInference = group->predictionInference();
-      }
-      
-      if (group != nullptr) {
-        if (group->userLabel() != 'g' && group->userLabel() != 'b') {
-          numberOfGroupsMarked+=1;
-          subsetPeakGroups.push_back(*(group.get()));
+            multimap<float, string> predictionInference;
+            if (hasClassifiedGroups) {
+                predictionInference = group->predictionInference();
+            }
+
+            if (group != nullptr) {
+                if (group->userLabel() != 'g' && group->userLabel() != 'b') {
+                    numberOfGroupsMarked += 1;
+                    subsetPeakGroups.push_back(*(group.get()));
+                }
+                group->setUserLabel(label);
+                updateItem(item);
+                if (item->parent() != nullptr)
+                    updateItem(item->parent(), false);
+
+                if (hasClassifiedGroups) {
+                    group->setPredictionInference(predictionInference);
+                }
+            }
         }
-        group->setUserLabel(label);
-        updateItem(item);
-        if (item->parent() != nullptr)
-          updateItem(item->parent(), false);
-
-        if(hasClassifiedGroups) {
-          group->setPredictionInference(predictionInference);
-        }  
-      }
+        updateStatus();
     }
-    updateStatus();
-  }
 }
 
 void TableDockWidget::_deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items)
@@ -1990,48 +2119,47 @@ void TableDockWidget::_deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items)
 
 void TableDockWidget::deleteGroup(PeakGroup* group)
 {
-  if (group == nullptr)
-    return;
+    if (group == nullptr)
+        return;
 
-  QSet<QTreeWidgetItem*> itemsToDelete;
-  QTreeWidgetItemIterator it(treeWidget);
-  while (*it) {
-    QTreeWidgetItem *item = (*it);
-    if (item->isHidden()) {
-      ++it;
-      continue;
+    QSet<QTreeWidgetItem*> itemsToDelete;
+    QTreeWidgetItemIterator it(treeWidget);
+    while (*it) {
+        QTreeWidgetItem* item = (*it);
+        if (item->isHidden()) {
+            ++it;
+            continue;
+        }
+        shared_ptr<PeakGroup> itemGroup = groupForItem(item);
+        if (itemGroup != nullptr and itemGroup.get() == group) {
+            itemsToDelete.insert(item);
+            break;
+        }
+        ++it;
     }
-    shared_ptr<PeakGroup> itemGroup = groupForItem(item);
-    if (itemGroup != nullptr and itemGroup.get() == group) {
-      itemsToDelete.insert(item);
-      break;
-    }
-    ++it;
-  }
-  _deleteItemsAndGroups(itemsToDelete);
-  updateCompoundWidget();
+    _deleteItemsAndGroups(itemsToDelete);
+    updateCompoundWidget();
 }
 
 bool TableDockWidget::deleteAllgroupsWarning()
 {
-    QMessageBox *warning = new QMessageBox(this);
+    QMessageBox* warning = new QMessageBox(this);
     bool selectedOption;
 
-    auto htmlText = QString("<p><b>Are you sure you want to permanently erase all the "
-                            "groups from this table?</b></p>");
+    auto htmlText = QString(
+        "<p><b>Are you sure you want to permanently erase all the "
+        "groups from this table?</b></p>");
     htmlText += "<p>You can not undo this action.</p>";
     warning->setText(htmlText);
     warning->setIcon(QMessageBox::Icon::Warning);
 
-    auto noButton = warning->addButton(tr("No"),
-                                  QMessageBox::RejectRole);
-    auto yesButton = warning->addButton(tr("Yes"),
-                                  QMessageBox::AcceptRole);
+    auto noButton = warning->addButton(tr("No"), QMessageBox::RejectRole);
+    auto yesButton = warning->addButton(tr("Yes"), QMessageBox::AcceptRole);
     warning->exec();
 
     QCoreApplication::processEvents();
 
-    if(warning->clickedButton() == yesButton)
+    if (warning->clickedButton() == yesButton)
         return true;
 
     return false;
@@ -2069,7 +2197,8 @@ void TableDockWidget::deleteSelectedItems(bool groupsMovedToAnotherTable)
                     itemBelow = treeWidget->itemBelow(itemBelow);
             }
         } else if (item->parent() == nullptr && item->isExpanded()) {
-            // this helps us store all parent items that were in expanded state
+            // this helps us store all parent items that were in expanded
+            // state
             auto expandedGroup = groupForItem(item);
             expandedParentGroups.insert(expandedGroup.get());
         }
@@ -2127,277 +2256,274 @@ void TableDockWidget::deleteSelectedItems(bool groupsMovedToAnotherTable)
     updateCompoundWidget();
 }
 
-void TableDockWidget::setClipboard() {
-  _mainwindow->getAnalytics()->hitEvent("Exports",
-                                        "Clipboard",
-                                        "From Peak Table Menu");
-  QList<shared_ptr<PeakGroup>> groups = getSelectedGroups();
-  if (groups.size() > 0) {
-    _mainwindow->isotopeWidget->setClipboard(groups);
-  }
-}
-
-void TableDockWidget::showConsensusSpectra() {
-  shared_ptr<PeakGroup> group = getSelectedGroup();
-  if (group != nullptr) {
-    _mainwindow->fragSpectraDockWidget->setVisible(true);
-    _mainwindow->fragSpectraWidget->overlayPeakGroup(group);
-  }
-}
-
-void TableDockWidget::saveLabelForUndo(PeakGroup* group) {
-  auto label = group->labelToString(group->predictedLabel());
-  auto probability = group->predictionProbability();
-  pair<string, float> groupLabel = make_pair(label, probability);
-  undoBuffer[group->groupId()] = groupLabel;
-}
-
-void TableDockWidget::markGroupGood() {
-
-  auto currentGroups = getSelectedGroups();
-  
-  if (currentGroups.isEmpty())
-      return;
-
-  if(hasClassifiedGroups) {
-      for(auto group : currentGroups) {
-          saveLabelForUndo(group.get());
-      }
-  }
-  setGroupLabel('g');
-
-  if (hasClassifiedGroups)
-    updateLegend();
-
-  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
-  showNextGroup();
-  _mainwindow->autoSaveSignal(currentGroups);
-}
-
-void TableDockWidget::markGroupBad() {
-  auto currentGroups = getSelectedGroups();
-
-  if (currentGroups.isEmpty())
-      return;
-
-  if (hasClassifiedGroups) {
-    for(auto group : currentGroups) {
-      saveLabelForUndo(group.get());
+void TableDockWidget::setClipboard()
+{
+    _mainwindow->getAnalytics()->hitEvent(
+        "Exports", "Clipboard", "From Peak Table Menu");
+    QList<shared_ptr<PeakGroup>> groups = getSelectedGroups();
+    if (groups.size() > 0) {
+        _mainwindow->isotopeWidget->setClipboard(groups);
     }
-  }
-  setGroupLabel('b');
-  
-  if (hasClassifiedGroups)
-    updateLegend();
-
-  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
-  showNextGroup();
-  _mainwindow->autoSaveSignal(currentGroups);
 }
 
-void TableDockWidget::unmarkGroup() {
-  // TODO: Add a button for unmarking peak-groups?
-  setGroupLabel('\0');
-  auto currentGroups = getSelectedGroups();
-  if (currentGroups.isEmpty())
-      return;
-
-  _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
-  _mainwindow->autoSaveSignal(currentGroups);
+void TableDockWidget::saveLabelForUndo(PeakGroup* group)
+{
+    auto label = group->labelToString(group->predictedLabel());
+    auto probability = group->predictionProbability();
+    pair<string, float> groupLabel = make_pair(label, probability);
+    undoBuffer[group->groupId()] = groupLabel;
 }
 
-void TableDockWidget::markGroupIgnored() {
-  setGroupLabel('i');
-  showNextGroup();
-}
+void TableDockWidget::markGroupGood()
+{
+    auto currentGroups = getSelectedGroups();
 
-void TableDockWidget::showLastGroup() {
-  QTreeWidgetItem *item = treeWidget->currentItem();
-  if (item != NULL) {
-    treeWidget->setCurrentItem(treeWidget->itemAbove(item));
-  }
-}
+    if (currentGroups.isEmpty())
+        return;
 
-void TableDockWidget::showNextGroup() {
-
-  QTreeWidgetItem *item = treeWidget->currentItem();
-  if (item == NULL)
-    return;
-
-  // get next item
-  QTreeWidgetItem *nextitem = treeWidget->itemBelow(item);
-  if (nextitem != NULL)
-    treeWidget->setCurrentItem(nextitem);
-}
-
-void TableDockWidget::keyPressEvent(QKeyEvent *e) {
-
-  QTreeWidgetItem *item = treeWidget->currentItem();
-  if (e->key() == Qt::Key_Delete) {
-    QList<QTreeWidgetItem *> items = treeWidget->selectedItems();
-    if (items.size() > 0) {
-      deleteSelectedItems();
-    }
-  } else if (e->key() == Qt::Key_G) {
-
-    if (item) {
-      markGroupGood();
-    }
-  } else if (e->key() == Qt::Key_B) {
-
-    if (item) {
-      markGroupBad();
-    }
-  } else if (e->key() == Qt::Key_U) {
-    if (item) {
-      unmarkGroup();
-    }
-  } else if (e->key() == Qt::Key_Left) {
-
-    if (treeWidget->currentItem()) {
-      if (treeWidget->currentItem()->parent()) {
-        treeWidget->collapseItem(treeWidget->currentItem()->parent());
-        treeWidget->setCurrentItem(treeWidget->currentItem()->parent());
-      } else {
-        treeWidget->collapseItem(treeWidget->currentItem());
-      }
-    }
-  } else if (e->key() == Qt::Key_Right) {
-
-    if (treeWidget->currentItem()) {
-      if (!treeWidget->currentItem()->isExpanded()) {
-        treeWidget->expandItem(treeWidget->currentItem());
-      }
-    }
-  } else if (e->key() == Qt::Key_O) {
-    if (treeWidget->currentItem()) {
-      if (treeWidget->currentItem()->isExpanded()) {
-        if (treeWidget->currentItem()->parent()) {
-          treeWidget->collapseItem(treeWidget->currentItem()->parent());
-          treeWidget->setCurrentItem(treeWidget->currentItem()->parent());
-        } else {
-          treeWidget->collapseItem(treeWidget->currentItem());
+    if (hasClassifiedGroups) {
+        for (auto group : currentGroups) {
+            saveLabelForUndo(group.get());
         }
-      } else {
-        treeWidget->expandItem(treeWidget->currentItem());
-      }
     }
-  } else if (e->key() == Qt::Key_Down && e->modifiers() == Qt::ShiftModifier) {
-    if (treeWidget->itemBelow(item)) {
-      if (tableSelectionFlagDown) {
-        treeWidget->selectionModel()->setCurrentIndex(
-            treeWidget->currentIndex(),
-            QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
-        tableSelectionFlagDown = false;
-      } else {
-        treeWidget->selectionModel()->setCurrentIndex(
-            treeWidget->indexBelow(treeWidget->currentIndex()),
-            QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
-      }
-      tableSelectionFlagUp = true;
-    }
-  } else if (e->key() == Qt::Key_Up && e->modifiers() == Qt::ShiftModifier) {
-    if (treeWidget->itemAbove(item)) {
-      if (tableSelectionFlagUp) {
-        treeWidget->selectionModel()->setCurrentIndex(
-            treeWidget->currentIndex(),
-            QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
-        tableSelectionFlagUp = false;
-      } else {
-        treeWidget->selectionModel()->setCurrentIndex(
-            treeWidget->indexAbove(treeWidget->currentIndex()),
-            QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
-      }
-      tableSelectionFlagDown = true;
-    }
-  } else if (e->key() == Qt::Key_Down) {
+    setGroupLabel('g');
 
-    if (treeWidget->itemBelow(item)) {
-      treeWidget->setCurrentItem(treeWidget->itemBelow(item));
-    }
-  } else if (e->key() == Qt::Key_Up) {
+    if (hasClassifiedGroups)
+        updateLegend();
 
-    if (treeWidget->itemAbove(item)) {
-      treeWidget->setCurrentItem(treeWidget->itemAbove(item));
-    }
-  } else if (e->key() == Qt::Key_E) {
-      editSelectedPeakGroup();
-  } else if (e->key() == Qt::Key_L) {
-    if (item && _cycleBuffer.size() > 1) {
-      int currentIndex = _cycleBuffer.indexOf(item);
-      if (currentIndex != -1) {
-        int nextIndex = 0;
-        if (currentIndex < _cycleBuffer.size() - 1)
-          nextIndex = currentIndex + 1;
-
-        _cycleInProgress = true;
-        QTreeWidgetItem* newItem = _cycleBuffer.at(nextIndex);
-        treeWidget->clearSelection();
-        treeWidget->setCurrentItem(newItem);
-        treeWidget->scrollTo(treeWidget->currentIndex(),
-                             QAbstractItemView::PositionAtCenter);
-        _cycleInProgress = false;
-      }
-    }
-  }
-  QDockWidget::keyPressEvent(e);
-  updateStatus();
+    _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
+    showNextGroup();
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
-void TableDockWidget::updateStatus() {
+void TableDockWidget::markGroupBad()
+{
+    auto currentGroups = getSelectedGroups();
 
-  int totalCount = 0;
-  int goodCount = 0;
-  int badCount = 0;
-  for (auto group : _topLevelGroups) {
-    char groupLabel = group->userLabel();
-    if (groupLabel == 'g' && !group->isGhost()) {
-      goodCount++;
-    } else if (groupLabel == 'b' && !group->isGhost()) {
-      badCount++;
+    if (currentGroups.isEmpty())
+        return;
+
+    if (hasClassifiedGroups) {
+        for (auto group : currentGroups) {
+            saveLabelForUndo(group.get());
+        }
     }
-    totalCount++;
-  }
-  QString title =
-      tr("Group Validation Status: Good=%2 Bad=%3 Total=%1")
-          .arg(QString::number(totalCount),
-               QString::number(goodCount),
-               QString::number(badCount));
-  _mainwindow->setStatusText(title);
+    setGroupLabel('b');
+
+    if (hasClassifiedGroups)
+        updateLegend();
+
+    _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
+    showNextGroup();
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
-void TableDockWidget::showScatterPlot() {
+void TableDockWidget::markGroupBad()
+{
+    setGroupLabel('b');
+    auto currentGroups = getSelectedGroups();
+    if (currentGroups.isEmpty())
+        return;
 
-  if (topLevelGroupCount() == 0)
-    return;
-  _mainwindow->scatterDockWidget->setVisible(true);
-  _mainwindow->scatterDockWidget->setTable(this);
-  _mainwindow->scatterDockWidget->replot();
-  _mainwindow->scatterDockWidget->contrastGroups();
+    _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
+    showNextGroup();
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
-void TableDockWidget::printPdfReport() {
+void TableDockWidget::unmarkGroup()
+{
+    // TODO: Add a button for unmarking peak-groups?
+    setGroupLabel('\0');
+    auto currentGroups = getSelectedGroups();
+    if (currentGroups.isEmpty())
+        return;
 
-  _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", "From Table");
-  QString dir = ".";
-  QSettings *settings = _mainwindow->getSettings();
-  if (settings->contains("lastDir"))
-    dir = settings->value("lastDir").value<QString>();
-
-  QString fileName = QFileDialog::getSaveFileName(
-      this, tr("Save Group Report a PDF File"), dir, tr("*.pdf"));
-  if (fileName.isEmpty())
-    return;
-  if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
-    fileName = fileName + ".pdf";
-
-  auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
+    _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Unmark");
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
+void TableDockWidget::markGroupIgnored()
+{
+    setGroupLabel('i');
+    showNextGroup();
+}
+
+void TableDockWidget::showLastGroup()
+{
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (item != NULL) {
+        treeWidget->setCurrentItem(treeWidget->itemAbove(item));
+    }
+}
+
+void TableDockWidget::showNextGroup()
+{
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (item == NULL)
+        return;
+
+    // get next item
+    QTreeWidgetItem* nextitem = treeWidget->itemBelow(item);
+    if (nextitem != NULL)
+        treeWidget->setCurrentItem(nextitem);
+}
+
+void TableDockWidget::keyPressEvent(QKeyEvent* e)
+{
+    QTreeWidgetItem* item = treeWidget->currentItem();
+    if (e->key() == Qt::Key_Delete) {
+        QList<QTreeWidgetItem*> items = treeWidget->selectedItems();
+        if (items.size() > 0) {
+            deleteSelectedItems();
+        }
+    } else if (e->key() == Qt::Key_G) {
+        if (item) {
+            markGroupGood();
+        }
+    } else if (e->key() == Qt::Key_B) {
+        if (item) {
+            markGroupBad();
+        }
+    } else if (e->key() == Qt::Key_U) {
+        if (item) {
+            unmarkGroup();
+        }
+    } else if (e->key() == Qt::Key_Left) {
+        if (treeWidget->currentItem()) {
+            if (treeWidget->currentItem()->parent()) {
+                treeWidget->collapseItem(treeWidget->currentItem()->parent());
+                treeWidget->setCurrentItem(treeWidget->currentItem()->parent());
+            } else {
+                treeWidget->collapseItem(treeWidget->currentItem());
+            }
+        }
+    } else if (e->key() == Qt::Key_Right) {
+        if (treeWidget->currentItem()) {
+            if (!treeWidget->currentItem()->isExpanded()) {
+                treeWidget->expandItem(treeWidget->currentItem());
+            }
+        }
+    } else if (e->key() == Qt::Key_O) {
+        if (treeWidget->currentItem()) {
+            if (treeWidget->currentItem()->isExpanded()) {
+                if (treeWidget->currentItem()->parent()) {
+                    treeWidget->collapseItem(
+                        treeWidget->currentItem()->parent());
+                    treeWidget->setCurrentItem(
+                        treeWidget->currentItem()->parent());
+                } else {
+                    treeWidget->collapseItem(treeWidget->currentItem());
+                }
+            } else {
+                treeWidget->expandItem(treeWidget->currentItem());
+            }
+        }
+    } else if (e->key() == Qt::Key_Down
+               && e->modifiers() == Qt::ShiftModifier) {
+        if (treeWidget->itemBelow(item)) {
+            if (tableSelectionFlagDown) {
+                treeWidget->selectionModel()->setCurrentIndex(
+                    treeWidget->currentIndex(),
+                    QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+                tableSelectionFlagDown = false;
+            } else {
+                treeWidget->selectionModel()->setCurrentIndex(
+                    treeWidget->indexBelow(treeWidget->currentIndex()),
+                    QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+            }
+            tableSelectionFlagUp = true;
+        }
+    } else if (e->key() == Qt::Key_Up && e->modifiers() == Qt::ShiftModifier) {
+        if (treeWidget->itemAbove(item)) {
+            if (tableSelectionFlagUp) {
+                treeWidget->selectionModel()->setCurrentIndex(
+                    treeWidget->currentIndex(),
+                    QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+                tableSelectionFlagUp = false;
+            } else {
+                treeWidget->selectionModel()->setCurrentIndex(
+                    treeWidget->indexAbove(treeWidget->currentIndex()),
+                    QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+            }
+            tableSelectionFlagDown = true;
+        }
+    } else if (e->key() == Qt::Key_Down) {
+        if (treeWidget->itemBelow(item)) {
+            treeWidget->setCurrentItem(treeWidget->itemBelow(item));
+        }
+    } else if (e->key() == Qt::Key_Up) {
+        if (treeWidget->itemAbove(item)) {
+            treeWidget->setCurrentItem(treeWidget->itemAbove(item));
+        }
+    } else if (e->key() == Qt::Key_E) {
+        editSelectedPeakGroup();
+    }
+    QDockWidget::keyPressEvent(e);
+    updateStatus();
+}
+
+void TableDockWidget::updateStatus()
+{
+    int totalCount = 0;
+    int goodCount = 0;
+    int badCount = 0;
+    for (auto group : _topLevelGroups) {
+        char groupLabel = group->userLabel();
+        if (groupLabel == 'g' && !group->isGhost()) {
+            goodCount++;
+        } else if (groupLabel == 'b' && !group->isGhost()) {
+            badCount++;
+        }
+        totalCount++;
+    }
+    QString title = tr("Group Validation Status: Good=%2 Bad=%3 Total=%1")
+                        .arg(QString::number(totalCount),
+                             QString::number(goodCount),
+                             QString::number(badCount));
+    _mainwindow->setStatusText(title);
+}
+
+void TableDockWidget::showScatterPlot()
+{
+    if (topLevelGroupCount() == 0)
+        return;
+    _mainwindow->scatterDockWidget->setVisible(true);
+    _mainwindow->scatterDockWidget->setTable(this);
+    _mainwindow->scatterDockWidget->replot();
+    _mainwindow->scatterDockWidget->contrastGroups();
+}
+
+void TableDockWidget::showScatterPlot()
+{
+    if (topLevelGroupCount() == 0)
+        return;
+    _mainwindow->scatterDockWidget->setVisible(true);
+    _mainwindow->scatterDockWidget->setTable(this);
+    _mainwindow->scatterDockWidget->replot();
+    _mainwindow->scatterDockWidget->contrastGroups();
+}
+
+void TableDockWidget::printPdfReport()
+{
+    _mainwindow->getAnalytics()->hitEvent("Exports", "PDF", "From Table");
+    QString dir = ".";
+    QSettings* settings = _mainwindow->getSettings();
+    if (settings->contains("lastDir"))
+        dir = settings->value("lastDir").value<QString>();
+
+    QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Save Group Report a PDF File"), dir, tr("*.pdf"));
+    if (fileName.isEmpty())
+        return;
+    if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+        fileName = fileName + ".pdf";
+
+    auto res = QtConcurrent::run(this, &TableDockWidget::renderPdf, fileName);
+}
 
 void TableDockWidget::renderPdf(QString fileName)
 {
-    //Setting printer.
+    // Setting printer.
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOrientation(QPrinter::Landscape);
@@ -2420,21 +2546,19 @@ void TableDockWidget::renderPdf(QString fileName)
     QList<shared_ptr<PeakGroup>> selected;
 
     // PDF report only for selected groups
-    if(peakTableSelection == PeakTableSubsetType::Selected) {
+    if (peakTableSelection == PeakTableSubsetType::Selected) {
         selected = getSelectedGroups();
-    } else if (peakTableSelection == PeakTableSubsetType::Whole 
-              || peakTableSelection == PeakTableSubsetType::Good) {
+    } else if (peakTableSelection == PeakTableSubsetType::Whole
+               || peakTableSelection == PeakTableSubsetType::Good) {
         selected = getGroups();
     } else if (peakTableSelection == PeakTableSubsetType::Displayed) {
-      selected = getDisplayedGroups();
+        selected = getDisplayedGroups();
     }
 
     for (int i = 0; i < selected.size(); i++) {
         shared_ptr<PeakGroup> group = selected[i];
-        emit updateProgressBar("Saving PDF export for table…",
-                               i + 1,
-                               selected.size(),
-                               true);
+        emit updateProgressBar(
+            "Saving PDF export for table…", i + 1, selected.size(), true);
         if (!group->isGhost()) {
             _mainwindow->getEicWidget()->renderPdf(group, &painter);
             if (!printer.newPage()) {
@@ -2443,30 +2567,30 @@ void TableDockWidget::renderPdf(QString fileName)
             }
         }
         for (auto& child : group->childIsotopes()) {
-          if (peakTableSelection == PeakTableSubsetType::Good 
-              && child->userLabel() != 'g' ) 
-              continue;
-          if (peakTableSelection == PeakTableSubsetType::Displayed
-              && child->isGroupHidden())
-              continue; 
-              
+            if (peakTableSelection == PeakTableSubsetType::Good
+                && child->userLabel() != 'g')
+                continue;
+            if (peakTableSelection == PeakTableSubsetType::Displayed
+                && child->isGroupHidden())
+                continue;
+
             _mainwindow->getEicWidget()->renderPdf(child, &painter);
             if (!printer.newPage()) {
                 qWarning("failed in flushing page to disk, disk full?");
                 return;
             }
-       }
-       for (auto& child : group->childAdducts()) {
+        }
+        for (auto& child : group->childAdducts()) {
             _mainwindow->getEicWidget()->renderPdf(child, &painter);
             if (!printer.newPage()) {
                 qWarning("failed in flushing page to disk, disk full?");
                 return;
             }
-       }
-   }
-   painter.end();
-   emit updateProgressBar("", selected.size(), selected.size());
-   emit renderedPdf();
+        }
+    }
+    painter.end();
+    emit updateProgressBar("", selected.size(), selected.size());
+    emit renderedPdf();
 }
 
 void TableDockWidget::pdfReadyNotification()
@@ -2475,536 +2599,596 @@ void TableDockWidget::pdfReadyNotification()
     QString title("");
     QString message("Your PDF has been saved successfully.");
 
-    Notificator* fluxomicsPrompt = Notificator::showMessage(icon,
-                                                            title,
-                                                            message,
-                                                           this);
+    Notificator* fluxomicsPrompt =
+        Notificator::showMessage(icon, title, message, this);
     title = "Your PDF has been saved successfully.";
     _mainwindow->setStatusText(title);
 }
 
 void TableDockWidget::editSelectedPeakGroup()
 {
-  if (treeWidget->selectedItems().size() != 1)
-      return;
+    if (treeWidget->selectedItems().size() != 1)
+        return;
 
-  shared_ptr<PeakGroup> group = getSelectedGroup();
-  PeakEditor* editor = _mainwindow->peakEditor();
-  if (editor == nullptr || group == nullptr || group->isGhost())
-    return;
+    shared_ptr<PeakGroup> group = getSelectedGroup();
+    PeakEditor* editor = _mainwindow->peakEditor();
+    if (editor == nullptr || group == nullptr || group->isGhost())
+        return;
 
-  editor->setPeakGroup(group);
-  editor->exec();
+    editor->setPeakGroup(group);
+    editor->exec();
 
-  auto currentItem = treeWidget->currentItem();
-  if (currentItem->parent() != nullptr) {
-    updateItem(currentItem->parent(), true);
-  } else {
-    updateItem(currentItem, true);
-  }
+    auto currentItem = treeWidget->currentItem();
+    if (currentItem->parent() != nullptr) {
+        updateItem(currentItem->parent(), true);
+    } else {
+        updateItem(currentItem, true);
+    }
 
-  auto groupToSave = group;
-  if (group->parent != nullptr) {
-      QTreeWidgetItemIterator it(treeWidget);
-      while (*it) {
-          QTreeWidgetItem* item = (*it);
-          shared_ptr<PeakGroup> currentGroup = groupForItem(item);
-          if (currentGroup.get() == group->parent) {
-              groupToSave = currentGroup;
-              break;
-          }
-          it++;
-      }
-  }
-  _mainwindow->autoSaveSignal({groupToSave});
+    auto groupToSave = group;
+    if (group->parent != nullptr) {
+        QTreeWidgetItemIterator it(treeWidget);
+        while (*it) {
+            QTreeWidgetItem* item = (*it);
+            shared_ptr<PeakGroup> currentGroup = groupForItem(item);
+            if (currentGroup.get() == group->parent) {
+                groupToSave = currentGroup;
+                break;
+            }
+            it++;
+        }
+    }
+    _mainwindow->autoSaveSignal({groupToSave});
 }
 
 void TableDockWidget::showIntegrationSettings()
 {
-  if (treeWidget->selectedItems().size() != 1)
-      return;
+    if (treeWidget->selectedItems().size() != 1)
+        return;
 
-  shared_ptr<PeakGroup> group = getSelectedGroup();
-  GroupSettingsLog log(this, group);
-  log.exec();
+    shared_ptr<PeakGroup> group = getSelectedGroup();
+    GroupSettingsLog log(this, group);
+    log.exec();
 }
 
-void TableDockWidget::moveSelectedRows(QString destinationTableName) {
+void TableDockWidget::moveSelectedRows(QString destinationTableName)
+{
+    QString sourceTableName = this->titlePeakTable->text();
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
+    QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+    QString bookmarkTableName =
+        _mainwindow->bookmarkedPeaks->titlePeakTable->text();
 
-  QString sourceTableName = this->titlePeakTable->text();
-  QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
-  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
-  QString bookmarkTableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
+    // Adding the rows to the Destination Table
+    if (bookmarkTableName == destinationTableName) {
+        BookmarkTableDockWidget* destinationPeakTable =
+            _mainwindow->bookmarkedPeaks;
+        for (auto group : selected) {
+            destinationPeakTable->addPeakGroup(group.get());
+        }
+        destinationPeakTable->showAllGroups();
+        destinationPeakTable->setVisible(true);
+    } else {
+        TableDockWidget* destinationPeakTable = nullptr;
+        for (auto table : peaksTableList) {
+            if (table->titlePeakTable->text() == destinationTableName) {
+                destinationPeakTable = table;
+                break;
+            }
+        }
 
-  // Adding the rows to the Destination Table
-  if(bookmarkTableName == destinationTableName) {
-    BookmarkTableDockWidget* destinationPeakTable = _mainwindow->bookmarkedPeaks;
-    for(auto group : selected) {
-      destinationPeakTable->addPeakGroup(group.get());
+        if (!destinationPeakTable)
+            return;
+        for (auto group : selected) {
+            destinationPeakTable->addPeakGroup(group.get());
+        }
+        destinationPeakTable->showAllGroups();
     }
-    destinationPeakTable->showAllGroups();
-    destinationPeakTable->setVisible(true);
-  } else {
-    TableDockWidget* destinationPeakTable = nullptr;
-    for (auto table : peaksTableList) {
-        if (table->titlePeakTable->text() == destinationTableName) {
-            destinationPeakTable = table;
-            break;
+
+    // Deleting the rows from the Source Table
+    deleteSelectedItems(true);
+}
+
+void TableDockWidget::contextMenuEvent(QContextMenuEvent* event)
+{
+    if (treeWidget->topLevelItemCount() < 1)
+        return;
+
+    QMenu menu;
+    QAction* z0 = menu.addAction("Copy to clipboard");
+    connect(z0, SIGNAL(triggered()), this, SLOT(setClipboard()));
+
+    QAction* z1 = menu.addAction("Edit peak-group");
+    connect(
+        z1, &QAction::triggered, this, &TableDockWidget::editSelectedPeakGroup);
+
+    QAction* z2 = menu.addAction("Show integration settings");
+    connect(z2,
+            &QAction::triggered,
+            this,
+            &TableDockWidget::showIntegrationSettings);
+
+    QAction* z4 = menu.addAction("Mark duplicates as bad");
+    connect(
+        z4, &QAction::triggered, this, &TableDockWidget::markDuplicatesAsBad);
+
+    QAction* z5 = menu.addAction("Delete all groups from this table");
+    connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
+
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
+    int n = peaksTableList.count();
+
+    QMenu* subMenu = menu.addMenu(tr("Move to another table…"));
+
+    QMap<QAction*, QString> actionsAndTables;
+    QString tableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
+    if (this->titlePeakTable->text() != tableName) {
+        QAction* z5 = subMenu->addAction(tableName);
+        actionsAndTables[z5] = tableName;
+    }
+
+    for (int i = 0; i < n; i++) {
+        tableName = peaksTableList[i]->titlePeakTable->text();
+        if (this->titlePeakTable->text() != tableName) {
+            QAction* z5 = subMenu->addAction(tableName);
+            actionsAndTables[z5] = tableName;
         }
     }
 
-    if (!destinationPeakTable) return;
-    for(auto group : selected) {
-      destinationPeakTable->addPeakGroup(group.get());
+    QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+
+    QMapIterator<QAction*, QString> iter(actionsAndTables);
+    while (iter.hasNext()) {
+        iter.next();
+        QAction* action = iter.key();
+        QString tableName = iter.value();
+        connect(action, &QAction::triggered, this, [this, tableName]() {
+            this->moveSelectedRows(tableName);
+        });
     }
-    destinationPeakTable->showAllGroups();
-  }
 
-  // Deleting the rows from the Source Table
-  deleteSelectedItems(true);
-}
-
-void TableDockWidget::contextMenuEvent(QContextMenuEvent *event) {
-  if (treeWidget->topLevelItemCount() < 1)
-      return;
-
-  QMenu menu;
-  QAction *z0 = menu.addAction("Copy to clipboard");
-  connect(z0, SIGNAL(triggered()), this, SLOT(setClipboard()));
-
-  QAction *z1 = menu.addAction("Edit peak-group");
-  connect(z1,
-          &QAction::triggered,
-          this,
-          &TableDockWidget::editSelectedPeakGroup);
-
-  QAction *z2 = menu.addAction("Show integration settings");
-  connect(z2,
-          &QAction::triggered,
-          this,
-          &TableDockWidget::showIntegrationSettings);
-
-  QAction *z4 = menu.addAction("Mark duplicates as bad");
-  connect(z4,
-          &QAction::triggered,
-          this,
-          &TableDockWidget::markDuplicatesAsBad);
-
-  QAction *z5 = menu.addAction("Delete all groups from this table");
-  connect(z5, SIGNAL(triggered()), SLOT(deleteAll()));
-
-  QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
-  int n = peaksTableList.count();
-
-  QMenu* subMenu = menu.addMenu(tr("Move to another table…"));
-  
-  QMap<QAction*, QString> actionsAndTables;
-  QString tableName = _mainwindow->bookmarkedPeaks->titlePeakTable->text();
-  if(this->titlePeakTable->text() != tableName ) {
-    QAction* z5 = subMenu->addAction(tableName);
-    actionsAndTables[z5] = tableName;
-  }
-  
-  for (int i = 0; i < n; i++) {
-    tableName = peaksTableList[i]->titlePeakTable->text();
-    if(this->titlePeakTable->text() != tableName){
-      QAction* z5 = subMenu->addAction(tableName);
-      actionsAndTables[z5] = tableName;
+    if (selected.count() == 0) {
+        // disable actions not relevant when nothing is selected
+        subMenu->setEnabled(false);
     }
-  }
 
-  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
-
-  QMapIterator<QAction*, QString> iter(actionsAndTables);
-  while (iter.hasNext()) {
-    iter.next();
-    QAction* action = iter.key();
-    QString tableName = iter.value();
-    connect(action,
-            &QAction::triggered,
-            this,
-            [this, tableName]() { this->moveSelectedRows(tableName); });
-  }
-  
-  if(selected.count() == 0) {
-    // disable actions not relevant when nothing is selected
-    subMenu->setEnabled(false);
-  }
-
-  if (treeWidget->selectedItems().empty()) {
-    // disable actions not relevant when nothing is selected
-    z0->setEnabled(false);
-  }
-  if (treeWidget->selectedItems().size() != 1) {
-    // disable actions not relevant to individual peak-groups
-    z1->setEnabled(false);
-    z2->setEnabled(false);
-  }
-
-  if(hasClassifiedGroups)
-  {
-      QAction *z8 = menu.addAction("Explain classification");
-      classificationWidget = new ClassificationWidget(this);
-      connect(z8,
-              &QAction::triggered,
-              classificationWidget,
-              &ClassificationWidget::showClassification);
-      if (treeWidget->selectedItems().size() != 1) {
+    if (treeWidget->selectedItems().empty()) {
+        // disable actions not relevant when nothing is selected
+        z0->setEnabled(false);
+    }
+    if (treeWidget->selectedItems().size() != 1) {
         // disable actions not relevant to individual peak-groups
-        z8->setEnabled(false);
-      }
-  }
-
-  QAction *selectedAction = menu.exec(event->globalPos());
-}
-
-void TableDockWidget::focusInEvent(QFocusEvent *event) {
-  if (event->gotFocus()) {
-    pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
-    setPalette(pal);
-    _mainwindow->setActiveTable(this);
-  }
-}
-
-void TableDockWidget::filterPeakTable() { updateTable(); }
-
-void TableDockWidget::focusOutEvent(QFocusEvent *event) {
-  if (event->lostFocus()) {
-    pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
-    setPalette(pal);
-  }
-}
-
-void TableDockWidget::writeQEInclusionList(QString filename) {
-  QFile file(filename);
-  if (!file.open(QFile::WriteOnly)) {
-    QErrorMessage errDialog(this);
-    errDialog.showMessage("File open " + filename + " failed");
-    return; // error
-  }
-
-  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
-
-  float window = 1.5;
-  int polarity = _mainwindow->mavenParameters->ionizationMode;
-  QTextStream out(&file);
-  for (auto g : selected) {
-    out << g->meanMz << ",";
-    polarity > 0 ? out << "Positive," : out << "Negative,";
-    out << g->meanRt - window << ",";
-    out << g->meanRt + window << ",";
-    out << 25 << ","; // default CE set to 25
-    out << 2 << ",";
-    out << QString(g->getName().c_str());
-    out << endl;
-  }
-  file.close();
-}
-
-void TableDockWidget::writeMascotGeneric(QString filename) {
-  QFile file(filename);
-  if (!file.open(QFile::WriteOnly)) {
-    QErrorMessage errDialog(this);
-    errDialog.showMessage("File open " + filename + " failed");
-    return; // error
-  }
-
-  QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
-  QTextStream out(&file);
-  for (auto g : selected) {
-    Scan *cons = g->getAverageFragmentationScan(
-          _mainwindow->mavenParameters->fragmentTolerance);
-
-    if (cons) {
-      string scandata = cons->toMGF();
-      out << scandata.c_str();
+        z1->setEnabled(false);
+        z2->setEnabled(false);
     }
-  }
-  file.close();
+
+    menu.exec(event->globalPos());
+}
+
+void TableDockWidget::focusInEvent(QFocusEvent* event)
+{
+    if (event->gotFocus()) {
+        pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
+        setPalette(pal);
+        _mainwindow->setActiveTable(this);
+    }
+}
+
+void TableDockWidget::focusOutEvent(QFocusEvent* event)
+{
+    if (event->lostFocus()) {
+        pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+        setPalette(pal);
+    }
+}
+
+void TableDockWidget::writeQEInclusionList(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::WriteOnly)) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return;  // error
+    }
+
+    QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+
+    QMapIterator<QAction*, QString> iter(actionsAndTables);
+    while (iter.hasNext()) {
+        iter.next();
+        QAction* action = iter.key();
+        QString tableName = iter.value();
+        connect(action, &QAction::triggered, this, [this, tableName]() {
+            this->moveSelectedRows(tableName);
+        });
+    }
+
+    if (selected.count() == 0) {
+        // disable actions not relevant when nothing is selected
+        subMenu->setEnabled(false);
+    }
+
+    if (treeWidget->selectedItems().empty()) {
+        // disable actions not relevant when nothing is selected
+        z0->setEnabled(false);
+    }
+    if (treeWidget->selectedItems().size() != 1) {
+        // disable actions not relevant to individual peak-groups
+        z1->setEnabled(false);
+        z2->setEnabled(false);
+    }
+
+    if (hasClassifiedGroups) {
+        QAction* z8 = menu.addAction("Explain classification");
+        classificationWidget = new ClassificationWidget(this);
+        connect(z8,
+                &QAction::triggered,
+                classificationWidget,
+                &ClassificationWidget::showClassification);
+        if (treeWidget->selectedItems().size() != 1) {
+            // disable actions not relevant to individual peak-groups
+            z8->setEnabled(false);
+        }
+    }
+
+    QAction* selectedAction = menu.exec(event->globalPos());
+}
+
+void TableDockWidget::focusInEvent(QFocusEvent* event)
+{
+    if (event->gotFocus()) {
+        pal.setColor(QPalette::Background, QColor(255, 255, 255, 100));
+        setPalette(pal);
+        _mainwindow->setActiveTable(this);
+    }
+}
+
+void TableDockWidget::filterPeakTable()
+{
+    updateTable();
+}
+
+void TableDockWidget::focusOutEvent(QFocusEvent* event)
+{
+    if (event->lostFocus()) {
+        pal.setColor(QPalette::Background, QColor(170, 170, 170, 100));
+        setPalette(pal);
+    }
+}
+
+void TableDockWidget::writeQEInclusionList(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::WriteOnly)) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return;  // error
+    }
+
+    QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+
+    float window = 1.5;
+    int polarity = _mainwindow->mavenParameters->ionizationMode;
+    QTextStream out(&file);
+    for (auto g : selected) {
+        out << g->meanMz << ",";
+        polarity > 0 ? out << "Positive," : out << "Negative,";
+        out << g->meanRt - window << ",";
+        out << g->meanRt + window << ",";
+        out << 25 << ",";  // default CE set to 25
+        out << 2 << ",";
+        out << QString(g->getName().c_str());
+        out << endl;
+    }
+    file.close();
+}
+
+void TableDockWidget::writeMascotGeneric(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QFile::WriteOnly)) {
+        QErrorMessage errDialog(this);
+        errDialog.showMessage("File open " + filename + " failed");
+        return;  // error
+    }
+
+    QList<shared_ptr<PeakGroup>> selected = getSelectedGroups();
+    QTextStream out(&file);
+    for (auto g : selected) {
+        Scan* cons = g->getAverageFragmentationScan(
+            _mainwindow->mavenParameters->fragmentTolerance);
+
+        if (cons) {
+            string scandata = cons->toMGF();
+            out << scandata.c_str();
+        }
+    }
+    file.close();
 }
 
 void TableDockWidget::showRelabelWidget()
 {
-  relabelDialog->showDialog();
+    relabelDialog->showDialog();
 }
 
-void TableDockWidget::relabelGroups(float changedBadLimit, float changedMaybeGoodLimit)
+void TableDockWidget::relabelGroups(float changedBadLimit,
+                                    float changedMaybeGoodLimit)
 {
+    disconnect(_legend,
+               &MultiSelectComboBox::selectionChanged,
+               this,
+               &TableDockWidget::filterForSelectedLabels);
 
-  disconnect(_legend,
-              &MultiSelectComboBox::selectionChanged,
-              this,
-              &TableDockWidget::filterForSelectedLabels);
-  
-  if (changedBadLimit == badGroupLimit 
-      && changedMaybeGoodLimit == maybeGoodGroupLimit) {
-    QMessageBox::warning(this,
-                          "No Change!",
-                          "The curation parameters you entered are same as " 
-                          "they were in the classified peak-table.\nYou may change the range"
-                          " and try again.\n");
-   _legend->uncheckRelabel();
-   connect(_legend,
-              &MultiSelectComboBox::selectionChanged,
-              this,
-              &TableDockWidget::filterForSelectedLabels);
-    return;
-  }
-  badGroupLimit = changedBadLimit;
-  maybeGoodGroupLimit = changedMaybeGoodLimit;
-  auto changePrediction = [&] (PeakGroup* group, 
-                              float changedBadLimit, 
-                              float changedMaybeGoodLimit) {
+    if (changedBadLimit == badGroupLimit
+        && changedMaybeGoodLimit == maybeGoodGroupLimit) {
+        QMessageBox::warning(
+            this,
+            "No Change!",
+            "The curation parameters you entered are same as "
+            "they were in the classified peak-table.\nYou may change the range"
+            " and try again.\n");
+        _legend->uncheckRelabel();
+        connect(_legend,
+                &MultiSelectComboBox::selectionChanged,
+                this,
+                &TableDockWidget::filterForSelectedLabels);
+        return;
+    }
+    badGroupLimit = changedBadLimit;
+    maybeGoodGroupLimit = changedMaybeGoodLimit;
+    auto changePrediction = [&](PeakGroup* group,
+                                float changedBadLimit,
+                                float changedMaybeGoodLimit) {
+        if (group->predictionProbability() < changedBadLimit) {
+            group->setPredictedLabel(PeakGroup::ClassifiedLabel::Noise,
+                                     group->predictionProbability());
+            auto correlatedGroups = group->getCorrelatedGroups();
+            correlatedGroups.clear();
+            group->setCorrelatedGroups(correlatedGroups);
+        } else if (group->predictionProbability() >= changedBadLimit
+                   && group->predictionProbability() < changedMaybeGoodLimit) {
+            group->setPredictedLabel(PeakGroup::ClassifiedLabel::MaybeGood,
+                                     group->predictionProbability());
+            auto correlatedGroups = group->getCorrelatedGroups();
+            correlatedGroups.clear();
+            group->setCorrelatedGroups(correlatedGroups);
+        } else {
+            if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise
+                || group->predictedLabel()
+                       == PeakGroup::ClassifiedLabel::MaybeGood) {
+                group->setPredictedLabel(PeakGroup::ClassifiedLabel::Signal,
+                                         group->predictionProbability());
+            }
+        }
 
-                                if (group->predictionProbability() < changedBadLimit) {
-                                  group->setPredictedLabel(PeakGroup::ClassifiedLabel::Noise, 
-                                                          group->predictionProbability());
-                                  auto correlatedGroups = group->getCorrelatedGroups();
-                                  correlatedGroups.clear();
-                                  group->setCorrelatedGroups(correlatedGroups);
-                                } else if (group->predictionProbability() >= changedBadLimit
-                                          && group->predictionProbability() < changedMaybeGoodLimit) {
-                                  group->setPredictedLabel(PeakGroup::ClassifiedLabel::MaybeGood, 
-                                                            group->predictionProbability());
-                                  auto correlatedGroups = group->getCorrelatedGroups();
-                                  correlatedGroups.clear();
-                                  group->setCorrelatedGroups(correlatedGroups);
-                                } else {
-                                  if (group->predictedLabel() == PeakGroup::ClassifiedLabel::Noise
-                                      || group->predictedLabel() == PeakGroup::ClassifiedLabel::MaybeGood) {
-                                        group->setPredictedLabel(PeakGroup::ClassifiedLabel::Signal, 
-                                                                group->predictionProbability());
-                                      }
-                                      
-                                }
+        auto parameters = group->parameters().get();
+        parameters->badGroupUpperLimit = changedBadLimit;
+        parameters->goodGroupLowerLimit = changedMaybeGoodLimit;
+        group->setParameters(make_shared<MavenParameters>(*parameters));
+    };
 
-                                auto parameters = group->parameters().get();
-                                parameters->badGroupUpperLimit = changedBadLimit;
-                                parameters->goodGroupLowerLimit = changedMaybeGoodLimit;
-                                group->setParameters(make_shared<MavenParameters>(*parameters));
-                          };
+    auto groups = _topLevelGroups;
+    int totalSteps = groups.size();
+    int steps = 1;
+    for (auto& group : groups) {
+        Q_EMIT(updateRelabelStatusBar("Relabeling...", steps, totalSteps));
+        steps++;
+        changePrediction(group.get(), changedBadLimit, changedMaybeGoodLimit);
+        for (auto child : group->childIsotopes())
+            changePrediction(
+                child.get(), changedBadLimit, changedMaybeGoodLimit);
 
-  auto groups = _topLevelGroups;
-  int totalSteps = groups.size();
-  int steps = 1;
-  for (auto &group : groups) {
-    Q_EMIT(updateRelabelStatusBar("Relabeling...", steps, totalSteps));
-    steps++;
-    changePrediction(group.get(), 
-                    changedBadLimit,
-                    changedMaybeGoodLimit);
-    for (auto child : group->childIsotopes())
-      changePrediction(child.get(), 
-                      changedBadLimit,
-                      changedMaybeGoodLimit);
-
-    for (auto child : group->childAdducts())
-      changePrediction(child.get(), 
-                      changedBadLimit,
-                      changedMaybeGoodLimit);                  
-  }
- _legend->selectAll();
-  showAllGroups();
-  connect(_legend,
-              &MultiSelectComboBox::selectionChanged,
-              this,
-              &TableDockWidget::filterForSelectedLabels);
+        for (auto child : group->childAdducts())
+            changePrediction(
+                child.get(), changedBadLimit, changedMaybeGoodLimit);
+    }
+    _legend->selectAll();
+    showAllGroups();
+    connect(_legend,
+            &MultiSelectComboBox::selectionChanged,
+            this,
+            &TableDockWidget::filterForSelectedLabels);
 }
 
 void TableDockWidget::clearClusters()
 {
-  for (auto group : _topLevelGroups)
-    group->clusterId = 0;
-  showAllGroups();
+    for (auto group : _topLevelGroups)
+        group->clusterId = 0;
+    showAllGroups();
 }
 
 void TableDockWidget::clusterGroups()
 {
-  sort(_topLevelGroups.begin(),
-       _topLevelGroups.end(),
-       [](shared_ptr<PeakGroup> a, shared_ptr<PeakGroup> b) {
-           return a->meanRt < b->meanRt;
-       });
-  qDebug() << "Clustering…";
-  int clusterId = 0;
+    sort(_topLevelGroups.begin(),
+         _topLevelGroups.end(),
+         [](shared_ptr<PeakGroup> a, shared_ptr<PeakGroup> b) {
+             return a->meanRt < b->meanRt;
+         });
+    qDebug() << "Clustering…";
+    int clusterId = 0;
 
-  double maxRtDiff = clusterDialog->maxRtDiff_2->value();
-  double minSampleCorrelation = clusterDialog->minSampleCorr->value();
-  double minRtCorrelation = clusterDialog->minRt->value();
-  MassCutoff *massCutoff = _mainwindow->getUserMassCutoff();
+    double maxRtDiff = clusterDialog->maxRtDiff_2->value();
+    double minSampleCorrelation = clusterDialog->minSampleCorr->value();
+    double minRtCorrelation = clusterDialog->minRt->value();
+    MassCutoff* massCutoff = _mainwindow->getUserMassCutoff();
 
-  vector<mzSample *> samples = _mainwindow->getSamples();
+    vector<mzSample*> samples = _mainwindow->getSamples();
 
-  // clear cluster information
-  for (auto group : _topLevelGroups)
-    group->clusterId = 0;
+    // clear cluster information
+    for (auto group : _topLevelGroups)
+        group->clusterId = 0;
 
-  map<int, shared_ptr<PeakGroup>> parentGroups;
-  for (int i = 0; i < _topLevelGroups.size(); ++i) {
-    auto group1 = _topLevelGroups[i];
-    if (group1->clusterId == 0) {
-      // create new cluster
-      group1->clusterId = ++clusterId;
-      parentGroups[clusterId] = group1;
+    map<int, shared_ptr<PeakGroup>> parentGroups;
+    for (int i = 0; i < _topLevelGroups.size(); ++i) {
+        auto group1 = _topLevelGroups[i];
+        if (group1->clusterId == 0) {
+            // create new cluster
+            group1->clusterId = ++clusterId;
+            parentGroups[clusterId] = group1;
+        }
+
+        // cluster parent
+        shared_ptr<PeakGroup> parent = parentGroups[clusterId];
+
+        mzSample* largestSample = NULL;
+        double maxIntensity = 0;
+
+        for (int i = 0; i < group1->peakCount(); i++) {
+            mzSample* sample = group1->peaks[i].getSample();
+            if (group1->peaks[i].peakIntensity > maxIntensity)
+                largestSample = sample;
+        }
+
+        if (largestSample == NULL)
+            continue;
+        vector<float> peakIntensityA =
+            group1->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
+
+        for (auto group2 : _topLevelGroups) {
+            if (group2->clusterId > 0)
+                continue;
+
+            // retention time distance
+            float rtdist = abs(parent->meanRt - group2->meanRt);
+            if (rtdist > maxRtDiff * 2)
+                continue;
+
+            // retention time overlap
+            float rtoverlap = mzUtils::checkOverlap(
+                group1->minRt, group1->maxRt, group2->minRt, group2->maxRt);
+            if (rtoverlap < 0.1)
+                continue;
+
+            // peak intensity correlation
+            vector<float> peakIntensityB =
+                group2->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
+            float cor = correlation(peakIntensityA, peakIntensityB);
+            if (cor < minSampleCorrelation)
+                continue;
+
+            // peak shape correlation
+            float cor2 = largestSample->correlation(
+                group1->meanMz,
+                group2->meanMz,
+                massCutoff,
+                group1->minRt,
+                group1->maxRt,
+                _mainwindow->mavenParameters->eicType,
+                _mainwindow->mavenParameters->filterline);
+            if (cor2 < minRtCorrelation)
+                continue;
+
+            // passed all the filters, group1 and group2 into a single metagroup
+            group2->clusterId = group1->clusterId;
+        }
+        if (i % 10 == 0)
+            _mainwindow->setProgressBar(
+                "Clustering…", i + 1, _topLevelGroups.size());
     }
 
-    // cluster parent
-    shared_ptr<PeakGroup> parent = parentGroups[clusterId];
-
-    mzSample *largestSample = NULL;
-    double maxIntensity = 0;
-
-    for (int i = 0; i < group1->peakCount(); i++) {
-      mzSample *sample = group1->peaks[i].getSample();
-      if (group1->peaks[i].peakIntensity > maxIntensity)
-        largestSample = sample;
-    }
-
-    if (largestSample == NULL)
-      continue;
-    vector<float> peakIntensityA =
-        group1->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
-
-    for (auto group2 : _topLevelGroups) {
-      if (group2->clusterId > 0)
-        continue;
-
-      // retention time distance
-        float rtdist = abs(parent->meanRt - group2->meanRt);
-      if (rtdist > maxRtDiff * 2)
-        continue;
-
-      // retention time overlap
-      float rtoverlap = mzUtils::checkOverlap(group1->minRt, group1->maxRt,
-                                              group2->minRt, group2->maxRt);
-      if (rtoverlap < 0.1)
-        continue;
-
-      // peak intensity correlation
-      vector<float> peakIntensityB =
-          group2->getOrderedIntensityVector(samples, PeakGroup::AreaTop);
-      float cor = correlation(peakIntensityA, peakIntensityB);
-      if (cor < minSampleCorrelation)
-        continue;
-
-      // peak shape correlation
-      float cor2 = largestSample->correlation(group1->meanMz,
-                                              group2->meanMz,
-                                              massCutoff,
-                                              group1->minRt,
-                                              group1->maxRt,
-                                              _mainwindow->mavenParameters->eicType,
-                                              _mainwindow->mavenParameters->filterline);
-      if (cor2 < minRtCorrelation)
-        continue;
-
-      // passed all the filters, group1 and group2 into a single metagroup
-      group2->clusterId = group1->clusterId;
-    }
-    if (i % 10 == 0)
-      _mainwindow->setProgressBar("Clustering…",
-                                  i + 1,
-                                  _topLevelGroups.size());
-  }
-
-  _mainwindow->setProgressBar("Clustering done!",
-                              _topLevelGroups.size(),
-                              _topLevelGroups.size());
-  showAllGroups();
+    _mainwindow->setProgressBar(
+        "Clustering done!", _topLevelGroups.size(), _topLevelGroups.size());
+    showAllGroups();
 }
 
-void TableDockWidget::showFocusedGroups() {
-  int N = treeWidget->topLevelItemCount();
-  for (int i = 0; i < N; i++) {
-    QTreeWidgetItem *item = treeWidget->topLevelItem(i);
-    shared_ptr<PeakGroup> group = groupForItem(item);
-    if (group != nullptr && group->isFocused)
-      item->setHidden(false);
-    else
-      item->setHidden(true);
+void TableDockWidget::showFocusedGroups()
+{
+    int N = treeWidget->topLevelItemCount();
+    for (int i = 0; i < N; i++) {
+        QTreeWidgetItem* item = treeWidget->topLevelItem(i);
+        shared_ptr<PeakGroup> group = groupForItem(item);
+        if (group != nullptr && group->isFocused)
+            item->setHidden(false);
+        else
+            item->setHidden(true);
 
-    if (item->text(0).startsWith("Cluster")) {
-      bool showParentFlag = false;
-      for (int j = 0; j < item->childCount(); j++) {
-        shared_ptr<PeakGroup> group = groupForItem(item->child(j));
-        if (group != nullptr && group->isFocused) {
-          item->setHidden(false);
-          showParentFlag = true;
-        } else
-          item->setHidden(true);
-      }
-      if (showParentFlag)
-        item->setHidden(false);
+        if (item->text(0).startsWith("Cluster")) {
+            bool showParentFlag = false;
+            for (int j = 0; j < item->childCount(); j++) {
+                shared_ptr<PeakGroup> group = groupForItem(item->child(j));
+                if (group != nullptr && group->isFocused) {
+                    item->setHidden(false);
+                    showParentFlag = true;
+                } else
+                    item->setHidden(true);
+            }
+            if (showParentFlag)
+                item->setHidden(false);
+        }
     }
-  }
 }
 
-void TableDockWidget::clearFocusedGroups() {
-  for (auto group : _topLevelGroups)
-    group->isFocused = false;
+void TableDockWidget::clearFocusedGroups()
+{
+    for (auto group : _topLevelGroups)
+        group->isFocused = false;
 }
 
-void TableDockWidget::switchTableView() {
-  viewType == groupView ? viewType = peakView : viewType = groupView;
-  setupPeakTable();
-  showAllGroups();
-  updateTable();
+void TableDockWidget::switchTableView()
+{
+    viewType == groupView ? viewType = peakView : viewType = groupView;
+    setupPeakTable();
+    showAllGroups();
+    updateTable();
 }
 
 int TableDockWidget::getTargetedGroupCount()
 {
-  return _targetedGroups;
+    return _targetedGroups;
 }
 
 int TableDockWidget::getLabeledGroupCount()
 {
-  return _labeledGroups;
+    return _labeledGroups;
 }
 
 QString TableDockWidget::getTitleForId(int tableId)
 {
-  return _idTitleMap.value(tableId, QString(""));
+    return _idTitleMap.value(tableId, QString(""));
 }
 
 void TableDockWidget::setTitleForId(int tableId, const QString& tableTitle)
 {
-  if (_idTitleMap.contains(tableId))
-      return;
+    if (_idTitleMap.contains(tableId))
+        return;
 
-  QString title = tableTitle;
-  if (tableId == -1) {
-      title = "Scatterplot Peak Table";
-  } else if (tableId == 0) {
-      title = "Bookmark Table";
-  } else if (title.isEmpty()) {
-      title = QString("Peak Table ") + QString::number(tableId);
-  } else {
-    QString expression("^(%1) (?:\\((\\d+)\\)$)");
-    QRegularExpression re(expression.arg(tableTitle));
-    bool titleExists = false;
-    int highestCounter = 0;
-    for (auto& existingTitle : _idTitleMap.values()) {
-      QRegularExpressionMatch match = re.match(existingTitle);
-      if (match.hasMatch()) {
-        titleExists = true;
-        int currentCounter = match.captured(2).toInt();
-        highestCounter = currentCounter > highestCounter ? currentCounter
-                                                         : highestCounter;
-      } else if (existingTitle == tableTitle) {
-        titleExists = true;
-      }
+    QString title = tableTitle;
+    if (tableId == -1) {
+        title = "Scatterplot Peak Table";
+    } else if (tableId == 0) {
+        title = "Bookmark Table";
+    } else if (title.isEmpty()) {
+        title = QString("Peak Table ") + QString::number(tableId);
+    } else {
+        QString expression("^(%1) (?:\\((\\d+)\\)$)");
+        QRegularExpression re(expression.arg(tableTitle));
+        bool titleExists = false;
+        int highestCounter = 0;
+        for (auto& existingTitle : _idTitleMap.values()) {
+            QRegularExpressionMatch match = re.match(existingTitle);
+            if (match.hasMatch()) {
+                titleExists = true;
+                int currentCounter = match.captured(2).toInt();
+                highestCounter = currentCounter > highestCounter
+                                     ? currentCounter
+                                     : highestCounter;
+            } else if (existingTitle == tableTitle) {
+                titleExists = true;
+            }
+        }
+        if (titleExists)
+            title = QString("%1 (%2)").arg(tableTitle).arg(highestCounter + 1);
     }
-    if (titleExists)
-      title = QString("%1 (%2)").arg(tableTitle).arg(highestCounter + 1);
-  }
-  _idTitleMap.insert(tableId, title);
+    _idTitleMap.insert(tableId, title);
 }
 
 int TableDockWidget::lastTableId()
 {
-  if (!_idTitleMap.isEmpty())
-      return _idTitleMap.lastKey();
-  return -1;
+    if (!_idTitleMap.isEmpty())
+        return _idTitleMap.lastKey();
+    return -1;
 }
 
 void TableDockWidget::setDefaultStyle(bool isActive)
@@ -3025,523 +3209,580 @@ void TableDockWidget::setDefaultStyle(bool isActive)
     setStyleSheet(style);
 }
 
-QWidget *TableToolBarWidgetAction::createWidget(QWidget *parent)
+QWidget* TableToolBarWidgetAction::createWidget(QWidget* parent)
 {
-  if (btnName == "titlePeakTable") {
-    td->titlePeakTable = new QLabel(parent);
-    QFont font;
-    font.setPixelSize(16);
-    td->titlePeakTable->setFont(font);
-    td->titlePeakTable->setText(TableDockWidget::getTitleForId(td->tableId));
-    td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
-    td->setWindowTitle(td->titlePeakTable->text());
-    return td->titlePeakTable;
-  } else if (btnName == "btnSwitchView") {
-    QToolButton *btnSwitchView = new QToolButton(parent);
-    btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
-    btnSwitchView->setToolTip("Switch between \"group\" and \"peak\" views");
-    connect(btnSwitchView, SIGNAL(clicked()), td, SLOT(switchTableView()));
-    return btnSwitchView;
-  } else if (btnName == "btnGroupCSV") {
-    QToolButton *btnGroupCSV = new QToolButton(parent);
-    btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
-    btnGroupCSV->setToolTip(tr("Export groups to spreadSheet (.csv) "));
-    btnGroupCSV->setMenu(new QMenu("Export groups"));
-    btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
+    if (btnName == "titlePeakTable") {
+        td->titlePeakTable = new QLabel(parent);
+        QFont font;
+        font.setPixelSize(16);
+        td->titlePeakTable->setFont(font);
+        td->titlePeakTable->setText(
+            TableDockWidget::getTitleForId(td->tableId));
+        td->titlePeakTable->setStyleSheet("font-weight: bold; color: black");
+        td->setWindowTitle(td->titlePeakTable->text());
+        return td->titlePeakTable;
+    } else if (btnName == "btnSwitchView") {
+        QToolButton* btnSwitchView = new QToolButton(parent);
+        btnSwitchView->setIcon(QIcon(rsrcPath + "/flip.png"));
+        btnSwitchView->setToolTip(
+            "Switch between \"group\" and \"peak\" views");
+        connect(btnSwitchView, SIGNAL(clicked()), td, SLOT(switchTableView()));
+        return btnSwitchView;
+    } else if (btnName == "btnGroupCSV") {
+        QToolButton* btnGroupCSV = new QToolButton(parent);
+        btnGroupCSV->setIcon(QIcon(rsrcPath + "/exportcsv.png"));
+        btnGroupCSV->setToolTip(tr("Export groups to spreadSheet (.csv) "));
+        btnGroupCSV->setMenu(new QMenu("Export groups"));
+        btnGroupCSV->setPopupMode(QToolButton::InstantPopup);
 
-    QAction *exportSelected =
-        btnGroupCSV->menu()->addAction(tr("Export selected groups"));
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
-    connect(exportSelected,
-            SIGNAL(triggered()),
-            td,
-            SLOT(exportGroupsToSpreadsheet()));
-    
-    if (!td->hasClassifiedGroups) {
-      QAction *exportAll =
-          btnGroupCSV->menu()->addAction(tr("Export all groups"));
-      QAction *exportGood =
-          btnGroupCSV->menu()->addAction(tr("Export good groups"));
-      QAction *excludeBad =
-          btnGroupCSV->menu()->addAction(tr("Export excluding bad groups"));
-      QAction *exportBad =
-          btnGroupCSV->menu()->addAction(tr("Export bad groups"));
-      connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
-      connect(exportAll, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportAll,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
-      connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeaks()));
-      connect(exportGood, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportGood,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
-    
-      connect(excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeaks()));
-      connect(excludeBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(excludeBad,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
+        QAction* exportSelected =
+            btnGroupCSV->menu()->addAction(tr("Export selected groups"));
+        connect(
+            exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+        connect(exportSelected,
+                SIGNAL(triggered()),
+                td,
+                SLOT(exportGroupsToSpreadsheet()));
 
-      connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeaksSet()));
-      connect(exportBad, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportBad,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
+        if (!td->hasClassifiedGroups) {
+            QAction* exportAll =
+                btnGroupCSV->menu()->addAction(tr("Export all groups"));
+            QAction* exportGood =
+                btnGroupCSV->menu()->addAction(tr("Export good groups"));
+            QAction* excludeBad = btnGroupCSV->menu()->addAction(
+                tr("Export excluding bad groups"));
+            QAction* exportBad =
+                btnGroupCSV->menu()->addAction(tr("Export bad groups"));
+            connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
+            connect(exportAll,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportAll,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+            connect(exportGood, SIGNAL(triggered()), td, SLOT(goodPeaks()));
+            connect(exportGood,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportGood,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+
+            connect(
+                excludeBad, SIGNAL(triggered()), td, SLOT(excludeBadPeaks()));
+            connect(excludeBad,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(excludeBad,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+
+            connect(exportBad, SIGNAL(triggered()), td, SLOT(badPeaksSet()));
+            connect(exportBad,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportBad,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+        } else {
+            QAction* exportAllDisplayed =
+                btnGroupCSV->menu()->addAction(tr("Export displayed groups"));
+            connect(exportAllDisplayed,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(showNotification()));
+            connect(exportAllDisplayed,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(displayedPeakSet()));
+            connect(exportAllDisplayed,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportAllDisplayed,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+
+            QAction* exportAllSignals =
+                btnGroupCSV->menu()->addAction(tr("Export all signals"));
+            connect(
+                exportAllSignals, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
+            connect(exportAllSignals,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportAllSignals,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(exportGroupsToSpreadsheet()));
+        }
+        return btnGroupCSV;
+
+    } else if (btnName == "btnSaveJson") {
+        QToolButton* btnSaveJson = new QToolButton(parent);
+        btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
+        btnSaveJson->setToolTip(tr("Export EICs to JSON (.json)"));
+        connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
+        return btnSaveJson;
+    } else if (btnName == "btnScatter") {
+        QToolButton* btnScatter = new QToolButton(parent);
+        btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
+        btnScatter->setToolTip("Show scatter-plot");
+        connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
+        return btnScatter;
+    } else if (btnName == "btnCluster") {
+        QToolButton* btnCluster = new QToolButton(parent);
+        btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
+        btnCluster->setToolTip("Cluster groups");
+        connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
+        return btnCluster;
+    } else if (btnName == "btnGood") {
+        QToolButton* btnGood = new QToolButton(parent);
+        btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
+        btnGood->setToolTip("Mark selected group as good");
+        connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
+        connect(td,
+                &TableDockWidget::ghostPeakGroupSelected,
+                btnGood,
+                &QToolButton::setDisabled);
+        return btnGood;
+    } else if (btnName == "btnBad") {
+        QToolButton* btnBad = new QToolButton(parent);
+        btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
+        btnBad->setToolTip("Mark selected group as bad");
+        connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
+        connect(td,
+                &TableDockWidget::ghostPeakGroupSelected,
+                btnBad,
+                &QToolButton::setDisabled);
+        return btnBad;
+    } else if (btnName == "btnUnmark") {
+        QToolButton* btnUnmark = new QToolButton(parent);
+        btnUnmark->setIcon(QIcon(rsrcPath + "/unmark.png"));
+        btnUnmark->setToolTip("Unmark selected group from good/bad");
+        connect(btnUnmark, SIGNAL(clicked()), td, SLOT(unmarkGroup()));
+        connect(td,
+                &TableDockWidget::ghostPeakGroupSelected,
+                btnUnmark,
+                &QToolButton::setDisabled);
+        return btnUnmark;
+    } else if (btnName == "btnDelete") {
+        QToolButton* btnDelete = new QToolButton(parent);
+        btnDelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
+        btnDelete->setToolTip("Delete group");
+        connect(btnDelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
+        return btnDelete;
+    } else if (btnName == "btnPDF") {
+        QToolButton* btnPDF = new QToolButton(parent);
+        btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
+        btnPDF->setToolTip("Generate PDF report");
+        btnPDF->setMenu(new QMenu("Export Groups"));
+        btnPDF->setPopupMode(QToolButton::InstantPopup);
+
+        QAction* exportSelected =
+            btnPDF->menu()->addAction(tr("Export selected groups"));
+
+        connect(
+            exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
+        connect(
+            exportSelected, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+
+        if (!td->hasClassifiedGroups) {
+            QAction* exportAll =
+                btnPDF->menu()->addAction(tr("Export all groups"));
+            connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
+            connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
+        } else {
+            QAction* exportDisplayedGroups =
+                btnPDF->menu()->addAction(tr("Export displayed groups"));
+            connect(exportDisplayedGroups,
+                    SIGNAL(triggered()),
+                    td->treeWidget,
+                    SLOT(selectAll()));
+            connect(exportDisplayedGroups,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(displayedPeakSet()));
+            connect(exportDisplayedGroups,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(printPdfReport()));
+
+            QAction* exportGoodSignals =
+                btnPDF->menu()->addAction(tr("Export all signals"));
+            connect(exportGoodSignals,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(goodPeakSet()));
+            connect(exportGoodSignals,
+                    SIGNAL(triggered()),
+                    td,
+                    SLOT(printPdfReport()));
+        }
+        return btnPDF;
+    } else if (btnName == "btnX") {
+        QToolButton* btnX = new QToolButton(parent);
+        btnX->setIcon(QIcon(rsrcPath + "/closeWidget.png"));
+        connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
+        return btnX;
+    } else if (btnName == "btnMin") {
+        QToolButton* btnMin = new QToolButton(parent);
+        btnMin->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
+        connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
+        return btnMin;
+    } else if (btnName == "btnSaveSpectral") {
+        QToolButton* btnSaveSpectral = new QToolButton(parent);
+        btnSaveSpectral->setIcon(QIcon(rsrcPath + "/exportmsp.png"));
+        btnSaveSpectral->setToolTip(
+            tr("Export table as spectral library (.msp)"));
+        connect(btnSaveSpectral,
+                &QToolButton::clicked,
+                td,
+                &TableDockWidget::exportSpectralLib);
+        return btnSaveSpectral;
+    } else if (btnName == "btnEditPeakGroup") {
+        QToolButton* btnEditPeakGroup = new QToolButton(parent);
+        btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
+        btnEditPeakGroup->setToolTip(
+            "Edit the peak area or baseline for "
+            "individual peaks of the selected peak-group.");
+        connect(btnEditPeakGroup,
+                &QToolButton::clicked,
+                td,
+                &TableDockWidget::editSelectedPeakGroup);
+        connect(td,
+                &TableDockWidget::ghostPeakGroupSelected,
+                btnEditPeakGroup,
+                &QToolButton::setDisabled);
+        return btnEditPeakGroup;
+    } else if (btnName == "btnSettingsLog") {
+        QToolButton* btnSettingsLog = new QToolButton(parent);
+        btnSettingsLog->setIcon(QIcon(rsrcPath + "/settingsLog.png"));
+        btnSettingsLog->setToolTip(
+            "Show a log of settings that were used while "
+            "integrating the selected peak-group.");
+        connect(btnSettingsLog,
+                &QToolButton::clicked,
+                td,
+                &TableDockWidget::showIntegrationSettings);
+        connect(td,
+                &TableDockWidget::ghostPeakGroupSelected,
+                btnSettingsLog,
+                &QToolButton::setDisabled);
+        return btnSettingsLog;
     } else {
-      QAction *exportAllDisplayed =
-          btnGroupCSV->menu()->addAction(tr("Export displayed groups"));
-      connect(exportAllDisplayed, SIGNAL(triggered()), td, SLOT(showNotification()));
-      connect(exportAllDisplayed, SIGNAL(triggered()), td, SLOT(displayedPeakSet()));
-      connect(exportAllDisplayed, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportAllDisplayed,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
-
-      QAction *exportAllSignals =
-          btnGroupCSV->menu()->addAction(tr("Export all signals"));
-      connect(exportAllSignals, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
-      connect(exportAllSignals, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportAllSignals,
-              SIGNAL(triggered()),
-              td,
-              SLOT(exportGroupsToSpreadsheet()));
+        return nullptr;
     }
-    return btnGroupCSV;
-
-  } else if (btnName == "btnSaveJson") {
-    QToolButton *btnSaveJson = new QToolButton(parent);
-    btnSaveJson->setIcon(QIcon(rsrcPath + "/JSON.png"));
-    btnSaveJson->setToolTip(tr("Export EICs to JSON (.json)"));
-    connect(btnSaveJson, SIGNAL(clicked()), td, SLOT(exportJson()));
-    return btnSaveJson;
-  } else if (btnName == "btnScatter") {
-    QToolButton *btnScatter = new QToolButton(parent);
-    btnScatter->setIcon(QIcon(rsrcPath + "/scatterplot.png"));
-    btnScatter->setToolTip("Show scatter-plot");
-    connect(btnScatter, SIGNAL(clicked()), td, SLOT(showScatterPlot()));
-    return btnScatter;
-  } else if (btnName == "btnCluster") {
-    QToolButton *btnCluster = new QToolButton(parent);
-    btnCluster->setIcon(QIcon(rsrcPath + "/cluster.png"));
-    btnCluster->setToolTip("Cluster groups");
-    connect(btnCluster, SIGNAL(clicked()), td, SLOT(showClusterDialog()));
-    return btnCluster;
-  } else if (btnName == "btnGood") {
-    QToolButton *btnGood = new QToolButton(parent);
-    btnGood->setIcon(QIcon(rsrcPath + "/markgood.png"));
-    btnGood->setToolTip("Mark selected group as good");
-    connect(btnGood, SIGNAL(clicked()), td, SLOT(markGroupGood()));
-    connect(td,
-            &TableDockWidget::ghostPeakGroupSelected,
-            btnGood,
-            &QToolButton::setDisabled);
-    return btnGood;
-  } else if (btnName == "btnBad") {
-    QToolButton *btnBad = new QToolButton(parent);
-    btnBad->setIcon(QIcon(rsrcPath + "/markbad.png"));
-    btnBad->setToolTip("Mark selected group as bad");
-    connect(btnBad, SIGNAL(clicked()), td, SLOT(markGroupBad()));
-    connect(td,
-            &TableDockWidget::ghostPeakGroupSelected,
-            btnBad,
-            &QToolButton::setDisabled);
-    return btnBad;
-  } else if (btnName == "btnUnmark") {
-    QToolButton *btnUnmark = new QToolButton(parent);
-    btnUnmark->setIcon(QIcon(rsrcPath + "/unmark.png"));
-    btnUnmark->setToolTip("Unmark selected group from good/bad");
-    connect(btnUnmark, SIGNAL(clicked()), td, SLOT(unmarkGroup()));
-    connect(td,
-            &TableDockWidget::ghostPeakGroupSelected,
-            btnUnmark,
-            &QToolButton::setDisabled);
-    return btnUnmark;
-  } else if (btnName == "btnDelete") {
-    QToolButton *btnDelete = new QToolButton(parent);
-    btnDelete->setIcon(QIcon(rsrcPath + "/Delete Group.png"));
-    btnDelete->setToolTip("Delete group");
-    connect(btnDelete, SIGNAL(clicked()), td, SLOT(deleteSelectedItems()));
-    return btnDelete;
-  } else if (btnName == "btnPDF") {
-    QToolButton *btnPDF = new QToolButton(parent);
-    btnPDF->setIcon(QIcon(rsrcPath + "/PDF.png"));
-    btnPDF->setToolTip("Generate PDF report");
-    btnPDF->setMenu(new QMenu("Export Groups"));
-    btnPDF->setPopupMode(QToolButton::InstantPopup);
-
-    QAction *exportSelected =
-        btnPDF->menu()->addAction(tr("Export selected groups"));
-    
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(selectedPeakSet()));
-    connect(exportSelected, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-
-    if (!td->hasClassifiedGroups) {  
-      QAction *exportAll =
-          btnPDF->menu()->addAction(tr("Export all groups"));
-      connect(exportAll, SIGNAL(triggered()), td, SLOT(wholePeakSet()));
-      connect(exportAll, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-    } else {
-      QAction *exportDisplayedGroups =
-          btnPDF->menu()->addAction(tr("Export displayed groups"));
-      connect(exportDisplayedGroups, SIGNAL(triggered()), td->treeWidget, SLOT(selectAll()));
-      connect(exportDisplayedGroups, SIGNAL(triggered()), td, SLOT(displayedPeakSet()));
-      connect(exportDisplayedGroups, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-
-      QAction *exportGoodSignals =
-          btnPDF->menu()->addAction(tr("Export all signals"));
-      connect(exportGoodSignals, SIGNAL(triggered()), td, SLOT(goodPeakSet()));
-      connect(exportGoodSignals, SIGNAL(triggered()), td, SLOT(printPdfReport()));
-    }
-    return btnPDF;
-  } else if (btnName == "btnX") {
-    QToolButton *btnX = new QToolButton(parent);
-    btnX->setIcon(QIcon(rsrcPath + "/closeWidget.png"));
-    connect(btnX, SIGNAL(clicked()), td, SLOT(showDeletionDialog()));
-    return btnX;
-  } else if (btnName == "btnMin") {
-    QToolButton *btnMin = new QToolButton(parent);
-    btnMin->setIcon(QIcon(rsrcPath + "/minimizeWidget.png"));
-    connect(btnMin, SIGNAL(clicked()), td, SLOT(hide()));
-    return btnMin;
-  } else if (btnName == "btnSaveSpectral") {
-    QToolButton *btnSaveSpectral = new QToolButton(parent);
-    btnSaveSpectral->setIcon(QIcon(rsrcPath + "/exportmsp.png"));
-    btnSaveSpectral->setToolTip(tr("Export table as spectral library (.msp)"));
-    connect(btnSaveSpectral,
-            &QToolButton::clicked,
-            td,
-            &TableDockWidget::exportSpectralLib);
-    return btnSaveSpectral;
-  } else if (btnName == "btnEditPeakGroup") {
-    QToolButton *btnEditPeakGroup = new QToolButton(parent);
-    btnEditPeakGroup->setIcon(QIcon(rsrcPath + "/editPeakGroup.png"));
-    btnEditPeakGroup->setToolTip("Edit the peak area or baseline for "
-                                 "individual peaks of the selected peak-group.");
-    connect(btnEditPeakGroup,
-            &QToolButton::clicked,
-            td,
-            &TableDockWidget::editSelectedPeakGroup);
-    connect(td,
-            &TableDockWidget::ghostPeakGroupSelected,
-            btnEditPeakGroup,
-            &QToolButton::setDisabled);
-    return btnEditPeakGroup;
-  } else if (btnName == "btnSettingsLog") {
-    QToolButton *btnSettingsLog = new QToolButton(parent);
-    btnSettingsLog->setIcon(QIcon(rsrcPath + "/settingsLog.png"));
-    btnSettingsLog->setToolTip("Show a log of settings that were used while "
-                               "integrating the selected peak-group.");
-    connect(btnSettingsLog,
-            &QToolButton::clicked,
-            td,
-            &TableDockWidget::showIntegrationSettings);
-    connect(td,
-            &TableDockWidget::ghostPeakGroupSelected,
-            btnSettingsLog,
-            &QToolButton::setDisabled);
-    return btnSettingsLog;
-  } else {
-    return nullptr;
-  }
 }
 
-PeakTableDockWidget::PeakTableDockWidget(MainWindow *mw,
-                                         const QString& tableTitle, 
+PeakTableDockWidget::PeakTableDockWidget(MainWindow* mw,
+                                         const QString& tableTitle,
                                          bool classifiedGroups)
-  : TableDockWidget(mw) {
+    : TableDockWidget(mw)
+{
+    _mainwindow = mw;
+    this->hasClassifiedGroups = classifiedGroups;
+    auto lastId = lastTableId();
+    tableId = ++lastId;
+    setTitleForId(tableId, tableTitle);
 
-  _mainwindow = mw;
-  this->hasClassifiedGroups = classifiedGroups;
-  auto lastId = lastTableId();
-  tableId = ++lastId;
-  setTitleForId(tableId, tableTitle);
+    toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
-  toolBar = new QToolBar(this);
-  toolBar->setFloatable(false);
-  toolBar->setMovable(false);
-  toolBar->setIconSize(QSize(24, 24));
+    QWidgetAction* titlePeakTable =
+        new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+    QWidgetAction* btnSwitchView =
+        new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+    QWidgetAction* btnGroupCSV =
+        new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+    QWidgetAction* btnSaveJson =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+    QWidgetAction* btnSaveSpectral =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
+    QWidgetAction* btnScatter =
+        new TableToolBarWidgetAction(toolBar, this, "btnScatter");
+    QWidgetAction* btnGood =
+        new TableToolBarWidgetAction(toolBar, this, "btnGood");
+    QWidgetAction* btnBad =
+        new TableToolBarWidgetAction(toolBar, this, "btnBad");
+    QWidgetAction* btnUnmark =
+        new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
+    QWidgetAction* btnDelete =
+        new TableToolBarWidgetAction(toolBar, this, "btnDelete");
+    QWidgetAction* btnEditPeakGroup =
+        new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+    QWidgetAction* btnSettingsLog =
+        new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
+    QWidgetAction* btnPDF =
+        new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+    QWidgetAction* btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
+    QWidgetAction* btnMin =
+        new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
-  QWidgetAction *titlePeakTable =
-      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
-  QWidgetAction *btnSwitchView =
-      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
-  QWidgetAction *btnGroupCSV =
-      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
-  QWidgetAction *btnSaveJson =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnSaveSpectral =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
-  QWidgetAction *btnScatter =
-      new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnGood =
-      new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad =
-      new TableToolBarWidgetAction(toolBar, this, "btnBad");
-  QWidgetAction *btnUnmark =
-      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnDelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
-  QWidgetAction *btnEditPeakGroup =
-      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
-  QWidgetAction *btnSettingsLog =
-      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
-  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnX = new TableToolBarWidgetAction(toolBar, this, "btnX");
-  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-  QWidget *spacer = new QWidget();
-  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    toolBar->addAction(titlePeakTable);
+    toolBar->addSeparator();
 
-  toolBar->addAction(titlePeakTable);
-  toolBar->addSeparator();
+    if (hasClassifiedGroups) {
+        MultiSelectComboBox* legend = new MultiSelectComboBox(this);
+        setLegend(legend);
+        connect(legend,
+                &MultiSelectComboBox::selectionChanged,
+                this,
+                &TableDockWidget::filterForSelectedLabels);
 
-  if(hasClassifiedGroups){
-      MultiSelectComboBox *legend = new MultiSelectComboBox(this);
-      setLegend(legend);
-      connect(legend,
-              &MultiSelectComboBox::selectionChanged,
-              this,
-              &TableDockWidget::filterForSelectedLabels);
+        toolBar->addWidget(new QLabel("Labels"));
+        toolBar->addWidget(legend);
+        toolBar->addSeparator();
+    }
+    toolBar->addAction(btnSwitchView);
+    toolBar->addSeparator();
 
-      toolBar->addWidget(new QLabel("Labels"));
-      toolBar->addWidget(legend);
-      toolBar->addSeparator();
-  }
-  toolBar->addAction(btnSwitchView);
-  toolBar->addSeparator();
+    toolBar->addAction(btnGood);
+    toolBar->addAction(btnBad);
+    toolBar->addAction(btnUnmark);
+    toolBar->addAction(btnDelete);
 
-  toolBar->addAction(btnGood);
-  toolBar->addAction(btnBad);
-  toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnDelete);
+    toolBar->addSeparator();
+    toolBar->addAction(btnEditPeakGroup);
+    toolBar->addAction(btnSettingsLog);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnEditPeakGroup);
-  toolBar->addAction(btnSettingsLog);
+    toolBar->addSeparator();
+    toolBar->addAction(btnScatter);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnScatter);
+    toolBar->addSeparator();
+    toolBar->addAction(btnPDF);
+    toolBar->addAction(btnGroupCSV);
+    toolBar->addAction(btnSaveJson);
+    toolBar->addAction(btnSaveSpectral);
+    toolBar->addWidget(spacer);
+    toolBar->addAction(btnMin);
+    toolBar->addAction(btnX);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnPDF);
-  toolBar->addAction(btnGroupCSV);
-  toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnSaveSpectral);
-  toolBar->addWidget(spacer);
-  toolBar->addAction(btnMin);
-  toolBar->addAction(btnX);
+    setTitleBarWidget(toolBar);
 
-  setTitleBarWidget(toolBar); 
+    connect(this,
+            &PeakTableDockWidget::unSetFromEicWidget,
+            _mainwindow->getEicWidget(),
+            &EicWidget::unSetPeakTableGroup);
 
-  connect(this,
-          &PeakTableDockWidget::unSetFromEicWidget,
-          _mainwindow->getEicWidget(),
-          &EicWidget::unSetPeakTableGroup);
-
-  deletionDialog = new PeakTableDeletionDialog(this);
+    deletionDialog = new PeakTableDeletionDialog(this);
 }
 
-PeakTableDockWidget::~PeakTableDockWidget() {
-  toolBar->clear();
-  delete toolBar;
+PeakTableDockWidget::~PeakTableDockWidget()
+{
+    toolBar->clear();
+    delete toolBar;
 }
 
 void PeakTableDockWidget::destroy()
 {
-  TableDockWidget::deleteAll(false);
-  if (_mainwindow->getCorrelationTable()->currentTable() == this) {
-    _mainwindow->getCorrelationTable()->clearCorrelation();
-    _mainwindow->getCorrelationTable()->setVisible(false);
-    _mainwindow->getCorrelationTable()->setCurrentTable(nullptr);
-  }
-  cleanUp();
-  deleteLater();
-  _mainwindow->removePeaksTable(this);
+    TableDockWidget::deleteAll(false);
+    if (_mainwindow->getCorrelationTable()->currentTable() == this) {
+        _mainwindow->getCorrelationTable()->clearCorrelation();
+        _mainwindow->getCorrelationTable()->setVisible(false);
+        _mainwindow->getCorrelationTable()->setCurrentTable(nullptr);
+    }
+    cleanUp();
+    deleteLater();
+    _mainwindow->removePeaksTable(this);
 }
 
 void PeakTableDockWidget::deleteAll()
 {
-  auto allDeleted = TableDockWidget::deleteAll();
-  if (allDeleted) {
-    cleanUp();
-    deleteLater();
-    _mainwindow->removePeaksTable(this);
-  }
+    auto allDeleted = TableDockWidget::deleteAll();
+    if (allDeleted) {
+        cleanUp();
+        deleteLater();
+        _mainwindow->removePeaksTable(this);
+    }
 }
 
 void PeakTableDockWidget::cleanUp()
 {
-  if (treeWidget->currentItem())
-    emit unSetFromEicWidget(groupForItem(treeWidget->currentItem()));
-  _mainwindow->ligandWidget->resetColor();
+    if (treeWidget->currentItem())
+        emit unSetFromEicWidget(groupForItem(treeWidget->currentItem()));
+    _mainwindow->ligandWidget->resetColor();
 }
 
-void PeakTableDockWidget::showDeletionDialog() {
-  deletionDialog->show();
+void PeakTableDockWidget::showDeletionDialog()
+{
+    deletionDialog->show();
 }
 
 void PeakTableDockWidget::showAllGroups()
 {
-  if (topLevelGroupCount() == 0) {
-    setVisible(false);
-    _mainwindow->ligandWidget->resetColor();
-    _mainwindow->removePeaksTable(this);
-    noPeakFound();
-    this->deleteLater();
-    return;
-  }
-  TableDockWidget::showAllGroups();
+    if (topLevelGroupCount() == 0) {
+        setVisible(false);
+        _mainwindow->ligandWidget->resetColor();
+        _mainwindow->removePeaksTable(this);
+        noPeakFound();
+        this->deleteLater();
+        return;
+    }
+    TableDockWidget::showAllGroups();
 }
 
-
-BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow *mw) : TableDockWidget(mw) {
-  _mainwindow = mw;
-  tableId = 0;
-  setTitleForId(0);
-
-  toolBar = new QToolBar(this);
-  toolBar->setFloatable(false);
-  toolBar->setMovable(false);
-  toolBar->setIconSize(QSize(24, 24));
-  btnMerge = new QToolButton(toolBar);
-  btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
-  btnMerge->setToolTip("Merge bookmarks with peak-table");
-  btnMergeMenu = new QMenu("Merge groups");
-  btnMerge->setMenu(btnMergeMenu);
-  btnMerge->setPopupMode(QToolButton::InstantPopup);
-  connect(btnMergeMenu,
-          SIGNAL(aboutToShow()),
-          SLOT(showMergeTableOptions()));
-  connect(btnMergeMenu,
-          SIGNAL(triggered(QAction *)),
-          SLOT(mergeGroupsIntoPeakTable(QAction *)));
-
-  QWidgetAction *titlePeakTable =
-      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
-  QWidgetAction *btnSwitchView =
-      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
-  QWidgetAction *btnGroupCSV =
-      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
-  QWidgetAction *btnSaveJson =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnSaveSpectral =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
-  QWidgetAction *btnScatter =
-      new TableToolBarWidgetAction(toolBar, this, "btnScatter");
-  QWidgetAction *btnGood =
-      new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad =
-      new TableToolBarWidgetAction(toolBar, this, "btnBad");
-  QWidgetAction *btnUnmark =
-      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnDelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
-  QWidgetAction *btnEditPeakGroup =
-      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
-  QWidgetAction *btnSettingsLog =
-      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
-  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
-
-  QWidget *spacer = new QWidget();
-  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-  toolBar->addAction(titlePeakTable);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnSwitchView);
-
-  toolBar->addSeparator();
-  toolBar->addWidget(btnMerge);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnGood);
-  toolBar->addAction(btnBad);
-  toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnDelete);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnEditPeakGroup);
-  toolBar->addAction(btnSettingsLog);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnScatter);
-
-  toolBar->addSeparator();
-  toolBar->addAction(btnPDF);
-  toolBar->addAction(btnGroupCSV);
-  toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnSaveSpectral);
-  toolBar->addWidget(spacer);
-  toolBar->addAction(btnMin);
-
-  setTitleBarWidget(toolBar);
-}
-
-BookmarkTableDockWidget::~BookmarkTableDockWidget() {
-  toolBar->clear();
-  delete toolBar;
-}
-
-void BookmarkTableDockWidget::showMergeTableOptions() {
-  QList<QPointer<TableDockWidget>> peaksTableList =
-      _mainwindow->getPeakTableList();
-  int n = peaksTableList.size();
-  btnMergeMenu->clear();
-  mergeAction.clear();
-  for (int i = 0; i < n; i++) {
-    mergeAction.insert(
-        btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()),
-        peaksTableList[i]->tableId);
-  }
-}
-
-void BookmarkTableDockWidget::showMsgBox(bool check, int tableNo) {
-
-  QMessageBox *msgBox = new QMessageBox(this);
-  msgBox->setAttribute(Qt::WA_DeleteOnClose);
-  msgBox->setStandardButtons(QMessageBox::Ok);
-
-  if (check) {
-    msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
-    msgBox->setText("Successfully Merged from Bookmark Table to Table " +
-                    QString::number(tableNo) + "   ");
-  } else {
-    msgBox->setIcon(QMessageBox::Warning);
-    if (tableNo == -1)
-      msgBox->setText("Error while merging");
-    else
-      msgBox->setText("Error while merging from Bookmark Table to Table " +
-                      QString::number(tableNo) + "   ");
-  }
-
-  msgBox->open();
-}
-
-void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
+BookmarkTableDockWidget::BookmarkTableDockWidget(MainWindow* mw)
+    : TableDockWidget(mw)
 {
-    QList<QPointer<TableDockWidget>> peaksTableList = _mainwindow->getPeakTableList();
+    _mainwindow = mw;
+    tableId = 0;
+    setTitleForId(0);
+
+    toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
+    btnMerge = new QToolButton(toolBar);
+    btnMerge->setIcon(QIcon(rsrcPath + "/merge.png"));
+    btnMerge->setToolTip("Merge bookmarks with peak-table");
+    btnMergeMenu = new QMenu("Merge groups");
+    btnMerge->setMenu(btnMergeMenu);
+    btnMerge->setPopupMode(QToolButton::InstantPopup);
+    connect(btnMergeMenu, SIGNAL(aboutToShow()), SLOT(showMergeTableOptions()));
+    connect(btnMergeMenu,
+            SIGNAL(triggered(QAction*)),
+            SLOT(mergeGroupsIntoPeakTable(QAction*)));
+
+    QWidgetAction* titlePeakTable =
+        new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+    QWidgetAction* btnSwitchView =
+        new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+    QWidgetAction* btnGroupCSV =
+        new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+    QWidgetAction* btnSaveJson =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+    QWidgetAction* btnSaveSpectral =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
+    QWidgetAction* btnScatter =
+        new TableToolBarWidgetAction(toolBar, this, "btnScatter");
+    QWidgetAction* btnGood =
+        new TableToolBarWidgetAction(toolBar, this, "btnGood");
+    QWidgetAction* btnBad =
+        new TableToolBarWidgetAction(toolBar, this, "btnBad");
+    QWidgetAction* btnUnmark =
+        new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
+    QWidgetAction* btnDelete =
+        new TableToolBarWidgetAction(toolBar, this, "btnDelete");
+    QWidgetAction* btnEditPeakGroup =
+        new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+    QWidgetAction* btnSettingsLog =
+        new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
+    QWidgetAction* btnPDF =
+        new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+    QWidgetAction* btnMin =
+        new TableToolBarWidgetAction(toolBar, this, "btnMin");
+
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+    toolBar->addAction(titlePeakTable);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnSwitchView);
+
+    toolBar->addSeparator();
+    toolBar->addWidget(btnMerge);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnGood);
+    toolBar->addAction(btnBad);
+    toolBar->addAction(btnUnmark);
+    toolBar->addAction(btnDelete);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnEditPeakGroup);
+    toolBar->addAction(btnSettingsLog);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnScatter);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnPDF);
+    toolBar->addAction(btnGroupCSV);
+    toolBar->addAction(btnSaveJson);
+    toolBar->addAction(btnSaveSpectral);
+    toolBar->addWidget(spacer);
+    toolBar->addAction(btnMin);
+
+    setTitleBarWidget(toolBar);
+}
+
+BookmarkTableDockWidget::~BookmarkTableDockWidget()
+{
+    toolBar->clear();
+    delete toolBar;
+}
+
+void BookmarkTableDockWidget::showMergeTableOptions()
+{
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
+    int n = peaksTableList.size();
+    btnMergeMenu->clear();
+    mergeAction.clear();
+    for (int i = 0; i < n; i++) {
+        mergeAction.insert(
+            btnMergeMenu->addAction(peaksTableList[i]->titlePeakTable->text()),
+            peaksTableList[i]->tableId);
+    }
+}
+
+void BookmarkTableDockWidget::showMsgBox(bool check, int tableNo)
+{
+    QMessageBox* msgBox = new QMessageBox(this);
+    msgBox->setAttribute(Qt::WA_DeleteOnClose);
+    msgBox->setStandardButtons(QMessageBox::Ok);
+
+    if (check) {
+        msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
+        msgBox->setText("Successfully Merged from Bookmark Table to Table "
+                        + QString::number(tableNo) + "   ");
+    } else {
+        msgBox->setIcon(QMessageBox::Warning);
+        if (tableNo == -1)
+            msgBox->setText("Error while merging");
+        else
+            msgBox->setText("Error while merging from Bookmark Table to Table "
+                            + QString::number(tableNo) + "   ");
+    }
+
+    msgBox->open();
+}
+
+void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction* action)
+{
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
     int j = mergeAction.value(action, -1);
 
-    //check if action exists
+    // check if action exists
     if (j == -1) {
         showMsgBox(false, j);
         return;
     }
 
-    //return if no bookmarked groups or peak tables
+    // return if no bookmarked groups or peak tables
     if (_topLevelGroups.isEmpty() || peaksTableList.isEmpty()) {
         showMsgBox(true, j);
         return;
     }
 
-    //find table to merge with
+    // find table to merge with
     TableDockWidget* peakTable = nullptr;
     for (auto table : peaksTableList) {
         if (table->tableId == j) {
@@ -3550,7 +3791,7 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
         }
     }
 
-    //return if peak table not found
+    // return if peak table not found
     if (peakTable == nullptr) {
         showMsgBox(false, j);
         return;
@@ -3571,279 +3812,502 @@ void BookmarkTableDockWidget::mergeGroupsIntoPeakTable(QAction *action)
         merged = true;
     else
         merged = false;
-    
+
     showMsgBox(merged, j);
-    QString status = merged? "Success" : "Failure";
-    _mainwindow->getAnalytics()->hitEvent("Bookmark Table",
-                                          "Merge Table",
-                                          status);
+    QString status = merged ? "Success" : "Failure";
+    _mainwindow->getAnalytics()->hitEvent(
+        "Bookmark Table", "Merge Table", status);
 }
 
-void BookmarkTableDockWidget::showSameGroup(QPair<int, int> sameMzRtGroupIndexHash) {
+void BookmarkTableDockWidget::showSameGroup(
+    QPair<int, int> sameMzRtGroupIndexHash)
+{
+    QMessageBox prompt(_mainwindow);
+    prompt.setWindowTitle("Bookmarking possible duplicate");
 
-  QMessageBox prompt(_mainwindow);
-  prompt.setWindowTitle("Bookmarking possible duplicate");
+    QString compoundList = "";
+    for (QString groupName : sameMzRtGroups[sameMzRtGroupIndexHash])
+        compoundList += "<li>" + groupName;
+    auto htmlText = QString(
+                        "<p>The table already contains one or more "
+                        "peak-groups having m/z and RT values same as the "
+                        "group being currently bookmarked:</p>"
+                        "<ul>%1</ul>")
+                        .arg(compoundList);
+    htmlText += "<p>Do you want to add it anyway?</p>";
+    prompt.setText(htmlText);
 
-  QString compoundList = "";
-  for (QString groupName : sameMzRtGroups[sameMzRtGroupIndexHash])
-    compoundList += "<li>" + groupName;
-  auto htmlText = QString("<p>The table already contains one or more "
-                          "peak-groups having m/z and RT values same as the "
-                          "group being currently bookmarked:</p>"
-                          "<ul>%1</ul>").arg(compoundList);
-  htmlText += "<p>Do you want to add it anyway?</p>";
-  prompt.setText(htmlText);
+    auto discardButton = prompt.addButton("Discard", QMessageBox::RejectRole);
+    auto addButton = prompt.addButton("Add", QMessageBox::AcceptRole);
+    prompt.setDefaultButton(discardButton);
 
-  auto discardButton = prompt.addButton("Discard", QMessageBox::RejectRole);
-  auto addButton = prompt.addButton("Add", QMessageBox::AcceptRole);
-  prompt.setDefaultButton(discardButton);
-
-  prompt.exec();
-  if (prompt.clickedButton() == addButton) {
-    addSameMzRtGroup = true;
-  } else {
-    addSameMzRtGroup = false;
-  }
+    prompt.exec();
+    if (prompt.clickedButton() == addButton) {
+        addSameMzRtGroup = true;
+    } else {
+        addSameMzRtGroup = false;
+    }
 }
 
-bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup *group) {
+bool BookmarkTableDockWidget::hasPeakGroup(PeakGroup* group)
+{
+    int intMz = group->meanMz * 1e5;
+    int intRt = group->meanRt * 1e5;
+    QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+    QString compoundName = QString::fromStdString(group->getName());
 
-  int intMz = group->meanMz * 1e5;
-  int intRt = group->meanRt * 1e5;
-  QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-  QString compoundName = QString::fromStdString(group->getName());
-
-  if (topLevelGroupCount() == 0 ||
-      sameMzRtGroups[sameMzRtGroupIndexHash].size() == 0) {
-    /**
-     * add this group corresponding compound name to list of string which all
-     * share same mz and rt value. Both mz and rt are hashed in
-     * sameMzRtGroupIndexHash.
-     */
-    sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
-  }
-
-  for (auto g : _topLevelGroups) {
-    if (mzUtils::almostEqual(group->meanMz, g->meanMz)
-        && mzUtils::almostEqual(group->meanRt, g->meanRt)) {
-      addSameMzRtGroup = false;
-      showSameGroup(sameMzRtGroupIndexHash);
-
-      if (addSameMzRtGroup) {
+    if (topLevelGroupCount() == 0
+        || sameMzRtGroups[sameMzRtGroupIndexHash].size() == 0) {
         /**
-         * if user pressed <save> button <addSameMzRtGroup> will be set to true
-         * otherwise false. if it is true, this groups corresponding compound
-         * name will we saved by an index of sameMzRtGroupIndexHash to show all
-         * these string next time if a group with same rt and mz is encountered.
+         * add this group corresponding compound name to list of string which
+         * all share same mz and rt value. Both mz and rt are hashed in
+         * sameMzRtGroupIndexHash.
          */
         sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
-
-        /**
-         * return false such that calling method will add this group to
-         * bookmarked group.
-         */
-        return false;
-      }
-
-      return true;
     }
-  }
 
-  return false;
+    for (auto g : _topLevelGroups) {
+        if (mzUtils::almostEqual(group->meanMz, g->meanMz)
+            && mzUtils::almostEqual(group->meanRt, g->meanRt)) {
+            addSameMzRtGroup = false;
+            showSameGroup(sameMzRtGroupIndexHash);
+
+            if (addSameMzRtGroup) {
+                /**
+                 * if user pressed <save> button <addSameMzRtGroup> will be set
+                 * to true otherwise false. if it is true, this groups
+                 * corresponding compound name will we saved by an index of
+                 * sameMzRtGroupIndexHash to show all these string next time if
+                 * a group with same rt and mz is encountered.
+                 */
+                sameMzRtGroups[sameMzRtGroupIndexHash].append(compoundName);
+
+                /**
+                 * return false such that calling method will add this group to
+                 * bookmarked group.
+                 */
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
-void BookmarkTableDockWidget::_removeGroupHash(PeakGroup *group)
+void BookmarkTableDockWidget::_removeGroupHash(PeakGroup* group)
 {
-  /**
-   * delete name of compound associated with this group stored in
-   * <sameMzRtGroups> with given mz and rt
-   */
-  int intMz = group->meanMz * 1e5;
-  int intRt = group->meanRt * 1e5;
-  QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
-  QString compoundName = QString::fromStdString(group->getName());
-  if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
-    for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size(); ++i) {
-      if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
-        sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
-        break;
-      }
+    /**
+     * delete name of compound associated with this group stored in
+     * <sameMzRtGroups> with given mz and rt
+     */
+    int intMz = group->meanMz * 1e5;
+    int intRt = group->meanRt * 1e5;
+    QPair<int, int> sameMzRtGroupIndexHash(intMz, intRt);
+    QString compoundName = QString::fromStdString(group->getName());
+    if (sameMzRtGroups[sameMzRtGroupIndexHash].contains(compoundName)) {
+        for (int i = 0; i < sameMzRtGroups[sameMzRtGroupIndexHash].size();
+             ++i) {
+            if (sameMzRtGroups[sameMzRtGroupIndexHash][i] == compoundName) {
+                sameMzRtGroups[sameMzRtGroupIndexHash].removeAt(i);
+                break;
+            }
+        }
     }
-  }
 }
 
 void BookmarkTableDockWidget::deleteGroup(PeakGroup* group)
 {
-  _removeGroupHash(group);
-  TableDockWidget::deleteGroup(group);
+    _removeGroupHash(group);
+    TableDockWidget::deleteGroup(group);
 }
 
 void BookmarkTableDockWidget::deleteSelectedItems()
 {
-  int topLevelItemsBeingDeleted = 0;
-  for (auto item : treeWidget->selectedItems()) {
-    if (item->parent() == nullptr)
-      ++topLevelItemsBeingDeleted;
-  }
+    int topLevelItemsBeingDeleted = 0;
+    for (auto item : treeWidget->selectedItems()) {
+        if (item->parent() == nullptr)
+            ++topLevelItemsBeingDeleted;
+    }
 
-  // checks if the selected item count is same as the no. of top-level
-  // groups in the table.
-  if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
-    deleteAll();
-    return;
-  }
+    // checks if the selected item count is same as the no. of top-level
+    // groups in the table.
+    if (topLevelItemsBeingDeleted == topLevelGroupCount()) {
+        deleteAll();
+        return;
+    }
 
-  for (auto item : treeWidget->selectedItems()) {
-    auto group = groupForItem(item);
-    _removeGroupHash(group.get());
-  }
-  TableDockWidget::deleteSelectedItems();
+    for (auto item : treeWidget->selectedItems()) {
+        auto group = groupForItem(item);
+        _removeGroupHash(group.get());
+    }
+    TableDockWidget::deleteSelectedItems();
 }
 
 void BookmarkTableDockWidget::deleteAll(bool askConfirmation)
 {
-  bool allDeleted = TableDockWidget::deleteAll(askConfirmation);
-  if (allDeleted)
-    sameMzRtGroups.clear();
+    bool allDeleted = TableDockWidget::deleteAll(askConfirmation);
+    if (allDeleted)
+        sameMzRtGroups.clear();
 }
 
-void BookmarkTableDockWidget::markGroupGood() {
-  setGroupLabel('g');
-  auto currentGroups = getSelectedGroups();
-  if (currentGroups.empty())
-    return;
-  showNextGroup();
-  _mainwindow->autoSaveSignal(currentGroups);
+void BookmarkTableDockWidget::markGroupGood()
+{
+    setGroupLabel('g');
+    auto currentGroups = getSelectedGroups();
+    if (currentGroups.empty())
+        return;
+    showNextGroup();
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
-void BookmarkTableDockWidget::markGroupBad() {
-
-  setGroupLabel('b');
-  auto currentGroups = getSelectedGroups();
-  if (currentGroups.empty())
-    return;
-  showNextGroup();
-  _mainwindow->autoSaveSignal(currentGroups);
+void BookmarkTableDockWidget::markGroupBad()
+{
+    setGroupLabel('b');
+    auto currentGroups = getSelectedGroups();
+    if (currentGroups.empty())
+        return;
+    showNextGroup();
+    _mainwindow->autoSaveSignal(currentGroups);
 }
 
-ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow *mw) :
-    TableDockWidget(mw) {
-  _mainwindow = mw;
-  tableId = -1;
-  setTitleForId(tableId);
+ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow* mw)
+    : TableDockWidget(mw)
+{
+    _mainwindow = mw;
+    tableId = -1;
+    setTitleForId(tableId);
 
-  toolBar = new QToolBar(this);
-  toolBar->setFloatable(false);
-  toolBar->setMovable(false);
-  toolBar->setIconSize(QSize(24, 24));
+    toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
-  QWidgetAction *titlePeakTable =
-      new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
-  QWidgetAction *btnSwitchView =
-      new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
-  QWidgetAction *btnGroupCSV =
-      new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
-  QWidgetAction *btnSaveJson =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
-  QWidgetAction *btnSaveSpectral =
-      new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
-  QWidgetAction *btnGood =
-      new TableToolBarWidgetAction(toolBar, this, "btnGood");
-  QWidgetAction *btnBad =
-      new TableToolBarWidgetAction(toolBar, this, "btnBad");
-  QWidgetAction *btnUnmark =
-      new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
-  QWidgetAction *btnDelete =
-      new TableToolBarWidgetAction(toolBar, this, "btnDelete");
-  QWidgetAction *btnEditPeakGroup =
-      new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
-  QWidgetAction *btnSettingsLog =
-      new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
-  QWidgetAction *btnPDF = new TableToolBarWidgetAction(toolBar, this, "btnPDF");
-  QWidgetAction *btnMin = new TableToolBarWidgetAction(toolBar, this, "btnMin");
+    QWidgetAction* titlePeakTable =
+        new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+    QWidgetAction* btnSwitchView =
+        new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+    QWidgetAction* btnGroupCSV =
+        new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+    QWidgetAction* btnSaveJson =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+    QWidgetAction* btnSaveSpectral =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
+    QWidgetAction* btnGood =
+        new TableToolBarWidgetAction(toolBar, this, "btnGood");
+    QWidgetAction* btnBad =
+        new TableToolBarWidgetAction(toolBar, this, "btnBad");
+    QWidgetAction* btnUnmark =
+        new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
+    QWidgetAction* btnDelete =
+        new TableToolBarWidgetAction(toolBar, this, "btnDelete");
+    QWidgetAction* btnEditPeakGroup =
+        new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+    QWidgetAction* btnSettingsLog =
+        new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
+    QWidgetAction* btnPDF =
+        new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+    QWidgetAction* btnMin =
+        new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
-  QWidget *spacer = new QWidget();
-  spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-  toolBar->addAction(titlePeakTable);
+    toolBar->addAction(titlePeakTable);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnSwitchView);
+    toolBar->addSeparator();
+    toolBar->addAction(btnSwitchView);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnGood);
-  toolBar->addAction(btnBad);
-  toolBar->addAction(btnUnmark);
-  toolBar->addAction(btnDelete);
+    toolBar->addSeparator();
+    toolBar->addAction(btnGood);
+    toolBar->addAction(btnBad);
+    toolBar->addAction(btnUnmark);
+    toolBar->addAction(btnDelete);
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnEditPeakGroup);
-  toolBar->addAction(btnSettingsLog);
+    toolBar->addSeparator();
+    toolBar->addAction(btnEditPeakGroup);
+    toolBar->addAction(btnSettingsLog);
 
-  toolBar->addSeparator();
+    toolBar->addSeparator();
 
-  toolBar->addSeparator();
-  toolBar->addAction(btnPDF);
-  toolBar->addAction(btnGroupCSV);
-  toolBar->addAction(btnSaveJson);
-  toolBar->addAction(btnSaveSpectral);
-  toolBar->addWidget(spacer);
-  toolBar->addAction(btnMin);
+    toolBar->addSeparator();
+    toolBar->addAction(btnPDF);
+    toolBar->addAction(btnGroupCSV);
+    toolBar->addAction(btnSaveJson);
+    toolBar->addAction(btnSaveSpectral);
+    toolBar->addWidget(spacer);
+    toolBar->addAction(btnMin);
 
-  setTitleBarWidget(toolBar);
+    setTitleBarWidget(toolBar);
 }
 
-ScatterplotTableDockWidget::~ScatterplotTableDockWidget() {
-  toolBar->clear();
-  delete toolBar;
+ScatterplotTableDockWidget::~ScatterplotTableDockWidget()
+{
+    toolBar->clear();
+    delete toolBar;
 }
 
-void ScatterplotTableDockWidget::setupPeakTable() {
+ScatterplotTableDockWidget::ScatterplotTableDockWidget(MainWindow* mw)
+    : TableDockWidget(mw)
+{
+    _mainwindow = mw;
+    tableId = -1;
+    setTitleForId(tableId);
 
-  QStringList colNames;
+    toolBar = new QToolBar(this);
+    toolBar->setFloatable(false);
+    toolBar->setMovable(false);
+    toolBar->setIconSize(QSize(24, 24));
 
-  // Add common columns to the table
-  colNames << "Label";
-  colNames << "#";
-  colNames << "ID";
-  colNames << "Observed m/z";
-  colNames << "Expected m/z";
-  colNames << "RT";
+    QWidgetAction* titlePeakTable =
+        new TableToolBarWidgetAction(toolBar, this, "titlePeakTable");
+    QWidgetAction* btnSwitchView =
+        new TableToolBarWidgetAction(toolBar, this, "btnSwitchView");
+    QWidgetAction* btnGroupCSV =
+        new TableToolBarWidgetAction(toolBar, this, "btnGroupCSV");
+    QWidgetAction* btnSaveJson =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveJson");
+    QWidgetAction* btnSaveSpectral =
+        new TableToolBarWidgetAction(toolBar, this, "btnSaveSpectral");
+    QWidgetAction* btnGood =
+        new TableToolBarWidgetAction(toolBar, this, "btnGood");
+    QWidgetAction* btnBad =
+        new TableToolBarWidgetAction(toolBar, this, "btnBad");
+    QWidgetAction* btnUnmark =
+        new TableToolBarWidgetAction(toolBar, this, "btnUnmark");
+    QWidgetAction* btnDelete =
+        new TableToolBarWidgetAction(toolBar, this, "btnDelete");
+    QWidgetAction* btnEditPeakGroup =
+        new TableToolBarWidgetAction(toolBar, this, "btnEditPeakGroup");
+    QWidgetAction* btnSettingsLog =
+        new TableToolBarWidgetAction(toolBar, this, "btnSettingsLog");
+    QWidgetAction* btnPDF =
+        new TableToolBarWidgetAction(toolBar, this, "btnPDF");
+    QWidgetAction* btnMin =
+        new TableToolBarWidgetAction(toolBar, this, "btnMin");
 
-  if (viewType == groupView) {
+    QWidget* spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-    // Add group view columns to the table
-    colNames << "Δ RT";
-    colNames << "# peaks";
-    colNames << "# good";
-    colNames << "Max width";
-    colNames << "Max AreaTop";
-    colNames << "Max S/N";
-    colNames << "Max quality";
-    colNames << "MS2 score";
-    colNames << "#MS2 events";
-    colNames << "Classification Probability"; // TODO: add this column conditionally
-    colNames << "Rank";
+    toolBar->addAction(titlePeakTable);
 
-    // add scatterplot table columns
-    colNames << "Ratio change";
-    colNames << "p-value";
-  } else if (viewType == peakView) {
-    vector<mzSample *> vsamples = _mainwindow->getVisibleSamples();
-    sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
-    for (unsigned int i = 0; i < vsamples.size(); i++) {
-      // Add peak view columns to the table
-      colNames << QString(vsamples[i]->sampleName.c_str());
+    toolBar->addSeparator();
+    toolBar->addAction(btnSwitchView);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnGood);
+    toolBar->addAction(btnBad);
+    toolBar->addAction(btnUnmark);
+    toolBar->addAction(btnDelete);
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnEditPeakGroup);
+    toolBar->addAction(btnSettingsLog);
+
+    toolBar->addSeparator();
+
+    toolBar->addSeparator();
+    toolBar->addAction(btnPDF);
+    toolBar->addAction(btnGroupCSV);
+    toolBar->addAction(btnSaveJson);
+    toolBar->addAction(btnSaveSpectral);
+    toolBar->addWidget(spacer);
+    toolBar->addAction(btnMin);
+
+    setTitleBarWidget(toolBar);
+}
+
+ScatterplotTableDockWidget::~ScatterplotTableDockWidget()
+{
+    toolBar->clear();
+    delete toolBar;
+}
+
+void ScatterplotTableDockWidget::setupPeakTable()
+{
+    QStringList colNames;
+
+    // Add common columns to the table
+    colNames << "Label";
+    colNames << "#";
+    colNames << "ID";
+    colNames << "Observed m/z";
+    colNames << "Expected m/z";
+    colNames << "RT";
+
+    if (viewType == groupView) {
+        // Add group view columns to the table
+        colNames << "Δ RT";
+        colNames << "# peaks";
+        colNames << "# good";
+        colNames << "Max width";
+        colNames << "Max AreaTop";
+        colNames << "Max S/N";
+        colNames << "Max quality";
+        colNames << "MS2 score";
+        colNames << "#MS2 events";
+        colNames << "Classification Probability";  // TODO: add this column
+                                                   // conditionally
+        colNames << "Rank";
+
+        // add scatterplot table columns
+        colNames << "Ratio change";
+        colNames << "p-value";
+    } else if (viewType == peakView) {
+        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
+        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+        for (unsigned int i = 0; i < vsamples.size(); i++) {
+            // Add peak view columns to the table
+            colNames << QString(vsamples[i]->sampleName.c_str());
+        }
     }
-  }
 
-  treeWidget->setColumnCount(colNames.size());
-  treeWidget->setHeaderLabels(colNames);
-  treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  treeWidget->header()->adjustSize();
-  treeWidget->setSortingEnabled(true);
+    treeWidget->setColumnCount(colNames.size());
+    treeWidget->setHeaderLabels(colNames);
+    treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    treeWidget->header()->adjustSize();
+    treeWidget->setSortingEnabled(true);
 }
 
+=======
+void ScatterplotTableDockWidget::setupPeakTable()
+{
+    QStringList colNames;
+
+    // Add common columns to the table
+    colNames << "#";
+    colNames << "ID";
+    colNames << "Observed m/z";
+    colNames << "Expected m/z";
+    colNames << "RT";
+
+    if (viewType == groupView) {
+        // Add group view columns to the table
+        colNames << "Δ RT";
+        colNames << "# peaks";
+        colNames << "# good";
+        colNames << "Max width";
+        colNames << "Max AreaTop";
+        colNames << "Max S/N";
+        colNames << "Max quality";
+        colNames << "MS2 score";
+        colNames << "#MS2 events";
+        colNames << "Rank";
+
+        // add scatterplot table columns
+        colNames << "Ratio change";
+        colNames << "p-value";
+    } else if (viewType == peakView) {
+        vector<mzSample*> vsamples = _mainwindow->getVisibleSamples();
+        sort(vsamples.begin(), vsamples.end(), mzSample::compSampleOrder);
+        for (unsigned int i = 0; i < vsamples.size(); i++) {
+            // Add peak view columns to the table
+            colNames << QString(vsamples[i]->sampleName.c_str());
+        }
+    }
+
+    treeWidget->setColumnCount(colNames.size());
+    treeWidget->setHeaderLabels(colNames);
+    treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    treeWidget->header()->adjustSize();
+    treeWidget->setSortingEnabled(true);
+}
+
+//@Kailash: Put decision sequence/tree for automatic validation here
+void TableDockWidget::validateGroup(PeakGroup* grp, QTreeWidgetItem* item)
+{
+    int mark = 0;
+    bool decisionConflict = false;
+    if (grp != NULL) {
+        // Disjoint Decision Tree
+        // Require improvements
+
+        // Decisions to mark group good
+        if (grp->avgPeakQuality > 0.74 && grp->groupQuality > 0.69
+            && grp->weightedAvgPeakQuality > 0.73) {
+            if (mark != -1)
+                mark = 1;
+            else
+                decisionConflict = true;
+        } else if (grp->groupQuality > 0.73) {
+            if (mark != -1)
+                mark = 1;
+            else
+                decisionConflict = true;
+        } else if (grp->predictedLabel == 1) {
+            if (grp->avgPeakQuality > 0.76) {
+                if (mark != -1)
+                    mark = 1;
+                else
+                    decisionConflict = true;
+            }
+
+            if (grp->weightedAvgPeakQuality > 0.69) {
+                if (mark != -1)
+                    mark = 1;
+                else
+                    decisionConflict = true;
+            }
+        } else if (grp->predictedLabel == 0 && grp->avgPeakQuality > 0.72
+                   && grp->weightedAvgPeakQuality > 0.76) {
+            if (mark != -1)
+                mark = 1;
+            else
+                decisionConflict = true;
+        }
+
+        // Decisions to mark group bad
+        if (grp->avgPeakQuality < 0.25 && grp->weightedAvgPeakQuality < 0.35) {
+            if (mark != 1)
+                mark = -1;
+            else
+                decisionConflict = true;
+        }
+
+        if (grp->predictedLabel == -1) {
+            if (grp->avgPeakQuality < 0.29) {
+                if (mark != 1)
+                    mark = -1;
+                else
+                    decisionConflict = true;
+            }
+
+            if (grp->weightedAvgPeakQuality < 0.31) {
+                if (mark != 1)
+                    mark = -1;
+                else
+                    decisionConflict = true;
+            }
+        }
+
+        // Decisions to not mark group
+        if (grp->peakCount() < int(maxPeaks / 4) || grp->peakCount() == 1)
+            decisionConflict =
+                true;  // Do not mark if number of peaks in the group is less
+
+        if (abs(grp->avgPeakQuality - grp->weightedAvgPeakQuality) > 0.2) {
+            decisionConflict = true;
+        }
+
+        if (grp->avgPeakQuality > 0.25
+            && abs(grp->avgPeakQuality - grp->maxQuality) > 0.3) {
+            decisionConflict = true;
+        }
+        grp->markedGoodByCloudModel = 0;
+        grp->markedBadByCloudModel = 0;
+        // Call respected functions to mark the groups
+        if (mark == 1 && !decisionConflict) {
+            // markGroupGood(grp, item);
+            grp->markedGoodByCloudModel = 1;
+        } else if (mark == -1 && !decisionConflict) {
+            // markGroupBad(grp, item);
+            grp->markedBadByCloudModel = 1;
+        }
+    }
+}
+
+>>>>>>> [init] Initialise DIA changes
 RowData::RowData()
 {
     tableId = 0;
@@ -3854,10 +4318,8 @@ RowData::RowData()
 
 bool RowData::operator==(const RowData& b) const
 {
-    return (tableId == b.tableId
-            && parentIndex == b.parentIndex
-            && childType == b.childType
-            && childIndex == b.childIndex);
+    return (tableId == b.tableId && parentIndex == b.parentIndex
+            && childType == b.childType && childIndex == b.childIndex);
 }
 
 QDataStream& operator<<(QDataStream& stream, const RowData& rowData)

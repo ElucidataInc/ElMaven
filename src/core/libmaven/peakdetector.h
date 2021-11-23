@@ -18,9 +18,11 @@ class ClassifierNeuralNet;
  */
 class PeakDetector
 {
-public:
+    public:
     boost::signals2::signal<void(const std::string&, unsigned int, int)>
         boostSignal;
+
+    bool disableSignals;
 
     PeakDetector();
     PeakDetector(MavenParameters* mp);
@@ -84,15 +86,15 @@ public:
      * should consider each peak as that of an isotope or a regular peak.
      * @return An newly created `PeakGroup` object for the integrated region.
      */
-    static std::shared_ptr<PeakGroup>
-    integrateEicRegion(const std::vector<EIC*>& eics,
-                       float rtMin,
-                       float rtMax,
-                       const mzSlice slice,
-                       const std::vector<mzSample*>& samples,
-                       const MavenParameters* mp,
-                       ClassifierNeuralNet* clsf,
-                       bool isIsotope);
+    static std::shared_ptr<PeakGroup> integrateEicRegion(
+        const std::vector<EIC*>& eics,
+        float rtMin,
+        float rtMax,
+        const mzSlice slice,
+        const std::vector<mzSample*>& samples,
+        const MavenParameters* mp,
+        ClassifierNeuralNet* clsf,
+        bool isIsotope);
 
     void sendBoostSignal(const std::string& progressText,
                          unsigned int completed_slices,
@@ -100,8 +102,14 @@ public:
 
     void resetProgressBar();
 
-    MavenParameters* mavenParameters() { return _mavenParameters; }
-    void setMavenParameters(MavenParameters* mp) { _mavenParameters = mp; }
+    MavenParameters* mavenParameters()
+    {
+        return _mavenParameters;
+    }
+    void setMavenParameters(MavenParameters* mp)
+    {
+        _mavenParameters = mp;
+    }
 
     /**
      * @brief This method detects features using data slicing techniques.
@@ -139,7 +147,7 @@ public:
      * detected parent group or not.
      */
     void processSlices(std::vector<mzSlice*>& slices,
-                       std::string setName,
+                       std::string setName = "",
                        bool applyGroupFilters = true,
                        bool appendNewGroups = false);
 
@@ -165,7 +173,7 @@ public:
     void linkParentIsotopeRange(PeakGroup& parentGroup,
                                 bool findBarplotIsotopes = false);
 
-private:
+    private:
     MavenParameters* _mavenParameters;
     bool _zeroStatus;
 };

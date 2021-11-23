@@ -3,39 +3,40 @@
 #include "qcustomplot.h"
 
 #include "Compound.h"
+#include "Peak.h"
 #include "grouprtwidget.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
 #include "mzSample.h"
-#include "Peak.h"
 
 using namespace std;
 
-GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget):
-    _mw(mw),
-    _dockWidget(dockWidget)
+GroupRtWidget::GroupRtWidget(MainWindow* mw, QDockWidget* dockWidget)
+    : _mw(mw), _dockWidget(dockWidget)
 {
     currentDisplayedGroup = nullptr;
     setXAxis();
     setYAxis();
 }
 
-void GroupRtWidget::plotGraph(PeakGroup*  group) {
-
-    if (!_mw->groupRtDockWidget->isVisible()) return;
+void GroupRtWidget::plotGraph(PeakGroup* group)
+{
+    if (!_mw->groupRtDockWidget->isVisible())
+        return;
     if (currentDisplayedGroup)
         delete currentDisplayedGroup;
     if (group == nullptr)
         return;
-    currentDisplayedGroup = new PeakGroup(
-        make_shared<MavenParameters>(*_mw->mavenParameters),
-        PeakGroup::IntegrationType::Programmatic);
+    currentDisplayedGroup =
+        new PeakGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
+                      PeakGroup::IntegrationType::Programmatic);
     currentDisplayedGroup->copyObj(*group);
     intialSetup();
     updateGraph();
 }
-void GroupRtWidget::updateGraph(){
-    if(currentDisplayedGroup == nullptr)
+void GroupRtWidget::updateGraph()
+{
+    if (currentDisplayedGroup == nullptr)
         return;
 
     intialSetup();
@@ -55,41 +56,39 @@ void GroupRtWidget::updateGraph(){
     vector<mzSample*> samples = getSamplesFromGroup(groupUnalignedShadowed);
 
     _mw->groupRtVizPlot->yAxis->setRange(0, samples.size() + 1);
-    _mw->groupRtVizPlot->xAxis->setRange(rtRange-1, rtRange+1);
+    _mw->groupRtVizPlot->xAxis->setRange(rtRange - 1, rtRange + 1);
     _mw->groupRtVizPlot->replot();
-
 }
-void GroupRtWidget::intialSetup() {
+void GroupRtWidget::intialSetup()
+{
     _mw->groupRtVizPlot->clearPlottables();
 
     if (_mw) {
         if (_mw->groupRtVizPlot) {
-            if(textLabel) {
+            if (textLabel) {
                 _mw->groupRtVizPlot->removeItem(textLabel);
             }
             _mw->groupRtVizPlot->replot();
         }
     }
-
 }
 
-void GroupRtWidget::setXAxis() {
-
+void GroupRtWidget::setXAxis()
+{
     _mw->groupRtVizPlot->xAxis->setTicks(true);
     _mw->groupRtVizPlot->xAxis->setSubTicks(true);
     _mw->groupRtVizPlot->xAxis->setVisible(true);
     _mw->groupRtVizPlot->xAxis->setLabel("Retention Time");
 }
 
-void GroupRtWidget::setYAxis() {
-
+void GroupRtWidget::setYAxis()
+{
     _mw->groupRtVizPlot->yAxis->setVisible(true);
     _mw->groupRtVizPlot->yAxis->setLabel("Samples");
-
 }
 
-void GroupRtWidget::refRtLine(PeakGroup  group) {
-
+void GroupRtWidget::refRtLine(PeakGroup group)
+{
     double refRt = getRefRt(group);
 
     QPen pen;
@@ -110,11 +109,10 @@ void GroupRtWidget::refRtLine(PeakGroup  group) {
     _mw->groupRtVizPlot->graph()->setData(x, y);
 
     _mw->groupRtVizPlot->replot();
-
 }
 
-double GroupRtWidget::getRefRt(PeakGroup group) {
-
+double GroupRtWidget::getRefRt(PeakGroup group)
+{
     double refRt;
     if (group.hasCompoundLink()) {
         refRt = group.getCompound()->expectedRt();
@@ -125,9 +123,9 @@ double GroupRtWidget::getRefRt(PeakGroup group) {
     return refRt;
 }
 
-void GroupRtWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
-
-    float newGroupR2 = calculateRsquare(newGroup,group);
+void GroupRtWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group)
+{
+    float newGroupR2 = calculateRsquare(newGroup, group);
     // float groupR2 = calculateRsquare(group);
     double refRt = getRefRt(group);
 
@@ -135,70 +133,68 @@ void GroupRtWidget::drawMessageBox(PeakGroup newGroup, PeakGroup group) {
 
     message = "R-squared = " + QString::number(newGroupR2, 'f', 5);
     // message += "\ncurrent R2 = " + QString::number(newGroupR2, 'f', 5);
- 
-    if(group.hasCompoundLink()) {
+
+    if (group.hasCompoundLink()) {
         message += "\nCompound RT = " + QString::number(refRt, 'f', 5);
     } else {
         message += "\nMedian RT = " + QString::number(refRt, 'f', 5);
     }
 
     textLabel = new QCPItemText(_mw->groupRtVizPlot);
-    textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    textLabel->setPositionAlignment(Qt::AlignTop | Qt::AlignLeft);
     textLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-    textLabel->position->setCoords(0.001, 0); // place position at center/top of axis rect
+    textLabel->position->setCoords(
+        0.001, 0);  // place position at center/top of axis rect
     textLabel->setText(message);
     QFont font = QApplication::font();
     font.setPixelSize(14);
     textLabel->setFont(font);
-    textLabel->setPen(QPen(Qt::black)); 
-
+    textLabel->setPen(QPen(Qt::black));
 }
 
-float GroupRtWidget::calculateRsquare(PeakGroup newGroup,PeakGroup oldGroup) {
-
+float GroupRtWidget::calculateRsquare(PeakGroup newGroup, PeakGroup oldGroup)
+{
     float SSres = 0;
-    float SStot=0;
-    float mean=0;
+    float SStot = 0;
+    float mean = 0;
 
     vector<mzSample*> oldSamples = getSamplesFromGroup(oldGroup);
     vector<mzSample*> newSamples = getSamplesFromGroup(newGroup);
-    vector<float> newRts,oldRts;
-    for(int i=0 ; i < oldSamples.size() ; ++i){
+    vector<float> newRts, oldRts;
+    for (int i = 0; i < oldSamples.size(); ++i) {
         float rtNew = getRetentionTime(newSamples[i], newGroup);
         float rtOld = getRetentionTime(oldSamples[i], oldGroup);
-        if(rtNew == -1 || rtOld == -1) continue;
+        if (rtNew == -1 || rtOld == -1)
+            continue;
         oldRts.push_back(rtOld);
         newRts.push_back(rtNew);
     }
 
-    for(int i=0 ; i < oldRts.size() ; ++i){
+    for (int i = 0; i < oldRts.size(); ++i) {
         mean += oldRts[i];
     }
-    mean = 1.0*mean/oldRts.size();
-    
-    for( int i = 0 ; i < oldRts.size() ; ++i ){
-        SSres += pow(newRts[i]-mean,2);
-        SStot += pow(oldRts[i]-mean,2);
+    mean = 1.0 * mean / oldRts.size();
+
+    for (int i = 0; i < oldRts.size(); ++i) {
+        SSres += pow(newRts[i] - mean, 2);
+        SStot += pow(oldRts[i] - mean, 2);
     }
 
-    float RSquared = 1-SSres/SStot;
+    float RSquared = 1 - SSres / SStot;
 
     return RSquared;
-
 }
 
-PeakGroup GroupRtWidget::getNewGroup(PeakGroup group) {
-
+PeakGroup GroupRtWidget::getNewGroup(PeakGroup group)
+{
     PeakGroup newGroup(make_shared<MavenParameters>(*_mw->mavenParameters),
                        PeakGroup::IntegrationType::Programmatic);
 
     bool groupFound = false;
 
-
     float min = FLT_MAX;
 
-    Q_FOREACH(PeakGroup currentGroup, currentGroups) {
-
+    Q_FOREACH (PeakGroup currentGroup, currentGroups) {
         float Rsquare = checkGroupEquality(currentGroup, group);
         if (min > Rsquare) {
             min = Rsquare;
@@ -207,144 +203,148 @@ PeakGroup GroupRtWidget::getNewGroup(PeakGroup group) {
         }
     }
 
-    if(!groupFound) {
+    if (!groupFound) {
         newGroup = group;
     }
 
     return newGroup;
-
 }
 
-float GroupRtWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2) {
+float GroupRtWidget::checkGroupEquality(PeakGroup grup1, PeakGroup grup2)
+{
     float R2Sq = FLT_MAX;
     if (abs(grup1.medianRt() - grup2.medianRt()) < 0.5) {
-        R2Sq = (pow(grup1.meanMz - grup2.meanMz, 2) +
-                    pow(grup1.maxMz - grup2.maxMz, 2) + 
-                        pow(grup1.minMz - grup2.minMz, 2) + 
-                                pow(grup1.medianRt() - grup2.medianRt(), 2));
+        R2Sq = (pow(grup1.meanMz - grup2.meanMz, 2)
+                + pow(grup1.maxMz - grup2.maxMz, 2)
+                + pow(grup1.minMz - grup2.minMz, 2)
+                + pow(grup1.medianRt() - grup2.medianRt(), 2));
     }
     return R2Sq;
-
 }
 
-void GroupRtWidget::plotIndividualGraph(PeakGroup group, int  alpha) {
-
+void GroupRtWidget::plotIndividualGraph(PeakGroup group, int alpha)
+{
     vector<mzSample*> samples = getSamplesFromGroup(group);
     // QVector<double> retentionTimes = getRetentionTime(samples, group);
-    connect(_mw->groupRtVizPlot, SIGNAL(mouseMove(QMouseEvent* )) , this, SLOT(mouseQCPBar(QMouseEvent* )));
+    connect(_mw->groupRtVizPlot,
+            SIGNAL(mouseMove(QMouseEvent*)),
+            this,
+            SLOT(mouseQCPBar(QMouseEvent*)));
 
     float widthOfBar = getWidthOfBar(group);
 
     int i = 1;
-    Q_FOREACH(mzSample* sample, samples) {
-        /** choose color of corresponding sample, older(with unaligned rt) group will have 40% of brightness and new group
-         * will be 100% bright (alpha =40,100).
+    Q_FOREACH (mzSample* sample, samples) {
+        /** choose color of corresponding sample, older(with unaligned rt) group
+         * will have 40% of brightness and new group will be 100% bright (alpha
+         * =40,100).
          */
-        QColor color = QColor(255*sample->color[0],255*sample->color[1],255*sample->color[2] ,alpha* sample->color[3]);
-        bar = new QCPBars(_mw->groupRtVizPlot->yAxis, _mw->groupRtVizPlot->xAxis);
+        QColor color = QColor(255 * sample->color[0],
+                              255 * sample->color[1],
+                              255 * sample->color[2],
+                              alpha * sample->color[3]);
+        bar =
+            new QCPBars(_mw->groupRtVizPlot->yAxis, _mw->groupRtVizPlot->xAxis);
         bar->setAntialiased(false);
         QPen pen;
         pen.setColor(color);
         bar->setPen(pen);
         bar->setBrush(color);
 
-
         float rt;
 
         rt = getRetentionTime(sample, group);
 
         if (rt != -1) {
-
             double baseValue = rt - widthOfBar;
 
             QVector<double> solidBar;
             QVector<double> tick;
 
-            solidBar << 2*widthOfBar;
+            solidBar << 2 * widthOfBar;
             tick << i;
 
             bar->setBaseValue(baseValue);
             bar->setData(tick, solidBar);
 
             mapSample[i] = sample;
-            mapXAxis[i] = make_pair(baseValue, baseValue + 2*widthOfBar);
+            mapXAxis[i] = make_pair(baseValue, baseValue + 2 * widthOfBar);
 
             i++;
         }
     }
 }
 
-vector<mzSample*> GroupRtWidget::getSamplesFromGroup(PeakGroup group) {
-
-    vector<Peak>& peaks = group.getPeaks();
+vector<mzSample*> GroupRtWidget::getSamplesFromGroup(PeakGroup group)
+{
+    const vector<Peak>& peaks = group.getPeaks();
     vector<mzSample*> samples;
-    for(unsigned int i=0; i < peaks.size(); i++ ) {
+    for (unsigned int i = 0; i < peaks.size(); i++) {
         mzSample* s = peaks[i].getSample();
         if (s->isSelected)
             samples.push_back(s);
     }
-    sort (samples.begin(), samples.end(),mzSample::compSampleOrder);
-    reverse(samples.begin(),samples.end());
-    /** Alignment visualization plot will show peaks from different samples in corresponding sample color.
-     * ordering of peaks( and their color) start from top to down as sample are shown. If we don't reverse sample here,
+    sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
+    reverse(samples.begin(), samples.end());
+    /** Alignment visualization plot will show peaks from different samples in
+     * corresponding sample color. ordering of peaks( and their color) start
+     * from top to down as sample are shown. If we don't reverse sample here,
      * reverse will happen which is not so consistent.
      */
     return samples;
 }
 
-float GroupRtWidget::getWidthOfBar(PeakGroup group) {
-
+float GroupRtWidget::getWidthOfBar(PeakGroup group)
+{
     float maxDiff, widthOfBar;
-    
+
     maxDiff = max(getRefRt(group) - group.minRt, group.maxRt - getRefRt(group));
 
-    widthOfBar = 0.01; //hard-coded on purpose
+    widthOfBar = 0.01;  // hard-coded on purpose
 
     return widthOfBar;
 }
 
-
-double GroupRtWidget::getRetentionTime(mzSample* sample, PeakGroup group) {
-
+double GroupRtWidget::getRetentionTime(mzSample* sample, PeakGroup group)
+{
     double rt = -1;
     Peak* peak = group.getPeak(sample);
-    if (peak) rt = peak->rt;
+    if (peak)
+        rt = peak->rt;
 
     return rt;
 }
 
-void GroupRtWidget::mouseQCPBar(QMouseEvent *event)
+void GroupRtWidget::mouseQCPBar(QMouseEvent* event)
 {
     double x = _mw->groupRtVizPlot->xAxis->pixelToCoord(event->pos().x());
-    double y = round(_mw->groupRtVizPlot->yAxis->pixelToCoord(event->pos().y()));
+    double y =
+        round(_mw->groupRtVizPlot->yAxis->pixelToCoord(event->pos().y()));
 
     pair<double, double> qcpBarRange = mapXAxis[y];
 
-    if(sampleLabel) {
+    if (sampleLabel) {
         _mw->groupRtVizPlot->removeItem(sampleLabel);
     }
 
     sampleLabel = new QCPItemText(_mw->groupRtVizPlot);
-    sampleLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignRight);
+    sampleLabel->setPositionAlignment(Qt::AlignTop | Qt::AlignRight);
     sampleLabel->position->setType(QCPItemPosition::ptAxisRectRatio);
-    sampleLabel->position->setCoords(0.99, 0.001); // place position at center/top of axis rect
+    sampleLabel->position->setCoords(
+        0.99, 0.001);  // place position at center/top of axis rect
 
     QString message = "";
 
-
     if (qcpBarRange.first <= x && x <= qcpBarRange.second) {
         mzSample* sample = mapSample[y];
-        if(sample) {
-
+        if (sample) {
             message = QString::fromStdString(sample->getSampleName());
-
         }
     }
     sampleLabel->setText(message);
     QFont font = QApplication::font();
     font.setPixelSize(14);
     sampleLabel->setFont(font);
-    sampleLabel->setPen(QPen(Qt::black)); 
+    sampleLabel->setPen(QPen(Qt::black));
     _mw->groupRtVizPlot->replot();
-
 }

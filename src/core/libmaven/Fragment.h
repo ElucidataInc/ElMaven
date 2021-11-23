@@ -5,12 +5,11 @@
 
 class Scan;
 
-using std::vector;
-using std::string;
 using std::map;
+using std::string;
+using std::vector;
 
 struct FragmentationMatchScore {
-
     double fractionMatched;
     double ppmError;
     double mzFragError;
@@ -23,7 +22,8 @@ struct FragmentationMatchScore {
     double ticMatched;
     double numMatches;
 
-    static vector<string> getScoringAlgorithmNames() {
+    static vector<string> getScoringAlgorithmNames()
+    {
         vector<string> names;
         names.push_back("HyperGeomScore");
         names.push_back("MVH");
@@ -35,26 +35,28 @@ struct FragmentationMatchScore {
         return names;
     }
 
-    double getScoreByName(string scoringAlgorithm) {
-        if (scoringAlgorithm == "HyperGeomScore")
+    double getScoreByName(string scoringAlgorithm)
+    {
+        if (scoringAlgorithm == "Hypergeometric Score")
             return hypergeomScore;
         else if (scoringAlgorithm == "MVH")
             return mvhScore;
-        else if (scoringAlgorithm == "DotProduct")
+        else if (scoringAlgorithm == "Dot-product")
             return dotProduct;
-        else if (scoringAlgorithm == "SpearmanRank")
+        else if (scoringAlgorithm == "Spearman Rank")
             return spearmanRankCorrelation;
-        else if (scoringAlgorithm == "TICMatched")
+        else if (scoringAlgorithm == "TIC Matched")
             return ticMatched;
-        else if (scoringAlgorithm == "WeightedDotProduct")
+        else if (scoringAlgorithm == "Weighted Dot-product")
             return weightedDotProduct;
-        else if (scoringAlgorithm == "NumMatches")
+        else if (scoringAlgorithm == "Num Matches")
             return numMatches;
-        else return hypergeomScore;
-
+        else
+            return hypergeomScore;
     }
 
-    FragmentationMatchScore() {
+    FragmentationMatchScore()
+    {
         fractionMatched = 0;
         spearmanRankCorrelation = 0;
         ticMatched = 0;
@@ -68,7 +70,8 @@ struct FragmentationMatchScore {
         mvhScore = 0;
     }
 
-    FragmentationMatchScore& operator=(const FragmentationMatchScore& b) {
+    FragmentationMatchScore& operator=(const FragmentationMatchScore& b)
+    {
         fractionMatched = b.fractionMatched;
         spearmanRankCorrelation = b.spearmanRankCorrelation;
         ticMatched = b.ticMatched;
@@ -84,101 +87,168 @@ struct FragmentationMatchScore {
     }
 };
 
-class Fragment { 
+class Fragment
+{
+    public:
+    /**
+     * @brief Types of fragments resulting from different acquisition methods.
+     */
+    enum class MsType { DDA, DIA };
 
-    public: 
-        Fragment();
-        
-        Fragment(Scan* scan,
-                 float minFractionalIntensity,
-                 float minSigNoiseRatio,
-                 int maxFragmentSize);
+    Fragment(MsType msType = MsType::DDA);
 
-        Fragment(Fragment* other);
+    Fragment(Scan* scan,
+             float minFractionalIntensity,
+             float minSigNoiseRatio,
+             int maxFragmentSize,
+             MsType msType = MsType::DDA);
 
-        Fragment& operator=(const Fragment& f);
+    Fragment(Fragment* other);
 
-        ~Fragment();
+    Fragment& operator=(const Fragment& f);
 
-        double precursorMz;				//parent
-        int polarity;					//scan polarity 	+1 or -1
-        vector<float> mzValues;				//mz values
-        vector<float> intensityValues;		//intensity values
-        vector<Fragment*> brothers;		//pointers to similar fragments 
-        string sampleName;				//name of Sample
-        int scanNum;					//scan Number
-        float rt;						//retention time of parent scan
-        float collisionEnergy;
-        int precursorCharge;	
-        float purity;
+    ~Fragment();
 
-        Fragment* consensus; //consensus pattern build on brothers
-        vector<int> obscount; // vector size =  mzValues vector size, with counts of number of times mz was observed
-        map<int,string> annotations; //mz value annotations.. assume that values are sorted by mz
+    double precursorMz;             // parent
+    int polarity;                   // scan polarity 	+1 or -1
+    vector<float> mzValues;         // mz values
+    vector<float> intensityValues;  // intensity values
+    vector<Fragment*> brothers;     // pointers to similar fragments
+    string sampleName;              // name of Sample
+    int scanNum;                    // scan Number
+    float rt;                       // retention time of parent scan
+    float collisionEnergy;
+    int precursorCharge;
+    float purity;
 
-        void appendBrothers(Fragment* other);
+    Fragment* consensus;   // consensus pattern build on brothers
+    vector<int> obscount;  // vector size =  mzValues vector size, with counts
+                           // of number of times mz was observed
+    map<int, string> annotations;  // mz value annotations.. assume that values
+                                   // are sorted by mz
 
-        void printMzList();
+    void appendBrothers(Fragment* other);
 
-        int findClosestHighestIntensityPos(float mz, float tolr);
+    void printMzList();
 
-        static vector<int> compareRanks(Fragment* a, Fragment* b, float productAmuToll);
+    int findClosestHighestIntensityPos(float mz, float tolr);
 
-        void addBrotherFragment(Fragment* b);
+    static vector<int> compareRanks(Fragment* a,
+                                    Fragment* b,
+                                    float productAmuToll);
 
-        /**
-         * @brief create a consensus spectra for all brother fragments
-         * @details go through all brother fragments and create a spectra where 
-         * a new m/z is added if it does not fall within the PPM tolerance range of existing m/zs.
-         * intensity for every m/z is calculated as the sum of intensities in that m/z bracket
-         * averaged over the number of brother fragments and further normalized against the highest intensity.
-         */
-        void buildConsensus(float productPpmTolr);
+    void addBrotherFragment(Fragment* b);
 
-        float consensusRt();
+    /**
+     * @brief create a consensus spectra for all brother fragments
+     * @details go through all brother fragments and create a spectra where
+     * a new m/z is added if it does not fall within the PPM tolerance range of
+     * existing m/zs. intensity for every m/z is calculated as the sum of
+     * intensities in that m/z bracket averaged over the number of brother
+     * fragments and further normalized against the highest intensity.
+     */
+    void buildConsensus(float productPpmTolr);
 
-        float consensusPurity();
+    float consensusRt();
 
-        vector<int> intensityOrderDesc();
+    float consensusPurity();
 
-        vector<int> mzSortIncreasing();
+    vector<int> intensityOrderDesc();
 
-        void sortByIntensity();
+    vector<int> mzSortIncreasing();
 
-        void sortByMz();
+    void sortByIntensity();
 
-        void buildConsensusAvg();
+    void sortByMz();
 
-        double totalIntensity();
+    void buildConsensusAvg();
 
-        vector<float> asDenseVector(float mzmin, float mzmax, int nbins = 2000);
+    double totalIntensity();
 
-        double logNchooseK(int N, int k);
+    vector<float> asDenseVector(float mzmin, float mzmax, int nbins = 2000);
 
-        double spearmanRankCorrelation(const vector<int>& X);
+    double logNchooseK(int N, int k);
 
-        double ticMatched(const vector<int>& X);
+    double spearmanRankCorrelation(const vector<int>& X);
 
-        double mzErr(const vector<int>& X, Fragment* other);
+    double ticMatched(const vector<int>& X);
 
-        double dotProduct(Fragment* other);
+    double mzErr(const vector<int>& X, Fragment* other);
 
-        double hyperGeometricScore(int k, int m, int n, int N = 100000);
+    double dotProduct(Fragment* other);
 
-        /**
-         * Multivariate hypergeometric distribution
-         */
-        double MVH(const vector<int>& X, Fragment* other);
+    double hyperGeometricScore(int k, int m, int n, int N = 100000);
 
-        double mzWeightedDotProduct(const vector<int>& X, Fragment* other);
+    /**
+     * Multivariate hypergeometric distribution
+     */
+    double MVH(const vector<int>& X, Fragment* other);
 
-        FragmentationMatchScore scoreMatch(Fragment* other, float productPpmTolr);
+    double mzWeightedDotProduct(const vector<int>& X, Fragment* other);
 
-        inline unsigned int nobs() { return mzValues.size(); }
+    /**
+     * @brief Calculates a fragmentation match score based on correlation
+     * of weighted (by abundance and presence/absence of match) intensity
+     * values of this profile vs. those of the `other` profile.
+     * @details See Tsugawa et. al., Nature Methods 2015.
+     * @param other Another `Fragment` object describing the profile against
+     * which this profile is being matched.
+     * @param fragmentTolerance A mass tolerance (in PPM) value to decide
+     * whether two peaks from different fragmentation spectra arise from the
+     * same mass.
+     * @return A fractional score between 0.0 and 1.0.
+     */
+    float weightedDotProduct(Fragment* other, float fragmentTolerance);
 
-        static bool compPrecursorMz(const Fragment* a, const Fragment* b);
-        bool operator<(const Fragment* b) const;
-        bool operator==(const Fragment* b) const;
+    FragmentationMatchScore scoreMatch(Fragment* other, float productPpmTolr);
+
+    inline unsigned int nobs()
+    {
+        return mzValues.size();
+    }
+
+    /**
+     * @brief Obtain the type of acquisition method responsible for the
+     * generation of this fragmentation profile.
+     * @return A `Fragment::MsType` identifier.
+     */
+    MsType msType() const
+    {
+        return _msType;
+    }
+
+    /**
+     * @brief Obtain pairs of start and end regions, that if non-empty
+     * should each denote the RT range of a fragment peak's chromatographic
+     * span. The pairs should store RT range for corresponding items in
+     * `mzValues` vector.
+     * @return A vector of pairs of floating point RT values.
+     */
+    vector<std::pair<float, float>> rtRegions() const
+    {
+        return _rtRegions;
+    }
+
+    /**
+     * @brief Insert values representing one fragment of this fragmentation
+     * spectra.
+     * @param mz The m/z value for the fragment.
+     * @param intensity The intensity of the particular fragment.
+     * @param ms2RtRegion Optionally, a pair of RT values can be provided
+     * as the region of this fragment's chromatographic span, if such
+     * information is available (as it would be, in case of DIA data).
+     */
+    void insertFragment(float mz,
+                        float intensity,
+                        std::pair<float, float> ms2RtRegion = {0.0f, 0.0f});
+
+    static bool compPrecursorMz(const Fragment* a, const Fragment* b);
+    bool operator<(const Fragment* b) const;
+    bool operator==(const Fragment* b) const;
+
+    private:
+    MsType _msType;
+    vector<std::pair<float, float>> _rtRegions;
 };
 
 #endif

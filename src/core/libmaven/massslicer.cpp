@@ -1,27 +1,30 @@
 #include <omp.h>
 
-#include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <boost/signals2.hpp>
 
-#include "massslicer.h"
 #include "Compound.h"
 #include "EIC.h"
-#include "mavenparameters.h"
-#include "mzSample.h"
+#include "Matrix.h"
+#include "Scan.h"
 #include "datastructures/adduct.h"
 #include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
 #include "masscutofftype.h"
+#include "massslicer.h"
+#include "mavenparameters.h"
+#include "mzSample.h"
 #include "mzUtils.h"
-#include "Matrix.h"
 #include "peakdetector.h"
-#include "Scan.h"
 
 using namespace mzUtils;
 
 MassSlicer::MassSlicer(MavenParameters* mp) : _mavenParameters(mp)
 {
     _samples = _mavenParameters->samples;
+    _msLevel = 1;
+    _precursorMz = -1.0f;
+    disableSignals = false;
 }
 
 MassSlicer::~MassSlicer()
@@ -30,10 +33,11 @@ MassSlicer::~MassSlicer()
 }
 
 void MassSlicer::sendSignal(const string& progressText,
-                unsigned int completed_samples,
-                int total_samples)
+                            unsigned int completed_samples,
+                            int total_samples)
 {
-    _mavenParameters->sig(progressText, completed_samples, total_samples);
+    if (!disableSignals)
+        _mavenParameters->sig(progressText, completed_samples, total_samples);
 }
 
 void MassSlicer::clearSlices()
@@ -63,7 +67,7 @@ void MassSlicer::generateCompoundSlices(vector<Compound*> compounds,
     if (adduct == nullptr)
         return;
 
-    for(auto compound : compounds) {
+    for (auto compound : compounds) {
         if (_mavenParameters->stop) {
             delete_all(slices);
             break;
@@ -139,14 +143,8 @@ void MassSlicer::generateIsotopeSlices(vector<Compound*> compounds,
             findD2 = _mavenParameters->D2Labeled_Barplot;
         }
 
-        vector<Isotope> massList =
-            MassCalculator::computeIsotopes(formula,
-                                            charge,
-                                            findC13,
-                                            findN15,
-                                            findS34,
-                                            findD2,
-                                            adduct);
+        vector<Isotope> massList = MassCalculator::computeIsotopes(
+            formula, charge, findC13, findN15, findS34, findD2, adduct);
         for (auto isotope : massList) {
             mzSlice* slice = new mzSlice;
             slice->compound = compound;
@@ -205,8 +203,9 @@ void MassSlicer::generateAdductSlices(vector<Compound*> compounds,
                 slice->adduct = adduct;
             } else {
                 slice->adduct = adduct;
-                slice->calculateMzMinMax(_mavenParameters->compoundMassCutoffWindow,
-                                         adduct->getCharge());
+                slice->calculateMzMinMax(
+                    _mavenParameters->compoundMassCutoffWindow,
+                    adduct->getCharge());
             }
 
             slice->calculateRTMinMax(_mavenParameters->matchRtFlag,
@@ -241,17 +240,18 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
     float rtWindow = 2.0f;
     int rtStep = _mavenParameters->rtStepSize;
     if (_samples.size() > 0 and rtStep > 0) {
-        rtWindow = accumulate(begin(_samples),
-                              end(_samples),
-                              0.0f,
-                              [rtStep](float sum, mzSample* sample) {
-                                  return sum + (sample->getAverageFullScanTime()
-                                                * rtStep);
-                              }) / static_cast<float>(_samples.size());
+        rtWindow =
+            accumulate(begin(_samples),
+                       end(_samples),
+                       0.0f,
+                       [rtStep](float sum, mzSample* sample) {
+                           return sum + (sample->getAverageScanTime() * rtStep);
+                       })
+            / static_cast<float>(_samples.size());
     }
     cerr << "RT window used: " << rtWindow << endl;
 
-    sendSignal("Status", 0 , 1);
+    sendSignal("Status", 0, 1);
 
     // looping over every sample
     for (unsigned int i = 0; i < _samples.size(); i++) {
@@ -263,9 +263,7 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
 
         // updating progress on samples
         if (_mavenParameters->showProgressFlag) {
-            string progressText = "Processing "
-                                  + to_string(i + 1)
-                                  + " out of "
+            string progressText = "Processing " + to_string(i + 1) + " out of "
                                   + to_string(_mavenParameters->samples.size())
                                   + " sample(s)…";
             sendSignal(progressText, currentScans, totalScans);
@@ -299,34 +297,29 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
                 if (!isBetweenInclusive(mz, minFeatureMz, maxFeatureMz))
                     continue;
 
-                if (!isBetweenInclusive(intensity,
-                                        minFeatureIntensity,
-                                        maxFeatureIntensity)) {
+                if (!isBetweenInclusive(
+                        intensity, minFeatureIntensity, maxFeatureIntensity)) {
                     continue;
                 }
 
                 // create new slice with the given bounds
                 float cutoff = massCutoff->massCutoffValue(mz);
-                mzSlice* s = new mzSlice(mz - cutoff,
-                                         mz + cutoff,
-                                         rt - rtWindow,
-                                         rt + rtWindow);
+                mzSlice* s = new mzSlice(
+                    mz - cutoff, mz + cutoff, rt - rtWindow, rt + rtWindow);
                 s->ionCount = intensity;
                 s->rt = scan->rt;
                 s->mz = mz;
                 slices.push_back(s);
             }
 
-            // progress update 
-            if (_mavenParameters->showProgressFlag ) {
-                string progressText = "Processing "
-                                      + to_string(i + 1)
-                                      + " out of "
-                                      + to_string(_mavenParameters->samples.size())
-                                      + " sample(s)…\n"
-                                      + to_string(slices.size())
-                                      + " slices created";
-                sendSignal(progressText,currentScans,totalScans);
+            // progress update
+            if (_mavenParameters->showProgressFlag) {
+                string progressText =
+                    "Processing " + to_string(i + 1) + " out of "
+                    + to_string(_mavenParameters->samples.size())
+                    + " sample(s)…\n" + to_string(slices.size())
+                    + " slices created";
+                sendSignal(progressText, currentScans, totalScans);
             }
         }
     }
@@ -350,11 +343,9 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
     _mergeSlices(massCutoff, rtWindow);
     _adjustSlices(massCutoff);
 
-    cerr << "After final merging and adjustments, "
-         << slices.size()
-         << " slices remain"
-         << endl;
-    sendSignal("Mass slicing done.", 1 , 1);
+    cerr << "After final merging and adjustments, " << slices.size()
+         << " slices remain" << endl;
+    sendSignal("Mass slicing done.", 1, 1);
 }
 
 void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
@@ -389,21 +380,20 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
                  && firstSlice->mz < secondSlice->mzmax
                  && firstSlice->rt > secondSlice->rtmin
                  && firstSlice->rt < secondSlice->rtmax)
-                ||
-                (secondSlice->mz > firstSlice->mzmin
-                 && secondSlice->mz < firstSlice->mzmax
-                 && secondSlice->rt > firstSlice->rtmin
-                 && secondSlice->rt < firstSlice->rtmax)) {
-                firstSlice->ionCount = std::max(firstSlice->ionCount,
-                                                secondSlice->ionCount);
-                firstSlice->rtmax = std::max(firstSlice->rtmax,
-                                             secondSlice->rtmax);
-                firstSlice->rtmin = std::min(firstSlice->rtmin,
-                                             secondSlice->rtmin);
-                firstSlice->mzmax = std::max(firstSlice->mzmax,
-                                             secondSlice->mzmax);
-                firstSlice->mzmin = std::min(firstSlice->mzmin,
-                                             secondSlice->mzmin);
+                || (secondSlice->mz > firstSlice->mzmin
+                    && secondSlice->mz < firstSlice->mzmax
+                    && secondSlice->rt > firstSlice->rtmin
+                    && secondSlice->rt < firstSlice->rtmax)) {
+                firstSlice->ionCount =
+                    std::max(firstSlice->ionCount, secondSlice->ionCount);
+                firstSlice->rtmax =
+                    std::max(firstSlice->rtmax, secondSlice->rtmax);
+                firstSlice->rtmin =
+                    std::min(firstSlice->rtmin, secondSlice->rtmin);
+                firstSlice->mzmax =
+                    std::max(firstSlice->mzmax, secondSlice->mzmax);
+                firstSlice->mzmin =
+                    std::min(firstSlice->mzmin, secondSlice->mzmin);
 
                 firstSlice->mz = (firstSlice->mzmin + firstSlice->mzmax) / 2.0f;
                 firstSlice->rt = (firstSlice->rtmin + firstSlice->rtmax) / 2.0f;
@@ -411,9 +401,9 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
 
                 // make sure that mz window does not get out of control
                 if (firstSlice->mzmin < firstSlice->mz - cutoff)
-                    firstSlice->mzmin =  firstSlice->mz - cutoff;
+                    firstSlice->mzmin = firstSlice->mz - cutoff;
                 if (firstSlice->mzmax > firstSlice->mz + cutoff)
-                    firstSlice->mzmax =  firstSlice->mz + cutoff;
+                    firstSlice->mzmax = firstSlice->mz + cutoff;
 
                 // recalculate center mz in case bounds changed
                 firstSlice->mz = (firstSlice->mzmin + firstSlice->mzmax) / 2.0f;
@@ -422,9 +412,8 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
                 secondSlice->ionCount = -1.0f;
             }
         }
-        sendSignal("Reducing redundant slices…",
-                   first - begin(slices),
-                   slices.size());
+        sendSignal(
+            "Reducing redundant slices…", first - begin(slices), slices.size());
     }
 
     // remove merged slices
@@ -448,7 +437,8 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
             return;
 
         for (auto slice : slices) {
-            mergeInto->ionCount = std::max(mergeInto->ionCount, slice->ionCount);
+            mergeInto->ionCount =
+                std::max(mergeInto->ionCount, slice->ionCount);
             mergeInto->rtmax = std::max(mergeInto->rtmax, slice->rtmax);
             mergeInto->rtmin = std::min(mergeInto->rtmin, slice->rtmin);
             mergeInto->mzmax = std::max(mergeInto->mzmax, slice->mzmax);
@@ -462,36 +452,31 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         // make sure that mz window does not get out of control
         auto cutoff = massCutoff->massCutoffValue(mergeInto->mz);
         if (mergeInto->mzmin < mergeInto->mz - cutoff)
-            mergeInto->mzmin =  mergeInto->mz - cutoff;
+            mergeInto->mzmin = mergeInto->mz - cutoff;
         if (mergeInto->mzmax > mergeInto->mz + cutoff)
-            mergeInto->mzmax =  mergeInto->mz + cutoff;
+            mergeInto->mzmax = mergeInto->mz + cutoff;
 
         mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
     };
 
-    for(auto it = begin(slices); it != end(slices); ++it) {
+    for (auto it = begin(slices); it != end(slices); ++it) {
         if (_mavenParameters->stop) {
             clearSlices();
             break;
         }
 
-        sendSignal("Merging adjacent slices…",
-                   it - begin(slices),
-                   slices.size());
+        sendSignal(
+            "Merging adjacent slices…", it - begin(slices), slices.size());
 
         auto slice = *it;
         vector<mzSlice*> slicesToMerge;
 
         // search ahead
-        for (auto ahead = next(it);
-             ahead != end(slices) && it != end(slices);
+        for (auto ahead = next(it); ahead != end(slices) && it != end(slices);
              ++ahead) {
             auto comparisonSlice = *ahead;
-            auto comparison = _compareSlices(_samples,
-                                             slice,
-                                             comparisonSlice,
-                                             massCutoff,
-                                             rtTolerance);
+            auto comparison = _compareSlices(
+                _samples, slice, comparisonSlice, massCutoff, rtTolerance);
             auto shouldMerge = comparison.first;
             auto continueIteration = comparison.second;
             if (shouldMerge)
@@ -505,11 +490,8 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
              behind != begin(slices) && it != begin(slices);
              --behind) {
             auto comparisonSlice = *behind;
-            auto comparison = _compareSlices(_samples,
-                                             slice,
-                                             comparisonSlice,
-                                             massCutoff,
-                                             rtTolerance);
+            auto comparison = _compareSlices(
+                _samples, slice, comparisonSlice, massCutoff, rtTolerance);
             auto shouldMerge = comparison.first;
             auto continueIteration = comparison.second;
             if (shouldMerge)
@@ -529,16 +511,15 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
                          slices.end());
             delete merged;
         }
-        it = find_if(begin(slices),
-                     end(slices),
-                     [&](mzSlice* s) { return s == slice; });
+        it = find_if(
+            begin(slices), end(slices), [&](mzSlice* s) { return s == slice; });
     }
 }
 
 pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
                                             mzSlice* slice,
                                             mzSlice* comparisonSlice,
-                                            const MassCutoff *massCutoff,
+                                            const MassCutoff* massCutoff,
                                             const float rtTolerance)
 {
     auto mz = slice->mz;
@@ -570,7 +551,7 @@ pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
         commonUpperRt = comparisonRtMax;
     } else if (rtMin >= comparisonRtMin && rtMax <= comparisonRtMax) {
         commonLowerRt = rtMin;
-        commonUpperRt  = rtMax;
+        commonUpperRt = rtMax;
     } else if (rtMin >= comparisonRtMin && rtMin <= comparisonRtMax) {
         commonLowerRt = rtMin;
         commonUpperRt = min(rtMax, comparisonRtMax);
@@ -596,20 +577,16 @@ pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
             auto sample = samples.at(i);
 
             // obtain EICs for the two slices
-            auto eic = sample->getEIC(mzMin,
-                                      mzMax,
-                                      rtMin,
-                                      rtMax,
-                                      1,
-                                      1,
-                                      "");
+            auto eic = sample->getEIC(
+                mzMin, mzMax, rtMin, rtMax, 1, 1, "", _precursorMz);
             auto comparisonEic = sample->getEIC(comparisonMzMin,
                                                 comparisonMzMax,
                                                 comparisonRtMin,
                                                 comparisonRtMax,
                                                 1,
                                                 1,
-                                                "");
+                                                "",
+                                                _precursorMz);
             eicValues.push_back({eic->maxIntensity,
                                  eic->rtAtMaxIntensity,
                                  eic->mzAtMaxIntensity});
@@ -644,14 +621,13 @@ pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
     // calculate and check for rt difference and mz difference, if
     // conditions are satisfied, mark the comparison slice to be merged
     auto rtDelta = abs(rtAtHighestIntensity - rtAtHighestCompIntensity);
-    auto mzCenterForIntensity = (mzAtHighestIntensity
-                              + mzAtHighestCompIntensity) / 2.0f;
+    auto mzCenterForIntensity =
+        (mzAtHighestIntensity + mzAtHighestCompIntensity) / 2.0f;
     auto massToleranceForIntensity =
         massCutoff->massCutoffValue(mzCenterForIntensity);
-    auto mzDeltaNeg = abs(mzCenterForIntensity - mzAtHighestIntensity );
-    auto mzDeltaPos = abs(mzAtHighestCompIntensity - mzCenterForIntensity );
-    if (rtDelta <= rtTolerance
-        && mzDeltaNeg <= massToleranceForIntensity
+    auto mzDeltaNeg = abs(mzCenterForIntensity - mzAtHighestIntensity);
+    auto mzDeltaPos = abs(mzAtHighestCompIntensity - mzCenterForIntensity);
+    if (rtDelta <= rtTolerance && mzDeltaNeg <= massToleranceForIntensity
         && mzDeltaPos <= massToleranceForIntensity) {
         return make_pair(true, true);
     }
@@ -668,12 +644,17 @@ void MassSlicer::_adjustSlices(MassCutoff* massCutoff)
             break;
         }
 
-        auto eics = PeakDetector::pullEICs(slice,
-                                           _mavenParameters->samples,
-                                           _mavenParameters);
+        auto eics = PeakDetector::pullEICs(
+            slice, _mavenParameters->samples, _mavenParameters);
         float highestIntensity = 0.0f;
         float mzAtHighestIntensity = 0.0f;
+        int numZeroEics = 0;
         for (auto eic : eics) {
+            if (almostEqual(eic->maxIntensity, 0.0f)) {
+                ++numZeroEics;
+                continue;
+            }
+
             size_t size = eic->intensity.size();
             for (int i = 0; i < size; ++i) {
                 if (eic->spline[i] > highestIntensity) {
@@ -682,14 +663,27 @@ void MassSlicer::_adjustSlices(MassCutoff* massCutoff)
                 }
             }
         }
-        float cutoff = massCutoff->massCutoffValue(mzAtHighestIntensity);
-        slice->mzmin =  mzAtHighestIntensity - cutoff;
-        slice->mzmax =  mzAtHighestIntensity + cutoff;
-        slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
+
+        if (numZeroEics == eics.size()) {
+            // this slice has no data
+            slice->ionCount = -1.0f;
+        } else {
+            float cutoff = massCutoff->massCutoffValue(mzAtHighestIntensity);
+            slice->mzmin = mzAtHighestIntensity - cutoff;
+            slice->mzmax = mzAtHighestIntensity + cutoff;
+            slice->mz = (slice->mzmin + slice->mzmax) / 2.0f;
+        }
 
         delete_all(eics);
 
         ++progressCount;
         sendSignal("Adjusting slices…", progressCount, slices.size());
     }
+
+    // remove empty slices
+    slices.erase(
+        remove_if(slices.begin(),
+                  slices.end(),
+                  [](mzSlice* slice) { return (slice->ionCount == -1.0f); }),
+        slices.end());
 }

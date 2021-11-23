@@ -1,12 +1,12 @@
-#include "datastructures/adduct.h"
-#include "datastructures/mzSlice.h"
 #include "EIC.h"
 #include "Peak.h"
+#include "SavGolSmoother.h"
+#include "Scan.h"
+#include "datastructures/adduct.h"
+#include "datastructures/mzSlice.h"
 #include "mavenparameters.h"
 #include "mzPatterns.h"
 #include "mzSample.h"
-#include "SavGolSmoother.h"
-#include "Scan.h"
 
 /**
  * @file EIC.cpp
@@ -33,7 +33,7 @@ EIC::EIC()
     smootherType = GAUSSIAN;
     _baselineMode = BaselineMode::Threshold;
     baselineSmoothingWindow = 5;
-    //TODO make sure initialization value is same everywhere
+    // TODO make sure initialization value is same everywhere
     baselineDropTopX = 60;
     _aslsAsymmetry = 80;
     _aslsSmoothness = 2;
@@ -52,16 +52,15 @@ EIC::~EIC()
     peaks.clear();
 }
 
-EIC *EIC::eicMerge(const vector<EIC *> &eics)
+EIC* EIC::eicMerge(const vector<EIC*>& eics)
 {
     // Merge to 776
-    EIC *meic = new EIC();
+    EIC* meic = new EIC();
 
     unsigned int maxlen = 0;
     float minRt = DBL_MAX;
     float maxRt = DBL_MIN;
-    for (unsigned int i = 0; i < eics.size(); i++)
-    {
+    for (unsigned int i = 0; i < eics.size(); i++) {
         if (eics[i]->size() > maxlen)
             maxlen = eics[i]->size();
         if (eics[i]->rtmin < minRt)
@@ -73,7 +72,7 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     if (maxlen == 0)
         return meic;
 
-    //create new EIC
+    // create new EIC
     meic->sample = NULL;
     vector<float> intensity(maxlen, 0);
     vector<float> rt(maxlen, 0);
@@ -81,34 +80,27 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     vector<float> mz(maxlen, 0);
     vector<int> mzcount(maxlen, 0);
 
-    //smoothing   //initalize time array
-    for (unsigned int i = 0; i < maxlen; i++)
-    {
+    // smoothing   //initalize time array
+    for (unsigned int i = 0; i < maxlen; i++) {
         rt[i] = minRt + i * ((maxRt - minRt) / maxlen);
         scans[i] = i;
     }
 
-    //combine intensity data from all pulled eics
-    for (unsigned int i = 0; i < eics.size(); i++)
-    {
-        EIC *e = eics[i];
-        for (unsigned int j = 0; j < e->size(); j++)
-        {
+    // combine intensity data from all pulled eics
+    for (unsigned int i = 0; i < eics.size(); i++) {
+        EIC* e = eics[i];
+        for (unsigned int j = 0; j < e->size(); j++) {
             unsigned int bin = ((e->rt[j] - minRt) / (maxRt - minRt) * maxlen);
             if (bin >= maxlen)
                 bin = maxlen - 1;
 
-            if (e->spline and e->spline[j] > 0)
-            {
+            if (e->spline and e->spline[j] > 0) {
                 intensity[bin] += e->spline[j];
-            }
-            else
-            {
+            } else {
                 intensity[bin] += e->intensity[j];
             }
 
-            if (e->mz[j] > 0)
-            {
+            if (e->mz[j] > 0) {
                 mz[bin] += e->mz[j];
                 mzcount[bin]++;
             }
@@ -116,8 +108,7 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
     }
 
     unsigned int eicCount = eics.size();
-    for (unsigned int i = 0; i < maxlen; i++)
-    {
+    for (unsigned int i = 0; i < maxlen; i++) {
         intensity[i] /= eicCount;
         if (intensity[i] > meic->maxIntensity) {
             meic->maxIntensity = intensity[i];
@@ -129,7 +120,7 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
         meic->totalIntensity += intensity[i];
     }
 
-    //copy to new EIC
+    // copy to new EIC
     meic->rtmin = minRt;
     meic->rtmax = maxRt;
     meic->intensity = intensity;
@@ -143,8 +134,7 @@ EIC *EIC::eicMerge(const vector<EIC *> &eics)
 
 bool EIC::_clearBaseline()
 {
-    if (baseline != nullptr)
-    { //delete previous baseline if exists
+    if (baseline != nullptr) {  // delete previous baseline if exists
         delete[] baseline;
         baseline = nullptr;
         eic_noNoiseObs = 0;
@@ -166,7 +156,7 @@ void EIC::_computeAsLSBaseline(const float lambda,
 {
     // Eigen behaves better with double values compared to float
     vector<double> intensity;
-    for(unsigned int i = 0; i < this->intensity.size(); ++i)
+    for (unsigned int i = 0; i < this->intensity.size(); ++i)
         intensity.push_back(static_cast<double>(this->intensity[i]));
 
     auto originalSize = intensity.size();
@@ -179,16 +169,11 @@ void EIC::_computeAsLSBaseline(const float lambda,
     auto n = static_cast<unsigned int>(intensity.size());
 
     // Perform difference operation (pseudo-differentiation) on a sparse matrix
-    auto diff = [](Eigen::SparseMatrix<double> mat)
-    {
-        Eigen::SparseMatrix<double> E1 = mat.block(0,
-                                                   0,
-                                                   mat.rows() - 1,
-                                                   mat.cols());
-        Eigen::SparseMatrix<double> E2 = mat.block(1,
-                                                   0,
-                                                   mat.rows() - 1,
-                                                   mat.cols());
+    auto diff = [](Eigen::SparseMatrix<double> mat) {
+        Eigen::SparseMatrix<double> E1 =
+            mat.block(0, 0, mat.rows() - 1, mat.cols());
+        Eigen::SparseMatrix<double> E2 =
+            mat.block(1, 0, mat.rows() - 1, mat.cols());
         return Eigen::SparseMatrix<double>(E2 - E1);
     };
 
@@ -218,7 +203,7 @@ void EIC::_computeAsLSBaseline(const float lambda,
     // not change anymnore, but since we do not have good float comparators
     // yet we can use a decent number of iterations to get as close to the true
     // baseline as possible
-    for (int i=0; i < numIterations; ++i) {
+    for (int i = 0; i < numIterations; ++i) {
         // create a square matrix 'W' with the weights as its diagonal
         auto W = SparseMatrix<double>(w.asDiagonal());
 
@@ -232,19 +217,16 @@ void EIC::_computeAsLSBaseline(const float lambda,
 
         // calculate weights for the next iteration
         auto gtBin = VectorXd(
-            ((intensityVec - baselineVec).array() > 0.0).select(ones, zeros)
-        );
+            ((intensityVec - baselineVec).array() > 0.0).select(ones, zeros));
         auto ltBin = VectorXd(
-            ((intensityVec - baselineVec).array() < 0.0).select(ones, zeros)
-        );
+            ((intensityVec - baselineVec).array() < 0.0).select(ones, zeros));
         w = (p * gtBin) + ((1.0f - p) * ltBin);
     }
 
     // copy data from an Eigen vector to std::vector
-    vector<double> tempVector(baselineVec.data(),
-                              baselineVec.data()
-                              + baselineVec.rows()
-                              * baselineVec.cols());
+    vector<double> tempVector(
+        baselineVec.data(),
+        baselineVec.data() + baselineVec.rows() * baselineVec.cols());
 
     // interpolate the signal after possible decimation
     tempVector = mzUtils::resample(tempVector, resamplingFactor, 1);
@@ -258,7 +240,7 @@ void EIC::_computeAsLSBaseline(const float lambda,
 
     // clip negative values from the vector and switch back to float
     vector<float> clippedFloatBaseline;
-    for(unsigned int i = 0; i < tempVector.size(); ++i) {
+    for (unsigned int i = 0; i < tempVector.size(); ++i) {
         auto val = static_cast<float>(tempVector[i]);
         if (val < 0.0f)
             clippedFloatBaseline.push_back(0.0f);
@@ -276,47 +258,42 @@ void EIC::_computeThresholdBaseline(const int smoothingWindow,
 {
     auto n = intensity.size();
 
-    //sort intensity vector
+    // sort intensity vector
     vector<float> tmpv = intensity;
     std::sort(tmpv.begin(), tmpv.end());
 
-    //compute maximum intensity of baseline, any point above this value will
+    // compute maximum intensity of baseline, any point above this value will
     // be dropped. User specifies quantile of points to keep, for example
-    //drop 60% of highest intensities = cut at 40% value;
+    // drop 60% of highest intensities = cut at 40% value;
 
     float cutvalueF = (100.0 - (float)dropTopX) / 101;
-    //cerr << "cutvalue = " << cutvalueF << "\n";
+    // cerr << "cutvalue = " << cutvalueF << "\n";
     unsigned int pos = tmpv.size() * cutvalueF;
-    //cerr << "pos = " << pos << "\n";
-    //cerr << "tmpv size = " << tmpv.size() << "\n";
+    // cerr << "pos = " << pos << "\n";
+    // cerr << "tmpv size = " << tmpv.size() << "\n";
     float qcut = 0;
     pos < tmpv.size() ? qcut = tmpv[pos] : qcut = tmpv.back();
-    //cerr << "qcut = " << qcut << "\n";
+    // cerr << "qcut = " << qcut << "\n";
 
-    //drop all points above maximum baseline value
-    for (int i = 0; i < n; i++)
-    {
-        if (intensity[i] > qcut)
-        {
+    // drop all points above maximum baseline value
+    for (int i = 0; i < n; i++) {
+        if (intensity[i] > qcut) {
             baseline[i] = qcut;
-        }
-        else
-        {
+        } else {
             baseline[i] = intensity[i];
         }
     }
 
-    //smooth baseline
+    // smooth baseline
     gaussian1d_smoothing(n, smoothingWindow, baseline);
 
-    //count number of observation in EIC above baseline
-    for (int i = 0; i < n; i++)
-    {
+    // count number of observation in EIC above baseline
+    for (int i = 0; i < n; i++) {
         if (intensity[i] > baseline[i])
             eic_noNoiseObs++;
     }
-    //cerr << "eic size = " << n << "\n";
-    //cerr << "eic no noise obs = " << eic_noNoiseObs << "\n";
+    // cerr << "eic size = " << n << "\n";
+    // cerr << "eic no noise obs = " << eic_noNoiseObs << "\n";
 }
 
 void EIC::computeBaseline()
@@ -338,15 +315,13 @@ void EIC::computeBaseline()
 void EIC::subtractBaseLine()
 {
     // Merged to 776
-    if (baseline == NULL)
-    {
+    if (baseline == NULL) {
         cerr << "subtractBaseLine() failed. empty baseline vector\n";
         return;
     }
 
     eic_noNoiseObs = 0;
-    for (unsigned int i = 0; i < intensity.size(); i++)
-    {
+    for (unsigned int i = 0; i < intensity.size(); i++) {
         intensity[i] -= baseline[i];
         if (intensity[i] < 0)
             intensity[i] = 0;
@@ -362,46 +337,38 @@ void EIC::computeSpline(int smoothWindow)
 
     if (n == 0)
         return;
-    if (this->spline != NULL)
-    {
+    if (this->spline != NULL) {
         delete[] spline;
         spline = NULL;
     }
 
-    try
-    {
+    try {
         this->spline = new float[n];
         for (int i = 0; i < n; i++)
             spline[i] = 0;
-    }
-    catch (...)
-    {
-        cerr << "Exception caught while allocating memory " << n << "floats " << endl;
+    } catch (...) {
+        cerr << "Exception caught while allocating memory " << n << "floats "
+             << endl;
     }
 
-    //initalize spline, set to intensity vector
+    // initalize spline, set to intensity vector
     for (int i = 0; i < n; i++)
         spline[i] = intensity[i];
 
     if (smoothWindow > n / 3)
-        smoothWindow = n / 3; //smoothing window is too large
+        smoothWindow = n / 3;  // smoothing window is too large
     if (smoothWindow <= 1)
-        return; //nothing to smooth get out
+        return;  // nothing to smooth get out
 
-    if (smootherType == SAVGOL)
-    { //SAVGOL SMOOTHER
+    if (smootherType == SAVGOL) {  // SAVGOL SMOOTHER
         mzUtils::SavGolSmoother smoother(smoothWindow, smoothWindow, 4);
         vector<float> smoothed = smoother.Smooth(intensity);
         for (int i = 0; i < n; i++)
             spline[i] = smoothed[i];
-    }
-    else if (smootherType == GAUSSIAN)
-    { //GAUSSIAN SMOOTHER
+    } else if (smootherType == GAUSSIAN) {  // GAUSSIAN SMOOTHER
         gaussian1d_smoothing(n, smoothWindow, spline);
-    }
-    else if (smootherType == AVG)
-    {
-        float *y = new float[n];
+    } else if (smootherType == AVG) {
+        float* y = new float[n];
         for (int i = 0; i < n; i++)
             y[i] = intensity[i];
         smoothAverage(y, spline, smoothWindow, n);
@@ -418,7 +385,7 @@ void EIC::clearEICContents()
     std::vector<float>().swap(intensity);
 }
 
-Peak *EIC::addPeak(int peakPos)
+Peak* EIC::addPeak(int peakPos)
 {
     peaks.push_back(Peak(this, peakPos));
     return &peaks[peaks.size() - 1];
@@ -439,8 +406,8 @@ void EIC::reduceToRtRange(float minRt, float maxRt)
         int stop = distance(begin(rt), upper);
         rt = vector<float>(begin(rt) + start, begin(rt) + stop);
         mz = vector<float>(begin(mz) + start, begin(mz) + stop);
-        intensity = vector<float>(begin(intensity) + start,
-                                  begin(intensity) + stop);
+        intensity =
+            vector<float>(begin(intensity) + start, begin(intensity) + stop);
         scannum = vector<int>(begin(scannum) + start, begin(scannum) + stop);
 
         totalIntensity = 0.0f;
@@ -496,24 +463,18 @@ void EIC::findPeaks()
 
     unsigned int N = intensity.size();
 
-    for (unsigned int i = 1; i < N - 1; i++)
-    {
-        if (spline[i] > spline[i - 1] && spline[i] > spline[i + 1])
-        {
+    for (unsigned int i = 1; i < N - 1; i++) {
+        if (spline[i] > spline[i - 1] && spline[i] > spline[i + 1]) {
             addPeak(i);
-        }
-        else if (spline[i] > spline[i - 1] && spline[i] == spline[i + 1])
-        {
+        } else if (spline[i] > spline[i - 1] && spline[i] == spline[i + 1]) {
             float highpoint = spline[i];
-            while (i < N - 1)
-            {
+            while (i < N - 1) {
                 i++;
                 if (spline[i + 1] == highpoint)
                     continue;
                 if (spline[i + 1] > highpoint)
                     break;
-                if (spline[i + 1] < highpoint)
-                {
+                if (spline[i + 1] < highpoint) {
                     addPeak(i);
                     break;
                 }
@@ -522,19 +483,18 @@ void EIC::findPeaks()
     }
 }
 
-void EIC::findPeakBounds(Peak &peak)
+void EIC::findPeakBounds(Peak& peak)
 {
     int apex = peak.pos;
 
     int ii = apex - 1;
     int jj = apex + 1;
-    int lb = ii; // left bound 
-    int rb = jj; // right bound
+    int lb = ii;  // left bound
+    int rb = jj;  // right bound
 
     // this will be used to calculate spline area
-    int slb = ii; // spline left bound
-    int srb = jj; // spline right bound
-
+    int slb = ii;  // spline left bound
+    int srb = jj;  // spline right bound
 
     unsigned int N = intensity.size();
     if (N == 0)
@@ -546,11 +506,10 @@ void EIC::findPeakBounds(Peak &peak)
 
     int directionality = 0;
     float lastValue = spline[apex];
-    while (ii > 0 && ii < (int)N)
-    { //walk left
+    while (ii > 0 && ii < (int)N) {  // walk left
         float relSlope = (spline[ii] - lastValue) / lastValue;
         relSlope > 0.01 ? directionality++ : directionality = 0;
-        //if (spline[ii]<=spline[lb] ) lb=ii;
+        // if (spline[ii]<=spline[lb] ) lb=ii;
         if (intensity[ii] <= intensity[lb])
             lb = ii;
         if (spline[ii] <= spline[slb])
@@ -571,11 +530,10 @@ void EIC::findPeakBounds(Peak &peak)
     directionality = 0;
     lastValue = spline[apex];
 
-    while (jj > 0 && jj < (int)N)
-    { //walk right
+    while (jj > 0 && jj < (int)N) {  // walk right
         float relSlope = (spline[jj] - lastValue) / lastValue;
         relSlope > 0.01 ? directionality++ : directionality = 0;
-        //if (spline[jj]<=spline[rb] ) rb=jj;
+        // if (spline[jj]<=spline[rb] ) rb=jj;
         if (intensity[jj] <= intensity[rb])
             rb = jj;
         if (spline[jj] <= spline[srb])
@@ -593,30 +551,27 @@ void EIC::findPeakBounds(Peak &peak)
         jj = jj + 1;
     }
 
-    //find maximum point in the span from min to max position
-    for (int k = lb; k < rb && k < N; k++)
-    {
+    // find maximum point in the span from min to max position
+    for (int k = lb; k < rb && k < N; k++) {
         if (intensity[k] > intensity[peak.pos] && mz[k] > 0)
             peak.pos = k;
     }
 
-    //remove zero intensity points on the left
-    for (unsigned int k = lb; k < peak.pos && k < N; k++)
-    {
+    // remove zero intensity points on the left
+    for (unsigned int k = lb; k < peak.pos && k < N; k++) {
         if (intensity[k] > 0)
             break;
         lb = k;
     }
 
-    //remove zero intensity points on the right
-    for (unsigned int k = rb; k > peak.pos && k < N; k--)
-    {
+    // remove zero intensity points on the right
+    for (unsigned int k = rb; k > peak.pos && k < N; k--) {
         if (intensity[k] > 0)
             break;
         rb = k;
     }
 
-    //for rare cases where peak is a single observation
+    // for rare cases where peak is a single observation
     if (lb == apex && lb - 1 >= 0)
         lb = apex - 1;
     if (rb == apex && rb + 1 < N)
@@ -657,7 +612,7 @@ void EIC::adjustPeakBounds(Peak& peak, float rtMin, float rtMax)
     peak.splinemaxpos = rightBound;
 }
 
-void EIC::getPeakDetails(Peak &peak)
+void EIC::getPeakDetails(Peak& peak)
 {
     unsigned int N = intensity.size();
     if (N == 0)
@@ -667,7 +622,7 @@ void EIC::getPeakDetails(Peak &peak)
     if (peak.pos >= N)
         return;
 
-    //intensity and mz at the apex of the peaks
+    // intensity and mz at the apex of the peaks
     peak.peakIntensity = intensity[peak.pos];
     peak.noNoiseObs = 0;
     peak.peakAreaCorrected = 0;
@@ -675,8 +630,7 @@ void EIC::getPeakDetails(Peak &peak)
     peak.peakSplineArea = 0;
     float baselineArea = 0;
 
-    if (sample != NULL && sample->isBlank)
-    {
+    if (sample != NULL && sample->isBlank) {
         peak.fromBlankSample = true;
     }
 
@@ -685,23 +639,22 @@ void EIC::getPeakDetails(Peak &peak)
     if (peak.maxpos >= N)
         peak.maxpos = N - 1;
     if (peak.minpos >= N)
-        peak.minpos = peak.pos; //unsigned number weirdness.
+        peak.minpos = peak.pos;  // unsigned number weirdness.
 
     for (unsigned int i = peak.splineminpos; i <= peak.splinemaxpos; i++) {
-        if (peak.splineminpos == 0 && peak.splinemaxpos == 0) break;
+        if (peak.splineminpos == 0 && peak.splinemaxpos == 0)
+            break;
         peak.peakSplineArea += spline[i];
     }
 
     float lastValue = intensity[peak.minpos];
-    for (unsigned int j = peak.minpos; j <= peak.maxpos; j++)
-    {
+    for (unsigned int j = peak.minpos; j <= peak.maxpos; j++) {
         peak.peakArea += intensity[j];
         baselineArea += baseline[j];
         if (intensity[j] > baseline[j])
             peak.noNoiseObs++;
 
-        if (peak.peakIntensity < intensity[j])
-        {
+        if (peak.peakIntensity < intensity[j]) {
             peak.peakIntensity = intensity[j];
             peak.pos = j;
         }
@@ -709,20 +662,13 @@ void EIC::getPeakDetails(Peak &peak)
         if (mz.size() > 0 && mz[j] > 0)
             allmzs.push_back(mz[j]);
 
-        if (intensity[j] <= baseline[j])
-        {
+        if (intensity[j] <= baseline[j]) {
             bitstring += "0";
-        }
-        else if (intensity[j] > lastValue)
-        {
+        } else if (intensity[j] > lastValue) {
             bitstring += "+";
-        }
-        else if (intensity[j] < lastValue)
-        {
+        } else if (intensity[j] < lastValue) {
             bitstring += "-";
-        }
-        else if (intensity[j] == lastValue)
-        {
+        } else if (intensity[j] == lastValue) {
             if (bitstring.length() > 1)
                 bitstring += bitstring[bitstring.length() - 1];
             else
@@ -734,60 +680,61 @@ void EIC::getPeakDetails(Peak &peak)
 
     getPeakWidth(peak);
 
-    if (rt.size() > 0 && rt.size() == N)
-    {
+    if (rt.size() > 0 && rt.size() == N) {
         peak.rt = rt[peak.pos];
         peak.rtmin = rt[peak.minpos];
         peak.rtmax = rt[peak.maxpos];
     }
 
-    if (scannum.size() && scannum.size() == N)
-    {
-        peak.scan = scannum[peak.pos];       //scan number at the apex of the peak
-        peak.minscan = scannum[peak.minpos]; //scan number at left most bound
-        peak.maxscan = scannum[peak.maxpos]; //scan number at the right most bound
+    if (scannum.size() && scannum.size() == N) {
+        peak.scan = scannum[peak.pos];  // scan number at the apex of the peak
+        peak.minscan = scannum[peak.minpos];  // scan number at left most bound
+        peak.maxscan =
+            scannum[peak.maxpos];  // scan number at the right most bound
     }
 
     int n = 1;
     peak.peakAreaTop = intensity[peak.pos];
     peak.peakAreaTopCorrected = intensity[peak.pos] - baseline[peak.pos];
-    if (peak.pos - 1 < N)
-    {
+    if (peak.pos - 1 < N) {
         peak.peakAreaTop += intensity[peak.pos - 1];
-        peak.peakAreaTopCorrected += intensity[peak.pos - 1] - baseline[peak.pos - 1];
+        peak.peakAreaTopCorrected +=
+            intensity[peak.pos - 1] - baseline[peak.pos - 1];
         n++;
     }
-    if (peak.pos + 1 < N)
-    {
+    if (peak.pos + 1 < N) {
         peak.peakAreaTop += intensity[peak.pos + 1];
-        peak.peakAreaTopCorrected += intensity[peak.pos + 1] - baseline[peak.pos + 1];
+        peak.peakAreaTopCorrected +=
+            intensity[peak.pos + 1] - baseline[peak.pos + 1];
         n++;
     }
     peak.peakAreaTop /= n;
     peak.peakAreaTopCorrected /= n;
-    if (peak.peakAreaTopCorrected < 0) peak.peakAreaTopCorrected = 0;
+    if (peak.peakAreaTopCorrected < 0)
+        peak.peakAreaTopCorrected = 0;
 
     peak.peakMz = mz[peak.pos];
 
-    float maxBaseLine = MAX(MAX(baseline[peak.pos], 10), MAX(intensity[peak.minpos], intensity[peak.maxpos]));
+    float maxBaseLine =
+        MAX(MAX(baseline[peak.pos], 10),
+            MAX(intensity[peak.minpos], intensity[peak.maxpos]));
     peak.peakBaseLineLevel = baseline[peak.pos];
     peak.noNoiseFraction = (float)peak.noNoiseObs / (this->eic_noNoiseObs + 1);
     peak.peakAreaCorrected = peak.peakArea - baselineArea;
-    if (peak.peakAreaCorrected < 0) peak.peakAreaCorrected = 0; 
+    if (peak.peakAreaCorrected < 0)
+        peak.peakAreaCorrected = 0;
     peak.peakAreaFractional = peak.peakAreaCorrected / (totalIntensity + 1);
     peak.signalBaselineRatio = peak.peakIntensity / maxBaseLine;
     peak.signalBaselineDifference = peak.peakIntensity - maxBaseLine;
 
-    if (allmzs.size() > 0)
-    {
+    if (allmzs.size() > 0) {
         peak.medianMz = allmzs.median();
         peak.baseMz = allmzs.mean();
         peak.mzmin = allmzs.minimum();
         peak.mzmax = allmzs.maximum();
     }
 
-    if (peak.medianMz == 0)
-    {
+    if (peak.medianMz == 0) {
         peak.medianMz = peak.peakMz;
     }
 
@@ -797,24 +744,21 @@ void EIC::getPeakDetails(Peak &peak)
     checkGaussianFit(peak);
 }
 
-void EIC::getPeakWidth(Peak &peak)
+void EIC::getPeakWidth(Peak& peak)
 {
-
     int width = 1;
     int left = 0;
     int right = 0;
     size_t N = intensity.size();
 
-    for (unsigned int i = peak.pos - 1; i > peak.minpos && i < N; i--)
-    {
-        if (intensity[i] < baseline[i] ||
-            mzUtils::almostEqual(baseline[i], intensity[i], 0.0000005f))
+    for (unsigned int i = peak.pos - 1; i > peak.minpos && i < N; i--) {
+        if (intensity[i] < baseline[i]
+            || mzUtils::almostEqual(baseline[i], intensity[i], 0.0000005f))
             break;
         else
             left++;
     }
-    for (unsigned int j = peak.pos + 1; j < peak.maxpos && j < N; j++)
-    {
+    for (unsigned int j = peak.pos + 1; j < peak.maxpos && j < N; j++) {
         if (intensity[j] > baseline[j])
             right++;
         else
@@ -857,41 +801,31 @@ Peak EIC::peakForRegion(float rtMin, float rtMax)
 
 void EIC::filterPeaks()
 {
-
     unsigned int i = 0;
-    while (i < peaks.size())
-    {
-        if (filterSignalBaselineDiff > peaks[i].signalBaselineDifference)
-        {
+    while (i < peaks.size()) {
+        if (filterSignalBaselineDiff > peaks[i].signalBaselineDifference) {
             peaks.erase(peaks.begin() + i);
-        }
-        else
-        {
+        } else {
             ++i;
         }
     }
 }
 
-vector<mzPoint> EIC::getIntensityVector(Peak &peak)
+vector<mzPoint> EIC::getIntensityVector(Peak& peak)
 {
     vector<mzPoint> y;
 
-    if (intensity.size() > 0)
-    {
+    if (intensity.size() > 0) {
         unsigned int maxi = peak.maxpos;
         unsigned int mini = peak.minpos;
         if (maxi >= intensity.size())
             maxi = intensity.size() - 1;
 
-        for (unsigned int i = mini; i <= maxi; i++)
-        {
-            //TODO all intensity points are being pushed
-            if (baseline and intensity[i] > baseline[i])
-            {
+        for (unsigned int i = mini; i <= maxi; i++) {
+            // TODO all intensity points are being pushed
+            if (baseline and intensity[i] > baseline[i]) {
                 y.push_back(mzPoint(rt[i], intensity[i], mz[i]));
-            }
-            else
-            {
+            } else {
                 y.push_back(mzPoint(rt[i], intensity[i], mz[i]));
             }
         }
@@ -899,7 +833,7 @@ vector<mzPoint> EIC::getIntensityVector(Peak &peak)
     return y;
 }
 
-void EIC::checkGaussianFit(Peak &peak)
+void EIC::checkGaussianFit(Peak& peak)
 {
     peak.gaussFitSigma = 0;
     peak.gaussFitR2 = 0.03;
@@ -911,8 +845,8 @@ void EIC::checkGaussianFit(Peak &peak)
     if (moves < 3)
         return;
 
-    //copy intensities into separate vector
-    //dim
+    // copy intensities into separate vector
+    // dim
     vector<float> pints(moves * 2 + 1);
 
     int j = peak.pos + moves;
@@ -925,14 +859,13 @@ void EIC::checkGaussianFit(Peak &peak)
         i = 1;
 
     int k = 0;
-    for (; i <= j; i++)
-    {
+    for (; i <= j; i++) {
         pints[k] = intensity[i];
         k++;
     }
     pair<float, float> res = mzUtils::gaussFit(pints);
-    if(res.first != numeric_limits<float>::max()
-       && res.second != numeric_limits<float>::max()) {
+    if (res.first != numeric_limits<float>::max()
+        && res.second != numeric_limits<float>::max()) {
         peak.gaussFitSigma = res.first;
         peak.gaussFitR2 = res.second;
     }
@@ -940,8 +873,7 @@ void EIC::checkGaussianFit(Peak &peak)
 
 void EIC::getPeakStatistics()
 {
-    for (unsigned int i = 0; i < peaks.size(); i++)
-    {
+    for (unsigned int i = 0; i < peaks.size(); i++) {
         findPeakBounds(peaks[i]);
         getPeakDetails(peaks[i]);
 
@@ -958,7 +890,7 @@ void EIC::getPeakStatistics()
             maxAreaNotCorrectedIntensity = peaks[i].peakArea;
     }
 
-    //assign peak ranks based on total area of the peak
+    // assign peak ranks based on total area of the peak
     sort(peaks.begin(), peaks.end(), Peak::compArea);
     for (unsigned int i = 0; i < peaks.size(); i++)
         peaks[i].peakRank = i;
@@ -966,59 +898,58 @@ void EIC::getPeakStatistics()
 
 void EIC::deletePeak(unsigned int i)
 {
-    if (i < peaks.size())
-    {
+    if (i < peaks.size()) {
         peaks.erase(peaks.begin() + i);
     }
 }
 
 void EIC::summary()
 {
-    cerr << "EIC: mz=" << mzmin << "-" << mzmax << " rt=" << rtmin << "-" << rtmax << endl;
+    cerr << "EIC: mz=" << mzmin << "-" << mzmax << " rt=" << rtmin << "-"
+         << rtmax << endl;
     cerr << "   : maxIntensity=" << maxIntensity << endl;
     cerr << "   : peaks=" << peaks.size() << endl;
 }
 
-void EIC::removeLowRankGroups(vector<PeakGroup> &groups, unsigned int rankLimit)
+void EIC::removeLowRankGroups(vector<PeakGroup>& groups, unsigned int rankLimit)
 {
     // Merged to 776
     if (groups.size() < rankLimit)
         return;
     std::sort(groups.begin(), groups.end(), PeakGroup::compIntensity);
-    for (unsigned int i = 0; i < groups.size(); i++)
-    {
-        if (i > rankLimit)
-        {
+    for (unsigned int i = 0; i < groups.size(); i++) {
+        if (i > rankLimit) {
             groups.erase(groups.begin() + i);
             i--;
         }
     }
 }
 
-vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
+vector<PeakGroup> EIC::groupPeaks(vector<EIC*>& eics,
                                   mzSlice* slice,
                                   shared_ptr<MavenParameters> mp,
                                   PeakGroup::IntegrationType integrationType)
 {
     vector<mzSample*> samples;
-    for(int i=0;i<eics.size();++i)
+    for (int i = 0; i < eics.size(); ++i)
         samples.push_back(eics[i]->sample);
 
     // list filled and return by this function
     vector<PeakGroup> pgroups;
 
     // create EIC compose from all sample eics
-    EIC *m = EIC::eicMerge(eics);
+    EIC* m = EIC::eicMerge(eics);
     if (!m)
         return pgroups;
 
-    //find peaks in merged eic
+    // find peaks in merged eic
     if (slice->compound != nullptr && !slice->isotope.isParent()) {
         m->setFilterSignalBaselineDiff(mp->isotopicMinSignalBaselineDifference);
     } else {
         m->setFilterSignalBaselineDiff(mp->minSignalBaselineDifference);
     }
     m->getPeakPositions(mp->eic_smoothingWindow);
+
     sort(m->peaks.begin(), m->peaks.end(), Peak::compRt);
 
     for (unsigned int i = 0; i < m->peaks.size(); i++) {
@@ -1034,36 +965,29 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
     for (unsigned int i = 0; i < eics.size(); i++) {
         // for every peak in the sample
         for (unsigned int j = 0; j < eics[i]->peaks.size(); j++) {
-            Peak &b = eics[i]->peaks[j];
+            Peak& b = eics[i]->peaks[j];
             b.groupNum = -1;
             b.groupOverlap = FLT_MIN;
 
-            vector<Peak>::iterator itr = lower_bound(m->peaks.begin(),
-                                                     m->peaks.end(),
-                                                     b,
-                                                     Peak::compRtMin);
+            vector<Peak>::iterator itr = lower_bound(
+                m->peaks.begin(), m->peaks.end(), b, Peak::compRtMin);
             int lb = (itr - (m->peaks.begin())) - 1;
             if (lb < 0)
                 lb = 0;
 
             // find best matching group
-            for (unsigned int k = 0; k < m->peaks.size(); k++)
-            {
-                Peak &a = m->peaks[k];
+            for (unsigned int k = 0; k < m->peaks.size(); k++) {
+                Peak& a = m->peaks[k];
 
                 float score;
 
                 // check for overlap
-                float overlap = checkOverlap(a.rtmin,
-                                             a.rtmax,
-                                             b.rtmin,
-                                             b.rtmax);
+                float overlap =
+                    checkOverlap(a.rtmin, a.rtmax, b.rtmin, b.rtmax);
                 float distx = abs(b.rt - a.rt);
                 float disty = abs(b.peakIntensity - a.peakIntensity);
 
-                if (mp->useOverlap)
-                {
-
+                if (mp->useOverlap) {
                     if (overlap == 0 and a.rtmax < b.rtmin)
                         continue;
                     if (overlap == 0 and a.rtmin > b.rtmax)
@@ -1072,36 +996,27 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
                     if (distx > mp->grouping_maxRtWindow || overlap < 0.2)
                         continue;
 
-                    score = 1.0
-                            / (mp->distXWeight * distx + 0.01)
+                    score = 1.0 / (mp->distXWeight * distx + 0.01)
                             / (mp->distYWeight * disty + 0.01)
                             * (mp->overlapWeight * overlap);
-                }
-                else
-                {
-
+                } else {
                     if (distx > mp->grouping_maxRtWindow)
                         continue;
 
-                    score = 1.0
-                            / (mp->distXWeight * distx + 0.01)
+                    score = 1.0 / (mp->distXWeight * distx + 0.01)
                             / (mp->distYWeight * disty + 0.01);
                 }
 
-                if (score > b.groupOverlap)
-                {
+                if (score > b.groupOverlap) {
                     b.groupNum = k;
                     b.groupOverlap = score;
                 }
             }
 
-            if (b.groupNum != -1)
-            {
-                PeakGroup &bestPeakGroup = pgroups[b.groupNum];
+            if (b.groupNum != -1) {
+                PeakGroup& bestPeakGroup = pgroups[b.groupNum];
                 bestPeakGroup.addPeak(b);
-            }
-            else
-            {
+            } else {
                 PeakGroup grp(mp, integrationType);
                 pgroups.push_back(grp);
                 grp.setGroupId(pgroups.size() + 1);
@@ -1112,26 +1027,24 @@ vector<PeakGroup> EIC::groupPeaks(vector<EIC *> &eics,
         }
     }
 
-    //clean up peakgroup such that there is only one peak for each sample
-    //does the same funtion of vector::erase(), but much faster
+    // clean up peakgroup such that there is only one peak for each sample
+    // does the same funtion of vector::erase(), but much faster
     pgroups.erase(std::remove_if(pgroups.begin(),
                                  pgroups.end(),
-                                 [](const PeakGroup &grp)
-                                 {
+                                 [](const PeakGroup& grp) {
                                      return grp.peaks.size() <= 0;
                                  }),
                   pgroups.end());
 
-    for (unsigned int i = 0; i < pgroups.size(); i++)
-    {
-        PeakGroup &grp = pgroups[i];
+    for (unsigned int i = 0; i < pgroups.size(); i++) {
+        PeakGroup& grp = pgroups[i];
         grp.minQuality = mp->minQuality;
         grp.reduce();
-        //grp.fillInPeaks(eics);
-        //Feng note: fillInPeaks is unecessary
+        // grp.fillInPeaks(eics);
+        // Feng note: fillInPeaks is unecessary
         grp.groupStatistics();
         grp.computeAvgBlankArea(eics);
-        if (grp.getFragmentationEvents().size()) {
+        if (grp.hasDdaPeaks()) {
             grp.computeFragPattern(mp->fragmentTolerance);
             grp.matchFragmentation(mp->fragmentTolerance, mp->scoringAlgo);
         }
@@ -1146,32 +1059,28 @@ void EIC::interpolate()
 {
     // Merged to 776
     unsigned int lastNonZero = 0;
-    for (unsigned int posi = 0; posi < intensity.size(); posi++)
-    {
-
-        if (intensity[posi] != 0)
-        {
-            lastNonZero = posi; //if this position has nonzero intensity, mark it as lastNonZero position
+    for (unsigned int posi = 0; posi < intensity.size(); posi++) {
+        if (intensity[posi] != 0) {
+            lastNonZero = posi;  // if this position has nonzero intensity, mark
+                                 // it as lastNonZero position
         }
 
-        if (intensity[posi] == 0 and lastNonZero > 0)
-        { //interplate
+        if (intensity[posi] == 0 and lastNonZero > 0) {  // interplate
             unsigned int nextNonZero = 0;
-            for (unsigned int j = posi; j < intensity.size(); j++)
-            {
-                if (intensity[j] != 0)
-                {
+            for (unsigned int j = posi; j < intensity.size(); j++) {
+                if (intensity[j] != 0) {
                     nextNonZero = j;
                 }
             }
             if (nextNonZero == 0)
                 continue;
 
-            //start at first empty position and until next non empty
-            for (unsigned int j = posi; j < nextNonZero; j++)
-            {
-                float fracDist = (j - lastNonZero) / (float)(nextNonZero - lastNonZero);
-                float newIntensity = intensity[lastNonZero] + fracDist * intensity[nextNonZero];
+            // start at first empty position and until next non empty
+            for (unsigned int j = posi; j < nextNonZero; j++) {
+                float fracDist =
+                    (j - lastNonZero) / (float)(nextNonZero - lastNonZero);
+                float newIntensity =
+                    intensity[lastNonZero] + fracDist * intensity[nextNonZero];
                 intensity[j] = newIntensity;
                 lastNonZero = j;
                 posi++;
@@ -1182,8 +1091,7 @@ void EIC::interpolate()
 
 void EIC::getRTMinMaxPerScan()
 {
-    if (this->rt.size() > 0)
-    {
+    if (this->rt.size() > 0) {
         this->rtmin = this->rt[0];
         this->rtmax = this->rt[this->size() - 1];
     }
@@ -1194,32 +1102,40 @@ void EIC::getRTMinMaxPerScan()
  * given mzmin and mzmax. This function will go through the each scan
  * and find the the max intensity and mz corresponding to that max intensity.
  * Total intensity is calculated by adding the maxintensity from each scan.
- * @param[in] scan This is the 
+ * @param[in] scan This is the
  */
-bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, float rtmax, int mslevel, int eicType, string filterline)
+bool EIC::makeEICSlice(mzSample* sample,
+                       float mzmin,
+                       float mzmax,
+                       float rtmin,
+                       float rtmax,
+                       int mslevel,
+                       int eicType,
+                       string filterline,
+                       float precursorMz)
 {
     float eicMz = 0, eicIntensity = 0;
     int lb, scanNum;
     vector<float>::iterator mzItr;
-    deque<Scan *>::iterator scanItr;
-    deque<Scan *> scans;
+    deque<Scan*>::iterator scanItr;
+    deque<Scan*> scans;
 
     scans = sample->scans;
-    //binary search rt domain iterator
+    // binary search rt domain iterator
     Scan tmpScan(sample, 0, 1, rtmin - 0.1, 0, -1);
     scanItr = lower_bound(scans.begin(), scans.end(), &tmpScan, Scan::compRt);
-    if (scanItr >= scans.end())
-    {
+    if (scanItr >= scans.end()) {
         return false;
     }
 
     int estimatedScans = scans.size();
 
-    //TODO: why is 10 added?
-    if (sample->maxRt - sample->minRt > 0 && (rtmax - rtmin) / (sample->maxRt - sample->minRt) <= 1)
-    {
-
-        estimatedScans = float(rtmax - rtmin) / (sample->maxRt - sample->minRt) * scans.size() + 10;
+    // TODO: why is 10 added?
+    if (sample->maxRt - sample->minRt > 0
+        && (rtmax - rtmin) / (sample->maxRt - sample->minRt) <= 1) {
+        estimatedScans = float(rtmax - rtmin) / (sample->maxRt - sample->minRt)
+                             * scans.size()
+                         + 10;
     }
 
     this->scannum.reserve(estimatedScans);
@@ -1229,9 +1145,8 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
 
     scanNum = scanItr - scans.begin() - 1;
 
-    for (; scanItr != scans.end(); scanItr++)
-    {
-        Scan *scan = *(scanItr);
+    for (; scanItr != scans.end(); scanItr++) {
+        Scan* scan = *(scanItr);
         scanNum++;
 
         float precursorMz = scan->precursorMz;
@@ -1240,35 +1155,39 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
             continue;
         if (scan->mslevel != mslevel)
             continue;
-        if (precursorMz > 0.0f && (precursorMz < mzmin || precursorMz > mzmax))
-            continue;
         if (scan->rt < rtmin)
             continue;
         if (scan->rt > rtmax)
             break;
 
+        if (precursorMz > 0.0f) {
+            if ((scan->msType() != Scan::MsType::DIA)
+                && (precursorMz < mzmin || precursorMz > mzmax))
+                continue;
+
+            if (precursorMz < scan->swathWindowMin()
+                || precursorMz > scan->swathWindowMax()) {
+                continue;
+            }
+        }
+
         eicMz = 0;
         eicIntensity = -0.01f;
 
-        //binary search
+        // binary search
         mzItr = lower_bound(scan->mz.begin(), scan->mz.end(), mzmin);
         lb = mzItr - scan->mz.begin();
 
-        switch ((EIC::EicType)eicType)
-        {
-
-        //takes the maximum intensity for given m/z range in a scan
-            case EIC::MAX:
-        {
-            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
-            {
+        switch ((EIC::EicType)eicType) {
+            // takes the maximum intensity for given m/z range in a scan
+        case EIC::MAX: {
+            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++) {
                 if (scan->mz[scanIdx] < mzmin)
                     continue;
                 if (scan->mz[scanIdx] > mzmax)
                     break;
 
-                if (scan->intensity[scanIdx] > eicIntensity)
-                {
+                if (scan->intensity[scanIdx] > eicIntensity) {
                     eicIntensity = scan->intensity[scanIdx];
                     eicMz = scan->mz[scanIdx];
                 }
@@ -1276,21 +1195,20 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
             break;
         }
 
-        //takes the sum of all intensities for given m/z range in a scan
-        //associated m/z is the weighted average(with intensities as weights)
-        case EIC::SUM:
-        {
+        // takes the sum of all intensities for given m/z range in a scan
+        // associated m/z is the weighted average(with intensities as weights)
+        case EIC::SUM: {
             double sumMz = 0.0;
             double sumIntensity = 0.0;
             vector<float> mzValues;
-            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
-            {
+            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++) {
                 if (scan->mz[scanIdx] < mzmin)
                     continue;
                 if (scan->mz[scanIdx] > mzmax)
                     break;
 
-                double intensity = static_cast<double>(scan->intensity[scanIdx]);
+                double intensity =
+                    static_cast<double>(scan->intensity[scanIdx]);
                 sumIntensity += intensity;
                 sumMz += static_cast<double>(scan->mz[scanIdx]) * intensity;
                 mzValues.push_back(scan->mz[scanIdx]);
@@ -1299,25 +1217,21 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
                 eicMz = static_cast<float>(sumMz / sumIntensity);
                 eicIntensity = static_cast<float>(sumIntensity);
             } else {
-                eicMz = accumulate(begin(mzValues),
-                                   end(mzValues),
-                                   0.0) / mzValues.size();
+                eicMz = accumulate(begin(mzValues), end(mzValues), 0.0)
+                        / mzValues.size();
                 eicIntensity = 0.0f;
             }
             break;
         }
 
-        default:
-        {
-            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++)
-            {
+        default: {
+            for (unsigned int scanIdx = lb; scanIdx < scan->nobs(); scanIdx++) {
                 if (scan->mz[scanIdx] < mzmin)
                     continue;
                 if (scan->mz[scanIdx] > mzmax)
                     break;
 
-                if (scan->intensity[scanIdx] > eicIntensity)
-                {
+                if (scan->intensity[scanIdx] > eicIntensity) {
                     eicIntensity = scan->intensity[scanIdx];
                     eicMz = scan->mz[scanIdx];
                 }
@@ -1348,11 +1262,27 @@ bool EIC::makeEICSlice(mzSample *sample, float mzmin, float mzmax, float rtmin, 
 
 void EIC::normalizeIntensityPerScan(float scale)
 {
-    if (scale != 1.0)
-    {
-        for (unsigned int j = 0; j < this->size(); j++)
-        {
+    if (scale != 1.0) {
+        for (unsigned int j = 0; j < this->size(); j++) {
             this->intensity[j] *= scale;
         }
     }
+}
+
+vector<double> EIC::intensitySegment(size_t start,
+                                     size_t stop,
+                                     bool baselineCorrect) const
+{
+    if (start >= stop || stop >= intensity.size())
+        return {};
+
+    auto segment =
+        vector<double>(begin(intensity) + start, begin(intensity) + stop + 1);
+
+    if (baselineCorrect && baseline != nullptr) {
+        for (size_t i = start; i <= stop; ++i)
+            segment[i - start] = fmaxf(segment[i - start] - baseline[i], 0.0f);
+    }
+
+    return segment;
 }

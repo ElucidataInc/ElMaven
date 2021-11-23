@@ -5,40 +5,48 @@
 
 #include <boost/bind.hpp>
 
+#include "Compound.h"
+#include "EIC.h"
+#include "Scan.h"
+#include "classifier.h"
 #include "classifierNeuralNet.h"
+#include "constants.h"
 #include "datastructures/adduct.h"
 #include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
-#include "peakdetector.h"
-#include "EIC.h"
-#include "mzUtils.h"
-#include "Compound.h"
-#include "mzSample.h"
-#include "constants.h"
-#include "classifier.h"
-#include "massslicer.h"
-#include "peakFiltering.h"
+#include "fragmentDetection.h"
 #include "groupFiltering.h"
+#include "masscutofftype.h"
+#include "massslicer.h"
 #include "mavenparameters.h"
 #include "mzMassCalculator.h"
-#include "Scan.h"
+#include "mzSample.h"
+#include "mzUtils.h"
+#include "peakFiltering.h"
+#include "peakdetector.h"
 
-PeakDetector::PeakDetector() {
+PeakDetector::PeakDetector()
+{
     _mavenParameters = NULL;
+    disableSignals = false;
 }
 
-PeakDetector::PeakDetector(MavenParameters* mp) {
+PeakDetector::PeakDetector(MavenParameters* mp)
+{
     _mavenParameters = mp;
+    disableSignals = false;
 }
 
-void PeakDetector::sendBoostSignal(const string &progressText,
+void PeakDetector::sendBoostSignal(const string& progressText,
                                    unsigned int completed_slices,
                                    int total_slices)
 {
-    boostSignal(progressText, completed_slices, total_slices);
+    if (!disableSignals)
+        boostSignal(progressText, completed_slices, total_slices);
 }
 
-void PeakDetector::resetProgressBar() {
+void PeakDetector::resetProgressBar()
+{
     _zeroStatus = true;
 }
 
@@ -71,6 +79,15 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
 
             if (!slice->srmId.empty()) {
                 e = sample->getEIC(slice->srmId, mp->eicType);
+            } else if (slice->isMsMsSlice()) {
+                e = sample->getEIC(slice->mzmin,
+                                   slice->mzmax,
+                                   slice->rtmin,
+                                   slice->rtmax,
+                                   2,
+                                   mp->eicType,
+                                   mp->filterline,
+                                   slice->precursorMz);
             } else if (c && c->precursorMz() > 0 && c->productMz() > 0) {
                 e = sample->getEIC(c->precursorMz(),
                                    c->collisionEnergy(),
@@ -126,21 +143,21 @@ vector<EIC*> PeakDetector::pullEICs(const mzSlice* slice,
     return eics;
 }
 
-void PeakDetector::editPeakRegionForSample(PeakGroup *group,
+void PeakDetector::editPeakRegionForSample(PeakGroup* group,
                                            mzSample* peakSample,
                                            vector<EIC*>& eics,
                                            float rtMin,
                                            float rtMax,
-                                           ClassifierNeuralNet *clsf)
+                                           ClassifierNeuralNet* clsf)
 {
     // lambda: deletes the peak for `peakSample` in `group` if it exists
     auto deletePeakIfExists = [group, peakSample] {
         group->peaks.erase(remove_if(begin(group->peaks),
-                                  end(group->peaks),
-                                  [peakSample](Peak& peak) {
-                                      return peak.getSample() == peakSample;
-                                  }),
-                            end(group->peaks));
+                                     end(group->peaks),
+                                     [peakSample](Peak& peak) {
+                                         return peak.getSample() == peakSample;
+                                     }),
+                           end(group->peaks));
     };
 
     if (rtMin < 0.0f && rtMax < 0.0f) {
@@ -176,7 +193,7 @@ void PeakDetector::editPeakRegionForSample(PeakGroup *group,
         // bad score. See also `EIC::getStatistics`.
         auto peaks = eic->peaks;
         if (peaks.empty()) {
-            newPeak.peakRank = 0; // best possible rank
+            newPeak.peakRank = 0;  // best possible rank
         } else {
             sort(begin(peaks), end(peaks), Peak::compArea);
             for (size_t i = 0; i < peaks.size(); i++) {
@@ -275,7 +292,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
     GroupFiltering groupFilter(_mavenParameters);
     vector<PeakGroup> toBeMerged;
     auto iter = _mavenParameters->allgroups.begin();
-    while(iter != _mavenParameters->allgroups.end()) {
+    while (iter != _mavenParameters->allgroups.end()) {
         auto& group = *iter;
         bool matchFound = false;
         for (auto slice : massSlicer.slices) {
@@ -317,9 +334,9 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
             ++iter;
         }
 
-       sendBoostSignal("Identifying features using the given compound set…",
-                       iter - _mavenParameters->allgroups.begin(),
-                       _mavenParameters->allgroups.size());
+        sendBoostSignal("Identifying features using the given compound set…",
+                        iter - _mavenParameters->allgroups.begin(),
+                        _mavenParameters->allgroups.size());
     }
     delete_all(massSlicer.slices);
 
@@ -339,8 +356,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
         if (group.isIsotope() || group.isAdduct())
             continue;
 
-        if (group.hasCompoundLink()
-            && _mavenParameters->pullIsotopesFlag) {
+        if (group.hasCompoundLink() && _mavenParameters->pullIsotopesFlag) {
             if (_mavenParameters->linkIsotopeRtRange)
                 linkParentIsotopeRange(group);
 
@@ -354,8 +370,7 @@ void PeakDetector::identifyFeatures(const vector<Compound*>& identificationSet)
                     _mavenParameters->massCutoffMerge);
             }
         }
-        if (group.hasCompoundLink()
-            && _mavenParameters->searchAdducts
+        if (group.hasCompoundLink() && _mavenParameters->searchAdducts
             && _mavenParameters->filterAdductsAgainstParent) {
             sendBoostSignal("Filtering adducts…", 0, 0);
             groupFilter.filterBasedOnParent(
@@ -412,8 +427,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     }
 
     MassSlicer massSlicer(_mavenParameters);
-    if (_mavenParameters->pullIsotopesFlag
-        && _mavenParameters->searchAdducts
+    if (_mavenParameters->pullIsotopesFlag && _mavenParameters->searchAdducts
         && !srmTransitionPresent) {
         massSlicer.generateIsotopeSlices(compounds, findBarplotIsotopes);
         massSlicer.generateAdductSlices(compounds, true, false);
@@ -436,11 +450,9 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     // if parent is required, keep aside any slices that represent non-parents
     vector<mzSlice*> nonParentIsotopeSlices;
     if (_mavenParameters->pullIsotopesFlag
-        && _mavenParameters->parentIsotopeRequired
-        && !srmTransitionPresent) {
-        nonParentIsotopeSlices = extractNonParentSlices(
-            massSlicer.slices,
-            [](mzSlice* slice) {
+        && _mavenParameters->parentIsotopeRequired && !srmTransitionPresent) {
+        nonParentIsotopeSlices =
+            extractNonParentSlices(massSlicer.slices, [](mzSlice* slice) {
                 return (slice->compound->formula().empty()
                         || slice->isotope.isParent());
             });
@@ -448,13 +460,10 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     }
     vector<mzSlice*> nonParentAdductSlices;
     if (_mavenParameters->searchAdducts
-        && _mavenParameters->parentAdductRequired
-        && !srmTransitionPresent) {
+        && _mavenParameters->parentAdductRequired && !srmTransitionPresent) {
         nonParentAdductSlices = extractNonParentSlices(
             massSlicer.slices,
-            [](mzSlice* slice) {
-                return slice->adduct->isParent();
-            });
+            [](mzSlice* slice) { return slice->adduct->isParent(); });
         setName = "parent groups";
     }
 
@@ -497,13 +506,11 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
     vector<size_t> ghostIndexes;
     for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
         auto& group = _mavenParameters->allgroups[i];
-        if (_mavenParameters->parentIsotopeRequired
-            && group.isGhost()
+        if (_mavenParameters->parentIsotopeRequired && group.isGhost()
             && group.childIsotopeCount() > 0) {
             ghostIndexes.push_back(i);
         }
-        if (_mavenParameters->parentAdductRequired
-            && group.isGhost()
+        if (_mavenParameters->parentAdductRequired && group.isGhost()
             && group.childAdductsCount() > 0) {
             ghostIndexes.push_back(i);
         }
@@ -524,8 +531,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
         if (group.isIsotope() || group.isAdduct())
             continue;
 
-        if (group.hasCompoundLink()
-            && _mavenParameters->pullIsotopesFlag
+        if (group.hasCompoundLink() && _mavenParameters->pullIsotopesFlag
             && !srmTransitionPresent) {
             if (_mavenParameters->linkIsotopeRtRange)
                 linkParentIsotopeRange(group, findBarplotIsotopes);
@@ -542,8 +548,7 @@ void PeakDetector::processCompounds(vector<Compound*> compounds,
                     _mavenParameters->compoundMassCutoffWindow);
             }
         }
-        if (group.hasCompoundLink()
-            && _mavenParameters->searchAdducts
+        if (group.hasCompoundLink() && _mavenParameters->searchAdducts
             && _mavenParameters->filterAdductsAgainstParent
             && !srmTransitionPresent) {
             groupFilter.filterBasedOnParent(
@@ -569,21 +574,23 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
 
     // lambda that adds detected groups to mavenparameters
     auto detectGroupsForSlice = [&](vector<EIC*>& eics, mzSlice* slice) {
-        vector<PeakGroup> peakgroups =
-            EIC::groupPeaks(eics,
-                            slice,
-                            mp,
-                            PeakGroup::IntegrationType::Automated);
-
+        vector<PeakGroup> peakgroups = EIC::groupPeaks(
+            eics, slice, mp, PeakGroup::IntegrationType::Automated);
         // we do not filter non-parent adducts or non-parent isotopologues
-        bool isParentGroup = slice->adduct == nullptr
-                             || (slice->adduct->isParent()
-                                 && slice->isotope.isNone())
-                             || (slice->adduct->isParent()
-                                 && slice->isotope.isParent());
+        bool isParentGroup =
+            slice->adduct == nullptr
+            || (slice->adduct->isParent() && slice->isotope.isNone())
+            || (slice->adduct->isParent() && slice->isotope.isParent());
         if (isParentGroup && applyGroupFilters) {
             GroupFiltering groupFiltering(_mavenParameters, slice);
-            groupFiltering.filter(peakgroups);
+            if (!slice->isMsMsSlice())
+                groupFiltering.filter(peakgroups);
+            if (!slice->isMsMsSlice() && slice->compound != nullptr) {
+                groupFiltering.filterAllButSome(
+                    peakgroups,
+                    GroupFiltering::FilterType::Rank,
+                    _mavenParameters->eicMaxGroups);
+            }
         }
         if (peakgroups.empty())
             return;
@@ -615,9 +622,8 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
         slice->rtmin = max(slice->rtmin, minRtOverAllSamples);
         slice->rtmax = min(slice->rtmax, maxRtOverAllSamples);
 
-        vector<EIC*> eics = pullEICs(slice,
-                                     _mavenParameters->samples,
-                                     _mavenParameters);
+        vector<EIC*> eics =
+            pullEICs(slice, _mavenParameters->samples, _mavenParameters);
 
         if (_mavenParameters->clsf->hasModel())
             _mavenParameters->clsf->scoreEICs(eics);
@@ -625,8 +631,8 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
         float eicMaxIntensity = 0;
         for (auto eic : eics) {
             float max = 0;
-            switch (static_cast<PeakGroup::QType>(_mavenParameters->peakQuantitation))
-            {
+            switch (static_cast<PeakGroup::QType>(
+                _mavenParameters->peakQuantitation)) {
             case PeakGroup::AreaTop:
                 max = eic->maxAreaTopIntensity;
                 break;
@@ -652,21 +658,21 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
         }
 
         // we only filter parent peak-groups on group filtering parameters
-        bool isParentGroup = slice->adduct == nullptr
-                             || (slice->adduct->isParent()
-                                 && slice->isotope.isNone())
-                             || (slice->adduct->isParent()
-                                 && slice->isotope.isParent());
-        if (isParentGroup
-            && applyGroupFilters
+        bool isParentGroup =
+            slice->adduct == nullptr
+            || (slice->adduct->isParent() && slice->isotope.isNone())
+            || (slice->adduct->isParent() && slice->isotope.isParent());
+
+        // Ms/Ms peaks can have relatively very low intensities.
+        if (isParentGroup && applyGroupFilters && !slice->isMsMsSlice()
             && eicMaxIntensity < _mavenParameters->minGroupIntensity) {
             delete_all(eics);
             continue;
         }
 
         // TODO: maybe adducts should have their own filters?
-        bool isIsotope = !(slice->isotope.isParent()
-                           && slice->adduct->isParent());
+        bool isIsotope =
+            !(slice->isotope.isParent() && slice->adduct->isParent());
         PeakFiltering peakFiltering(_mavenParameters, isIsotope);
         peakFiltering.filter(eics);
 
@@ -686,14 +692,22 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
             _zeroStatus = false;
         }
 
-        if (_mavenParameters->showProgressFlag) {
-            string progressText = "Finding "
-                                  + setName;
+        if (_mavenParameters->showProgressFlag && !setName.empty()) {
+            string progressText = "Finding " + setName;
             sendBoostSignal(progressText,
                             s + 1,
                             std::min((int)slices.size(),
                                      _mavenParameters->limitGroupCount));
         }
+    }
+
+    // filter for the best spectral matches per unique group
+    if (_mavenParameters->matchFragmentationFlag) {
+        sendBoostSignal("Filtering for best MS/MS annotations…", 0, 0);
+        GroupFiltering groupFiltering(_mavenParameters);
+        groupFiltering.filterAllButSome(_mavenParameters->allgroups,
+                                        GroupFiltering::FilterType::MsMsScore,
+                                        _mavenParameters->fragAnnotationLimit);
     }
 }
 
@@ -723,11 +737,11 @@ void _keepNBestRanked(unordered_map<Compound*, vector<size_t>>& compoundGroups,
     mzUtils::eraseIndexes(container, indexesToDelete);
 }
 
-pair<map<size_t, size_t>, vector<size_t>>
-_matchParentsToChildren(vector<size_t>& parentIndexes,
-                        vector<size_t>& childIndexes,
-                        vector<PeakGroup>& container,
-                        function<string(PeakGroup*)> nameFunc)
+pair<map<size_t, size_t>, vector<size_t>> _matchParentsToChildren(
+    vector<size_t>& parentIndexes,
+    vector<size_t>& childIndexes,
+    vector<PeakGroup>& container,
+    function<string(PeakGroup*)> nameFunc)
 {
     map<string, vector<size_t>> nameGroupedChildren;
     for (auto index : childIndexes) {
@@ -762,37 +776,38 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
     function<void(size_t,
                   map<size_t, size_t>&,
                   map<size_t, size_t>&,
-                  map<size_t, vector<size_t>>&)> findPreferredMatch;
+                  map<size_t, vector<size_t>>&)>
+        findPreferredMatch;
     findPreferredMatch =
-        [&lessRtDel, &findPreferredMatch]
-        (size_t subject,
-         map<size_t, size_t>& subjectsWithObjects,
-         map<size_t, size_t>& objectsWithSubjects,
-         map<size_t, vector<size_t>>& priorityLists) -> void {
-            auto priorityList = priorityLists[subject];
-            for (size_t object : priorityList) {
-                if (objectsWithSubjects.count(object)) {
-                    auto competingSubject = objectsWithSubjects[object];
-                    if (lessRtDel(subject, competingSubject, object)) {
-                        subjectsWithObjects[subject] = object;
-                        objectsWithSubjects[object] = subject;
-
-                        auto iter = subjectsWithObjects.find(competingSubject);
-                        if(iter != end(subjectsWithObjects))
-                            subjectsWithObjects.erase(iter);
-                        findPreferredMatch(competingSubject,
-                                           subjectsWithObjects,
-                                           objectsWithSubjects,
-                                           priorityLists);
-                        break;
-                    }
-                } else {
+        [&lessRtDel, &findPreferredMatch](
+            size_t subject,
+            map<size_t, size_t>& subjectsWithObjects,
+            map<size_t, size_t>& objectsWithSubjects,
+            map<size_t, vector<size_t>>& priorityLists) -> void {
+        auto priorityList = priorityLists[subject];
+        for (size_t object : priorityList) {
+            if (objectsWithSubjects.count(object)) {
+                auto competingSubject = objectsWithSubjects[object];
+                if (lessRtDel(subject, competingSubject, object)) {
                     subjectsWithObjects[subject] = object;
                     objectsWithSubjects[object] = subject;
+
+                    auto iter = subjectsWithObjects.find(competingSubject);
+                    if (iter != end(subjectsWithObjects))
+                        subjectsWithObjects.erase(iter);
+                    findPreferredMatch(competingSubject,
+                                       subjectsWithObjects,
+                                       objectsWithSubjects,
+                                       priorityLists);
                     break;
                 }
+            } else {
+                subjectsWithObjects[subject] = object;
+                objectsWithSubjects[object] = subject;
+                break;
             }
-        };
+        }
+    };
 
     vector<size_t> orphans;
     map<size_t, size_t> nonOrphans;
@@ -842,22 +857,20 @@ _matchParentsToChildren(vector<size_t>& parentIndexes,
 
 // given a compound and its child indexes, clubs them with their most likely
 // parent-group if possible, otherwise adds them to a ghost parent
-unordered_map<size_t, vector<size_t>>
-_makeMeta(Compound* compound,
-          vector<size_t>& childIndexes,
-          unordered_map<Compound*, vector<size_t>>& parentCompounds,
-          function<string(PeakGroup*)> nameFunc,
-          MavenParameters* mp)
+unordered_map<size_t, vector<size_t>> _makeMeta(
+    Compound* compound,
+    vector<size_t>& childIndexes,
+    unordered_map<Compound*, vector<size_t>>& parentCompounds,
+    function<string(PeakGroup*)> nameFunc,
+    MavenParameters* mp)
 {
     auto& container = mp->allgroups;
     vector<size_t> orphans;
     map<size_t, size_t> nonOrphans;
     if (parentCompounds.count(compound) > 0) {
         auto& parentIndexes = parentCompounds[compound];
-        auto result = _matchParentsToChildren(parentIndexes,
-                                              childIndexes,
-                                              container,
-                                              nameFunc);
+        auto result = _matchParentsToChildren(
+            parentIndexes, childIndexes, container, nameFunc);
         nonOrphans = result.first;
         orphans = result.second;
     } else {
@@ -883,8 +896,7 @@ _makeMeta(Compound* compound,
         // set an appropriate slice for ghost parent
         mzSlice slice;
         slice.compound = compound;
-        slice.calculateMzMinMax(mp->compoundMassCutoffWindow,
-                                mp->getCharge());
+        slice.calculateMzMinMax(mp->compoundMassCutoffWindow, mp->getCharge());
         slice.calculateRTMinMax(false, 0.0f);
         container.back().setSlice(slice);
         container.back().setSelectedSamples(mp->samples);
@@ -920,15 +932,14 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
                 continue;
 
             bool notAdduct = group.adduct() == nullptr;
-            bool parentAdductAndNotIsotope = (group.adduct()
-                                              && group.adduct()->isParent()
-                                              && group.isotope().isNone());
-                                              
-            bool parentAdductAndParentIsotope = (group.adduct()
-                                                 && group.adduct()->isParent()
-                                                 && group.isotope().isParent());
-            if (notAdduct
-                || parentAdductAndNotIsotope
+            bool parentAdductAndNotIsotope =
+                (group.adduct() && group.adduct()->isParent()
+                 && group.isotope().isNone());
+
+            bool parentAdductAndParentIsotope =
+                (group.adduct() && group.adduct()->isParent()
+                 && group.isotope().isParent());
+            if (notAdduct || parentAdductAndNotIsotope
                 || parentAdductAndParentIsotope) {
                 if (parentCompounds.count(compound) == 0)
                     parentCompounds[compound] = {};
@@ -995,13 +1006,12 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
         Compound* compound = elem.first;
         auto& isotopeIndexes = elem.second;
-        auto metaIsotopeGroups = _makeMeta(compound,
-                                           isotopeIndexes,
-                                           parentCompounds,
-                                           [](PeakGroup* group) {
-                                               return group->isotope().name;
-                                           },
-                                           _mavenParameters);
+        auto metaIsotopeGroups = _makeMeta(
+            compound,
+            isotopeIndexes,
+            parentCompounds,
+            [](PeakGroup* group) { return group->isotope().name; },
+            _mavenParameters);
         metaGroups[compound] = metaIsotopeGroups;
     }
 
@@ -1012,13 +1022,12 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 
         Compound* compound = elem.first;
         auto& adductIndexes = elem.second;
-        auto metaAdductGroups = _makeMeta(compound,
-                                          adductIndexes,
-                                          parentCompounds,
-                                          [](PeakGroup* group) {
-                                              return group->adduct()->getName();
-                                          },
-                                          _mavenParameters);
+        auto metaAdductGroups = _makeMeta(
+            compound,
+            adductIndexes,
+            parentCompounds,
+            [](PeakGroup* group) { return group->adduct()->getName(); },
+            _mavenParameters);
         if (metaGroups.count(compound) > 0) {
             auto& existingMetaGroups = metaGroups[compound];
             for (auto& elem : metaAdductGroups) {
@@ -1072,8 +1081,13 @@ void PeakDetector::performMetaGrouping(bool applyGroupFilters,
 void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
                                            bool findBarplotIsotopes)
 {
-    if (!_mavenParameters->pullIsotopesFlag
-        || !parentGroup.hasCompoundLink()
+    if (_mavenParameters->matchFragmentationFlag) {
+        parentGroup.computeFragPattern(_mavenParameters->fragmentTolerance);
+        parentGroup.matchFragmentation(_mavenParameters->fragmentTolerance,
+                                       _mavenParameters->scoringAlgo);
+    }
+
+    if (!_mavenParameters->pullIsotopesFlag || !parentGroup.hasCompoundLink()
         || parentGroup.getCompound()->formula().empty()
         || parentGroup.isIsotope()) {
         return;
@@ -1128,9 +1142,8 @@ void PeakDetector::detectIsotopesForParent(PeakGroup& parentGroup,
         }
         massSlicer.clearSlices();
     } else {
-        processCompounds({parentGroup.getCompound()},
-                         false,
-                         findBarplotIsotopes);
+        processCompounds(
+            {parentGroup.getCompound()}, false, findBarplotIsotopes);
         for (auto& group : _mavenParameters->allgroups) {
             if (_mavenParameters->stop)
                 return;
@@ -1178,9 +1191,8 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
                                         : parentGroup.childIsotopes();
     vector<PeakGroup*> emptyChildren;
     for (auto& child : isotopes) {
-        auto eics = pullEICs(&child->getSlice(),
-                             _mavenParameters->samples,
-                             _mavenParameters);
+        auto eics = pullEICs(
+            &child->getSlice(), _mavenParameters->samples, _mavenParameters);
         for (const auto& peak : parentGroup.peaks) {
             auto sample = peak.getSample();
             editPeakRegionForSample(child.get(),
@@ -1205,15 +1217,15 @@ void PeakDetector::linkParentIsotopeRange(PeakGroup& parentGroup,
         parentGroup.removeChild(group);
 }
 
-shared_ptr<PeakGroup>
-PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
-                                 float rtMin,
-                                 float rtMax,
-                                 const mzSlice slice,
-                                 const std::vector<mzSample*>& samples,
-                                 const MavenParameters *mp,
-                                 ClassifierNeuralNet* clsf,
-                                 bool isIsotope)
+shared_ptr<PeakGroup> PeakDetector::integrateEicRegion(
+    const std::vector<EIC*>& eics,
+    float rtMin,
+    float rtMax,
+    const mzSlice slice,
+    const std::vector<mzSample*>& samples,
+    const MavenParameters* mp,
+    ClassifierNeuralNet* clsf,
+    bool isIsotope)
 {
     auto parameters = make_shared<MavenParameters>(*mp);
     auto integratedGroup =
@@ -1235,7 +1247,7 @@ PeakDetector::integrateEicRegion(const std::vector<EIC*>& eics,
             // rank gives a bad score. See also `EIC::getStatistics`.
             auto peaks = eic->peaks;
             if (peaks.empty()) {
-                peak.peakRank = 0; // best possible rank
+                peak.peakRank = 0;  // best possible rank
             } else {
                 sort(begin(peaks), end(peaks), Peak::compArea);
                 for (size_t i = 0; i < peaks.size(); i++) {

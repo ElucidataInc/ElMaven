@@ -1,17 +1,18 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
-#include <QDir>
 #include <QCoreApplication>
-#include <QProcess>
+#include <QDir>
 #include <QJsonObject>
+#include <QProcess>
 
 #include "Compound.h"
+#include "EIC.h"
 #include "alignmentdialog.h"
-#include "common/analytics.h"
 #include "backgroundopsthread.h"
+#include "common/analytics.h"
 #include "database.h"
 #include "groupFiltering.h"
 #include "grouprtwidget.h"
@@ -23,7 +24,6 @@
 #include "obiwarp.h"
 #include "peakdetector.h"
 #include "samplertwidget.h"
-#include "EIC.h"
 #include "csvreports.h"
 #include "pollyintegration.h"
 #include "json.hpp"
@@ -106,50 +106,44 @@ void BackgroundOpsThread::run(void)
     } else if (runFunction == "computePeaks") {
         computePeaks();
     } else if (runFunction == "pullIsotopesForFormula") {
-        pullIsotopesForFormula(_isotopeFormula,
-                               _isotopeCharge);
+        pullIsotopesForFormula(_isotopeFormula, _isotopeCharge);
     } else if (runFunction == "pullIsotopesForGroup") {
         pullIsotopesForGroup(_parentGroup.get());
     } else if (runFunction == "pullIsotopesForBarPlot") {
         pullIsotopesForBarPlot(_parentGroup.get());
     } else {
-        qWarning() << QString("Unknown function: \"%1\"")
-                          .arg(runFunction.c_str());
+        qWarning()
+            << QString("Unknown function: \"%1\"").arg(runFunction.c_str());
     }
 
     quit();
     return;
 }
 
-void BackgroundOpsThread::setPeakDetector(PeakDetector *pd)
+void BackgroundOpsThread::setPeakDetector(PeakDetector* pd)
 {
     if (peakDetector != nullptr)
         delete peakDetector;
 
     peakDetector = pd;
-    peakDetector->boostSignal.connect(boost::bind(&BackgroundOpsThread::qtSlot,
-                                                  this,
-                                                  _1,
-                                                  _2,
-                                                  _3));
+    peakDetector->boostSignal.connect(
+        boost::bind(&BackgroundOpsThread::qtSlot, this, _1, _2, _3));
 }
 
 void BackgroundOpsThread::qtSlot(const string& progressText,
-                                  unsigned int progress,
-                                  int totalSteps)
+                                 unsigned int progress,
+                                 int totalSteps)
 {
-    emit updateProgressBar(QString::fromStdString(progressText),
-                           progress,
-                           totalSteps);
+    emit updateProgressBar(
+        QString::fromStdString(progressText), progress, totalSteps);
 }
 
 void BackgroundOpsThread::qtSignalSlot(const string& progressText,
-                                        unsigned int completed_slices,
-                                        int total_slices)
+                                       unsigned int completed_slices,
+                                       int total_slices)
 {
-    emit updateProgressBar(QString::fromStdString(progressText),
-                           completed_slices,
-                           total_slices);
+    emit updateProgressBar(
+        QString::fromStdString(progressText), completed_slices, total_slices);
 }
 
 void BackgroundOpsThread::align()
@@ -216,7 +210,7 @@ void BackgroundOpsThread::alignWithObiWarp()
         false,
         mainwindow->alignmentDialog->binSizeObiWarp->value());
 
-    vector <mzSample*> samplesToAlign;
+    vector<mzSample*> samplesToAlign;
     int countMs2Samples = 0;
     for (auto sample : mavenParameters->samples) {
         if (sample->ms1ScanCount() == 0 && sample->ms2ScanCount()) {
@@ -227,10 +221,11 @@ void BackgroundOpsThread::alignWithObiWarp()
     }
 
     if (countMs2Samples == mavenParameters->samples.size()) {
-        auto htmlText = QString("The loaded samples contain purely MS2 data. "
-                                "Alignment cannot be performed for such samples "
-                                "and will therefore be aborted. Currently, El-MAVEN " 
-                                "supports alignment of full-scan MS1 and DDA data only.");
+        auto htmlText = QString(
+            "The loaded samples contain purely MS2 data. "
+            "Alignment cannot be performed for such samples "
+            "and will therefore be aborted. Currently, El-MAVEN "
+            "supports alignment of full-scan MS1 and DDA data only.");
         emit alignmentError(htmlText);
         return;
     }
@@ -241,9 +236,8 @@ void BackgroundOpsThread::alignWithObiWarp()
     aligner.setAlignmentProgress.connect(
         boost::bind(&BackgroundOpsThread::qtSlot, this, _1, _2, _3));
 
-    auto stopped = aligner.alignWithObiWarp(samplesToAlign,
-                                            obiParams,
-                                            mavenParameters);
+    auto stopped =
+        aligner.alignWithObiWarp(samplesToAlign, obiParams, mavenParameters);
     delete obiParams;
 
     if (stopped) {
@@ -373,9 +367,9 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
         slice.rtmin = samples[0]->minRt;
         slice.rtmax = samples[0]->maxRt;
 
-        auto eics  = PeakDetector::pullEICs(&slice, samples, mp);
-        for(auto eic : eics) {
-            for(Peak& peak :  group->peaks) {
+        auto eics = PeakDetector::pullEICs(&slice, samples, mp);
+        for (auto eic : eics) {
+            for (Peak& peak : group->peaks) {
                 if (eic->getSample() == peak.getSample()) {
                     eic->adjustPeakBounds(peak, group->minRt, group->maxRt);
                     eic->getPeakDetails(peak);
@@ -389,7 +383,7 @@ void BackgroundOpsThread::updateGroups(QList<shared_ptr<PeakGroup>>& groups,
         delete_all(eics);
     };
 
-    for(auto group : groups) {
+    for (auto group : groups) {
         updateGroup(group.get());
         for (auto& child : group->childIsotopes())
             updateGroup(child.get());
