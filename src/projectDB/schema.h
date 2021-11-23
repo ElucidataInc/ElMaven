@@ -284,7 +284,9 @@
                                               , peak_width_quantile              INTEGER \
                                               , peakMlModel                      TEXT    \
                                               , badGroupUpperLimit               REAL    \
-                                              , goodGroupLowerLimit              REAL    );"
+                                              , goodGroupLowerLimit              REAL    \
+                                              , frag_annotation_limit            INTEGER \
+                                              , frag_scoring_algo                INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \
