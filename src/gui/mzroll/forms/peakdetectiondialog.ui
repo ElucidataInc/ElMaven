@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>580</height>
+    <height>610</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -522,15 +522,8 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_fragmentTolerance">
-            <property name="text">
-             <string>Fragment mass tolerance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" alignment="Qt::AlignRight">
-           <widget class="QLineEdit" name="scoringAlgo">
+          <item row="0" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="fragmentTolerance">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -543,21 +536,21 @@
               <height>0</height>
              </size>
             </property>
-            <property name="cursor">
-             <cursorShape>BlankCursor</cursorShape>
+            <property name="suffix">
+             <string> ppm</string>
             </property>
-            <property name="text">
-             <string>Hypergeometric Score</string>
+            <property name="maximum">
+             <double>1000.000000000000000</double>
             </property>
-            <property name="readOnly">
-             <bool>true</bool>
+            <property name="value">
+             <double>20.000000000000000</double>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_matchAtLeastX">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_scoringAlgo">
             <property name="text">
-             <string>Match at least [x] fragments</string>
+             <string>Scoring algorithm</string>
             </property>
            </widget>
           </item>
@@ -566,6 +559,45 @@
             <property name="text">
              <string>Minimum score</string>
             </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="mustHaveMs2">
+            <property name="text">
+             <string>Exclude unfragmented groups</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="scoringAlgo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <item>
+             <property name="text">
+              <string>Weighted Dot-product</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hypergeometric Score</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="3" column="1" alignment="Qt::AlignRight">
@@ -596,45 +628,6 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" alignment="Qt::AlignRight">
-           <widget class="QDoubleSpinBox" name="fragmentTolerance">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="suffix">
-             <string> ppm</string>
-            </property>
-            <property name="maximum">
-             <double>1000.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>20.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="mustHaveMs2">
-            <property name="text">
-             <string>Exclude unfragmented groups</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_scoringAlgo">
-            <property name="text">
-             <string>Scoring algorithm</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1" alignment="Qt::AlignRight">
            <widget class="QDoubleSpinBox" name="minFragMatch">
             <property name="sizePolicy">
@@ -657,8 +650,35 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_fragmentTolerance">
+            <property name="text">
+             <string>Fragment mass tolerance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_matchAtLeastX">
+            <property name="text">
+             <string>Match at least [x] fragments</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Limit compound annotation based on spectral match</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="fragAnnotationLimit">
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
          </layout>
-         <zorder>scoringAlgo</zorder>
          <zorder>label_minMatchScore</zorder>
          <zorder>minFragMatchScore</zorder>
          <zorder>minFragMatch</zorder>
@@ -667,6 +687,9 @@
          <zorder>label_fragmentTolerance</zorder>
          <zorder>label_scoringAlgo</zorder>
          <zorder>mustHaveMs2</zorder>
+         <zorder>scoringAlgo</zorder>
+         <zorder>label_2</zorder>
+         <zorder>fragAnnotationLimit</zorder>
         </widget>
        </item>
       </layout>
