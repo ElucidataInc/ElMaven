@@ -69,7 +69,9 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog)
     settings.insert("fragmentTolerance",
                     QVariant::fromValue(pd->fragmentTolerance));
     settings.insert("minFragMatch", QVariant::fromValue(pd->minFragMatch));
-
+    settings.insert("fragAnnotationLimit",
+                    QVariant::fromValue(pd->fragAnnotationLimit));
+    settings.insert("scoringAlgo", QVariant::fromValue(pd->scoringAlgo));
     // group filtering settings
     settings.insert("peakQuantitation",
                     QVariant::fromValue(pd->peakQuantitation));
@@ -245,6 +247,22 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) : QDialog(parent)
             SIGNAL(rangeChanged(int, int)),
             this,
             SLOT(updateCurationParameter(int, int)));
+    connect(scoringAlgo, &QComboBox::currentTextChanged, [this]() {
+        this->mainwindow->getAnalytics()->hitEvent("Peak Detection",
+                                                   "Frag matching algo changed",
+                                                   scoringAlgo->currentText());
+        if (scoringAlgo->currentIndex() == 0) {
+            // weighted dot-product
+            minFragMatchScore->setMaximum(1.0);
+            minFragMatchScore->setSingleStep(0.05);
+        } else {
+            // hypergeometric score
+            minFragMatchScore->setMaximum(1000.0);
+            minFragMatchScore->setSingleStep(5.0);
+        }
+        minFragMatchScore->setValue(0.0);
+    });
+
     connect(quantileIntensity,
             SIGNAL(valueChanged(int)),
             this,
@@ -645,8 +663,8 @@ void PeakDetectionDialog::toggleFragmentation()
     auto samples = mainwindow->getVisibleSamples();
     auto iter = find_if(begin(samples), end(samples), [](mzSample* s) {
         bool hasMs1 = s->ms1ScanCount() > 0;
-        bool hasDda = s->msMsType() == mzSample::MsMsType::DDA;
-        bool hasDia = s->msMsType() == mzSample::MsMsType::DIA;
+        bool hasDda = s->ms2ScanCount() > 0;
+        bool hasDia = s->diaScanCount() > 0;
         return (hasMs1 && hasDda) || (hasMs1 && hasDia);
     });
 

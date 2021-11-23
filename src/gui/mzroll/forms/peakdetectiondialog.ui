@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>717</width>
-    <height>580</height>
+    <width>780</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -588,8 +588,15 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" alignment="Qt::AlignRight">
-           <widget class="QDoubleSpinBox" name="minFragMatch">
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="mustHaveMs2">
+            <property name="text">
+             <string>Exclude unfragmented groups</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="scoringAlgo">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -602,12 +609,22 @@
               <height>0</height>
              </size>
             </property>
-            <property name="decimals">
-             <number>0</number>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
             </property>
-            <property name="value">
-             <double>3.000000000000000</double>
-            </property>
+            <item>
+             <property name="text">
+              <string>Weighted Dot-product</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hypergeometric Score</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="3" column="1" alignment="Qt::AlignRight">
@@ -638,8 +655,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1" alignment="Qt::AlignRight">
-           <widget class="QLineEdit" name="scoringAlgo">
+          <item row="1" column="1" alignment="Qt::AlignRight">
+           <widget class="QDoubleSpinBox" name="minFragMatch">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
