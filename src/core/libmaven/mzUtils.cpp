@@ -7,23 +7,23 @@
 #include <windows.h>
 #endif
 
+#include <boost/algorithm/string.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/algorithm/string.hpp>
 
-#include "doctest.h"
-#include "mzUtils.h"
+#include "RealFirFilter.h"
 #include "SavGolSmoother.h"
 #include "csvparser.h"
+#include "doctest.h"
 #include "masscutofftype.h"
-#include "RealFirFilter.h"
+#include "mzUtils.h"
 
 /**
- * random collection of useful functions 
+ * random collection of useful functions
  */
-namespace mzUtils {
-
+namespace mzUtils
+{
     int randInt(int low, int high)
     {
         default_random_engine generator;
@@ -56,7 +56,7 @@ namespace mzUtils {
         return res;
     }
 
-    std::string makeLowerCase(string &str)
+    std::string makeLowerCase(string& str)
     {
         transform(str.begin(), str.end(), str.begin(), ::tolower);
         return str;
@@ -67,7 +67,7 @@ namespace mzUtils {
         vector<string> result;
         int start = 0;
         int end = 0;
-        while(end != string::npos){
+        while (end != string::npos) {
             end = str.find(sep, start);
             result.push_back(str.substr(start, end - start));
             start = end + sep.length();
@@ -75,20 +75,20 @@ namespace mzUtils {
         return result;
     }
 
-    vector<string> splitCSVFields(const string& s,const string& c){
-
+    vector<string> splitCSVFields(const string& s, const string& c)
+    {
         vector<string> v;
-        const char *whole_row = s.c_str();
-        const char *del = c.c_str();
+        const char* whole_row = s.c_str();
+        const char* del = c.c_str();
 
-        CsvParser *csvparser = CsvParser_new_from_string(whole_row, del, 0);
+        CsvParser* csvparser = CsvParser_new_from_string(whole_row, del, 0);
 
-        CsvRow *row;
+        CsvRow* row;
 
         row = CsvParser_getRow(csvparser);
-        const char **rowFields = CsvParser_getFields(row);
-        
-        for (int i = 0 ; i < CsvParser_getNumFields(row) ; i++) {
+        const char** rowFields = CsvParser_getFields(row);
+
+        for (int i = 0; i < CsvParser_getNumFields(row); i++) {
             v.push_back(rowFields[i]);
         }
         return v;
@@ -109,12 +109,12 @@ namespace mzUtils {
 
     void removeSpecialCharFromStartEnd(vector<string>& fields)
     {
-        for(size_t i = 0; i < fields.size(); i++) {
+        for (size_t i = 0; i < fields.size(); i++) {
             int n = fields[i].length();
-            if (n > 2 ){
-                if((fields[i][0] == '"' && fields[i][n - 1] == '"') ||
-                    (fields[i][0] == '\'' && fields[i][n - 1] == '\''))
-                        fields[i] = fields[i].substr(1, n - 2);
+            if (n > 2) {
+                if ((fields[i][0] == '"' && fields[i][n - 1] == '"')
+                    || (fields[i][0] == '\'' && fields[i][n - 1] == '\''))
+                    fields[i] = fields[i].substr(1, n - 2);
             }
         }
     }
@@ -136,23 +136,39 @@ namespace mzUtils {
             return false;
     }
 
-    void smoothAverage(float *input, float* result, int smoothWindowLen,
+    void smoothAverage(float* input,
+                       float* result,
+                       int smoothWindowLen,
                        int inputLen)
     {
-        if (smoothWindowLen == 0 ) return;
+        if (smoothWindowLen == 0)
+            return;
         float* x = new float[smoothWindowLen];
 
-        for(int i = 0; i < smoothWindowLen; i++)
-            x[i] = 1.0/smoothWindowLen;
-        conv(smoothWindowLen, -smoothWindowLen/2, x, inputLen,
-                 0, input, inputLen, 0, result);
+        for (int i = 0; i < smoothWindowLen; i++)
+            x[i] = 1.0 / smoothWindowLen;
+        conv(smoothWindowLen,
+             -smoothWindowLen / 2,
+             x,
+             inputLen,
+             0,
+             input,
+             inputLen,
+             0,
+             result);
         delete[] x;
     }
 
-    void conv (int xLen, int indexFirstX, float *x, int inputLen,
-              int indexFirstInput, float *input, int resultLen,
-              int indexFirstResult, float *result)
-   {
+    void conv(int xLen,
+              int indexFirstX,
+              float* x,
+              int inputLen,
+              int indexFirstInput,
+              float* input,
+              int resultLen,
+              int indexFirstResult,
+              float* result)
+    {
         int ilx = indexFirstX + xLen - 1;
         int ily = indexFirstInput + inputLen - 1;
         int ilz = indexFirstResult + resultLen - 1;
@@ -164,33 +180,32 @@ namespace mzUtils {
         input -= indexFirstInput;
         result -= indexFirstResult;
 
-        for (i = indexFirstResult; i <= ilz; ++i)
-        {
+        for (i = indexFirstResult; i <= ilz; ++i) {
             jlow = i - ily;
             if (jlow < indexFirstX)
-                    jlow = indexFirstX;
+                jlow = indexFirstX;
             jhigh = i - indexFirstInput;
             if (jhigh > ilx)
                 jhigh = ilx;
 
             for (j = jlow, sum = 0.0; j <= jhigh; ++j)
-                sum += x[j] * input[i-j];
+                sum += x[j] * input[i - j];
             result[i] = sum;
         }
     }
 
-    void gaussian1d_smoothing (int numSample, int smoothWindowLen, float *data)
+    void gaussian1d_smoothing(int numSample, int smoothWindowLen, float* data)
     {
-        int is;             /* loop counter */
+        int is; /* loop counter */
         float sum = 0.0;
         float fcut;
         float r;
-        float fcutr = 1.0/smoothWindowLen;
+        float fcutr = 1.0 / smoothWindowLen;
         int n = 0;
         int mean = 0;
         float fcutl = 0;
-        float s[1000];      /* smoothing filter array */
-        float *temp;            /* temporary array */
+        float s[1000]; /* smoothing filter array */
+        float* temp;   /* temporary array */
 
         /* save input fcut */
         fcut = fcutr;
@@ -201,7 +216,7 @@ namespace mzUtils {
 
         /* if halfwidth more than 100 samples, truncate */
         if (smoothWindowLen > 100)
-            fcut=1.0/100;
+            fcut = 1.0 / 100;
 
         /* allocate space */
         temp = new float[numSample];
@@ -211,17 +226,17 @@ namespace mzUtils {
             fcutl = fcut;
 
             /* set span of 3, at width of 1.5*exp(-PI*1.5**2)=1/1174 */
-            n = (int) (3.0 / fcut + 0.5);
-            n = 2 * n / 2 + 1;      /* make it odd for symmetry */
+            n = (int)(3.0 / fcut + 0.5);
+            n = 2 * n / 2 + 1; /* make it odd for symmetry */
 
             /* mean is the index of the zero in the smoothing wavelet */
             mean = n / 2;
 
             /* s(n) is the smoothing gaussian */
             for (is = 1; is <= n; is++) {
-                r = is- mean - 1;
+                r = is - mean - 1;
                 r = -r * r * fcut * fcut * 3.141;
-                s[is-1] = exp(r);
+                s[is - 1] = exp(r);
             }
 
             /* normalize to unit area, will preserve DC frequency at full
@@ -233,7 +248,7 @@ namespace mzUtils {
         }
 
         /* convolve by gaussian into buffer */
-        if (1.01/fcutr > (float)numSample) {
+        if (1.01 / fcutr > (float)numSample) {
             /* replace drastic smoothing by averaging */
             sum = 0.0;
             for (is = 0; is < numSample; is++)
@@ -245,22 +260,23 @@ namespace mzUtils {
 
         } else {
             /* convolve with gaussian */
-            conv (n, -mean, s, numSample, -mean, data, numSample, -mean, temp);
+            conv(n, -mean, s, numSample, -mean, data, numSample, -mean, temp);
             /* copy filtered data back to output array */
-            for (is = 0; is < numSample; is++) data[is] = temp[is];
+            for (is = 0; is < numSample; is++)
+                data[is] = temp[is];
         }
         /* free allocated space */
         delete[] temp;
     }
 
-    float median(vector <float> y)
+    float median(vector<float> y)
     {
         if (y.empty())
-            return(0.0);
-        if (y.size() == 1 )
-            return(y[0]);
-        if (y.size() == 2 ){
-            return(y[0] + y[1])/2;
+            return (0.0);
+        if (y.size() == 1)
+            return (y[0]);
+        if (y.size() == 2) {
+            return (y[0] + y[1]) / 2;
         }
 
         unsigned int n = y.size();
@@ -270,7 +286,7 @@ namespace mzUtils {
         float median = 0.0;
 
         if (n == i * 2)
-            median = (y[i-1] + y[i]) / 2.;
+            median = (y[i - 1] + y[i]) / 2.;
         else
             median = y[i];
 
@@ -305,35 +321,35 @@ namespace mzUtils {
     string float2string(float f, int p)
     {
         std::stringstream ss;
-        ss << setprecision(p) << f; string str; ss >> str;
-        return(str);
+        ss << setprecision(p) << f;
+        string str;
+        ss >> str;
+        return (str);
     }
 
-    float massCutoffDist(const float mz1, const float mz2,
-                         MassCutoff *massCutoff)
+    float massCutoffDist(const float mz1,
+                         const float mz2,
+                         MassCutoff* massCutoff)
     {
-        if(massCutoff->getMassCutoffType() == "ppm"){
-            return (abs((mz2-mz1)/(mz1/1e6)));
-        }
-        else if(massCutoff->getMassCutoffType() == "mDa"){
-            return abs((mz2-mz1)*1e3) ;
-        }
-        else{
+        if (massCutoff->getMassCutoffType() == "ppm") {
+            return (abs((mz2 - mz1) / (mz1 / 1e6)));
+        } else if (massCutoff->getMassCutoffType() == "mDa") {
+            return abs((mz2 - mz1) * 1e3);
+        } else {
             assert(false);
             return 0;
         }
     }
 
-    double massCutoffDist(const double mz1, const double mz2,
-                          MassCutoff *massCutoff)
+    double massCutoffDist(const double mz1,
+                          const double mz2,
+                          MassCutoff* massCutoff)
     {
-        if(massCutoff->getMassCutoffType() == "ppm"){
+        if (massCutoff->getMassCutoffType() == "ppm") {
             return ppmDist(mz1, mz2);
-        }
-        else if(massCutoff->getMassCutoffType() == "mDa"){
-            return abs((mz2-mz1)*1e3) ;
-        }
-        else{
+        } else if (massCutoff->getMassCutoffType() == "mDa") {
+            return abs((mz2 - mz1) * 1e3);
+        } else {
             assert(false);
             return 0;
         }
@@ -351,54 +367,53 @@ namespace mzUtils {
 
     float ppmround(const float mz1, const float resolution)
     {
-        return( round(mz1 * resolution) / resolution);
+        return (round(mz1 * resolution) / resolution);
     }
 
-    bool withinXMassCutoff( float mz1, float mz2, MassCutoff *massCutoff )
+    bool withinXMassCutoff(float mz1, float mz2, MassCutoff* massCutoff)
     {
         float masscutOffMz = massCutoff->massCutoffValue(mz1);
-        if ( mz2 > (mz1 - masscutOffMz) &&
-            mz2 < (mz1 + masscutOffMz) ){
-            return(true);
+        if (mz2 > (mz1 - masscutOffMz) && mz2 < (mz1 + masscutOffMz)) {
+            return (true);
         } else
-            return(false);
+            return (false);
     }
 
-
-    vector<float> quantileDistribution( vector<float> input)
+    vector<float> quantileDistribution(vector<float> input)
     {
         int inputSize = input.size();
         std::sort(input.begin(), input.end());
         vector<float> quantiles(101, 0);
 
-        for (int i = 0; i < 101; i++ ) {
-            int pos = i/100.0 * inputSize ;
+        for (int i = 0; i < 101; i++) {
+            int pos = i / 100.0 * inputSize;
             if (pos < inputSize)
                 quantiles[i] = input[pos];
         }
-        return(quantiles);
+        return (quantiles);
     }
 
-
     float ttest(StatisticsVector<float>& groupA,
-                                 StatisticsVector<float>& groupB )
+                StatisticsVector<float>& groupB)
     {
         int n1 = groupA.size();
         int n2 = groupB.size();
-        if ( n1 == 0 && n2 == 0)
+        if (n1 == 0 && n2 == 0)
             return 0;
-        if ( n1 == 0 || n2 == 0)
+        if (n1 == 0 || n2 == 0)
             return 1000;
         float meanA = groupA.mean();
         float meanB = groupB.mean();
 
-        float stdA  = groupA.stddev(meanA);
-        float stdB  = groupB.stddev(meanB);
-        if (stdA == 0 ) stdA=1.0;
-        if (stdB == 0 ) stdB=1.0;
+        float stdA = groupA.stddev(meanA);
+        float stdB = groupB.stddev(meanB);
+        if (stdA == 0)
+            stdA = 1.0;
+        if (stdB == 0)
+            stdB = 1.0;
 
-        float t_test = (meanA - meanB) / sqrt(((stdA * stdA) / n1) +
-                                              ((stdB * stdB) / n2));
+        float t_test =
+            (meanA - meanB) / sqrt(((stdA * stdA) / n1) + ((stdB * stdB) / n2));
         return t_test;
     }
 
@@ -408,17 +423,18 @@ namespace mzUtils {
         bool flag;
         int intStat;
         intStat = stat(strFilename.c_str(), &stFileInfo);
-        if(intStat == 0) {
+        if (intStat == 0) {
             flag = true;
         } else {
             flag = false;
         }
-        return(flag);
+        return (flag);
     }
 
-
-    int createDir(string path) {
-        if (isDir(path)) return 0;
+    int createDir(string path)
+    {
+        if (isDir(path))
+            return 0;
         cout << "Creating path: " << path << endl;
         mode_t old_mask = umask(0);
 #ifdef MINGW
@@ -430,7 +446,8 @@ namespace mzUtils {
         return retval;
     }
 
-    int isDir(string path) {
+    int isDir(string path)
+    {
         struct stat sbuf;
         int retval = stat(path.c_str(), &sbuf);
         return (!retval && (sbuf.st_mode & S_IFDIR));
@@ -441,11 +458,9 @@ namespace mzUtils {
         // the machine epsilon has to be scaled to the magnitude of the values
         // used and multiplied by the desired precision in ULPs (units in the
         // last place).
-        return std::abs(a - b) <= epsilon
-                * std::abs(a + b)
-                * 2
-                // unless the result is subnormal
-                || std::abs(a - b) < std::numeric_limits<double>::min();
+        return std::abs(a - b) <= epsilon * std::abs(a + b) * 2
+               // unless the result is subnormal
+               || std::abs(a - b) < std::numeric_limits<double>::min();
     }
 
     bool almostEqual(float a, float b, float epsilon)
@@ -453,19 +468,17 @@ namespace mzUtils {
         // the machine epsilon has to be scaled to the magnitude of the values
         // used and multiplied by the desired precision in ULPs (units in the
         // last place).
-        return std::abs(a - b) <= epsilon
-                * std::abs(a + b)
-                * 1
-                // unless the result is subnormal
-                || std::abs(a - b) < std::numeric_limits<float>::min();
+        return std::abs(a - b) <= epsilon * std::abs(a + b) * 1
+               // unless the result is subnormal
+               || std::abs(a - b) < std::numeric_limits<float>::min();
     }
 
-    float correlation(const vector<float>&x, const vector<float>&y)
+    float correlation(const vector<float>& x, const vector<float>& y)
     {
         int n = x.size();
         double sumx = 0;
         double sumy = 0;
-        double sumxy =0;
+        double sumxy = 0;
         double x2 = 0;
         double y2 = 0;
 
@@ -476,13 +489,15 @@ namespace mzUtils {
             x2 += x[i] * x[i];
             y2 += y[i] * y[i];
         }
-        if (n == 0) return 0;
+        if (n == 0)
+            return 0;
         double var1 = x2 - (sumx * sumx) / n;
         double var2 = y2 - (sumy * sumy) / n;
-        if ( var1 == 0 || var2 == 0 ) return 0;
-        float corr = (sumxy -( sumx * sumy) / n) /
-                       sqrt((x2 - (sumx * sumx) / n) *
-                          (y2 - (sumy * sumy) / n));
+        if (var1 == 0 || var2 == 0)
+            return 0;
+        float corr =
+            (sumxy - (sumx * sumy) / n)
+            / sqrt((x2 - (sumx * sumx) / n) * (y2 - (sumy * sumy) / n));
         return corr;
     }
 
@@ -492,61 +507,68 @@ namespace mzUtils {
         float min_s = 0;
         float minR = 1e99;
 
-        //find best fit
-        if (ycoord.size()<3){
+        // find best fit
+        if (ycoord.size() < 3) {
             pair<float, float> res = make_pair(numeric_limits<float>::max(),
                                                numeric_limits<float>::max());
             return res;
         }
-        vector<float>yobs = ycoord;
+        vector<float> yobs = ycoord;
         int ysize = yobs.size();
-        int midpoint = int(ysize/2);
-        //find maximum point ( assuming it somewhere around midpoint of the yobs);
-        float ymax = max(max(yobs[midpoint], yobs[midpoint-1]),
-                         yobs[midpoint+1]);
-        float ymin = min( yobs[0], yobs[ysize-1]);
+        int midpoint = int(ysize / 2);
+        // find maximum point ( assuming it somewhere around midpoint of the
+        // yobs);
+        float ymax =
+            max(max(yobs[midpoint], yobs[midpoint - 1]), yobs[midpoint + 1]);
+        float ymin = min(yobs[0], yobs[ysize - 1]);
 
-        //initialize x vector, values centered around 0,
-        //forxample  -2, -1, 0, 1, 2
+        // initialize x vector, values centered around 0,
+        // forxample  -2, -1, 0, 1, 2
         int xinit = int(ysize / 2) * -1;
         vector<float> x(ysize, 0);
         int greaterZeroCount = 0;
 
-        for(int i = 0; i < ysize; i++){
+        for (int i = 0; i < ysize; i++) {
             x[i] = xinit + i;
-            if (yobs[i] > ymin) greaterZeroCount++;
+            if (yobs[i] > ymin)
+                greaterZeroCount++;
             yobs[i] = (yobs[i] - ymin) / (ymax - ymin);
-            if(yobs[i] < 0) yobs[i] = 0;
+            if (yobs[i] < 0)
+                yobs[i] = 0;
         }
 
         bool converged = false;
         int ittr = 0;
 
-        if (greaterZeroCount <= 3 ){
-            pair<float, float> res = make_pair(FLT_MAX,
-                                               FLT_MAX);
+        if (greaterZeroCount <= 3) {
+            pair<float, float> res = make_pair(FLT_MAX, FLT_MAX);
             return res;
         }
-        while (!converged ) {
-            if ( ittr++ > 20 ) break;
+        while (!converged) {
+            if (ittr++ > 20)
+                break;
             float Rsqr = 0;
-            for(int i = 0; i < ysize; i++ ){
-                Rsqr += SQUARE(exp(-0.5*SQUARE(x[i]/s)) - yobs[i]);
+            for (int i = 0; i < ysize; i++) {
+                Rsqr += SQUARE(exp(-0.5 * SQUARE(x[i] / s)) - yobs[i]);
             }
 
-            if ( Rsqr < minR || ittr == 0 ) { minR = Rsqr; min_s = s; }
-            else if ( Rsqr > minR ) break;
-            else if ( Rsqr - minR == 0 ) break;
+            if (Rsqr < minR || ittr == 0) {
+                minR = Rsqr;
+                min_s = s;
+            } else if (Rsqr > minR)
+                break;
+            else if (Rsqr - minR == 0)
+                break;
             s /= 1.25;
         }
-        pair<float, float> res = make_pair(min_s, minR/(ysize*ysize));
+        pair<float, float> res = make_pair(min_s, minR / (ysize * ysize));
         return res;
     }
 
     inline unsigned long factorial(int n)
     {
         long p = 1;
-        while(n > 1)
+        while (n > 1)
             p *= n--;
         return p;
     }
@@ -554,13 +576,12 @@ namespace mzUtils {
     long long nchoosek(int n, int k)
     {
         int n_k = n - k;
-        if (k < n_k){
+        if (k < n_k) {
             k = n_k;
             n_k = n - k;
         }
-        long long  nchsk = 1;
-        for ( int i = 1; i <= n_k; i++)
-        {
+        long long nchsk = 1;
+        for (int i = 1; i <= n_k; i++) {
             nchsk *= (++k);
             nchsk /= i;
         }
@@ -570,20 +591,20 @@ namespace mzUtils {
     string cleanFilename(const string& filename)
     {
         string outstring = filename;
-        std::string::size_type pos =outstring.find_last_of("/");
+        std::string::size_type pos = outstring.find_last_of("/");
 
         if (pos != std::string::npos) {
-            outstring=outstring.substr(pos+1, outstring.length());
+            outstring = outstring.substr(pos + 1, outstring.length());
         }
 
-        pos=outstring.find_last_of("\\");
+        pos = outstring.find_last_of("\\");
         if (pos != std::string::npos) {
-            outstring=outstring.substr(pos+1, outstring.length());
+            outstring = outstring.substr(pos + 1, outstring.length());
         }
 
-        pos=outstring.find_last_of(".");
+        pos = outstring.find_last_of(".");
         if (pos != std::string::npos) {
-            outstring=outstring.substr(0, pos);
+            outstring = outstring.substr(0, pos);
         }
         return outstring;
     }
@@ -632,27 +653,27 @@ namespace mzUtils {
 
     double beta(double x, double y)
     {
-        if (x >= 2 && y >= 2 ) {
-            //approximation
-            double result =  sqrt(2*M_PI) * pow(x, x - 0.5) * pow(y, y - 0.5)/
-                             pow(x + y,(x + y - 0.5));
+        if (x >= 2 && y >= 2) {
+            // approximation
+            double result = sqrt(2 * M_PI) * pow(x, x - 0.5) * pow(y, y - 0.5)
+                            / pow(x + y, (x + y - 0.5));
             return result;
         }
-        //integral form
+        // integral form
         double dt = 0.01;
         double sum = 0;
-        for(double t = 0.0001; t <= 0.9999; t += dt) {
-            sum += pow(t,(x - 1)) * pow((1 - t), (y - 1)) * dt;
+        for (double t = 0.0001; t <= 0.9999; t += dt) {
+            sum += pow(t, (x - 1)) * pow((1 - t), (y - 1)) * dt;
         }
         return sum;
     }
 
     double gamma(double z)
     {
-        //integral form
+        // integral form
         double dt = 0.0001;
         double sum = 0;
-        for(double t = 0.000001; t <= 10; t += dt) {
+        for (double t = 0.000001; t <= 10; t += dt) {
             sum += pow(t, z - 1) * exp(-t) * dt;
         }
         return sum;
@@ -663,64 +684,64 @@ namespace mzUtils {
         return pow(x, a - 1) * pow(1 - x, b - 1) / beta(a, b);
     }
 
-    double pertPDF(double x, double min, double mode, double max )
+    double pertPDF(double x, double min, double mode, double max)
     {
-        double a = 6 * (mode - min)/(max - min);
-        double b = 6 * (max - mode)/(max - min);
-        return pow(x - min,a - 1) * pow(max - x,b - 1)/(beta(a, b)*
-                                              pow(max - min,a + b - 1));
+        double a = 6 * (mode - min) / (max - min);
+        double b = 6 * (max - mode) / (max - min);
+        return pow(x - min, a - 1) * pow(max - x, b - 1)
+               / (beta(a, b) * pow(max - min, a + b - 1));
     }
 
-
-    void tridiagonal ( int n, float *c, float *a, float *b, float *r )
+    void tridiagonal(int n, float* c, float* a, float* b, float* r)
     {
         int i;
 
-        for ( i = 0; i < n-1; i++ ) {
+        for (i = 0; i < n - 1; i++) {
             b[i] /= a[i];
-            a[i+1] -= c[i]*b[i];
+            a[i + 1] -= c[i] * b[i];
         }
 
         r[0] /= a[0];
-        for ( i = 1; i < n; i++ )
-            r[i] = ( r[i] - c[i-1] * r[i-1] ) / a[i];
+        for (i = 1; i < n; i++)
+            r[i] = (r[i] - c[i - 1] * r[i - 1]) / a[i];
 
-        for ( i = n-2; i >= 0; i-- )
+        for (i = n - 2; i >= 0; i--)
             r[i] -= r[i + 1] * b[i];
     }
 
-
-    void cubic_nak ( int num, float *interpolatingPoints, float *functionValues,
-                   float *linearCoeff, float *quadraticCoeff, float *cubicCoeff)
+    void cubic_nak(int num,
+                   float* interpolatingPoints,
+                   float* functionValues,
+                   float* linearCoeff,
+                   float* quadraticCoeff,
+                   float* cubicCoeff)
     {
-        float *h,
-              *dl,
-              *dd,
-              *du;
+        float *h, *dl, *dd, *du;
         int i;
 
-        h  = new float [num];
-        dl = new float [num];
-        dd = new float [num];
-        du = new float [num];
+        h = new float[num];
+        dl = new float[num];
+        dd = new float[num];
+        du = new float[num];
 
-        for ( i = 0; i < num-1; i++ )
+        for (i = 0; i < num - 1; i++)
             h[i] = interpolatingPoints[i + 1] - interpolatingPoints[i];
-        for ( i = 0; i < num-3; i++ )
+        for (i = 0; i < num - 3; i++)
             dl[i] = du[i] = h[i + 1];
 
-        for ( i = 0; i < num-2; i++ ) {
-            dd[i] = 2.0 * ( h[i] + h[i + 1] );
-            quadraticCoeff[i]  = ( 3.0 / h[i + 1] ) * ( functionValues[i + 2] -
-                                                    functionValues[i + 1] ) -
-                ( 3.0 / h[i] ) * ( functionValues[i + 1] - functionValues[i] );
+        for (i = 0; i < num - 2; i++) {
+            dd[i] = 2.0 * (h[i] + h[i + 1]);
+            quadraticCoeff[i] =
+                (3.0 / h[i + 1])
+                    * (functionValues[i + 2] - functionValues[i + 1])
+                - (3.0 / h[i]) * (functionValues[i + 1] - functionValues[i]);
         }
-        dd[0] += ( h[0] + h[0]*h[0] / h[1] );
-        dd[num - 3] += ( h[num - 2] + h[num - 2]*h[num - 2] / h[num - 3] );
-        du[0] -= ( h[0]*h[0] / h[1] );
-        dl[num - 4] -= ( h[num - 2]*h[num - 2] / h[num - 3] );
+        dd[0] += (h[0] + h[0] * h[0] / h[1]);
+        dd[num - 3] += (h[num - 2] + h[num - 2] * h[num - 2] / h[num - 3]);
+        du[0] -= (h[0] * h[0] / h[1]);
+        dl[num - 4] -= (h[num - 2] * h[num - 2] / h[num - 3]);
 
-        tridiagonal ( num - 2, dl, dd, du, quadraticCoeff );
+        tridiagonal(num - 2, dl, dd, du, quadraticCoeff);
 
         for (i = num - 3; i >= 0; i--)
             quadraticCoeff[i + 1] = quadraticCoeff[i];
@@ -738,28 +759,35 @@ namespace mzUtils {
                       / 3.0;
         }
 
-        delete [] h;
-        delete [] du;
-        delete [] dd;
-        delete [] dl;
+        delete[] h;
+        delete[] du;
+        delete[] dd;
+        delete[] dl;
     }
 
-    float spline_eval ( int n, float *x, float *f, float *b, float *c,
-            float *d, float t )
+    float spline_eval(int n,
+                      float* x,
+                      float* f,
+                      float* b,
+                      float* c,
+                      float* d,
+                      float t)
     {
-        int i=1;
-        int found=0;
+        int i = 1;
+        int found = 0;
 
-        while ( !found && ( i < n-1 ) ) {
-            if ( t < x[i] )
+        while (!found && (i < n - 1)) {
+            if (t < x[i])
                 found = 1;
             else
                 i++;
         }
 
-        t = f[i-1] + ( t - x[i-1] ) * ( b[i-1] + ( t - x[i-1] ) *
-                                        ( c[i-1] + (t - x[i-1] ) * d[i-1] ) );
-        return ( t );
+        t = f[i - 1]
+            + (t - x[i - 1])
+                  * (b[i - 1]
+                     + (t - x[i - 1]) * (c[i - 1] + (t - x[i - 1]) * d[i - 1]));
+        return (t);
     }
 
     std::string decompressString(const std::string& str)
@@ -777,7 +805,8 @@ namespace mzUtils {
         return outstring;
     }
 
-    std::string compressString(const std::string& uncompressedString) {
+    std::string compressString(const std::string& uncompressedString)
+    {
         string outstring;
 #ifdef ZLIB
         stringstream uncompressed(uncompressedString);
@@ -791,75 +820,76 @@ namespace mzUtils {
         return outstring;
     }
 
-    bool gzipInflate( const std::string& compressedBytes,
-                     std::string& uncompressedBytes )
+    bool gzipInflate(const std::string& compressedBytes,
+                     std::string& uncompressedBytes)
     {
 #ifdef ZLIB
-        if ( compressedBytes.size() == 0 ) {
-            uncompressedBytes = compressedBytes ;
-            return true ;
+        if (compressedBytes.size() == 0) {
+            uncompressedBytes = compressedBytes;
+            return true;
         }
 
-        uncompressedBytes.clear() ;
+        uncompressedBytes.clear();
 
-        unsigned full_length = compressedBytes.size() ;
+        unsigned full_length = compressedBytes.size();
         unsigned half_length = compressedBytes.size() / 2;
 
-        unsigned uncompLength = full_length ;
-        char* uncomp = (char*) calloc( sizeof(char), uncompLength );
+        unsigned uncompLength = full_length;
+        char* uncomp = (char*)calloc(sizeof(char), uncompLength);
 
         z_stream strm;
-        strm.next_in = (Bytef *) compressedBytes.c_str();
-        strm.avail_in = compressedBytes.size() ;
+        strm.next_in = (Bytef*)compressedBytes.c_str();
+        strm.avail_in = compressedBytes.size();
         strm.total_out = 0;
         strm.zalloc = Z_NULL;
         strm.zfree = Z_NULL;
 
-        bool done = false ;
+        bool done = false;
 
-        if (inflateInit2(&strm, (16+MAX_WBITS)) != Z_OK) {
-            free( uncomp );
+        if (inflateInit2(&strm, (16 + MAX_WBITS)) != Z_OK) {
+            free(uncomp);
             return false;
         }
 
         while (!done) {
             // If our output buffer is too small
-            if (strm.total_out >= uncompLength ) {
+            if (strm.total_out >= uncompLength) {
                 // Increase size of output buffer
-                char* uncomp2 = (char*) calloc( sizeof(char),
-                                              uncompLength + half_length );
-                memcpy( uncomp2, uncomp, uncompLength );
-                uncompLength += half_length ;
-                free( uncomp );
-                uncomp = uncomp2 ;
+                char* uncomp2 =
+                    (char*)calloc(sizeof(char), uncompLength + half_length);
+                memcpy(uncomp2, uncomp, uncompLength);
+                uncompLength += half_length;
+                free(uncomp);
+                uncomp = uncomp2;
             }
 
-            strm.next_out = (Bytef *) (uncomp + strm.total_out);
+            strm.next_out = (Bytef*)(uncomp + strm.total_out);
             strm.avail_out = uncompLength - strm.total_out;
 
             // Inflate another chunk.
-            int err = inflate (&strm, Z_SYNC_FLUSH);
-            if (err == Z_STREAM_END) done = true;
-            else if (err != Z_OK)  {
+            int err = inflate(&strm, Z_SYNC_FLUSH);
+            if (err == Z_STREAM_END)
+                done = true;
+            else if (err != Z_OK) {
                 break;
             }
         }
 
-        if (inflateEnd (&strm) != Z_OK) {
-            free( uncomp );
+        if (inflateEnd(&strm) != Z_OK) {
+            free(uncomp);
             return false;
         }
 
-        for ( size_t i = 0; i<strm.total_out; ++i ) {
-            uncompressedBytes += uncomp[ i ];
+        for (size_t i = 0; i < strm.total_out; ++i) {
+            uncompressedBytes += uncomp[i];
         }
-        free( uncomp );
+        free(uncomp);
 #endif
-        return true ;
+        return true;
     }
 
-
-    bool compareStringsWithNumbers(const std::string& a, const std::string& b ) {
+    bool compareStringsWithNumbers(const std::string& a, const std::string& b)
+    {
         if (a.empty())
             return true;
         if (b.empty())
@@ -919,8 +949,7 @@ namespace mzUtils {
     {
         // from : http://mathworld.wolfram.com/SincFunction.html
         if (fabs(x) < 0.01)
-            return cos(M_PI * x / 2.0)
-                   * cos(M_PI * x / 4.0)
+            return cos(M_PI * x / 2.0) * cos(M_PI * x / 4.0)
                    * cos(M_PI * x / 8.0);
 
         // compute sinc(x) = sin(π•x) / (π•x)
@@ -934,8 +963,7 @@ namespace mzUtils {
     {
         // validate inputs
         if (fc < 0.0 || fc > 0.5) {
-            std::cerr << "Error: cutoff frequency "
-                      << fc
+            std::cerr << "Error: cutoff frequency " << fc
                       << " out of range; should be within (0, 0.5)"
                       << std::endl;
             return {};
@@ -1009,6 +1037,133 @@ namespace mzUtils {
         return buf.vec;
     }
 
+    vector<double> filterSignal(const vector<double>& signal,
+                                const vector<double>& filter)
+    {
+        NimbleDSP::RealFirFilter<double> firFilter(filter);
+        firFilter.filtOperation = NimbleDSP::ONE_SHOT_TRIM_TAILS;
+
+        NimbleDSP::RealVector<double> buf(signal);
+        buf = firFilter.conv(buf, false);
+        return buf.vec;
+    }
+
+    vector<float> filterSignal(const std::vector<float>& signal,
+                               const std::vector<float>& filter)
+    {
+        NimbleDSP::RealFirFilter<float> firFilter(filter);
+        firFilter.filtOperation = NimbleDSP::ONE_SHOT_TRIM_TAILS;
+
+        NimbleDSP::RealVector<float> buf(signal);
+        buf = firFilter.conv(buf, false);
+        return buf.vec;
+    }
+
+    vector<double> derivative(const vector<double>& signal, const int order)
+    {
+        NimbleDSP::RealVector<double> buf(signal);
+        for (int i = 1; i <= order; ++i)
+            buf = buf.diff();
+        return buf.vec;
+    }
+
+    vector<float> derivative(const vector<float>& signal, const int order)
+    {
+        NimbleDSP::RealVector<float> buf(signal);
+        for (int i = 1; i <= order; ++i)
+            buf = buf.diff();
+        return buf.vec;
+    }
+
+    float idealSlopeValue(vector<double> signal)
+    {
+        if (signal.empty())
+            return 0.0f;
+
+        float maxIntensity = 0.0f;
+        int top = 0;
+        for (size_t i = 0; i < signal.size(); ++i) {
+            if (maxIntensity < signal.at(i)) {
+                top = i;
+                maxIntensity = signal.at(i);
+            }
+        }
+
+        // TODO: use modified derivative, used by Hiller et al. (2009)
+        auto derivative = mzUtils::derivative(signal);
+
+        float sumOfAbsIntensities = 0.0f;
+
+        // the left ideal slope is the sum of all positive values (from the
+        // first derivative), up to the peak's top position
+        float leftIdealSlope = 0.0f;
+        for (size_t i = 0; i < top; ++i) {
+            sumOfAbsIntensities += abs(derivative.at(i));
+            if (derivative.at(i) > 0)
+                leftIdealSlope += derivative.at(i);
+        }
+
+        // the right ideal slope is the sum of absolute of all negative values
+        // (from the first derivative), after the peak's top position
+        float rightIdealSlope = 0.0f;
+        for (size_t i = top; i < derivative.size(); ++i) {
+            sumOfAbsIntensities += abs(derivative.at(i));
+            if (derivative.at(i) < 0)
+                rightIdealSlope += abs(derivative.at(i));
+        }
+
+        // the overall ideal slope
+        return (leftIdealSlope + rightIdealSlope) / sumOfAbsIntensities;
+    }
+
+    float idealSlopeValue(vector<float> signal)
+    {
+        return idealSlopeValue(vector<double>(begin(signal), end(signal)));
+    }
+
+    float sharpnessValue(vector<double> signal)
+    {
+        if (signal.empty())
+            return 0.0f;
+
+        float maxIntensity = 0.0f;
+        int top = 0;
+        for (size_t i = 0; i < signal.size(); ++i) {
+            if (maxIntensity < signal.at(i)) {
+                top = i;
+                maxIntensity = signal.at(i);
+            }
+        }
+
+        // the left sharpness is supposed to be the maximum sharpness score for
+        // the left half of a bi-gaussian peak
+        float leftSharpness = 0.0f;
+        for (int i = 0; i < top; ++i) {
+            float sharpness = (maxIntensity - signal.at(i))
+                              / static_cast<float>(top - i)
+                              / sqrtf(maxIntensity);
+            if (sharpness > leftSharpness)
+                leftSharpness = sharpness;
+        }
+
+        // the right sharpness is supposed to be the maximum sharpness score for
+        // the right half of a bi-gaussian peak
+        float rightSharpness = 0.0f;
+        for (int i = top + 1; i < signal.size(); ++i) {
+            float sharpness = (maxIntensity - signal.at(i))
+                              / static_cast<float>(i - top)
+                              / sqrtf(maxIntensity);
+            if (sharpness > rightSharpness)
+                rightSharpness = sharpness;
+        }
+        return (leftSharpness + rightSharpness) / 2.0f;
+    }
+
+    float sharpnessValue(vector<float> signal)
+    {
+        return idealSlopeValue(vector<double>(begin(signal), end(signal)));
+    }
+
     chrono::time_point<chrono::high_resolution_clock> startTimer()
     {
         return chrono::high_resolution_clock::now();
@@ -1044,7 +1199,7 @@ namespace mzUtils {
         int nCpu = thread::hardware_concurrency();
         return nCpu;
     }
-} //namespace end
+}  // namespace mzUtils
 
 //////////////////////////////////////TestCases/////////////////////////////
 
@@ -1057,31 +1212,31 @@ TEST_SUITE("Testing mzUtils functions")
             int res = mzUtils::randInt(0, 100);
             REQUIRE((res <= 100 && res >= 0) == true);
             res = mzUtils::randInt(INT_MIN, INT_MAX);
-            REQUIRE((res >= INT_MIN && res <= INT_MAX) == true) ;
+            REQUIRE((res >= INT_MIN && res <= INT_MAX) == true);
         }
 
         SUBCASE("Testing Random Long Integer")
         {
-            long int res = mzUtils::randInt(5000,10000);
+            long int res = mzUtils::randInt(5000, 10000);
             REQUIRE((res <= 100000 && res >= 5000) == true);
             res = mzUtils::randLong(LONG_MIN, LONG_MAX);
-            REQUIRE((res >= LONG_MIN && res <= LONG_MAX) == true) ;
+            REQUIRE((res >= LONG_MIN && res <= LONG_MAX) == true);
         }
 
         SUBCASE("Testing Random Float")
         {
-            float res = mzUtils::randInt(0.0,100.0);
+            float res = mzUtils::randInt(0.0, 100.0);
             REQUIRE((res <= 100.0 && res >= 0.0) == true);
             res = mzUtils::randFloat(FLT_MIN, FLT_MAX);
-            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true) ;
+            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true);
         }
 
         SUBCASE("Testing Random Double")
         {
-            double res = mzUtils::randInt(5000.0,10000.0);
+            double res = mzUtils::randInt(5000.0, 10000.0);
             REQUIRE((res <= 100000.0 && res >= 5000.0) == true);
             res = mzUtils::randDouble(FLT_MIN, FLT_MAX);
-            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true) ;
+            REQUIRE((res >= FLT_MIN && res <= FLT_MAX) == true);
         }
     }
 
@@ -1135,7 +1290,7 @@ TEST_SUITE("Testing mzUtils functions")
 
     TEST_CASE("Testing Smooth Average")
     {
-        float *input = new float[10];
+        float* input = new float[10];
         input[0] = 10.002;
         input[1] = 15.001;
         input[2] = 22.002;
@@ -1147,7 +1302,7 @@ TEST_SUITE("Testing mzUtils functions")
         input[8] = 12.234;
         input[9] = 43.998;
 
-        float *result = new float[10];
+        float* result = new float[10];
         mzUtils::smoothAverage(input, result, 5, 10);
 
         REQUIRE(doctest::Approx(result[0]) == 9.401);
@@ -1162,10 +1317,9 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(doctest::Approx(result[9]) == 17.8628);
     }
 
-
     TEST_CASE("Testing Gaussian 1D Smoothing")
     {
-        float *input = new float[10];
+        float* input = new float[10];
         input[0] = 10.002;
         input[1] = 15.001;
         input[2] = 22.002;
@@ -1204,7 +1358,6 @@ TEST_SUITE("Testing mzUtils functions")
         input.push_back(43.998);
         float res = mzUtils::median(input);
         REQUIRE(doctest::Approx(res) == 18.5015f);
-
     }
 
     TEST_CASE("Testinng Convert Datatypes")
@@ -1259,7 +1412,7 @@ TEST_SUITE("Testing mzUtils functions")
 
         SUBCASE("Testing ppmRound")
         {
-            float res = mzUtils::ppmround(10.3,100);
+            float res = mzUtils::ppmround(10.3, 100);
             REQUIRE(doctest::Approx(res) == 10.3);
         }
     }
@@ -1280,29 +1433,28 @@ TEST_SUITE("Testing mzUtils functions")
 
         vector<float> res;
         res = mzUtils::quantileDistribution(input);
-        for( int i = 0; i < 10; i++ )
+        for (int i = 0; i < 10; i++)
             REQUIRE(doctest::Approx(res[i]) == 10.002);
-        for( int i = 10; i < 20; i++ )
+        for (int i = 10; i < 20; i++)
             REQUIRE(doctest::Approx(res[i]) == 11.09);
-        for( int i = 20; i < 30; i++ )
+        for (int i = 20; i < 30; i++)
             REQUIRE(doctest::Approx(res[i]) == 12.091);
-        for( int i = 30; i < 40; i++ )
+        for (int i = 30; i < 40; i++)
             REQUIRE(doctest::Approx(res[i]) == 12.234);
-        for( int i = 40; i < 50; i++ )
+        for (int i = 40; i < 50; i++)
             REQUIRE(doctest::Approx(res[i]) == 15.001);
-        for( int i = 50; i < 60; i++ )
+        for (int i = 50; i < 60; i++)
             REQUIRE(doctest::Approx(res[i]) == 22.002);
-        for( int i = 60; i < 70; i++ )
+        for (int i = 60; i < 70; i++)
             REQUIRE(doctest::Approx(res[i]) == 28.992);
-        for( int i = 70; i < 80; i++ )
+        for (int i = 70; i < 80; i++)
             REQUIRE(doctest::Approx(res[i]) == 33.082);
-        for( int i = 80; i < 90; i++ )
+        for (int i = 80; i < 90; i++)
             REQUIRE(doctest::Approx(res[i]) == 42.229);
-        for( int i = 90; i < 100; i++ )
+        for (int i = 90; i < 100; i++)
             REQUIRE(doctest::Approx(res[i]) == 43.998);
         REQUIRE(res[100] == 0);
     }
-
 
     TEST_CASE("Testing t_test")
     {
@@ -1331,7 +1483,7 @@ TEST_SUITE("Testing mzUtils functions")
         groupB.push_back(20.998);
 
         float res = mzUtils::ttest(groupA, groupB);
-        REQUIRE( doctest::Approx(res) == -0.758955);
+        REQUIRE(doctest::Approx(res) == -0.758955);
     }
 
     TEST_CASE("Testing fileExists")
@@ -1383,13 +1535,13 @@ TEST_SUITE("Testing mzUtils functions")
         }
         SUBCASE("Testing Combination")
         {
-            REQUIRE((mzUtils::nchoosek(5,2)) == 10);
+            REQUIRE((mzUtils::nchoosek(5, 2)) == 10);
         }
     }
 
     TEST_CASE("Testing cleaning of filename")
     {
-        string str ="tests/test-libmaven/test_jsonReports.csv";
+        string str = "tests/test-libmaven/test_jsonReports.csv";
         string res = mzUtils::cleanFilename(str);
         REQUIRE(res == "test_jsonReports");
     }
@@ -1408,43 +1560,43 @@ TEST_SUITE("Testing mzUtils functions")
 
     TEST_CASE("Testing cubic_nak and spline")
     {
-        float *input = new float[5];
+        float* input = new float[5];
         input[0] = 10.002;
         input[1] = 15.001;
         input[2] = 22.002;
         input[3] = 42.229;
         input[4] = 28.992;
 
-        float *functionValues = new float[5];
+        float* functionValues = new float[5];
         functionValues[0] = 12.65;
         functionValues[1] = 10.5;
         functionValues[2] = 15.32;
         functionValues[3] = 18.65;
         functionValues[4] = 2.65;
 
-        float *linearCoeff = new float[5];
+        float* linearCoeff = new float[5];
         linearCoeff[0] = 0;
         linearCoeff[1] = 0;
         linearCoeff[2] = 0;
         linearCoeff[3] = 0;
         linearCoeff[4] = 0;
 
-        float *quadraticCoef = new float[5];
-        quadraticCoef[0] =0;
-        quadraticCoef[1] =0;
-        quadraticCoef[2] =0;
-        quadraticCoef[3] =0;
-        quadraticCoef[4] =0;
+        float* quadraticCoef = new float[5];
+        quadraticCoef[0] = 0;
+        quadraticCoef[1] = 0;
+        quadraticCoef[2] = 0;
+        quadraticCoef[3] = 0;
+        quadraticCoef[4] = 0;
 
-        float *cubicCoef = new float[5];
+        float* cubicCoef = new float[5];
         cubicCoef[0] = 0;
         cubicCoef[1] = 0;
         cubicCoef[2] = 0;
         cubicCoef[3] = 0;
         cubicCoef[4] = 0;
 
-        mzUtils::cubic_nak(5, input, functionValues,
-                           linearCoeff, quadraticCoef, cubicCoef);
+        mzUtils::cubic_nak(
+            5, input, functionValues, linearCoeff, quadraticCoef, cubicCoef);
         REQUIRE(doctest::Approx(linearCoeff[0]) == -2.17844);
         REQUIRE(doctest::Approx(linearCoeff[1]) == 0.78405);
         REQUIRE(doctest::Approx(linearCoeff[2]) == -0.45489);
@@ -1452,10 +1604,10 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(doctest::Approx(linearCoeff[4]) == 0);
 
         REQUIRE(doctest::Approx(quadraticCoef[0]) == 0.456606);
-        REQUIRE(doctest::Approx(quadraticCoef[1]) ==  0.136011);
+        REQUIRE(doctest::Approx(quadraticCoef[1]) == 0.136011);
         REQUIRE(doctest::Approx(quadraticCoef[2]) == -0.312977);
-        REQUIRE(doctest::Approx(quadraticCoef[3]) ==  0.717839);
-        REQUIRE(doctest::Approx(quadraticCoef[4]) ==  0.0432502);
+        REQUIRE(doctest::Approx(quadraticCoef[3]) == 0.717839);
+        REQUIRE(doctest::Approx(quadraticCoef[4]) == 0.0432502);
 
         REQUIRE(doctest::Approx(cubicCoef[0]) == -0.0213773);
         REQUIRE(doctest::Approx(cubicCoef[1]) == -0.0213773);
@@ -1463,8 +1615,13 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(doctest::Approx(cubicCoef[3]) == 0.0169875);
         REQUIRE(doctest::Approx(cubicCoef[4]) == 0);
 
-        mzUtils::spline_eval(5,input, functionValues,
-                             linearCoeff, quadraticCoef, cubicCoef, 0.34f);
+        mzUtils::spline_eval(5,
+                             input,
+                             functionValues,
+                             linearCoeff,
+                             quadraticCoef,
+                             cubicCoef,
+                             0.34f);
         REQUIRE(doctest::Approx(linearCoeff[0]) == -2.17844);
         REQUIRE(doctest::Approx(linearCoeff[1]) == 0.78405);
         REQUIRE(doctest::Approx(linearCoeff[2]) == -0.45489);
@@ -1472,10 +1629,10 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(doctest::Approx(linearCoeff[4]) == 0);
 
         REQUIRE(doctest::Approx(quadraticCoef[0]) == 0.456606);
-        REQUIRE(doctest::Approx(quadraticCoef[1]) ==  0.136011);
+        REQUIRE(doctest::Approx(quadraticCoef[1]) == 0.136011);
         REQUIRE(doctest::Approx(quadraticCoef[2]) == -0.312977);
-        REQUIRE(doctest::Approx(quadraticCoef[3]) ==  0.717839);
-        REQUIRE(doctest::Approx(quadraticCoef[4]) ==  0.0432502);
+        REQUIRE(doctest::Approx(quadraticCoef[3]) == 0.717839);
+        REQUIRE(doctest::Approx(quadraticCoef[4]) == 0.0432502);
 
         REQUIRE(doctest::Approx(cubicCoef[0]) == -0.0213773);
         REQUIRE(doctest::Approx(cubicCoef[1]) == -0.0213773);
@@ -1524,7 +1681,7 @@ TEST_SUITE("Testing mzUtils functions")
     {
         vector<double> vect = mzUtils::firDesignKaiser(3, 0.1);
         REQUIRE(doctest::Approx(vect[0]) == 0.003611);
-        REQUIRE(doctest::Approx(vect[1]) ==  0.1);
+        REQUIRE(doctest::Approx(vect[1]) == 0.1);
         REQUIRE(doctest::Approx(vect[2]) == 0.003611);
     }
 
@@ -1566,7 +1723,6 @@ TEST_SUITE("Testing mzUtils functions")
         REQUIRE(doctest::Approx(vect[32]) == -8.08683e-18);
         REQUIRE(doctest::Approx(vect[33]) == 0.00855213);
         REQUIRE(doctest::Approx(vect[34]) == 5.60355e-18);
-
     }
 
     TEST_CASE("Testing Resampling Factor")
@@ -1583,7 +1739,7 @@ TEST_SUITE("Testing mzUtils functions")
         input.push_back(22.002);
         vector<double> vect = mzUtils::resample(input, 1, 1);
         REQUIRE(doctest::Approx(vect[0]) == 10.002);
-        REQUIRE(doctest::Approx(vect[1]) ==  15.001);
+        REQUIRE(doctest::Approx(vect[1]) == 15.001);
         REQUIRE(doctest::Approx(vect[2]) == 22.002);
     }
 

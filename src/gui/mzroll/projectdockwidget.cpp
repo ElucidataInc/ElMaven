@@ -1,8 +1,9 @@
 #include <QPushButton>
 #include <QTextEdit>
 
-#include "alignmentvizallgroupswidget.h"
 #include "Compound.h"
+#include "Scan.h"
+#include "alignmentvizallgroupswidget.h"
 #include "eicwidget.h"
 #include "globals.h"
 #include "grouprtwidget.h"
@@ -11,22 +12,20 @@
 #include "ligandwidget.h"
 #include "mainwindow.h"
 #include "mavenparameters.h"
-#include "mzfileio.h"
 #include "mzSample.h"
+#include "mzfileio.h"
 #include "numeric_treewidgetitem.h"
 #include "projectdockwidget.h"
 #include "projectsaveworker.h"
-#include "Scan.h"
 #include "samplertwidget.h"
 #include "spectrawidget.h"
 #include "tabledockwidget.h"
 #include "treedockwidget.h"
 
-ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
-    QDockWidget("Samples", parent,Qt::Widget)
+ProjectDockWidget::ProjectDockWidget(QMainWindow* parent)
+    : QDockWidget("Samples", parent, Qt::Widget)
 {
-
-    _mainwindow = (MainWindow*) parent;
+    _mainwindow = (MainWindow*)parent;
 
     setFloating(false);
     setWindowTitle("Samples");
@@ -37,7 +36,8 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
 
     _editor = new QTextEdit(this);
     _editor->setToolTip("Project description");
-    _editor->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::MinimumExpanding);
+    _editor->setSizePolicy(QSizePolicy::Preferred,
+                           QSizePolicy::MinimumExpanding);
     _editor->hide();
 
     _treeWidget = new ProjectTreeWidget(this);
@@ -45,21 +45,29 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     _treeWidget->setObjectName("Samples");
     _treeWidget->setHeaderHidden(true);
     _treeWidget->setDragDropMode(QAbstractItemView::InternalMove);
-    connect(_treeWidget,SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
-    connect( _treeWidget->header(), SIGNAL( sectionClicked(int) ), this,  SLOT( changeSampleOrder() )  );
-    connect(_mainwindow->fileLoader, &mzFileIO::sampleLoaded, this, &ProjectDockWidget::saveState);
-    QToolBar *toolBar = new QToolBar(this);
+    connect(_treeWidget, SIGNAL(itemSelectionChanged()), SLOT(showInfo()));
+    connect(_treeWidget->header(),
+            SIGNAL(sectionClicked(int)),
+            this,
+            SLOT(changeSampleOrder()));
+    connect(_mainwindow->fileLoader,
+            &mzFileIO::sampleLoaded,
+            this,
+            &ProjectDockWidget::saveState);
+    QToolBar* toolBar = new QToolBar(this);
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
     toolBar->setIconSize(QSize(24, 24));
 
     QToolButton* exportMetadataButton = new QToolButton(toolBar);
     // TODO: Replace this icon with something more appropriate
-    exportMetadataButton->setIcon(QIcon(rsrcPath + "/exportMetadataTemplate.png"));
-    exportMetadataButton->setToolTip("Exports a template file with sample "
-                                     "names and which can be edited as a "
-                                     "spreadsheet. This will ease the process "
-                                     "of metadata file generation.");
+    exportMetadataButton->setIcon(
+        QIcon(rsrcPath + "/exportMetadataTemplate.png"));
+    exportMetadataButton->setToolTip(
+        "Exports a template file with sample "
+        "names and which can be edited as a "
+        "spreadsheet. This will ease the process "
+        "of metadata file generation.");
     connect(exportMetadataButton, &QToolButton::clicked, [this] {
         auto loadedSamples = _mainwindow->getSamples();
         if (loadedSamples.empty())
@@ -70,8 +78,7 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
             this,
             "Save sample metadata template as (.CSV)",
             sampleDir.path(),
-            "CSV(*.CSV)"
-        );
+            "CSV(*.CSV)");
 
         if (fileName.isEmpty())
             return;
@@ -87,39 +94,42 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
                                          "current sample meta-data at the "
                                          "location \"%1\". It can be edited "
                                          "and imported back into "
-                                         "El-MAVEN.").arg(fileName));
+                                         "El-MAVEN.")
+                                     .arg(fileName));
     });
 
     QToolButton* loadMetadataButton = new QToolButton(toolBar);
     loadMetadataButton->setIcon(QIcon(rsrcPath + "/setupload.png"));
-    loadMetadataButton->setToolTip("Load cohort sets, scaling factor and "
-                                   "injection order from sample metadata "
-                                   "file.");
+    loadMetadataButton->setToolTip(
+        "Load cohort sets, scaling factor and "
+        "injection order from sample metadata "
+        "file.");
     connect(loadMetadataButton,
             &QToolButton::clicked,
             _mainwindow,
-            static_cast<void (MainWindow::*)(void)>(&MainWindow::loadMetaInformation));
+            static_cast<void (MainWindow::*)(void)>(
+                &MainWindow::loadMetaInformation));
 
-    connect(_mainwindow,SIGNAL(metaCsvFileLoaded()),SLOT(updateSampleList()));
+    connect(_mainwindow, SIGNAL(metaCsvFileLoaded()), SLOT(updateSampleList()));
 
     QToolButton* colorButton = new QToolButton(toolBar);
     colorButton->setIcon(QIcon(rsrcPath + "/colorfill.png"));
     colorButton->setToolTip("Change color assigned to selected samples");
-    connect(colorButton,SIGNAL(clicked()), SLOT(changeColors()));
+    connect(colorButton, SIGNAL(clicked()), SLOT(changeColors()));
 
     QToolButton* removeSamples = new QToolButton(toolBar);
     removeSamples->setIcon(QIcon(rsrcPath + "/delete.png"));
     removeSamples->setToolTip("Remove selected samples from session");
-    connect(removeSamples,SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
+    connect(removeSamples, SIGNAL(clicked()), SLOT(unloadSelectedSamples()));
 
     QToolButton* checkUncheck = new QToolButton(toolBar);
     checkUncheck->setIcon(QIcon(rsrcPath + "/checkuncheck.png"));
     checkUncheck->setToolTip("Show or hide selected samples");
-    connect(checkUncheck,SIGNAL(clicked()), SLOT(checkUncheck()));
+    connect(checkUncheck, SIGNAL(clicked()), SLOT(checkUncheck()));
     QToolButton* blankButton = new QToolButton(toolBar);
     blankButton->setIcon(QIcon(rsrcPath + "/blank sample.png"));
     blankButton->setToolTip("Set selected samples as blank");
-    connect(blankButton,SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
+    connect(blankButton, SIGNAL(clicked()), SLOT(SetAsBlankSamples()));
 
     toolBar->addWidget(exportMetadataButton);
     toolBar->addWidget(loadMetadataButton);
@@ -128,12 +138,15 @@ ProjectDockWidget::ProjectDockWidget(QMainWindow *parent):
     toolBar->addWidget(checkUncheck);
     toolBar->addWidget(blankButton);
 
-    QLineEdit*  filterEditor = new QLineEdit(this);
-    filterEditor->setPlaceholderText("Sample name filter"); 
-    connect(filterEditor, SIGNAL(textEdited(QString)), this, SLOT(filterTreeItems(QString)));
+    QLineEdit* filterEditor = new QLineEdit(this);
+    filterEditor->setPlaceholderText("Sample name filter");
+    connect(filterEditor,
+            SIGNAL(textEdited(QString)),
+            this,
+            SLOT(filterTreeItems(QString)));
 
-    QFrame *window = new QFrame(this);
-    QVBoxLayout *layout = new QVBoxLayout;
+    QFrame* window = new QFrame(this);
+    QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(filterEditor);
     layout->addWidget(_treeWidget);
     layout->setSpacing(8);
@@ -148,15 +161,15 @@ void ProjectDockWidget::saveState()
     QTreeWidgetItemIterator it(_treeWidget);
     while (*it) {
         QTreeWidgetItem* item = (*it);
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
         if (item->type() == SampleType) {
             if (item->checkState(0) == Qt::Checked)
                 _saveSampleState[sample->sampleName] = true;
             else
                 _saveSampleState[sample->sampleName] = false;
         }
-        ++it; //next item
+        ++it;  // next item
     }
 }
 
@@ -165,80 +178,81 @@ void ProjectDockWidget::restoreSampleState()
     QTreeWidgetItemIterator it(_treeWidget);
 
     while (*it) {
-        QTreeWidgetItem* item = (*it); 
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
+        QTreeWidgetItem* item = (*it);
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
         if (item->type() == SampleType) {
-            for (auto itr = _saveSampleState.begin(); 
-                itr != _saveSampleState.end(); 
-                itr++) {
-                    if(itr->first == sample->sampleName){
-                        bool wasChecked = itr->second;
-                        if (wasChecked)
-                            (*it)->setCheckState(0, Qt::Checked);
-                        else
-                            (*it)->setCheckState(0, Qt::Unchecked);
-                    }
+            for (auto itr = _saveSampleState.begin();
+                 itr != _saveSampleState.end();
+                 itr++) {
+                if (itr->first == sample->sampleName) {
+                    bool wasChecked = itr->second;
+                    if (wasChecked)
+                        (*it)->setCheckState(0, Qt::Checked);
+                    else
+                        (*it)->setCheckState(0, Qt::Unchecked);
                 }
+            }
         }
-        ++it; //next item
-    } 
+        ++it;  // next item
+    }
 }
 
-
-
-QString ProjectDockWidget::getProjectDescription() {
+QString ProjectDockWidget::getProjectDescription()
+{
     return _editor->toPlainText();
 }
 
-
-void ProjectDockWidget::setProjectDescription(QString text) {
+void ProjectDockWidget::setProjectDescription(QString text)
+{
     return _editor->setPlainText(text);
 }
 
-void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col) {
-    if (!item) item = _treeWidget->currentItem();
-    if (item == NULL) return;
+void ProjectDockWidget::changeSampleColor(QTreeWidgetItem* item, int col)
+{
+    if (!item)
+        item = _treeWidget->currentItem();
+    if (item == NULL)
+        return;
 
-    if (col != 0) return;
-    QVariant v = item->data(0,Qt::UserRole);
+    if (col != 0)
+        return;
+    QVariant v = item->data(0, Qt::UserRole);
 
-    mzSample*  sample =  v.value<mzSample*>();
-    if ( sample == NULL) return;
+    mzSample* sample = v.value<mzSample*>();
+    if (sample == NULL)
+        return;
 
-     QColor color = QColor::fromRgbF(
-            sample->color[0],
-            sample->color[1],
-            sample->color[2],
-            sample->color[3] );
+    QColor color = QColor::fromRgbF(
+        sample->color[0], sample->color[1], sample->color[2], sample->color[3]);
 
-      lastUsedSampleColor = QColorDialog::getColor(color,this,"Select Sample Color",QColorDialog::ShowAlphaChannel);
-      setSampleColor(item,lastUsedSampleColor);
+    lastUsedSampleColor = QColorDialog::getColor(
+        color, this, "Select Sample Color", QColorDialog::ShowAlphaChannel);
+    setSampleColor(item, lastUsedSampleColor);
 
-      _treeWidget->update();
-      _mainwindow->getEicWidget()->replot();
-      _mainwindow->groupRtWidget->updateGraph();
+    _treeWidget->update();
+    _mainwindow->getEicWidget()->replot();
+    _mainwindow->groupRtWidget->updateGraph();
 }
 
 void ProjectDockWidget::updateSampleColor()
-{   
+{
     QTreeWidgetItemIterator it(_treeWidget);
     QColor color;
 
     while (*it) {
         if ((*it)->type() == SampleType) {
-            QVariant v =(*it)->data(0,Qt::UserRole);
-            mzSample*  sample =  v.value<mzSample*>();
-            
+            QVariant v = (*it)->data(0, Qt::UserRole);
+            mzSample* sample = v.value<mzSample*>();
+
             auto loadedSamples = _mainwindow->getSamples();
-            
+
             for (auto loadedSample : loadedSamples) {
                 if (loadedSample->sampleName == sample->sampleName) {
-                   color = QColor::fromRgbF(
-                            loadedSample->color[0],
-                            loadedSample->color[1],
-                            loadedSample->color[2],
-                            loadedSample->color[3] ); 
+                    color = QColor::fromRgbF(loadedSample->color[0],
+                                             loadedSample->color[1],
+                                             loadedSample->color[2],
+                                             loadedSample->color[3]);
                 }
             }
             setSampleColor(sample, color);
@@ -251,23 +265,29 @@ void ProjectDockWidget::updateSampleColor()
     _mainwindow->groupRtWidget->updateGraph();
 }
 
-void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
+void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName)
+{
     QFile file(sampleCohortFileName);
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-		return;
-	
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
     vector<mzSample*> loadedSamples = _mainwindow->getSamples();
 
-	QTextStream out(&file);
-    out << "Sample" << ","
-        << "Cohort" << ","
-        << "Scaling" << ","
-        << "Injection Order" << ","
-        << "Color" << "\n";
-	for (const auto& sample : loadedSamples) {
+    QTextStream out(&file);
+    out << "Sample"
+        << ","
+        << "Cohort"
+        << ","
+        << "Scaling"
+        << ","
+        << "Injection Order"
+        << ","
+        << "Color"
+        << "\n";
+    for (const auto& sample : loadedSamples) {
         QString injectionOrder = "";
-        QColor color = QColor::fromRgbF(sample->color[0], 
-                                        sample->color[1], 
+        QColor color = QColor::fromRgbF(sample->color[0],
+                                        sample->color[1],
                                         sample->color[2],
                                         sample->color[3]);
         if (sample->getInjectionOrder() > 0)
@@ -276,24 +296,23 @@ void ProjectDockWidget::prepareSampleCohortFile(QString sampleCohortFileName) {
         out << QString::fromStdString(sample->getSampleName()) << ","
             << QString::fromStdString(sample->getSetName()) << ","
             << QString::number(sample->getNormalizationConstant()) << ","
-            << injectionOrder << ","
-            << color.name() << "\n";
-	}
+            << injectionOrder << "," << color.name() << "\n";
+    }
 
-	qDebug() << "sample cohort file prepared";
-	file.close();
+    qDebug() << "sample cohort file prepared";
+    file.close();
 }
 
-void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
-
+void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col)
+{
     if (item && item->type() == SampleType) {
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
 
-        if ( col == 1 ) {
+        if (col == 1) {
             QString setName = item->text(1).simplified();
             sample->setSetName(setName.toStdString());
-        } else if ( col == 0) {
+        } else if (col == 0) {
             QString sampleName = item->text(0).simplified();
             if (sampleName.length() > 0) {
                 sample->setSampleName(sampleName.toStdString());
@@ -302,34 +321,37 @@ void ProjectDockWidget::changeSampleSet(QTreeWidgetItem* item, int col) {
     }
 }
 
-void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item, int col) {
-    if (item && item->type() == SampleType && col == 2 ) {
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
-        if ( sample == NULL) return;
+void ProjectDockWidget::changeNormalizationConstant(QTreeWidgetItem* item,
+                                                    int col)
+{
+    if (item && item->type() == SampleType && col == 2) {
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
+        if (sample == NULL)
+            return;
 
-        bool ok=false;
+        bool ok = false;
         float x = item->text(2).toFloat(&ok);
-        if (ok) sample->setNormalizationConstant(x);
-        cerr <<"changeSampleSet: " << sample->sampleName << "  " << sample->getNormalizationConstant() << endl;
+        if (ok)
+            sample->setNormalizationConstant(x);
+        cerr << "changeSampleSet: " << sample->sampleName << "  "
+             << sample->getNormalizationConstant() << endl;
     }
 }
 
-void ProjectDockWidget::updateSampleList() {
+void ProjectDockWidget::updateSampleList()
+{
+    vector<mzSample*> samples = _mainwindow->getSamples();
 
-    vector<mzSample*>samples = _mainwindow->getSamples();
-    
     updateSampleColor();
 
-    std::sort(samples.begin(), samples.end(),mzSample::compSampleSort);
+    std::sort(samples.begin(), samples.end(), mzSample::compSampleSort);
 
     // obtain current maximum sample order
-    auto maxOrdSample = max_element(begin(samples),
-                                    end(samples),
-                                    [] (mzSample* s1, mzSample* s2) {
-                                        return s1->getSampleOrder()
-                                               < s2->getSampleOrder();
-                                    });
+    auto maxOrdSample = max_element(
+        begin(samples), end(samples), [](mzSample* s1, mzSample* s2) {
+            return s1->getSampleOrder() < s2->getSampleOrder();
+        });
     int maxOrder = 0;
     if (maxOrdSample != end(samples))
         maxOrder = (*maxOrdSample)->getSampleOrder();
@@ -340,9 +362,10 @@ void ProjectDockWidget::updateSampleList() {
             sample->setSampleOrder(++maxOrder);
     }
 
-    if ( samples.size() > 0 ) setInfo(samples);
+    if (samples.size() > 0)
+        setInfo(samples);
 
-    if ( _mainwindow->getEicWidget() ) {
+    if (_mainwindow->getEicWidget()) {
         _mainwindow->getEicWidget()->replotForced(true);
     }
     if (_mainwindow->isotopeWidget) {
@@ -350,43 +373,45 @@ void ProjectDockWidget::updateSampleList() {
     }
 }
 
-void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col) {
-    if (item && item->type() == SampleType ) {
+void ProjectDockWidget::selectSample(QTreeWidgetItem* item, int col)
+{
+    if (item && item->type() == SampleType) {
         _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
         _mainwindow->sampleRtWidget->plotGraph();
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
-        if (sample && sample->scans.size() > 0 ) {
-
-            _mainwindow->spectraWidget->setScan(sample,-1);
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
+        if (sample && sample->scans.size() > 0) {
+            _mainwindow->spectraWidget->setScan(sample, -1);
             _mainwindow->getEicWidget()->replot();
-
         }
     }
 }
 
-void ProjectDockWidget::showInfo() {
+void ProjectDockWidget::showInfo()
+{
     QTreeWidgetItem* item = _treeWidget->currentItem();
-    if(item != NULL and item->type() == SampleType) showSample(item,0);
+    if (item != NULL and item->type() == SampleType)
+        showSample(item, 0);
 }
 
-void ProjectDockWidget::changeSampleOrder() {
+void ProjectDockWidget::changeSampleOrder()
+{
+    QTreeWidgetItemIterator it(_treeWidget);
+    int sampleOrder = 0;
+    bool changed = false;
 
-     QTreeWidgetItemIterator it(_treeWidget);
-     int sampleOrder=0;
-     bool changed = false;
-
-     while (*it) {
-         if ((*it)->type() == SampleType) {
-            QVariant v =(*it)->data(0,Qt::UserRole);
-            mzSample*  sample =  v.value<mzSample*>();
-            if ( sample != NULL) {
-                if ( sample->getSampleOrder() != sampleOrder )  changed=true;
+    while (*it) {
+        if ((*it)->type() == SampleType) {
+            QVariant v = (*it)->data(0, Qt::UserRole);
+            mzSample* sample = v.value<mzSample*>();
+            if (sample != NULL) {
+                if (sample->getSampleOrder() != sampleOrder)
+                    changed = true;
                 sample->setSampleOrder(sampleOrder);
                 sampleOrder++;
             }
-         }
-         ++it;
+        }
+        ++it;
     }
 
     if (changed) {
@@ -400,26 +425,28 @@ void ProjectDockWidget::changeSampleOrder() {
     }
 }
 
-void ProjectDockWidget::filterTreeItems(QString filterString) {
-    
-    disconnect( _treeWidget, 
-            &QTreeWidget::itemChanged, 
-            this, 
-            &ProjectDockWidget::saveState);
+void ProjectDockWidget::filterTreeItems(QString filterString)
+{
+    disconnect(_treeWidget,
+               &QTreeWidget::itemChanged,
+               this,
+               &ProjectDockWidget::saveState);
 
-    QRegExp regexp(filterString,Qt::CaseInsensitive,QRegExp::RegExp);
+    QRegExp regexp(filterString, Qt::CaseInsensitive, QRegExp::RegExp);
 
     QTreeWidgetItemIterator it(_treeWidget);
     while (*it) {
         QTreeWidgetItem* item = (*it);
-        ++it; //next item
+        ++it;  // next item
         if (item->type() == SampleType) {
             if (filterString.isEmpty()) {
                 item->setHidden(false);
-                QVariant v = item->data(0,Qt::UserRole);
+                QVariant v = item->data(0, Qt::UserRole);
                 restoreSampleState();
                 _treeWidget->update();
-            } else if (item->text(0).contains(regexp) || item->text(1).contains(regexp) || item->text(2).contains(regexp)) {
+            } else if (item->text(0).contains(regexp)
+                       || item->text(1).contains(regexp)
+                       || item->text(2).contains(regexp)) {
                 item->setHidden(false);
                 item->setCheckState(0, Qt::Checked);
                 _treeWidget->update();
@@ -430,54 +457,62 @@ void ProjectDockWidget::filterTreeItems(QString filterString) {
             }
         }
     }
-    connect( _treeWidget, 
-            &QTreeWidget::itemChanged, 
-            this, 
+    connect(_treeWidget,
+            &QTreeWidget::itemChanged,
+            this,
             &ProjectDockWidget::saveState);
 }
 
-void ProjectDockWidget::changeColors() {
+void ProjectDockWidget::changeColors()
+{
+    // get selected items
+    QList<QTreeWidgetItem*> selected = _treeWidget->selectedItems();
+    if (selected.size() == 0)
+        return;
 
-      //get selected items
-      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
-      if(selected.size() == 0) return;
+    // ask for color
+    lastUsedSampleColor =
+        QColorDialog::getColor(lastUsedSampleColor,
+                               this,
+                               "Select Sample Color",
+                               QColorDialog::ShowAlphaChannel);
 
-      //ask for color
-      lastUsedSampleColor = QColorDialog::getColor(lastUsedSampleColor,this,"Select Sample Color",QColorDialog::ShowAlphaChannel);
+    // change colors of selected items
+    Q_FOREACH (QTreeWidgetItem* item, selected) {
+        if (item->type() == SampleType)
+            setSampleColor(item, lastUsedSampleColor);
+    }
 
-      //change colors of selected items
-      Q_FOREACH (QTreeWidgetItem* item, selected) {
-          if (item->type() == SampleType) setSampleColor(item,lastUsedSampleColor);
-      }
+    _treeWidget->update();
 
-      _treeWidget->update();
+    _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+    _mainwindow->sampleRtWidget->plotGraph();
 
-     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
-     _mainwindow->sampleRtWidget->plotGraph();
-
-      _mainwindow->getEicWidget()->replot();
+    _mainwindow->getEicWidget()->replot();
 }
 
-void ProjectDockWidget::checkUncheck() {
+void ProjectDockWidget::checkUncheck()
+{
+    // get selected items
+    QList<QTreeWidgetItem*> selected = _treeWidget->selectedItems();
+    if (selected.size() == 0)
+        return;
 
-      //get selected items
-      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
-      if(selected.size() == 0) return;
+    qDebug() << "checkUncheck()" << selected.size();
+    Q_FOREACH (QTreeWidgetItem* item, selected) {
+        if (item->type() == SampleType) {
+            QVariant v = item->data(0, Qt::UserRole);
+            mzSample* sample = v.value<mzSample*>();
+            sample->isSelected ? item->setCheckState(0, Qt::Unchecked)
+                               : item->setCheckState(0, Qt::Checked);
+        }
+    }
+    _treeWidget->update();
 
-      qDebug() << "checkUncheck()" << selected.size();
-      Q_FOREACH (QTreeWidgetItem* item, selected) {
-          if (item->type() == SampleType) {
-              QVariant v = item->data(0,Qt::UserRole);
-              mzSample*  sample =  v.value<mzSample*>();
-              sample->isSelected  ? item->setCheckState(0,Qt::Unchecked) : item->setCheckState(0,Qt::Checked);
-          }
-      }
-     _treeWidget->update();
+    _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
+    _mainwindow->sampleRtWidget->plotGraph();
 
-     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
-     _mainwindow->sampleRtWidget->plotGraph();
-
-      _mainwindow->getEicWidget()->replot();
+    _mainwindow->getEicWidget()->replot();
 }
 
 void ProjectDockWidget::replotWidget()
@@ -488,52 +523,57 @@ void ProjectDockWidget::replotWidget()
     _mainwindow->getEicWidget()->replot();
 }
 
-void ProjectDockWidget::unloadSelectedSamples() {
-      //get selected items
-      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
-      if(selected.size() == 0) return;
+void ProjectDockWidget::unloadSelectedSamples()
+{
+    // get selected items
+    QList<QTreeWidgetItem*> selected = _treeWidget->selectedItems();
+    if (selected.size() == 0)
+        return;
 
-     //reverse loop as size will decrease on deleting sample
-     for (int index = selected.size() - 1; index >= 0; --index)
-      {
-          QTreeWidgetItem* item = selected[index];
-          if (item->type() == SampleType) {
-              QVariant v = item->data(0,Qt::UserRole);
-              mzSample*  sample =  v.value<mzSample*>();
-              int i = _treeWidget->indexOfTopLevelItem(item);
-              _treeWidget->takeTopLevelItem(i);
-              delete item;
-              unloadSample(sample);
-              delete(sample);
-           }
-      }
-     _treeWidget->update();
-     _mainwindow->getEicWidget()->replotForced();
-     _mainwindow->isotopeWidget->updateSampleList();
+    // reverse loop as size will decrease on deleting sample
+    for (int index = selected.size() - 1; index >= 0; --index) {
+        QTreeWidgetItem* item = selected[index];
+        if (item->type() == SampleType) {
+            QVariant v = item->data(0, Qt::UserRole);
+            mzSample* sample = v.value<mzSample*>();
+            int i = _treeWidget->indexOfTopLevelItem(item);
+            _treeWidget->takeTopLevelItem(i);
+            delete item;
+            unloadSample(sample);
+            delete (sample);
+        }
+    }
+    _treeWidget->update();
+    _mainwindow->getEicWidget()->replotForced();
+    _mainwindow->isotopeWidget->updateSampleList();
 
-     // delete any parent folder items that now have zero samples
-     for (const auto parentFolder : parentMap.keys()) {
-         QTreeWidgetItem* parent = parentMap.value(parentFolder);
-         if (parent->childCount() == 0) {
-             parentMap.remove(parentFolder);
-             delete parent;
-         }
-     }
+    // delete any parent folder items that now have zero samples
+    for (const auto parentFolder : parentMap.keys()) {
+        QTreeWidgetItem* parent = parentMap.value(parentFolder);
+        if (parent->childCount() == 0) {
+            parentMap.remove(parentFolder);
+            delete parent;
+        }
+    }
 
-     if (_mainwindow->samples.size() < 1) {
-		QMessageBox* msgBox = new QMessageBox( this );
-		msgBox->setStandardButtons( QMessageBox::Ok );
-        QPushButton *connectButton = msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
-		msgBox->setIcon(QMessageBox::Information);
-		msgBox->setText(tr("All the samples have been deleted. \nPlease restart El-Maven if you want to process another set of samples for better experience."));
-		msgBox->setModal( false );
+    if (_mainwindow->samples.size() < 1) {
+        QMessageBox* msgBox = new QMessageBox(this);
+        msgBox->setStandardButtons(QMessageBox::Ok);
+        QPushButton* connectButton =
+            msgBox->addButton(tr("Restart"), QMessageBox::ActionRole);
+        msgBox->setIcon(QMessageBox::Information);
+        msgBox->setText(
+            tr("All the samples have been deleted. \nPlease restart El-Maven "
+               "if you want to process another set of samples for better "
+               "experience."));
+        msgBox->setModal(false);
         msgBox->exec();
         if (msgBox->clickedButton() == connectButton) {
             QSet<QString> fileNames;
             _mainwindow->reBootApp();
         }
         delete msgBox;
-     }
+    }
 
     _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
     _mainwindow->sampleRtWidget->plotGraph();
@@ -541,82 +581,98 @@ void ProjectDockWidget::unloadSelectedSamples() {
     emit samplesDeleted();
 }
 
-void ProjectDockWidget::SetAsBlankSamples() {
-      
-      int flag =0;
-      //get selected items
-      QList<QTreeWidgetItem*>selected = _treeWidget->selectedItems();
-      if(selected.size() == 0) return;
+void ProjectDockWidget::SetAsBlankSamples()
+{
+    int flag = 0;
+    // get selected items
+    QList<QTreeWidgetItem*> selected = _treeWidget->selectedItems();
+    if (selected.size() == 0)
+        return;
 
-      Q_FOREACH (QTreeWidgetItem* item, selected) {
-          if (item->type() == SampleType) {
-              QVariant v = item->data(0,Qt::UserRole);
-              mzSample*  sample =  v.value<mzSample*>();
-              if ( sample == NULL) return;
-              if(!sample->isBlank) markBlank(item);
-              else unmarkBlank(item);
-           }
-      }
-     _treeWidget->update();
-     _mainwindow->getEicWidget()->replotForced(true);
+    Q_FOREACH (QTreeWidgetItem* item, selected) {
+        if (item->type() == SampleType) {
+            QVariant v = item->data(0, Qt::UserRole);
+            mzSample* sample = v.value<mzSample*>();
+            if (sample == NULL)
+                return;
+            if (!sample->isBlank)
+                markBlank(item);
+            else
+                unmarkBlank(item);
+        }
+    }
+    _treeWidget->update();
+    _mainwindow->getEicWidget()->replotForced(true);
 }
 
-void ProjectDockWidget::unmarkBlank(QTreeWidgetItem* item) {
-    QVariant v = item->data(0,Qt::UserRole);
-    mzSample*  sample =  v.value<mzSample*>();
-    if ( sample == NULL) return;
+void ProjectDockWidget::unmarkBlank(QTreeWidgetItem* item)
+{
+    QVariant v = item->data(0, Qt::UserRole);
+    mzSample* sample = v.value<mzSample*>();
+    if (sample == NULL)
+        return;
 
     sample->isBlank = false;
 
-    //restore sample color
+    // restore sample color
     QString sampleName = QString::fromStdString(sample->sampleName.c_str());
     setSampleColor(item, storeColor[sampleName]);
-    
+
     QFont font;
-    font.setItalic(false); 
-    item->setFont(0,font);
+    font.setItalic(false);
+    item->setFont(0, font);
 }
 
-void ProjectDockWidget::markBlank(QTreeWidgetItem* item) {
-    QVariant v = item->data(0,Qt::UserRole);
-    mzSample*  sample =  v.value<mzSample*>();
-    if ( sample == NULL) return;
-    
-    sample->isBlank = true; //for manually marking blanks
-    
-    //Set sample color to black
+void ProjectDockWidget::markBlank(QTreeWidgetItem* item)
+{
+    QVariant v = item->data(0, Qt::UserRole);
+    mzSample* sample = v.value<mzSample*>();
+    if (sample == NULL)
+        return;
+
+    sample->isBlank = true;  // for manually marking blanks
+
+    // Set sample color to black
     QString sampleName = QString::fromStdString(sample->sampleName.c_str());
-    storeColor[sampleName] = QColor::fromRgbF(sample->color[0], sample->color[1],sample->color[2], 1.0);
+    storeColor[sampleName] = QColor::fromRgbF(
+        sample->color[0], sample->color[1], sample->color[2], 1.0);
     setSampleColor(item, QColor(Qt::black));
-    
-    //Sample name in italics
+
+    // Sample name in italics
     QFont font;
-    font.setItalic(true); 
-    item->setFont(0,font);
+    font.setItalic(true);
+    item->setFont(0, font);
 }
 
-void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color) {
-    if (item == NULL) return;
-    if (!color.isValid()) return;
+void ProjectDockWidget::setSampleColor(QTreeWidgetItem* item, QColor color)
+{
+    if (item == NULL)
+        return;
+    if (!color.isValid())
+        return;
 
-    QVariant v = item->data(0,Qt::UserRole);
-    mzSample*  sample =  v.value<mzSample*>();
-    if ( sample == NULL) return;
+    QVariant v = item->data(0, Qt::UserRole);
+    mzSample* sample = v.value<mzSample*>();
+    if (sample == NULL)
+        return;
 
-    setSampleColor(sample,color);
+    setSampleColor(sample, color);
 
     color.setAlphaF(0.7);
-    QPixmap pixmap = QPixmap(20,20); pixmap.fill(color);
+    QPixmap pixmap = QPixmap(20, 20);
+    pixmap.fill(color);
     QIcon coloricon = QIcon(pixmap);
-    item->setIcon(0,coloricon);
-    item->setBackgroundColor(0,color);
-    item->setBackgroundColor(1,color);
+    item->setIcon(0, coloricon);
+    item->setBackgroundColor(0, color);
+    item->setBackgroundColor(1, color);
 }
 
 void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color)
 {
-    if (!color.isValid()) return;
-    if ( sample == NULL) return;
+    if (!color.isValid())
+        return;
+    if (sample == NULL)
+        return;
 
     sample->color[0] = color.redF();
     sample->color[1] = color.greenF();
@@ -627,11 +683,10 @@ void ProjectDockWidget::setSampleColor(mzSample* sample, QColor color)
 
 QColor ProjectDockWidget::getSampleColor(mzSample* sample)
 {
-    if(!sample) return Qt::black;
-    return QColor::fromRgbF(sample->color[0],
-                            sample->color[1],
-                            sample->color[2],
-                            sample->color[3]);
+    if (!sample)
+        return Qt::black;
+    return QColor::fromRgbF(
+        sample->color[0], sample->color[1], sample->color[2], sample->color[3]);
 }
 
 QIcon ProjectDockWidget::getSampleIcon(mzSample* sample)
@@ -642,16 +697,22 @@ QIcon ProjectDockWidget::getSampleIcon(mzSample* sample)
     return QIcon(pixmap);
 }
 
-void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
-
-    if ( _treeWidget->topLevelItemCount() == 0 )  {
+void ProjectDockWidget::setInfo(vector<mzSample*>& samples)
+{
+    if (_treeWidget->topLevelItemCount() == 0) {
         _treeWidget->setMouseTracking(true);
-        connect(_treeWidget,SIGNAL(itemClicked(QTreeWidgetItem*, int)), SLOT(selectSample(QTreeWidgetItem*, int)));
-        connect(_treeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), SLOT(changeSampleColor(QTreeWidgetItem*,int)));
-        connect(_treeWidget,SIGNAL(itemEntered(QTreeWidgetItem*, int)), SLOT(showSampleInfo(QTreeWidgetItem*,int)));
+        connect(_treeWidget,
+                SIGNAL(itemClicked(QTreeWidgetItem*, int)),
+                SLOT(selectSample(QTreeWidgetItem*, int)));
+        connect(_treeWidget,
+                SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+                SLOT(changeSampleColor(QTreeWidgetItem*, int)));
+        connect(_treeWidget,
+                SIGNAL(itemEntered(QTreeWidgetItem*, int)),
+                SLOT(showSampleInfo(QTreeWidgetItem*, int)));
     }
 
-    disconnect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)),0,0);
+    disconnect(_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), 0, 0);
 
     parentMap.clear();
     _treeWidget->clear();
@@ -662,7 +723,7 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
            << "Scaling"
            << "Injection Order"
            << "Sample Number";
-    _treeWidget->setHeaderLabels( header );
+    _treeWidget->setHeaderLabels(header);
     _treeWidget->header()->setStretchLastSection(true);
     _treeWidget->setHeaderHidden(false);
     _treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -671,20 +732,21 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
 
     float N = samples.size();
     sort(samples.begin(), samples.end(), mzSample::compSampleOrder);
-    for(int i=0; i < samples.size(); i++ ) {
-
+    for (int i = 0; i < samples.size(); i++) {
         mzSample* sample = samples[i];
-        if (!sample) continue;
+        if (!sample)
+            continue;
 
         sample->setSampleOrder(i);
 
-        QTreeWidgetItem* parent = getParentFolder(QString(sample->fileName.c_str()));
-        QTreeWidgetItem *item=NULL;
+        QTreeWidgetItem* parent =
+            getParentFolder(QString(sample->fileName.c_str()));
+        QTreeWidgetItem* item = NULL;
 
-        if (parent) { 
-            item = new NumericTreeWidgetItem(parent,SampleType); 
+        if (parent) {
+            item = new NumericTreeWidgetItem(parent, SampleType);
         } else {
-            item = new NumericTreeWidgetItem(_treeWidget,SampleType); 
+            item = new NumericTreeWidgetItem(_treeWidget, SampleType);
         }
 
         QColor color;
@@ -693,8 +755,8 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         } else if (sample->color[0] || sample->color[1] || sample->color[2]) {
             color = getSampleColor(sample);
             storeSampleColors[sample] = color;
-        } else { 
-            float hue = 1 - 0.6 * ((float) (i + 1) / N);
+        } else {
+            float hue = 1 - 0.6 * ((float)(i + 1) / N);
             color = QColor::fromHsvF(hue, 1.0, 1.0, 1.0);
             storeSampleColors[sample] = color;
         }
@@ -711,59 +773,68 @@ void ProjectDockWidget::setInfo(vector<mzSample*>&samples) {
         item->setBackgroundColor(0, color);
         item->setIcon(0, coloricon);
         item->setText(0, QString(sample->sampleName.c_str()));
-        item->setData(0, Qt::UserRole,QVariant::fromValue(samples[i]));
+        item->setData(0, Qt::UserRole, QVariant::fromValue(samples[i]));
         item->setIcon(1, QIcon(QPixmap(rsrcPath + "/edit.png")));
         item->setText(1, QString(sample->getSetName().c_str()));
-        item->setText(2, QString::number(sample->getNormalizationConstant(), 'f', 2));
-        if( sample->getInjectionOrder() > 0 )
+        item->setText(
+            2, QString::number(sample->getNormalizationConstant(), 'f', 2));
+        if (sample->getInjectionOrder() > 0)
             item->setText(3, QString::number(sample->getInjectionOrder()));
         else
             item->setText(3, QString("NA"));
-        if(sample->sampleNumber != -1)
+        if (sample->sampleNumber != -1)
             item->setText(4, QString::number(sample->sampleNumber));
         else
             item->setText(4, QString("NA"));
 
-        item->setFlags(Qt::ItemIsEditable|Qt::ItemIsSelectable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        sample->isSelected  ? item->setCheckState(0,Qt::Checked) : item->setCheckState(0,Qt::Unchecked);
+        item->setFlags(Qt::ItemIsEditable | Qt::ItemIsSelectable
+                       | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable
+                       | Qt::ItemIsEnabled);
+        sample->isSelected ? item->setCheckState(0, Qt::Checked)
+                           : item->setCheckState(0, Qt::Unchecked);
         item->setExpanded(true);
-        
-        //set blank to black italics
-		if (sample->isBlank) {
+
+        // set blank to black italics
+        if (sample->isBlank) {
             markBlank(item);
-		}
+        }
     }
 
     _treeWidget->resizeColumnToContents(0);
-    connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeSampleSet(QTreeWidgetItem*,int)));
-    connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(changeNormalizationConstant(QTreeWidgetItem*,int)));
-    connect(_treeWidget,SIGNAL(itemChanged(QTreeWidgetItem*, int)), SLOT(showSample(QTreeWidgetItem*,int)));
-    connect( _treeWidget, 
-            &QTreeWidget::itemChanged, 
-            this, 
+    connect(_treeWidget,
+            SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+            SLOT(changeSampleSet(QTreeWidgetItem*, int)));
+    connect(_treeWidget,
+            SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+            SLOT(changeNormalizationConstant(QTreeWidgetItem*, int)));
+    connect(_treeWidget,
+            SIGNAL(itemChanged(QTreeWidgetItem*, int)),
+            SLOT(showSample(QTreeWidgetItem*, int)));
+    connect(_treeWidget,
+            &QTreeWidget::itemChanged,
+            this,
             &ProjectDockWidget::saveState);
     connect(_treeWidget,
             SIGNAL(itemDropped(QTreeWidgetItem*)),
             SLOT(changeSampleOrder()));
-    connect(_treeWidget,
-            SIGNAL(itemsSorted()),
-            SLOT(changeSampleOrder()));
+    connect(_treeWidget, SIGNAL(itemsSorted()), SLOT(changeSampleOrder()));
     changeSampleOrder();
 }
 
-void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
-   
-    if (item == NULL) return;
-    bool checked = (item->checkState(0) != Qt::Unchecked );
-    if (item->type() == SampleType ) {
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
-        if (sample)  {
-            bool changed=false;
-            sample->isSelected != checked ? changed=true : changed=false;
-            sample->isSelected=checked;
+void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col)
+{
+    if (item == NULL)
+        return;
+    bool checked = (item->checkState(0) != Qt::Unchecked);
+    if (item->type() == SampleType) {
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
+        if (sample) {
+            bool changed = false;
+            sample->isSelected != checked ? changed = true : changed = false;
+            sample->isSelected = checked;
 
-            if(changed) {
+            if (changed) {
                 _mainwindow->alignmentVizAllGroupsWidget->replotGraph();
                 _mainwindow->sampleRtWidget->plotGraph();
                 _mainwindow->groupRtWidget->updateGraph();
@@ -775,56 +846,59 @@ void ProjectDockWidget::showSample(QTreeWidgetItem* item, int col) {
     }
 }
 
-QTreeWidgetItem* ProjectDockWidget::getParentFolder(QString fileName) {
-        //get parent name of the directory containg this sample
-        QTreeWidgetItem* parent=NULL;
-        if (!QFile::exists(fileName)) return NULL;
+QTreeWidgetItem* ProjectDockWidget::getParentFolder(QString fileName)
+{
+    // get parent name of the directory containg this sample
+    QTreeWidgetItem* parent = NULL;
+    if (!QFile::exists(fileName))
+        return NULL;
 
-        QFileInfo fileinfo(fileName);
-        QString path = fileinfo.absoluteFilePath();
-        QStringList pathlist = path.split("/");
-        if (pathlist.size() > 2 ) {
-            QString parentFolder = pathlist[ pathlist.size()-2 ];
-            if(parentMap.contains(parentFolder)) { 
-                parent = parentMap[parentFolder];
-            } else {
-                parent = new QTreeWidgetItem(_treeWidget);
-                parent->setText(0,parentFolder);
-                parent->setExpanded(true);
-                parentMap[parentFolder]=parent;
-            }
+    QFileInfo fileinfo(fileName);
+    QString path = fileinfo.absoluteFilePath();
+    QStringList pathlist = path.split("/");
+    if (pathlist.size() > 2) {
+        QString parentFolder = pathlist[pathlist.size() - 2];
+        if (parentMap.contains(parentFolder)) {
+            parent = parentMap[parentFolder];
+        } else {
+            parent = new QTreeWidgetItem(_treeWidget);
+            parent->setText(0, parentFolder);
+            parent->setExpanded(true);
+            parentMap[parentFolder] = parent;
         }
-        return parent;
+    }
+    return parent;
 }
 
-void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col) {
-
-    if (item && item->type() == SampleType ) {
-        QVariant v = item->data(0,Qt::UserRole);
-        mzSample*  sample =  v.value<mzSample*>();
+void ProjectDockWidget::showSampleInfo(QTreeWidgetItem* item, int col)
+{
+    if (item && item->type() == SampleType) {
+        QVariant v = item->data(0, Qt::UserRole);
+        mzSample* sample = v.value<mzSample*>();
 
         QString ionizationMode = "Unknown";
-        sample->getPolarity() < 0 ? ionizationMode="Negative" :  ionizationMode="Positive";
+        sample->getPolarity() < 0 ? ionizationMode = "Negative"
+                                  : ionizationMode = "Positive";
 
-        if (sample)  {
-            this->setToolTip(
-                tr("<b>m/z range</b>: %1 — %2<br>"
-                   "<b>RT range</b>: %3 — %4<br>"
-                   "<b>Scan number</b>: %5<br>"
-                   "<b>Ionization</b>: %6<br>"
-                   "<b>Filename</b>: %7")
-                   .arg(sample->minMz)
-                   .arg(sample->maxMz)
-                   .arg(sample->minRt)
-                   .arg(sample->maxRt)
-                   .arg(sample->scanCount())
-                   .arg(ionizationMode)
-                   .arg(sample->fileName.c_str()));
+        if (sample) {
+            this->setToolTip(tr("<b>m/z range</b>: %1 — %2<br>"
+                                "<b>RT range</b>: %3 — %4<br>"
+                                "<b>Scan number</b>: %5<br>"
+                                "<b>Ionization</b>: %6<br>"
+                                "<b>Filename</b>: %7")
+                                 .arg(sample->minMz)
+                                 .arg(sample->maxMz)
+                                 .arg(sample->minRt)
+                                 .arg(sample->maxRt)
+                                 .arg(sample->scanCount())
+                                 .arg(ionizationMode)
+                                 .arg(sample->fileName.c_str()));
         }
     }
 }
 
-QTreeWidget* ProjectDockWidget::getTreeWidget(){
+QTreeWidget* ProjectDockWidget::getTreeWidget()
+{
     return _treeWidget;
 }
 
@@ -850,11 +924,7 @@ void ProjectDockWidget::saveProjectAsSQLite(const bool saveRawData)
             dir = ldir;
     }
     QString fileName = QFileDialog::getSaveFileName(
-        _mainwindow,
-        "Save project as (.emDB)",
-        dir,
-        "emDB Project(*.emDB)"
-    );
+        _mainwindow, "Save project as (.emDB)", dir, "emDB Project(*.emDB)");
 
     if (fileName.isEmpty())
         return;
@@ -886,24 +956,27 @@ void ProjectDockWidget::saveAndCloseCurrentSQLiteProject()
         return;
     }
 
-    auto userSessionWarning = "Do you want to save your current session before "
-                              "opening the project?";
+    auto userSessionWarning =
+        "Do you want to save your current session before "
+        "opening the project?";
     if (!_mainwindow->getLatestUserProject().isEmpty())
-        userSessionWarning = "Do you want to save and close the current "
-                             "project?";
-    QMessageBox::StandardButton reply = QMessageBox::question(
-        this,
-        "Opening Project",
-        userSessionWarning,
-        QMessageBox::No | QMessageBox::Yes,
-        QMessageBox::Yes
-    );
+        userSessionWarning =
+            "Do you want to save and close the current "
+            "project?";
+    QMessageBox::StandardButton reply =
+        QMessageBox::question(this,
+                              "Opening Project",
+                              userSessionWarning,
+                              QMessageBox::No | QMessageBox::Yes,
+                              QMessageBox::Yes);
     if (reply == QMessageBox::Yes)
         saveSQLiteProject();
 
     // if an existing project is being saved, stall before clearing the session
-    while(_mainwindow->autosaveWorker->isRunning());
-    while(_mainwindow->saveWorker->isRunning());
+    while (_mainwindow->autosaveWorker->isRunning())
+        ;
+    while (_mainwindow->saveWorker->isRunning())
+        ;
 
     _mainwindow->fileLoader->closeSQLiteProject();
     setLastOpenedProject("");
@@ -921,27 +994,29 @@ void ProjectDockWidget::clearSession()
     TableDockWidget::clearTitleRegistry();
 }
 
-void ProjectDockWidget::loadMzRollProject(QString fileName) {
+void ProjectDockWidget::loadMzRollProject(QString fileName)
+{
     int samplecount = 0;
 
     QFile data(fileName);
-    if ( !data.open(QFile::ReadOnly) ) {
+    if (!data.open(QFile::ReadOnly)) {
         QErrorMessage errDialog(this);
         errDialog.showMessage("File open: " + fileName + " failed");
         return;
     }
 
     QXmlStreamReader xml(&data);
-    mzSample* currentSample=NULL;
+    mzSample* currentSample = NULL;
 
     QString projectDescription;
     QStringRef currentXmlElement;
 
-    int i=0;
-    while(!xml.atEnd()){
+    int i = 0;
+    while (!xml.atEnd()) {
         if (xml.isStartElement()) {
-         if (xml.name() == "sample") {
-        i++;}
+            if (xml.name() == "sample") {
+                i++;
+            }
         }
         xml.readNext();
     }
@@ -950,38 +1025,41 @@ void ProjectDockWidget::loadMzRollProject(QString fileName) {
     xml.setDevice(xml.device());
     QString progressText;
     while (!xml.atEnd()) {
-
-
         xml.readNext();
         if (xml.isStartElement()) {
             currentXmlElement = xml.name();
 
-
             if (xml.name() == "sample") {
                 unsigned int id = 0;
-                QString sname   = xml.attributes().value("name").toString();
+                QString sname = xml.attributes().value("name").toString();
                 id = xml.attributes().value("id").toInt();
-                QString fname   = xml.attributes().value("filename").toString();
-                QString setname   = xml.attributes().value("setName").toString();
-                QString sampleOrder   = xml.attributes().value("sampleOrder").toString();
-                QString isSelected   = xml.attributes().value("isSelected").toString();
+                QString fname = xml.attributes().value("filename").toString();
+                QString setname = xml.attributes().value("setName").toString();
+                QString sampleOrder =
+                    xml.attributes().value("sampleOrder").toString();
+                QString isSelected =
+                    xml.attributes().value("isSelected").toString();
 
-                bool checkLoaded=false;
-                Q_FOREACH(mzSample* loadedFile, _mainwindow->getSamples()) {
-                    if (QString(loadedFile->fileName.c_str())== fname) checkLoaded=true;
+                bool checkLoaded = false;
+                Q_FOREACH (mzSample* loadedFile, _mainwindow->getSamples()) {
+                    if (QString(loadedFile->fileName.c_str()) == fname)
+                        checkLoaded = true;
                 }
 
-                if(checkLoaded == true) continue;  // skip files that have been loaded already
-                
+                if (checkLoaded == true)
+                    continue;  // skip files that have been loaded already
+
                 samplecount++;
                 qDebug() << "Checking:" << fname;
                 QFileInfo sampleFile(fname);
                 if (!sampleFile.exists()) {
-                    Q_FOREACH(QString path, _mainwindow->pathlist) {
-                        fname= path + QDir::separator() + sampleFile.fileName();
+                    Q_FOREACH (QString path, _mainwindow->pathlist) {
+                        fname =
+                            path + QDir::separator() + sampleFile.fileName();
                         qDebug() << "Checking if exists:" << fname;
                         sampleFile.setFile(fname);
-                        if (sampleFile.exists())  break;
+                        if (sampleFile.exists())
+                            break;
                     }
                 }
 
@@ -989,100 +1067,117 @@ void ProjectDockWidget::loadMzRollProject(QString fileName) {
                 QString dStr = d.absolutePath();
                 progressText = "Importing files from " + dStr;
 
-                if ( !fname.isEmpty() ) {
-
-                    mzSample* sample = _mainwindow->fileLoader->loadSample(fname);
+                if (!fname.isEmpty()) {
+                    mzSample* sample =
+                        _mainwindow->fileLoader->loadSample(fname);
                     if (sample) {
                         _mainwindow->addSample(sample);
-                        currentSample=sample;
-                        if (!sname.isEmpty() ) sample->sampleName = sname.toStdString();
-                        if (id > 0) sample->setSampleId(id);
-                        if (!setname.isEmpty() ) sample->setSetName(setname.toStdString());
-                        if (!sampleOrder.isEmpty()) sample->setSampleOrder(sampleOrder.toInt());
-                        if (!isSelected.isEmpty()) sample->isSelected = isSelected.toInt();
+                        currentSample = sample;
+                        if (!sname.isEmpty())
+                            sample->sampleName = sname.toStdString();
+                        if (id > 0)
+                            sample->setSampleId(id);
+                        if (!setname.isEmpty())
+                            sample->setSetName(setname.toStdString());
+                        if (!sampleOrder.isEmpty())
+                            sample->setSampleOrder(sampleOrder.toInt());
+                        if (!isSelected.isEmpty())
+                            sample->isSelected = isSelected.toInt();
                     } else {
-                        currentSample=NULL;
+                        currentSample = NULL;
                     }
                 }
             }
 
-			//change sample color
+            // change sample color
             if (xml.name() == "color" && currentSample) {
-                currentSample->color[0]   = xml.attributes().value("red").toString().toDouble();
-                currentSample->color[1]   = xml.attributes().value("blue").toString().toDouble();
-                currentSample->color[2]   = xml.attributes().value("green").toString().toDouble();
-                currentSample->color[3]  = xml.attributes().value("alpha").toString().toDouble();
+                currentSample->color[0] =
+                    xml.attributes().value("red").toString().toDouble();
+                currentSample->color[1] =
+                    xml.attributes().value("blue").toString().toDouble();
+                currentSample->color[2] =
+                    xml.attributes().value("green").toString().toDouble();
+                currentSample->color[3] =
+                    xml.attributes().value("alpha").toString().toDouble();
             }
 
-			//polynomialAlignmentTransformation vector
-            if (xml.name() == "polynomialAlignmentTransformation" && currentSample) {
-				vector<double>transform;
-				Q_FOREACH(QXmlStreamAttribute coef, xml.attributes() ) {
-					double coefValue =coef.value().toString().toDouble();
-					transform.push_back(coefValue);
-				}
-				qDebug() << "polynomialAlignmentTransformation: "; printF(transform);
-				currentSample->polynomialAlignmentTransformation = transform;
-				currentSample->saveCurrentRetentionTimes();
-				currentSample->applyPolynomialTransform();
-			}
+            // polynomialAlignmentTransformation vector
+            if (xml.name() == "polynomialAlignmentTransformation"
+                && currentSample) {
+                vector<double> transform;
+                Q_FOREACH (QXmlStreamAttribute coef, xml.attributes()) {
+                    double coefValue = coef.value().toString().toDouble();
+                    transform.push_back(coefValue);
+                }
+                qDebug() << "polynomialAlignmentTransformation: ";
+                printF(transform);
+                currentSample->polynomialAlignmentTransformation = transform;
+                currentSample->saveCurrentRetentionTimes();
+                currentSample->applyPolynomialTransform();
+            }
         }
         if (xml.isCharacters() && currentXmlElement == "projectDescription") {
-            projectDescription.append( xml.text() );
+            projectDescription.append(xml.text());
         }
-    sendBoostSignal(progressText.toStdString(), samplecount, i);
+        sendBoostSignal(progressText.toStdString(), samplecount, i);
     }
     data.close();
 
     setLastOpenedProject(fileName);
 }
 
-void ProjectDockWidget::keyPressEvent(QKeyEvent *e ) {
-    //cerr << "TableDockWidget::keyPressEvent()" << e->key() << endl;
+void ProjectDockWidget::keyPressEvent(QKeyEvent* e)
+{
+    // cerr << "TableDockWidget::keyPressEvent()" << e->key() << endl;
 
-    QTreeWidgetItem *item = _treeWidget->currentItem();
-    if (e->key() == Qt::Key_Delete ) {
+    QTreeWidgetItem* item = _treeWidget->currentItem();
+    if (e->key() == Qt::Key_Delete) {
         unloadSelectedSamples();
     }
 
     QDockWidget::keyPressEvent(e);
 }
 
-void ProjectDockWidget::unloadSample(mzSample* sample) {
-    if ( sample == NULL) return;
+void ProjectDockWidget::unloadSample(mzSample* sample)
+{
+    if (sample == NULL)
+        return;
 
-    //mark sample as unselected
-    sample->isSelected=false;
+    // mark sample as unselected
+    sample->isSelected = false;
     delete_all(sample->scans);
 
-    QList< QPointer<TableDockWidget> > peaksTableList = _mainwindow->getPeakTableList();
+    QList<QPointer<TableDockWidget>> peaksTableList =
+        _mainwindow->getPeakTableList();
     peaksTableList.prepend(_mainwindow->getBookmarkedPeaks());
     TableDockWidget* peaksTable;
-    Q_FOREACH(peaksTable, peaksTableList) {
+    Q_FOREACH (peaksTable, peaksTableList) {
         QList<shared_ptr<PeakGroup>> groups = peaksTable->getGroups();
         Q_FOREACH (shared_ptr<PeakGroup> grp, groups) {
-            vector<Peak>& peaks = grp->getPeaks();
-            for(unsigned int j=0; j< peaks.size(); j++) {
+            vector<Peak>& peaks = grp->peaks;
+            for (unsigned int j = 0; j < peaks.size(); j++) {
                 Peak p = peaks.at(j);
                 if (p.getSample()->sampleName == sample->sampleName) {
-                    peaks.erase(peaks.begin()+j);
+                    peaks.erase(peaks.begin() + j);
                 }
             }
         }
     }
 
-    //remove sample from sample list
-    for(unsigned int i=0; i<_mainwindow->samples.size(); i++) {
+    // remove sample from sample list
+    for (unsigned int i = 0; i < _mainwindow->samples.size(); i++) {
         if (_mainwindow->samples[i] == sample) {
-            _mainwindow->samples.erase( _mainwindow->samples.begin()+i);
+            _mainwindow->samples.erase(_mainwindow->samples.begin() + i);
             break;
         }
     }
 
-    //remove sample from maven parameters sample list
-    for(unsigned int i=0; i<_mainwindow->mavenParameters->samples.size(); i++) {
+    // remove sample from maven parameters sample list
+    for (unsigned int i = 0; i < _mainwindow->mavenParameters->samples.size();
+         i++) {
         if (_mainwindow->mavenParameters->samples[i] == sample) {
-            _mainwindow->mavenParameters->samples.erase( _mainwindow->mavenParameters->samples.begin()+i);
+            _mainwindow->mavenParameters->samples.erase(
+                _mainwindow->mavenParameters->samples.begin() + i);
             break;
         }
     }
@@ -1146,8 +1241,7 @@ void ProjectHeaderView::mouseReleaseEvent(QMouseEvent* event)
 {
     auto column = logicalIndexAt(event->pos());
     if (column > -1) {
-        if (isSortIndicatorShown()
-            && sortIndicatorSection() == column
+        if (isSortIndicatorShown() && sortIndicatorSection() == column
             && sortIndicatorOrder() == Qt::AscendingOrder) {
             setSortIndicator(column, Qt::DescendingOrder);
             emit sortRequested(column, Qt::DescendingOrder);

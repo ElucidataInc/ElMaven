@@ -1,7 +1,7 @@
 #include "ligandwidget.h"
-#include "adductwidget.h"
 #include "Compound.h"
 #include "Scan.h"
+#include "adductwidget.h"
 #include "alignmentdialog.h"
 #include "common/analytics.h"
 #include "globals.h"
@@ -86,29 +86,26 @@ LigandWidget::LigandWidget(MainWindow* mw)
     setWindowTitle("Compounds");
 
     QDirIterator itr(":/databases/");
-    while(itr.hasNext()) {
+    while (itr.hasNext()) {
         auto filename = itr.next().toStdString();
         string dbname = mzUtils::cleanFilename(filename);
 
-        QStringList dbExclusionList = {
-            "Adducts",
-            "xkcd-colors"
-        };
+        QStringList dbExclusionList = {"Adducts", "xkcd-colors"};
         if (!dbExclusionList.contains(dbname.c_str())) {
             _mw->massCalcWidget->database->addItem(
                 QString::fromStdString(dbname));
         }
 
         QFile file(QString(filename.c_str()));
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) 
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
             return;
         QTextStream in(&file);
-        QString text;    
+        QString text;
         text = in.readAll();
         string allContent = text.toStdString();
         string sep = ",";
         DB.loadCompoundCSVFile(allContent, true, dbname, sep);
-        file.close();     
+        file.close();
     }
 
     QSet<QString> set;
@@ -122,13 +119,10 @@ LigandWidget::LigandWidget(MainWindow* mw)
     while (i.hasNext())
         databaseSelect->addItem(i.next());
 
-    connect(this,
-            &LigandWidget::mzrollSetDB,
-            this,
-            [this](QString dbName) {
-                setDatabaseNames();
-                setDatabase(dbName);
-            });
+    connect(this, &LigandWidget::mzrollSetDB, this, [this](QString dbName) {
+        setDatabaseNames();
+        setDatabase(dbName);
+    });
     connect(databaseSelect,
             SIGNAL(currentIndexChanged(QString)),
             this,
@@ -202,7 +196,7 @@ void LigandWidget::loadCompoundDBMzroll(QString fileName)
         }
     }
 
-    Q_EMIT(mzrollSetDB( QString::fromStdString(dbname)));
+    Q_EMIT(mzrollSetDB(QString::fromStdString(dbname)));
 }
 
 void LigandWidget::readCompoundXML(QXmlStreamReader& xml, string dbname)
@@ -426,8 +420,8 @@ void LigandWidget::showTable(bool insertIsotopesAndAdducts)
         if (compound->db() != dbname)
             continue;  // skip compounds from other databases
 
-        NumericTreeWidgetItem* item = new NumericTreeWidgetItem(treeWidget,
-                                                                CompoundType);
+        NumericTreeWidgetItem* item =
+            new NumericTreeWidgetItem(treeWidget, CompoundType);
         item->setText(0, QString::fromStdString(compound->name()));
         item->setData(0, Qt::UserRole, QVariant::fromValue(compound));
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -447,10 +441,11 @@ void LigandWidget::showTable(bool insertIsotopesAndAdducts)
             mz = compound->mz();
         }
         if (precursorMz > 0 && productMz > 0 && productMz <= precursorMz) {
-            QString transitionString = QString("%1 / %2 (CE: %3)").arg(
-                QString::number(precursorMz, 'f', 3),
-                QString::number(productMz, 'f', 3),
-                QString::number(compound->collisionEnergy(), 'f', 2));
+            QString transitionString =
+                QString("%1 / %2 (CE: %3)")
+                    .arg(QString::number(precursorMz, 'f', 3),
+                         QString::number(productMz, 'f', 3),
+                         QString::number(compound->collisionEnergy(), 'f', 2));
             item->setText(2, transitionString);
         } else {
             item->setText(2, QString::number(mz, 'f', 6));
@@ -550,7 +545,7 @@ void LigandWidget::markAsDone(QTreeWidgetItem* item, bool isProxy)
 {
     auto color = QColor(137, 238, 45, 100);  // green
     if (isProxy)
-        color = QColor(255, 199, 0, 100);    // yellow
+        color = QColor(255, 199, 0, 100);  // yellow
 
     if (item != nullptr && item->treeWidget() == treeWidget) {
         for (int col = 0; col < treeWidget->columnCount(); col++)
@@ -578,7 +573,7 @@ void LigandWidget::markAsDone(Compound* compound, Isotope isotope)
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
         if (*it)
-            ++it; // we skip the parent item
+            ++it;  // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
 
@@ -606,7 +601,7 @@ void LigandWidget::markAsDone(Compound* compound, Adduct* adduct)
         QTreeWidgetItem* item = i.value();
         QTreeWidgetItemIterator it(item);
         if (*it)
-            ++it; // we skip the parent item
+            ++it;  // we skip the parent item
         while (*it) {
             QTreeWidgetItem* childItem = *it;
 
@@ -615,8 +610,7 @@ void LigandWidget::markAsDone(Compound* compound, Adduct* adduct)
                 break;
 
             QVariant var = childItem->data(0, Qt::UserRole);
-            if (var.canConvert<Adduct*>()
-                && var.value<Adduct*>() == adduct) {
+            if (var.canConvert<Adduct*>() && var.value<Adduct*>() == adduct) {
                 markAsDone(childItem);
             }
             ++it;
@@ -699,10 +693,10 @@ void LigandWidget::updateIsotopesAndAdducts()
                                                             defaultAdduct);
             for (auto& isotope : isotopes) {
                 if (isotope.name == C12_PARENT_LABEL)
-                    continue; // we already have a top-level parent entry
+                    continue;  // we already have a top-level parent entry
 
-                NumericTreeWidgetItem* child = new NumericTreeWidgetItem(item,
-                                                                         0);
+                NumericTreeWidgetItem* child =
+                    new NumericTreeWidgetItem(item, 0);
                 child->setText(0, QString::fromStdString(isotope.name));
                 child->setData(0, Qt::UserRole, QVariant::fromValue(isotope));
                 child->setText(2, QString::number(isotope.mass, 'f', 6));
@@ -714,10 +708,10 @@ void LigandWidget::updateIsotopesAndAdducts()
             auto adducts = _mw->adductWidget->getSelectedAdducts();
             for (auto adduct : adducts) {
                 if (adduct->isParent())
-                    continue; // we already have a top-level parent entry
+                    continue;  // we already have a top-level parent entry
 
-                NumericTreeWidgetItem* child = new NumericTreeWidgetItem(item,
-                                                                         0);
+                NumericTreeWidgetItem* child =
+                    new NumericTreeWidgetItem(item, 0);
                 child->setText(0, QString::fromStdString(adduct->getName()));
                 child->setData(0, Qt::UserRole, QVariant::fromValue(adduct));
 
@@ -763,7 +757,7 @@ void LigandWidget::saveCompoundList(QString fileName, QString dbname)
         out << "formula" << SEP;
         out << "srmId" << SEP;
         out << "category" << endl;
-        
+
         auto compoundsDB = DB.compoundsDB();
         for (unsigned int i = 0; i < compoundsDB.size(); i++) {
             Compound* compound = compoundsDB[i];
@@ -846,12 +840,10 @@ void LigandWidget::showLigand()
                                                             findS34,
                                                             findD2,
                                                             defaultAdduct);
-            auto c12IsotopePos = find_if(begin(isotopes),
-                                         end(isotopes),
-                                         [] (Isotope iso) {
-                                             return (iso.name
-                                                     == C12_PARENT_LABEL);
-                                         });
+            auto c12IsotopePos =
+                find_if(begin(isotopes), end(isotopes), [](Isotope iso) {
+                    return (iso.name == C12_PARENT_LABEL);
+                });
             if (c12IsotopePos != end(isotopes))
                 isotope = *c12IsotopePos;
         }
@@ -948,7 +940,7 @@ void LigandWidget::matchFragmentation()
     }
 }
 
-void LigandWidget::keyPressEvent(QKeyEvent *event)
+void LigandWidget::keyPressEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_Left) {
         if (treeWidget->currentItem() != nullptr) {
@@ -965,11 +957,10 @@ void LigandWidget::keyPressEvent(QKeyEvent *event)
     }
 }
 
-bool
-LigandWidget::LigandTreeState::operator==(const LigandTreeState& other) const
+bool LigandWidget::LigandTreeState::operator==(
+    const LigandTreeState& other) const
 {
-    return (dbName == other.dbName
-            && charge == other.charge
+    return (dbName == other.dbName && charge == other.charge
             && showingIsotopes == other.showingIsotopes
             && isotopeTracers == other.isotopeTracers
             && showingAdducts == other.showingAdducts
