@@ -273,7 +273,9 @@
                                               , filter_adducts_against_parent    INTEGER \
                                               , parent_isotope_required          INTEGER \
                                               , parent_adduct_required           INTEGER \
-                                              , peak_width_quantile              INTEGER );"
+                                              , peak_width_quantile              INTEGER \
+                                              , frag_annotation_limit            INTEGER \
+                                              , frag_scoring_algo                INTEGER );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \
