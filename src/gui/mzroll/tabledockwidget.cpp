@@ -850,15 +850,6 @@ void TableDockWidget::exportGroupsToSpreadsheet()
         return;
     }
 
-    auto ms2GroupAt = find_if(
-        begin(_topLevelGroups),
-        end(_topLevelGroups),
-        [](shared_ptr<PeakGroup> group) {
-            if (!group->hasCompoundLink())
-                return false;
-            return (group->getCompound()->type() == Compound::Type::MS2);
-        });
-    bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
     bool includeSetNamesLines = false;
 
     auto reportType = CSVReports::ReportType::GroupReport;
@@ -876,11 +867,16 @@ void TableDockWidget::exportGroupsToSpreadsheet()
         reportType = CSVReports::ReportType::GroupReport;
     }
 
+    vector<PeakGroup*> groupVector;
+    for (auto group : _topLevelGroups)
+        groupVector.push_back(group.get());
+    auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
+
     CSVReports csvreports(fileName.toStdString(),
                           reportType,
                           samples,
                           _mainwindow->getUserQuantType(),
-                          ms2GroupExists,
+                          reportMode,
                           includeSetNamesLines,
                           _mainwindow->mavenParameters);
     QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
@@ -949,15 +945,6 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
         return;
     }
 
-    auto ms2GroupAt = find_if(
-        begin(_topLevelGroups),
-        end(_topLevelGroups),
-        [](shared_ptr<PeakGroup> group) {
-            if (!group->hasCompoundLink())
-                return false;
-            return (group->getCompound()->type() == Compound::Type::MS2);
-        });
-    bool ms2GroupExists = ms2GroupAt != end(_topLevelGroups);
     bool includeSetNamesLines = false;
 
     auto reportType = CSVReports::ReportType::GroupReport;
@@ -970,11 +957,17 @@ void TableDockWidget::prepareDataForPolly(QString writableTempDir,
     } else if (sFilterSel == peaksTAB) {
         reportType = CSVReports::ReportType::PeakReport;
     }
+
+    vector<PeakGroup*> groupVector;
+    for (auto group : _topLevelGroups)
+        groupVector.push_back(group.get());
+    auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
+
     CSVReports csvreports(fileName.toStdString(),
                           reportType,
                           samples,
                           _mainwindow->getUserQuantType(),
-                          ms2GroupExists,
+                          reportMode,
                           includeSetNamesLines,
                           _mainwindow->mavenParameters,
                           true);
