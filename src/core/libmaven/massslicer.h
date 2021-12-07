@@ -49,7 +49,7 @@ class MassSlicer
      * _mergeSlices and _compareSlices) and adjusted (see _adjustSlices) to
      * finally obtain regions over which peak detection can be performed.
      */
-    void findFeatureSlices(bool clearPrevious = true);
+    void findFeatureSlices(bool clearPrevious = true, float precursorRt = 0.0f);
 
     /**
      * @brief Set the MS level at which slices will be generated. If MS
