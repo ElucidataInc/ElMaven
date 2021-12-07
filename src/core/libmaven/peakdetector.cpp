@@ -252,6 +252,27 @@ void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
     processSlices(massSlicer.slices, "feature groups");
     delete_all(massSlicer.slices);
 
+    auto foundDiaSample =
+        find_if(begin(_mavenParameters->samples),
+                end(_mavenParameters->samples),
+                [](mzSample* sample) { return sample->diaScanCount() > 0; });
+
+    if (foundDiaSample != end(_mavenParameters->samples)
+        && _mavenParameters->matchFragmentationFlag) {
+        sendBoostSignal("Detecting fragments…", 0, 0);
+        for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
+            PeakGroup group = _mavenParameters->allgroups.at(i);
+
+            disableSignals = true;
+            FragmentDetection::findFragments(&group);
+            disableSignals = false;
+
+            _mavenParameters->allgroups.at(i) = group;
+            sendBoostSignal("Detecting fragments…",
+                            i + 1,
+                            _mavenParameters->allgroups.size());
+        }
+    }
     // identify features with known targets
     identifyFeatures(identificationSet);
 }
@@ -699,15 +720,6 @@ void PeakDetector::processSlices(vector<mzSlice*>& slices,
                             std::min((int)slices.size(),
                                      _mavenParameters->limitGroupCount));
         }
-    }
-
-    // filter for the best spectral matches per unique group
-    if (_mavenParameters->matchFragmentationFlag) {
-        sendBoostSignal("Filtering for best MS/MS annotations…", 0, 0);
-        GroupFiltering groupFiltering(_mavenParameters);
-        groupFiltering.filterAllButSome(_mavenParameters->allgroups,
-                                        GroupFiltering::FilterType::MsMsScore,
-                                        _mavenParameters->fragAnnotationLimit);
     }
 }
 

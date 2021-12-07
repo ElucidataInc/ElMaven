@@ -1005,7 +1005,8 @@ void PeakGroup::computeFragPattern(float productPpmTolr)
     if (msLevelOfPeaks() != 1)
         return;
 
-    if (hasDiaPeaks() && _fragmentGroups.empty()) {
+    if (hasDiaPeaks() && _fragmentGroups.empty()
+        && _parameters->matchFragmentationFlag) {
         FragmentDetection::findFragments(this);
     } else if (hasDdaPeaks()) {
         _computeDdaFragPattern(productPpmTolr);

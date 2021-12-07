@@ -215,18 +215,33 @@ void MassSlicer::generateAdductSlices(vector<Compound*> compounds,
     }
 }
 
-void MassSlicer::findFeatureSlices(bool clearPrevious)
+void MassSlicer::findFeatureSlices(bool clearPrevious, float precursorRT)
 {
     if (clearPrevious)
         clearSlices();
 
     MassCutoff* massCutoff = _mavenParameters->massCutoffMerge;
+
     float minFeatureRt = _mavenParameters->minRt;
     float maxFeatureRt = _mavenParameters->maxRt;
     float minFeatureMz = _mavenParameters->minMz;
     float maxFeatureMz = _mavenParameters->maxMz;
     float minFeatureIntensity = _mavenParameters->minIntensity;
     float maxFeatureIntensity = _mavenParameters->maxIntensity;
+    int rtStep = _mavenParameters->rtStepSize;
+
+    if (_msLevel == 2) {
+        float fiveSeconds = 5.0f / 60.0f;
+        minFeatureRt = precursorRT - fiveSeconds;
+        maxFeatureRt = precursorRT + fiveSeconds;
+        minFeatureMz = numeric_limits<float>::min();
+        maxFeatureMz = numeric_limits<float>::max();
+        minFeatureIntensity = 100.0f;
+        maxFeatureIntensity = numeric_limits<float>::max();
+        rtStep = rtStep * 10;
+    } else {
+        massCutoff = _mavenParameters->massCutoffMerge;
+    }
 
     int totalScans = 0;
     int currentScans = 0;
@@ -238,18 +253,19 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
     // Calculating the rt window using average distance between RTs and
     // mutiplying it with rtStep (default 2.0)
     float rtWindow = 2.0f;
-    int rtStep = _mavenParameters->rtStepSize;
     if (_samples.size() > 0 and rtStep > 0) {
-        rtWindow =
-            accumulate(begin(_samples),
-                       end(_samples),
-                       0.0f,
-                       [rtStep](float sum, mzSample* sample) {
-                           return sum + (sample->getAverageScanTime() * rtStep);
-                       })
-            / static_cast<float>(_samples.size());
+        rtWindow = accumulate(begin(_samples),
+                              end(_samples),
+                              0.0f,
+                              [rtStep, this](float sum, mzSample* sample) {
+                                  return sum
+                                         + (sample->getAverageScanTime(_msLevel)
+                                            * rtStep);
+                              })
+                   / static_cast<float>(_samples.size());
     }
-    cerr << "RT window used: " << rtWindow << endl;
+    if (_msLevel == 1)
+        cerr << "RT window used: " << rtWindow << endl;
 
     sendSignal("Status", 0, 1);
 
@@ -280,12 +296,22 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
 
             currentScans++;
 
-            if (scan->mslevel != 1)
+            if (scan->mslevel != _msLevel) {
+                // cout << "\nMs level doesn't match";
                 continue;
+            }
+
+            if (scan->msType() == Scan::MsType::DIA
+                && (_precursorMz < scan->swathWindowMin()
+                    || _precursorMz > scan->swathWindowMax())) {
+                continue;
+            }
 
             // Checking if RT is in the given min to max RT range
-            if (!isBetweenInclusive(scan->rt, minFeatureRt, maxFeatureRt))
+            if (!isBetweenInclusive(scan->rt, minFeatureRt, maxFeatureRt)) {
+                // cout << "\nRT doesn't match";
                 continue;
+            }
 
             float rt = scan->rt;
 
@@ -294,21 +320,26 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
                 float intensity = scan->intensity[k];
 
                 // Checking if mz, intensity are within specified ranges
-                if (!isBetweenInclusive(mz, minFeatureMz, maxFeatureMz))
+                if (!isBetweenInclusive(mz, minFeatureMz, maxFeatureMz)) {
+                    // cout << "\nMz doesn't match";
                     continue;
+                }
 
                 if (!isBetweenInclusive(
                         intensity, minFeatureIntensity, maxFeatureIntensity)) {
+                    // cout << "\nIntensity doesn't match";
                     continue;
                 }
 
                 // create new slice with the given bounds
                 float cutoff = massCutoff->massCutoffValue(mz);
+                // cerr << "\nCreated slice";
                 mzSlice* s = new mzSlice(
                     mz - cutoff, mz + cutoff, rt - rtWindow, rt + rtWindow);
                 s->ionCount = intensity;
                 s->rt = scan->rt;
                 s->mz = mz;
+                s->precursorMz = _precursorMz;
                 slices.push_back(s);
             }
 
@@ -324,7 +355,7 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
         }
     }
 
-    cerr << "Found " << slices.size() << " slices" << endl;
+    cerr << "\nFound " << slices.size() << " slices" << endl;
 
     // before reduction sort by mz first then by rt
     sort(begin(slices),
@@ -335,12 +366,16 @@ void MassSlicer::findFeatureSlices(bool clearPrevious)
              }
              return slice->mz < compSlice->mz;
          });
+
     _reduceSlices(massCutoff);
 
     cerr << "Reduced to " << slices.size() << " slices" << endl;
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
+    // cout << "\n Slices.size: " << slices.size();
+    // cerr << "\nAfter sort";
     _mergeSlices(massCutoff, rtWindow);
+    // cerr << "\nAfter Merge";
     _adjustSlices(massCutoff);
 
     cerr << "After final merging and adjustments, " << slices.size()
@@ -352,7 +387,7 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
 {
     for (auto first = begin(slices); first != end(slices); ++first) {
         if (_mavenParameters->stop) {
-            clearSlices();
+            // stopSlicing();
             break;
         }
 
@@ -417,20 +452,17 @@ void MassSlicer::_reduceSlices(MassCutoff* massCutoff)
     }
 
     // remove merged slices
-    vector<size_t> indexesToErase;
-    for (size_t i = 0; i < slices.size(); ++i) {
-        auto slice = slices[i];
-        if (slice->ionCount == -1.0f) {
-            delete slice;
-            indexesToErase.push_back(i);
-        }
-    }
-    mzUtils::eraseIndexes(slices, indexesToErase);
+    slices.erase(
+        remove_if(slices.begin(),
+                  slices.end(),
+                  [](mzSlice* slice) { return (slice->ionCount == -1.0f); }),
+        slices.end());
 }
 
 void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
                               const float rtTolerance)
 {
+    // cout << "\nMerge slices";
     // lambda to help expand a given slice by merging a vector of slices into it
     auto expandSlice = [&](mzSlice* mergeInto, vector<mzSlice*> slices) {
         if (slices.empty())
@@ -459,7 +491,10 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         mergeInto->mz = (mergeInto->mzmin + mergeInto->mzmax) / 2.0f;
     };
 
+    // cout << "\nBefore loop: " << slices.size();
+    int i = 0;
     for (auto it = begin(slices); it != end(slices); ++it) {
+        // cout << "\n IN loop" << i++;
         if (_mavenParameters->stop) {
             clearSlices();
             break;
@@ -474,6 +509,7 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         // search ahead
         for (auto ahead = next(it); ahead != end(slices) && it != end(slices);
              ++ahead) {
+            // cout << "\n In ahead";
             auto comparisonSlice = *ahead;
             auto comparison = _compareSlices(
                 _samples, slice, comparisonSlice, massCutoff, rtTolerance);
@@ -489,6 +525,7 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         for (auto behind = prev(it);
              behind != begin(slices) && it != begin(slices);
              --behind) {
+            // cout << "\nIN behind";
             auto comparisonSlice = *behind;
             auto comparison = _compareSlices(
                 _samples, slice, comparisonSlice, massCutoff, rtTolerance);
@@ -503,6 +540,7 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         // expand the current slice by merging all slices classified to be
         // part of the same, and then remove (and free) the slices already
         // merged
+        // cout << "\n Before expand";
         expandSlice(slice, slicesToMerge);
         for (auto merged : slicesToMerge) {
             slices.erase(remove_if(begin(slices),
@@ -514,6 +552,7 @@ void MassSlicer::_mergeSlices(const MassCutoff* massCutoff,
         it = find_if(
             begin(slices), end(slices), [&](mzSlice* s) { return s == slice; });
     }
+    // cout << "\nAfter loop";
 }
 
 pair<bool, bool> MassSlicer::_compareSlices(vector<mzSample*>& samples,
