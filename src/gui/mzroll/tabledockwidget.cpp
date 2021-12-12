@@ -692,8 +692,6 @@ void TableDockWidget::showAllGroups()
         setIntensityColName();
 
     QMap<int, QTreeWidgetItem*> parents;
-    int numGroupsWithMsMsEvents = 0;
-    int numGroupsWithMsMsFragments = 0;
     for (size_t i = 0; i < _topLevelGroups.size(); ++i) {
         auto group = _topLevelGroups[i];
         RowData rowData = _rowDataForThisTable(i);
@@ -712,14 +710,6 @@ void TableDockWidget::showAllGroups()
             addRow(rowData, parent);
         } else {
             addRow(rowData, nullptr);
-        }
-
-        if (group->fragmentationType()
-            == PeakGroup::FragmentationType::MsMsWithEvents) {
-            numGroupsWithMsMsEvents += 1;
-        } else if (group->fragmentationType()
-                   == PeakGroup::FragmentationType::MsMsWithFragments) {
-            numGroupsWithMsMsFragments += 1;
         }
     }
 
@@ -743,12 +733,6 @@ void TableDockWidget::showAllGroups()
 
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::Interactive);
     treeWidget->setColumnWidth(1, 250);
-    if (numGroupsWithMsMsEvents == 0 && numGroupsWithMsMsFragments == 0) {
-        treeWidget->hideColumn(12);
-        treeWidget->hideColumn(13);
-    } else if (numGroupsWithMsMsEvents == 0) {
-        treeWidget->hideColumn(13);
-    }
 }
 
 float TableDockWidget::extractMaxIntensity(PeakGroup* group)
