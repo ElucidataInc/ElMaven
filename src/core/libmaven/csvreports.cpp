@@ -104,7 +104,9 @@ void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
                             << "parent";
 
         // if this is a MS2 report, add MS2 specific columns
-        if (_acquisitionMode == AcquisitionMode::DDA && !_pollyExport) {
+        if ((_acquisitionMode == AcquisitionMode::DDA
+             || _acquisitionMode == AcquisitionMode::DIA)
+            && !_pollyExport) {
             groupReportcolnames << "ms2EventCount"
                                 << "fragNumIonsMatched"
                                 << "fragmentFractionMatched"
@@ -201,8 +203,10 @@ void CSVReports::addGroup(PeakGroup* group)
             _writeGroupInfo(subGroup.get());
         for (auto subGroup : group->childAdducts())
             _writeGroupInfo(subGroup.get());
-        for (auto& fragmentGroup : group->fragmentGroups())
-            _writeGroupInfo(&fragmentGroup);
+        if (group->hasCompoundLink()) {
+            for (auto& fragmentGroup : group->fragmentGroups())
+                _writeGroupInfo(&fragmentGroup);
+        }
     }
 }
 
@@ -380,16 +384,20 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
 
         // if this is a C12 PARENT, then all MS2 attributes should be taken from
         // its parent group.
-        if (group->tagString.find("C12 PARENT") != std::string::npos)
+        if (group->isIsotope() || group->isAdduct())
             groupToWrite = group->parent;
 
-        _reportStream << setprecision(0) << SEP
-                      << groupToWrite->fragMatchScore.numMatches
+        _reportStream << setprecision(0) << SEP << groupToWrite->ms2EventCount
+                      << SEP << groupToWrite->fragMatchScore.numMatches
                       << setprecision(6) << SEP
                       << groupToWrite->fragMatchScore.fractionMatched << SEP
+                      << groupToWrite->fragMatchScore.ticMatched << SEP
+                      << groupToWrite->fragMatchScore.dotProduct << SEP
                       << groupToWrite->fragMatchScore.weightedDotProduct << SEP
                       << groupToWrite->fragMatchScore.hypergeomScore << SEP
-                      << groupToWrite->fragMatchScore.mzFragError;
+                      << groupToWrite->fragMatchScore.spearmanRankCorrelation
+                      << SEP << groupToWrite->fragMatchScore.mzFragError << SEP
+                      << groupToWrite->fragmentationPattern.purity;
     } else if (_acquisitionMode == AcquisitionMode::DIA && !_pollyExport
                && group->getCompound() == nullptr) {
         _reportStream << SEP << SEP << SEP << SEP << SEP;
