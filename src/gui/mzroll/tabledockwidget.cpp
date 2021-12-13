@@ -863,6 +863,24 @@ void TableDockWidget::exportGroupsToSpreadsheet()
                           reportMode,
                           includeSetNamesLines,
                           _mainwindow->mavenParameters);
+
+    if (reportMode == CSVReports::AcquisitionMode::DIA) {
+        bool ok;
+        int limitNumGroups =
+            QInputDialog::getInt(this,
+                                 "",
+                                 "Limit number of fragments groups per "
+                                 "precursor group",
+                                 20,
+                                 1,
+                                 100,
+                                 1,
+                                 &ok);
+        if (!ok)
+            return;
+
+        csvreports.setLimitNumFragmentGroups(limitNumGroups);
+    }
     QList<shared_ptr<PeakGroup>> selectedGroups = getSelectedGroups();
     csvreports.setSelectionFlag(static_cast<int>(peakTableSelection));
 

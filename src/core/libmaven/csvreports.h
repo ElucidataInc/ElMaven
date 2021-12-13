@@ -41,8 +41,14 @@ class CSVReports
                 if (group->hasCompoundLink()) {
                     return (group->getCompound()->type()
                             == Compound::Type::MS2);
+                } else {
+                    // Untargeted Features detected can also have SWATH Info
+                    if (!group->fragmentGroups().empty()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
-                return false;
             });
         if (ms2GroupAt != end(groups)) {
             const PeakGroup* group = *ms2GroupAt;
@@ -106,6 +112,14 @@ class CSVReports
      *@brief-    add group for writing csv about
      */
     void addGroup(PeakGroup* group);
+
+    /**
+     * @brief Sets the limit of fragment groups to be exported
+     */
+    void setLimitNumFragmentGroups(int limit)
+    {
+        _limitNumFragmentGroups = limit;
+    }
 
     QString getErrorReport(void)
     {
@@ -188,6 +202,7 @@ class CSVReports
     bool _pollyExport;
     AcquisitionMode _acquisitionMode;
     bool _includeSetNamesLine;
+    int _limitNumFragmentGroups;
 
     /**
      * @brief Write column name in output file for group report.
