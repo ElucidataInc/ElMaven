@@ -33,6 +33,7 @@ CSVReports::CSVReports(string filename,
     _acquisitionMode = mode;
     _includeSetNamesLine = includeSetNamesLine;
     _groupsClassifed = groupsClassified;
+    _limitNumFragmentGroups = 10;
 
     if (reportType == ReportType::PeakReport) {
         if (samples.size() == 0)
@@ -219,8 +220,14 @@ void CSVReports::addGroup(PeakGroup* group)
             _writePeakInfo(subGroup.get());
         for (auto subGroup : group->childAdducts())
             _writePeakInfo(subGroup.get());
-        for (auto& fragmentGroup : group->fragmentGroups())
-            _writePeakInfo(&fragmentGroup);
+        auto fragmentGroups = group->fragmentGroups();
+        sort(fragmentGroups.begin(),
+             fragmentGroups.end(),
+             PeakGroup::compQuality);
+        for (int i = 0;
+             i < _limitNumFragmentGroups && i < fragmentGroups.size();
+             i++)
+            _writePeakInfo(&(fragmentGroups[i]));
     }
 
     if (_reportType == ReportType::GroupReport) {
@@ -229,10 +236,14 @@ void CSVReports::addGroup(PeakGroup* group)
             _writeGroupInfo(subGroup.get());
         for (auto subGroup : group->childAdducts())
             _writeGroupInfo(subGroup.get());
-        if (group->hasCompoundLink()) {
-            for (auto& fragmentGroup : group->fragmentGroups())
-                _writeGroupInfo(&fragmentGroup);
-        }
+        auto fragmentGroups = group->fragmentGroups();
+        sort(fragmentGroups.begin(),
+             fragmentGroups.end(),
+             PeakGroup::compQuality);
+        for (int i = 0;
+             i < _limitNumFragmentGroups && i < fragmentGroups.size();
+             i++)
+            _writeGroupInfo(&(fragmentGroups[i]));
     }
 }
 
@@ -347,7 +358,8 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
         ppmDist = mzUtils::massCutoffDist(expectedMz, observedMz, cutoff);
 
         expectedRtDiff = group->expectedRtDiff();
-    } else if (group->precursorGroup() != nullptr) {
+    } else if (group->precursorGroup() != nullptr
+               && group->precursorGroup()->getCompound()) {
         // this is a fragment group
         auto precursorGroup = group->precursorGroup();
         compoundName =
@@ -356,6 +368,25 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
         compoundID =
             _sanitizeString(precursorGroup->getCompound()->id().c_str())
                 .toStdString();
+        fragment = to_string(group->meanMz) + "@" + to_string(group->meanRt);
+
+        // A fragment's expected RT should be defined by the precursor, right?
+        int charge = getMavenParameters()->getCharge(group->getCompound());
+        expectedRtDiff = abs(group->meanRt - precursorGroup->meanRt);
+        float expectedMz = group->getExpectedMz(charge);
+        if (!mzUtils::almostEqual(expectedMz, 0.0f)) {
+            ppmDist =
+                mzUtils::massCutoffDist(expectedMz,
+                                        group->meanMz,
+                                        getMavenParameters()->massCutoffMerge);
+        }
+    } else if (group->precursorGroup() != nullptr
+               && !group->precursorGroup()->getCompound()) {
+        // this is a fragment group
+        auto precursorGroup = group->precursorGroup();
+        compoundName = std::to_string(precursorGroup->meanMz) + "@"
+                       + std::to_string(precursorGroup->meanRt);
+        compoundID = compoundName;
         fragment = to_string(group->meanMz) + "@" + to_string(group->meanRt);
 
         // A fragment's expected RT should be defined by the precursor, right?
@@ -431,7 +462,8 @@ void CSVReports::_writeGroupInfo(PeakGroup* group)
                       << groupToWrite->fragmentationPattern.purity;
     } else if (_acquisitionMode == AcquisitionMode::DIA && !_pollyExport
                && group->getCompound() == nullptr) {
-        _reportStream << SEP << SEP << SEP << SEP << SEP;
+        _reportStream << SEP << SEP << SEP << SEP << SEP << SEP << SEP << SEP
+                      << SEP << SEP;
     }
 
     if (!_pollyExport && _groupsClassifed) {
@@ -581,7 +613,8 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
             _sanitizeString(group->getCompound()->id().c_str()).toStdString();
         formula = _sanitizeString(group->getCompound()->formula().c_str())
                       .toStdString();
-    } else if (group->precursorGroup() != nullptr) {
+    } else if (group->precursorGroup() != nullptr
+               && group->precursorGroup()->getCompound()) {
         // this is a fragment group
         compoundName =
             _sanitizeString(
@@ -590,6 +623,13 @@ void CSVReports::_writePeakInfo(PeakGroup* group)
         compoundID = _sanitizeString(
                          group->precursorGroup()->getCompound()->id().c_str())
                          .toStdString();
+        fragment = to_string(group->meanMz) + "@" + to_string(group->meanRt);
+    } else if (group->precursorGroup() != nullptr
+               && !group->precursorGroup()->getCompound()) {
+        // this is a fragment group
+        compoundName = std::to_string(group->precursorGroup()->meanMz) + "@"
+                       + std::to_string(group->precursorGroup()->meanRt);
+        compoundID = compoundName;
         fragment = to_string(group->meanMz) + "@" + to_string(group->meanRt);
     } else {
         // absence of a group compound means this group was created using

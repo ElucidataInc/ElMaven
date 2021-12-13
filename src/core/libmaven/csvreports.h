@@ -24,6 +24,41 @@ class CSVReports
      *file the user wants to create
      */
     enum class ReportType { GroupReport, PeakReport, PollyReport };
+    enum class AcquisitionMode { MS1, DDA, DIA };
+
+    /**
+     * @brief Given a list of PeakGroup objects, this static function can
+     * help in estimating which report format should be used, depending on
+     * the acquisition mode for their data.
+     * @param groups A vector of PeakGroup objects.
+     */
+    static AcquisitionMode guessAcquisitionMode(
+        const vector<PeakGroup*>& groups)
+    {
+        auto ms2GroupAt =
+            find_if(begin(groups), end(groups), [](const PeakGroup* group) {
+                if (group->hasCompoundLink()) {
+                    return (group->getCompound()->type()
+                            == Compound::Type::MS2);
+                } else {
+                    // Untargeted Features detected can also have SWATH Info
+                    if (!group->fragmentGroups().empty()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            });
+        if (ms2GroupAt != end(groups)) {
+            const PeakGroup* group = *ms2GroupAt;
+            if (group->fragmentGroups().empty()) {
+                return AcquisitionMode::DDA;
+            } else {
+                return AcquisitionMode::DIA;
+            }
+        }
+        return AcquisitionMode::MS1;
+    }
 
     /**
      *empty constructor
@@ -77,6 +112,14 @@ class CSVReports
      *@brief-    add group for writing csv about
      */
     void addGroup(PeakGroup* group);
+
+    /**
+     * @brief Sets the limit of fragment groups to be exported
+     */
+    void setLimitNumFragmentGroups(int limit)
+    {
+        _limitNumFragmentGroups = limit;
+    }
 
     QString getErrorReport(void)
     {
@@ -171,6 +214,7 @@ class CSVReports
      * @param For peakML classified groups
      */
     bool _groupsClassifed;
+    int _limitNumFragmentGroups;
 
     /**
      * @brief Write column name in output file for group report.
