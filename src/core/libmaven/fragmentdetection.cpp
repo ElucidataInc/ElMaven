@@ -23,11 +23,10 @@ vector<PeakGroup> FragmentDetection::detectFragmentsUntargeted(
     MassSlicer slicing(mp.get());
     slicing.disableSignals = true;
 
-    slicing.setMsLevel(2, precursorMz);
+    slicing.setMsLevel(2, precursorMz, precursorRt);
     slicing.clearSlices();
     // TODO: step size - MS/MS slice width should be user adjustable
-    slicing.findFeatureSlices(true, precursorRt);
-    cout << "\n\n\nSlices found: " << slicing.slices.size();
+    slicing.findFeatureSlices(true);
     if (slicing.slices.empty())
         return {};
 

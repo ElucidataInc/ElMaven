@@ -49,7 +49,7 @@ class MassSlicer
      * _mergeSlices and _compareSlices) and adjusted (see _adjustSlices) to
      * finally obtain regions over which peak detection can be performed.
      */
-    void findFeatureSlices(bool clearPrevious = true, float precursorRt = 0.0f);
+    void findFeatureSlices(bool clearPrevious = true);
 
     /**
      * @brief Set the MS level at which slices will be generated. If MS
@@ -58,11 +58,16 @@ class MassSlicer
      * @param msLevel An integer specifying the MS level.
      * @param precursorMz Optional m/z of precursor ion, whose SWATH window
      * will be used for creating slices, if data is DIA.
+     * @param precursorRt Optional rt of precursor ion, whose SWATH window
+     * will be used for creating slices, if data is DIA.
      */
-    void setMsLevel(int msLevel, float precursorMz = 0.0f)
+    void setMsLevel(int msLevel,
+                    float precursorMz = 0.0f,
+                    float precursorRt = 0.0f)
     {
         _msLevel = msLevel;
         _precursorMz = precursorMz;
+        _precursorRt = precursorRt;
     }
 
     /**
@@ -76,6 +81,7 @@ class MassSlicer
 
     int _msLevel;
     float _precursorMz;
+    float _precursorRt;
 
     /**
      * @brief Merge neighbouring slices that are related to each other,
