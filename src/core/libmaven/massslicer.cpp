@@ -24,6 +24,7 @@ MassSlicer::MassSlicer(MavenParameters* mp) : _mavenParameters(mp)
     _samples = _mavenParameters->samples;
     _msLevel = 1;
     _precursorMz = -1.0f;
+    _precursorRt = -1.0f;
     disableSignals = false;
 }
 
@@ -215,7 +216,7 @@ void MassSlicer::generateAdductSlices(vector<Compound*> compounds,
     }
 }
 
-void MassSlicer::findFeatureSlices(bool clearPrevious, float precursorRT)
+void MassSlicer::findFeatureSlices(bool clearPrevious)
 {
     if (clearPrevious)
         clearSlices();
@@ -232,8 +233,8 @@ void MassSlicer::findFeatureSlices(bool clearPrevious, float precursorRT)
 
     if (_msLevel == 2) {
         float fiveSeconds = 5.0f / 60.0f;
-        minFeatureRt = precursorRT - fiveSeconds;
-        maxFeatureRt = precursorRT + fiveSeconds;
+        minFeatureRt = _precursorRt - fiveSeconds;
+        maxFeatureRt = _precursorRt + fiveSeconds;
         minFeatureMz = numeric_limits<float>::min();
         maxFeatureMz = numeric_limits<float>::max();
         minFeatureIntensity = 100.0f;
@@ -355,7 +356,8 @@ void MassSlicer::findFeatureSlices(bool clearPrevious, float precursorRT)
         }
     }
 
-    cerr << "\nFound " << slices.size() << " slices" << endl;
+    if (_msLevel == 1)
+        cerr << "\nFound " << slices.size() << " slices" << endl;
 
     // before reduction sort by mz first then by rt
     sort(begin(slices),
@@ -369,17 +371,16 @@ void MassSlicer::findFeatureSlices(bool clearPrevious, float precursorRT)
 
     _reduceSlices(massCutoff);
 
-    cerr << "Reduced to " << slices.size() << " slices" << endl;
+    if (_msLevel == 1)
+        cerr << "Reduced to " << slices.size() << " slices" << endl;
 
     sort(slices.begin(), slices.end(), mzSlice::compMz);
-    // cout << "\n Slices.size: " << slices.size();
-    // cerr << "\nAfter sort";
     _mergeSlices(massCutoff, rtWindow);
-    // cerr << "\nAfter Merge";
     _adjustSlices(massCutoff);
 
-    cerr << "After final merging and adjustments, " << slices.size()
-         << " slices remain" << endl;
+    if (_msLevel == 1)
+        cerr << "After final merging and adjustments, " << slices.size()
+             << " slices remain" << endl;
     sendSignal("Mass slicing done.", 1, 1);
 }
 
