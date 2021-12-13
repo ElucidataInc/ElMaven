@@ -1149,8 +1149,6 @@ bool EIC::makeEICSlice(mzSample* sample,
         Scan* scan = *(scanItr);
         scanNum++;
 
-        float precursorMz = scan->precursorMz;
-
         if (!(scan->filterLine == filterline || filterline == ""))
             continue;
         if (scan->mslevel != mslevel)
