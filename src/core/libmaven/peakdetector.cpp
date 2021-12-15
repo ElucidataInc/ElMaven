@@ -14,7 +14,7 @@
 #include "datastructures/adduct.h"
 #include "datastructures/isotope.h"
 #include "datastructures/mzSlice.h"
-#include "fragmentDetection.h"
+#include "fragmentdetection.h"
 #include "groupFiltering.h"
 #include "masscutofftype.h"
 #include "massslicer.h"

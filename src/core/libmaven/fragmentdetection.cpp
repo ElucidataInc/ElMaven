@@ -1,6 +1,5 @@
 #include "fragmentdetection.h"
 #include "Compound.h"
-#include "PeakDetector.h"
 #include "PeakGroup.h"
 #include "RealVector.h"
 #include "classifierNeuralNet.h"
@@ -9,6 +8,7 @@
 #include "mavenparameters.h"
 #include "mzSample.h"
 #include "mzUtils.h"
+#include "peakdetector.h"
 
 vector<PeakGroup> FragmentDetection::detectFragmentsUntargeted(
     MavenParameters* parameters,
