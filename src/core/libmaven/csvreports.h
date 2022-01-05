@@ -4,6 +4,7 @@
 #include <QString>
 #include <QStringList>
 
+#include "Compound.h"
 #include "PeakGroup.h"
 
 using namespace std;
@@ -92,6 +93,7 @@ class CSVReports
                vector<mzSample*>& insamples,
                PeakGroup::QType quantType = PeakGroup::AreaTop,
                bool prmReport = false,
+               AcquisitionMode mode = AcquisitionMode::MS1,
                bool includeSetNamesLine = false,
                MavenParameters* mp = NULL,
                bool pollyExport = false,
@@ -209,6 +211,7 @@ class CSVReports
     int selectionFlag; /**@param-  TODO*/
     bool _pollyExport;
     bool _prmReport;
+    AcquisitionMode _acquisitionMode;
     bool _includeSetNamesLine;
     /**
      * @param For peakML classified groups

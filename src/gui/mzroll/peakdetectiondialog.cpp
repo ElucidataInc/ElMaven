@@ -778,6 +778,12 @@ void PeakDetectionDialog::findPeaks()
     disconnect(peakupdater, SIGNAL(finished()), 0, 0);
 
     // connect new connections
+    connect(peakupdater,
+            SIGNAL(newPeakGroup(PeakGroup*)),
+            peaksTable,
+            SLOT(addPeakGroup(PeakGroup*)));
+    connect(peakupdater, SIGNAL(finished()), peaksTable, SLOT(showAllGroups()));
+    // connect new connections
     connect(peakupdater, &BackgroundOpsThread::finished, this, [this] {
         mainwindow->mavenParameters->allgroups.clear();
         setDetectionMode(false);

@@ -60,8 +60,8 @@ mac {
     }
     QMAKE_LFLAGS += $$DYLIBPATH
     QMAKE_LFLAGS += -L$$top_builddir/libs/
-    LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
-    LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
+#    LIBS += /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+#    LIBS += /System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices
     LIBS += -lobjc -pthread
     LIBS += -lomp
 

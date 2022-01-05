@@ -325,7 +325,7 @@ class PeakGroup
         return parent;
     }
 
-    inline vector<Peak>& getPeaks()
+    inline const vector<Peak>& getPeaks() const
     {
         return peaks;
     }
@@ -350,7 +350,7 @@ class PeakGroup
      * @brief find all MS2 scans for this group
      * @return vector of all MS2 scans for this group
      */
-    vector<Scan*> getFragmentationEvents();
+    vector<Scan*> getFragmentationEvents() const;
 
     /**
      * @brief build a consensus fragment spectra for this group

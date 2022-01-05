@@ -17,6 +17,7 @@ CSVReports::CSVReports(string filename,
                        ReportType reportType,
                        vector<mzSample*>& insamples,
                        PeakGroup::QType quantType,
+                       bool prmReport,
                        AcquisitionMode mode,
                        bool includeSetNamesLine,
                        MavenParameters* mp,
@@ -59,8 +60,8 @@ CSVReports::CSVReports(string filename,
         _reportStream.open(filename.c_str(), ios::out);
 
         // write name of column  if output file is open
-        _insertGroupReportColumnNamesintoCSVFile(filename,
-                                                 _includeSetNamesLine);
+        _insertGroupReportColumnNamesintoCSVFile(
+            filename, prmReport, _includeSetNamesLine);
     }
 }
 
@@ -82,6 +83,7 @@ QString CSVReports::_sanitizeString(const char* s)
 
 void CSVReports::_insertGroupReportColumnNamesintoCSVFile(
     string outputfile,
+    bool prmReport,
     bool includeSetNamesLine)
 {
     if (_reportStream.is_open()) {
