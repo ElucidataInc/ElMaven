@@ -598,8 +598,11 @@ void TableDockWidget::updateItem(QTreeWidgetItem* item, bool updateChildren)
             index++,
             QString::number(group->fragMatchScore.mergedScore, 'f', 2));
         item->setText(index++, QString::number(group->ms2EventCount));
-        item->setText(index++,
-                      QString::number(group->predictionProbability(), 'f', 2));
+        if (hasClassifiedGroups) {
+            item->setText(
+                index++,
+                QString::number(group->predictionProbability(), 'f', 2));
+        }
         item->setText(index++, QString::number(group->groupRank, 'e', 6));
 
         if (fabs(group->changeFoldRatio) >= 0) {
