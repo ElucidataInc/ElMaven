@@ -257,8 +257,7 @@ void PeakDetector::processFeatures(const vector<Compound*>& identificationSet)
                 end(_mavenParameters->samples),
                 [](mzSample* sample) { return sample->diaScanCount() > 0; });
 
-    if (foundDiaSample != end(_mavenParameters->samples)
-        && _mavenParameters->matchFragmentationFlag) {
+    if (foundDiaSample != end(_mavenParameters->samples)) {
         sendBoostSignal("Detecting fragments…", 0, 0);
         for (size_t i = 0; i < _mavenParameters->allgroups.size(); ++i) {
             PeakGroup group = _mavenParameters->allgroups.at(i);

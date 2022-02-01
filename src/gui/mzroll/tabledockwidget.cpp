@@ -1287,6 +1287,24 @@ void TableDockWidget::exportGroupsToSpreadsheet()
                           false,
                           hasClassifiedGroups);
 
+    if (reportMode == CSVReports::AcquisitionMode::DIA) {
+        bool ok;
+        int limitNumGroups =
+            QInputDialog::getInt(this,
+                                 "",
+                                 "Limit number of fragments groups per "
+                                 "precursor group",
+                                 20,
+                                 1,
+                                 100,
+                                 1,
+                                 &ok);
+        if (!ok)
+            return;
+
+        csvreports.setLimitNumFragmentGroups(limitNumGroups);
+    }
+
     QList<shared_ptr<PeakGroup>> selectedGroups;
 
     if (peakTableSelection == PeakTableSubsetType::Displayed)
@@ -2661,6 +2679,19 @@ void TableDockWidget::contextMenuEvent(QContextMenuEvent* event)
         // disable actions not relevant to individual peak-groups
         z1->setEnabled(false);
         z2->setEnabled(false);
+    }
+
+    if (hasClassifiedGroups) {
+        QAction* z8 = menu.addAction("Explain classification");
+        classificationWidget = new ClassificationWidget(this);
+        connect(z8,
+                &QAction::triggered,
+                classificationWidget,
+                &ClassificationWidget::showClassification);
+        if (treeWidget->selectedItems().size() != 1) {
+            // disable actions not relevant to individual peak-groups
+            z8->setEnabled(false);
+        }
     }
 
     menu.exec(event->globalPos());

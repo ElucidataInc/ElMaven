@@ -228,8 +228,9 @@ void CSVReports::addGroup(PeakGroup* group)
              PeakGroup::compQuality);
         for (int i = 0;
              i < _limitNumFragmentGroups && i < fragmentGroups.size();
-             i++)
+             i++) {
             _writePeakInfo(&(fragmentGroups[i]));
+        }
     }
 
     if (_reportType == ReportType::GroupReport) {
@@ -244,8 +245,9 @@ void CSVReports::addGroup(PeakGroup* group)
              PeakGroup::compQuality);
         for (int i = 0;
              i < _limitNumFragmentGroups && i < fragmentGroups.size();
-             i++)
+             i++) {
             _writeGroupInfo(&(fragmentGroups[i]));
+        }
     }
 }
 
