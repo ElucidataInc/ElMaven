@@ -959,6 +959,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                            CSVReports::ReportType::PeakReport,
                            sample,
                            PeakGroup::AreaTop,
+                           false,
                            CSVReports::AcquisitionMode::MS1,
                            true,
                            mavenparameter);
@@ -1051,6 +1052,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                            CSVReports::ReportType::PollyReport,
                            sample,
                            PeakGroup::AreaTop,
+                           false,
                            CSVReports::AcquisitionMode::MS1,
                            true,
                            mavenparameter);
@@ -1208,6 +1210,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
                            CSVReports::ReportType::PeakReport,
                            sample,
                            PeakGroup::AreaTop,
+                           false,
                            CSVReports::AcquisitionMode::MS1,
                            true,
                            mavenparameter);

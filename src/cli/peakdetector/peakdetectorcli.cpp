@@ -833,10 +833,21 @@ void PeakDetectorCLI::saveCSV(string setName)
         groupVector.push_back(&group);
     auto reportMode = CSVReports::guessAcquisitionMode(groupVector);
 
+    auto ms2GroupAt =
+        find_if(begin(mavenParameters->allgroups),
+                end(mavenParameters->allgroups),
+                [](PeakGroup group) {
+                    if (!group.hasCompoundLink())
+                        return false;
+                    return (group.getCompound()->type() == Compound::Type::MS2);
+                });
+    bool ms2GroupExists = ms2GroupAt != end(mavenParameters->allgroups);
+
     csvreports = new CSVReports(fileName,
                                 CSVReports::ReportType::GroupReport,
                                 mavenParameters->samples,
                                 quantitationType,
+                                ms2GroupExists,
                                 reportMode,
                                 includeSetNamesLine,
                                 mavenParameters);
