@@ -947,165 +947,168 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
     //     remove("groupReport.csv");
     // }
 
-    SUBCASE("Testing peak report")
-    {
-        targetedGroup();
-        string peakReport = "peakReport.csv";
-        auto sample = samples();
-        auto mavenparameter = mavenparameters();
+    // SUBCASE("Testing peak report")
+    // {
+    //     targetedGroup();
+    //     string peakReport = "peakReport.csv";
+    //     auto sample = samples();
+    //     auto mavenparameter = mavenparameters();
 
-        CSVReports* csvReports =
-            new CSVReports(peakReport,
-                           CSVReports::ReportType::PeakReport,
-                           sample,
-                           PeakGroup::AreaTop,
-                           false,
-                           CSVReports::AcquisitionMode::MS1,
-                           true,
-                           mavenparameter);
+    //     CSVReports* csvReports =
+    //         new CSVReports(peakReport,
+    //                        CSVReports::ReportType::PeakReport,
+    //                        sample,
+    //                        PeakGroup::AreaTop,
+    //                        false,
+    //                        CSVReports::AcquisitionMode::MS1,
+    //                        true,
+    //                        mavenparameter);
 
-        auto allgroup = allgroups();
-        for (int i = 0; i < static_cast<int>(allgroup.size()); i++) {
-            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
-            csvReports->addGroup(peakGroup);
-        }
+    //     auto allgroup = allgroups();
+    //     for (int i = 0; i < static_cast<int>(allgroup.size()); i++) {
+    //         PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
+    //         csvReports->addGroup(peakGroup);
+    //     }
 
-        ifstream inputPeakFile("peakReport.csv");
-        ifstream savedPeakFile(
-            "tests/test-libmaven/test_TargetedPeakReport.csv");
+    //     ifstream inputPeakFile("peakReport.csv");
+    //     ifstream savedPeakFile(
+    //         "tests/test-libmaven/test_TargetedPeakReport.csv");
 
-        string headerInput;
-        getline(inputPeakFile, headerInput);
+    //     string headerInput;
+    //     getline(inputPeakFile, headerInput);
 
-        string headerSaved;
-        getline(savedPeakFile, headerSaved);
+    //     string headerSaved;
+    //     getline(savedPeakFile, headerSaved);
 
-        int cnt = 0;
-        while (!inputPeakFile.eof()) {
-            cnt++;
-            string input;
-            getline(inputPeakFile, input);
+    //     int cnt = 0;
+    //     while (!inputPeakFile.eof()) {
+    //         cnt++;
+    //         string input;
+    //         getline(inputPeakFile, input);
 
-            if (input.size() > 0) {
-                vector<string> inputValues;
-                inputValues = mzUtils::split(input, ",");
+    //         if (input.size() > 0) {
+    //             vector<string> inputValues;
+    //             inputValues = mzUtils::split(input, ",");
 
-                if (cnt > 1) {
-                    savedPeakFile.clear();
-                    savedPeakFile.seekg(0, ios::beg);
-                    string headerSaved;
-                    getline(savedPeakFile, headerSaved);
-                }
+    //             if (cnt > 1) {
+    //                 savedPeakFile.clear();
+    //                 savedPeakFile.seekg(0, ios::beg);
+    //                 string headerSaved;
+    //                 getline(savedPeakFile, headerSaved);
+    //             }
 
-                while (!savedPeakFile.eof()) {
-                    string saved;
-                    getline(savedPeakFile, saved);
-                    if (saved.empty())
-                        continue;
+    //             while (!savedPeakFile.eof()) {
+    //                 string saved;
+    //                 getline(savedPeakFile, saved);
+    //                 if (saved.empty())
+    //                     continue;
 
-                    vector<string> savedValues;
-                    savedValues = mzUtils::split(saved, ",");
-                    if (string2float(inputValues[10])  // rt
-                            == doctest::Approx(string2float(savedValues[10]))
-                                   .epsilon(0.3)
-                        && string2float(inputValues[14])  // intensity?
-                               == doctest::Approx(string2float(savedValues[14]))
-                        && inputValues[1] == savedValues[1]   // compound-name
-                        && inputValues[2] == savedValues[2]   // compound-ID
-                        && inputValues[6] == savedValues[6])  // isotope label
-                    {
-                        double inputFloat;
-                        double savedFloat;
-                        for (int i = 1;
-                             i < static_cast<int>(inputValues.size());
-                             i++) {
-                            if (i == 4) {  // skip sample name
-                                continue;
-                            } else if (i <= 5) {
-                                REQUIRE(inputValues[i] == savedValues[i]);
-                            } else {
-                                inputFloat = string2float(inputValues[i]);
-                                savedFloat = string2float(savedValues[i]);
-                                REQUIRE(inputFloat
-                                        == doctest::Approx(savedFloat)
-                                               .epsilon(0.15));
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        inputPeakFile.close();
-        savedPeakFile.close();
-        remove("peakReport.csv");
-    }
+    //                 vector<string> savedValues;
+    //                 savedValues = mzUtils::split(saved, ",");
+    //                 if (string2float(inputValues[10])  // rt
+    //                         == doctest::Approx(string2float(savedValues[10]))
+    //                                .epsilon(0.3)
+    //                     && string2float(inputValues[14])  // intensity?
+    //                            ==
+    //                            doctest::Approx(string2float(savedValues[14]))
+    //                     && inputValues[1] == savedValues[1]   //
+    //                     compound-name
+    //                     && inputValues[2] == savedValues[2]   // compound-ID
+    //                     && inputValues[6] == savedValues[6])  // isotope
+    //                     label
+    //                 {
+    //                     double inputFloat;
+    //                     double savedFloat;
+    //                     for (int i = 1;
+    //                          i < static_cast<int>(inputValues.size());
+    //                          i++) {
+    //                         if (i == 4) {  // skip sample name
+    //                             continue;
+    //                         } else if (i <= 5) {
+    //                             REQUIRE(inputValues[i] == savedValues[i]);
+    //                         } else {
+    //                             inputFloat = string2float(inputValues[i]);
+    //                             savedFloat = string2float(savedValues[i]);
+    //                             REQUIRE(inputFloat
+    //                                     == doctest::Approx(savedFloat)
+    //                                            .epsilon(0.15));
+    //                         }
+    //                     }
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     inputPeakFile.close();
+    //     savedPeakFile.close();
+    //     remove("peakReport.csv");
+    // }
 
-    SUBCASE("Testing write for polly")
-    {
-        targetedGroup();
-        string pollyFile = "polly.csv";
-        auto sample = samples();
-        auto mavenparameter = mavenparameters();
-        CSVReports* csvReports =
-            new CSVReports(pollyFile,
-                           CSVReports::ReportType::PollyReport,
-                           sample,
-                           PeakGroup::AreaTop,
-                           false,
-                           CSVReports::AcquisitionMode::MS1,
-                           true,
-                           mavenparameter);
-        std::list<PeakGroup> group = isotopeGroup();
-        csvReports->writeDataForPolly(pollyFile, group);
+    // SUBCASE("Testing write for polly")
+    // {
+    //     targetedGroup();
+    //     string pollyFile = "polly.csv";
+    //     auto sample = samples();
+    //     auto mavenparameter = mavenparameters();
+    //     CSVReports* csvReports =
+    //         new CSVReports(pollyFile,
+    //                        CSVReports::ReportType::PollyReport,
+    //                        sample,
+    //                        PeakGroup::AreaTop,
+    //                        false,
+    //                        CSVReports::AcquisitionMode::MS1,
+    //                        true,
+    //                        mavenparameter);
+    //     std::list<PeakGroup> group = isotopeGroup();
+    //     csvReports->writeDataForPolly(pollyFile, group);
 
-        ifstream inputPeakFile("polly.csv");
-        ifstream savedPeakFile("tests/test-libmaven/test_polly.csv");
+    //     ifstream inputPeakFile("polly.csv");
+    //     ifstream savedPeakFile("tests/test-libmaven/test_polly.csv");
 
-        string headerInput;
-        getline(inputPeakFile, headerInput);
-        string headerSaved;
-        getline(savedPeakFile, headerSaved);
+    //     string headerInput;
+    //     getline(inputPeakFile, headerInput);
+    //     string headerSaved;
+    //     getline(savedPeakFile, headerSaved);
 
-        int cnt = 0;
-        while (!inputPeakFile.eof()) {
-            cnt++;
-            string input;
-            getline(inputPeakFile, input);
+    //     int cnt = 0;
+    //     while (!inputPeakFile.eof()) {
+    //         cnt++;
+    //         string input;
+    //         getline(inputPeakFile, input);
 
-            if (input.size() > 0) {
-                vector<string> inputValues;
-                inputValues = mzUtils::split(input, ",");
+    //         if (input.size() > 0) {
+    //             vector<string> inputValues;
+    //             inputValues = mzUtils::split(input, ",");
 
-                if (cnt > 1) {
-                    savedPeakFile.clear();
-                    savedPeakFile.seekg(0, ios::beg);
-                    string headerSaved;
-                    getline(savedPeakFile, headerSaved);
-                }
+    //             if (cnt > 1) {
+    //                 savedPeakFile.clear();
+    //                 savedPeakFile.seekg(0, ios::beg);
+    //                 string headerSaved;
+    //                 getline(savedPeakFile, headerSaved);
+    //             }
 
-                while (!savedPeakFile.eof()) {
-                    string saved;
-                    getline(savedPeakFile, saved);
-                    if (saved.empty())
-                        continue;
+    //             while (!savedPeakFile.eof()) {
+    //                 string saved;
+    //                 getline(savedPeakFile, saved);
+    //                 if (saved.empty())
+    //                     continue;
 
-                    vector<string> savedValues;
-                    savedValues = mzUtils::split(saved, ",");
+    //                 vector<string> savedValues;
+    //                 savedValues = mzUtils::split(saved, ",");
 
-                    if (inputValues[1] == savedValues[1]
-                        && inputValues[2] == savedValues[2]) {
-                        for (size_t i = 0; i < inputValues.size(); i++)
-                            REQUIRE(inputValues[i] == savedValues[i]);
-                        break;
-                    }
-                }
-            }
-        }
-        inputPeakFile.close();
-        savedPeakFile.close();
-        remove("polly.csv");
-    }
+    //                 if (inputValues[1] == savedValues[1]
+    //                     && inputValues[2] == savedValues[2]) {
+    //                     for (size_t i = 0; i < inputValues.size(); i++)
+    //                         REQUIRE(inputValues[i] == savedValues[i]);
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     inputPeakFile.close();
+    //     savedPeakFile.close();
+    //     remove("polly.csv");
+    // }
 
     // SUBCASE("Testing feature group report")
     // {
@@ -1198,95 +1201,97 @@ TEST_CASE_FIXTURE(SampleLoadingFixture, "Testing CSV reports")
     //     remove("groupReport.csv");
     // }
 
-    SUBCASE("Testing feature peak report")
-    {
-        untargetedGroup();
-        string peakReport = "peakReport.csv";
-        auto sample = samples();
-        auto mavenparameter = mavenparameters();
+    // SUBCASE("Testing feature peak report")
+    // {
+    //     untargetedGroup();
+    //     string peakReport = "peakReport.csv";
+    //     auto sample = samples();
+    //     auto mavenparameter = mavenparameters();
 
-        CSVReports* csvReports =
-            new CSVReports(peakReport,
-                           CSVReports::ReportType::PeakReport,
-                           sample,
-                           PeakGroup::AreaTop,
-                           false,
-                           CSVReports::AcquisitionMode::MS1,
-                           true,
-                           mavenparameter);
+    //     CSVReports* csvReports =
+    //         new CSVReports(peakReport,
+    //                        CSVReports::ReportType::PeakReport,
+    //                        sample,
+    //                        PeakGroup::AreaTop,
+    //                        false,
+    //                        CSVReports::AcquisitionMode::MS1,
+    //                        true,
+    //                        mavenparameter);
 
-        auto allgroup = allgroups();
-        for (int i = 0; i < static_cast<int>(allgroup.size()); i++) {
-            PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
-            csvReports->addGroup(peakGroup);
-        }
-        ifstream inputPeakFile("peakReport.csv");
-        ifstream savedPeakFile(
-            "tests/test-libmaven/test_untargetedPeakReport.csv");
+    //     auto allgroup = allgroups();
+    //     for (int i = 0; i < static_cast<int>(allgroup.size()); i++) {
+    //         PeakGroup* peakGroup = new PeakGroup(allgroup[i]);
+    //         csvReports->addGroup(peakGroup);
+    //     }
+    //     ifstream inputPeakFile("peakReport.csv");
+    //     ifstream savedPeakFile(
+    //         "tests/test-libmaven/test_untargetedPeakReport.csv");
 
-        string headerInput;
-        getline(inputPeakFile, headerInput);
+    //     string headerInput;
+    //     getline(inputPeakFile, headerInput);
 
-        string headerSaved;
-        getline(savedPeakFile, headerSaved);
+    //     string headerSaved;
+    //     getline(savedPeakFile, headerSaved);
 
-        int cnt = 0;
-        while (!inputPeakFile.eof()) {
-            cnt++;
+    //     int cnt = 0;
+    //     while (!inputPeakFile.eof()) {
+    //         cnt++;
 
-            string input;
-            getline(inputPeakFile, input);
+    //         string input;
+    //         getline(inputPeakFile, input);
 
-            if (input.size() > 0) {
-                vector<string> inputValues;
-                inputValues = mzUtils::split(input, ",");
+    //         if (input.size() > 0) {
+    //             vector<string> inputValues;
+    //             inputValues = mzUtils::split(input, ",");
 
-                if (cnt > 1) {
-                    savedPeakFile.clear();
-                    savedPeakFile.seekg(0, ios::beg);
-                    string headerSaved;
-                    getline(savedPeakFile, headerSaved);
-                }
+    //             if (cnt > 1) {
+    //                 savedPeakFile.clear();
+    //                 savedPeakFile.seekg(0, ios::beg);
+    //                 string headerSaved;
+    //                 getline(savedPeakFile, headerSaved);
+    //             }
 
-                while (!savedPeakFile.eof()) {
-                    string saved;
-                    getline(savedPeakFile, saved);
-                    if (saved.empty())
-                        continue;
+    //             while (!savedPeakFile.eof()) {
+    //                 string saved;
+    //                 getline(savedPeakFile, saved);
+    //                 if (saved.empty())
+    //                     continue;
 
-                    vector<string> savedValues;
-                    savedValues = mzUtils::split(saved, ",");
+    //                 vector<string> savedValues;
+    //                 savedValues = mzUtils::split(saved, ",");
 
-                    if (string2float(inputValues[17])
-                            == doctest::Approx(string2float(savedValues[17]))
-                                   .epsilon(0.0005)
-                        && string2float(inputValues[13])
-                               == doctest::Approx(string2float(savedValues[13]))
-                                      .epsilon(0.0005)
-                        && inputValues[4] == savedValues[4]
-                        && string2float(inputValues[12])
-                               == doctest::Approx(string2float(savedValues[12]))
-                                      .epsilon(0.0005)) {
-                        double inputFloat;
-                        double savedFloat;
-                        for (size_t i = 3; i < inputValues.size(); i++) {
-                            if (i == 4 || i == 5) {
-                                REQUIRE(inputValues[i] == savedValues[i]);
-                            } else {
-                                inputFloat = string2float(inputValues[i]);
-                                savedFloat = string2float(savedValues[i]);
-                                REQUIRE(inputFloat
-                                        == doctest::Approx(savedFloat)
-                                               .epsilon(0.15));
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        inputPeakFile.close();
-        savedPeakFile.close();
-        remove("peakReport.csv");
-    }
+    //                 if (string2float(inputValues[17])
+    //                         == doctest::Approx(string2float(savedValues[17]))
+    //                                .epsilon(0.0005)
+    //                     && string2float(inputValues[13])
+    //                            ==
+    //                            doctest::Approx(string2float(savedValues[13]))
+    //                                   .epsilon(0.0005)
+    //                     && inputValues[4] == savedValues[4]
+    //                     && string2float(inputValues[12])
+    //                            ==
+    //                            doctest::Approx(string2float(savedValues[12]))
+    //                                   .epsilon(0.0005)) {
+    //                     double inputFloat;
+    //                     double savedFloat;
+    //                     for (size_t i = 3; i < inputValues.size(); i++) {
+    //                         if (i == 4 || i == 5) {
+    //                             REQUIRE(inputValues[i] == savedValues[i]);
+    //                         } else {
+    //                             inputFloat = string2float(inputValues[i]);
+    //                             savedFloat = string2float(savedValues[i]);
+    //                             REQUIRE(inputFloat
+    //                                     == doctest::Approx(savedFloat)
+    //                                            .epsilon(0.15));
+    //                         }
+    //                     }
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     inputPeakFile.close();
+    //     savedPeakFile.close();
+    //     remove("peakReport.csv");
+    // }
 }
