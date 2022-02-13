@@ -1,12 +1,12 @@
 #include "multiselectcombobox.h"
-#include <QLineEdit>
 #include <QCheckBox>
 #include <QEvent>
+#include <QLineEdit>
 
-MultiSelectComboBox::MultiSelectComboBox(QWidget* parent) :
-    QComboBox(parent),
-    _listWidget(new QListWidget(parent)),
-    _lineEdit(new QLineEdit(this))
+MultiSelectComboBox::MultiSelectComboBox(QWidget* parent)
+    : QComboBox(parent),
+      _listWidget(new QListWidget(parent)),
+      _lineEdit(new QLineEdit(this))
 {
     _lineEdit->setReadOnly(true);
     _lineEdit->installEventFilter(this);
@@ -16,10 +16,11 @@ MultiSelectComboBox::MultiSelectComboBox(QWidget* parent) :
     setLineEdit(_lineEdit);
 
     _listWidget->setStyleSheet("QListView::item { margin: 2px; }");
-    setStyleSheet("QComboBox QAbstractItemView { "
-                  "selection-background-color: #eee; "
-                  "}");
-    
+    setStyleSheet(
+        "QComboBox QAbstractItemView { "
+        "selection-background-color: #eee; "
+        "}");
+
     this->view()->setMinimumWidth(400);
 
     connect(this,
@@ -32,16 +33,12 @@ void MultiSelectComboBox::hidePopup()
 {
     int width = this->width();
     int height = _listWidget->height();
-    int x = QCursor::pos().x()
-            - mapToGlobal(geometry().topLeft()).x()
+    int x = QCursor::pos().x() - mapToGlobal(geometry().topLeft()).x()
             + geometry().x();
-    int y = QCursor::pos().y()
-            - mapToGlobal(geometry().topLeft()).y()
+    int y = QCursor::pos().y() - mapToGlobal(geometry().topLeft()).y()
             + geometry().y();
 
-    if (x >= 0
-        && x <= width
-        && y >= this->height()
+    if (x >= 0 && x <= width && y >= this->height()
         && y <= height + this->height()) {
         // one of the items was clicked, do not hide popup
     } else {
@@ -65,7 +62,7 @@ void MultiSelectComboBox::_updatePopupSize()
     }
 }
 
-void MultiSelectComboBox::_insertItem(QCheckBox *checkBox)
+void MultiSelectComboBox::_insertItem(QCheckBox* checkBox)
 {
     QListWidgetItem* listWidgetItem = new QListWidgetItem(_listWidget);
     _listWidget->addItem(listWidgetItem);
@@ -74,7 +71,7 @@ void MultiSelectComboBox::_insertItem(QCheckBox *checkBox)
     connect(checkBox, &QCheckBox::stateChanged, this, [this] {
         auto selectedValues = selectedTexts();
         // ignoring relabelling from count
-        if (!selectedValues.contains("Re-Label") 
+        if (!selectedValues.contains("Re-Label")
             && selectedValues.size() == count() - 1) {
             _lineEdit->setText("All");
             _lineEdit->setToolTip("All values are selected");
@@ -92,17 +89,16 @@ void MultiSelectComboBox::_insertItem(QCheckBox *checkBox)
     _updatePopupSize();
 }
 
-void MultiSelectComboBox::addItem(const QString &text,
-                                  const QVariant &userData)
+void MultiSelectComboBox::addItem(const QString& text, const QVariant& userData)
 {
     QCheckBox* checkBox = new QCheckBox(this);
     checkBox->setText(text);
     _insertItem(checkBox);
 }
 
-void MultiSelectComboBox::addItem(const QIcon &icon,
-                                  const QString &text,
-                                  const QVariant &userData)
+void MultiSelectComboBox::addItem(const QIcon& icon,
+                                  const QString& text,
+                                  const QVariant& userData)
 {
     QCheckBox* checkBox = new QCheckBox(this);
     checkBox->setIcon(icon);
@@ -113,7 +109,7 @@ void MultiSelectComboBox::addItem(const QIcon &icon,
 
 void MultiSelectComboBox::addItems(const QStringList& texts)
 {
-    for(const auto& string : texts)
+    for (const auto& string : texts)
         addItem(string);
 }
 
@@ -121,8 +117,8 @@ QStringList MultiSelectComboBox::selectedTexts() const
 {
     QStringList selectedTexts;
     for (int i = 0; i < count(); ++i) {
-        QWidget *widget = _listWidget->itemWidget(_listWidget->item(i));
-        QCheckBox *checkBox = static_cast<QCheckBox *>(widget);
+        QWidget* widget = _listWidget->itemWidget(_listWidget->item(i));
+        QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
 
         if (checkBox->isChecked())
             selectedTexts << checkBox->text();
@@ -139,7 +135,7 @@ int MultiSelectComboBox::count() const
 void MultiSelectComboBox::_handleItemClick(int index)
 {
     QWidget* widget = _listWidget->itemWidget(_listWidget->item(index));
-    QCheckBox *checkBox = static_cast<QCheckBox *>(widget);
+    QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
     checkBox->setChecked(!checkBox->isChecked());
 }
 
@@ -150,7 +146,7 @@ void MultiSelectComboBox::clear()
 
 bool MultiSelectComboBox::eventFilter(QObject* object, QEvent* event)
 {
-    if(object == _lineEdit && event->type() == QEvent::MouseButtonRelease) {
+    if (object == _lineEdit && event->type() == QEvent::MouseButtonRelease) {
         showPopup();
         return false;
     }
@@ -164,13 +160,22 @@ void MultiSelectComboBox::setCurrentText(const QString& text)
 
 void MultiSelectComboBox::setCurrentTexts(const QStringList& texts)
 {
+    // Split texts into the label and percentage in peaktable
+    QStringList selectedTexts;
+    for (auto text : texts) {
+        auto splitted = text.split("(");
+        selectedTexts << splitted.at(0);
+    }
+
     for (int i = 0; i < count() - 1; ++i) {
         QWidget* widget = _listWidget->itemWidget(_listWidget->item(i));
         QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
         QString checkBoxString = checkBox->text();
-        if(texts.contains(checkBoxString))
+        auto splitted = checkBoxString.split("(");
+        if (selectedTexts.contains(splitted.at(0)))
             checkBox->setChecked(true);
     }
+    Q_EMIT(&QCheckBox::stateChanged);
 }
 
 void MultiSelectComboBox::uncheckRelabel()
@@ -178,7 +183,7 @@ void MultiSelectComboBox::uncheckRelabel()
     QWidget* widget = _listWidget->itemWidget(_listWidget->item(6));
     QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
     checkBox->setChecked(false);
-    Q_EMIT (&QCheckBox::stateChanged);
+    Q_EMIT(&QCheckBox::stateChanged);
 }
 
 void MultiSelectComboBox::selectAll()
@@ -192,5 +197,5 @@ void MultiSelectComboBox::selectAll()
     QWidget* widget = _listWidget->itemWidget(_listWidget->item(6));
     QCheckBox* checkBox = static_cast<QCheckBox*>(widget);
     checkBox->setChecked(false);
-    Q_EMIT (&QCheckBox::stateChanged);
+    Q_EMIT(&QCheckBox::stateChanged);
 }
