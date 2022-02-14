@@ -2173,6 +2173,7 @@ void TableDockWidget::markGroupGood()
     if (currentGroups.isEmpty())
         return;
 
+    treeWidget->setSortingEnabled(false);
     QStringList selectedLabels;
     if (hasClassifiedGroups) {
         for (auto group : currentGroups) {
@@ -2181,14 +2182,15 @@ void TableDockWidget::markGroupGood()
         selectedLabels = _legend->selectedTexts();
     }
     setGroupLabel('g');
-
+    showNextGroup();
     if (hasClassifiedGroups) {
         updateLegend();
         _legend->setCurrentTexts(selectedLabels);
     }
 
+    treeWidget->sortByColumn(-1, Qt::AscendingOrder);
+    treeWidget->setSortingEnabled(true);
     _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Good");
-    showNextGroup();
     _mainwindow->autoSaveSignal(currentGroups);
 }
 
@@ -2199,6 +2201,7 @@ void TableDockWidget::markGroupBad()
     if (currentGroups.isEmpty())
         return;
 
+    treeWidget->setSortingEnabled(false);
     QStringList selectedLabels;
     if (hasClassifiedGroups) {
         for (auto group : currentGroups) {
@@ -2207,14 +2210,15 @@ void TableDockWidget::markGroupBad()
         selectedLabels = _legend->selectedTexts();
     }
     setGroupLabel('b');
-
+    showNextGroup();
     if (hasClassifiedGroups) {
         updateLegend();
         _legend->setCurrentTexts(selectedLabels);
     }
 
     _mainwindow->getAnalytics()->hitEvent("Peak Group Curation", "Mark Bad");
-    showNextGroup();
+    treeWidget->sortByColumn(-1, Qt::AscendingOrder);
+    treeWidget->setSortingEnabled(true);
     _mainwindow->autoSaveSignal(currentGroups);
 }
 
