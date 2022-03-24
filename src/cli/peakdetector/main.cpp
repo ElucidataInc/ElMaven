@@ -6,107 +6,114 @@
 #include "peakdetectorcli.h"
 #include "spectralHeatmap.h"
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[])
+{
     QCoreApplication app(argc, argv);
     // setting nodepath and jspath for PollyCLI library..
     QStringList jsPathlist = QString(argv[0]).split(QDir::separator());
     QStringList jsPathlist_bin;
-    for (int i = 0; i < jsPathlist.size()-1; ++i)
+    for (int i = 0; i < jsPathlist.size() - 1; ++i)
         jsPathlist_bin << jsPathlist.at(i);
-    QString jsPath = jsPathlist_bin.join(QDir::separator())+QDir::separator()+"index.js";
+    QString jsPath =
+        jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "index.js";
     QString nodePath;
 #ifdef Q_OS_WIN
-    nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node.exe";
+    nodePath =
+        jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node.exe";
 #endif
 
 #ifdef Q_OS_LINUX
-    nodePath = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node";
+    nodePath =
+        jsPathlist_bin.join(QDir::separator()) + QDir::separator() + "node";
 #endif
 
 #ifdef Q_OS_MAC
-    QString binDir = jsPathlist_bin.join(QDir::separator()) + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator() + ".." + QDir::separator();
-    if(!QStandardPaths::findExecutable("node", QStringList() << binDir + "node_bin" + QDir::separator() ).isEmpty())
+    QString binDir = jsPathlist_bin.join(QDir::separator()) + QDir::separator()
+                     + ".." + QDir::separator() + ".." + QDir::separator()
+                     + ".." + QDir::separator();
+    if (!QStandardPaths::findExecutable(
+             "node", QStringList() << binDir + "node_bin" + QDir::separator())
+             .isEmpty())
         nodePath = binDir + "node_bin" + QDir::separator() + "node";
 
-    jsPath = binDir  + "index.js";
+    jsPath = binDir + "index.js";
 #endif
     // Polly CLI part over..
 
     QString parentFolder = "ElMaven";
     QString logFile = QString::fromStdString(Logger::constant_time()
                                              + "_peakdetector_cli.log");
-    QString fpath = QStandardPaths::writableLocation(
-                        QStandardPaths::GenericConfigLocation)
-                    + QDir::separator()
-                    + parentFolder
-                    + QDir::separator()
-                    + logFile;
+    QString fpath =
+        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
+        + QDir::separator() + parentFolder + QDir::separator() + logFile;
     Logger log(fpath.toStdString(), true);
     Analytics analytics;
     analytics.sessionStart();
-    PeakDetectorCLI* peakdetectorCLI = new PeakDetectorCLI(&log,
-                                                           &analytics,
-                                                           argc,
-                                                           argv);
+    PeakDetectorCLI* peakdetectorCLI =
+        new PeakDetectorCLI(&log, &analytics, argc, argv);
 
 #ifndef __APPLE__
     double programStartTime = getTime();
 #endif
-    //read command line options
+    // read command line options
     peakdetectorCLI->processOptions(argc, argv);
 
     if (!peakdetectorCLI->status) {
         cerr << peakdetectorCLI->textStatus;
         analytics.sessionEnd();
-        return(0);
+        return (0);
     }
 
-    //load classification model
-    peakdetectorCLI->loadClassificationModel(peakdetectorCLI->clsfModelFilename);
+    // load classification model
+    peakdetectorCLI->loadClassificationModel(
+        peakdetectorCLI->clsfModelFilename);
 
-    //set Maven Parameters
-    peakdetectorCLI->peakDetector->setMavenParameters(peakdetectorCLI->mavenParameters);
+    // set Maven Parameters
+    peakdetectorCLI->peakDetector->setMavenParameters(
+        peakdetectorCLI->mavenParameters);
 
-    //load compounds file
-    if (peakdetectorCLI->mavenParameters->processAllSlices == false) peakdetectorCLI->loadCompoundsFile();
+    // load compounds file
+    if (peakdetectorCLI->mavenParameters->processAllSlices == false)
+        peakdetectorCLI->loadCompoundsFile();
 
-    //load files
+    // load files
     peakdetectorCLI->loadSamples(peakdetectorCLI->filenames);
 
-    //load adduct file
-    if (peakdetectorCLI->adductFilename != "")  peakdetectorCLI->loadAdductFile();
+    // load adduct file
+    if (peakdetectorCLI->adductFilename != "")
+        peakdetectorCLI->loadAdductFile();
 
-    //get retention time resolution
+    // get retention time resolution
     peakdetectorCLI->mavenParameters->setAverageScanTime();
 
-    //ionization
-    peakdetectorCLI->mavenParameters->setIonizationMode(MavenParameters::AutoDetect);
+    // ionization
+    peakdetectorCLI->mavenParameters->setIonizationMode(
+        MavenParameters::AutoDetect);
 
-    //align samples
-    if (peakdetectorCLI->mavenParameters->samples.size() > 1 && peakdetectorCLI->mavenParameters->alignSamplesFlag) {
+    // align samples
+    if (peakdetectorCLI->mavenParameters->samples.size() > 1
+        && peakdetectorCLI->mavenParameters->alignSamplesFlag) {
         peakdetectorCLI->alignSamples((int)peakdetectorCLI->alignMode);
-	}
+    }
 
-
-	//process compound list
+    // process compound list
     if (peakdetectorCLI->mavenParameters->compounds.size()
         && !peakdetectorCLI->mavenParameters->processAllSlices) {
         peakdetectorCLI->mavenParameters->filterAdductsAgainstParent = false;
         peakdetectorCLI->mavenParameters->parentAdductRequired = false;
         peakdetectorCLI->peakDetector->processCompounds(
             peakdetectorCLI->mavenParameters->compounds);
-	}
+    }
 
-	//process all mass slices
-	if (peakdetectorCLI->mavenParameters->processAllSlices == true) {
-		peakdetectorCLI->mavenParameters->matchRtFlag = false;
+    // process all mass slices
+    if (peakdetectorCLI->mavenParameters->processAllSlices == true) {
+        peakdetectorCLI->mavenParameters->matchRtFlag = false;
         peakdetectorCLI->peakDetector->processFeatures();
-	}
+    }
 
-	//write report
-	if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
-		peakdetectorCLI->writeReport("compounds",jsPath,nodePath);
+    // write report
+    if (peakdetectorCLI->mavenParameters->allgroups.size() > 0) {
+        peakdetectorCLI->writeReport("compounds", jsPath, nodePath);
         if (peakdetectorCLI->exportPeaks)
             peakdetectorCLI->exportPeakReport("peakReport");
         if (peakdetectorCLI->exportSamples)
@@ -114,7 +121,7 @@ int main(int argc, char *argv[]) {
         if (peakdetectorCLI->saveAnalysisAsProject())
             peakdetectorCLI->saveEmdb();
         if (peakdetectorCLI->exportColorMaps) {
-            SpectralHeatmap *spectralHeatmap = new SpectralHeatmap();
+            SpectralHeatmap* spectralHeatmap = new SpectralHeatmap();
             auto samples = peakdetectorCLI->mavenParameters->samples;
             for (auto sample : samples) {
                 auto path = peakdetectorCLI->fileSavePath;
@@ -130,16 +137,18 @@ int main(int argc, char *argv[]) {
                    << flush;
     }
 
-    //cleanup
-    delete_all(peakdetectorCLI->mavenParameters->samples);
-    peakdetectorCLI->mavenParameters->samples.clear();
-    // clearing `allgroups` crashes on Windows - also undebuggable
-    // peakdetectorCLI->mavenParameters->allgroups.clear();
-    delete peakdetectorCLI;
+    // cleanup
+    //  delete_all(peakdetectorCLI->mavenParameters->samples);
+    //  peakdetectorCLI->mavenParameters->samples.clear();
+    //  // clearing `allgroups` crashes on Windows - also undebuggable
+    //  // peakdetectorCLI->mavenParameters->allgroups.clear();
+    //  delete peakdetectorCLI;
 
 #ifndef __APPLE__
-    cout << "\n\nTotal program execution time : " << getTime() - programStartTime << " seconds \n" << endl;
+    cout << "\n\nTotal program execution time : "
+         << getTime() - programStartTime << " seconds \n"
+         << endl;
 #endif
     analytics.sessionEnd();
-    return(0);
+    return (0);
 }
