@@ -467,6 +467,8 @@ void EIC::reduceToRtRange(float minRt, float maxRt)
             copy(oldSpline + start, oldSpline + stop, spline);
             delete[] oldSpline;
         }
+        rtmin = max(minRt, rtmin);
+		rtmax = min(maxRt, rtmax);
     }
 }
 
