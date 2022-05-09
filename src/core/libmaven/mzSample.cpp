@@ -944,6 +944,8 @@ void mzSample::populateMzAndIntensity(const vector<float>& mzint, Scan* _scan)
 
     _scan->mz.resize(count);
     _scan->intensity.resize(count);
+    _scan->mz.shrink_to_fit();
+    _scan->intensity.shrink_to_fit();
 }
 
 void mzSample::populateFilterline(const string& filterLine, Scan* _scan)
