@@ -753,7 +753,7 @@ void EIC::getPeakDetails(Peak &peak)
     int n = 1;
     peak.peakAreaTop = intensity[peak.pos];
     peak.peakAreaTopCorrected = intensity[peak.pos] - baseline[peak.pos];
-    if (peak.pos - 1 < N)
+    if (peak.pos > 0)
     {
         peak.peakAreaTop += intensity[peak.pos - 1];
         peak.peakAreaTopCorrected += intensity[peak.pos - 1] - baseline[peak.pos - 1];
