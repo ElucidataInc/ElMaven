@@ -1,6 +1,7 @@
 #ifndef ERRORCODES_H
 #define ERRORCODES_H
 
+#include <string>
 #include <map>
 
 //singleton
