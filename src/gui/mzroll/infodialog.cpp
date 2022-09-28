@@ -97,6 +97,12 @@ InfoDialog::InfoDialog(MainWindow* parent) :
         eventDetails["Clicked link"] = "Cite El-MAVEN";
         tracker->trackEvent("InfoDialog", eventDetails);
     });
+    connect(ui->peakMLButton, &QPushButton::clicked, [this, tracker] {
+        QDesktopServices::openUrl(QUrl("https://resources.elucidata.io/elmaven/"));
+        QMap<QString, QVariant> eventDetails;
+        eventDetails["Clicked link"] = "PeakML";
+        tracker->trackEvent("InfoDialog", eventDetails);
+    });
 }
 
 InfoDialog::~InfoDialog()

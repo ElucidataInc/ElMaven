@@ -3,8 +3,9 @@
 
 #include <QWidgetAction>
 
-#include "pollyintegration.h"
 #include "stable.h"
+#include "PeakGroup.h"
+#include "pollyintegration.h"
 
 class MainWindow;
 class ClusterDialog;
@@ -17,6 +18,10 @@ class EIC;
 class QHistogramSlider;
 class PeakDetector;
 class PeakGroupTreeWidget;
+class MultiSelectComboBox;
+class ClassificationWidget;
+class CorrelationTable;
+class RelabelGroupsDialog;
 
 using namespace std;
 
@@ -58,6 +63,11 @@ public:
   JSONReports *jsonReports;
   int numberOfGroupsMarked = 0;
   QString writableTempS3Dir;
+  ClassificationWidget* classificationWidget;
+  bool hasClassifiedGroups;
+  float badGroupLimit;
+  float maybeGoodGroupLimit;
+  RelabelGroupsDialog* relabelDialog;
   /**
    * @brief vallgroups will be used by libmaven/jsonReports.cpp
    * @detail For json export. Since libmaven is written only standard
@@ -70,15 +80,35 @@ public:
   int maxPeaks;
   QString uploadId;
   int uploadCount = 0;
+  QList<PeakGroup> allgroups;
+  map<int, pair<string, float>> undoBuffer;
+
+  //Count of different classified groups. 
+  static int noiseCount;
+  static int signalCount;
+  static int correlatedCount;
+  static int cohortCount;
+  static int correlatedCohortCount;
+  static int mayBeGroupsCount;
 
   enum tableViewType { groupView = 0, peakView = 1 };
-  enum peakTableSelectionType {
+
+  enum PeakTableSubsetType {
       Selected = 0,
       Whole = 1,
       Good = 2,
       Bad = 3,
-      NotBad = 4
+      ExcludeBad = 4,
+      Unmarked = 5,
+      Correlated = 6,
+      Variance = 7,
+      CorrelatedVariance = 8, 
+      MaybeGood = 9, 
+      Displayed = 10
   };
+
+  static const QMap<PeakGroup::ClassifiedLabel, QString> labelsForLegend();
+  static const QMap<PeakGroup::ClassifiedLabel, QIcon> iconsForLegend();
 
   /**
    * @brief Construct and initialize a TableDockWidget.
@@ -132,6 +162,9 @@ public:
    * @return Targeted group count as integer.
    */
   int getLabeledGroupCount();
+
+  void setLegend(MultiSelectComboBox *legend) { _legend = legend; }
+  MultiSelectComboBox* legend() {return _legend;}
 
   /**
    * @brief Obtain the title of a TableDockWidget, identified by its unique ID.
@@ -191,6 +224,8 @@ public:
    * all the peakgroups from the table at once.
    */ 
   bool deleteAllgroupsWarning();
+
+  void relabelGroups(float badGroupLimit, float maybeGoodGroupLimit);
   
 public slots:
 
@@ -201,6 +236,8 @@ public slots:
   virtual void setupPeakTable();
   shared_ptr<PeakGroup> getSelectedGroup();
   QList<shared_ptr<PeakGroup>> getSelectedGroups();
+  QList<shared_ptr<PeakGroup>> getDisplayedGroups();
+
 
   void showFocusedGroups();
   void clearFocusedGroups();
@@ -214,25 +251,64 @@ public slots:
 
   void showClusterDialog();
 
-  inline void selectedPeakSet() {
-    peakTableSelection = peakTableSelectionType::Selected;
-  };
+  void displayNextGroupInCorrelationTable(string groupName);
 
-  inline void wholePeakSet() {
-    peakTableSelection = peakTableSelectionType::Whole;
+  inline void selectedPeakSet() {
+    peakTableSelection = PeakTableSubsetType::Selected;
   };
 
   inline void goodPeakSet() {
-    peakTableSelection = peakTableSelectionType::Good;
+    peakTableSelection = PeakTableSubsetType::Good;
   };
 
-  inline void badPeakSet() {
-    peakTableSelection = peakTableSelectionType::Bad;
+  inline void badPeaksSet() {
+    peakTableSelection = PeakTableSubsetType::Bad;
   };
 
   inline void excludeBadPeakSet() {
-      peakTableSelection = peakTableSelectionType::NotBad;
+      peakTableSelection = PeakTableSubsetType::ExcludeBad;
   };
+
+  inline void unmarkedPeaks() {
+      peakTableSelection = PeakTableSubsetType::Unmarked;
+  };
+
+  inline void wholePeakSet() {
+    peakTableSelection = PeakTableSubsetType::Whole;
+  };
+
+  inline void maybeGoodPeakset() {
+    peakTableSelection = PeakTableSubsetType::MaybeGood;
+  };
+
+  inline void displayedPeakSet() {
+    peakTableSelection = PeakTableSubsetType::Displayed;
+  };
+
+  inline void excludeBadPeaks() {
+    peakTableSelection = PeakTableSubsetType::ExcludeBad;
+  };
+
+  /**
+   * @brief Query the peak table for number of peak-groups that belong to each
+   * subset type.
+   * @return Each `PeakTableSubsetType` mapping to the number of peak-groups
+   * that fall within its category.
+   */
+  QMap<PeakTableSubsetType, int> countBySubsets();
+
+  /**
+   * @brief Given a list of subset types, hides all other subsets, disregarding
+   * `All` and `Selected` subset types.
+   * @param subsets A list of subsets whose items will remain visible.
+   */
+  void showOnlySubsets(QList<PeakTableSubsetType> visibleSubsets);
+
+  /**
+   * @brief Filters the tree-view such that only labels selected in the legend
+   * dropdown are visible.
+   */
+  void filterForSelectedLabels();
 
   void exportJson();
   void exportSpectralLib();
@@ -244,6 +320,7 @@ public slots:
   void setGroupLabel(char label);
   void showLastGroup();
   void showNextGroup();
+  void filterPeakTable();
 
   void printPdfReport();
   /**
@@ -259,12 +336,12 @@ public slots:
    */
   void pdfReadyNotification();
 
+  void undoLabel();
+
   void updateTable();
   void updateItem(QTreeWidgetItem *item, bool updateChildren = true);
   void updateStatus();
-
-  //Group validation functions
-  void validateGroup(PeakGroup* grp, QTreeWidgetItem* item);
+  void updateLegend();
 
   virtual void markGroupBad();
   virtual void markGroupGood();
@@ -320,8 +397,11 @@ public slots:
   void setDefaultStyle(bool isActive = false);
 
   shared_ptr<PeakGroup> groupForItem(QTreeWidgetItem* item);
+  QTreeWidgetItem * itemForGroup(PeakGroup * group);
 
   void refreshParentItem(QTreeWidgetItem* item);
+
+  void showRelabelWidget();
 
 protected:
   MainWindow *_mainwindow;
@@ -330,6 +410,7 @@ protected:
   int _labeledGroups;
   int _targetedGroups;
   int _nextGroupId;
+  QList<QTreeWidgetItem*> _cycleBuffer;
 
   /**
    * @brief A map storing the unique ID of all tables mapping to their titles.
@@ -340,14 +421,19 @@ protected:
   void focusOutEvent(QFocusEvent *event);
   void keyPressEvent(QKeyEvent *e);
   void contextMenuEvent(QContextMenuEvent *event);
+  void hideEvent(QHideEvent *event);
+  void showEvent(QShowEvent *event);
 
 signals:
   void updateProgressBar(QString, int, int, bool = false);
   void UploadPeakBatch();
   void renderedPdf();
   void ghostPeakGroupSelected(bool);
-
+  void updateRelabelStatusBar(QString text, int progress, int totalSteps);
 private:
+  MultiSelectComboBox *_legend;
+  bool _cycleInProgress;
+
   QPalette pal;
 
   RowData
@@ -357,25 +443,53 @@ private:
 
   void _deleteItemsAndGroups(QSet<QTreeWidgetItem*>& items);
 
-  void _paintClassificationDisagreement(QTreeWidgetItem* item);
-
   void addRow(RowData& indexData, QTreeWidgetItem *root);
   void heatmapBackground(QTreeWidgetItem *item);
 
   // TODO: investigate and remove this dialog if not being used
   void setupFiltersDialog();
 
+  /**
+   * @brief Adds color to the label cell if El-MAVEN's quality assignment
+   * disagrees with the good/bad curation done by the user. Darker red means
+   * greater disagreement.
+   * @param item The tree widget item to be re-painted.
+   */
+  void _paintClassificationDisagreement(QTreeWidgetItem *item);
+
+  QList<PeakGroup *> getCustomGroups(PeakTableSubsetType peakSelection);
+  
+  /**
+   * @brief Constructs lists of tree items that can be categorized within each
+   * `PeakTableSubsetType`.
+   * @details Items that themselves contain child groups will be ignored and
+   * their child groups will be added to the respective lists. Often the child
+   * groups will have their own class (which is different from that of the
+   * parent).
+   * @return Each `PeakTableSubsetType` mapping to the items in tree widget that
+   * belong to that subset.
+   */
+  QMap<PeakTableSubsetType, QList<QTreeWidgetItem*>> _peakTableGroupedBySubsets();
+   
   ClusterDialog *clusterDialog;
-  peakTableSelectionType peakTableSelection;
+  PeakTableSubsetType peakTableSelection;
   bool tableSelectionFlagUp;
   bool tableSelectionFlagDown;
+  QShortcut * ctrlZ;
+
+  void saveLabelForUndo(PeakGroup* group);
+
+private slots:
+  void _refreshCycleBuffer();
 };
 
 class PeakTableDockWidget : public TableDockWidget {
   Q_OBJECT
 
 public:
-  PeakTableDockWidget (MainWindow *mw, const QString& tableTitle="");
+  PeakTableDockWidget (MainWindow *mw, 
+                       const QString& tableTitle="", 
+                       bool classifiedGroups = false);
   ~PeakTableDockWidget();
 
 public Q_SLOTS:

@@ -20,9 +20,11 @@
 
 ProjectDatabase::ProjectDatabase(const string& dbFilename,
                                  const string& version,
-                                 const bool saveRawData)
+                                 const bool saveRawData,
+                                 const bool saveChromatogram)
 {
     _setSaveRawData(dbFilename, saveRawData);
+    _saveChromatogramForRawData = saveChromatogram;
     _connection = new Connection(dbFilename);
 
     // figure out whether this database needs upgrade
@@ -242,7 +244,15 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
                      , :isotope_c13_count                  \
                      , :isotope_n15_count                  \
                      , :isotope_s34_count                  \
-                     , :isotope_h2_count                   )");
+                     , :isotope_h2_count                   \
+                     , :peakML_label_id                    \
+                     , :peakML_label                       \
+                     , :peakML_probability                 \
+                     , :peakML_inference_key               \
+                     , :peakML_inference_value             \
+                     , :peakML_correlated_groups           \
+                     , :peakML_base_value                  \
+                     , :peakML_output_value                       )");
 
     groupsQuery->bind(":parent_group_id", parentGroupId);
     groupsQuery->bind(":table_group_id", group->groupId());
@@ -259,7 +269,7 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
 
     groupsQuery->bind(":expected_rt_diff", group->expectedRtDiff());
     groupsQuery->bind(":group_rank", group->groupRank);
-    groupsQuery->bind(":label", string(1, group->label));
+    groupsQuery->bind(":label", string(1, group->userLabel()));
     groupsQuery->bind(":type", static_cast<int>(group->type()));
     groupsQuery->bind(":srm_id", group->srmId);
 
@@ -320,6 +330,71 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     }
     groupsQuery->bind(":sample_ids", sample_ids);
 
+    string peakML_label = "";
+    if (group->isClassified) {
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 0)
+            peakML_label = "Noise";  
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 1)
+            peakML_label = "Signal";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 2)
+            peakML_label = "Signal with only correlation";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 3)
+            peakML_label = "Signal with only cohort-variance";        
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 4)
+            peakML_label = "Signal with correlation and cohort-variance";
+        if (PeakGroup::integralValueForLabel(group->predictedLabel()) == 5)
+            peakML_label = "May be good signal";   
+    }
+
+    groupsQuery->bind(":peakML_label_id",
+                      PeakGroup::integralValueForLabel(group->predictedLabel()));
+    groupsQuery->bind(":peakML_label", peakML_label);
+    groupsQuery->bind(":peakML_probability",
+                      group->predictionProbability());
+    groupsQuery->bind(":peakML_base_value", group->peakMLBaseValue);
+    groupsQuery->bind(":peakML_output_value", group->peakMLOutputValue);
+    string keyString = "";
+    string valueString = "";
+    auto inference = group->predictionInference();
+    if (!inference.empty()) {
+        for (auto& element : inference) {
+            keyString += to_string(element.first) + ",";
+            valueString += element.second + ",";
+        }
+        // remove extra delimiters at the end
+        keyString.pop_back();
+        valueString.pop_back();
+    }
+
+    string correlatedGroups = "";
+    if (group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::Correlation
+        || group->predictedLabel() == 
+        PeakGroup::ClassifiedLabel::CorrelationAndPattern)
+    {
+        correlatedGroups += "{";
+        auto correlatedGroupMap = group->getCorrelatedGroups();
+        int size = correlatedGroupMap.size();
+        int count = 0;
+        for(auto it = correlatedGroupMap.begin(); 
+        it != correlatedGroupMap.end(); 
+        it++)
+        {   
+            count++;
+            correlatedGroups += mzUtils::integer2string(it->first);
+            correlatedGroups += ": ";
+            correlatedGroups += mzUtils::float2string(it->second, 2);
+            if(count != size)
+                correlatedGroups += ", ";
+        }
+        correlatedGroups += "}";
+    }
+
+    groupsQuery->bind(":peakML_correlated_groups", correlatedGroups);
+
+    groupsQuery->bind(":peakML_inference_key", keyString);
+    groupsQuery->bind(":peakML_inference_value", valueString);
+
     if (!groupsQuery->execute())
         cerr << "Error: failed to save peak group" << endl;
 
@@ -335,6 +410,20 @@ int ProjectDatabase::saveGroupAndPeaks(PeakGroup* group,
     return lastInsertedGroupId;
 }
 
+pair<float, float> ProjectDatabase::_getRtMinMaxForSamples(vector<mzSample*> samples)
+{
+    float rtMin = numeric_limits<float>::max();
+    float rtMax = numeric_limits<float>::min();
+    for (auto sample : samples) {
+        if (sample->minRt < rtMin) 
+            rtMin = sample->minRt;
+        if (sample->maxRt > rtMax)
+            rtMax = sample->maxRt;
+    }
+    pair<float, float> rtPair(rtMin, rtMax);
+    return rtPair;
+}
+
 void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
                                      const int databaseId)
 {
@@ -342,7 +431,7 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
         cerr << "Error: failed to create peaks table" << endl;
         return;
     }
-
+    
     vector<EIC*> eics;
     if (_saveRawData && group->hasSlice()) {
         mzSlice eicSlice = group->getSlice();
@@ -353,14 +442,33 @@ void ProjectDatabase::saveGroupPeaks(PeakGroup* group,
             auto mzDelta = cutoff->massCutoffValue(group->meanMz);
             float mzMin = group->meanMz - mzDelta;
             float mzMax = group->meanMz + mzDelta;
-            float rtMin = max(group->minRt - rtPadding, 0.0f);
-            float rtMax = group->maxRt + rtPadding;
+            float rtMin, rtMax;
+            if (_saveChromatogramForRawData) {
+                // set rtMin and rtMax according the sample list
+                auto rtMinMaxPair = _getRtMinMaxForSamples(group->samples);
+                rtMin = rtMinMaxPair.first;
+                rtMax = rtMinMaxPair.second;
+            } else {
+                rtMin = max(group->minRt - rtPadding, 0.0f);
+                rtMax = group->maxRt + rtPadding;
+            }
             eicSlice = mzSlice(mzMin, mzMax, rtMin, rtMax);
         } else {
+            float rtMin, rtMax;
+            if (_saveChromatogramForRawData) {
+                // set rtMin and rtMax according the sample list
+                auto rtMinMaxPair = _getRtMinMaxForSamples(group->samples);
+                rtMin = max(rtMinMaxPair.first, 0.0f);
+                rtMax = rtMinMaxPair.second;
+            } else {
+                // Rt min and max for saving only group peak
+                rtMin = max(group->minRt - rtPadding, 0.0f);
+                rtMax = group->maxRt + rtPadding;
+            }
             if (mzUtils::almostEqual(eicSlice.rtmin, 0.0f))
-                eicSlice.rtmin = max(group->minRt - rtPadding, 0.0f);
+                eicSlice.rtmin = rtMin;
             if (mzUtils::almostEqual(eicSlice.rtmax, 1e9f))
-                eicSlice.rtmax = group->maxRt + rtPadding;
+                eicSlice.rtmax = rtMax;
         }
         eics = PeakDetector::pullEICs(&eicSlice,
                                       group->samples,
@@ -856,7 +964,10 @@ Cursor* _settingsSaveCommand(Connection* connection)
                      , :filter_adducts_against_parent    \
                      , :parent_isotope_required          \
                      , :parent_adduct_required           \
-                     , :peak_width_quantile              )");
+                     , :peak_width_quantile              \
+                     , :peakMlModel                      \
+                     , :badGroupUpperLimit               \
+                     , :goodGroupLowerLimit )");
     return cursor;
 }
 
@@ -1016,6 +1127,11 @@ void ProjectDatabase::saveGroupSettings(const PeakGroup* group, int groupId)
 
     auto settingsMap = fromParametersToMap(group->parameters());
     _bindSettingsFromMap(settingsQuery, settingsMap);
+
+    settingsQuery->bind(":peakMlModel", BSTRING(settingsMap.at("peakMlModel")));
+    settingsQuery->bind(":badGroupUpperLimit", BDOUBLE(settingsMap.at("badGroupUpperLimit")));
+    settingsQuery->bind(":goodGroupLowerLimit", BDOUBLE(settingsMap.at("goodGroupLowerLimit")));
+    
     if (!settingsQuery->execute())
         cerr << "Error: failed to save group settings." << endl;
 }
@@ -1111,9 +1227,26 @@ void ProjectDatabase::updateSamples(const vector<mzSample*> freshlyLoaded)
     }
 }
 
-vector<PeakGroup*>
-ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
-                            const MavenParameters* globalParams)
+map<string, bool> ProjectDatabase::loadTableSettings()
+{
+    auto tableQuery = _connection->prepare("SELECT *              \
+                                            FROM peakgroups GROUP BY table_name");
+
+    map<string, bool> tableResponse;
+    while (tableQuery->next())
+    {
+        int label = tableQuery->integerValue("peakML_label_id");
+        string tableName = tableQuery->stringValue("table_name");
+        bool hasClassified = false;
+        if(label >= 0)
+            hasClassified = true;
+        tableResponse[tableName] = hasClassified;
+    }
+    return tableResponse;
+}
+
+vector<PeakGroup*> ProjectDatabase::loadGroups(const vector<mzSample*>& loaded, 
+                                                const MavenParameters* globalParams)
 {
     map<int, map<string, variant>> settings = loadGroupSettings();
 
@@ -1144,7 +1277,7 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         int parentGroupId = groupsQuery->integerValue("parent_group_id");
 
         group->groupRank = groupsQuery->floatValue("group_rank");
-        group->label = groupsQuery->stringValue("label")[0];
+        group->setUserLabel(groupsQuery->stringValue("label")[0]);
         group->ms2EventCount = groupsQuery->integerValue("ms2_event_count");
         group->fragMatchScore.mergedScore =
             groupsQuery->doubleValue("ms2_score");
@@ -1171,10 +1304,35 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
         group->setTableName(groupsQuery->stringValue("table_name"));
         group->minQuality = groupsQuery->doubleValue("min_quality");
 
+        group->peakMLBaseValue = groupsQuery->doubleValue("peakML_base_value");
+        group->peakMLOutputValue = groupsQuery->doubleValue("peakML_output_value");
+
         string compoundId = groupsQuery->stringValue("compound_id");
         string compoundDB = groupsQuery->stringValue("compound_db");
         string compoundName = groupsQuery->stringValue("compound_name");
 
+        string correlatedGroups = groupsQuery->stringValue("peakML_correlated_groups");
+        
+        // removing json brackets.
+        if (correlatedGroups.size() > 2)
+        {  
+            correlatedGroups = correlatedGroups.substr(1, 
+                               correlatedGroups.size() - 2);
+            int correlatedGroupId;
+            float correlationFactor;
+            vector<string> eachGroup;
+            eachGroup = mzUtils::split(correlatedGroups, ", ");  
+            for (auto groupValue : eachGroup)
+            {
+                vector<string> values;
+                values = mzUtils::split(groupValue, ": ");
+                correlatedGroupId = mzUtils::string2integer(values[0]);
+                correlationFactor = mzUtils::string2float(values[1]);
+                group->addCorrelatedGroup(correlatedGroupId,
+                                          correlationFactor);
+            }    
+        }
+        
         string srmId = groupsQuery->stringValue("srm_id");
         if (!srmId.empty())
             group->setSrmId(srmId);
@@ -1237,6 +1395,32 @@ ProjectDatabase::loadGroups(const vector<mzSample*>& loaded,
             slice.isotope = isotope;
 
         group->setSlice(slice);
+
+        // load PeakML attributes (only if the prediction label is non-empty)
+        string predictedLabel = groupsQuery->stringValue("peakML_label_id");
+        if (!predictedLabel.empty()) {
+            int value = groupsQuery->integerValue("peakML_label_id");
+            float probability = groupsQuery->doubleValue("peakML_probability");
+            group->setPredictedLabel(PeakGroup::classificationLabelForValue(value),
+                                     probability);
+            string predictionInferenceKeys =
+                groupsQuery->stringValue("peakML_inference_key");
+            string predictionInferenceValues =
+                groupsQuery->stringValue("peakML_inference_value");
+            multimap<float, string> inference;
+            size_t keyPos = 0;
+            size_t valuePos = 0;
+            
+            auto splitKeys = mzUtils::split(predictionInferenceKeys, ",");
+            auto splitValues = mzUtils::split(predictionInferenceValues, ",");
+            
+            for (size_t i = 0; i < splitKeys.size(); i++) {
+                float key = mzUtils::string2float(splitKeys[i]);
+                string value = splitValues[i];
+                inference.insert(make_pair(key, value));
+            }
+            group->setPredictionInference(inference);
+        }
 
         loadGroupPeaks(group, databaseId, loaded);
         group->groupStatistics();
@@ -1659,6 +1843,10 @@ string _nextSettingsRow(Cursor* settingsQuery,
     settingsMap["mainWindowPeakQuantitation"] = settingsQuery->integerValue("main_window_peak_quantitation");
     settingsMap["mainWindowMassResolution"] = settingsQuery->doubleValue("main_window_mass_resolution");
 
+    settingsMap["peakMlModel"] = variant(settingsQuery->stringValue("peakMlModel"));
+    settingsMap["badGroupUpperLimit"] = variant(settingsQuery->doubleValue("badGroupUpperLimit"));
+    settingsMap["goodGroupLowerLimit"] = variant(settingsQuery->doubleValue("goodGroupLowerLimit"));
+
     // alignment settings, using the same key as DB column name
     settingsMap["alignment_algorithm"] = settingsQuery->integerValue("alignment_algorithm");
     settingsMap["alignment_good_peak_count"] = settingsQuery->integerValue("alignment_good_peak_count");
@@ -2076,6 +2264,9 @@ ProjectDatabase::fromParametersToMap(const shared_ptr<MavenParameters> mp)
 
     // active table is a session-level setting only
     settingsMap["activeTableName"] = string();
+    settingsMap["peakMlModel"] = mp->peakMlModelType;
+    settingsMap["badGroupUpperLimit"] = static_cast<double>(mp->badGroupUpperLimit);
+    settingsMap["goodGroupLowerLimit"] = static_cast<double>(mp->goodGroupLowerLimit);
 
     return settingsMap;
 }
@@ -2190,6 +2381,9 @@ ProjectDatabase::fromMaptoParameters(map<string, variant> settingsMap,
     // ?? = settingsMap["mainWindowPeakQuantitation"];
     // ?? settingsMap["mainWindowMassResolution"];
 
+    mp.peakMlModelType = BSTRING(settingsMap["peakMlModel"]);
+    mp.goodGroupLowerLimit = BDOUBLE(settingsMap["goodGroupLowerLimit"]);
+    mp.badGroupUpperLimit = BDOUBLE(settingsMap["badGroupUpperLimit"]);
     return mp;
 }
 

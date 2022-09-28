@@ -153,6 +153,7 @@ Q_SIGNALS:
 private:
     QString _username;
     QString credFile;
+    QString cookieFile;
     bool _hasIndexFile;
     DownloadManager* _dlManager;
     QTemporaryFile* _fPtr;

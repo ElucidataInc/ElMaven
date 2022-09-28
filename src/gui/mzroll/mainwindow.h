@@ -61,6 +61,7 @@ class Mixpanel;
 class InfoDialog;
 class ProjectSaveWorker;
 class TempProjectSaveWorker;
+class CorrelationTable;
 
 enum ThemeType : int {
     ElMavenLight = 0,
@@ -172,14 +173,6 @@ public:
 		return clsf;
 	}
 
-	groupClassifier * getGroupClassifier() {
- 		return groupClsf;
- 	}
- 
-  	svmPredictor * getSVMPredictor() {
- 		return groupPred;
- 	}
-
         LibraryManager* getLibraryManager() { return _libraryManager; }
 
     MatrixXf getIsotopicMatrix(PeakGroup* group, bool barplot = false);
@@ -252,6 +245,10 @@ public:
      * @return A pointer to the desired table if found, `nullptr` otherwise.
      */
     TableDockWidget* tableForTableId(int tableId);
+
+    CorrelationTable* getCorrelationTable() const {
+        return _correlationTable;
+    }
 
 Q_SIGNALS:
 	void valueChanged(int newValue);
@@ -347,6 +344,7 @@ public Q_SLOTS:
     void markGroup(shared_ptr<PeakGroup> group, char label);
     int getIonizationMode();
 	void setTotalCharge();
+    void showWarning(QString message);
 
     void setUserMassCutoff(double cutoff);
 	MassCutoff * getUserMassCutoff() {
@@ -354,7 +352,8 @@ public Q_SLOTS:
 	}
 	//Added when merging with Maven776 - Kiran
     SettingsForm* getSettingsForm() { return settingsForm; }
-    TableDockWidget* addPeaksTable(const QString& tableTitle="");
+    TableDockWidget* addPeaksTable(const QString& tableTitle="", 
+	                               bool hasClassifiedGroups = false);
 	//SpectralHitsDockWidget* addSpectralHitsTable(QString title); //TODO: Sahil - Kiran, Added while merging mainwindow
 
 	//Added when merging with Maven776 - Kiran
@@ -376,8 +375,10 @@ public Q_SLOTS:
      * @param filename String name of a  project file to save to.
      * @param saveRawData Whether the emDB should be saved with raw EIC and
      * spectra for peaks. `false` by default.
+     * @param saveChromatogram If emDB is saved with raw EIC data, saveChromatogram
+     * depicts whether the EIC(s) are to be sliced or whole chromatogram must be saved. 
      */
-    void threadSave(const QString filename, const bool saveRawData = false);
+    void threadSave(const QString filename, const bool saveRawData = false, const bool saveChromatogram = false);
 
     /**
      * @brief Get the latest project that was loaded/saved by the user.
@@ -499,9 +500,7 @@ private:
 	Analytics* analytics;
 	QSettings* settings;
 	ClassifierNeuralNet* clsf;
-	groupClassifier* groupClsf;
- 	svmPredictor* groupPred;
-	 
+
 	QList<QPointer<TableDockWidget> > groupTables;
 	//Added when merging with Maven776 - Kiran
     QMap< QPointer<TableDockWidget>, QToolButton*> groupTablesButtons;
@@ -537,6 +536,7 @@ private:
 
     Mixpanel* _usageTracker;
     InfoDialog* _infoDialog;
+    CorrelationTable* _correlationTable;
 
     /**
      * @brief The table currently being browsed by the user. Defaults to the

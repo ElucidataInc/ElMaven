@@ -4,6 +4,7 @@
 
 #include "alignmentdialog.h"
 #include "common/analytics.h"
+#include "common/mixpanel.h"
 #include "backgroundopsthread.h"
 #include "database.h"
 #include "ligandwidget.h"
@@ -14,6 +15,12 @@
 #include "peakdetectiondialog.h"
 #include "peakdetector.h"
 #include "tabledockwidget.h"
+#include "pollyelmaveninterface.h"
+#include "mzUtils.h"
+#include "pollyintegration.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dialog)
 {
@@ -40,6 +47,10 @@ PeakDetectionSettings::PeakDetectionSettings(PeakDetectionDialog* dialog):pd(dia
     settings.insert("matchRt", QVariant::fromValue(pd->matchRt));
     settings.insert("compoundRtWindow", QVariant::fromValue(pd->compoundRTWindow));
     settings.insert("limitGroupsPerCompound", QVariant::fromValue(pd->eicMaxGroups));
+
+    //peakMl curation
+    settings.insert("peakMlCuration", QVariant::fromValue(pd->peakMl));
+    settings.insert("modelTypes", QVariant::fromValue(pd->modelTypes));
 
     // fragmentation settings
     settings.insert("matchFragmentation", QVariant::fromValue(pd->matchFragmentationOptions));
@@ -122,6 +133,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         setModal(false);
         peakupdater = NULL;
 
+        _peakMlSet = false;
+
         massCutoffType = "ppm";
         peakSettings = new PeakDetectionSettings(this);
 
@@ -129,6 +142,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         if (mainwindow) peakupdater->setMainWindow(mainwindow);
 
         _inDetectionMode = false;
+        
+        auto tracker = parent->getUsageTracker();
 
         connect(resetButton, &QPushButton::clicked, this, &PeakDetectionDialog::onReset);
         connect(compoundDatabase, SIGNAL(currentTextChanged(QString)), SLOT(toggleFragmentation()));
@@ -182,6 +197,24 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 mainwindow->massCalcWidget->fragPpm,
                 SLOT(setValue(double)));
 
+        _slider = new RangeSlider(Qt::Horizontal, RangeSlider::Option::DoubleHandles, this);
+        verticalLayout_3->addWidget(_slider);
+        connect(peakMl, &QGroupBox::toggled,
+                [this, tracker](const bool checked)
+                {
+                    if(checked){
+                        getLoginForPeakMl();
+                    }
+                    else{
+                        _peakMlSet = false;
+                        mainwindow->mavenParameters->classifyUsingPeakMl = false;
+                        modelTypes->setEnabled(false);
+                    }
+                    QMap<QString, QVariant> eventDetails;
+                    eventDetails["Clicked button"] = "PeakML";
+                    tracker->trackEvent("Peak detection dialog", eventDetails);
+                });
+        connect (_slider, SIGNAL(rangeChanged(int, int)), this, SLOT(updateCurationParameter(int, int)));
         connect(quantileIntensity,SIGNAL(valueChanged(int)),this, SLOT(showIntensityQuantileStatus(int)));
         connect(quantileQuality, SIGNAL(valueChanged(int)), this, SLOT(showQualityQuantileStatus(int)));
         connect(quantileSignalBaselineRatio, SIGNAL(valueChanged(int)), this, SLOT(showBaselineQuantileStatus(int)));
@@ -196,6 +229,8 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
         label_20->setVisible(false);
         chargeMin->setVisible(false);
         chargeMax->setVisible(false);
+
+
 
         connect(dbSearch, SIGNAL(toggled(bool)), SLOT(dbSearchClicked()));
         featureOptions->setChecked(false);
@@ -217,6 +252,84 @@ PeakDetectionDialog::PeakDetectionDialog(MainWindow* parent) :
                 });
 }
 
+void PeakDetectionDialog::getLoginForPeakMl()
+{
+    auto fileLocation = QStandardPaths::writableLocation(
+                        QStandardPaths::GenericConfigLocation)
+                        + QDir::separator();
+
+    auto cookieFile = fileLocation + "El-MAVEN_cookie.json";
+    QFile file(cookieFile);
+    if (file.exists()) {
+        loginSuccessful();
+    }
+    else {
+        // Remove cred file and refreshTokenFile to maintain
+        // consistency.
+        auto credFile = fileLocation + "cred_file";
+        QFile file (credFile);
+        file.remove();
+        QFile refreshTokenFile (credFile + "_refreshToken");
+        refreshTokenFile.remove();
+        mainwindow->pollyElmavenInterfaceDialog->loginForPeakMl();
+    }     
+}
+
+void PeakDetectionDialog::handleAuthorization(QMap<QString, int> modelDetails, QString status) {
+    if (status != "OK") {
+        unsuccessfulLogin();
+        auto htmlText = QString("<p><b>Something went wrong. Kindly check for your authentication</b></p>");
+            htmlText += "<p>Please contact tech support at elmaven@elucidata.io if the problem persists.</p>";
+        mainwindow->showWarning(htmlText);
+    } else {
+        QMapIterator<QString, int> iterator(modelDetails);
+        while (iterator.hasNext()) {
+            iterator.next();
+            string modelName = iterator.key().toStdString();
+            mainwindow->mavenParameters->availablePeakMLModels.insert({modelName, iterator.value()});
+            modelTypes->addItem(iterator.key());
+        }
+    }
+}
+
+bool PeakDetectionDialog::_checkForCohortFile()
+{
+    auto samples = mainwindow->samples;
+    
+    for (auto sample : samples) {
+        if (sample->getSetName() == "") 
+            return false;
+    }
+    return true;
+}
+
+void PeakDetectionDialog::loginSuccessful()
+{ 
+    bool cohortUploaded = _checkForCohortFile();
+    if (!cohortUploaded) {
+        QString warningMessage = QString("<p><b>Cohorts must be defined to be able to run Polly-PeakML.</b></p>");
+        warningMessage += "<p>Please define cohorts for the samples and try again later.</p>";
+
+        mainwindow->showWarning(warningMessage);
+        unsuccessfulLogin();
+        return;
+    }
+    _peakMlSet = true;
+    peakMl->setChecked(true);
+    mainwindow->mavenParameters->classifyUsingPeakMl = true;
+    modelTypes->setEnabled(true);
+    mainwindow->pollyElmavenInterfaceDialog->getModelsForPeakML();
+}
+
+void PeakDetectionDialog::unsuccessfulLogin()
+{   
+    _peakMlSet = false;
+    peakMl->setChecked(false);
+    modelTypes->setEnabled(false);
+    if(mainwindow)
+        mainwindow->mavenParameters->classifyUsingPeakMl = false;
+}
+
 void PeakDetectionDialog::onReset()
 {
     emit resetSettings(peakSettings->getSettings().keys());
@@ -229,6 +342,22 @@ void PeakDetectionDialog::setMassCutoffType(QString type)
     ppmStep->setSuffix(suffix);
     compoundPPMWindow->setSuffix(suffix);
     emit updateSettings(peakSettings);
+}
+
+void PeakDetectionDialog::updateCurationParameter(int lowerRange, int upperRange)
+{
+    float noiseLimit = lowerRange/10.0;
+    float maybeGoodLimit = upperRange/10.0;
+    
+    QString noiseLabel= "Noise Range: 0.0 - ";
+    noiseLabel += QString::fromStdString(mzUtils::float2string(noiseLimit, 1));
+    noiseRange->setText(noiseLabel);
+
+    QString signalLabel= "Signal Range: ";
+    signalLabel += QString::fromStdString(mzUtils::float2string(maybeGoodLimit, 1));
+    signalLabel += " - 1.0";
+    signalRange->setText(signalLabel);
+
 }
 
 void PeakDetectionDialog::setQuantType(QString type)
@@ -306,6 +435,7 @@ void PeakDetectionDialog::cancel()
         peakupdater->completeStop();
         setProgressBar("Cancelled", 0, 1);
     }
+    setDetectionMode(false);
 }
 
 void PeakDetectionDialog::initPeakDetectionDialogWindow(
@@ -343,6 +473,11 @@ void PeakDetectionDialog::displayAppropriatePeakDetectionDialog(
 void PeakDetectionDialog::show() {
 
     if (mainwindow == NULL) return;
+
+    peakMl->setChecked(false);
+    _peakMlSet = false;
+    mainwindow->mavenParameters->classifyUsingPeakMl = false;
+    modelTypes->setEnabled(false);
 
     mainwindow->getAnalytics()->hitScreenView("PeakDetectionDialog");
     // delete(peakupdater);
@@ -396,7 +531,7 @@ void PeakDetectionDialog::inputInitialValuesPeakDetectionDialog() {
             if (!db.empty()) compoundDatabase->addItem(QString(db.c_str()));
         }
         matchFragmentationOptions->setChecked(fragmentationWasEnabled);
-
+        modelTypes->clear();
         // selecting the compound database that is selected by the user in the
         // ligand widget
         QString selectedDB = mainwindow->ligandWidget->getDatabaseName();
@@ -480,6 +615,7 @@ void PeakDetectionDialog::setDetectionMode(bool detectionModeOn)
         peakScoringOptions->setDisabled(true);
         computeButton->setDisabled(true);
         resetButton->setDisabled(true);
+        peakMl->setDisabled(true);
     } else {
         featureOptions->setEnabled(true);
         dbSearch->setEnabled(true);
@@ -487,6 +623,7 @@ void PeakDetectionDialog::setDetectionMode(bool detectionModeOn)
         peakScoringOptions->setEnabled(true);
         computeButton->setEnabled(true);
         resetButton->setEnabled(true);
+        peakMl->setEnabled(true);
     }
 }
 
@@ -548,7 +685,8 @@ void PeakDetectionDialog::findPeaks()
                                              "No filter");
     }
 
-    TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName);
+    TableDockWidget* peaksTable = mainwindow->addPeaksTable(dbName, 
+                                                            mainwindow->mavenParameters->classifyUsingPeakMl);
 
     // disconnect prvevious connections
     disconnect(peakupdater, SIGNAL(newPeakGroup(PeakGroup*)), 0, 0);
@@ -566,6 +704,18 @@ void PeakDetectionDialog::findPeaks()
                 setDetectionMode(false);
                 close();
             });
+    connect(peakupdater, 
+            &BackgroundOpsThread::toggleCancel, 
+            this,
+            [this] {
+                if (cancelButton->isEnabled()) {
+                    cancelButton->setEnabled(false);
+                } else {
+                    cancelButton->setEnabled(true);
+                }     
+            });
+
+    
     peakupdater->setPeakDetector(new PeakDetector(peakupdater->mavenParameters));
 
     // RUN THREAD
@@ -666,7 +816,16 @@ void PeakDetectionDialog::updateQSettingsWithUserInput(QSettings* settings) {
 
 void PeakDetectionDialog::setMavenParameters(QSettings* settings) {
     if (peakupdater->isRunning()) return;
+    
+    if(_peakMlSet) {
+        mainwindow->mavenParameters->classifyUsingPeakMl = true;
+        mainwindow->mavenParameters->badGroupUpperLimit = _slider->GetLowerValue() / 10.0;
+        mainwindow->mavenParameters->goodGroupLowerLimit = _slider->GetUpperValue() / 10.0;
+        mainwindow->mavenParameters->peakMlModelType = modelTypes->currentText().toStdString();
+    }
+
     MavenParameters* mavenParameters = mainwindow->mavenParameters;
+    
     if (settings != NULL) {
 
         mavenParameters->writeCSVFlag = false;

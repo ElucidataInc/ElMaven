@@ -839,6 +839,19 @@ namespace mzUtils
      */
     int numSystemCpus();
 
+    /**
+     * @brief Compare dates of format yyyy-mm-dd. 
+     * @return Returns -1 if date1 is smaller, 0 if
+     * two dates are equal and 1 is date1 is bigger.
+     */ 
+    int compareDates(string date1, string date2);
+
+    /**
+     * @brief Compare time in 24hr format like - 15:39:40.
+     * @return Returns true, if time1 < time2.
+     */
+    bool compareTime(string time1, string time2); 
+
 }  // namespace mzUtils
 
 template<typename T>

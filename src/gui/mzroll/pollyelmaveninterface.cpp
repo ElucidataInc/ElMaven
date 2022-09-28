@@ -13,6 +13,10 @@
 #include "pollywaitdialog.h"
 #include "projectdockwidget.h"
 #include "tabledockwidget.h"
+#include "peakdetectiondialog.h"
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     : QDialog(mw), _mainwindow(mw), _loginform(nullptr)
@@ -27,6 +31,7 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
     _activeTable = nullptr;
     _pollyIntegration = _mainwindow->getController()->iPolly;
     _loadingDialog = new PollyWaitDialog(this);
+    _loadingDialogForPeakML = new PollyWaitDialog(_mainwindow->peakDetectionDialog);
     _uploadInProgress = false;
     _lastCohortFileWasValid = false;
     
@@ -78,8 +83,18 @@ PollyElmavenInterfaceDialog::PollyElmavenInterfaceDialog(MainWindow* mw)
             SIGNAL(filesUploaded(QStringList, QString, QString)),
             this,
             SLOT(_performPostFilesUploadTasks(QStringList, QString, QString)));
+            
+    // Register QMap<QString, int>
+    qRegisterMetaType<StringMap>("StringMap");
+    connect(_worker, 
+            SIGNAL(peakMLAuthenticationFinished(StringMap, QString)),
+            this,
+            SLOT(peakMLAccessControl(StringMap, QString)));
+    connect(this, 
+            &PollyElmavenInterfaceDialog::peakMLAccess,
+            _mainwindow->peakDetectionDialog,
+            &PeakDetectionDialog::handleAuthorization);        
 }
-
 PollyElmavenInterfaceDialog::~PollyElmavenInterfaceDialog()
 {
     qDebug() << "exiting PollyElmavenInterfaceDialog now....";
@@ -101,6 +116,9 @@ void EPIWorkerThread::run()
     case RunMethod::SendEmail:
         _sendEmail();
         break;
+    case RunMethod::FetchPeakMLModels:
+        _getModels();
+        break;  
     default:
         break;
     }
@@ -209,6 +227,124 @@ void PollyElmavenInterfaceDialog::_enableExistingProjectUi()
     QCoreApplication::processEvents();
 }
 
+void PollyElmavenInterfaceDialog::loginForPeakMl()
+{
+    try {
+        _callLoginForm(false);
+    } catch (...) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowModality(Qt::NonModal);
+        msgBox.setWindowTitle("Error in loading login form");
+        msgBox.exec();
+    } 
+}
+
+void PollyElmavenInterfaceDialog::getModelsForPeakML() 
+{
+    _worker->wait();
+    _worker->setMethodToRun(EPIWorkerThread::RunMethod::FetchPeakMLModels);
+    _worker->start();
+    
+    _loadingDialogForPeakML->setWindowFlag(Qt::WindowTitleHint, true);
+    _loadingDialogForPeakML->open();
+    _loadingDialogForPeakML->statusLabel->setVisible(true);
+    _loadingDialogForPeakML->statusLabel->setStyleSheet("QLabel {color : green;}");
+    _loadingDialogForPeakML->statusLabel->setText("Fetching user data...");
+    _loadingDialogForPeakML->label->setVisible(true);
+    _loadingDialogForPeakML->label->setMovie(_loadingDialogForPeakML->movie);
+    _loadingDialogForPeakML->label->setAlignment(Qt::AlignCenter);
+    QCoreApplication::processEvents();
+}
+
+void PollyElmavenInterfaceDialog::peakMLAccessControl(QMap<QString, int> modelDetails, QString status) {
+    _loadingDialogForPeakML->close();
+    emit peakMLAccess(modelDetails, status);
+}
+
+void EPIWorkerThread::_getModels() {
+    QStringList args;
+    QMap<QString, int> modelDetails;
+    
+    auto cookieFile = QStandardPaths::writableLocation(
+                    QStandardPaths::GenericConfigLocation)
+                    + QDir::separator() 
+                    + "El-MAVEN_cookie.json" ;
+    
+    ifstream readCookie(cookieFile.toStdString());
+    if(!readCookie.is_open()) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
+    json cookieInput = json::parse(readCookie);
+    string refreshToken = cookieInput["refreshToken"];
+    string idToken = cookieInput["idToken"];
+
+    QString cookies;
+    cookies += "refreshToken=";
+    cookies += QString::fromStdString(refreshToken);
+    cookies += ";";
+    cookies += "idToken=";
+    cookies += QString::fromStdString(idToken);
+
+    args << cookies;
+    
+    auto res = _pollyIntegration->runQtProcess("fetchModels", args);
+
+    if (!res.size()) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
+    //if there is standard error look for error message
+    QByteArray errorResponse = res.at(1);
+    string errorString = errorResponse.toStdString();
+
+    if (mzUtils::contains(errorString, "unauthorized")) {
+        if (QFile::exists(cookieFile)) {
+            remove(cookieFile.toStdString().c_str());
+        }
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
+    QString str(res[0].constData());
+    if (str.isEmpty()) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
+    auto splitString = mzUtils::split(str.toStdString(), "\n");
+    auto data = splitString[splitString.size() - 2];
+    json dataObject = json::parse(data);
+    
+    if(dataObject["data"].is_null()) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+        return;
+    }
+
+    if (dataObject["data"].size() == 0) {
+        emit peakMLAuthenticationFinished(modelDetails, "Error");
+    }
+    
+    for (size_t i = 0; i < dataObject["data"].size(); i++) {
+        string underscoredModelName = dataObject["data"][i]["attributes"]["model_name"].get<string>();
+        // ModelName on AWS exists with underscores. These underscores should be
+        // replaced by spaces which is more presentable.
+        auto splitExtension = mzUtils::split(underscoredModelName, ".dat");
+        auto removeUnderscore =  mzUtils::split(splitExtension[0], "_");
+        string modelName = "";
+        for (int i = 0; i < removeUnderscore.size(); i++) {
+            modelName += removeUnderscore[i];
+            if (i != removeUnderscore.size() -1)
+                modelName += " ";
+        }
+        QString qtStringModelName = QString::fromStdString(modelName);
+        modelDetails[qtStringModelName] = dataObject["data"][i]["attributes"]["model_id"].get<int>();
+    }
+    emit peakMLAuthenticationFinished(modelDetails, "OK");
+}
+
 void PollyElmavenInterfaceDialog::initialSetup()
 {
     int nodeStatus = _pollyIntegration->checkNodeExecutable();
@@ -254,9 +390,9 @@ void PollyElmavenInterfaceDialog::showEPIError(QString errorMessage)
     QCoreApplication::processEvents();
 }
 
-void PollyElmavenInterfaceDialog::_callLoginForm()
+void PollyElmavenInterfaceDialog::_callLoginForm(bool showPollyApps)
 {
-    _loginform = new LoginForm(this);
+    _loginform = new LoginForm(this, showPollyApps);
     _loginform->setModal(true);
     _loginform->show();
 }
@@ -294,6 +430,7 @@ void PollyElmavenInterfaceDialog::_handleAuthentication(QString username,
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : green;}");
         _loadingDialog->statusLabel->setText("Fetching user data…");
         usernameLabel->setText(username);
+        userName = username.toStdString();
         QCoreApplication::processEvents();
     } else if (status == "error") {
         _loadingDialog->statusLabel->setStyleSheet("QLabel {color : red;}");
@@ -419,9 +556,9 @@ void PollyElmavenInterfaceDialog::_reviseGroupOptions(QString tableName)
     bool anyGood = false;
     bool allBad = true;
     for (auto group : groups) {
-        if (group->label == 'g')
+        if (group->userLabel() == 'g')
             anyGood = true;
-        if (group->label != 'b')
+        if (group->userLabel() != 'b')
             allBad = false;
     }
     auto modelAlt = dynamic_cast<QStandardItemModel*>(groupSetComboAlt->model());
@@ -765,7 +902,14 @@ PollyElmavenInterfaceDialog::_prepareSessionFiles(QString datetimestamp)
                            + datetimestamp
                            + "_"
                            + "session.emDB";
-    if (_mainwindow->fileLoader->writeSQLiteProjectForPolly(emdbFilename)) {
+    bool saveRawData = exportRawData->isChecked();
+    bool saveChromatogram;
+    if (saveRawData && slicedEic->isChecked()) {
+        saveChromatogram = false;
+    }  else if (saveRawData && chromatogram->isChecked()) {
+        saveChromatogram = true;
+    }
+    if (_mainwindow->fileLoader->writeSQLiteProjectForPolly(emdbFilename, saveRawData, saveChromatogram)) {
         filenames.append(emdbFilename);
     } else {
         _showErrorMessage("Error",

@@ -129,7 +129,15 @@
                                            , isotope_c13_count                  INTEGER                           \
                                            , isotope_n15_count                  INTEGER                           \
                                            , isotope_s34_count                  INTEGER                           \
-                                           , isotope_h2_count                   INTEGER                           );"
+                                           , isotope_h2_count                   INTEGER                           \
+                                           , peakML_label_id                    INTEGER                           \
+                                           , peakML_label                       TEXT                              \
+                                           , peakML_probability                 REAL                              \
+                                           , peakML_inference_key               TEXT                              \
+                                           , peakML_inference_value             TEXT                              \
+                                           , peakML_correlated_groups           TEXT                              \
+                                           , peakML_base_value                  REAL                              \
+                                           , peakML_output_value                REAL                              );"
 
 #define CREATE_COMPOUNDS_TABLE \
     "CREATE TABLE IF NOT EXISTS compounds ( compound_id           TEXT               \
@@ -273,7 +281,10 @@
                                               , filter_adducts_against_parent    INTEGER \
                                               , parent_isotope_required          INTEGER \
                                               , parent_adduct_required           INTEGER \
-                                              , peak_width_quantile              INTEGER );"
+                                              , peak_width_quantile              INTEGER \
+                                              , peakMlModel                      TEXT    \
+                                              , badGroupUpperLimit               REAL    \
+                                              , goodGroupLowerLimit              REAL    );"
 
 #define CREATE_COMPOUNDS_DB_INDEX \
     "CREATE INDEX IF NOT EXISTS compounds_db_idx    \

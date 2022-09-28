@@ -2,12 +2,14 @@
 #define PEAKDETECTIONDIALOG_H
 
 #include "ui_peakdetectiondialog.h"
+#include "rangeSlider.h"
 #include "stable.h"
 
 class MainWindow;
 class TableDockWidget;
 class BackgroundOpsThread;
 class PeakDetectionSettings;
+class RangeSlider;
 
 class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 {
@@ -33,6 +35,10 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				 void showInfo(QString text);
 				 void cancel();
                  void initPeakDetectionDialogWindow(FeatureDetectionType type);
+                 void getLoginForPeakMl();
+                 void loginSuccessful();
+                 void unsuccessfulLogin();
+                 void updateCurationParameter(int lowerRange, int upperRange);
 
                  /**
                   * @brief Disables or enables certain UI elements, based on
@@ -58,6 +64,7 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
                  void setQuantType(QString type);
                  void triggerSettingsUpdate();
                 void onReset();
+                void handleAuthorization(QMap<QString, int> models, QString status);
 
                 Q_SIGNALS:
                     void updateSettings(PeakDetectionSettings* pd);
@@ -79,10 +86,19 @@ class PeakDetectionDialog : public QDialog, public Ui_PeakDetectionDialog
 				FeatureDetectionType _featureDetectionType;
                 PeakDetectionSettings* peakSettings;
                 bool _inDetectionMode;
+                vector<string> _modelsList;
+                bool _peakMlSet;
+                RangeSlider* _slider; 
 
                 // void displayAppropriatePeakDetectionDialog(FeatureDetectionType type); //TODO: Sahil - Kiran, removed while merging mainwindow
                 void inputInitialValuesPeakDetectionDialog();
                 void updateQSettingsWithUserInput(QSettings *settings);
+                /**
+                 * @brief peakML must only be given access if the user has uploaded 
+                 * cohort file. This function checks if cohort file is uploaded or not.
+                 * @return Boolean that determines whether uploaded or not.
+                 */ 
+                bool _checkForCohortFile();
 };
 
 Q_DECLARE_METATYPE(QString*)

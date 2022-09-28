@@ -23,11 +23,11 @@ JSONReports::JSONReports(MavenParameters* mp, bool pollyUpload):
 void JSONReports::_writeGroup(PeakGroup& grp, ofstream& filename)
 {
     //add labels to json file
-    char label = grp.label;
+    char label = grp.userLabel();
     PeakGroup* parentGroup = grp.getParent();
     if (parentGroup) {
-        if (grp.label == '\0') {
-            label = parentGroup->label;
+        if (grp.userLabel() == '\0') {
+            label = parentGroup->userLabel();
         }
     }
 
@@ -305,7 +305,7 @@ TEST_CASE_FIXTURE(SampleLoadingFixture,"Test writing to the JSON file")
 {
     targetedGroup();
     string jsonFilename = "test.json";
-    JSONReports* jsonReports = new JSONReports(mavenparameters(), false);
+    JSONReports* jsonReports = new JSONReports(mavenparameters());
     auto samplesUsed = samples();
     sort(begin(samplesUsed), end(samplesUsed), mzSample::compSampleSort);
     jsonReports->save(jsonFilename, allgroups(), samplesUsed);

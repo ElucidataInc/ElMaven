@@ -1,15 +1,50 @@
 #include "common/alphanum.hpp"
 
 #include "numeric_treewidgetitem.h"
+#include "PeakGroup.h"
+
+static PeakGroup::ClassifiedLabel labelForString(const QString& labelString)
+{
+    if (labelString == "PeakGroup::ClassifiedLabel::Signal") {
+        return PeakGroup::ClassifiedLabel::Signal;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::Noise") {
+        return PeakGroup::ClassifiedLabel::Noise;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::Correlation") {
+        return PeakGroup::ClassifiedLabel::Correlation;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::Pattern") {
+        return PeakGroup::ClassifiedLabel::Pattern;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::CorrelationAndPattern") {
+        return PeakGroup::ClassifiedLabel::CorrelationAndPattern;
+    } else if (labelString == "PeakGroup::ClassifiedLabel::MaybeGood") {
+        return PeakGroup::ClassifiedLabel::MaybeGood;
+    }
+
+    return PeakGroup::ClassifiedLabel::None;
+}
 
 bool NumericTreeWidgetItem::operator<( const QTreeWidgetItem & other ) const
 {
     int sortCol = treeWidget()->sortColumn();
+    
+    // hack to prevent sorting of child tree-widget items (such as isotopes that
+    // need to have a fixed sort order
+    if (parent() != nullptr && sortCol != 1)
+        return false;
 
     // hack to prevent sorting of child tree-widget items (such as isotopes that
     // need to have a fixed sort order)
     if (parent() != nullptr && type() == 0 && sortCol != 1)
         return false;
+        
+    // takes care of sorting based on PeakML class labels
+    QString thisLabelString = this->data(sortCol, Qt::UserRole).value<QString>();
+    QString otherLabelString = other.data(sortCol, Qt::UserRole).value<QString>();
+    auto thisLabel = labelForString(thisLabelString);
+    auto otherLabel = labelForString(otherLabelString);
+    if (thisLabel != PeakGroup::ClassifiedLabel::None
+        || otherLabel != PeakGroup::ClassifiedLabel::None) {
+        return thisLabel < otherLabel;
+    }
 
     QString thisText = text(sortCol);
     QString otherText = other.text(sortCol);
