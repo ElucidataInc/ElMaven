@@ -284,7 +284,8 @@ after_success:
       echo "Codesigning the installer ..."
       cd $PARENT_DIR
 
-      codesign -s "Elucidata Corporation" $INSTALLER.app
+      codesign  –v –v -s "Elucidata corporation" -o runtime $INSTALLER.app
+      codesign –v –v=4 $INSTALLER.app
 
       if [ $? != 0 ]; then
         echo "Failed to sign installer. Make sure the certificate exists."
